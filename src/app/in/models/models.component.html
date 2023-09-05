@@ -92,6 +92,7 @@
             <mat-grid-tile colspan="3" class="max-height">
                 <app-field-content *ngIf="selected_field != ''" class="max-height max-width"
                     [field]="schema.fields[selected_field]"
+                    [inheritdict]="are_field_inherited"
                     [fields]="fields_for_selected_class"
                     [actual_field]="selected_field"
                     [types]="types"

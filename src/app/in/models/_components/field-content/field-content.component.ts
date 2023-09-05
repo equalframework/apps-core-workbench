@@ -10,6 +10,7 @@ import { isEqual, cloneDeep } from 'lodash';
 
 export class FieldContentComponent implements OnInit {
 
+    @Input() inheritdict: { [id: string] : boolean };
     @Input() field: any;
     @Input() fields: any;
     @Input() types: any;
