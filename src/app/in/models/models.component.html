@@ -78,14 +78,15 @@
         <mat-grid-list cols="4" class="max-height">
             <!-- Field search list, on the left of the screen -->
             <mat-grid-tile colspan="1" class="max-height">
-                <app-search-list class="max-height max-width"
+                <app-search-list-field class="max-height max-width"
                     [data]="fields_for_selected_class"
+                    [inheritdict]="are_field_inherited"
                     [selected_node]="selected_field"
                     (nodeSelect)="onclickFieldSelect($event)"
                     (nodeUpdate)="onupdateField($event)"
                     (nodeDelete)="ondeleteField($event)"
                     (nodeCreate)="oncreateField($event)">
-                </app-search-list>
+                </app-search-list-field>
             </mat-grid-tile>
             <!-- Field content -->
             <mat-grid-tile colspan="3" class="max-height">

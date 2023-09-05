@@ -25,6 +25,7 @@ export class ModelsComponent implements OnInit {
     private eq_class: any;
     public schema: any;
     public fields_for_selected_class: string[];
+    public are_field_inherited: { [id: string] : boolean } = {};
     public types: any;
     @ViewChild(FieldContentComponent) childComponent: FieldContentComponent;
 
@@ -105,9 +106,50 @@ export class ModelsComponent implements OnInit {
         this.selected_class = eq_class;
         this.selected_field = "";
         this.child_loaded = false;
+        console.log(this.selected_class)
         this.schema = await this.api.getSchema(this.selected_package + '\\' + this.selected_class);
-        this.fields_for_selected_class = Object.keys(this.schema.fields);
+        this.fields_for_selected_class = this.loadUsableField() 
+        this.are_field_inherited = await this.generateInheritedDict()
+        console.log(this.are_field_inherited)
         this.step = 2;
+    }
+
+    /**
+     * 
+     * 
+     * 
+     * @returns a list of the editable field of the class
+     */
+    public loadUsableField():string[] {
+        var a:string[] = []
+        var nonUsable:string[] = ["id","deleted","state"]
+        var fields = this.schema.fields
+        for(var key in fields) {
+            if((nonUsable.includes(key))) continue
+            a.push(key)
+        }
+        return a
+    }
+
+    public async generateInheritedDict():Promise<{ [id: string] : boolean }> {
+        var res:{ [id: string] : boolean } = {}
+        var fields = this.schema.fields
+        var parent_fields
+        if (this.schema['parent'] === "equal\\orm\\Model") {
+            parent_fields = Model
+        } 
+        else {
+            var parent_scheme = await this.api.getSchema(this.schema['parent'])
+            var parent_fields = parent_scheme.fields
+        }
+        for(var key in fields) {
+            if(parent_fields[key] !== undefined){
+                res[key] = true
+                continue
+            }
+            res[key] = false
+        }
+        return res
     }
 
     /**
@@ -242,3 +284,6 @@ export class ModelsComponent implements OnInit {
     }
 
 }
+
+// This is the object that should be returned by await this.api.getSchema('equal\orm\model')
+var Model = {"id":{"type":"integer","readonly":true},"creator":{"type":"many2one","foreign_object":"core\\User","default":1},"created":{"type":"datetime","default":"2023-09-05T11:49:53+00:00","readonly":true},"modifier":{"type":"many2one","foreign_object":"core\\User","default":1},"modified":{"type":"datetime","default":"2023-09-05T11:49:53+00:00","readonly":true},"deleted":{"type":"boolean","default":false},"state":{"type":"string","selection":["draft","instance","archive"],"default":"instance"},"name":{"type":"alias","alias":"id"}}

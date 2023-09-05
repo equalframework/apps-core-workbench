@@ -30,6 +30,7 @@ import { UsageComponent } from './_components/field-content/_components/usage/us
 import { SharedLibModule, CustomDateAdapter } from 'sb-shared-lib';
 import { ModelsComponent } from './models.component';
 import { ModelsRoutingModule } from './models-routing.module';
+import { SearchListFieldComponent } from './_components/search-list-field/search-list-field.component';
 
 @NgModule({
     imports: [
@@ -45,6 +46,7 @@ import { ModelsRoutingModule } from './models-routing.module';
     declarations: [
         ModelsComponent,
         SearchListComponent,
+        SearchListFieldComponent,
         DeleteConfirmationComponent,
         FieldContentComponent,
         RouterPropertyComponent,
@@ -59,7 +61,7 @@ import { ModelsRoutingModule } from './models-routing.module';
         AutoCompleteComponent,
         ValueComponent,
         ValueSelectionComponent,
-        UsageComponent,
+        UsageComponent
     ],
     providers: [
         DatePipe,
