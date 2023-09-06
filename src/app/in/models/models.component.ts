@@ -4,6 +4,9 @@ import { WorkbenchService } from './_service/models.service'
 import { FieldContentComponent } from './_components/field-content/field-content.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { prettyPrintJson } from 'pretty-print-json';
+import { FieldClassArray } from './_object/FieldClassArray';
+import { FieldClass } from './_object/FieldClass';
+import { fi } from 'date-fns/locale';
 
 @Component({
   selector: 'app-models',
@@ -24,8 +27,7 @@ export class ModelsComponent implements OnInit {
     // http://equal.local/index.php?get=core_config_classes
     private eq_class: any;
     public schema: any;
-    public fields_for_selected_class: string[];
-    public are_field_inherited: { [id: string] : boolean } = {};
+    public fields_for_selected_class: FieldClassArray;
     public types: any;
     @ViewChild(FieldContentComponent) childComponent: FieldContentComponent;
 
@@ -108,9 +110,7 @@ export class ModelsComponent implements OnInit {
         this.child_loaded = false;
         console.log(this.selected_class)
         this.schema = await this.api.getSchema(this.selected_package + '\\' + this.selected_class);
-        this.are_field_inherited = await this.generateInheritedDict()
-        this.fields_for_selected_class = this.loadUsableField() 
-
+        this.fields_for_selected_class = await this.loadUsableField() 
         this.step = 2;
     }
 
@@ -120,20 +120,9 @@ export class ModelsComponent implements OnInit {
      * 
      * @returns a list of the editable field of the class
      */
-    public loadUsableField():string[] {
-        var a:string[] = []
+    public async loadUsableField():Promise<FieldClassArray> {
+        var a:FieldClassArray = new FieldClassArray
         var nonUsable:string[] = ["id","deleted","state"]
-        var fields = this.schema.fields
-        for(var key in fields) {
-            if((nonUsable.includes(key))) continue
-            a.push(key)
-        }
-        return this.fieldSort(a)
-
-    }
-
-    public async generateInheritedDict():Promise<{ [id: string] : boolean }> {
-        var res:{ [id: string] : boolean } = {}
         var fields = this.schema.fields
         var parent_fields
         if (this.schema['parent'] === "equal\\orm\\Model") {
@@ -143,40 +132,43 @@ export class ModelsComponent implements OnInit {
             var parent_scheme = await this.api.getSchema(this.schema['parent'])
             var parent_fields = parent_scheme.fields
         }
+        var inherited:boolean
         for(var key in fields) {
+            if((nonUsable.includes(key))) continue
+            inherited = false
             if(parent_fields[key] !== undefined){
-                res[key] = true
+                console.log("OUI")
+                inherited = true
                 for(var info in fields[key]) {
                     if (info === "default") continue; // field can be inherited but have a different default value (for datetime)
                     if (parent_fields[key][info] !== fields[key][info]) {
-                        console.log(key+" "+info+" "+parent_fields[key][info]+" "+fields[key][info])
-                        res[key] = false
+                        inherited = false
                         break
                     }
                 }
-                
-                continue
             }
-            res[key] = false
+            console.log(inherited)
+            a.push(new FieldClass(key,inherited,true,fields[key]))
         }
-        return res
+        console.log(a)
+        return this.fieldSort(a)
+
     }
 
-    public fieldSort(input:string[]):string[] {
+    public fieldSort(input:FieldClassArray):FieldClassArray {
         var a:number
-        var res:string[] = []
-        var temp:string[]
+        var res:FieldClassArray = new FieldClassArray
+        var temp:FieldClassArray
         while(input.length > 0) {
-            console.log(input.length);
-            temp = []
+            temp = new FieldClassArray
             a = 0
             for(var i:number = 0; i < input.length ; i++) {
-                if(this.are_field_inherited[input[a]] && !this.are_field_inherited[input[i]]){
+                if(input[a].inherited && input[i].inherited){
                     a = i
                     continue
                 }
-                else if (!this.are_field_inherited[input[a]] && this.are_field_inherited[input[i]]) continue
-                if(input[a] > input[i]) {
+                else if (input[a].inherited && input[i].inherited) continue
+                if(input[a].name > input[i].name) {
                     a = i
                     continue
                 }
@@ -261,7 +253,7 @@ export class ModelsComponent implements OnInit {
      * @param event contain the old and new name of the field
      */
     public onupdateField(event: { old_node: string, new_node: string }) {
-        this.api.updateField(this.selected_package, this.selected_class, event.old_node, event.new_node);
+        this.api.updateField(this.selected_package, this.selected_class, event.old_node, event.new_node); // ONLY FOR NAME
         /* MAY BE USEFUL WHEN LINK TO BACKEND
         if (this.selected_field == event.old_node) {
             this.selected_field = event.new_node;
@@ -275,6 +267,10 @@ export class ModelsComponent implements OnInit {
      * @param field the name of the field which will be deleted
      */
     public ondeleteField(field: string) {
+        if(this.fields_for_selected_class.getByName(field)?.synchronised == false) {
+            this.fields_for_selected_class.removeByName(field)
+            return
+        }
         this.api.deleteField(this.selected_package, this.selected_class, field);
         /* MAY BE USEFUL WHEN LINK TO BACKEND
         if (this.selected_field == field) {
@@ -289,9 +285,14 @@ export class ModelsComponent implements OnInit {
      *
      * @param new_field name of the new field
      */
-    public oncreateField(new_field: string) {
-        console.log("called")
-        this.api.createField(this.selected_package, this.selected_class, new_field)
+    public oncreateField(new_field:any) {
+        this.addFieldFront(new_field)
+        //this.api.createField(this.selected_package, this.selected_class, new_field)
+    }
+
+    public async addFieldFront(name:string) {
+        this.schema['fields'][name] = {"type":"string"}
+        this.fields_for_selected_class.push(new FieldClass(name,false,false))
     }
 
     /**

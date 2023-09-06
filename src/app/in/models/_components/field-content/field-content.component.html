@@ -58,20 +58,6 @@
                 </ng-container>
             </ng-container>
         </div>
-
-        <!-- Buttons to save or cancel the change on the field -->
-        <div class="button-container">
-            <button class="button-height" mat-raised-button
-                [disabled]="!hasChanged"
-                (click)="cancelChange()">
-                Cancel
-            </button>
-            <button class="button-height" mat-raised-button
-                [disabled]="!hasChanged || !this.checkRequired()"
-                (click)="saveChange()">
-                Save
-            </button>
-        </div>
     </mat-tab>
 
     <!--Advance information for a field-->
@@ -84,20 +70,14 @@
             [actual_class]="actual_class"
             (update_value_property)="updatePropertiesWithValue($event)">
         </app-advance-component>
-
-        <!-- Buttons to save or cancel the change on the field -->
-        <div class="button-container">
-            <button class="button-height" mat-raised-button
-                [disabled]="!hasChanged"
-                (click)="cancelChange()">
-                Cancel
-            </button>
-            <button class="button-height" mat-raised-button
-                [disabled]="!hasChanged || !this.checkRequired()"
-                (click)="saveChange()">
-                Save
-            </button>
-        </div>
-    
     </mat-tab>
 </mat-tab-group>
+
+<!-- Buttons to save or cancel the change on the field -->
+<div class="button-container">
+    <button class="button-height" mat-raised-button
+        [disabled]="!hasChanged"
+        (click)="cancelChange()">
+        Cancel
+    </button>
+</div>

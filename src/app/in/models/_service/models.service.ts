@@ -6,6 +6,7 @@ import { ApiService } from 'sb-shared-lib';
     providedIn: 'root'
 })
 export class WorkbenchService {
+    public cached_schema:any
 
     constructor(private api: ApiService) { }
 
@@ -159,9 +160,32 @@ export class WorkbenchService {
      * @param entity - The namespace of the schema.
      * @returns A JSON of the schema with key-values.
      */
+    public async getSchemaCached(entity: string) {
+        try {
+            this.cached_schema = await this.api.fetch('?get=core_model_schema&entity=' + entity);
+            return this.cached_schema
+        }
+        catch (response: any) {
+            console.warn('request error', response);
+        }
+    }
+
     public async getSchema(entity: string) {
         try {
             return await this.api.fetch('?get=core_model_schema&entity=' + entity);
+        }
+        catch (response: any) {
+            console.warn('request error', response);
+        }
+    }
+
+    public async getCachedSchema(entity: string) {
+        try {
+            if(this.cached_schema === undefined){
+                this.cached_schema = await this.api.fetch('?get=core_model_schema&entity=' + entity);
+                return this.cached_schema
+            }
+            return this.cached_schema
         }
         catch (response: any) {
             console.warn('request error', response);

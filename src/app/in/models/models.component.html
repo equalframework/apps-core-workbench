@@ -80,7 +80,6 @@
             <mat-grid-tile colspan="1" class="max-height">
                 <app-search-list-field class="max-height max-width"
                     [data]="fields_for_selected_class"
-                    [inheritdict]="are_field_inherited"
                     [selected_node]="selected_field"
                     (nodeSelect)="onclickFieldSelect($event)"
                     (nodeUpdate)="onupdateField($event)"
@@ -91,8 +90,6 @@
             <!-- Field content -->
             <mat-grid-tile colspan="3" class="max-height">
                 <app-field-content *ngIf="selected_field != ''" class="max-height max-width"
-                    [field]="schema.fields[selected_field]"
-                    [inheritdict]="are_field_inherited"
                     [fields]="fields_for_selected_class"
                     [actual_field]="selected_field"
                     [types]="types"

@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { isEqual, cloneDeep } from 'lodash';
+import { FieldClassArray } from '../../_object/FieldClassArray';
 
 @Component({
     selector: 'app-field-content',
@@ -12,12 +13,12 @@ import { isEqual, cloneDeep } from 'lodash';
 export class FieldContentComponent implements OnInit {
 
     @Input() inheritdict: { [id: string] : boolean };
-    @Input() field: any;
-    @Input() fields: any;
+    @Input() fields: FieldClassArray;
     @Input() types: any;
     @Input() actual_class: any;
     @Input() actual_field: any;
     @Output() updateField = new EventEmitter<{}>();
+    public synchronised:boolean|undefined;
     public values: any;
     public selected_type: string
     public list_of_type: any;
@@ -54,7 +55,7 @@ export class FieldContentComponent implements OnInit {
     ) { }
 
     async ngOnInit() {
-        this.values = cloneDeep(this.field);
+        this.values = this.fields.getByName(this.actual_field)?.current_scheme;
         this.selected_type = this.values['type'];
         this.list_of_type = <any>Object.keys(this.types).sort();
         // #memo - prevent toggling hasChanged without user action
@@ -67,7 +68,9 @@ export class FieldContentComponent implements OnInit {
     }
 
     public ngOnChanges() {
-        this.values = cloneDeep(this.field);
+        this.inheritdict = this.fields.getInheritDict()
+        this.synchronised = this.fields.getByName(this.actual_field)?.synchronised
+        this.values = this.fields.getByName(this.actual_field)?.current_scheme;
         this.selected_type = this.values['type'];
         this.properties = this.types[this.selected_type];
         // If the field doesn't have a usage property, just add one based on the type
@@ -142,7 +145,7 @@ export class FieldContentComponent implements OnInit {
      * Function that cancel all the changes that are currently on the field.
      */
     public cancelChange() {
-        this.values = cloneDeep(this.field);
+        this.values = this.fields.getByName(this.actual_field)?.sync_scheme
         this.selected_type = this.values.type;
         this.properties = this.types[this.selected_type];
         this.hasChanged = false;
@@ -173,7 +176,7 @@ export class FieldContentComponent implements OnInit {
             this.values = new_field;
         }
 
-        if (isEqual(this.values, this.field)) {
+        if (this.fields.getByName(this.actual_field)?.checkSync()) {
             this.hasChanged = false;
         }
         else {

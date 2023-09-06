@@ -31,17 +31,19 @@
         </ng-container>
         <ng-template #displayMode class="node_container node_hover">
             <ng-container *ngIf="!inheritdict[node]; else uneditablemod">
-            <div class="node_container" [class.node-hover]="selected_node != node" [class.node-selected]="selected_node == node">
-                <div class="pointable node-text" (click)="onclickNodeSelect(node)">{{ node }}</div>
-                <div class="icons">
-                    <button mat-icon-button aria-label="Edit node button">
-                        <mat-icon (click)="onEditNode(node)">edit</mat-icon>
-                    </button>
-                    <button mat-icon-button aria-label="Delete node button">
-                        <mat-icon (click)="openDeleteConfirmationDialog(node)">delete</mat-icon>
-                    </button>
+            <ng-container *ngIf>
+                <div class="node_container" [class.node-hover]="selected_node != node" [class.node-selected]="selected_node == node">
+                    <div class="pointable node-text" (click)="onclickNodeSelect(node)">{{ node }}</div>
+                    <div class="icons">
+                        <button mat-icon-button aria-label="Edit node button">
+                            <mat-icon (click)="onEditNode(node)">edit</mat-icon>
+                        </button>
+                        <button mat-icon-button aria-label="Delete node button">
+                            <mat-icon (click)="openDeleteConfirmationDialog(node)">delete</mat-icon>
+                        </button>
+                    </div>
                 </div>
-            </div>
+            </ng-container>
          </ng-container>
         </ng-template>
         <ng-template #uneditablemod class="node_container node_hover node_uneditable">

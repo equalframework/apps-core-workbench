@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation } fro
 import { MatDialog } from '@angular/material/dialog';
 import { DeleteConfirmationComponent } from '../search-list/_components/delete-confirmation/delete-confirmation.component'
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { FieldClassArray } from '../../_object/FieldClassArray';
 
 @Component({
     selector: 'app-search-list-field',
@@ -12,14 +13,13 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 
 export class SearchListFieldComponent implements OnInit {
 
-    @Input() data: string[];
+    @Input() data: FieldClassArray;
     @Input() selected_node: any;
-    @Input() inheritdict: { [id: string] : boolean };
     @Output() nodeSelect = new EventEmitter<string>();
     @Output() nodeUpdate = new EventEmitter<{old_node: string, new_node: string}>();
     @Output() nodeDelete = new EventEmitter<string>();
     @Output() nodeCreate = new EventEmitter<string>();
-
+    inheritdict:{[id:string]:boolean}
     inputValue: string;
     filteredData: string[];
     editingNode: string = "";
@@ -35,8 +35,9 @@ export class SearchListFieldComponent implements OnInit {
     }
 
     public ngOnChanges() {
+        this.inheritdict = this.data.getInheritDict()
         if (Array.isArray(this.data)) {
-            this.filteredData = [...this.data];
+            this.filteredData = [...this.data.getNameList()];
         }
     }
 
@@ -46,7 +47,7 @@ export class SearchListFieldComponent implements OnInit {
      * @param value value of the filter
      */
     public onSearch(value: string) {
-        this.filteredData = this.data.filter(node => node.toLowerCase().includes(value.toLowerCase()));
+        this.filteredData = this.data.getNameList().filter(node => node.toLowerCase().includes(value.toLowerCase()));
     }
 
     /**
@@ -56,7 +57,7 @@ export class SearchListFieldComponent implements OnInit {
      */
     public onclickNodeSelect(node: string){
         // TODO
-        if (this.inheritdict[node]) {
+        if (this.data.getInheritDict()["node"]) {
             this.snackBar.open('This field is inherited.', '', {
                 duration: 1000,
                 horizontalPosition: 'left',
@@ -72,7 +73,7 @@ export class SearchListFieldComponent implements OnInit {
      * @param node value of the node which is updating
      */
     public onclickNodeUpdate(node: string){
-        const index = this.data.indexOf(this.editingNode);
+        const index = this.data.getNameList().indexOf(this.editingNode);
         const index_filtered_data = this.filteredData.indexOf(this.editingNode);
 
         if (index >= 0 && index_filtered_data >= 0) {
@@ -91,7 +92,7 @@ export class SearchListFieldComponent implements OnInit {
      * @param node value of the node which is deleted
      */
     public deleteNode(node: string){
-        const index = this.data.indexOf(node);
+        const index = this.data.getNameList().indexOf(node);
         const index_filtered_data = this.filteredData.indexOf(node);
 
         if (index >= 0 && index_filtered_data >= 0) {
@@ -140,11 +141,8 @@ export class SearchListFieldComponent implements OnInit {
     }
 
     public onclickCreate() {
-        let timerId: any;
-            timerId = setTimeout(() => {
-                this.nodeCreate.emit(this.inputValue);
-            }, 5000);
-            this.snack("Created", timerId);
+        console.log("inputvalue:"+this.inputValue)
+        this.nodeCreate.emit(this.inputValue);
         this.inputValue = ""
     }
 
