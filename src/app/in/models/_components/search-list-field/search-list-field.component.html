@@ -20,7 +20,7 @@
                     <div style="display: flex;">
                         <input matInput [(ngModel)]="editedNode" name="editedNode">
                         <button *ngIf="editedNode != editingNode" mat-icon-button aria-label="Approve editing node">
-                            <mat-icon matSuffix (click)="onclickNodeUpdate(node)">check_circle</mat-icon>
+                            <mat-icon matSuffix (click)="onclickNodeUpdate(node.name)">check_circle</mat-icon>
                         </button>
                     </div>
                 </mat-form-field>
@@ -30,10 +30,10 @@
             </div>
         </ng-container>
         <ng-template #displayMode class="node_container node_hover">
-            <ng-container *ngIf="!inheritdict[node]; else uneditablemod">
-            <ng-container *ngIf>
+            <ng-container *ngIf="!node.inherited; else uneditablemod">
+            <ng-container>
                 <div class="node_container" [class.node-hover]="selected_node != node" [class.node-selected]="selected_node == node">
-                    <div class="pointable node-text" (click)="onclickNodeSelect(node)">{{ node }}</div>
+                    <div class="pointable node-text" (click)="onclickNodeSelect(node)">{{ node.name }}</div>
                     <div class="icons">
                         <button mat-icon-button aria-label="Edit node button">
                             <mat-icon (click)="onEditNode(node)">edit</mat-icon>
@@ -48,7 +48,7 @@
         </ng-template>
         <ng-template #uneditablemod class="node_container node_hover node_uneditable">
             <div class="node_container node_uneditable" [class.node-selected]="selected_node == node">
-                <div class="pointable node-text" (click)="onclickNodeSelect(node)">{{ node }}</div>
+                <div class="pointable node-text" (click)="onclickNodeSelect(node)">{{ node.name }}</div>
             </div>
         </ng-template>
     </mat-list-item>

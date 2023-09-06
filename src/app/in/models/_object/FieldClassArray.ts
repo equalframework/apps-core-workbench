@@ -19,7 +19,7 @@ export class FieldClassArray extends Array<FieldClass> {
     }
     public getByName(name:string):FieldClass|undefined {
         for(var field in this) {
-            if(this[field].name == name) {
+            if(this[field].name === name) {
                 return this[field]
             }
         }

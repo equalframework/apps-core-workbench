@@ -66,12 +66,12 @@
     <mat-step class="max-height">
         <ng-template matStepLabel>
             <div class="step-label">
-                <ng-container *ngIf="selected_field ==''">
+                <ng-container *ngIf="selected_field === undefined">
                     <span>Select field</span>
                 </ng-container>
-                <ng-container *ngIf="selected_field !=''">
+                <ng-container *ngIf="selected_field !== undefined">
                     <span class="title-label">field</span>
-                    <span class="selection-label">{{selected_field}}</span>
+                    <span class="selection-label">{{selected_field.name}}</span>
                 </ng-container>
             </div>
         </ng-template>
@@ -89,7 +89,7 @@
             </mat-grid-tile>
             <!-- Field content -->
             <mat-grid-tile colspan="3" class="max-height">
-                <app-field-content *ngIf="selected_field != ''" class="max-height max-width"
+                <app-field-content *ngIf="selected_field != undefined" class="max-height max-width"
                     [fields]="fields_for_selected_class"
                     [actual_field]="selected_field"
                     [types]="types"

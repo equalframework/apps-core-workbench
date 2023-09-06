@@ -2,6 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter, ViewEncapsulation } fro
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { isEqual, cloneDeep } from 'lodash';
 import { FieldClassArray } from '../../_object/FieldClassArray';
+import { FieldClass } from '../../_object/FieldClass';
 
 @Component({
     selector: 'app-field-content',
@@ -16,11 +17,12 @@ export class FieldContentComponent implements OnInit {
     @Input() fields: FieldClassArray;
     @Input() types: any;
     @Input() actual_class: any;
-    @Input() actual_field: any;
+    @Input() actual_field: FieldClass;
     @Output() updateField = new EventEmitter<{}>();
     public synchronised:boolean|undefined;
-    public values: any;
+    public values: any = {};
     public selected_type: string
+    public actual_field_index:number;
     public list_of_type: any;
     public properties: any = {}
     public hasChanged: boolean = false;
@@ -55,7 +57,9 @@ export class FieldContentComponent implements OnInit {
     ) { }
 
     async ngOnInit() {
-        this.values = this.fields.getByName(this.actual_field)?.current_scheme;
+        if (this.fields.getByName(this.actual_field.name) !== undefined){
+            this.values = this.fields.getByName(this.actual_field.name)?.current_scheme;
+        }
         this.selected_type = this.values['type'];
         this.list_of_type = <any>Object.keys(this.types).sort();
         // #memo - prevent toggling hasChanged without user action
@@ -69,10 +73,14 @@ export class FieldContentComponent implements OnInit {
 
     public ngOnChanges() {
         this.inheritdict = this.fields.getInheritDict()
-        this.synchronised = this.fields.getByName(this.actual_field)?.synchronised
-        this.values = this.fields.getByName(this.actual_field)?.current_scheme;
+        this.actual_field_index = this.fields.indexOf(this.actual_field)
+        if (this.fields.getByName(this.actual_field.name) !== undefined) {
+            this.synchronised = this.fields.getByName(this.actual_field.name)?.synchronised
+            this.values = this.fields.getByName(this.actual_field.name)?.current_scheme;
+        }
         this.selected_type = this.values['type'];
         this.properties = this.types[this.selected_type];
+        this.hasChanged = !this.fields[this.actual_field_index].checkSync()
         // If the field doesn't have a usage property, just add one based on the type
         // Can't do that in the children component, will be in a ngOnChanges and can't emit the new usage in a ngOnChanges
         // #memo - this mark the content as modified while user hasn't changed anything
@@ -103,7 +111,7 @@ export class FieldContentComponent implements OnInit {
             this.values['usage'] = this.default_type_usage[selectedType];
         }
         this.properties = this.types[this.selected_type];
-        this.hasChanged = true;
+        this.hasChanged = !this.fields[this.actual_field_index].checkSync();
     }
 
     /**
@@ -145,10 +153,10 @@ export class FieldContentComponent implements OnInit {
      * Function that cancel all the changes that are currently on the field.
      */
     public cancelChange() {
-        this.values = this.fields.getByName(this.actual_field)?.sync_scheme
+        this.values = this.fields.getByName(this.actual_field.name)?.sync_scheme
         this.selected_type = this.values.type;
         this.properties = this.types[this.selected_type];
-        this.hasChanged = false;
+        this.hasChanged = !this.fields[this.actual_field_index].checkSync();
     }
 
     /**
@@ -165,7 +173,7 @@ export class FieldContentComponent implements OnInit {
      * @param event contains the property name and the new value for it
      */
     public updatePropertiesWithValue(event: { property: string, new_value: any }) {
-        if (event.new_value == undefined) {
+        if (event.new_value === undefined) {
             let new_field = cloneDeep(this.values);
             delete new_field[event.property];
             this.values = new_field;
@@ -176,12 +184,8 @@ export class FieldContentComponent implements OnInit {
             this.values = new_field;
         }
 
-        if (this.fields.getByName(this.actual_field)?.checkSync()) {
-            this.hasChanged = false;
-        }
-        else {
-            this.hasChanged = true;
-        }
+        this.fields[this.fields.indexOf(this.actual_field)].current_scheme = this.values
+        this.hasChanged = !this.fields[this.actual_field_index].checkSync()
     }
 
     /**

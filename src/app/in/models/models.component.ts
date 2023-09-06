@@ -20,7 +20,7 @@ export class ModelsComponent implements OnInit {
     public step = 0;
     public selected_package: string = "";
     public selected_class: string = "";
-    public selected_field: string = "";
+    public selected_field:FieldClass|undefined = undefined;
     public classes_for_selected_package: string[] = [];
     // http://equal.local/index.php?get=config_packages
     public packages: string[];
@@ -52,7 +52,7 @@ export class ModelsComponent implements OnInit {
         this.selected_package = eq_package;
         this.classes_for_selected_package = this.eq_class[this.selected_package];
         this.selected_class = "";
-        this.selected_field = "";
+        this.selected_field = undefined;
         this.child_loaded = false;
         this.step = 1;
     }
@@ -106,9 +106,8 @@ export class ModelsComponent implements OnInit {
      */
     public async onclickClassSelect(eq_class: string) {
         this.selected_class = eq_class;
-        this.selected_field = "";
+        this.selected_field = undefined;
         this.child_loaded = false;
-        console.log(this.selected_class)
         this.schema = await this.api.getSchema(this.selected_package + '\\' + this.selected_class);
         this.fields_for_selected_class = await this.loadUsableField() 
         this.step = 2;
@@ -137,7 +136,6 @@ export class ModelsComponent implements OnInit {
             if((nonUsable.includes(key))) continue
             inherited = false
             if(parent_fields[key] !== undefined){
-                console.log("OUI")
                 inherited = true
                 for(var info in fields[key]) {
                     if (info === "default") continue; // field can be inherited but have a different default value (for datetime)
@@ -147,10 +145,8 @@ export class ModelsComponent implements OnInit {
                     }
                 }
             }
-            console.log(inherited)
             a.push(new FieldClass(key,inherited,true,fields[key]))
         }
-        console.log(a)
         return this.fieldSort(a)
 
     }
@@ -229,8 +225,8 @@ export class ModelsComponent implements OnInit {
      *
      * @param field the field that the user has selected
      */
-    public onclickFieldSelect(field: string) {
-        if (!this.child_loaded) {
+    public onclickFieldSelect(field:FieldClass) {
+        /*if (!this.child_loaded) {
             this.selected_field = field;
             this.child_loaded = true;
         } else {
@@ -244,7 +240,8 @@ export class ModelsComponent implements OnInit {
                     verticalPosition: 'bottom'
                 });
             }
-        }
+        }*/
+        this.selected_field = field;
     }
 
     /**
@@ -301,8 +298,11 @@ export class ModelsComponent implements OnInit {
      * @param new_schema new field schema
      */
     public onUpdateSchema(new_schema: {}) {
-        this.schema.fields[this.selected_field] = new_schema;
-        this.api.updateSchema(this.schema, this.selected_package, this.selected_class);
+        if(this.selected_field?.name != undefined) {
+            this.schema.fields[this.selected_field?.name] = new_schema;
+            this.api.updateSchema(this.schema, this.selected_package, this.selected_class);
+        }
+        
     }
 
     /**
