@@ -1,0 +1,17 @@
+/*
+*   This file is used to handle theming.
+*   You need to import it in your scss files when you are creating
+*   a custom module to be able to call color variables.
+*/
+
+@import '@angular/material/theming';
+
+@include mat-core();
+
+$maincolor : mat-palette($mat-indigo);
+$accentcolor : mat-palette($mat-pink, A200, A100, A400);
+$warncolor : mat-palette($mat-red, A100);
+
+$color-theme : mat-light-theme($maincolor,$accentcolor,$warncolor);
+
+@include angular-material-theme($color-theme);

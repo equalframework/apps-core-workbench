@@ -30,7 +30,7 @@
         <form class="max-width">
             <mat-form-field class="max-width">
                 <mat-label>default</mat-label>
-                <input type="text" placeholder="Pick one" aria-label="default" matInput [formControl]="myControl"
+                <input type="text" placeholder="Enter string" aria-label="default" matInput [formControl]="myControl"
                     [matAutocomplete]="auto" [value]="myControl.value">
                 <button mat-button *ngIf="myControl.value != ''" matSuffix mat-icon-button aria-label="Clear"
                     (click)="myControl.setValue('')">

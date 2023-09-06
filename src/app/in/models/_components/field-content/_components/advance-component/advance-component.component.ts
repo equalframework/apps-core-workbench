@@ -75,7 +75,7 @@ export class AdvanceComponentComponent implements OnInit {
      * @param name string of the property
      */
     updateBooleanPropertiesWithValue(new_value: boolean, name: any) {
-        this.update_value_property.emit({ property: name, new_value: new_value });
+        this.updatePropertiesWithValue({ property: name, new_value: new_value });
     }
 
     /**

@@ -55,6 +55,14 @@ export class SearchListFieldComponent implements OnInit {
      * @param node value of the node which is clicked on
      */
     public onclickNodeSelect(node: string){
+        // TODO
+        if (this.inheritdict[node]) {
+            this.snackBar.open('This field is inherited.', '', {
+                duration: 1000,
+                horizontalPosition: 'left',
+                verticalPosition: 'bottom'
+            });
+        }
         this.nodeSelect.emit(node);
     }
 
@@ -143,7 +151,7 @@ export class SearchListFieldComponent implements OnInit {
     public snack(text: string, timerId: number) {
         this.snackBar.open(text, 'Undo', {
             duration: 5000,
-            horizontalPosition: 'center',
+            horizontalPosition: 'left',
             verticalPosition: 'bottom'
         }).onAction().subscribe(() => {
             clearTimeout(timerId);

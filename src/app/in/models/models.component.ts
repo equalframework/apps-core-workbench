@@ -108,9 +108,9 @@ export class ModelsComponent implements OnInit {
         this.child_loaded = false;
         console.log(this.selected_class)
         this.schema = await this.api.getSchema(this.selected_package + '\\' + this.selected_class);
-        this.fields_for_selected_class = this.loadUsableField() 
         this.are_field_inherited = await this.generateInheritedDict()
-        console.log(this.are_field_inherited)
+        this.fields_for_selected_class = this.loadUsableField() 
+
         this.step = 2;
     }
 
@@ -128,7 +128,8 @@ export class ModelsComponent implements OnInit {
             if((nonUsable.includes(key))) continue
             a.push(key)
         }
-        return a
+        return this.fieldSort(a)
+
     }
 
     public async generateInheritedDict():Promise<{ [id: string] : boolean }> {
@@ -145,9 +146,49 @@ export class ModelsComponent implements OnInit {
         for(var key in fields) {
             if(parent_fields[key] !== undefined){
                 res[key] = true
+                for(var info in fields[key]) {
+                    if (info === "default") continue; // field can be inherited but have a different default value (for datetime)
+                    if (parent_fields[key][info] !== fields[key][info]) {
+                        console.log(key+" "+info+" "+parent_fields[key][info]+" "+fields[key][info])
+                        res[key] = false
+                        break
+                    }
+                }
+                
                 continue
             }
             res[key] = false
+        }
+        return res
+    }
+
+    public fieldSort(input:string[]):string[] {
+        var a:number
+        var res:string[] = []
+        var temp:string[]
+        while(input.length > 0) {
+            console.log(input.length);
+            temp = []
+            a = 0
+            for(var i:number = 0; i < input.length ; i++) {
+                if(this.are_field_inherited[input[a]] && !this.are_field_inherited[input[i]]){
+                    a = i
+                    continue
+                }
+                else if (!this.are_field_inherited[input[a]] && this.are_field_inherited[input[i]]) continue
+                if(input[a] > input[i]) {
+                    a = i
+                    continue
+                }
+            }
+            for(var i:number = 0; i < input.length ; i++) {
+                if(i === a) {
+                    res.push(input[a])
+                    continue
+                }
+                temp.push(input[i])
+            }
+            input = temp
         }
         return res
     }
@@ -207,7 +248,7 @@ export class ModelsComponent implements OnInit {
                 console.log("snackbar");
                 this.snackBar.open('Save or abandon changes before changing context', 'Close', {
                     duration: 1500,
-                    horizontalPosition: 'center',
+                    horizontalPosition: 'left',
                     verticalPosition: 'bottom'
                 });
             }
@@ -249,6 +290,7 @@ export class ModelsComponent implements OnInit {
      * @param new_field name of the new field
      */
     public oncreateField(new_field: string) {
+        console.log("called")
         this.api.createField(this.selected_package, this.selected_class, new_field)
     }
 

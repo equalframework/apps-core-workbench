@@ -1,4 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { isEqual, cloneDeep } from 'lodash';
 
 @Component({
@@ -48,7 +49,9 @@ export class FieldContentComponent implements OnInit {
         "binary": "binary"
     };
 
-    constructor() { }
+    constructor(
+        private snackBar: MatSnackBar
+    ) { }
 
     async ngOnInit() {
         this.values = cloneDeep(this.field);
@@ -132,7 +135,6 @@ export class FieldContentComponent implements OnInit {
                 result = false;
             }
         });
-
         return result;
     }
 

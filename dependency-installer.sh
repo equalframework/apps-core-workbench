@@ -44,7 +44,6 @@ sh build.sh
 sh export.sh
 
 # You should good to go ! you can compile apps with the build.sh file in the app directory
-# You can remove the dep-files folder at any time
 
 # REMINDER : To deploy the app in a Unix environment, you need to change the base-href
 # argument to "/nameoftheapp/" in the build file of the app.

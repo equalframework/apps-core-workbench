@@ -1,3 +1,6 @@
+@import '/src/theme.scss';
+
+$warning : map-get($color-theme,warn); 
 
 .form-container {
     padding: 20px 20px 0px 20px;
@@ -72,14 +75,5 @@
 
 .inheritwarn-text {
     text-align: center;
-    font-size: 1.5em;
-}
-
-.inheritwarn-center {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100%;
+    background-color: mat-color($warning);
 }
