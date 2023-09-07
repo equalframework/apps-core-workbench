@@ -153,4 +153,12 @@ export class SearchListFieldComponent implements OnInit {
             clearTimeout(timerId);
         })
     }
+
+    public reformatTextCreate() {
+        this.inputValue = this.inputValue.replace(" ","-")
+    }
+
+    public reformatTextRename(node:FieldClass) {
+        node.name = node.name.replace(" ","-")
+    }
 }

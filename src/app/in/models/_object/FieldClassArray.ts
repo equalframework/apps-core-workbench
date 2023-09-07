@@ -1,6 +1,4 @@
-import { result } from "lodash";
 import { FieldClass } from "./FieldClass";
-import { fi } from "date-fns/locale";
 
 export class FieldClassArray extends Array<FieldClass> {
     public getNameList():string[] {

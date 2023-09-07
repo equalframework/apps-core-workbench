@@ -5,7 +5,7 @@
 
 <div class="add_container">
     <mat-form-field class="input search-bar">
-        <input matInput [(ngModel)]="inputValue">
+        <input matInput [(ngModel)]="inputValue" placeholder="new field name" (keyup)="reformatTextCreate()">
     </mat-form-field>
     <button mat-icon-button class="add_button" aria-label="Add node">
         <mat-icon class="icon pointable" (click)="onclickCreate()">add</mat-icon>
@@ -18,7 +18,7 @@
             <div class="node_container">
                 <mat-form-field class="editedNode">
                     <div style="display: flex;">
-                        <input matInput [(ngModel)]="node.name" name="editedNode">
+                        <input matInput [(ngModel)]="node.name" name="editedNode" (keyup)="reformatTextRename(node)">
                         <button *ngIf="editedNode !== editingNode" mat-icon-button aria-label="Approve editing node">
                             <mat-icon matSuffix>check_circle</mat-icon>
                         </button>
