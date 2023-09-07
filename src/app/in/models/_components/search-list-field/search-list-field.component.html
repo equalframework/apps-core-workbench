@@ -18,9 +18,9 @@
             <div class="node_container">
                 <mat-form-field class="editedNode">
                     <div style="display: flex;">
-                        <input matInput [(ngModel)]="editedNode" name="editedNode">
-                        <button *ngIf="editedNode != editingNode" mat-icon-button aria-label="Approve editing node">
-                            <mat-icon matSuffix (click)="onclickNodeUpdate(node.name)">check_circle</mat-icon>
+                        <input matInput [(ngModel)]="node.name" name="editedNode">
+                        <button *ngIf="editedNode !== editingNode" mat-icon-button aria-label="Approve editing node">
+                            <mat-icon matSuffix>check_circle</mat-icon>
                         </button>
                     </div>
                 </mat-form-field>
@@ -32,7 +32,7 @@
         <ng-template #displayMode class="node_container node_hover">
             <ng-container *ngIf="!node.inherited; else uneditablemod">
             <ng-container>
-                <div class="node_container" [class.node-hover]="selected_node != node" [class.node-selected]="selected_node == node">
+                <div class="node_container" [class.node-hover]="selected_node != node" [class.node-selected]="selected_node == node" [class.node-edited]="!node.synchronised" [class.node-created]="node.isNew">
                     <div class="pointable node-text" (click)="onclickNodeSelect(node)">{{ node.name }}</div>
                     <div class="icons">
                         <button mat-icon-button aria-label="Edit node button">

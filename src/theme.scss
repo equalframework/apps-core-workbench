@@ -11,6 +11,8 @@
 $maincolor : mat-palette($mat-indigo);
 $accentcolor : mat-palette($mat-pink, A200, A100, A400);
 $warncolor : mat-palette($mat-red, A100);
+$editedcolor : mat-palette($mat-deep-orange, A100);
+$newcolor : mat-palette($mat-teal);
 
 $color-theme : mat-light-theme($maincolor,$accentcolor,$warncolor);
 

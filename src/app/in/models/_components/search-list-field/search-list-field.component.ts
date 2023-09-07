@@ -4,6 +4,7 @@ import { DeleteConfirmationComponent } from '../search-list/_components/delete-c
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FieldClassArray } from '../../_object/FieldClassArray';
 import { FieldClass } from '../../_object/FieldClass';
+import { cloneDeep } from 'lodash';
 
 @Component({
     selector: 'app-search-list-field',
@@ -14,14 +15,14 @@ import { FieldClass } from '../../_object/FieldClass';
 
 export class SearchListFieldComponent implements OnInit {
 
-    @Input() data: FieldClassArray;
+    @Input() data: FieldClass[];
     @Input() selected_node: FieldClass|undefined;
     @Output() nodeSelect = new EventEmitter<FieldClass>();
-    @Output() nodeUpdate = new EventEmitter<{old_node: string, new_node: string}>();
-    @Output() nodeDelete = new EventEmitter<string>();
+    @Output() nodeDelete = new EventEmitter<FieldClass>();
     @Output() nodeCreate = new EventEmitter<string>();
     inheritdict:{[id:string]:boolean}
-    inputValue: string;
+    inputValue: string="";
+    searchvalue:string = "";
     filteredData: FieldClass[];
     editingNode: FieldClass|undefined = undefined;
     editedNode: FieldClass|undefined = undefined;
@@ -37,7 +38,8 @@ export class SearchListFieldComponent implements OnInit {
 
     public ngOnChanges() {
         try {
-            this.inheritdict = this.data.getInheritDict()
+            this.inheritdict = {}
+            this.data.forEach((field) => this.inheritdict[field.name]=field.inherited)
         } catch {
             this.inheritdict = {}
         }
@@ -52,6 +54,7 @@ export class SearchListFieldComponent implements OnInit {
      * @param value value of the filter
      */
     public onSearch(value: string) {
+        this.searchvalue = value
         this.filteredData = this.data.filter(node => node.name.toLowerCase().includes(value.toLowerCase()));
     }
 
@@ -62,7 +65,7 @@ export class SearchListFieldComponent implements OnInit {
      */
     public onclickNodeSelect(node:FieldClass){
         // TODO
-        if (this.data.getInheritDict()["node"]) {
+        if (node.inherited) {
             this.snackBar.open('This field is inherited.', '', {
                 duration: 1000,
                 horizontalPosition: 'left',
@@ -73,31 +76,6 @@ export class SearchListFieldComponent implements OnInit {
     }
 
     /**
-     * Notify parent component of the updating of a node.
-     *
-     * @param node value of the node which is updating
-     */
-    public onclickNodeUpdate(node: string){
-        var index:number = -1
-        var index_filtered_data:number = -1
-        if(this.editingNode !== undefined) {
-            index = this.data.indexOf(this.editingNode);
-            index_filtered_data = this.filteredData.indexOf(this.editingNode);
-        }
-        if(this.editedNode !== undefined) {
-            var name = this.editedNode.name
-            if (index >= 0 && index_filtered_data >= 0) {
-                let timerId: any;
-                timerId = setTimeout(() => {
-                    this.nodeUpdate.emit({old_node: node, new_node: name});
-                }, 5000);
-                this.snack("Updated", timerId);
-                this.cancelEdit();
-            }
-        }
-    }
-
-    /**
      * Notify the parent component of the deleted node.
      *
      * @param node value of the node which is deleted
@@ -105,13 +83,14 @@ export class SearchListFieldComponent implements OnInit {
     public deleteNode(node:FieldClass){
         const index = this.data.indexOf(node);
         const index_filtered_data = this.filteredData.indexOf(node);
-
         if (index >= 0 && index_filtered_data >= 0) {
             let timerId: any;
             timerId = setTimeout(() => {
-                this.nodeDelete.emit(node.name);
+                this.nodeDelete.emit(node);
+                this.filteredData.splice(index_filtered_data,1)
             }, 5000);
             this.snack("Deleted", timerId);
+            return
         }
     }
 
@@ -153,9 +132,16 @@ export class SearchListFieldComponent implements OnInit {
     }
 
     public onclickCreate() {
-        console.log("inputvalue:"+this.inputValue)
+        if(this.inputValue.replaceAll(" ","") === "") {
+            this.snackBar.open("You can't make a field with an empty name.")
+            return
+        }
         this.nodeCreate.emit(this.inputValue);
         this.inputValue = ""
+        setTimeout(() => {
+            this.filteredData = this.data.filter(node => node.name.toLowerCase().includes(this.searchvalue.toLowerCase()));
+        }, 1000);
+        
     }
 
     public snack(text: string, timerId: number) {

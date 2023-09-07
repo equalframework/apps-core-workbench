@@ -27,7 +27,7 @@ export class ModelsComponent implements OnInit {
     // http://equal.local/index.php?get=core_config_classes
     private eq_class: any;
     public schema: any;
-    public fields_for_selected_class: FieldClassArray;
+    public fields_for_selected_class: FieldClass[];
     public types: any;
     @ViewChild(FieldContentComponent) childComponent: FieldContentComponent;
 
@@ -119,8 +119,8 @@ export class ModelsComponent implements OnInit {
      * 
      * @returns a list of the editable field of the class
      */
-    public async loadUsableField():Promise<FieldClassArray> {
-        var a:FieldClassArray = new FieldClassArray
+    public async loadUsableField():Promise<FieldClass[]> {
+        var a:FieldClass[] = new FieldClassArray
         var nonUsable:string[] = ["id","deleted","state"]
         var fields = this.schema.fields
         var parent_fields
@@ -151,19 +151,19 @@ export class ModelsComponent implements OnInit {
 
     }
 
-    public fieldSort(input:FieldClassArray):FieldClassArray {
+    public fieldSort(input:FieldClass[]):FieldClass[] {
         var a:number
-        var res:FieldClassArray = new FieldClassArray
-        var temp:FieldClassArray
+        var res:FieldClass[] = []
+        var temp:FieldClass[]
         while(input.length > 0) {
-            temp = new FieldClassArray
+            temp = []
             a = 0
             for(var i:number = 0; i < input.length ; i++) {
-                if(input[a].inherited && input[i].inherited){
+                if(input[a].inherited && !input[i].inherited){
                     a = i
                     continue
                 }
-                else if (input[a].inherited && input[i].inherited) continue
+                else if (!input[a].inherited && input[i].inherited) continue
                 if(input[a].name > input[i].name) {
                     a = i
                     continue
@@ -178,6 +178,7 @@ export class ModelsComponent implements OnInit {
             }
             input = temp
         }
+        console.log(res)
         return res
     }
 
@@ -249,8 +250,8 @@ export class ModelsComponent implements OnInit {
      *
      * @param event contain the old and new name of the field
      */
-    public onupdateField(event: { old_node: string, new_node: string }) {
-        this.api.updateField(this.selected_package, this.selected_class, event.old_node, event.new_node); // ONLY FOR NAME
+    public onupdateField(event: { node: FieldClass, new_node: string }) {
+        //this.api.updateField(this.selected_package, this.selected_class, event.old_node, event.new_node); // ONLY FOR NAME
         /* MAY BE USEFUL WHEN LINK TO BACKEND
         if (this.selected_field == event.old_node) {
             this.selected_field = event.new_node;
@@ -263,12 +264,13 @@ export class ModelsComponent implements OnInit {
      *
      * @param field the name of the field which will be deleted
      */
-    public ondeleteField(field: string) {
-        if(this.fields_for_selected_class.getByName(field)?.synchronised == false) {
-            this.fields_for_selected_class.removeByName(field)
+    public ondeleteField(field: FieldClass) {
+        const i = this.fields_for_selected_class.indexOf(field)
+        if(i >= 0 ) {
+            this.fields_for_selected_class.splice(i,1)
             return
         }
-        this.api.deleteField(this.selected_package, this.selected_class, field);
+        //this.api.deleteField(this.selected_package, this.selected_class, field);
         /* MAY BE USEFUL WHEN LINK TO BACKEND
         if (this.selected_field == field) {
             this.selected_field = "";
@@ -288,8 +290,8 @@ export class ModelsComponent implements OnInit {
     }
 
     public async addFieldFront(name:string) {
-        this.schema['fields'][name] = {"type":"string"}
         this.fields_for_selected_class.push(new FieldClass(name,false,false))
+        this.fields_for_selected_class = this.fieldSort(this.fields_for_selected_class)
     }
 
     /**

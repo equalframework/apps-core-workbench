@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { isEqual, cloneDeep } from 'lodash';
+import { isEqual, cloneDeep, indexOf } from 'lodash';
 import { FieldClassArray } from '../../_object/FieldClassArray';
 import { FieldClass } from '../../_object/FieldClass';
 
@@ -13,8 +13,7 @@ import { FieldClass } from '../../_object/FieldClass';
 
 export class FieldContentComponent implements OnInit {
 
-    @Input() inheritdict: { [id: string] : boolean };
-    @Input() fields: FieldClassArray;
+    @Input() fields: FieldClass[];
     @Input() types: any;
     @Input() actual_class: any;
     @Input() actual_field: FieldClass;
@@ -57,8 +56,9 @@ export class FieldContentComponent implements OnInit {
     ) { }
 
     async ngOnInit() {
-        if (this.fields.getByName(this.actual_field.name) !== undefined){
-            this.values = this.fields.getByName(this.actual_field.name)?.current_scheme;
+        if(this.fields !== undefined){
+            this.actual_field_index = this.fields.indexOf(this.actual_field)
+            this.values = this.fields[this.actual_field_index].current_scheme;
         }
         this.selected_type = this.values['type'];
         this.list_of_type = <any>Object.keys(this.types).sort();
@@ -72,12 +72,11 @@ export class FieldContentComponent implements OnInit {
     }
 
     public ngOnChanges() {
-        this.inheritdict = this.fields.getInheritDict()
         this.actual_field_index = this.fields.indexOf(this.actual_field)
-        if (this.fields.getByName(this.actual_field.name) !== undefined) {
-            this.synchronised = this.fields.getByName(this.actual_field.name)?.synchronised
-            this.values = this.fields.getByName(this.actual_field.name)?.current_scheme;
-        }
+        console.log(this.fields[this.actual_field_index].isNew)
+        this.synchronised = this.fields[this.actual_field_index].synchronised
+        this.values = this.fields[this.actual_field_index].current_scheme;
+        console.log(this.values)
         this.selected_type = this.values['type'];
         this.properties = this.types[this.selected_type];
         this.hasChanged = !this.fields[this.actual_field_index].checkSync()
@@ -153,7 +152,7 @@ export class FieldContentComponent implements OnInit {
      * Function that cancel all the changes that are currently on the field.
      */
     public cancelChange() {
-        this.values = this.fields.getByName(this.actual_field.name)?.sync_scheme
+        this.values = this.fields[this.actual_field_index].sync_scheme
         this.selected_type = this.values.type;
         this.properties = this.types[this.selected_type];
         this.hasChanged = !this.fields[this.actual_field_index].checkSync();
