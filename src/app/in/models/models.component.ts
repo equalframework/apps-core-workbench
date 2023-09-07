@@ -7,6 +7,7 @@ import { prettyPrintJson } from 'pretty-print-json';
 import { FieldClassArray } from './_object/FieldClassArray';
 import { FieldClass } from './_object/FieldClass';
 import { fi } from 'date-fns/locale';
+import { cloneDeep } from 'lodash';
 
 @Component({
   selector: 'app-models',
@@ -328,6 +329,65 @@ export class ModelsComponent implements OnInit {
         return prettyPrintJson.toHtml(input);
     }
 
+    public getBack() {
+        this.step --;
+    }
+
+    public regenerateSchema():any {
+        var res:any = cloneDeep(this.schema)
+        res["fields"] = {
+            "id":{"type":"integer","readonly":true},
+            "deleted":{"type":"boolean","default":false},
+            "state":{"type":"string","selection":["draft","instance","archive"],"default":"instance"}
+        }
+        console.log(this.schema)
+        for(var item in this.fields_for_selected_class) {
+            const name:string = this.fields_for_selected_class[item].name
+            res["fields"][name] = this.fields_for_selected_class[item].current_scheme
+        }
+        console.log(res)
+        console.log(compareDictRecursif(res,this.schema))
+        return res
+    }
+
+    public async regenerateSchemaAndPublish() {
+        var schema = this.regenerateSchema()
+        var timerId = setTimeout(async () => {
+            this.api.updateSchema(schema,this.selected_package,this.selected_class)
+            this.selected_field = undefined;
+            this.child_loaded = false;
+            this.schema = await this.api.getSchema(this.selected_package + '\\' + this.selected_class);
+            this.fields_for_selected_class = await this.loadUsableField()
+        }, 5000);
+        this.snackBar.open("Saving...", 'Cancel', {
+            duration: 5000,
+            horizontalPosition: 'left',
+            verticalPosition: 'bottom'
+        }).onAction().subscribe(() => {
+            clearTimeout(timerId);
+        })
+    }
+
+}
+
+function compareDictRecursif(dict1:any, dict2:any):number {
+    if(dict1 === undefined) return -1
+    if(dict2 === undefined) return 1
+    if(typeof(dict1) !== typeof({}) && typeof(dict1) !== typeof({}) && dict1 === dict2) {
+        return 0
+    }
+    var res:number
+    for(var item in dict1) {
+        if(dict2[item] === undefined) return 1
+        res = compareDictRecursif(dict1[item],dict2[item])
+        if(res !== 0) return 1
+    }
+    for(var item in dict2) {
+        if(dict1[item] === undefined) return 1
+        res = compareDictRecursif(dict1[item],dict2[item])
+        if(res !== 0) return -1
+    }
+    return 0
 }
 
 // This is the object that should be returned by await this.api.getSchema('equal\orm\model')

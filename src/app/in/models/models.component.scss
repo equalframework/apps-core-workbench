@@ -55,3 +55,22 @@ pre {
     overflow-y: scroll;
     overflow-x: auto;
 }
+
+.step {
+    margin: 1%;
+}
+
+.title-container {
+    display: flex;
+    align-items: center;
+    font-size : 1.5em;
+}
+
+.title-container button {
+    margin-left: 1em;
+    margin-right: 1em;
+}
+
+.title-container .solo {
+    margin-left: 3em;
+}

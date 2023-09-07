@@ -1,17 +1,9 @@
-<mat-horizontal-stepper class="max-height" [selectedIndex]="step">
-    <!-- Step for package -->
-    <mat-step class="max-height" [completed]="selected_package !=''">
-        <ng-template matStepLabel>
-            <div class="step-label" (click)="step=0">
-                <ng-container *ngIf="selected_package ==''">
-                    <span>Select package</span>
-                </ng-container>
-                <ng-container *ngIf="selected_package !=''">
-                    <span class="title-label">package</span>
-                    <span class="selection-label">{{selected_package}}</span>
-                </ng-container>
-            </div>
-        </ng-template>
+<!-- Step for package -->
+<ng-container *ngIf="step === 0" class="max-height step">
+    <div class="max-height step">
+        <div class="title-container max-width">
+            <mat-label class="solo">Select Package</mat-label>
+        </div>
         <mat-grid-list cols="4" class="max-height">
             <!-- Package search list, on the left of the screen -->
             <mat-grid-tile colspan="1" class="max-height">
@@ -29,20 +21,17 @@
                 content
             </mat-grid-tile>
         </mat-grid-list>
-    </mat-step>
-    <!-- Step for class -->
-    <mat-step class="max-height" [completed]="selected_class !=''">
-        <ng-template matStepLabel>
-            <div class="step-label">
-                <ng-container *ngIf="selected_class ==''">
-                    <span>Select class</span>
-                </ng-container>
-                <ng-container *ngIf="selected_class !=''">
-                    <span class="title-label">class</span>
-                    <span class="selection-label">{{selected_class}}</span>
-                </ng-container>
-            </div>
-        </ng-template>
+    </div>
+</ng-container>
+<!-- Step for class -->
+<ng-container *ngIf="step === 1">
+    <div class="max-height step">
+        <div class="title-container">
+            <button (click)="getBack()" mat-icon-button matTooltip="Primary" color="primary" aria-label="Go back">
+                <mat-icon>keyboard_backspace</mat-icon>
+            </button>
+            <mat-label>{{ selected_package }}\ Select class</mat-label>
+        </div>
         <mat-grid-list cols="4" class="max-height">
             <!-- Class search list, on the left of the screen -->
             <mat-grid-tile colspan="1" class="max-height">
@@ -61,20 +50,20 @@
                 </pre>
             </mat-grid-tile>
         </mat-grid-list>
-    </mat-step>
-    <!-- Step for field -->
-    <mat-step class="max-height">
-        <ng-template matStepLabel>
-            <div class="step-label">
-                <ng-container *ngIf="selected_field === undefined">
-                    <span>Select field</span>
-                </ng-container>
-                <ng-container *ngIf="selected_field !== undefined">
-                    <span class="title-label">field</span>
-                    <span class="selection-label">{{selected_field.name}}</span>
-                </ng-container>
-            </div>
-        </ng-template>
+    </div>
+</ng-container>
+<!-- Step for field -->
+<ng-container *ngIf="step === 2" class="max-height step">
+    <div class="max-height step">
+        <div class="title-container max-width">
+            <button (click)="getBack()" mat-icon-button matTooltip="Primary" color="primary" aria-label="Go back">
+                <mat-icon>keyboard_backspace</mat-icon>
+            </button>
+            <mat-label>{{ selected_package }}\{{ selected_class }}</mat-label>
+            <button (click)="regenerateSchemaAndPublish()" mat-icon-button matTooltip="Primary" color="accent" aria-label="Go back">
+                <mat-icon>publish</mat-icon>
+            </button>
+        </div>
         <mat-grid-list cols="4" class="max-height">
             <!-- Field search list, on the left of the screen -->
             <mat-grid-tile colspan="1" class="max-height">
@@ -97,5 +86,5 @@
                 </app-field-content>
             </mat-grid-tile>
         </mat-grid-list>
-    </mat-step>
-</mat-horizontal-stepper>
+    </div>
+</ng-container>

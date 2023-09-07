@@ -24,6 +24,7 @@ export class FieldClass {
     }
 }
 
+// TODO : Optimise this
 function compareDictRecursif(dict1:any, dict2:any):number {
     if(dict1 === undefined) return -1
     if(dict2 === undefined) return 1
