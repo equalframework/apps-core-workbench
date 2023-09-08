@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, Output } from '@angular/core';
 import { ControllersService } from './_service/controllers.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { prettyPrintJson } from 'pretty-print-json';
@@ -44,7 +44,7 @@ export class ControllersComponent implements OnInit {
     }
 
     /**
-     * Select a controller when user click on it.
+     * Select a controller when user click on it, load information about the controller.
      *
      * @param controller the controller that the user has selected
      */
