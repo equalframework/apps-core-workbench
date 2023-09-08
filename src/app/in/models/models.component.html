@@ -1,31 +1,3 @@
-<!-- Step for package -->
-<ng-container *ngIf="step === 0" class="max-height step">
-    <div class="max-height step">
-        <div class="title-container max-width">
-            <mat-label class="solo">Select Package</mat-label>
-        </div>
-        <mat-grid-list cols="4" class="max-height">
-            <!-- Package search list, on the left of the screen -->
-            <mat-grid-tile colspan="1" class="max-height">
-                <app-search-list class="max-height max-width"
-                    [data]="packages"
-                    [selected_node]="selected_package"
-                    (nodeSelect)="onclickPackageSelect($event)"
-                    (nodeUpdate)="onupdatePackage($event)"
-                    (nodeDelete)="ondeletePackage($event)"
-                    (nodeCreate)="oncreatePackage($event)">
-                </app-search-list>
-            </mat-grid-tile>
-            <!-- Package content -->
-            <mat-grid-tile colspan="3" class="max-height">
-                <app-package-info class="max-height max-width"
-                [current_package]="selected_package"
-                [package_init_list]="initialised_packages"
-                ></app-package-info>
-            </mat-grid-tile>
-        </mat-grid-list>
-    </div>
-</ng-container>
 <!-- Step for class -->
 <ng-container *ngIf="step === 1">
     <div class="max-height step">
@@ -49,8 +21,11 @@
             </mat-grid-tile>
             <!-- Class content -->
             <mat-grid-tile colspan="3" class="max-height" id="schema">
-                <pre [innerHTML]="getJSONSchema()">
-                </pre>
+                <app-model-info
+                [selected_package]="selected_package"
+                [selected_class]="selected_class"
+                >
+                </app-model-info>
             </mat-grid-tile>
         </mat-grid-list>
     </div>

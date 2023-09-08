@@ -1,0 +1,16 @@
+@import '/src/theme.scss';
+
+.class-disp-title {
+    font-size: 1.5em;
+}
+
+.margin-container {
+    margin: 1em;
+    padding: 2em;
+    border-radius: 10px;
+    background-color: whitesmoke;
+}
+
+.accent {
+    color: mat-color($accentcolor);
+}

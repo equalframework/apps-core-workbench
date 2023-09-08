@@ -4,9 +4,10 @@ import { WorkbenchService } from './_service/package.service'
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { prettyPrintJson } from 'pretty-print-json';
 import { cloneDeep } from 'lodash';
+import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-models',
+  selector: 'app-package',
   templateUrl: './package.component.html',
   styleUrls: ['./package.component.scss'],
   encapsulation: ViewEncapsulation.None
@@ -14,10 +15,7 @@ import { cloneDeep } from 'lodash';
 export class PackageComponent implements OnInit {
 
     public child_loaded = false;
-    public step = 0;
     public selected_package: string = "";
-    public selected_category: string = "";
-    public categories:string[] = ["Models","Controllers","Routes"]
     public classes_for_selected_package: string[] = [];
     // http://equal.local/index.php?get=config_packages
     public packages: string[];
@@ -27,7 +25,8 @@ export class PackageComponent implements OnInit {
     constructor(
         private context: ContextService,
         private api: WorkbenchService,
-        private snackBar: MatSnackBar
+        private snackBar: MatSnackBar,
+        private router:Router
     ) { }
 
     public async ngOnInit() {
@@ -42,24 +41,14 @@ export class PackageComponent implements OnInit {
     public async onclickPackageSelect(eq_package: string) {
         const old = this.selected_package;
         this.selected_package = eq_package;
-        if(old === this.selected_package) {
-            this.selected_category = "";
-            this.child_loaded = false;
-            this.step = 1;
-        }
         this.initialised_packages = await this.api.getInitialisedPackages()
     }
 
-    public async onclickCategorySelect(eq_category: string) {
-        const old = this.selected_category;
-        this.selected_category = eq_category;
-        if(old === this.selected_category) {
-            this.child_loaded = false;
-            this.step = 2;
-        }
-        console.log(this.selected_category)
-    }
 
+    public onClickModels() {
+        this.router.navigate(['/models', this.selected_package]);
+    }
+    
     /**
      * Update the name of a package.
      *
@@ -110,10 +99,6 @@ export class PackageComponent implements OnInit {
      */
     private prettyPrint(input: any) {
         return prettyPrintJson.toHtml(input);
-    }
-
-    public getBack() {
-        this.step --;
     }
 }
 

@@ -16,24 +16,25 @@ import { MatIconModule } from '@angular/material/icon';
 
 import { PackageComponent } from './package.component';
 import { PackageRoutingModule } from './package-routing.module';
-import { SearchListComponent } from './search-list/search-list.component';
-import { RouterPropertyComponent } from './router-property/router-property.component';
-import { DescriptionComponent } from './router-property/_components/description/description.component';
-import { ParamsComponent } from './router-property/_components/params/params.component';
-import { ResponseComponent } from './router-property/_components/response/response.component';
-import { ConstantsComponent } from './router-property/_components/constants/constants.component';
-import { AccessComponent } from './router-property/_components/access/access.component';
-import { ArrayComponent } from './router-property/_components/params/_components/array/array.component';
-import { BooleanComponent } from './router-property/_components/params/_components/boolean/boolean.component';
-import { DomainComponent } from './router-property/_components/params/_components/domain/domain.component';
-import { StringComponent } from './router-property/_components/params/_components/string/string.component';
-import { NumberComponent } from './router-property/_components/params/_components/number/number.component';
-import { AutoCompleteComponent } from './router-property/_components/params/_components/domain/_components/auto-complete/auto-complete.component';
-import { ValueComponent } from './router-property/_components/params/_components/domain/_components/value/value.component';
-import { ValueSelectionComponent } from './router-property/_components/params/_components/domain/_components/value-selection/value-selection.component';
-import { ResponseComponentSubmit } from './router-property/_components/params/_components/response/response.component'
+import { SearchListComponent } from './_components/search-list/search-list.component';
+import { RouterPropertyComponent } from './_components/router-property/router-property.component';
+import { DescriptionComponent } from './_components/router-property/_components/description/description.component';
+import { ParamsComponent } from './_components/router-property/_components/params/params.component';
+import { ResponseComponent } from './_components/router-property/_components/response/response.component';
+import { ConstantsComponent } from './_components/router-property/_components/constants/constants.component';
+import { AccessComponent } from './_components/router-property/_components/access/access.component';
+import { ArrayComponent } from './_components/router-property/_components/params/_components/array/array.component';
+import { BooleanComponent } from './_components/router-property/_components/params/_components/boolean/boolean.component';
+import { DomainComponent } from './_components/router-property/_components/params/_components/domain/domain.component';
+import { StringComponent } from './_components/router-property/_components/params/_components/string/string.component';
+import { NumberComponent } from './_components/router-property/_components/params/_components/number/number.component';
+import { AutoCompleteComponent } from './_components/router-property/_components/params/_components/domain/_components/auto-complete/auto-complete.component';
+import { ValueComponent } from './_components/router-property/_components/params/_components/domain/_components/value/value.component';
+import { ValueSelectionComponent } from './_components/router-property/_components/params/_components/domain/_components/value-selection/value-selection.component';
+import { ResponseComponentSubmit } from './_components/router-property/_components/params/_components/response/response.component'
 import { PackageInfoComponent } from './_components/package-info/package-info.component';
 import { MvcSelectorComponent } from './_components/mvc-selector/mvc-sel.component';
+import { AppInModelsModule } from '../models/models.module';
 
 
 @NgModule({
@@ -49,6 +50,7 @@ import { MvcSelectorComponent } from './_components/mvc-selector/mvc-sel.compone
         MatFormFieldModule,
         MatInputModule,
         MatIconModule,
+        AppInModelsModule
     ],
     declarations: [
         PackageComponent,

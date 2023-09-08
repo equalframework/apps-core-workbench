@@ -4,18 +4,7 @@ import { AppComponent } from './in/app.component';
 import { PackageModule } from './in/package/package.module';
 
 const routes: Routes = [
-    {
-        path: 'models',
-        loadChildren: () => import('./in/models/models.module').then(m => m.AppInModelsModule)
-    },
-    {
-        path: 'controllers',
-        loadChildren: () => import('./in/controllers/controllers.module').then(m => m.AppInControllersModule)
-    },
-    {
-        path: 'routes',
-        loadChildren: () => import('./in/routes/routes.module').then(m => m.AppInRoutesModule)
-    },
+
     /**
     {
         path: 'views',
@@ -30,7 +19,7 @@ const routes: Routes = [
             3) redirect to applicable page (/apps or /auth)
          */
         path: '',
-        component: PackageModule
+        loadChildren: () => import('./in/package/package.module').then(m => m.PackageModule)
     }
 ];
 

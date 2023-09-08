@@ -1,0 +1,8 @@
+<div class="margin-container">
+    <div class="class-disp-title" *ngIf="selected_class !== ''">
+        <label>Class : </label><label class="accent">{{selected_package}}\{{ selected_class }}</label>
+    </div>
+    <div class="class-disp-title" *ngIf="selected_class === ''">
+        <label>Select a class to see its information.</label>
+    </div>
+</div>
