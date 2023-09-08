@@ -1,0 +1,58 @@
+<!-- Step for package -->
+<ng-container *ngIf="step === 0" class="max-height step">
+    <div class="max-height step">
+        <div class="title-container max-width">
+            <mat-label class="solo">Select Package</mat-label>
+        </div>
+        <mat-grid-list cols="4" class="max-height">
+            <!-- Package search list, on the left of the screen -->
+            <mat-grid-tile colspan="1" class="max-height">
+                <app-search-list class="max-height max-width"
+                    [data]="packages"
+                    [selected_node]="selected_package"
+                    (nodeSelect)="onclickPackageSelect($event)"
+                    (nodeUpdate)="onupdatePackage($event)"
+                    (nodeDelete)="ondeletePackage($event)"
+                    (nodeCreate)="oncreatePackage($event)">
+                </app-search-list>
+            </mat-grid-tile>
+            <!-- Package content -->
+            <mat-grid-tile colspan="3" class="max-height">
+                <app-package-info class="max-height max-width"
+                    [current_package]="selected_package"
+                    [package_init_list]="initialised_packages"
+                >
+                </app-package-info>
+            </mat-grid-tile>
+        </mat-grid-list>
+    </div>
+</ng-container>
+<ng-container *ngIf="step === 1" class="max-height step">
+    <div class="max-height step">
+        <div class="title-container">
+            <button (click)="getBack()" mat-icon-button matTooltip="Primary" color="primary" aria-label="Go back">
+                <mat-icon>keyboard_backspace</mat-icon>
+            </button>
+            <mat-label>{{ selected_package }}\</mat-label>
+        </div>
+        <mat-grid-list cols="4" class="max-height">
+            <!-- Package search list, on the left of the screen -->
+            <mat-grid-tile colspan="1" class="max-height">
+                <app-search-list class="max-height max-width"
+                    [data]="categories"
+                    [selected_node]="selected_category"
+                    (nodeSelect)="onclickCategorySelect($event)">
+                </app-search-list>
+            </mat-grid-tile>
+            <!-- Package content -->
+            <mat-grid-tile colspan="3" class="max-height">
+                <app-mvc-selector></app-mvc-selector>
+            </mat-grid-tile>
+        </mat-grid-list>
+    </div>
+</ng-container>
+<ng-container *ngIf="step === 2" class="max-height step">
+    <app-models *ngIf="selected_category==='Models'"
+    >
+    </app-models>
+</ng-container>

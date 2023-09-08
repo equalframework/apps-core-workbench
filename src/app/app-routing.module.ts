@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { AppComponent } from './in/app.component';
+import { PackageModule } from './in/package/package.module';
 
 const routes: Routes = [
     {
@@ -29,7 +30,7 @@ const routes: Routes = [
             3) redirect to applicable page (/apps or /auth)
          */
         path: '',
-        component: AppComponent
+        component: PackageModule
     }
 ];
 

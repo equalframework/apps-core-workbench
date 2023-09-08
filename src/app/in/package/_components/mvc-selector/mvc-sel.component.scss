@@ -1,0 +1,38 @@
+@import '/src/theme.scss';
+
+.margin-container {
+    margin: 1em;
+    padding: 2em;
+    border-radius: 10px;
+    background-color: whitesmoke;
+}
+
+.flex-labels label {
+    margin-right: 0.5em;
+}
+
+.packagename {
+    font-size: 1.5em;
+}
+
+.packagename.accent {
+    color: mat-color($maincolor);
+}
+
+.warncolor {
+    color: mat-color($warncolor)
+}
+
+.newcolor {
+    color: mat-color($newcolor)
+}
+
+.lineflex {
+    display: flex;
+    align-content: center;
+    align-items: center;
+}
+
+.lineflex mat-icon {
+    margin-right: .25em;
+}

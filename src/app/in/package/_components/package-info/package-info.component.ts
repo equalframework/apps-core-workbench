@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { WorkbenchService } from '../../_service/models.service';
+import { isEqual, cloneDeep, indexOf } from 'lodash';
+import { WorkbenchService } from '../../_service/package.service';
 
 @Component({
     selector: 'app-package-info',

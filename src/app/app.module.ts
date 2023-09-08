@@ -21,6 +21,8 @@ import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar';
 
 // specific locale setting
 import localeFr from '@angular/common/locales/fr';
+import { PackageComponent } from './in/package/package.component';
+import { PackageModule } from './in/package/package.module';
 registerLocaleData(localeFr);
 
 
@@ -30,6 +32,7 @@ registerLocaleData(localeFr);
         AppComponent,
     ],
     imports: [
+        PackageModule,
         AppRoutingModule,
         BrowserModule,
         BrowserAnimationsModule,
