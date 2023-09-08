@@ -40,6 +40,7 @@ export class PropertySelectFieldComponentComponent implements OnInit {
                 map(value => this._filter(value || '')),
             );
             this.myControl.setValue(this.value);
+            console.log(this.field)
         }
     }
 

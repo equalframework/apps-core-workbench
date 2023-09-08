@@ -30,6 +30,7 @@ export class ModelsComponent implements OnInit {
     public schema: any;
     public fields_for_selected_class: FieldClass[];
     public types: any;
+    public initialised_packages : string[]
     @ViewChild(FieldContentComponent) childComponent: FieldContentComponent;
 
     constructor(
@@ -49,13 +50,17 @@ export class ModelsComponent implements OnInit {
      *
      * @param eq_package the package that the user has selected
      */
-    public onclickPackageSelect(eq_package: string) {
+    public async onclickPackageSelect(eq_package: string) {
+        const old = this.selected_package;
         this.selected_package = eq_package;
-        this.classes_for_selected_package = this.eq_class[this.selected_package];
-        this.selected_class = "";
-        this.selected_field = undefined;
-        this.child_loaded = false;
-        this.step = 1;
+        if(old === this.selected_package) {
+            this.classes_for_selected_package = this.eq_class[this.selected_package];
+            this.selected_class = "";
+            this.selected_field = undefined;
+            this.child_loaded = false;
+            this.step = 1;
+        }
+        this.initialised_packages = await this.api.getInitialisedPackages()
     }
 
     /**
@@ -106,12 +111,15 @@ export class ModelsComponent implements OnInit {
      * @param eq_class the class that the user has selected
      */
     public async onclickClassSelect(eq_class: string) {
+        const old = this.selected_class
         this.selected_class = eq_class;
-        this.selected_field = undefined;
-        this.child_loaded = false;
         this.schema = await this.api.getSchema(this.selected_package + '\\' + this.selected_class);
-        this.fields_for_selected_class = await this.loadUsableField() 
-        this.step = 2;
+        if(old === this.selected_class) {
+            this.selected_field = undefined;
+            this.child_loaded = false;
+            this.fields_for_selected_class = await this.loadUsableField() 
+            this.step = 2;
+        }
     }
 
     /**
@@ -330,6 +338,10 @@ export class ModelsComponent implements OnInit {
     }
 
     public getBack() {
+        if(this.step === 2 && this.detectAnyChanges()){
+            this.snackBar.open("Save or reset changes before quitting.")
+            return
+        }
         this.step --;
     }
 
@@ -354,18 +366,34 @@ export class ModelsComponent implements OnInit {
         var schema = this.regenerateSchema()
         var timerId = setTimeout(async () => {
             this.api.updateSchema(schema,this.selected_package,this.selected_class)
-            this.selected_field = undefined;
-            this.child_loaded = false;
-            this.schema = await this.api.getSchema(this.selected_package + '\\' + this.selected_class);
-            this.fields_for_selected_class = await this.loadUsableField()
-        }, 5000);
+            this.step --;
+            this.snackBar.open("Saved ! Change can take time to be ", '', {
+                duration: 1000,
+                horizontalPosition: 'left',
+                verticalPosition: 'bottom'
+            })
+        }, 3000);
         this.snackBar.open("Saving...", 'Cancel', {
-            duration: 5000,
+            duration: 3000,
             horizontalPosition: 'left',
             verticalPosition: 'bottom'
         }).onAction().subscribe(() => {
             clearTimeout(timerId);
         })
+    }
+
+    public detectAnyChanges():boolean {
+        for(var i in this.fields_for_selected_class) {
+            if(!this.fields_for_selected_class[i].synchronised) return true
+        }
+        return false
+    }
+
+    public async cancelAllChanges() {
+        this.selected_field = undefined;
+        this.child_loaded = false;
+        this.schema = await this.api.getSchema(this.selected_package + '\\' + this.selected_class);
+        this.fields_for_selected_class = await this.loadUsableField() 
     }
 
 }

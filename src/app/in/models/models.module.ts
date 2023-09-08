@@ -31,6 +31,7 @@ import { SharedLibModule, CustomDateAdapter } from 'sb-shared-lib';
 import { ModelsComponent } from './models.component';
 import { ModelsRoutingModule } from './models-routing.module';
 import { SearchListFieldComponent } from './_components/search-list-field/search-list-field.component';
+import { PackageInfoComponent } from './_components/package-info/package-info.component';
 
 @NgModule({
     imports: [
@@ -61,7 +62,8 @@ import { SearchListFieldComponent } from './_components/search-list-field/search
         AutoCompleteComponent,
         ValueComponent,
         ValueSelectionComponent,
-        UsageComponent
+        UsageComponent,
+        PackageInfoComponent
     ],
     providers: [
         DatePipe,

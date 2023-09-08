@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, ElementRef, ViewChild } from '@angular/core';
 import {FormControl} from '@angular/forms';
+import { FieldClass } from 'src/app/in/models/_object/FieldClass';
 
 @Component({
     selector: 'app-property-array-component',
@@ -41,16 +42,16 @@ export class PropertyArrayComponentComponent implements OnInit {
         this.valueChange.emit(<any> [...this.tempValue]);
     }
 
-    public addValue(value: string) {
-        if (value && value.trim() !== '') {
-            this.tempValue.push(value.trim());
+    public addValue(value:FieldClass) {
+        if (value && value.name.trim() !== '') {
+            this.tempValue.push(value.name);
             this.myControl.setValue('');
         }
 
         this.updateValue();
     }
 
-    public removeValue(element: string) {
+    public removeValue(element:string) {
         const index = this.tempValue.indexOf(element);
         if (index >= 0) {
             this.tempValue.splice(index, 1);
@@ -60,6 +61,6 @@ export class PropertyArrayComponentComponent implements OnInit {
     }
 
     public getFields() {
-        return this.fields.filter((field: string) => !this.tempValue.includes(field));
+        return this.fields.filter((field:FieldClass) => !this.tempValue.includes(field.name) && field.current_scheme['type'] === 'computed');
     }
 }

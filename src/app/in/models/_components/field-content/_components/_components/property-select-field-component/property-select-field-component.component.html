@@ -8,8 +8,8 @@
             <mat-icon class="icon">clear</mat-icon>
         </button>
         <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" (optionSelected)="onSelectionChange($event.option.value)">
-            <mat-option *ngFor="let field of filteredFields | async" [value]="field">
-                {{field}}
+            <mat-option *ngFor="let _field of filteredFields | async" [value]="_field">
+                {{_field}}
             </mat-option>
         </mat-autocomplete>
         <mat-hint>{{description}}</mat-hint>

@@ -160,5 +160,6 @@ export class SearchListFieldComponent implements OnInit {
 
     public reformatTextRename(node:FieldClass) {
         node.name = node.name.replace(" ","-")
+        node.checkSync()
     }
 }

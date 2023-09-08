@@ -89,8 +89,8 @@ export class SearchListComponent implements OnInit {
             let timerId: any;
             timerId = setTimeout(() => {
                 this.nodeDelete.emit(node);
-            }, 5000);
-            this.snack("Deleted", timerId);
+            }, 3000);
+            this.snack("Deleting...", timerId);
         }
     }
 

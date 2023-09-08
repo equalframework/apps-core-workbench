@@ -2,6 +2,7 @@ import { cloneDeep } from "lodash";
 
 export class FieldClass {
     public name:string;
+    public sync_name:string;
     public synchronised:boolean;
     public inherited:boolean
     public current_scheme:any
@@ -10,6 +11,7 @@ export class FieldClass {
 
     constructor(name:string,inherited:boolean=false,synchronised:boolean=true,scheme:any=Model) {
         this.name = name;
+        this.sync_name = this.name
         this.inherited = inherited;
         this.synchronised = synchronised;
         this.isNew = !synchronised;
@@ -19,8 +21,8 @@ export class FieldClass {
 
     public checkSync():boolean {
         // TODO : Make this work
-        this.synchronised = compareDictRecursif(this.sync_scheme,this.current_scheme) === 0
-        return this.synchronised
+        this.synchronised = compareDictRecursif(this.sync_scheme,this.current_scheme) === 0 && this.sync_name === this.name
+        return this.synchronised 
     }
 }
 

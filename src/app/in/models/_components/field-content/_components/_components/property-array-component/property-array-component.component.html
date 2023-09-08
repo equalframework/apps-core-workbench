@@ -32,7 +32,7 @@
             <mat-label>Fields</mat-label>
             <mat-select (selectionChange)="addValue($event.value)">
                 <mat-option *ngFor="let field of fieldsNotIn" [value]="field">
-                    {{field}}
+                    {{field.name}}
                 </mat-option>
             </mat-select>
         </mat-form-field>

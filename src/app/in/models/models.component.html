@@ -18,7 +18,10 @@
             </mat-grid-tile>
             <!-- Package content -->
             <mat-grid-tile colspan="3" class="max-height">
-                content
+                <app-package-info class="max-height max-width"
+                [current_package]="selected_package"
+                [package_init_list]="initialised_packages"
+                ></app-package-info>
             </mat-grid-tile>
         </mat-grid-list>
     </div>
@@ -62,6 +65,9 @@
             <mat-label>{{ selected_package }}\{{ selected_class }}</mat-label>
             <button (click)="regenerateSchemaAndPublish()" mat-icon-button matTooltip="Primary" color="accent" aria-label="Go back">
                 <mat-icon>publish</mat-icon>
+            </button>
+            <button (click)="cancelAllChanges()" mat-icon-button matTooltip="Primary" color="accent" aria-label="Go back">
+                <mat-icon>cancel</mat-icon>
             </button>
         </div>
         <mat-grid-list cols="4" class="max-height">
