@@ -2,6 +2,7 @@ import { Component, OnInit, ViewEncapsulation, Output } from '@angular/core';
 import { ControllersService } from './_service/controllers.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { prettyPrintJson } from 'pretty-print-json';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
     selector: 'app-controllers',
@@ -18,29 +19,26 @@ export class ControllersComponent implements OnInit {
     public selected_property = '';
     public selected_type_controller = '';
     public schema: any;
+    public controller_access_restrained: boolean;
+    public selected_desc = '';
 
-    public step = 0;
+    public step = 1;
 
     constructor(
         private api: ControllersService,
-        private snackBar: MatSnackBar
+        private snackBar: MatSnackBar,
+        private activateRoute: ActivatedRoute,
+        private route:Router
     ) { }
 
     public async ngOnInit() {
         this.packages = await this.api.getPackages();
-    }
-
-    /**
-     * Select a package when user click on it.
-     *
-     * @param eq_package the package that the user has selected
-     */
-    public async onclickPackageSelect(eq_package: string) {
-        this.selected_package = eq_package;
+        const a = this.activateRoute.snapshot.paramMap.get('selected_package')
+        this.selected_package = a ? a : ''
+        console.log(this.selected_package)
         this.controllers = await this.api.getControllers(this.selected_package);
         this.selected_controller = "";
         this.selected_property = "";
-        this.step = 1;
     }
 
     /**
@@ -51,18 +49,24 @@ export class ControllersComponent implements OnInit {
     public async onclickControllerSelect(event: { type: string, name: string }) {
         this.selected_type_controller = event.type;
         let response = await this.api.getAnnounceController(event.type, this.selected_package, event.name);
+        this.controller_access_restrained = !response
         if (!response) {
             this.snackBar.open('Not allowed', 'Close', {
                 duration: 1500,
-                horizontalPosition: 'center',
+                horizontalPosition: 'left',
                 verticalPosition: 'bottom'
             });
         } else {
             this.selected_controller = event.name;
             this.selected_property = 'description'
             this.schema = response.announcement;
-            this.step = 2;
+            console.log(this.schema)
+            //this.step = 2;
         }
+    }
+
+    public changeStep(event:number) {
+        this.step = event
     }
 
     /**
@@ -128,5 +132,12 @@ export class ControllersComponent implements OnInit {
      */
     private prettyPrint(input: any) {
         return prettyPrintJson.toHtml(input);
+    }
+
+    public getBack() {
+        if(this.step === 1) {
+            this.route.navigate([".."])
+        }
+        this.step --;
     }
 }

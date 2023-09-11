@@ -12,5 +12,30 @@
 }
 
 .accent {
-    color: mat-color($accentcolor);
+    color: mat-color($maincolor);
 }
+
+.package-info-button {
+    color : mat-color($maincolor) !important;
+    background-color:  #e4e4e4 !important;
+    min-width: 20em;
+    height: 4em;
+}
+
+.package-info-button label {
+    font-size: 1.1em;
+}
+
+.package-info-button mat-icon {
+    margin-right: 1em;
+    transform: scale(1.2);
+}
+
+.button-pkg-container {
+    display: flex;
+    align-items: center;
+    align-content: center;
+    justify-content: space-around;
+    margin-top: 2em;
+}
+

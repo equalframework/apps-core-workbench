@@ -1,6 +1,26 @@
 <div class="margin-container">
     <div class="class-disp-title" *ngIf="selected_class !== ''">
         <label>Class : </label><label class="accent">{{selected_package}}\{{ selected_class }}</label>
+        <mat-grid-list [cols]="4" rowHeight="4.5em" class="max-width button-pkg-container">
+            <mat-grid-tile>
+                <button mat-button class="package-info-button"><mat-icon>insert_drive_file</mat-icon><label>Properties</label></button>
+            </mat-grid-tile>
+            <mat-grid-tile>
+                <button mat-button class="package-info-button" (click)="fieldOnClick()"><mat-icon>text_format</mat-icon><label>Fields</label></button>
+            </mat-grid-tile>
+            <mat-grid-tile>
+                <button mat-button class="package-info-button" ><mat-icon>call_split</mat-icon><label>Workflows</label></button>
+            </mat-grid-tile>
+            <mat-grid-tile>
+                <button mat-button class="package-info-button" ><mat-icon>question_mark</mat-icon><label>Roles</label></button>
+            </mat-grid-tile>
+            <mat-grid-tile>
+                <button mat-button class="package-info-button" ><mat-icon>policy</mat-icon><label>Policies</label></button>
+            </mat-grid-tile>
+            <mat-grid-tile>
+                <button mat-button class="package-info-button" ><mat-icon>shortcut</mat-icon><label>Actions</label></button>
+            </mat-grid-tile>
+        </mat-grid-list>
     </div>
     <div class="class-disp-title" *ngIf="selected_class === ''">
         <label>Select a class to see its information.</label>

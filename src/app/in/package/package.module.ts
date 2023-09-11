@@ -35,6 +35,7 @@ import { ResponseComponentSubmit } from './_components/router-property/_componen
 import { PackageInfoComponent } from './_components/package-info/package-info.component';
 import { MvcSelectorComponent } from './_components/mvc-selector/mvc-sel.component';
 import { AppInModelsModule } from '../models/models.module';
+import { MatGridListModule } from '@angular/material/grid-list';
 
 
 @NgModule({
@@ -50,7 +51,8 @@ import { AppInModelsModule } from '../models/models.module';
         MatFormFieldModule,
         MatInputModule,
         MatIconModule,
-        AppInModelsModule
+        AppInModelsModule,
+        MatGridListModule
     ],
     declarations: [
         PackageComponent,
@@ -72,7 +74,7 @@ import { AppInModelsModule } from '../models/models.module';
         ValueSelectionComponent,
         ResponseComponentSubmit,
         PackageInfoComponent,
-        MvcSelectorComponent
+        MvcSelectorComponent,
     ],
     providers: [
         DatePipe,

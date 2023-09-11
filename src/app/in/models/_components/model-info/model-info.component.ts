@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-model-info',
@@ -8,6 +8,7 @@ import { Component, Input, OnInit } from '@angular/core';
 export class ModelInfoComponent implements OnInit {
   @Input() selected_package:string
   @Input() selected_class:string
+  @Output() changeStep = new EventEmitter<number>()
 
   constructor() { }
 
@@ -16,6 +17,10 @@ export class ModelInfoComponent implements OnInit {
 
   ngOnUpdate() {
     console.log(this.selected_class)
+  }
+
+  fieldOnClick() {
+    this.changeStep.emit(2);
   }
 
 }

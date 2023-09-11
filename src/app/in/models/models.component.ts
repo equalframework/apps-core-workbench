@@ -7,7 +7,7 @@ import { prettyPrintJson } from 'pretty-print-json';
 import { FieldClassArray } from './_object/FieldClassArray';
 import { FieldClass } from './_object/FieldClass';
 import { fi } from 'date-fns/locale';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, update } from 'lodash';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
 @Component({
@@ -62,15 +62,18 @@ export class ModelsComponent implements OnInit {
      *
      * @param eq_class the class that the user has selected
      */
-    public async onclickClassSelect(eq_class: string) {
+    public onclickClassSelect(eq_class: string) {
         const old = this.selected_class
         this.selected_class = eq_class;
-        this.schema = await this.api.getSchema(this.selected_package + '\\' + this.selected_class);
-        if(old === this.selected_class) {
+    }
+
+    public async onChangeStep(step:number) {
+        this.step = step;
+        if(step == 2) {
+            this.schema = await this.api.getSchema(this.selected_package + '\\' + this.selected_class);
             this.selected_field = undefined;
             this.child_loaded = false;
             this.fields_for_selected_class = await this.loadUsableField() 
-            this.step = 2;
         }
     }
 
@@ -109,7 +112,32 @@ export class ModelsComponent implements OnInit {
             a.push(new FieldClass(key,inherited,true,fields[key]))
         }
         return this.fieldSort(a)
+    }
 
+    public async setInherited() {
+        var parent_fields
+        if (this.schema['parent'] === "equal\\orm\\Model") {
+            parent_fields = Model
+        } 
+        else {
+            var parent_scheme = await this.api.getSchema(this.schema['parent'])
+            var parent_fields = parent_scheme.fields
+        }
+        for(let i in this.fields_for_selected_class) {
+            let item = this.fields_for_selected_class[i]
+            let inherited = false
+            if(parent_fields[item.name] !== undefined ) {
+                inherited = true
+                for(var info in item.current_scheme) {
+                    if(info === "default") continue;
+                    if(parent_fields[item.name][info] !== item.current_scheme[info]) {
+                        inherited = false
+                        break
+                    }
+                }
+            }
+            this.fields_for_selected_class[i].inherited = inherited
+        }
     }
 
     public fieldSort(input:FieldClass[]):FieldClass[] {
@@ -150,11 +178,6 @@ export class ModelsComponent implements OnInit {
      */
     public onupdateClass(event: { old_node: string, new_node: string }) {
         this.api.updateClass(this.selected_package, event.old_node, event.new_node);
-        /* MAY BE USEFUL WHEN LINK TO BACKEND
-        if (this.selected_class == event.old_node) {
-            this.selected_class = event.new_node;
-        }
-        */
     }
 
     /**
@@ -164,13 +187,6 @@ export class ModelsComponent implements OnInit {
      */
     public ondeleteClass(eq_class: string) {
         this.api.deleteClass(this.selected_package, eq_class);
-        /* MAY BE USEFUL WHEN LINK TO BACKEND
-        if (this.selected_class == eq_class) {
-            this.selected_class = "";
-            this.selected_field = "";
-            this.child_loaded = false;
-        }
-        */
     }
 
     /**
@@ -188,36 +204,8 @@ export class ModelsComponent implements OnInit {
      * @param field the field that the user has selected
      */
     public onclickFieldSelect(field:FieldClass) {
-        /*if (!this.child_loaded) {
-            this.selected_field = field;
-            this.child_loaded = true;
-        } else {
-            if (!this.childComponent?.hasChanged) {
-                this.selected_field = field;
-            } else {
-                console.log("snackbar");
-                this.snackBar.open('Save or abandon changes before changing context', 'Close', {
-                    duration: 1500,
-                    horizontalPosition: 'left',
-                    verticalPosition: 'bottom'
-                });
-            }
-        }*/
         this.selected_field = field;
-    }
-
-    /**
-     * Update the name of a field for the selected package/class.
-     *
-     * @param event contain the old and new name of the field
-     */
-    public onupdateField(event: { node: FieldClass, new_node: string }) {
-        //this.api.updateField(this.selected_package, this.selected_class, event.old_node, event.new_node); // ONLY FOR NAME
-        /* MAY BE USEFUL WHEN LINK TO BACKEND
-        if (this.selected_field == event.old_node) {
-            this.selected_field = event.new_node;
-        }
-        */
+        this.setInherited()
     }
 
     /**

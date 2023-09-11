@@ -1,0 +1,101 @@
+<div *ngIf="current_controller ===''" class="max-height max-width margin-container">
+    <label class="packagename">Select a controller to show properties.</label>
+</div>
+<div *ngIf="current_controller !==''" class="max-height max-width margin-container">
+    <div class="controller-container-top">
+        <div class="flex-labels">
+            <label class="packagename">Controller :</label>
+            <label class="packagename accent">{{ current_controller }}</label>
+            <label class="packagename accent-color">({{ controller_type.toUpperCase() }})</label>
+        </div>
+        <br>
+        <label class="content-label">Description</label>
+        <pre class="content-desc">{{scheme['description']}}</pre>
+        <div *ngIf="AccessString !== undefined">
+            <br>
+            <label class="content-label">Access</label>
+            <pre class="content-desc" [innerHTML]="AccessString"></pre>
+        </div>
+        <br>
+        <label class="content-label">Request header</label>
+        <pre class="content-desc" [innerHTML]="requestString"></pre>
+        <br>
+        <label class="content-label">params</label>
+        <div class="params-container">
+            <div *ngFor="let value of params | keyvalue" class="params-mat-card">
+                <div>
+                    <p class="controller-param-title">{{value.key}} : {{getType(value.key)}} <strong *ngIf="isRequired(value.key)">(required)</strong></p>
+                </div>
+                <div>
+                    <p>{{getDescription(value.key)}}</p>
+                </div>
+                <div class="flex">
+                    <div class="flex card-content2">
+                        <ng-container *ngIf="getType(value.key) == 'string'">
+                            <app-string
+                                [value]="getParamsValue(value.key)"
+                                [required]="isRequired(value.key)"
+                                [selection]="getSelection(value.key)"
+                                (valueChange)="updateParamsValue($event, value.key)">
+                            </app-string>
+                        </ng-container>
+                        <ng-container *ngIf="getType(value.key) == 'integer' || getType(value.key) == 'float'">
+                            <app-number
+                                [value]="getParamsValue(value.key)"
+                                [required]="isRequired(value.key)"
+                                [selection]="getSelection(value.key)"
+                                [params_property]="value.value"
+                                (valueChange)="updateParamsValue($event, value.key)">
+                            </app-number>
+                        </ng-container>
+                        <ng-container *ngIf="getType(value.key) == 'boolean'">
+                            <app-boolean
+                                [value]="getParamsValue(value.key)"
+                                [required]="isRequired(value.key)"
+                                (valueChange)="updateParamsValue($event, value.key)">
+                            </app-boolean>
+                        </ng-container>
+                        <ng-container *ngIf="getType(value.key) == 'array' && value.key != 'domain'">
+                            <app-array
+                                [value]="getParamsValue(value.key)"
+                                (valueChange)="updateParamsValue($event, value.key)">
+                            </app-array>
+                        </ng-container>
+                        <ng-container *ngIf="value.key == 'domain'">
+                            <app-domain
+                                [value]="getParamsValue(value.key)"
+                                [class]="getEntity()"
+                                (valueChange)="updateParamsValue($event, value.key)">
+                            </app-domain>
+                        </ng-container>
+                    </div>
+                    <br>
+                </div>
+            </div>
+        </div>
+        <label class="content-label">cli command</label>
+        <pre class="content-desc" [innerHTML]="cliCommand"></pre>
+        <br>
+        <label class="content-label">Base route</label>
+        <pre class="content-desc" [innerHTML]="baseRoute"></pre>
+        <br>
+        <button mat-button class="action-controller-button" (click)="submit()" [disabled]="!canSubmit">
+            <mat-icon class="action-controller-icon">upload</mat-icon>Submit action
+        </button>
+        <button mat-button class="action-controller-button" (click)="cpyCLI()" [disabled]="!canSubmit">
+            <mat-icon class="action-controller-icon">keyboard_command</mat-icon>Copy cli
+        </button>
+        <button mat-button class="action-controller-button" (click)="cpyRequest()" [disabled]="!canSubmit">
+            <mat-icon class="action-controller-icon">http</mat-icon>Copy http request
+        </button>
+        <div class="controller-container-spacer"></div>
+    </div>
+    <div class="controller-container-bottom">
+        <br>
+        <mat-grid-list [cols]="4" rowHeight="5.5em" class="max-width button-pkg-container">
+            <mat-grid-tile>
+                <button mat-button class="package-info-button" (click)="clickEdit()"><mat-icon>edit</mat-icon><label>Edit</label></button>
+            </mat-grid-tile>
+        </mat-grid-list>
+    </div>
+</div>

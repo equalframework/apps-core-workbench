@@ -20,7 +20,9 @@
             <app-package-info class="max-height max-width"
                 [current_package]="selected_package"
                 [package_init_list]="initialised_packages"
+                [package_consitency]="package_consistency"
                 (onModelClick)="onClickModels()"
+                (onControllerClick)="onClickControllers()"
             >
             </app-package-info>
         </mat-grid-tile>

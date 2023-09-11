@@ -24,6 +24,7 @@
                 <app-model-info
                 [selected_package]="selected_package"
                 [selected_class]="selected_class"
+                (changeStep)="onChangeStep($event)"
                 >
                 </app-model-info>
             </mat-grid-tile>
@@ -37,7 +38,11 @@
             <button (click)="getBack()" mat-icon-button matTooltip="Primary" color="primary" aria-label="Go back">
                 <mat-icon>keyboard_backspace</mat-icon>
             </button>
-            <mat-label>{{ selected_package }}\{{ selected_class }}</mat-label>
+            <mat-label>{{ selected_package }}\{{ selected_class }} :</mat-label>
+            <div class="info-menu">
+                <mat-icon class="info-menu-icon">text_format</mat-icon>
+                <mat-label>Fields</mat-label>
+            </div>
             <button (click)="regenerateSchemaAndPublish()" mat-icon-button matTooltip="Primary" color="accent" aria-label="Go back">
                 <mat-icon>publish</mat-icon>
             </button>

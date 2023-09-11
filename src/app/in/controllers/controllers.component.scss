@@ -1,3 +1,5 @@
+@import "/src/theme.scss";
+
 :host {
     width: 100%;
     height: 100%;
@@ -34,8 +36,8 @@
 
 #schema > figure {
     display: inline !important;
-    overflow-y: scroll;
-    overflow-x: auto;
+    //overflow-y: scroll;
+    //overflow-x: auto;
 }
 
 mat-grid-tile > figure {
@@ -57,4 +59,43 @@ pre {
     .json-string {
         color: #808000
     }
+}
+
+.step {
+    margin: 1%;
+    overflow: hidden;
+    width: 98%;
+    height: calc(100% - 2em);
+}
+
+.title-container {
+    display: flex;
+    align-items: center;
+    font-size : 1.5em;
+}
+
+.title-container button,mat-label {
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+}
+
+.title-container .info-menu{
+    color : mat-color($maincolor);
+}
+
+.title-container .info-menu {
+    display: flex;
+    align-items: center;
+}
+
+.title-container .info-menu .info-menu-icon {
+    transform : scale(1.2);
+}
+
+.title-container .info-menu mat-label {
+    margin: 0 !important;
+}
+
+.title-container .solo {
+    margin-left: 2.5em;
 }

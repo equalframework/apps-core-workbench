@@ -6,6 +6,16 @@
         <label class="packagename">Package :</label>
         <label class="packagename accent">{{ current_package }}</label>
     </div>
+
+    <div *ngIf="error_count !== 0 || warn_count !== 0" class="lineflex warncolor">
+        <mat-icon>error</mat-icon>
+        <label  class="warncolor">{{error_count}} errors and {{warn_count}} warnings</label>
+    </div>
+    <div *ngIf="error_count === 0 && warn_count === 0" class="lineflex newcolor">
+        <mat-icon>check_circle</mat-icon>
+        <label>No error or warning on this package</label>
+    </div>
+
     <div *ngIf="!current_initialised" class="lineflex warncolor">
         <mat-icon>error</mat-icon>
         <label  class="warncolor">This package has not been initialised</label>
@@ -14,13 +24,33 @@
         <mat-icon>check_circle</mat-icon>
         <label>This package has been initialised</label>
     </div>
-    <div class="max-width button-container">
-        <button mat-button class="package-info-button" (click)="modelOnClick()"><mat-icon>data_object</mat-icon>Models</button>
-        <button mat-button class="package-info-button" ><mat-icon>code</mat-icon>Controleurs</button>
-        <button mat-button class="package-info-button" ><mat-icon>view_quilt</mat-icon>Views</button>
-        <button mat-button class="package-info-button" ><mat-icon>translater</mat-icon>Translation</button>
-        <button mat-button class="package-info-button" ><mat-icon>file_present</mat-icon>Initial data</button>
-        <button mat-button class="package-info-button" ><mat-icon>info</mat-icon>Properties</button>
-        <button mat-button class="package-info-button" ><mat-icon>apps</mat-icon>Applications</button>
+    <div class="scroll limited_size">
+        <div *ngFor="let item of error_list" [class.color-red]="item.type==2" [class.color-orange]="item.type==1">
+            {{item.text}}
+        </div>
     </div>
+    <br>
+    <mat-grid-list [cols]="4" rowHeight="5.5em" class="max-width button-pkg-container">
+        <mat-grid-tile>
+            <button mat-button class="package-info-button" (click)="modelOnClick()"><mat-icon>data_object</mat-icon><label>Models</label></button>
+        </mat-grid-tile>
+        <mat-grid-tile>
+            <button mat-button class="package-info-button" (click)="controllerOnClick()"><mat-icon>code</mat-icon><label>Controllers</label></button>
+        </mat-grid-tile>
+        <mat-grid-tile>
+            <button mat-button class="package-info-button" ><mat-icon>view_quilt</mat-icon><label>Views</label></button>
+        </mat-grid-tile>
+        <mat-grid-tile>
+            <button mat-button class="package-info-button" ><mat-icon>translater</mat-icon><label>Translation</label></button>
+        </mat-grid-tile>
+        <mat-grid-tile>
+            <button mat-button class="package-info-button" ><mat-icon>file_present</mat-icon><label>Initial data</label></button>
+        </mat-grid-tile>
+        <mat-grid-tile>
+            <button mat-button class="package-info-button" ><mat-icon>info</mat-icon><label>Properties</label></button>
+        </mat-grid-tile>
+        <mat-grid-tile>
+            <button mat-button class="package-info-button" ><mat-icon>apps</mat-icon><label>Applications</label></button>
+        </mat-grid-tile>
+    </mat-grid-list>
 </div>

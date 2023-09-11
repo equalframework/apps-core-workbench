@@ -1,3 +1,5 @@
+@import "/src/theme.scss";
+
 :host {
     width: 100%;
     height: 100%;
@@ -69,6 +71,23 @@ pre {
 .title-container button,mat-label {
     margin-left: 0.5em;
     margin-right: 0.5em;
+}
+
+.title-container .info-menu{
+    color : mat-color($maincolor);
+}
+
+.title-container .info-menu {
+    display: flex;
+    align-items: center;
+}
+
+.title-container .info-menu .info-menu-icon {
+    transform : scale(1.2);
+}
+
+.title-container .info-menu mat-label {
+    margin: 0 !important;
 }
 
 .title-container .solo {

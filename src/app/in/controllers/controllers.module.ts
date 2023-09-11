@@ -34,6 +34,7 @@ import { AutoCompleteComponent } from './_components/router-property/_components
 import { ValueComponent } from './_components/router-property/_components/params/_components/domain/_components/value/value.component';
 import { ValueSelectionComponent } from './_components/router-property/_components/params/_components/domain/_components/value-selection/value-selection.component';
 import { ResponseComponentSubmit } from './_components/router-property/_components/params/_components/response/response.component'
+import { ControllerInfoComponent } from './_components/controller-info/controller-info.component';
 
 
 @NgModule({
@@ -69,7 +70,8 @@ import { ResponseComponentSubmit } from './_components/router-property/_componen
         AutoCompleteComponent,
         ValueComponent,
         ValueSelectionComponent,
-        ResponseComponentSubmit
+        ResponseComponentSubmit,
+        ControllerInfoComponent
     ],
     providers: [
         DatePipe,

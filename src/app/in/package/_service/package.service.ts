@@ -137,6 +137,17 @@ export class WorkbenchService {
         return ret;
     }
 
+    public async getPackageConsistency(pkg:string ):Promise<any> {
+        var ret = []
+        try {
+            ret = await this.api.fetch('?do=test_package-consistency&package='+pkg);
+        }
+        catch (response: any) {
+            console.warn('fetch package error', response);
+        }
+        return ret;
+    }
+
     /**
      * Return all the classes foreach package
      *

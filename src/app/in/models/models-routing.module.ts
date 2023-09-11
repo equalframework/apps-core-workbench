@@ -6,7 +6,7 @@ import { ModelsComponent } from './models.component';
 const routes: Routes = [
     // wildcard route (accept root and any sub route that does not match any of the routes above)
     {
-        path: '**',
+        path: '',
         component: ModelsComponent
     }
 ];

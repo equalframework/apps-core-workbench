@@ -1,3 +1,7 @@
+:host {
+    height: calc(100% - 1em);
+}
+
 .node_container {
     display: flex;
     align-items: center;

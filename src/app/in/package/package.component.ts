@@ -20,7 +20,8 @@ export class PackageComponent implements OnInit {
     // http://equal.local/index.php?get=config_packages
     public packages: string[];
     // http://equal.local/index.php?get=core_config_classes
-    public initialised_packages : string[]
+    public initialised_packages:string[]
+    public package_consistency:any
 
     constructor(
         private context: ContextService,
@@ -42,11 +43,16 @@ export class PackageComponent implements OnInit {
         const old = this.selected_package;
         this.selected_package = eq_package;
         this.initialised_packages = await this.api.getInitialisedPackages()
+        this.package_consistency = await this.api.getPackageConsistency(this.selected_package)
+        console.log(this.package_consistency)
     }
-
 
     public onClickModels() {
         this.router.navigate(['/models', this.selected_package]);
+    }
+
+    public onClickControllers() {
+        this.router.navigate(['/controllers', this.selected_package]);
     }
     
     /**
@@ -100,26 +106,6 @@ export class PackageComponent implements OnInit {
     private prettyPrint(input: any) {
         return prettyPrintJson.toHtml(input);
     }
-}
-
-function compareDictRecursif(dict1:any, dict2:any):number {
-    if(dict1 === undefined) return -1
-    if(dict2 === undefined) return 1
-    if(typeof(dict1) !== typeof({}) && typeof(dict1) !== typeof({}) && dict1 === dict2) {
-        return 0
-    }
-    var res:number
-    for(var item in dict1) {
-        if(dict2[item] === undefined) return 1
-        res = compareDictRecursif(dict1[item],dict2[item])
-        if(res !== 0) return 1
-    }
-    for(var item in dict2) {
-        if(dict1[item] === undefined) return 1
-        res = compareDictRecursif(dict1[item],dict2[item])
-        if(res !== 0) return -1
-    }
-    return 0
 }
 
 // This is the object that should be returned by await this.api.getSchema('equal\orm\model')
