@@ -26,9 +26,10 @@
 }
 
 .list {
-    height: calc(100% - (65px) - (51px) - (54px));
+    border-radius: 10px;
+    height: calc(100% - (45px));
     overflow: auto;
-
+    background-color: whitesmoke;
     .node-text {
         height: 100%;
         width: 100%;

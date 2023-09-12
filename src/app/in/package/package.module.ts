@@ -33,7 +33,6 @@ import { ValueComponent } from './_components/router-property/_components/params
 import { ValueSelectionComponent } from './_components/router-property/_components/params/_components/domain/_components/value-selection/value-selection.component';
 import { ResponseComponentSubmit } from './_components/router-property/_components/params/_components/response/response.component'
 import { PackageInfoComponent } from './_components/package-info/package-info.component';
-import { MvcSelectorComponent } from './_components/mvc-selector/mvc-sel.component';
 import { AppInModelsModule } from '../models/models.module';
 import { MatGridListModule } from '@angular/material/grid-list';
 
@@ -74,7 +73,6 @@ import { MatGridListModule } from '@angular/material/grid-list';
         ValueSelectionComponent,
         ResponseComponentSubmit,
         PackageInfoComponent,
-        MvcSelectorComponent,
     ],
     providers: [
         DatePipe,

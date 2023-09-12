@@ -12,7 +12,7 @@
 </div>
 
 <mat-list class="list scrollable">
-    <mat-list-item *ngFor="let node of filteredData" class="scrollable">
+    <mat-list-item *ngFor="let node of filteredData" class="">
         <ng-container *ngIf="editingNode === node; else displayMode" class="node_container">
             <div class="node_container">
                 <mat-form-field class="editedNode">

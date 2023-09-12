@@ -30,8 +30,9 @@ export class StringComponent implements OnInit {
     }
 
     public initialization() {
+        this.turnSelectionIntoArray()
         this.value ? this.inputValue = this.value : this.inputValue = '';
-
+        console.log(this.selection)
         if (this.selection) {
             if(!this.required && !this.selection.includes("")) {
                 let tempValue = this.selection[0];
@@ -44,6 +45,15 @@ export class StringComponent implements OnInit {
             );
             this.myControl.setValue(this.value);
         }
+    }
+
+    public turnSelectionIntoArray() {
+        if(this.selection === undefined) return
+        let temp:string[] = []
+        for(let key in this.selection) {
+            temp.push(this.selection[key])
+        }
+        this.selection = temp
     }
 
     private _filter(value: string): string[] {

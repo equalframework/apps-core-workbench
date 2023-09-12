@@ -1,8 +1,8 @@
 <div *ngIf="current_controller ===''" class="max-height max-width margin-container">
     <label class="packagename">Select a controller to show properties.</label>
 </div>
-<div *ngIf="current_controller !==''" class="max-height max-width margin-container">
-    <div class="controller-container-top">
+<div *ngIf="current_controller !==''" class="max-width margin-container">
+    <div class="scrollable max-height">
         <div class="flex-labels">
             <label class="packagename">Controller :</label>
             <label class="packagename accent">{{ current_controller }}</label>
@@ -10,7 +10,7 @@
         </div>
         <br>
         <label class="content-label">Description</label>
-        <pre class="content-desc">{{scheme['description']}}</pre>
+        <p class="content-desc">{{scheme['description']}}</p>
         <div *ngIf="AccessString !== undefined">
             <br>
             <label class="content-label">Access</label>
@@ -73,29 +73,26 @@
                 </div>
             </div>
         </div>
-        <label class="content-label">cli command</label>
-        <pre class="content-desc" [innerHTML]="cliCommand"></pre>
-        <br>
-        <label class="content-label">Base route</label>
-        <pre class="content-desc" [innerHTML]="baseRoute"></pre>
         <br>
         <button mat-button class="action-controller-button" (click)="submit()" [disabled]="!canSubmit">
             <mat-icon class="action-controller-icon">upload</mat-icon>Submit action
         </button>
-        <button mat-button class="action-controller-button" (click)="cpyCLI()" [disabled]="!canSubmit">
-            <mat-icon class="action-controller-icon">keyboard_command</mat-icon>Copy cli
-        </button>
-        <button mat-button class="action-controller-button" (click)="cpyRequest()" [disabled]="!canSubmit">
-            <mat-icon class="action-controller-icon">http</mat-icon>Copy http request
-        </button>
-        <div class="controller-container-spacer"></div>
-    </div>
-    <div class="controller-container-bottom">
+        <br><br>
+        <div>
+            <label class="content-label">cli command</label>
+            <pre class="content-desc" [innerHTML]="cliCommand"></pre>
+            <button mat-button class="action-controller-button" (click)="cpyCLI()" [disabled]="!canSubmit">
+                <mat-icon class="action-controller-icon">content_copy</mat-icon>Copy cli
+            </button>
+        </div>
         <br>
-        <mat-grid-list [cols]="4" rowHeight="5.5em" class="max-width button-pkg-container">
-            <mat-grid-tile>
-                <button mat-button class="package-info-button" (click)="clickEdit()"><mat-icon>edit</mat-icon><label>Edit</label></button>
-            </mat-grid-tile>
-        </mat-grid-list>
+        <div>
+            <label class="content-label">Base route</label>
+            <pre class="content-desc" [innerHTML]="baseRoute"></pre>
+            <button mat-button class="action-controller-button" (click)="cpyRequest()" [disabled]="!canSubmit">
+                <mat-icon class="action-controller-icon">content_copy</mat-icon>Copy http request
+            </button>
+        </div>
+        <br>
     </div>
 </div>

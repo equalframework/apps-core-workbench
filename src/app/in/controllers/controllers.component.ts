@@ -61,7 +61,6 @@ export class ControllersComponent implements OnInit {
             this.selected_property = 'description'
             this.schema = response.announcement;
             console.log(this.schema)
-            //this.step = 2;
         }
     }
 

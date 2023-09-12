@@ -10,6 +10,7 @@
     padding: 2em;
     border-radius: 10px;
     background-color: whitesmoke;
+    height: calc(100% - 4em);
 }
 
 .flex-labels label {
@@ -66,32 +67,17 @@
     color : mat-color($editedcolor)
 }
 
-.scroll {
+.scrollable {
     overflow-y: scroll;
 }
-
-.limited_size {
-    margin-top: 2em;
-    max-height: 50%;
-    font-size: .9em;
-}  
 
 .content-label {
     font-size: 1.3em !important; 
 }
 
 .content-desc {
-    font-size: .9em;
+    font-size: 1em;
     border-radius: 5px;
-}
-
-.controller-container-top {
-    height: 75%;
-    overflow-y: scroll;
-}
-
-.controller-container-bottom {
-    height: 25%;
 }
 
 .params-container {
