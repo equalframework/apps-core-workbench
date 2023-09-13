@@ -13,8 +13,12 @@ const routes: Routes = [
       loadChildren: () => import('../controllers/controllers.module').then(m => m.AppInControllersModule)
   },
   {
-      path: 'routes/:selected_package',
+      path: 'routes',
       loadChildren: () => import('../routes/routes.module').then(m => m.AppInRoutesModule)
+  },
+  {
+    path : 'fields/:selected_package/:selected_class',
+    loadChildren: () => import('../models/field/field.module').then(m => m.FieldModule)
   },
   // wildcard route (accept root and any sub route that does not match any of the routes above)
   {

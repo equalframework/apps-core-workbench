@@ -94,5 +94,23 @@
             </button>
         </div>
         <br>
+        <div>
+            <label class="content-label">Custom routes</label>
+            <div *ngFor="let item of obk(filtered_routes)">
+                <div *ngFor="let method of obk(filtered_routes[item]['methods'])" class="controller_cr">
+                    <div class="controller_cr_el controller_cr_method {{method}}">
+                        {{method}}
+                    </div>
+                    <div class="controller_cr_el controller_cr_path">
+                        {{item}}
+                    </div>
+                    <div class="controller_cr_el controller_cr_desc">
+                        {{filtered_routes[item]['methods'][method]['description']}}
+                    </div>
+                </div>
+                <br>
+            </div>
+        </div>
+        <br>
     </div>
 </div>

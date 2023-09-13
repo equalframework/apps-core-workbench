@@ -1,5 +1,4 @@
-<!-- Step for class -->
-<ng-container *ngIf="step === 1">
+<ng-container>
     <div class="max-height step">
         <div class="title-container">
             <button (click)="getBack()" mat-icon-button matTooltip="Primary" color="primary" aria-label="Go back">
@@ -11,25 +10,19 @@
             <!-- Class search list, on the left of the screen -->
             <mat-grid-tile colspan="1" class="max-height">
                 <app-search-list class="max-height max-width"
-                    [data]="classes_for_selected_package"
-                    [selected_node]="selected_class"
-                    (nodeSelect)="onclickClassSelect($event)"
-                    (nodeUpdate)="onupdateClass($event)"
-                    (nodeDelete)="ondeleteClass($event)"
-                    (nodeCreate)="oncreateClass($event)">
+                    [data]="views_for_selected_package"
+                    [selected_node]="selected_view"
+                    (nodeSelect)="onclickViewSelect($event)"
+                    (nodeUpdate)="onupdateView($event)"
+                    (nodeDelete)="ondeleteView($event)"
+                    (nodeCreate)="oncreateView($event)">
                 </app-search-list>
             </mat-grid-tile>
             <!-- Class content -->
             <mat-grid-tile colspan="3" class="max-height" id="schema">
-                <app-model-info
-                [selected_package]="selected_package"
-                [selected_class]="selected_class"
-                [class_scheme]="schema"
-                (changeStep)="onChangeStep($event)"
-                >
-                </app-model-info>
+                <app-views-info>
+                </app-views-info>
             </mat-grid-tile>
         </mat-grid-list>
     </div>
 </ng-container>
-<!-- Step for field -->

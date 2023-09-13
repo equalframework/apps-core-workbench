@@ -12,7 +12,8 @@ export class StringComponent implements OnInit {
 
     @Input() value: any;
     @Input() required: boolean;
-    @Input() selection: any;
+    @Input() selection:any;
+    @Input() corrected_selection:{[id:string]:string};
     @Output() valueChange = new EventEmitter<string>();
     public myControl = new FormControl('');
     public inputValue = '';
@@ -22,7 +23,7 @@ export class StringComponent implements OnInit {
     constructor() { }
 
     ngOnInit(): void {
-        this.initialization();
+        //this.initialization();
     }
 
     public ngOnChanges() {
@@ -30,48 +31,74 @@ export class StringComponent implements OnInit {
     }
 
     public initialization() {
-        this.turnSelectionIntoArray()
         this.value ? this.inputValue = this.value : this.inputValue = '';
-        console.log(this.selection)
         if (this.selection) {
-            if(!this.required && !this.selection.includes("")) {
-                let tempValue = this.selection[0];
-                this.selection[0] = "";
-                this.selection.push(tempValue);
+            this.turnSelectionIntoDict()
+            console.log(this.corrected_selection)
+            if(!this.required && !this.corrected_selection[""]) {
+                this.corrected_selection[""] = "";
             }
             this.filteredSelection = this.myControl.valueChanges.pipe(
                 startWith(''),
                 map(value => this._filter(value || '')),
             );
-            this.myControl.setValue(this.value);
+            this.myControl.setValue(this.getKeyByValue(this.corrected_selection,this.value));
         }
+        console.log(this.corrected_selection)
     }
 
-    public turnSelectionIntoArray() {
-        if(this.selection === undefined) return
-        let temp:string[] = []
-        for(let key in this.selection) {
-            temp.push(this.selection[key])
+    private getKeyByValue(object:{[id:string]:string}, value:string) {
+        for (let prop in object) {
+            if (object.hasOwnProperty(prop)) {
+                if (object[prop] === value)
+                    return prop;
+            }
         }
-        this.selection = temp
+        return ""
+    }
+
+    public turnSelectionIntoDict() {
+        console.log(this.selection)
+        if(this.selection === undefined) return
+        let temp:{[id:string]:string} = {}
+        if(!this.selection[0]) {
+            for(let key in this.selection) {
+                temp[this.selection[key]] = key
+            }
+            this.corrected_selection = temp
+        } 
+        else {
+            for(let key in this.selection) {
+                temp[this.selection[key]] = this.selection[key]
+            }
+            this.corrected_selection = temp
+        }
+        
     }
 
     private _filter(value: string): string[] {
         const filterValue = value.toLowerCase();
-        return this.selection.filter((value: string) => value.toLowerCase().includes(filterValue));
+        let tofilter = Object.keys(this.corrected_selection)
+        return tofilter.filter((value: string) => value.toLowerCase().includes(filterValue));
     }
 
     public updateValue(value: any) {
-        if(value != '') {
+        if(!this.corrected_selection) {
             this.valueChange.emit(value);
+        }
+        if(this.corrected_selection[value] != '') {
+            this.valueChange.emit(this.corrected_selection[value]);
         } else {
             this.valueChange.emit(undefined);
         }
     }
 
     public onSelectDefault(value: any) {
-        if(value != '') {
+        if(!this.corrected_selection) {
             this.valueChange.emit(value);
+        }
+        if(this.corrected_selection[value] != '') {
+            this.valueChange.emit(this.corrected_selection[value]);
         } else {
             this.valueChange.emit(undefined);
         }

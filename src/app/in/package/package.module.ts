@@ -35,6 +35,10 @@ import { ResponseComponentSubmit } from './_components/router-property/_componen
 import { PackageInfoComponent } from './_components/package-info/package-info.component';
 import { AppInModelsModule } from '../models/models.module';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { AppInModelModule } from 'dep-files/symbiose-ui/workbench/src/app/in/model/model.module';
+import { AppInControllersModule } from '../controllers/controllers.module';
+import { ViewsModule } from '../views/views.module';
+import { SearchMixedListComponent } from './_components/search-mixed-list/search-mixed-list.component';
 
 
 @NgModule({
@@ -51,12 +55,15 @@ import { MatGridListModule } from '@angular/material/grid-list';
         MatInputModule,
         MatIconModule,
         AppInModelsModule,
-        MatGridListModule
+        MatGridListModule,
+        AppInModelModule,
+        AppInControllersModule,
+        ViewsModule
     ],
     declarations: [
         PackageComponent,
         SearchListComponent,
-        SearchListComponent,
+        SearchMixedListComponent,
         RouterPropertyComponent,
         DescriptionComponent,
         ParamsComponent,

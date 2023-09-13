@@ -31,7 +31,6 @@ export class ModelsComponent implements OnInit {
     public schema: any;
     public fields_for_selected_class: FieldClass[];
     public types: any;
-    public initialised_packages : string[]
     @ViewChild(FieldContentComponent) childComponent: FieldContentComponent;
 
     constructor(
@@ -49,9 +48,6 @@ export class ModelsComponent implements OnInit {
         const a = this.activateRoute.snapshot.paramMap.get('selected_package')
         this.selected_package =  a ? a : ""
         this.classes_for_selected_package = this.eq_class[this.selected_package];
-        console.log(this.eq_class)
-        console.log(this.selected_package)
-        console.log(this.classes_for_selected_package)
         this.selected_class = "";
         this.selected_field = undefined;
         this.child_loaded = false;
@@ -62,18 +58,17 @@ export class ModelsComponent implements OnInit {
      *
      * @param eq_class the class that the user has selected
      */
-    public onclickClassSelect(eq_class: string) {
-        const old = this.selected_class
+    public async onclickClassSelect(eq_class: string) {
+        
+        this.schema = await this.api.getSchema(this.selected_package + '\\' + eq_class);
         this.selected_class = eq_class;
+        console.log(this.schema)
     }
 
     public async onChangeStep(step:number) {
         this.step = step;
         if(step == 2) {
-            this.schema = await this.api.getSchema(this.selected_package + '\\' + this.selected_class);
-            this.selected_field = undefined;
-            this.child_loaded = false;
-            this.fields_for_selected_class = await this.loadUsableField() 
+            this.route.navigate(['/fields',this.selected_package,this.selected_class])
         }
     }
 

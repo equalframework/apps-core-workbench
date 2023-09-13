@@ -4,8 +4,9 @@ import { prettyPrintJson } from 'pretty-print-json';
 import { isArray, isObject, isString } from 'lodash';
 import { ControllersService } from '../../_service/controllers.service';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
-import {Clipboard} from '@angular/cdk/clipboard';
+import { Clipboard } from '@angular/cdk/clipboard';
 import { ResponseComponentSubmit } from '../router-property/_components/params/_components/response/response.component';
+import { filter } from 'rxjs/operators';
 
 @Component({
     selector: 'app-controller-info',
@@ -16,18 +17,21 @@ import { ResponseComponentSubmit } from '../router-property/_components/params/_
 
 export class ControllerInfoComponent implements OnInit {
 
-    @Input() current_controller:string;
-    @Input() controller_type:string;
-    @Input() scheme:any;
-    @Input() selected_package:string;
+    @Input() current_controller: string;
+    @Input() controller_type: string;
+    @Input() scheme: any;
+    @Input() selected_package: string;
     @Output() goto = new EventEmitter<number>();
     public paramsValue: any;
     public presentRequiredParams: any;
-    public canSubmit:boolean
+    public canSubmit: boolean
+    public routes: {[id:string]:any}
+    public filtered_routes: {[id:string]:any}
+    public obk = Object.keys
 
     constructor(
         private snackBar: MatSnackBar,
-        private api:ControllersService,
+        private api: ControllersService,
         public dialog: MatDialog,
         private clipboard: Clipboard,
     ) { }
@@ -36,29 +40,53 @@ export class ControllerInfoComponent implements OnInit {
     }
 
     public async ngOnChanges() {
+        this.routes = await this.api.getRoutes();
         this.initialization()
     }
 
     public initialization() {
         this.paramsValue = {};
         this.presentRequiredParams = {};
-        for(let key in this.scheme['params']) {
-            if(this.scheme['params'][key]['default']) {
-                this.paramsValue[key] = this.scheme['params'][key]['default'];
-                if(this.scheme['params'][key]['required']) {
+        if (this.scheme) {
+            for (let key in this.scheme['params']) {
+                if (this.scheme['params'][key]['default']) {
+                    this.paramsValue[key] = this.scheme['params'][key]['default'];
+                    if (this.scheme['params'][key]['required']) {
+                        this.presentRequiredParams[key] = true;
+                    }
+                } else if (this.scheme['params'][key]['type'] == 'boolean' && this.scheme['params'][key]['required']) {
+                    this.paramsValue[key] = false;
                     this.presentRequiredParams[key] = true;
+                } else {
+                    if (this.scheme['params'][key]['required']) {
+                        this.presentRequiredParams[key] = false;
+                    }
                 }
-            } else if(this.scheme['params'][key]['type'] == 'boolean' && this.scheme['params'][key]['required']) {
-                this.paramsValue[key] = false;
-                this.presentRequiredParams[key] = true;
-            } else {
-                if(this.scheme['params'][key]['required']) {
-                    this.presentRequiredParams[key] = false;
+                this.filtered_routes = this.filterRoute()
+                console.log(this.obk(this.filtered_routes))
+                this.updateCanSubmit();
+            }
+        }
+    }
+
+    public filterRoute():any {
+        let res:{[id:string]:any} = {}
+        let content:string
+        let lookup = "?"+this.controller_type+"="+this.selected_package+"_"+this.current_controller
+        for (let key in this.routes) {
+            for (let method in this.routes[key]['methods']) {
+                content = this.routes[key]['methods'][method]['operation']
+                if(content.includes(lookup)) {
+                    if(res[key] === undefined) {
+                        res[key] = {'methods' : {} }
+                        res[key]['methods'][method] = this.routes[key]['methods'][method]
+                    } else {
+                        res[key]['methods'][method] = this.routes[key]['methods'][method]
+                    }
                 }
             }
         }
-        console.warn(this.presentRequiredParams);
-        this.updateCanSubmit();
+        return res
     }
 
     public clickEdit() {
@@ -70,21 +98,21 @@ export class ControllerInfoComponent implements OnInit {
         return prettyPrintJson.toHtml(this.scheme['response'])
     }
 
-    get params():{type:string,description:string,required:boolean} {
+    get params(): { type: string, description: string, required: boolean } {
         return this.scheme['params']
     }
 
     get cliCommand() {
         let controllerNameUnderscore = this.current_controller.replace('\\', '_');
         let stringParams = './equal.run --' + this.controller_type + "=" + this.selected_package + '_' + controllerNameUnderscore;
-        for(let key in this.paramsValue) {
-            if(isArray(this.paramsValue[key])) {
+        for (let key in this.paramsValue) {
+            if (isArray(this.paramsValue[key])) {
                 let arrayString = (JSON.stringify(this.paramsValue[key])).replaceAll('"', '');
                 console.log(arrayString)
                 stringParams += ' --' + key + '=\'' + arrayString + '\'';
-            } else if(isObject(this.paramsValue[key])) {
+            } else if (isObject(this.paramsValue[key])) {
                 stringParams += ' --' + key + '=\'{' + this.paramsValue[key] + '}\'';
-            } else if(isString(this.paramsValue[key])) {
+            } else if (isString(this.paramsValue[key])) {
                 stringParams += ' --' + key + '=' + (this.paramsValue[key].replace('\\', '\\\\'));
             } else {
                 stringParams += ' --' + key + '=' + this.paramsValue[key];
@@ -93,11 +121,11 @@ export class ControllerInfoComponent implements OnInit {
         return stringParams
     }
 
-    get AccessString():string|undefined {
+    get AccessString(): string | undefined {
         var result = ""
-        if(this.scheme['access'] === undefined) return undefined
-        if(this.scheme['access']['visibility'] !== undefined) result += "visibility : "+this.scheme['access']['visibility']+'\n'
-        if(this.scheme['access']['groups'] !== undefined) result += "groups : <br>"+prettyPrintJson.toHtml(this.scheme['access']['groups'])+'\n'
+        if (this.scheme['access'] === undefined) return undefined
+        if (this.scheme['access']['visibility'] !== undefined) result += "visibility : " + this.scheme['access']['visibility'] + '\n'
+        if (this.scheme['access']['groups'] !== undefined) result += "groups : <br>" + prettyPrintJson.toHtml(this.scheme['access']['groups']) + '\n'
         return result
     }
 
@@ -109,14 +137,14 @@ export class ControllerInfoComponent implements OnInit {
         return result*/
         let controllerNameUnderscore = this.current_controller.replace('\\', '_');
         let stringParams = 'http://equal.local?' + this.controller_type + "=" + this.selected_package + '_' + controllerNameUnderscore;
-        for(let key in this.paramsValue) {
-            if(isArray(this.paramsValue[key])) {
+        for (let key in this.paramsValue) {
+            if (isArray(this.paramsValue[key])) {
                 let arrayString = (JSON.stringify(this.paramsValue[key])).replaceAll('"', '');
                 console.log(arrayString)
                 stringParams += '&' + key + '=\'' + arrayString + '\'';
-            } else if(isObject(this.paramsValue[key])) {
+            } else if (isObject(this.paramsValue[key])) {
                 stringParams += '&' + key + '=\'{' + this.paramsValue[key] + '}\'';
-            } else if(isString(this.paramsValue[key])) {
+            } else if (isString(this.paramsValue[key])) {
                 stringParams += '&' + key + '=' + (this.paramsValue[key].replace('\\', '\\\\'));
             } else {
                 stringParams += '&' + key + '=' + this.paramsValue[key];
@@ -146,7 +174,7 @@ export class ControllerInfoComponent implements OnInit {
     }
 
     public isRequired(key: any) {
-        return this.scheme['params'][key].required ? true: false;
+        return this.scheme['params'][key].required ? true : false;
     }
 
     public getParamsValue(key: any) {
@@ -154,14 +182,14 @@ export class ControllerInfoComponent implements OnInit {
     }
 
     public updateParamsValue(new_value: any, params_name: any) {
-        if(new_value == undefined) {
+        if (new_value == undefined) {
             delete this.paramsValue[params_name];
-            if(this.scheme['params'][params_name]['required']) {
+            if (this.scheme['params'][params_name]['required']) {
                 this.presentRequiredParams[params_name] = false;
             }
         } else {
             this.paramsValue[params_name] = new_value;
-            if(this.scheme['params'][params_name]['required']) {
+            if (this.scheme['params'][params_name]['required']) {
                 this.presentRequiredParams[params_name] = true;
             }
         }
@@ -171,10 +199,10 @@ export class ControllerInfoComponent implements OnInit {
     }
 
     public updateCanSubmit() {
-        if(Object.keys(this.presentRequiredParams).length == 0) {
+        if (Object.keys(this.presentRequiredParams).length == 0) {
             this.canSubmit = true;
         } else {
-            if(Object.values(this.presentRequiredParams).includes(false)) {
+            if (Object.values(this.presentRequiredParams).includes(false)) {
                 this.canSubmit = false;
             } else {
                 this.canSubmit = true;
@@ -211,7 +239,7 @@ export class ControllerInfoComponent implements OnInit {
     }
 
     public successCopyClipboard(success: boolean) {
-        if(success) {
+        if (success) {
             this.snackBar.open('Successfully copy', '', {
                 duration: 1000,
                 horizontalPosition: 'left',

@@ -1,10 +1,51 @@
-<div class="margin-container">
-    <div class="class-disp-title" *ngIf="selected_class !== ''">
-        <label>Class : </label><label class="accent">{{selected_package}}\{{ selected_class }}</label>
+<div class="margin-container"*ngIf="selected_class !== ''">
+    <div class="class-container-top">
+        <div class="class-disp-title">
+            <label>Class : </label><label class="accent">{{selected_package}}\{{ selected_class }}</label>
+        </div>
+        <br>
+        <div class="sub-part-class">
+            <label class="sub-part-title">Extends : </label>
+            <label class="accent-color sub-part-title">{{class_scheme["parent"]}}</label>
+        </div>
+        <br>
+        <div class="sub-part-class">
+            <label class="sub-part-title">Database table : </label>
+            <label class="accent-color sub-part-title">{{class_scheme['table']}}</label>
+        </div>
+        <br>
+        <div class="sub-part-class">
+            <label class="sub-part-title">Fields :</label>
+            <div *ngFor="let key of obk(class_scheme['fields'])" >
+                <div *ngIf="key !== 'id' && key !== 'deleted' && key !== 'state'" class="model_cr">
+                    <div class="model_cr_el model_cr_path">
+                        {{key}}
+                    </div>
+                    <div class="model_cr_el model_cr_type">
+                        <label>
+                            {{this.class_scheme['fields'][key]['type']}}
+                        </label>
+                        <label *ngIf="this.class_scheme['fields'][key]['foreign_object']">
+                            [{{this.class_scheme['fields'][key]['foreign_object']}}]
+                        </label>
+                    </div>
+                    
+                    <div class="model_cr_el model_cr_prop">
+                        <label *ngIf="this.class_scheme['fields'][key]['readonly']">READONLY</label>
+                        <label *ngIf="this.class_scheme['fields'][key]['required']">REQUIRED</label>
+                        <label *ngIf="this.class_scheme['fields'][key]['unique']">UNIQUE</label>
+                    </div>
+                    <div class="model_cr_el model_cr_desc">
+                        {{this.class_scheme['fields'][key]['description']}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+    </div>
+    <div class="class-container-bottom">
+        <br>
         <mat-grid-list [cols]="4" rowHeight="4.5em" class="max-width button-pkg-container">
-            <mat-grid-tile>
-                <button mat-button class="package-info-button"><mat-icon>insert_drive_file</mat-icon><label>Properties</label></button>
-            </mat-grid-tile>
             <mat-grid-tile>
                 <button mat-button class="package-info-button" (click)="fieldOnClick()"><mat-icon>text_format</mat-icon><label>Fields</label></button>
             </mat-grid-tile>
@@ -22,7 +63,9 @@
             </mat-grid-tile>
         </mat-grid-list>
     </div>
-    <div class="class-disp-title" *ngIf="selected_class === ''">
+</div>
+<div class="margin-container" *ngIf="selected_class === ''">
+    <div class="class-disp-title" >
         <label>Select a class to see its information.</label>
     </div>
 </div>
