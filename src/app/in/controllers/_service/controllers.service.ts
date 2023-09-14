@@ -103,4 +103,18 @@ export class ControllersService {
             console.warn('request error', response);
         }
     }
+
+    /**
+     * Return all the routes available.
+     *
+     * @return A array with all routes
+     */
+    public async getRoutes() {
+        try {
+            return await this.api.fetch('?get=config_routes');
+        }
+        catch (response: any) {
+            console.warn('fetch package error', response);
+        }
+    }
 }

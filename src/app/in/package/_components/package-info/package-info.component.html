@@ -1,0 +1,57 @@
+<div *ngIf="current_package ===''" class="max-height max-width margin-container">
+    <label class="packagename">Select package to show properties.</label>
+</div>
+
+<div *ngIf="current_package !==''" class="max-width margin-container">
+    <div class="controller-container-top">
+        <div class="flex-labels">
+            <label class="packagename">Package :</label>
+            <label class="packagename accent">{{ current_package }}</label>
+        </div>
+
+        <div *ngIf="error_count !== 0 || warn_count !== 0" class="lineflex warncolor">
+            <mat-icon>error</mat-icon>
+            <label  class="warncolor">{{error_count}} errors and {{warn_count}} warnings</label>
+        </div>
+        <div *ngIf="error_count === 0 && warn_count === 0" class="lineflex newcolor">
+            <mat-icon>check_circle</mat-icon>
+            <label>No error or warning on this package</label>
+        </div>
+
+        <div *ngIf="!current_initialised" class="lineflex warncolor">
+            <mat-icon>error</mat-icon>
+            <label  class="warncolor">This package has not been initialised</label>
+        </div>
+        <div *ngIf="current_initialised" class="lineflex newcolor">
+            <mat-icon>check_circle</mat-icon>
+            <label>This package has been initialised</label>
+        </div>
+        <pre *ngIf="error_count !== 0 || warn_count !== 0" class="limited_size"><p *ngFor="let item of error_list" [class.color-red]="item.type==2" [class.color-orange]="item.type==1" class="err_warnitem">   {{item.text}}</p></pre>
+    </div>
+    <div class="controller-container-bottom">
+        <br>
+        <mat-grid-list [cols]="4" rowHeight="5.5em" class="max-width button-pkg-container">
+            <mat-grid-tile>
+                <button mat-button class="package-info-button" (click)="modelOnClick()"><mat-icon>data_object</mat-icon><label>Models</label></button>
+            </mat-grid-tile>
+            <mat-grid-tile>
+                <button mat-button class="package-info-button" (click)="controllerOnClick()"><mat-icon>code</mat-icon><label>Controllers</label></button>
+            </mat-grid-tile>
+            <mat-grid-tile>
+                <button mat-button class="package-info-button" ><mat-icon>view_quilt</mat-icon><label>Views</label></button>
+            </mat-grid-tile>
+            <mat-grid-tile>
+                <button mat-button class="package-info-button" ><mat-icon>translater</mat-icon><label>Translation</label></button>
+            </mat-grid-tile>
+            <mat-grid-tile>
+                <button mat-button class="package-info-button" ><mat-icon>file_present</mat-icon><label>Initial data</label></button>
+            </mat-grid-tile>
+            <mat-grid-tile>
+                <button mat-button class="package-info-button" ><mat-icon>info</mat-icon><label>Properties</label></button>
+            </mat-grid-tile>
+            <mat-grid-tile>
+                <button mat-button class="package-info-button" ><mat-icon>apps</mat-icon><label>Applications</label></button>
+            </mat-grid-tile>
+        </mat-grid-list>
+    </div>
+</div>

@@ -1,0 +1,28 @@
+<ng-container>
+    <div class="max-height step">
+        <div class="title-container">
+            <button (click)="getBack()" mat-icon-button matTooltip="Primary" color="primary" aria-label="Go back">
+                <mat-icon>keyboard_backspace</mat-icon>
+            </button>
+            <mat-label>{{ selected_package }}\ Select class</mat-label>
+        </div>
+        <mat-grid-list cols="4" class="max-height">
+            <!-- Class search list, on the left of the screen -->
+            <mat-grid-tile colspan="1" class="max-height">
+                <app-search-list class="max-height max-width"
+                    [data]="views_for_selected_package"
+                    [selected_node]="selected_view"
+                    (nodeSelect)="onclickViewSelect($event)"
+                    (nodeUpdate)="onupdateView($event)"
+                    (nodeDelete)="ondeleteView($event)"
+                    (nodeCreate)="oncreateView($event)">
+                </app-search-list>
+            </mat-grid-tile>
+            <!-- Class content -->
+            <mat-grid-tile colspan="3" class="max-height" id="schema">
+                <app-views-info>
+                </app-views-info>
+            </mat-grid-tile>
+        </mat-grid-list>
+    </div>
+</ng-container>

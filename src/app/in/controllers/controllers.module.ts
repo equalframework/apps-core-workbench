@@ -34,6 +34,8 @@ import { AutoCompleteComponent } from './_components/router-property/_components
 import { ValueComponent } from './_components/router-property/_components/params/_components/domain/_components/value/value.component';
 import { ValueSelectionComponent } from './_components/router-property/_components/params/_components/domain/_components/value-selection/value-selection.component';
 import { ResponseComponentSubmit } from './_components/router-property/_components/params/_components/response/response.component'
+import { ControllerInfoComponent } from './_components/controller-info/controller-info.component';
+import { ControllerInfoModule } from './_components/controller-info/controller-info.module';
 
 
 @NgModule({
@@ -49,27 +51,13 @@ import { ResponseComponentSubmit } from './_components/router-property/_componen
         MatFormFieldModule,
         MatInputModule,
         MatIconModule,
+        ControllerInfoModule
     ],
     declarations: [
         ControllersComponent,
         SearchListComponent,
         DeleteConfirmationComponent,
         SearchListControllerComponent,
-        RouterPropertyComponent,
-        DescriptionComponent,
-        ParamsComponent,
-        ResponseComponent,
-        ConstantsComponent,
-        AccessComponent,
-        ArrayComponent,
-        BooleanComponent,
-        DomainComponent,
-        StringComponent,
-        NumberComponent,
-        AutoCompleteComponent,
-        ValueComponent,
-        ValueSelectionComponent,
-        ResponseComponentSubmit
     ],
     providers: [
         DatePipe,

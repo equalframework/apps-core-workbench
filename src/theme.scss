@@ -17,3 +17,11 @@ $newcolor : mat-palette($mat-teal);
 $color-theme : mat-light-theme($maincolor,$accentcolor,$warncolor);
 
 @include angular-material-theme($color-theme);
+
+.json-key {
+    color : mat-color($accentcolor)!important;
+}
+
+.json-string {
+    color : mat-color($maincolor)!important;
+}

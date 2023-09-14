@@ -1,3 +1,7 @@
+:host {
+    height: calc(100% - 1em);
+}
+
 .node_container {
     display: flex;
     align-items: center;
@@ -28,6 +32,7 @@
 .list {
     height: calc(100% - (65px) - (51px) - (54px));
     overflow: auto;
+    background-color: whitesmoke;
 
     .node-text {
         height: 100%;
@@ -77,6 +82,7 @@
     justify-content: space-between;
     width: 100%;
     height: fit-content;
+    background-color: whitesmoke;
 }
 
 .add_button {

@@ -1,31 +1,3 @@
-<!-- Step for package -->
-<ng-container *ngIf="step === 0" class="max-height step">
-    <div class="max-height step">
-        <div class="title-container max-width">
-            <mat-label class="solo">Select Package</mat-label>
-        </div>
-        <mat-grid-list cols="4" class="max-height">
-            <!-- Package search list, on the left of the screen -->
-            <mat-grid-tile colspan="1" class="max-height">
-                <app-search-list class="max-height max-width"
-                    [data]="packages"
-                    [selected_node]="selected_package"
-                    (nodeSelect)="onclickPackageSelect($event)"
-                    (nodeUpdate)="onupdatePackage($event)"
-                    (nodeDelete)="ondeletePackage($event)"
-                    (nodeCreate)="oncreatePackage($event)">
-                </app-search-list>
-            </mat-grid-tile>
-            <!-- Package content -->
-            <mat-grid-tile colspan="3" class="max-height">
-                <app-package-info class="max-height max-width"
-                [current_package]="selected_package"
-                [package_init_list]="initialised_packages"
-                ></app-package-info>
-            </mat-grid-tile>
-        </mat-grid-list>
-    </div>
-</ng-container>
 <!-- Step for class -->
 <ng-container *ngIf="step === 1">
     <div class="max-height step">
@@ -49,48 +21,15 @@
             </mat-grid-tile>
             <!-- Class content -->
             <mat-grid-tile colspan="3" class="max-height" id="schema">
-                <pre [innerHTML]="getJSONSchema()">
-                </pre>
+                <app-model-info
+                [selected_package]="selected_package"
+                [selected_class]="selected_class"
+                [class_scheme]="schema"
+                (changeStep)="onChangeStep($event)"
+                >
+                </app-model-info>
             </mat-grid-tile>
         </mat-grid-list>
     </div>
 </ng-container>
 <!-- Step for field -->
-<ng-container *ngIf="step === 2" class="max-height step">
-    <div class="max-height step">
-        <div class="title-container max-width">
-            <button (click)="getBack()" mat-icon-button matTooltip="Primary" color="primary" aria-label="Go back">
-                <mat-icon>keyboard_backspace</mat-icon>
-            </button>
-            <mat-label>{{ selected_package }}\{{ selected_class }}</mat-label>
-            <button (click)="regenerateSchemaAndPublish()" mat-icon-button matTooltip="Primary" color="accent" aria-label="Go back">
-                <mat-icon>publish</mat-icon>
-            </button>
-            <button (click)="cancelAllChanges()" mat-icon-button matTooltip="Primary" color="accent" aria-label="Go back">
-                <mat-icon>cancel</mat-icon>
-            </button>
-        </div>
-        <mat-grid-list cols="4" class="max-height">
-            <!-- Field search list, on the left of the screen -->
-            <mat-grid-tile colspan="1" class="max-height">
-                <app-search-list-field class="max-height max-width"
-                    [data]="fields_for_selected_class"
-                    [selected_node]="selected_field"
-                    (nodeSelect)="onclickFieldSelect($event)"
-                    (nodeDelete)="ondeleteField($event)"
-                    (nodeCreate)="oncreateField($event)">
-                </app-search-list-field>
-            </mat-grid-tile>
-            <!-- Field content -->
-            <mat-grid-tile colspan="3" class="max-height">
-                <app-field-content *ngIf="selected_field != undefined" class="max-height max-width"
-                    [fields]="fields_for_selected_class"
-                    [actual_field]="selected_field"
-                    [types]="types"
-                    [actual_class]="selected_package + '\\' + selected_class"
-                    (updateField)="onUpdateSchema($event)">
-                </app-field-content>
-            </mat-grid-tile>
-        </mat-grid-list>
-    </div>
-</ng-container>
