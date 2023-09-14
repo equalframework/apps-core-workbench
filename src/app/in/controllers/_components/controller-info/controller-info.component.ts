@@ -26,7 +26,7 @@ export class ControllerInfoComponent implements OnInit {
     public presentRequiredParams: any;
     public canSubmit: boolean
     public routes: {[id:string]:any}
-    public filtered_routes: {[id:string]:any}
+    public filtered_routes: {[id:string]:any} = {}
     public obk = Object.keys
 
     constructor(
@@ -67,6 +67,7 @@ export class ControllerInfoComponent implements OnInit {
                 this.updateCanSubmit();
             }
         }
+        this.updateCanSubmit()
     }
 
     public filterRoute():any {
@@ -199,7 +200,8 @@ export class ControllerInfoComponent implements OnInit {
     }
 
     public updateCanSubmit() {
-        if (Object.keys(this.presentRequiredParams).length == 0) {
+        console.log(this.presentRequiredParams)
+        if (Object.keys(this.presentRequiredParams).length === 0) {
             this.canSubmit = true;
         } else {
             if (Object.values(this.presentRequiredParams).includes(false)) {

@@ -6,25 +6,38 @@
     <mat-grid-list cols="4" class="package-grid-list">
         <!-- Package search list, on the left of the screen -->
         <mat-grid-tile colspan="1" class="max-height">
-            <app-search-list class="max-height max-width"
-                [data]="packages"
-                [selected_node]="selected_package"
+            <app-search-mixed-list class="max-height max-width"
+                [data]="elements"
+                [selected_node]="selected_element"
                 (nodeSelect)="onclickPackageSelect($event)"
                 (nodeUpdate)="onupdatePackage($event)"
                 (nodeDelete)="ondeletePackage($event)"
                 (nodeCreate)="oncreatePackage($event)">
-            </app-search-list>
+            </app-search-mixed-list>
         </mat-grid-tile>
         <!-- Package content -->
         <mat-grid-tile colspan="3" class="max-height">
-            <app-package-info class="max-height max-width"
-                [current_package]="selected_package"
+            <app-model-info *ngIf="selected_element.type==='class' || selected_element.type===''" class="max-height max-width"
+                [selected_package]="selected_element.package ? selected_element.package : ''"
+                [selected_class]="selected_element.name"
+                [class_scheme]="schema"
+                (changeStep)="onChangeStepModel($event)"
+            >
+            </app-model-info>
+            <app-package-info *ngIf="selected_element.type==='package'" class="max-height max-width"
+                [current_package]="selected_element.name"
                 [package_init_list]="initialised_packages"
                 [package_consitency]="package_consistency"
                 (onModelClick)="onClickModels()"
                 (onControllerClick)="onClickControllers()"
             >
             </app-package-info>
+            <app-controller-info *ngIf="selected_element.type==='do' || selected_element.type==='get'" class="max-height max-width"
+                [current_controller]="selected_element.name"
+                [controller_type]="selected_element.type"
+                [scheme]="schema"
+                [selected_package]="selected_element.package ? selected_element.package : ''"
+            ></app-controller-info>
         </mat-grid-tile>
     </mat-grid-list>
 </div>

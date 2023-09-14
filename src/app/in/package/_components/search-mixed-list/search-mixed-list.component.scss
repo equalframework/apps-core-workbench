@@ -1,3 +1,10 @@
+@import "/src/theme.scss";
+
+$package-color : mat-palette($mat-green);
+$class-color : mat-palette($mat-orange);
+$get-color : mat-palette($mat-blue);
+$do-color : mat-palette($mat-blue);
+
 .node_container {
     display: flex;
     align-items: center;
@@ -15,6 +22,10 @@
     width: 100%;
     padding: 0px !important;
     margin-bottom: -11px;
+}
+
+.search-bar {
+    width: 65%;
 }
 
 .mat-list-item {
@@ -39,11 +50,11 @@
     }
 
     .node-hover:hover {
-        background-color: #ebebeb;
+        background-color: #ebebeb !important;
     }
 
     .node-selected {
-        background-color: #dbdbdb;
+        background-color: #dbdbdb !important;
     }
 }
 
@@ -69,4 +80,54 @@
 
 .mat-ripple .mat-tab-header-pagination .mat-tab-header-pagination-before .mat-elevation-z4 .mat-tab-header-pagination-disabled {
     display: none;
+}
+
+.type-info-mixed-sel {
+    width: 10%;
+    text-align: center;
+    margin-right: 5%;
+}
+
+.type-info-mixed-sel mat-icon {
+    transform: scale(.8) translateY(.2em)
+}
+
+
+.name-mixed-sel {
+    width: 85%;
+}
+
+.type-mixed-sel-package {
+    background-color: mat-color($package-color,A100) ;
+    border-radius: .3em;
+}
+
+.type-mixed-sel-class {
+    background-color: mat-color($class-color,A100) ;
+    border-radius: .3em;
+}
+
+.type-mixed-sel-do {
+    background-color: mat-color($do-color,A100) ;
+    border-radius: .3em;
+}
+.type-mixed-sel-get {
+    background-color: mat-color($get-color,A100) ;
+    border-radius: .3em;
+}
+
+.mixed-searchbar {
+    display: flex;
+}
+
+.mixed-search-select {
+    width: 35%;
+    height: 3em;
+    margin-top: -10px;
+}
+
+.icon-search-small {
+    transform: translateY(.2em);
+    margin-left : .5em;
+    margin-right : .5em;
 }

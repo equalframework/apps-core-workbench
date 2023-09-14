@@ -16,7 +16,7 @@ import { DeleteConfirmationComponent } from './_components/search-list/_componen
 import { SharedLibModule, CustomDateAdapter } from 'sb-shared-lib';
 import { ModelsComponent } from './models.component';
 import { ModelsRoutingModule } from './models-routing.module';
-import { ModelInfoComponent } from './_components/model-info/model-info.component';
+import { ModelsInfoModule } from './_components/model-info/models-info.module';
 
 @NgModule({
     imports: [
@@ -27,13 +27,14 @@ import { ModelInfoComponent } from './_components/model-info/model-info.componen
         FormsModule,
         MatFormFieldModule,
         MatInputModule,
-        ModelsRoutingModule
+        ModelsRoutingModule,
+        ModelsInfoModule
     ],
     declarations: [
         ModelsComponent,
         SearchListComponent,
         DeleteConfirmationComponent,
-        ModelInfoComponent,
+        
     ],
     providers: [
         DatePipe,

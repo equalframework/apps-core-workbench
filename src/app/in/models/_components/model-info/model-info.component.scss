@@ -1,5 +1,10 @@
 @import '/src/theme.scss';
 
+:host {
+    width: 100%;
+    height: 100%;
+}
+
 .class-disp-title {
     font-size: 1.5em;
 }

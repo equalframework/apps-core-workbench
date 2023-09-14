@@ -117,13 +117,14 @@ export class WorkbenchService {
      *
      * @returns A array with all packages
      */
-    public async getPackages() {
+    public async getPackages():Promise<string[]> {
         try {
             return await this.api.fetch('?get=config_packages');
         }
         catch (response: any) {
             console.warn('fetch package error', response);
         }
+        return []
     }
 
     public async getInitialisedPackages():Promise<string[]> {
@@ -153,14 +154,26 @@ export class WorkbenchService {
      *
      * @returns A JSON with package as key and classes as value.
      */
-    public async getClasses() {
+    public async getClasses():Promise<{[id:string]:string[]}> {
         try {
             return await this.api.fetch('?get=core_config_classes');
         }
         catch (response: any) {
             console.warn('fetch class error', response);
         }
+        return {}
     }
+
+    public async getControllers(eq_package: string):Promise<{data:string[],actions:string[]}> {
+        try {
+            return await this.api.fetch('?get=core_config_controllers&package=' + eq_package);
+        }
+        catch (response: any) {
+            console.warn('request error', response);
+        }
+        return {data:[],actions:[]}
+    }
+
 
     /**
      * Return all the available types and foreach type, the properties and foreach property, the type.
@@ -224,4 +237,22 @@ export class WorkbenchService {
             console.warn('request error', response);
         }
     }
+
+        /**
+     * Return the announcement of a controller
+     *
+     * @param string type_controller the action of the controller(do or get)
+     * @param string eq_package name of the package
+     * @param string name of the controller
+     * @returns array with the announcement of a controller
+     */
+        public async getAnnounceController(type_controller: string, eq_package: string, name: string) {
+            try {
+                return await this.api.fetch('?' + type_controller + '='+ eq_package + '_' + name + '&announce=true');
+            }
+            catch (response: any) {
+                return null;
+            }
+        }
+    
 }

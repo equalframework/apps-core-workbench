@@ -12,6 +12,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ViewsComponent } from './views.component';
 import { ViewService } from './_services/models.service';
+import { MatDialogModule } from '@angular/material/dialog';
+import { DeleteConfirmationComponent } from './_components/search-list/_components/delete-confirmation/delete-confirmation.component';
 
 
 
@@ -20,6 +22,7 @@ import { ViewService } from './_services/models.service';
     ViewsInfoComponent,
     SearchListComponent,
     ViewsComponent,
+    DeleteConfirmationComponent,
   ],
   imports: [
     SharedLibModule,
@@ -30,7 +33,8 @@ import { ViewService } from './_services/models.service';
     MatFormFieldModule,
     MatInputModule,
     CommonModule,
-    ViewsRoutingModule
+    ViewsRoutingModule,
+    MatDialogModule,
   ]
 })
 export class ViewsModule { }

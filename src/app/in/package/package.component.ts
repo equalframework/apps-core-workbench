@@ -3,8 +3,10 @@ import { ContextService } from 'sb-shared-lib';
 import { WorkbenchService } from './_service/package.service'
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { prettyPrintJson } from 'pretty-print-json';
-import { cloneDeep } from 'lodash';
 import { Router } from '@angular/router';
+import { AppInControllersModule } from '../controllers/controllers.module';
+import { eq } from 'lodash';
+
 
 @Component({
   selector: 'app-package',
@@ -15,13 +17,16 @@ import { Router } from '@angular/router';
 export class PackageComponent implements OnInit {
 
     public child_loaded = false;
-    public selected_package: string = "";
+    public selected_element:{package?:string,name:string,type:string} = {name:"",type:""};
     public classes_for_selected_package: string[] = [];
     // http://equal.local/index.php?get=config_packages
-    public packages: string[];
+    public elements: {package?:string,name:string,type:string}[] = [];
     // http://equal.local/index.php?get=core_config_classes
+
     public initialised_packages:string[]
     public package_consistency:any
+    public schema:any
+    public selected_type_controller:string = ''
 
     constructor(
         private context: ContextService,
@@ -31,7 +36,21 @@ export class PackageComponent implements OnInit {
     ) { }
 
     public async ngOnInit() {
-        this.packages = await this.api.getPackages();
+        let classes = await this.api.getClasses();
+        (await this.api.getPackages()).forEach(async pack => {
+            this.elements.push({name:pack,type:"package"})
+            classes[pack].forEach(classe => {
+                this.elements.push({package:pack ,name:classe,type:"class"})
+            });
+            let x = (await this.api.getControllers(pack));
+            x.data.forEach(cont => {
+                this.elements.push({package:pack,name:cont,type:"get"})
+            });
+            x.actions.forEach(cont => {
+                this.elements.push({package:pack,name:cont,type:"do"})
+            });
+        });
+        console.log(this.elements)
     }
 
     /**
@@ -39,20 +58,41 @@ export class PackageComponent implements OnInit {
      *
      * @param eq_package the package that the user has selected
      */
-    public async onclickPackageSelect(eq_package: string) {
-        const old = this.selected_package;
-        this.selected_package = eq_package;
-        this.initialised_packages = await this.api.getInitialisedPackages()
-        this.package_consistency = await this.api.getPackageConsistency(this.selected_package)
-        console.log(this.package_consistency)
+    public async onclickPackageSelect(eq_element:{package?:string,name:string,type:string}) {
+        if(eq_element.type === "package") {
+            this.initialised_packages = await this.api.getInitialisedPackages()
+            this.package_consistency = await this.api.getPackageConsistency(eq_element.name)
+        }
+        if(eq_element.type === "class") {
+            this.schema = await this.api.getSchema(eq_element.package + '\\' + eq_element.name);
+            console.log(this.schema)
+        }
+        if(eq_element.type === "do" || eq_element.type === "get") {
+                let response
+                if(eq_element.package)
+                    response = await this.api.getAnnounceController(eq_element.type, eq_element.package, eq_element.name);
+                if (!response) {
+                    this.snackBar.open('Not allowed', 'Close', {
+                        duration: 1500,
+                        horizontalPosition: 'left',
+                        verticalPosition: 'bottom'
+                    });
+                } else {
+                    this.selected_element = eq_element;
+                    this.schema = response.announcement;
+                    console.log(this.schema)
+                }
+                return
+        }
+        this.selected_element = eq_element;
     }
 
     public onClickModels() {
-        this.router.navigate(['/models', this.selected_package]);
+        this.router.navigate(['/models', this.selected_element.name]);
     }
 
     public onClickControllers() {
-        this.router.navigate(['/controllers', this.selected_package]);
+        this.router.navigate(['/controllers', this.selected_element.name]);
     }
     
     /**
@@ -105,6 +145,12 @@ export class PackageComponent implements OnInit {
      */
     private prettyPrint(input: any) {
         return prettyPrintJson.toHtml(input);
+    }
+
+    public onChangeStepModel(event:number) {
+        if(event===2) {
+            this.router.navigate(['/fields',this.selected_element.package ? this.selected_element.package : "",this.selected_element.name])
+        }
     }
 }
 
