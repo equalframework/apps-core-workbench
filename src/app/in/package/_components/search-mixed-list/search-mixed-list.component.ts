@@ -4,6 +4,12 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { EnvService } from 'sb-shared-lib';
 
+/** 
+ * This component is used to display the list of all object you recover in package.component.ts
+ * 
+ * If you need to add a new type, you just have to add it in type_dict and create the css rules for the icon in search-mixed-list.component.scss
+ * You can also describe the spelling rule of the name in search-mixed-list.component.html
+*/
 @Component({
   selector: 'app-search-mixed-list',
   templateUrl: './search-mixed-list.component.html',
@@ -11,35 +17,37 @@ import { EnvService } from 'sb-shared-lib';
   encapsulation : ViewEncapsulation.Emulated
 })
 export class SearchMixedListComponent implements OnInit {
- 
-    @Input() data:{package?:string,name:string,type:string}[];
-    @Input() selected_node:{name:string,type:string};
-    @Input() loading:boolean
-    @Output() nodeSelect = new EventEmitter<{package?:string,name:string,type:string}>();
 
-    public obk = Object.keys
-    public inputValue: string;
-    public filteredData: {package?:string,name:string,type:string}[];
-    public search_value:string = ""
-    public search_scope:string = ""
-    public current_root:string = "";
+    
+    @Input() data:{package?:string,name:string,type:string}[]; // The array of object to display
+    @Input() selected_node:{name:string,type:string}; // The selected object of the list
+    @Input() loading:boolean; // Notify if the parent node finished loading
+    @Output() nodeSelect = new EventEmitter<{package?:string,name:string,type:string}>();  // Used to send selected object reference to parent
 
+    public obk = Object.keys;   // Object.keys method for utilisation in search-mixed-list.component.html
+    public filteredData: {package?:string,name:string,type:string}[];   // filtered derivative of data with purpose to be displayed
+    public search_value:string = "";    // value part of the search bar field ( is parsed in onSearch() method )
+    public search_scope:string = "";    // type part of the search bar field ( is parsed in onSearch() method )
+    public current_root:string = "";    // root url of the backend ( parsed in ngOnInit() method )
+
+    /**
+     * This dict is used to display properly all the different types of object contained in filteredData ( or data )
+     */
     public type_dict:{[id:string]:{icon:string,disp:string}} = {
         "" : {icon:"category",disp:"all"},
         "class" : {icon:"data_object",disp:"model"},
         "package" : {icon:"inventory",disp:"package"},
         "controller" : {icon:"code",disp:"controller"},
-        "get" : {icon:"data_array",disp:"controller-data"},
         "route" : {icon:"route",disp:"route"},
+        "get" : {icon:"data_array",disp:"controller-data"},
         "do" : {icon:"open_in_browser",disp:"controller-action"},
     }
 
-
-    public inputcontrol = new FormControl('')
+    public inputcontrol = new FormControl('') // formcontrol for search input field
 
     constructor(
-        private dialog: MatDialog,
-        private env: EnvService
+        private dialog: MatDialog, // could be useful later
+        private env: EnvService // used to parse the backend url
     ) { 
         
     }
@@ -53,6 +61,9 @@ export class SearchMixedListComponent implements OnInit {
         this.onSearch();
     }
 
+    /**
+     * This method synchronise the search input with the search select
+     */
     public onSelectChange() {
         if(this.search_scope !== "")
             this.inputcontrol.setValue(this.search_scope+":"+this.search_value)
@@ -62,7 +73,7 @@ export class SearchMixedListComponent implements OnInit {
     }       
 
     /**
-     * Will update filterData with the new filter.
+     * Parse the search input and filter object to display the search result
      *
      * @param value value of the filter
      */
@@ -79,7 +90,9 @@ export class SearchMixedListComponent implements OnInit {
         }
         this.filteredData = this.data.filter(
             node => 
+                // checking value part
                 (node.package ? node.package+"\\"+node.name : node.name).toLowerCase().includes(this.search_value.toLowerCase())
+                // checking types part
                 && (this.search_scope === ""
                     || (node.type === this.search_scope)
                     || ("controller" === this.search_scope && (
@@ -87,7 +100,6 @@ export class SearchMixedListComponent implements OnInit {
                     ))
                 )
         );
-        this.search_scope+":"+this.search_value
     }
 
     /**
