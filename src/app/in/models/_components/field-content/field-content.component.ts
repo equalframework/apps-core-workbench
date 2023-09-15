@@ -8,7 +8,7 @@ import { FieldClass } from '../../_object/FieldClass';
     selector: 'app-field-content',
     templateUrl: './field-content.component.html',
     styleUrls: ['./field-content.component.scss'],
-    encapsulation: ViewEncapsulation.None
+    encapsulation : ViewEncapsulation.Emulated
 })
 
 export class FieldContentComponent implements OnInit {

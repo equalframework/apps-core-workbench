@@ -7,7 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
   selector: 'app-search-list',
   templateUrl: './search-list.component.html',
   styleUrls: ['./search-list.component.scss'],
-  encapsulation: ViewEncapsulation.None
+  encapsulation : ViewEncapsulation.Emulated
 })
 export class SearchListComponent implements OnInit {
 

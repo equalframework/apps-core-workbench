@@ -14,7 +14,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
   selector: 'app-models',
   templateUrl: './models.component.html',
   styleUrls: ['./models.component.scss'],
-  encapsulation: ViewEncapsulation.None
+  encapsulation : ViewEncapsulation.Emulated,
 })
 export class ModelsComponent implements OnInit {
 

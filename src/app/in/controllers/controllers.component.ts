@@ -21,6 +21,7 @@ export class ControllersComponent implements OnInit {
     public schema: any;
     public controller_access_restrained: boolean;
     public selected_desc = '';
+    public fetch_error = false
 
     public step = 1;
 
@@ -51,17 +52,19 @@ export class ControllersComponent implements OnInit {
         let response = await this.api.getAnnounceController(event.type, this.selected_package, event.name);
         this.controller_access_restrained = !response
         if (!response) {
+            this.fetch_error = true
             this.snackBar.open('Not allowed', 'Close', {
                 duration: 1500,
                 horizontalPosition: 'left',
                 verticalPosition: 'bottom'
             });
         } else {
-            this.selected_controller = event.name;
+            this.fetch_error = false
             this.selected_property = 'description'
             this.schema = response.announcement;
             console.log(this.schema)
         }
+        this.selected_controller = event.name;
     }
 
     public changeStep(event:number) {

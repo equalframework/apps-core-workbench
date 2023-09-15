@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { FieldClass } from '../_object/FieldClass';
 import { WorkbenchService } from '../_service/models.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -8,7 +8,8 @@ import { cloneDeep } from 'lodash';
 @Component({
   selector: 'app-field',
   templateUrl: './field.component.html',
-  styleUrls: ['./field.component.scss']
+  styleUrls: ['./field.component.scss'],
+  encapsulation : ViewEncapsulation.Emulated
 })
 export class FieldComponent implements OnInit {
 

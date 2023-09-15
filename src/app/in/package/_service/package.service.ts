@@ -1,3 +1,4 @@
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ApiService } from 'sb-shared-lib';
 
@@ -8,7 +9,10 @@ import { ApiService } from 'sb-shared-lib';
 export class WorkbenchService {
     public cached_schema:any
 
-    constructor(private api: ApiService) { }
+    constructor(
+        private api: ApiService,
+        private http: HttpClient
+    ) { }
 
     /**
      * // TODO
@@ -246,13 +250,21 @@ export class WorkbenchService {
      * @param string name of the controller
      * @returns array with the announcement of a controller
      */
-        public async getAnnounceController(type_controller: string, eq_package: string, name: string) {
-            try {
-                return await this.api.fetch('?' + type_controller + '='+ eq_package + '_' + name + '&announce=true');
-            }
-            catch (response: any) {
-                return null;
-            }
+    public async getAnnounceController(type_controller: string, eq_package: string, name: string) {
+        try {
+            return await this.api.fetch('?' + type_controller + '='+ eq_package + '_' + name + '&announce=true');
         }
-    
+        catch (response: any) {
+            return null;
+        }
+    }
+
+    public async getRoutes() {
+        try {
+            return await this.api.fetch('?get=config_routes');
+        }
+        catch (response: any) {
+            console.warn('fetch package error', response);
+        }
+    }
 }

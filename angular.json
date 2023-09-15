@@ -59,11 +59,11 @@
                 {
                   "type": "initial",
                   "maximumWarning": "10mb",
-                  "maximumError": "10mb"
+                  "maximumError": "15mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "1mb",
+                  "maximumWarning": "10kb",
                   "maximumError": "1mb"
                 }
               ]

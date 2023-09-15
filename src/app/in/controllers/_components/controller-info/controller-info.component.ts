@@ -12,7 +12,7 @@ import { filter } from 'rxjs/operators';
     selector: 'app-controller-info',
     templateUrl: './controller-info.component.html',
     styleUrls: ['./controller-info.component.scss'],
-    encapsulation: ViewEncapsulation.None
+    encapsulation : ViewEncapsulation.Emulated
 })
 
 export class ControllerInfoComponent implements OnInit {
@@ -21,7 +21,9 @@ export class ControllerInfoComponent implements OnInit {
     @Input() controller_type: string;
     @Input() scheme: any;
     @Input() selected_package: string;
-    @Output() goto = new EventEmitter<number>();
+    @Input() fetch_error:boolean
+    @Input() moving:boolean = false;
+    @Output() goto = new EventEmitter<string>();
     public paramsValue: any;
     public presentRequiredParams: any;
     public canSubmit: boolean
@@ -62,10 +64,9 @@ export class ControllerInfoComponent implements OnInit {
                         this.presentRequiredParams[key] = false;
                     }
                 }
-                this.filtered_routes = this.filterRoute()
-                console.log(this.obk(this.filtered_routes))
-                this.updateCanSubmit();
             }
+            this.filtered_routes = this.filterRoute()
+            this.updateCanSubmit();
         }
         this.updateCanSubmit()
     }
@@ -90,9 +91,9 @@ export class ControllerInfoComponent implements OnInit {
         return res
     }
 
-    public clickEdit() {
-        console.log("emit")
-        this.goto.emit(2)
+    public sendTo(ev:string) {
+        console.log(ev)
+        if(this.moving) this.goto.emit(ev);
     }
 
     get requestString() {

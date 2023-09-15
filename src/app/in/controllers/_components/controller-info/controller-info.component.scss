@@ -123,6 +123,10 @@
     display: flex;
 }
 
+a.cr-click {
+    text-decoration: none;
+}
+
 .controller_cr_el {
     border: solid 1px #dddddd;
     height: 3em;
@@ -148,4 +152,14 @@
     width: 50em;
     border-top-right-radius: 10px;
     border-bottom-right-radius: 10px;
+}
+
+.clickable {
+    cursor: help;
+}
+
+pre {
+    background-color: white;
+    border: 1px solid silver;
+    padding: .5em;
 }

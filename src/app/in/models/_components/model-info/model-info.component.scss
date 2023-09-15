@@ -15,6 +15,7 @@
     border-radius: 10px;
     background-color: whitesmoke;
     height: calc(100% - 4em);
+    width: 100%;
 }
 
 .accent {
@@ -67,54 +68,60 @@
 }
 
 .pre-accent-color {
-    color: mat-color($accentcolor)!important;
+    color: mat-color($accentcolor,A100)!important;
 }
 
 .pre-main-color {
-    color: mat-color($maincolor)!important;
+    color: mat-color($maincolor,A100)!important;
 }
 
-.model_cr {
-    display: flex;
-    margin-left: 3em;
-    margin-right: 3em;
-    margin-bottom: .7em;
+
+
+.preicon {
+    transform: scale(.8);
 }
 
-.model_cr_el {
-    height: 3.5em;
+.pre-label-bold {
+    font-weight: 800;
+}
+
+.pre-field {
+    font-size: 1em;
+}
+
+.field-class-item {
+    background-color: white;
+    width: 97.5%;
+    height: 5em;
+    padding-left: 1em;
+    padding-right: 1em;
+    border-radius: 1em;
+}
+
+.field-sep {
+    width: 1em;
+}
+
+.field-unique-prop {
+    width: 1.5em;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    align-content: center;
+    flex-direction: column;
+    font-size: 1.2em;
+}
+
+.field-class-p1,.field-class-p2 {
+    height: 2.5em;
+    display: flex;
+    align-items: center;
+}
+
+.field-prop-container {
+    border: solid grey 1px;
+    display: flex;
+    border-radius: .75em;
+    min-width: 3em;
     justify-content: center;
-    text-align: center;
-}
-
-.model_cr_path {
-    background-color: mat-color($maincolor,A100) ;
-    color : white;
-    width: 17em;
-    border-top-left-radius: .5em;
-    border-bottom-left-radius: .5em;
-}
-
-.model_cr_prop {
-    width: 12em;
-    border: solid 1px #dddddd;
-    color : mat-color($warncolor,A200)
-}
-
-.model_cr_type {
-    background-color: mat-color($accentcolor,A100) ;
-    color : white;
-    width: 21em;
-
-}
-
-.model_cr_desc {
-    width: 50em;
-    border: solid 1px #dddddd;
-    border-top-right-radius: .5em;
-    border-bottom-right-radius: .5em;
+    padding: 0em .5em;
+    margin-left: auto;
 }

@@ -1,7 +1,7 @@
 <!-- Step for package -->
 <div class="max-height step">
     <div class="title-container max-width">
-        <mat-label class="solo">Select Package</mat-label>
+        <mat-label class="solo">Select Object</mat-label>
     </div>
     <mat-grid-list cols="4" class="package-grid-list">
         <!-- Package search list, on the left of the screen -->
@@ -9,6 +9,7 @@
             <app-search-mixed-list class="max-height max-width"
                 [data]="elements"
                 [selected_node]="selected_element"
+                [loading]="isloading"
                 (nodeSelect)="onclickPackageSelect($event)"
                 (nodeUpdate)="onupdatePackage($event)"
                 (nodeDelete)="ondeletePackage($event)"
@@ -17,27 +18,40 @@
         </mat-grid-tile>
         <!-- Package content -->
         <mat-grid-tile colspan="3" class="max-height">
-            <app-model-info *ngIf="selected_element.type==='class' || selected_element.type===''" class="max-height max-width"
-                [selected_package]="selected_element.package ? selected_element.package : ''"
-                [selected_class]="selected_element.name"
-                [class_scheme]="schema"
-                (changeStep)="onChangeStepModel($event)"
-            >
-            </app-model-info>
-            <app-package-info *ngIf="selected_element.type==='package'" class="max-height max-width"
-                [current_package]="selected_element.name"
-                [package_init_list]="initialised_packages"
-                [package_consitency]="package_consistency"
-                (onModelClick)="onClickModels()"
-                (onControllerClick)="onClickControllers()"
-            >
-            </app-package-info>
-            <app-controller-info *ngIf="selected_element.type==='do' || selected_element.type==='get'" class="max-height max-width"
-                [current_controller]="selected_element.name"
-                [controller_type]="selected_element.type"
-                [scheme]="schema"
-                [selected_package]="selected_element.package ? selected_element.package : ''"
-            ></app-controller-info>
+            <div *ngIf="isloading" class="max-height max-width">
+                LOADING
+            </div>
+            <div *ngIf="!isloading" class="max-height max-width">
+                <app-model-info *ngIf="selected_element.type==='class' || selected_element.type===''" class="max-height max-width"
+                    [selected_package]="selected_element.package ? selected_element.package : ''"
+                    [selected_class]="selected_element.name"
+                    [class_scheme]="schema"
+                    (changeStep)="onChangeStepModel($event)"
+                >
+                </app-model-info>
+                <app-package-info *ngIf="selected_element.type==='package'" class="max-height max-width"
+                    [current_package]="selected_element.name"
+                    [package_init_list]="initialised_packages"
+                    [package_consitency]="package_consistency"
+                    (onModelClick)="onClickModels()"
+                    (onControllerClick)="onClickControllers()"
+                >
+                </app-package-info>
+                <app-controller-info *ngIf="selected_element.type==='do' || selected_element.type==='get'" class="max-height max-width"
+                    [current_controller]="selected_element.name"
+                    [controller_type]="selected_element.type"
+                    [scheme]="schema"
+                    [fetch_error]="fetch_error"
+                    [selected_package]="selected_element.package ? selected_element.package : ''"
+                    [moving]="true"
+                    (goto)="goTo($event)"
+                ></app-controller-info>
+                <app-route-info  *ngIf="selected_element.type==='route'"
+                    [current_route]="selected_element.name"
+                    [route_info]="routelist[selected_element.name]"
+                    (redirect)="goTo($event)"
+                ></app-route-info>
+            </div>
         </mat-grid-tile>
     </mat-grid-list>
 </div>

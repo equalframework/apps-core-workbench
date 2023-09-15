@@ -93,3 +93,20 @@
     margin: 0;
     padding: 0;
 }
+
+.pointable {
+    cursor: pointer;
+}
+
+.consistency-info {
+    background-color: white;
+    border-radius: 2em;
+    padding: 1em;
+    min-height: 3em;
+}
+
+.consistency-info .icon{
+    transform: scale(1.2) translateY(-.1em);
+    float: right;
+    margin-right: 1em;
+}

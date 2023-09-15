@@ -1,57 +1,56 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
+import { EnvService } from 'sb-shared-lib';
 
 @Component({
   selector: 'app-search-mixed-list',
   templateUrl: './search-mixed-list.component.html',
   styleUrls: ['./search-mixed-list.component.scss'],
-  encapsulation: ViewEncapsulation.None
+  encapsulation : ViewEncapsulation.Emulated
 })
 export class SearchMixedListComponent implements OnInit {
-
+ 
     @Input() data:{package?:string,name:string,type:string}[];
     @Input() selected_node:{name:string,type:string};
+    @Input() loading:boolean
     @Output() nodeSelect = new EventEmitter<{package?:string,name:string,type:string}>();
 
+    public obk = Object.keys
     public inputValue: string;
     public filteredData: {package?:string,name:string,type:string}[];
     public search_value:string = ""
     public search_scope:string = ""
+    public current_root:string = "";
 
-    public icon_dict:{[id:string]:string} = {
-        "get" : "data_array",
-        "do" : "open_in_browser",
-        "controller" : "code",
-        "class" : "data_object",
-        "package" : "inventory",
-        "" : "category"
-    }
-
-    public disp_dict:{[id:string]:string} = {
-        "get" : "controller-data",
-        "do" : "contrller-action",
-        "controller" : "controller",
-        "class" : "model",
-        "package" : "package",
-        "" : "all"
+    public type_dict:{[id:string]:{icon:string,disp:string}} = {
+        "" : {icon:"category",disp:"all"},
+        "class" : {icon:"data_object",disp:"model"},
+        "package" : {icon:"inventory",disp:"package"},
+        "controller" : {icon:"code",disp:"controller"},
+        "get" : {icon:"data_array",disp:"controller-data"},
+        "route" : {icon:"route",disp:"route"},
+        "do" : {icon:"open_in_browser",disp:"controller-action"},
     }
 
 
     public inputcontrol = new FormControl('')
 
-    constructor(private dialog: MatDialog) { 
+    constructor(
+        private dialog: MatDialog,
+        private env: EnvService
+    ) { 
         
     }
 
-    public ngOnInit(): void {
+    public async ngOnInit() {
+        this.current_root = (await this.env.getEnv())['backend_url']
         this.onSearch();
     }
 
     public async ngOnChanges() {
-        setTimeout(() => {
-            this.onSearch();
-        }, 500);
+        this.onSearch();
     }
 
     public onSelectChange() {

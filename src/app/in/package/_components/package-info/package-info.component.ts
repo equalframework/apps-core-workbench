@@ -8,7 +8,7 @@ import { prettyPrintJson } from 'pretty-print-json';
     selector: 'app-package-info',
     templateUrl: './package-info.component.html',
     styleUrls: ['./package-info.component.scss'],
-    encapsulation: ViewEncapsulation.None
+    encapsulation : ViewEncapsulation.Emulated,
 })
 
 export class PackageInfoComponent implements OnInit {
@@ -22,6 +22,7 @@ export class PackageInfoComponent implements OnInit {
     public warn_count:number
     public error_count:number
     public error_list:{type:number, text:string}[]
+    public info_popup = false
 
     constructor(
         private snackBar: MatSnackBar,

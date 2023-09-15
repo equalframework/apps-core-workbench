@@ -12,7 +12,7 @@ import { eq } from 'lodash';
   selector: 'app-package',
   templateUrl: './package.component.html',
   styleUrls: ['./package.component.scss'],
-  encapsulation: ViewEncapsulation.None
+  encapsulation : ViewEncapsulation.Emulated,
 })
 export class PackageComponent implements OnInit {
 
@@ -27,6 +27,9 @@ export class PackageComponent implements OnInit {
     public package_consistency:any
     public schema:any
     public selected_type_controller:string = ''
+    public fetch_error:boolean = false
+    public isloading:boolean = true
+    public routelist:any = {}
 
     constructor(
         private context: ContextService,
@@ -50,7 +53,16 @@ export class PackageComponent implements OnInit {
                 this.elements.push({package:pack,name:cont,type:"do"})
             });
         });
-        console.log(this.elements)
+        this.routelist = (await this.api.getRoutes())
+        for(let name in this.routelist){
+            this.elements.push({name: name, type: "route"})
+        }
+        setTimeout(() => {
+            this.elements.sort((a,b) => 
+                (a.package ? a.package+a.name : a.name).replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase() < (b.package ? b.package+b.name : b.name).replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase() ? -1 : 1 
+            )
+            this.isloading = false
+        },0)
     }
 
     /**
@@ -72,17 +84,16 @@ export class PackageComponent implements OnInit {
                 if(eq_element.package)
                     response = await this.api.getAnnounceController(eq_element.type, eq_element.package, eq_element.name);
                 if (!response) {
+                    this.fetch_error = true
                     this.snackBar.open('Not allowed', 'Close', {
                         duration: 1500,
                         horizontalPosition: 'left',
                         verticalPosition: 'bottom'
                     });
                 } else {
-                    this.selected_element = eq_element;
+                    this.fetch_error = false
                     this.schema = response.announcement;
-                    console.log(this.schema)
                 }
-                return
         }
         this.selected_element = eq_element;
     }
@@ -151,6 +162,11 @@ export class PackageComponent implements OnInit {
         if(event===2) {
             this.router.navigate(['/fields',this.selected_element.package ? this.selected_element.package : "",this.selected_element.name])
         }
+    }
+
+    goTo(ev:string) {
+        let el = this.elements.filter(el => el.name === ev)[0]
+        this.onclickPackageSelect(el)
     }
 }
 

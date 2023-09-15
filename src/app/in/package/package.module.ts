@@ -38,6 +38,7 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { SearchMixedListComponent } from './_components/search-mixed-list/search-mixed-list.component';
 import { ModelsInfoModule } from '../models/_components/model-info/models-info.module';
 import { ControllerInfoModule } from '../controllers/_components/controller-info/controller-info.module';
+import { RouteInfoModule } from '../routes/_components/route-info/route-info.module';
 
 
 @NgModule({
@@ -56,7 +57,8 @@ import { ControllerInfoModule } from '../controllers/_components/controller-info
         AppInModelsModule,
         MatGridListModule,
         ModelsInfoModule,
-        ControllerInfoModule
+        ControllerInfoModule,
+        RouteInfoModule
     ],
     declarations: [
         PackageComponent,
