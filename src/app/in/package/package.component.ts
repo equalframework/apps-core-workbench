@@ -40,29 +40,37 @@ export class PackageComponent implements OnInit {
 
     public async ngOnInit() {
         let classes = await this.api.getClasses();
-        (await this.api.getPackages()).forEach(async pack => {
-            this.elements.push({name:pack,type:"package"})
-            classes[pack].forEach(classe => {
-                this.elements.push({package:pack ,name:classe,type:"class"})
-            });
-            let x = (await this.api.getControllers(pack));
-            x.data.forEach(cont => {
-                this.elements.push({package:pack,name:cont,type:"get"})
-            });
-            x.actions.forEach(cont => {
-                this.elements.push({package:pack,name:cont,type:"do"})
-            });
-        });
-        this.routelist = (await this.api.getRoutes())
-        for(let name in this.routelist){
-            this.elements.push({name: name, type: "route"})
-        }
-        setTimeout(() => {
-            this.elements.sort((a,b) => 
-                (a.package ? a.package+a.name : a.name).replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase() < (b.package ? b.package+b.name : b.name).replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase() ? -1 : 1 
-            )
-            this.isloading = false
-        },0)
+        this.api.getPackages().then((packarr) => {
+            packarr.forEach(pack => {
+                this.elements.push({name:pack,type:"package"})
+                classes[pack].forEach(classe => {
+                    this.elements.push({package:pack ,name:classe,type:"class"})
+                });
+                this.api.getControllers(pack).then((x) => {
+                    x.data.forEach(cont => {
+                        this.elements.push({package:pack,name:cont,type:"get"})
+                    });
+                    x.actions.forEach(cont => {
+                        this.elements.push({package:pack,name:cont,type:"do"})
+                    });
+                    this.api.getViewByPackage(pack).then((y) => {
+                        y.forEach(view =>{
+                            this.elements.push({name:view,type:"view"})
+                        })
+                        this.elements.sort((a,b) => 
+                            (a.type === "class" ? a.package+a.name : a.name).replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase() < (b.type === "class" ? b.package+b.name : b.name).replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase() ? -1 : 1 
+                        )
+                        this.isloading = false
+                    })
+                })  
+            })
+            this.api.getRoutes().then((d) => {
+                this.routelist = d
+                for(let name in this.routelist){
+                    this.elements.push({name: name, type: "route"})
+                }
+            })
+        })
     }
 
     /**
@@ -82,7 +90,7 @@ export class PackageComponent implements OnInit {
         if(eq_element.type === "do" || eq_element.type === "get") {
                 let response
                 if(eq_element.package)
-                    response = await this.api.getAnnounceController(eq_element.type, eq_element.package, eq_element.name);
+                    response = await this.api.getAnnounceController(eq_element.type, eq_element.name);
                 if (!response) {
                     this.fetch_error = true
                     this.snackBar.open('Not allowed', 'Close', {
@@ -104,6 +112,10 @@ export class PackageComponent implements OnInit {
 
     public onClickControllers() {
         this.router.navigate(['/controllers', this.selected_element.name]);
+    }
+
+    public onClickView() {
+        this.router.navigate(['/views', "package", this.selected_element.name]);
     }
     
     /**
@@ -161,6 +173,9 @@ export class PackageComponent implements OnInit {
     public onChangeStepModel(event:number) {
         if(event===2) {
             this.router.navigate(['/fields',this.selected_element.package ? this.selected_element.package : "",this.selected_element.name])
+        }
+        if(event===3 && this.selected_element.package) {
+            this.router.navigate(['/views',"entity",this.selected_element.package+'\\'+this.selected_element.name])
         }
     }
 

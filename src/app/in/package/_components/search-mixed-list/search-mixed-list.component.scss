@@ -5,6 +5,7 @@ $class-color : mat-palette($mat-orange);
 $get-color : mat-palette($mat-blue);
 $do-color : mat-palette($mat-blue);
 $route-color : mat-palette($mat-red);
+$view-color : mat-palette($mat-purple);
 
 .node_container {
     display: flex;
@@ -126,6 +127,11 @@ $route-color : mat-palette($mat-red);
     border-radius: .3em;
 }
 
+.type-mixed-sel-view {
+    background-color: mat-color($view-color,A100) ;
+    border-radius: .3em;
+}
+
 .mixed-searchbar {
     display: flex;
 }
@@ -179,6 +185,13 @@ $route-color : mat-palette($mat-red);
 
 .mixed-select-sel-route {
     background-color: mat-color($route-color,A100) ;
+    border-radius: .3em;
+    width: 1.5em;
+    padding-left: .25em;
+}
+
+.mixed-select-sel-view {
+    background-color: mat-color($view-color,A100) ;
     border-radius: .3em;
     width: 1.5em;
     padding-left: .25em;

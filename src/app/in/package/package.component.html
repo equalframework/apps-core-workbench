@@ -35,6 +35,7 @@
                     [package_consitency]="package_consistency"
                     (onModelClick)="onClickModels()"
                     (onControllerClick)="onClickControllers()"
+                    (onViewClick)="onClickView()"
                 >
                 </app-package-info>
                 <app-controller-info *ngIf="selected_element.type==='do' || selected_element.type==='get'" class="max-height max-width"
@@ -51,6 +52,9 @@
                     [route_info]="routelist[selected_element.name]"
                     (redirect)="goTo($event)"
                 ></app-route-info>
+                <app-views-info  *ngIf="selected_element.type==='view'"
+                    [view_ref]="selected_element.name"
+                ></app-views-info>
             </div>
         </mat-grid-tile>
     </mat-grid-list>

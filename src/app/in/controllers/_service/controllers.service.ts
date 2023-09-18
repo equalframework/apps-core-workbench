@@ -40,9 +40,9 @@ export class ControllersService {
      * @param string name of the controller
      * @returns array with the announcement of a controller
      */
-    public async getAnnounceController(type_controller: string, eq_package: string, name: string) {
+    public async getAnnounceController(type_controller: string, name: string) {
         try {
-            return await this.api.fetch('?' + type_controller + '='+ eq_package + '_' + name + '&announce=true');
+            return await this.api.fetch('?' + type_controller + '='+ name + '&announce=true');
         }
         catch (response: any) {
             return null;
@@ -58,7 +58,7 @@ export class ControllersService {
      * @param array all the parameters for the controller
      * @returns array with the respond of a controller's execution
      */
-    public async submitController(type_controller: string, eq_package: string, controller_name: string, params: []) {
+    public async submitController(type_controller: string, controller_name: string, params: []) {
         let stringParams = '';
         for(let key in params) {
             if(isArray(params[key])) {
@@ -69,7 +69,7 @@ export class ControllersService {
         }
 
         try {
-            return await this.api.fetch('?' + type_controller + '='+ eq_package + '_' + controller_name + stringParams);
+            return await this.api.fetch('?' + type_controller + '=' + controller_name + stringParams);
         }
         catch (response: any) {
             return null;

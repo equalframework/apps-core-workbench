@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
-import { ViewService } from './_services/models.service';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { ViewService } from './_services/view.service';
+import { ActivatedRoute, Route, Router } from '@angular/router';
 
 @Component({
   selector: 'app-views',
   templateUrl: './views.component.html',
-  styleUrls: ['./views.component.scss']
+  styleUrls: ['./views.component.scss'],
+  encapsulation : ViewEncapsulation.Emulated
 })
 export class ViewsComponent implements OnInit {
 
@@ -13,15 +15,25 @@ export class ViewsComponent implements OnInit {
   selected_view:string;
 
   constructor(
-    private api:ViewService
+    private api:ViewService,
+    private activatedRoute:ActivatedRoute,
+    private router:Router
   ) { }
 
-  ngOnInit(): void {
+  async ngOnInit() {
+    const type = this.activatedRoute.snapshot.paramMap.get('type')
+    const entity = this.activatedRoute.snapshot.paramMap.get('entity')
+    if(type && entity)
+      this.views_for_selected_package = await this.api.getViews(type,entity)
   }
 
-  public getBack() {}
+  public getBack() {
+    this.router.navigate(['..'])
+  }
 
-  public onclickViewSelect(event:string) {}
+  public onclickViewSelect(event:string) {
+    this.selected_view = event
+  }
 
   public onupdateView(event:any) {}
 

@@ -49,7 +49,7 @@ export class ControllersComponent implements OnInit {
      */
     public async onclickControllerSelect(event: { type: string, name: string }) {
         this.selected_type_controller = event.type;
-        let response = await this.api.getAnnounceController(event.type, this.selected_package, event.name);
+        let response = await this.api.getAnnounceController(event.type, event.name);
         this.controller_access_restrained = !response
         if (!response) {
             this.fetch_error = true

@@ -5,7 +5,7 @@ import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
   selector: 'app-model-info',
   templateUrl: './model-info.component.html',
   styleUrls: ['./model-info.component.scss'],
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.Emulated
 })
 export class ModelInfoComponent implements OnInit {
   @Input() selected_package:string
@@ -32,6 +32,10 @@ export class ModelInfoComponent implements OnInit {
 
   fieldOnClick() {
     this.changeStep.emit(2);
+  }
+
+  viewOnClick() {
+    this.changeStep.emit(3);
   }
 
   fieldHasProp(key:string):boolean {

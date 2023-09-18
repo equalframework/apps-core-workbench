@@ -2,10 +2,13 @@
     <mat-form-field class="input search-bar">
         <mat-icon matPrefix class="icon">filter_list</mat-icon>
         <input matInput placeholder="Filter" [formControl]="inputcontrol" (keyup)="onSearch()">
+        <button *ngIf="inputcontrol.value && inputcontrol.value !== ''" matSuffix mat-icon-button aria-label="Clear" (click)="clearSearch()">
+            <mat-icon>close</mat-icon>
+        </button>
     </mat-form-field>
     <mat-form-field class="mixed-search-select">
         <mat-select [(value)]="search_scope" class="" (valueChange)="onSelectChange()" >
-            <mat-select-trigger> <mat-icon class="icon-search-small mixed-select-sel-{{search_scope}}">{{type_dict[search_scope].icon}}</mat-icon> {{type_dict[search_scope].disp}}</mat-select-trigger>
+            <mat-select-trigger> <mat-icon class="icon-search-small mixed-select-sel-{{search_scope}}">{{type_dict[search_scope].icon}}</mat-icon> {{type_dict[actual_scope].disp}}</mat-select-trigger>
             <mat-option *ngFor="let key of obk(type_dict)" [value]="key">
                 <mat-icon class="mixed-select-sel-{{key}}">{{type_dict[key].icon}}</mat-icon> {{type_dict[key].disp}}
             </mat-option>
@@ -19,12 +22,8 @@
     <mat-list-item *ngFor="let node of filteredData" class="">
         <div class="node_container mixed-sel-{{node.type}}" [class.node-hover]="selected_node != node" [class.node-selected]="selected_node == node">
             <div class="pointable node-text" (click)="onclickNodeSelect(node)">
-                <label class="type-info-mixed-sel type-mixed-sel-{{node.type}}" *ngIf="node.type==='package'"><mat-icon>inventory</mat-icon></label>
-                <label class="type-info-mixed-sel type-mixed-sel-{{node.type}}" *ngIf="node.type==='class'"><mat-icon>data_object</mat-icon></label>
-                <label class="type-info-mixed-sel type-mixed-sel-{{node.type}}" *ngIf="node.type==='do'"><mat-icon>open_in_browser</mat-icon></label>
-                <label class="type-info-mixed-sel type-mixed-sel-{{node.type}}" *ngIf="node.type==='get'"><mat-icon>data_array</mat-icon></label>
-                <label class="type-info-mixed-sel type-mixed-sel-{{node.type}}" *ngIf="node.type==='route'"><mat-icon>route</mat-icon></label>
-                <label class="name-mixed-sel">{{node.type==='route'? current_root : ""}}{{ node.package ? node.package+(node.type === "do" || node.type === "get" ? "_":"\\") : ""}}{{node.name}}</label>
+                <label class="type-info-mixed-sel type-mixed-sel-{{node.type}}"><mat-icon>{{type_dict[node.type].icon}}</mat-icon></label>
+                <label class="name-mixed-sel">{{node.type==='route'? current_root : ""}}{{ node.package ? (node.type === "do" || node.type === "get" ? "":node.package+"\\") : ""}}{{node.name}}</label>
             </div>
         </div>
     </mat-list-item>

@@ -18,6 +18,7 @@ export class PackageInfoComponent implements OnInit {
     @Input() package_consitency:any
     @Output() onModelClick = new EventEmitter<void>();
     @Output() onControllerClick = new EventEmitter<void>();
+    @Output() onViewClick = new EventEmitter<void>();
     public current_initialised = false
     public warn_count:number
     public error_count:number
@@ -64,6 +65,11 @@ export class PackageInfoComponent implements OnInit {
     public controllerOnClick() {
         console.log("catch!")
         this.onControllerClick.emit()
+    }
+
+    public viewOnClick() {
+        console.log("catch!")
+        this.onViewClick.emit()
     }
 
     public consitencyPrint():any {

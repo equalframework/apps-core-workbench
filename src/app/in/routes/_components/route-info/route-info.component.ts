@@ -33,12 +33,7 @@ export class RouteInfoComponent implements OnInit, OnChanges {
   }
 
   sendTo(value:string) {
-    let x = value.split('=')[1].split("&")[0].split("_")
-    let res = x[1]
-    for(let i = 2; i < x.length ; i++){
-      res += "_"+x[i]
-    }
-    this.redirect.emit(res)
+    let x = value.split('=')[1].split("&")[0]
+    this.redirect.emit(x)
   }
-
 }

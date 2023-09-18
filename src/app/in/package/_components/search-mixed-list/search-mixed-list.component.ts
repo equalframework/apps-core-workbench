@@ -35,10 +35,11 @@ export class SearchMixedListComponent implements OnInit {
      */
     public type_dict:{[id:string]:{icon:string,disp:string}} = {
         "" : {icon:"category",disp:"all"},
-        "class" : {icon:"data_object",disp:"model"},
         "package" : {icon:"inventory",disp:"package"},
+        "class" : {icon:"data_object",disp:"model"},
         "controller" : {icon:"code",disp:"controller"},
         "route" : {icon:"route",disp:"route"},
+        "view" : {icon:"view_quilt",disp:"view"},
         "get" : {icon:"data_array",disp:"controller-data"},
         "do" : {icon:"open_in_browser",disp:"controller-action"},
     }
@@ -54,6 +55,7 @@ export class SearchMixedListComponent implements OnInit {
 
     public async ngOnInit() {
         this.current_root = (await this.env.getEnv())['backend_url']
+        this.inputcontrol.setValue("package:")
         this.onSearch();
     }
 
@@ -88,6 +90,7 @@ export class SearchMixedListComponent implements OnInit {
             this.search_scope = ""
             this.search_value = splitted[0]
         }
+        this.search_scope = this.actual_scope
         this.filteredData = this.data.filter(
             node => 
                 // checking value part
@@ -95,9 +98,8 @@ export class SearchMixedListComponent implements OnInit {
                 // checking types part
                 && (this.search_scope === ""
                     || (node.type === this.search_scope)
-                    || ("controller" === this.search_scope && (
-                        node.type === 'get' || node.type === 'do'
-                    ))
+                    || ("controller" === this.search_scope && ( node.type === 'get' || node.type === 'do' ))
+                    || ("view" === this.search_scope && ( node.type === 'list' || node.type === 'form' ))
                 )
         );
     }
@@ -109,5 +111,14 @@ export class SearchMixedListComponent implements OnInit {
      */
     public onclickNodeSelect(node:{package?:string,name:string,type:string}){
         this.nodeSelect.emit(node);
+    }
+
+    clearSearch() {
+        this.inputcontrol.setValue('')
+        this.onSearch()
+    }
+
+    get actual_scope() {
+        return this.type_dict[this.search_scope] ? this.search_scope : ""
     }
 }

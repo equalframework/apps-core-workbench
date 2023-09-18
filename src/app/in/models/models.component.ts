@@ -70,6 +70,9 @@ export class ModelsComponent implements OnInit {
         if(step == 2) {
             this.route.navigate(['/fields',this.selected_package,this.selected_class])
         }
+        if(step===3) {
+            this.route.navigate(['/views',"entity",this.selected_package+'\\'+this.selected_class])
+        }
     }
 
     /**

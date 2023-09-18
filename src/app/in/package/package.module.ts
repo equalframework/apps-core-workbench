@@ -39,6 +39,7 @@ import { SearchMixedListComponent } from './_components/search-mixed-list/search
 import { ModelsInfoModule } from '../models/_components/model-info/models-info.module';
 import { ControllerInfoModule } from '../controllers/_components/controller-info/controller-info.module';
 import { RouteInfoModule } from '../routes/_components/route-info/route-info.module';
+import { ViewsInfoModule } from '../views/_components/views-info/views-info.module';
 
 
 @NgModule({
@@ -58,7 +59,8 @@ import { RouteInfoModule } from '../routes/_components/route-info/route-info.mod
         MatGridListModule,
         ModelsInfoModule,
         ControllerInfoModule,
-        RouteInfoModule
+        RouteInfoModule,
+        ViewsInfoModule
     ],
     declarations: [
         PackageComponent,

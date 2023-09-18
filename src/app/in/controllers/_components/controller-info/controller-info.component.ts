@@ -106,7 +106,7 @@ export class ControllerInfoComponent implements OnInit {
 
     get cliCommand() {
         let controllerNameUnderscore = this.current_controller.replace('\\', '_');
-        let stringParams = './equal.run --' + this.controller_type + "=" + this.selected_package + '_' + controllerNameUnderscore;
+        let stringParams = './equal.run --' + this.controller_type + "=" + controllerNameUnderscore;
         for (let key in this.paramsValue) {
             if (isArray(this.paramsValue[key])) {
                 let arrayString = (JSON.stringify(this.paramsValue[key])).replaceAll('"', '');
@@ -138,7 +138,7 @@ export class ControllerInfoComponent implements OnInit {
         }
         return result*/
         let controllerNameUnderscore = this.current_controller.replace('\\', '_');
-        let stringParams = 'http://equal.local?' + this.controller_type + "=" + this.selected_package + '_' + controllerNameUnderscore;
+        let stringParams = 'http://equal.local?' + this.controller_type + "=" + controllerNameUnderscore;
         for (let key in this.paramsValue) {
             if (isArray(this.paramsValue[key])) {
                 let arrayString = (JSON.stringify(this.paramsValue[key])).replaceAll('"', '');
@@ -184,7 +184,7 @@ export class ControllerInfoComponent implements OnInit {
     }
 
     public updateParamsValue(new_value: any, params_name: any) {
-        if (new_value == undefined) {
+        if (new_value === undefined || new_value === "") {
             delete this.paramsValue[params_name];
             if (this.scheme['params'][params_name]['required']) {
                 this.presentRequiredParams[params_name] = false;
@@ -219,7 +219,7 @@ export class ControllerInfoComponent implements OnInit {
 
     public async submit() {
         console.log(this.paramsValue);
-        let response = await this.api.submitController(this.controller_type, this.selected_package, this.current_controller, this.paramsValue);
+        let response = await this.api.submitController(this.controller_type, this.current_controller, this.paramsValue);
         const dialogConfig = new MatDialogConfig();
         dialogConfig.maxHeight = '86vh';
         dialogConfig.minWidth = '70vw';

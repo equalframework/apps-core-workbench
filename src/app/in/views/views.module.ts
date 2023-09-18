@@ -10,19 +10,18 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { ViewsComponent } from './views.component';
-import { ViewService } from './_services/models.service';
 import { MatDialogModule } from '@angular/material/dialog';
 import { DeleteConfirmationComponent } from './_components/search-list/_components/delete-confirmation/delete-confirmation.component';
+import { ViewsInfoModule } from './_components/views-info/views-info.module';
+import { ViewsComponent } from './views.component';
 
 
 
 @NgModule({
   declarations: [
-    ViewsInfoComponent,
     SearchListComponent,
-    ViewsComponent,
     DeleteConfirmationComponent,
+    ViewsComponent,
   ],
   imports: [
     SharedLibModule,
@@ -35,6 +34,8 @@ import { DeleteConfirmationComponent } from './_components/search-list/_componen
     CommonModule,
     ViewsRoutingModule,
     MatDialogModule,
+    ViewsInfoModule,
+
   ]
 })
 export class ViewsModule { }
