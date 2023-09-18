@@ -9,6 +9,7 @@ import { FieldClass } from './_object/FieldClass';
 import { fi } from 'date-fns/locale';
 import { cloneDeep, update } from 'lodash';
 import { ActivatedRoute, Params, Router } from '@angular/router';
+import { RouterMemory } from 'src/app/_services/routermemory.service';
 
 @Component({
   selector: 'app-models',
@@ -37,7 +38,7 @@ export class ModelsComponent implements OnInit {
         private context: ContextService,
         private api: WorkbenchService,
         private snackBar: MatSnackBar,
-        private route:Router,
+        private route:RouterMemory,
         private activateRoute:ActivatedRoute
     ) { }
 
@@ -277,7 +278,7 @@ export class ModelsComponent implements OnInit {
 
     public getBack() {
         if(this.step === 1) {
-            this.route.navigate([".."])
+            this.route.goBack()
         }
         if(this.step === 2 && this.detectAnyChanges()){
             this.snackBar.open("Save or reset changes before quitting.")

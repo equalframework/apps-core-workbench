@@ -6,6 +6,7 @@ import { prettyPrintJson } from 'pretty-print-json';
 import { Router } from '@angular/router';
 import { AppInControllersModule } from '../controllers/controllers.module';
 import { eq } from 'lodash';
+import { RouterMemory } from 'src/app/_services/routermemory.service';
 
 
 @Component({
@@ -35,7 +36,7 @@ export class PackageComponent implements OnInit {
         private context: ContextService,
         private api: WorkbenchService,
         private snackBar: MatSnackBar,
-        private router:Router
+        private router:RouterMemory
     ) { }
 
     public async ngOnInit() {

@@ -3,6 +3,7 @@ import { ControllersService } from './_service/controllers.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { prettyPrintJson } from 'pretty-print-json';
 import { ActivatedRoute, Router } from '@angular/router';
+import { RouterMemory } from 'src/app/_services/routermemory.service';
 
 @Component({
     selector: 'app-controllers',
@@ -29,7 +30,7 @@ export class ControllersComponent implements OnInit {
         private api: ControllersService,
         private snackBar: MatSnackBar,
         private activateRoute: ActivatedRoute,
-        private route:Router
+        private route:RouterMemory
     ) { }
 
     public async ngOnInit() {
@@ -138,7 +139,7 @@ export class ControllersComponent implements OnInit {
 
     public getBack() {
         if(this.step === 1) {
-            this.route.navigate([".."])
+            this.route.goBack()
         }
         this.step --;
     }

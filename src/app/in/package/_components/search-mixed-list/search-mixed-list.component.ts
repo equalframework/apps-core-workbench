@@ -34,14 +34,14 @@ export class SearchMixedListComponent implements OnInit {
      * This dict is used to display properly all the different types of object contained in filteredData ( or data )
      */
     public type_dict:{[id:string]:{icon:string,disp:string}} = {
-        "" : {icon:"category",disp:"all"},
-        "package" : {icon:"inventory",disp:"package"},
-        "class" : {icon:"data_object",disp:"model"},
-        "controller" : {icon:"code",disp:"controller"},
-        "route" : {icon:"route",disp:"route"},
-        "view" : {icon:"view_quilt",disp:"view"},
-        "get" : {icon:"data_array",disp:"controller-data"},
-        "do" : {icon:"open_in_browser",disp:"controller-action"},
+        "" : {icon:"category",disp:"All"},
+        "package" : {icon:"inventory",disp:"Packages"},
+        "class" : {icon:"data_object",disp:"Models"},
+        "controller" : {icon:"code",disp:"Controllers"},
+        "route" : {icon:"route",disp:"Routes"},
+        "view" : {icon:"view_quilt",disp:"Views"},
+        "get" : {icon:"data_array",disp:"Data providers"},
+        "do" : {icon:"open_in_browser",disp:"Action handlers"},
     }
 
     public inputcontrol = new FormControl('') // formcontrol for search input field
