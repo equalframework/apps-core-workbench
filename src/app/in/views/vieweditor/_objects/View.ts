@@ -15,11 +15,13 @@ class View extends ViewElement{
     public layout:ViewLayout = new ViewLayout()
     public name:string = ""
     public description:string = ""
-    public type:string = ""
+    public type:string = "form"
     public domain:ViewDomain = new ViewDomain()
     public filters:ViewFilter[] = []
-    constructor(scheme:any={}) {
+
+    constructor(scheme:any={},type:string) {
         super()
+        this.type = type
         if(scheme['name']) this.name = scheme['name']
         if(scheme['description']) this.description = scheme['description']
         if(scheme['domain']) this.domain = new ViewDomain(scheme['domain'])
@@ -34,26 +36,40 @@ class View extends ViewElement{
     override getListDisplay(): string {
         return this.name
     }
+
+    addFilter() {
+        this.filters.push(new ViewFilter())
+    }
+
+    deleteFilter(index:number) {
+        this.filters.splice(index,1)
+    }
 }
 
 class ViewLayout extends ViewElement {
-    public groups:ViewGroup[]|undefined
-    public items:ViewItem[]|undefined
+    public groups:ViewGroup[] = []
+    public items:ViewItem[] = []
 
     constructor(scheme:any={}) {
         super()
         if(scheme["items"]){
-            this.items = []
             for(let v of scheme["items"]){
                 this.items.push(new ViewItem(v))
             }
         }
         if(scheme["groups"]){
-            this.groups = []
             for(let v of scheme["groups"]){
                 this.groups.push(new ViewGroup(v))
             }
         }
+    }
+
+    newViewItem() {
+        this.items.push(new ViewItem())
+    }
+
+    deleteItem(index:number) {
+        this.items.splice(index,1)
     }
 
     override getListDisplay(): string {
@@ -63,6 +79,7 @@ class ViewLayout extends ViewElement {
 
 class ViewGroup extends ViewElement {
     public sections:ViewSection[] = []
+    public label:string = ""
 
     constructor(scheme:any={}) {
         super()
@@ -71,6 +88,7 @@ class ViewGroup extends ViewElement {
                 this.sections.push(new ViewSection(v))
             }
         }
+        if(scheme['label']) this.label = scheme['label']
     }
 
     override getListDisplay(): string {
@@ -79,7 +97,7 @@ class ViewGroup extends ViewElement {
 }
 
 class ViewSection extends ViewElement {
-    public label:string|undefined
+    public label:string = ""
     public id:string = ""
     public rows:ViewRow[] = []
 
@@ -131,7 +149,6 @@ class ViewColumn extends ViewElement {
             }
         }
     }
-
     override getListDisplay(): string {
         return "Column"
     }
@@ -145,24 +162,32 @@ class ViewItem extends ViewElement {
     public readonly:boolean = false
     public visible:ViewDomain = new ViewDomain()
     public widget:ViewWidget = new ViewWidget()
+    public has_domain:boolean = false
+    public has_widget:boolean = false
 
     constructor(scheme:any={}) {
         super()
         if(scheme['type']) this.type = scheme['type']
         if(scheme['value']) this.value = scheme['value']
-        if(scheme['width']) this.width = scheme['width']
+        if(scheme['width']) this.width = Number.parseInt(scheme['width'])
         if(scheme['sortable']) this.sortable = scheme['sortable']
         if(scheme['readonly']) this.readonly = scheme['readonly']
-        if(scheme['visible']) this.visible = new ViewDomain(scheme['visible'])
-        if(scheme['widget']) this.widget = new ViewWidget(scheme['widget'])
+        if(scheme['visible']) {
+            this.visible = new ViewDomain(scheme['visible'])
+            this.has_domain = true
+        }
+        if(scheme['widget']){
+            this.widget = new ViewWidget(scheme['widget'])
+            this.has_widget = true
+        }
     }
 }
 
 class ViewWidget {
     public link:boolean = false
     public heading:boolean = false
-    public type:string|undefined
-    public values:string[]|undefined
+    public type:string = ""
+    public values:string[] = []
 
     constructor(scheme:any={}) {
         if(scheme['link']) this.link = scheme['link']
@@ -173,18 +198,19 @@ class ViewWidget {
 }
 
 class ViewDomain {
-    public dom:any = {}
+    public dom:any[][] = []
 
-    constructor(scheme:any={}) {
-        this.dom = scheme
+    constructor(scheme:any=[]) {
+        if(scheme)
+            this.dom = scheme
     }
 }
 
 class ViewFilter {
-    public id:string
-    public label:string
-    public description:string
-    public clause:ViewClause
+    public id:string = ""
+    public label:string = ""
+    public description:string = ""
+    public clause:ViewClause = new ViewClause()
 
     constructor(scheme:any={}) {
         if(scheme['id']) this.id = scheme['id']

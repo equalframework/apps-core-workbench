@@ -21,9 +21,9 @@ export class ViewsInfoComponent implements OnChanges {
   ) { }
 
   async ngOnChanges(){
-    let temp = this.view_ref.split(".")
-    this.entity = temp[0].replaceAll("_","\\")
-    this.view_id = temp[1] +'.'+ temp[2]
+    let temp = this.view_ref.split(":")
+    this.entity = temp[0]
+    this.view_id = temp[1]
     this.view_scheme = await this.api.getView(this.entity,this.view_id)
     console.log(this.view_scheme['layout'])
   }

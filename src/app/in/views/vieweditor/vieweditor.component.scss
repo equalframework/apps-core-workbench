@@ -1,0 +1,57 @@
+@import "src/theme.scss";
+
+:host {
+    overflow-y: scroll;
+}
+
+.page-title {
+    font-size: 1.5em;
+}
+
+.category-title {
+    font-size: 1.3em;
+}
+
+.maincolor {
+    color : mat-color($maincolor)
+}
+
+.flex {
+    display: flex;
+}
+
+.indent {
+    margin-left: 2em;
+}
+
+.item {
+    margin: 1em 0em;
+    padding: 1em;
+    background-color: ghostwhite;
+    border-radius: .5em;
+    width: auto;
+}
+
+mat-checkbox {
+    margin-right: 1em;
+}
+
+.delete-button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 2em;
+
+}
+
+.widget {
+    background-color: #eee;
+}
+
+.addItem {
+    transform: scale(.7);
+}
+
+.inputlong {
+    width: 35em;
+}

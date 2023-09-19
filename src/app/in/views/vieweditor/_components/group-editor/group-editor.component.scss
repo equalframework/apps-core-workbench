@@ -1,0 +1,23 @@
+@import "/src/theme.scss";
+
+.parent {
+    border: solid black 1px;
+}
+
+.flex {
+    display: flex;
+}
+
+.section-selector {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 10em;
+    height: 2em;
+    border-right: solid black 1px ;
+    cursor: pointer;
+}
+
+.section-selector.selected {
+    background-color: mat-color($maincolor,A100);
+}

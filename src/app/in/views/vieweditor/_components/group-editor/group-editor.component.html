@@ -1,0 +1,8 @@
+<div class="flex parent">
+    <div *ngFor="let section of group_obj" [class.selected]="selected_id === section.id" class="section-selector" (click)="selected_id = section.id">
+        <div>
+            {{section.label}}
+        </div>
+        <button mat-icon-button><mat-icon>edit</mat-icon></button>
+    </div>
+</div>
