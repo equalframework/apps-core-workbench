@@ -24,6 +24,10 @@ const routes: Routes = [
     path : 'views/:type/:entity',
     loadChildren: () => import('../views/views.module').then(m => m.ViewsModule)
   },
+  {
+    path : 'views_edit/:view_name',
+    loadChildren : () => import('../views/vieweditor/vieweditor.module').then(m => m.VieweditorModule)
+  },
   // wildcard route (accept root and any sub route that does not match any of the routes above)
   {
       path: '**',

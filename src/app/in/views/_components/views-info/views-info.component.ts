@@ -1,5 +1,6 @@
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, Output, EventEmitter } from '@angular/core';
 import { ViewService } from '../../_services/view.service';
+import { View } from '../../vieweditor/_objects/View';
 
 @Component({
   selector: 'app-views-info',
@@ -8,6 +9,7 @@ import { ViewService } from '../../_services/view.service';
 })
 export class ViewsInfoComponent implements OnChanges {
   @Input() view_ref:string
+  @Output() goto = new EventEmitter<void>()
 
   view_id:string;
   entity:string;
@@ -26,5 +28,8 @@ export class ViewsInfoComponent implements OnChanges {
     console.log(this.view_scheme['layout'])
   }
 
+  onEditClick() {
+    this.goto.emit()
+  }
 
 }

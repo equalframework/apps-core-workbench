@@ -3,6 +3,7 @@ import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { EnvService } from 'sb-shared-lib';
+import { RouterMemory } from 'src/app/_services/routermemory.service';
 
 /** 
  * This component is used to display the list of all object you recover in package.component.ts
@@ -48,19 +49,26 @@ export class SearchMixedListComponent implements OnInit {
 
     constructor(
         private dialog: MatDialog, // could be useful later
-        private env: EnvService // used to parse the backend url
+        private env: EnvService, // used to parse the backend url
+        private router:RouterMemory
     ) { 
         
     }
 
     public async ngOnInit() {
         this.current_root = (await this.env.getEnv())['backend_url']
-        this.inputcontrol.setValue("package:")
+        let arg = this.router.retrieveArgs()
+        if(arg && arg['searchvalue']) {
+            this.inputcontrol.setValue(arg['searchvalue'])
+        } else {
+            this.inputcontrol.setValue("package:")
+        }   
         this.onSearch();
     }
 
     public async ngOnChanges() {
-        this.onSearch();
+        console.log(this.selected_node)
+        this.onSearch(false);
     }
 
     /**
@@ -79,7 +87,8 @@ export class SearchMixedListComponent implements OnInit {
      *
      * @param value value of the filter
      */
-    public onSearch() {
+    public onSearch(updaterouter:boolean=true) {
+        if(updaterouter) this.router.updateArg('searchvalue',this.inputcontrol.value)
         let splitted = this.inputcontrol.value.split(":")
         console.log(splitted)
         if(splitted.length > 1) {

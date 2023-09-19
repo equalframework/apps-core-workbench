@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { ViewService } from './_services/view.service';
 import { ActivatedRoute, Route, Router } from '@angular/router';
+import { RouterMemory } from 'src/app/_services/routermemory.service';
 
 @Component({
   selector: 'app-views',
@@ -10,14 +11,14 @@ import { ActivatedRoute, Route, Router } from '@angular/router';
 })
 export class ViewsComponent implements OnInit {
 
-  selected_package:string;
-  views_for_selected_package:string[];
-  selected_view:string;
+  selected_package:string = "";
+  views_for_selected_package:string[] = [];
+  selected_view:string = "";
 
   constructor(
     private api:ViewService,
     private activatedRoute:ActivatedRoute,
-    private router:Router
+    private router:RouterMemory,
   ) { }
 
   async ngOnInit() {
@@ -25,10 +26,11 @@ export class ViewsComponent implements OnInit {
     const entity = this.activatedRoute.snapshot.paramMap.get('entity')
     if(type && entity)
       this.views_for_selected_package = await this.api.getViews(type,entity)
+    console.log(this.views_for_selected_package)
   }
 
   public getBack() {
-    this.router.navigate(['..'])
+    this.router.goBack()
   }
 
   public onclickViewSelect(event:string) {
@@ -40,4 +42,8 @@ export class ViewsComponent implements OnInit {
   public ondeleteView(event:string) {}
 
   public oncreateView(event:string) {}
+
+  goto() {
+    this.router.navigate(["/views_edit",this.selected_view])
+  }
 }

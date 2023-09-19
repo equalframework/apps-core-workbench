@@ -20,7 +20,10 @@
             </mat-grid-tile>
             <!-- Class content -->
             <mat-grid-tile colspan="3" class="max-height" id="schema">
-                <app-views-info>
+                <app-views-info
+                    [view_ref]="selected_view"
+                    (goto)="goto()"
+                >
                 </app-views-info>
             </mat-grid-tile>
         </mat-grid-list>

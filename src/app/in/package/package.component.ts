@@ -40,6 +40,10 @@ export class PackageComponent implements OnInit {
     ) { }
 
     public async ngOnInit() {
+        let args = this.router.retrieveArgs()
+        if(args && args['selected']){
+            this.onclickPackageSelect(args['selected'])
+        }
         let classes = await this.api.getClasses();
         this.api.getPackages().then((packarr) => {
             packarr.forEach(pack => {
@@ -108,15 +112,15 @@ export class PackageComponent implements OnInit {
     }
 
     public onClickModels() {
-        this.router.navigate(['/models', this.selected_element.name]);
+        this.router.navigate(['/models', this.selected_element.name],{"selected":this.selected_element});
     }
 
     public onClickControllers() {
-        this.router.navigate(['/controllers', this.selected_element.name]);
+        this.router.navigate(['/controllers', this.selected_element.name],{"selected":this.selected_element});
     }
 
     public onClickView() {
-        this.router.navigate(['/views', "package", this.selected_element.name]);
+        this.router.navigate(['/views', "package", this.selected_element.name],{"selected":this.selected_element});
     }
     
     /**
@@ -173,16 +177,20 @@ export class PackageComponent implements OnInit {
 
     public onChangeStepModel(event:number) {
         if(event===2) {
-            this.router.navigate(['/fields',this.selected_element.package ? this.selected_element.package : "",this.selected_element.name])
+            this.router.navigate(['/fields',this.selected_element.package ? this.selected_element.package : "",this.selected_element.name],{"selected":this.selected_element})
         }
         if(event===3 && this.selected_element.package) {
-            this.router.navigate(['/views',"entity",this.selected_element.package+'\\'+this.selected_element.name])
+            this.router.navigate(['/views',"entity",this.selected_element.package+'\\'+this.selected_element.name],{"selected":this.selected_element})
         }
     }
 
     goTo(ev:string) {
         let el = this.elements.filter(el => el.name === ev)[0]
         this.onclickPackageSelect(el)
+    }
+
+    onViewEditClick() {
+        this.router.navigate(['/views_edit',this.selected_element.name],{"selected":this.selected_element})
     }
 }
 

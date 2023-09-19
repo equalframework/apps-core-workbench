@@ -54,6 +54,7 @@
                 ></app-route-info>
                 <app-views-info  *ngIf="selected_element.type==='view'"
                     [view_ref]="selected_element.name"
+                    (goto)="onViewEditClick()"
                 ></app-views-info>
             </div>
         </mat-grid-tile>
