@@ -17,8 +17,17 @@
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
   <!-- custom scripts -->
-  <!--
-  -->
+  <script>
+    function disapear(event){
+      console.log(event.srcElement.style);
+        event.srcElement.style.opacity = .1;
+    }
+    function reapear(event){
+        console.log(event.srcElement.style);
+        event.srcElement.style.opacity = 1;
+    }
+  </script>
+  <!--                    -->
 
   <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>

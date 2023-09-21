@@ -187,6 +187,7 @@ class ViewItem extends ViewElement {
     public widget:ViewWidget = new ViewWidget()
     public has_domain:boolean = false
     public has_widget:boolean = false
+    public _currently_dragged:boolean = false
 
     public get valueIsSelect():boolean {
         return this.type !== "label"

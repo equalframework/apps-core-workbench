@@ -6,34 +6,27 @@ import { ViewItem } from '../../_objects/View';
 })
 export class DraginfoDirective {
 
-  @Output() appDraginfo = new EventEmitter<boolean>()
+  @Output() appDraginfo = new EventEmitter<number>()
 
   constructor() { }
 
   @HostListener('dragstart', ['$event'])
   onDragStart(evt:any) {
-    this.appDraginfo.emit(true)
+    this.appDraginfo.emit(1)
   }
 
-  /*
   @HostListener('dragenter', ['$event'])
   onDragEnter(evt:any) {
-    this.appDraginfo.emit(true)
+    this.appDraginfo.emit(2)
   }
 
   @HostListener('dragleave', ['$event'])
   onDragLeave(evt:any) {
-    this.appDraginfo.emit(true)
-  }
-  */
-
-  @HostListener('mouseup')
-  mouseUp(){
-    this.appDraginfo.emit(false)
+    this.appDraginfo.emit(2)
   }
 
   @HostListener('dragend', ['$event'])
   onDragEnd(evt:any) {
-    this.appDraginfo.emit(false)
+    this.appDraginfo.emit(3)
   }
 }

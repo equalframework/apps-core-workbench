@@ -24,7 +24,6 @@ class GroupEditorComponent implements OnInit,OnChanges {
   @Input() fields:string[]
   @Output() onChange = new EventEmitter<ViewSection[]>()
   dragged:ViewItem|undefined
-  dragged_list:ViewItem[]|undefined
 
 
   dragposition = {}
@@ -129,14 +128,13 @@ class GroupEditorComponent implements OnInit,OnChanges {
     console.log(event)
   }
 
-  updateDragged(event:boolean,item:ViewItem,list:ViewItem[]) {
-    if(event) {
-      this.dragged = item
-      this.dragged_list = list
-    } else {
-      this.dragged = undefined
-      this.dragged_list = undefined
+  updateDragged(item:ViewItem|undefined) {
+    if(item) {
+      item._currently_dragged = true
+    } else if(this.dragged) {
+      this.dragged._currently_dragged = false
     }
+    this.dragged = item
   }
 
 }

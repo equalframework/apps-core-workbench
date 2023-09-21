@@ -1,4 +1,4 @@
-<div class="parent aspectratio">
+<div class="parent aspectratio" (mouseup)="updateDragged(undefined)">
     <div class="section-selector-container flex" 
         cdkDropList 
         cdkDropListOrientation="horizontal"
@@ -76,9 +76,15 @@
                         <mat-icon cdkDragHandle class="grabable">drag_indicator</mat-icon>
                         <div>
                             <div *ngFor="let item of col.items" style="display: inline-block;" [style.width.%]=" item.width > 16.67 ? item.width-item.width%12-2 : 14.67">
-                                <div *ngIf="!(dragged === item)" [appDragtracker]="{data_ref:col.items,ref:item,before:true,dragged:dragged,dragged_list:dragged_list}" class="boundary left"
+                                <div *ngIf="!(dragged === item)" [appDragtracker]="{data_ref:col.items,ref:item,before:true,dragged:dragged,obj:selected}" class="boundary left"
                                 ></div>
-                                <div [class.track]="dragged === item" (appDraginfo)="updateDragged($event,item,col.items)" class="item-visualiser" draggable="true">
+                                <div 
+                                    (dragstart)="updateDragged(item)"
+                                    class="item-visualiser" 
+                                    draggable="true"
+                                    ondragstart="disapear(event)"
+                                    ondragend="reapear(event)"
+                                >
                                     <mat-icon class="grabable">drag_indicator</mat-icon>
                                     <div class="valuedisp">{{item.value}}</div>
                                     <div class="button-holder">
@@ -94,7 +100,7 @@
                                         </button>
                                     </div>
                                 </div>
-                                <div *ngIf="!(dragged === item)" [appDragtracker]="{data_ref:col.items,ref:item,before:false,dragged:dragged,dragged_list:dragged_list}" class="boundary right"></div>
+                                <div *ngIf="!(dragged === item)" [appDragtracker]="{data_ref:col.items,ref:item,before:false,dragged:dragged,obj:selected}" class="boundary right"></div>
                             </div>
                         </div>
                     </div>
