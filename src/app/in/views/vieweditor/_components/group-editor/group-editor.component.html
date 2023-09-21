@@ -74,26 +74,27 @@
                             <mat-icon>add</mat-icon> item
                         </button>
                         <mat-icon cdkDragHandle class="grabable">drag_indicator</mat-icon>
-                        <div
-                            cdkDropList
-                            [cdkDropListData]="col.items"
-                            (cdkDropListDropped)="drop_item($event)"
-                        >
-                            <div cdkDrag class="item-visualiser" *ngFor="let item of col.items" [style.width.%]=" item.width > 16.67 ? item.width-item.width%12-2 : 14.67">
-                                <div class="valuedisp">{{item.value}}</div>
-                                <div class="button-holder">
-                                    <button mat-icon-button
-                                        (click)="editItem(item)"
-                                    >
-                                        <mat-icon class="btn-icon">edit</mat-icon>
-                                    </button>
-                                    <button mat-icon-button
-                                        (click)="delItem(col,item)"
-                                    >
-                                        <mat-icon class="btn-icon">delete</mat-icon>
-                                    </button>
-                                    <mat-icon cdkDragHandle class="grabable">drag_indicator</mat-icon>
+                        <div>
+                            <div *ngFor="let item of col.items" style="display: inline-block;" [style.width.%]=" item.width > 16.67 ? item.width-item.width%12-2 : 14.67">
+                                <div *ngIf="!(dragged === item)" [appDragtracker]="{data_ref:col.items,ref:item,before:true,dragged:dragged,dragged_list:dragged_list}" class="boundary left"
+                                ></div>
+                                <div [class.track]="dragged === item" (appDraginfo)="updateDragged($event,item,col.items)" class="item-visualiser" draggable="true">
+                                    <mat-icon class="grabable">drag_indicator</mat-icon>
+                                    <div class="valuedisp">{{item.value}}</div>
+                                    <div class="button-holder">
+                                        <button mat-icon-button
+                                            (click)="editItem(item)"
+                                        >
+                                            <mat-icon class="btn-icon">edit</mat-icon>
+                                        </button>
+                                        <button mat-icon-button
+                                            (click)="delItem(col,item)"
+                                        >
+                                            <mat-icon class="btn-icon">delete</mat-icon>
+                                        </button>
+                                    </div>
                                 </div>
+                                <div *ngIf="!(dragged === item)" [appDragtracker]="{data_ref:col.items,ref:item,before:false,dragged:dragged,dragged_list:dragged_list}" class="boundary right"></div>
                             </div>
                         </div>
                     </div>

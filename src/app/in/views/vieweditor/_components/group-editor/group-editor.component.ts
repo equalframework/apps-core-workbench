@@ -1,18 +1,20 @@
-import { Component, OnInit, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { HostListener, Component, OnInit, Input, Output, EventEmitter, OnChanges, SimpleChanges, ElementRef, Directive } from '@angular/core';
 import { View, ViewColumn, ViewGroup, ViewItem, ViewRow, ViewSection } from '../../_objects/View';
 import { MatDialog } from '@angular/material/dialog';
 import { EditSectionComponent } from './_components/edit-section/edit-section.component';
 import { EditRowComponent } from './_components/edit-row/edit-row.component';
 import { EditColComponent } from './_components/edit-col/edit-col.component';
 import { EditItemFormComponent } from './_components/edit-item-form/edit-item-form.component';
-import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, CdkDragRelease, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+
+
 
 @Component({
   selector: 'app-group-editor',
   templateUrl: './group-editor.component.html',
   styleUrls: ['./group-editor.component.scss'],
 })
-export class GroupEditorComponent implements OnInit,OnChanges {
+class GroupEditorComponent implements OnInit,OnChanges {
 
   math = Math
   selected:ViewSection|undefined
@@ -21,12 +23,15 @@ export class GroupEditorComponent implements OnInit,OnChanges {
   @Input() entity:string
   @Input() fields:string[]
   @Output() onChange = new EventEmitter<ViewSection[]>()
+  dragged:ViewItem|undefined
+  dragged_list:ViewItem[]|undefined
 
 
   dragposition = {}
 
   constructor(
-    private matDialog:MatDialog
+    private matDialog:MatDialog,
+    private elementRef:ElementRef
   ) { }
 
   ngOnInit(): void {
@@ -112,17 +117,29 @@ export class GroupEditorComponent implements OnInit,OnChanges {
     }
   }
 
-  drop_item(event: CdkDragDrop<ViewItem[]>) {
+  drag_item(event:any) {
     console.log(event)
-    if (event.previousContainer === event.container) {
-      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+  }
+
+  drop_item(event:any) {
+    console.log(event)
+  }
+
+  allowDrop(event:any) {
+    console.log(event)
+  }
+
+  updateDragged(event:boolean,item:ViewItem,list:ViewItem[]) {
+    if(event) {
+      this.dragged = item
+      this.dragged_list = list
     } else {
-      transferArrayItem(
-        event.previousContainer.data,
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex,
-      );
+      this.dragged = undefined
+      this.dragged_list = undefined
     }
   }
+
 }
+
+
+export {GroupEditorComponent}

@@ -4,6 +4,23 @@
     border: solid black 1px;
 }
 
+.boundary {
+    display: inline-block;
+    width: 50%;
+    height: 3.5em;
+    margin-bottom: -1.25em;
+    background-color: transparent;
+}
+
+.boundary.left{
+    margin-right: -48.5%;
+}
+
+.boundary.right{
+    margin-left: -48.5%;
+}
+
+
 .flex {
     display: flex;
 }
@@ -60,19 +77,23 @@
 .item-visualiser {
     border : solid 1px black;
     display: inline-block;
-    margin: 1em 1% ;
+    margin: 1em 0em;
     height: 2.5em;
+    width: calc(100% - 1em);
+
+    .grabable {
+        transform: translateY(.25em);
+    }
 }
 
 .item-visualiser .valuedisp {
-    margin-left: 1em;
-    width: calc(100% - 6.5em);
+    width: calc(100% - 5.5em);
     display : inline-block
 }
 
 .button-holder {
     display: inline-block;
-    width: 5.5em;
+    width: 4em;
     background-color: white;
     height: 2.3em;
 
@@ -86,10 +107,6 @@
     .btn-icon {
         transform: scale(.8) translateY(-.25em);
         margin: 0;
-    }
-
-    .grabable {
-        transform: translateY(.25em);
     }
 }
 
@@ -132,4 +149,8 @@ transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 
 .grabable {
     cursor: grab;
+}
+
+.track {
+    opacity: 10%;
 }

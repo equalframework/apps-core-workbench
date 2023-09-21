@@ -24,6 +24,8 @@ import { EditItemFormComponent } from './_components/group-editor/_components/ed
 import { TogglingButtonComponent } from './_components/toggling-button/toggling-button.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { DragTrackerDirective } from './_components/group-editor/dragtracker.directive';
+import { DraginfoDirective } from './_components/group-editor/draginfo.directive';
 
 
 
@@ -40,6 +42,8 @@ import { MatGridListModule } from '@angular/material/grid-list';
     EditColComponent,
     EditItemFormComponent,
     TogglingButtonComponent,
+    DragTrackerDirective,
+    DraginfoDirective,
   ],
   imports: [
     CommonModule,
