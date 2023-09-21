@@ -1,0 +1,7 @@
+<p>Edit section informations</p>
+<mat-form-field>
+    <input matInput placeholder="section_id" [value]="data.id" (input)="data.id = $event.target.value">
+</mat-form-field>
+<mat-form-field>
+    <input matInput placeholder="section name" [value]="data.label" (input)="data.label = $event.target.value">
+</mat-form-field>

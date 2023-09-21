@@ -1,8 +1,104 @@
-<div class="flex parent">
-    <div *ngFor="let section of group_obj" [class.selected]="selected_id === section.id" class="section-selector" (click)="selected_id = section.id">
-        <div>
-            {{section.label}}
+<div class="parent aspectratio">
+    <div class="section-selector-container flex" 
+        cdkDropList 
+        cdkDropListOrientation="horizontal"
+        [cdkDropListData]="group_obj" 
+        (cdkDropListDropped)="drop_section($event)"
+    >
+        <div cdkDrag *ngFor="let section of group_obj" [class.selected]="selected === section" class="section-selector" (click)="selected = section">
+            <label>
+                {{section.label}}
+            </label>
+            <mat-icon cdkDragHandle class="grabable">drag_indicator</mat-icon>
         </div>
-        <button mat-icon-button><mat-icon>edit</mat-icon></button>
+    </div>
+    <div class="section-editor" *ngIf="selected" >
+        <label class="category-title">Section : {{selected.label}}</label>
+        <button mat-icon-button (click)="editSection(selected)"><mat-icon>edit</mat-icon></button>
+        <button mat-icon-button
+            (click)="delSection()"
+        >
+            <mat-icon>delete</mat-icon>
+        </button>
+        <button mat-button
+                (click)="addRow()"
+        >
+            <mat-icon>add</mat-icon> row
+        </button>
+        <div
+            cdkDropList 
+            cdkDropListOrientation="vertical"
+            [cdkDropListData]="selected.rows" 
+            (cdkDropListDropped)="drop_row($event)"
+            cdkDropListGroup
+        >
+            <div cdkDrag class="row" *ngFor="let row of selected.rows">
+                <label class="category-title">Row : {{row.label}}</label>
+                <button mat-icon-button
+                    (click)="editRow(row)"
+                >
+                    <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button
+                    (click)="delRow(row)"
+                >
+                    <mat-icon>delete</mat-icon>
+                </button>
+                <button mat-button
+                    (click)="addCol(row)"
+                >
+                    <mat-icon>add</mat-icon> column
+                </button>
+                <mat-icon cdkDragHandle class="grabable">drag_indicator</mat-icon>
+                <div class="flex"
+                    cdkDropList
+                    cdkDropListOrientation="horizontal"
+                    [cdkDropListData]="row.columns"
+                    (cdkDropListDropped)="drop_col($event)"
+                >
+                    <div cdkDrag class="column" *ngFor="let col of row.columns" [style.width.%]="(col.width/row.totalwidth)*100">
+                        <label class="category-title">Column : {{col.label}}</label>
+                        <button mat-icon-button
+                            (click)="editColumn(col)"
+                        >
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button
+                            (click)="delColumn(row,col)"
+                        >
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                        <button mat-button
+                            (click)="addItem(col)"
+                        >
+                            <mat-icon>add</mat-icon> item
+                        </button>
+                        <mat-icon cdkDragHandle class="grabable">drag_indicator</mat-icon>
+                        <div
+                            cdkDropList
+                            [cdkDropListData]="col.items"
+                            (cdkDropListDropped)="drop_item($event)"
+                        >
+                            <div cdkDrag class="item-visualiser" *ngFor="let item of col.items" [style.width.%]=" item.width > 16.67 ? item.width-item.width%12-2 : 14.67">
+                                <div class="valuedisp">{{item.value}}</div>
+                                <div class="button-holder">
+                                    <button mat-icon-button
+                                        (click)="editItem(item)"
+                                    >
+                                        <mat-icon class="btn-icon">edit</mat-icon>
+                                    </button>
+                                    <button mat-icon-button
+                                        (click)="delItem(col,item)"
+                                    >
+                                        <mat-icon class="btn-icon">delete</mat-icon>
+                                    </button>
+                                    <mat-icon cdkDragHandle class="grabable">drag_indicator</mat-icon>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

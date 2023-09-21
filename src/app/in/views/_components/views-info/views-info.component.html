@@ -2,7 +2,11 @@
     <label class="packagename">Select package to show properties.</label>
 </div>
 
-<div *ngIf="view_ref !==''" class="max-width margin-container">
+<div *ngIf="view_ref !=='' && !view_scheme">
+    This view seems to be malformed
+</div>
+
+<div *ngIf="view_ref !=='' && view_scheme" class="max-width margin-container">
     <div class="controller-container-top">
         <div class="flex-labels">
             <label class="viewname">View : </label>

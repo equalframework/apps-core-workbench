@@ -17,6 +17,13 @@ import { MatSlideToggle, MatSlideToggleModule } from '@angular/material/slide-to
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule, MatAutocompleteOrigin } from '@angular/material/autocomplete';
 import { GroupEditorComponent } from './_components/group-editor/group-editor.component';
+import { EditSectionComponent } from './_components/group-editor/_components/edit-section/edit-section.component';
+import { EditRowComponent } from './_components/group-editor/_components/edit-row/edit-row.component';
+import { EditColComponent } from './_components/group-editor/_components/edit-col/edit-col.component';
+import { EditItemFormComponent } from './_components/group-editor/_components/edit-item-form/edit-item-form.component';
+import { TogglingButtonComponent } from './_components/toggling-button/toggling-button.component';
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { MatGridListModule } from '@angular/material/grid-list';
 
 
 
@@ -28,6 +35,11 @@ import { GroupEditorComponent } from './_components/group-editor/group-editor.co
     ValueComponent,
     ValueSelectionComponent,
     GroupEditorComponent,
+    EditSectionComponent,
+    EditRowComponent,
+    EditColComponent,
+    EditItemFormComponent,
+    TogglingButtonComponent,
   ],
   imports: [
     CommonModule,
@@ -42,6 +54,8 @@ import { GroupEditorComponent } from './_components/group-editor/group-editor.co
     FormsModule,
     ReactiveFormsModule,
     MatAutocompleteModule,
+    DragDropModule,
+    MatGridListModule
   ]
 })
 export class VieweditorModule { }

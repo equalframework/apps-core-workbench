@@ -1,0 +1,12 @@
+<button
+    mat-icon-button
+    (click)="toggleIt()"
+>
+    <mat-icon>
+        {{
+            baseState ?
+                on_icon :
+                off_icon
+        }}
+    </mat-icon>
+</button>

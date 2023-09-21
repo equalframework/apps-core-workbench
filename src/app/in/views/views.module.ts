@@ -14,6 +14,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { DeleteConfirmationComponent } from './_components/search-list/_components/delete-confirmation/delete-confirmation.component';
 import { ViewsInfoModule } from './_components/views-info/views-info.module';
 import { ViewsComponent } from './views.component';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 
 
@@ -35,7 +36,7 @@ import { ViewsComponent } from './views.component';
     ViewsRoutingModule,
     MatDialogModule,
     ViewsInfoModule,
-
+    MatDialogModule,
   ]
 })
 export class ViewsModule { }

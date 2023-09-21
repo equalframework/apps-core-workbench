@@ -1,7 +1,10 @@
-<div>
-    <label class="page-title">View : </label><label class="page-title maincolor">{{name}}</label>
+<div class="title-container">
+    <button class="title-btn maincolor" mat-icon-button (click)="goBack()"><mat-icon>arrow_back</mat-icon></button>
+    <label class="page-title">View : </label><label class="page-title maincolor endlabel">{{name}}</label>
+    <button class="title-btn accentcolor" mat-icon-button><mat-icon>save</mat-icon></button>
+    <button class="title-btn accentcolor" mat-icon-button><mat-icon>cancel</mat-icon></button>
 </div>
-<div class="indent">
+<div class="feature-container">
     <div>
         <mat-form-field>
             <input matInput placeholder="view name" [value]="view_obj.name"  (input)="view_obj.name = $event.target.value">
@@ -9,7 +12,7 @@
     </div>
     <div>
         <mat-form-field class="inputlong">
-            <input matInput placeholder="view description" [value]="view_obj.description"  (input)="view_obj.description = $event.target.value">
+            <textarea matInput placeholder="view description" [value]="view_obj.description"  (input)="view_obj.description = $event.target.value"></textarea> 
         </mat-form-field>
     </div>
     <div>
@@ -21,9 +24,15 @@
             </mat-select>
         </mat-form-field>
     </div>
+    <app-toggling-button
+        [on_icon]="'expand_less'"
+        [off_icon]="'expand_more'"
+        [baseState]="domain_visible"
+        (toggle)="domain_visible = $event"
+    ></app-toggling-button>
     <label class="category-title maincolor">Domain</label>
-    <div class="indent">
-        <br>
+    <br>
+    <div *ngIf="domain_visible" class="indent">
         <app-property-domain-component
             [value]="view_obj.domain.dom"
             [name]="'oui'"
@@ -32,9 +41,16 @@
         >
         </app-property-domain-component>
     </div>
-    <label class="category-title maincolor">Filter</label>
+    <app-toggling-button
+        [on_icon]="'expand_less'"
+        [off_icon]="'expand_more'"
+        [baseState]="filter_visible"
+        (toggle)="filter_visible = $event"
+    ></app-toggling-button>
+    <label class="category-title maincolor">Filters</label>
     <button mat-fab color="primary" class="addItem" (click)="addFilter()"><mat-icon>add</mat-icon></button>
-    <div class="indent">
+    <br>
+    <div *ngIf="filter_visible" class="indent">
         <div class="indent" *ngFor="let filter of view_obj.filters">
             <div class="flex">
                 <div>
@@ -64,19 +80,40 @@
         <div *ngIf="view_obj.type === 'form'">
             <label class="category-title maincolor">Groups</label>
             <button mat-fab color="primary" class="addItem" (click)="addGroup()"><mat-icon>add</mat-icon></button>
+            <br>
             <div class="indent">
                 <div *ngFor="let group of view_obj.layout.groups">
                     <div>
+                        <app-toggling-button
+                            [on_icon]="'expand_less'"
+                            [off_icon]="'expand_more'"
+                            [baseState]="groups_visible[view_obj.layout.groups.indexOf(group)]"
+                            (toggle)="groups_visible[view_obj.layout.groups.indexOf(group)] = $event"
+                        ></app-toggling-button>
                         <mat-form-field>
                             <input matInput placeholder="Group name" [value]="group.label" (input)="group.label = $event.target.value">
                         </mat-form-field>
+                        <mat-form-field>
+                            <input matInput placeholder="Group.id" [value]="group.id" (input)="group.id = $event.target.value">
+                        </mat-form-field>
+                        <button mat-fab color="primary" class="section-add-btn" (click)="deleteGroup(view_obj.layout.groups.indexOf(group))"><mat-icon>delete</mat-icon></button>
                     </div>
-                    <div class="indent">
+                    <div *ngIf="groups_visible[view_obj.layout.groups.indexOf(group)]" class="indent">
+                        <label class="category-title maincolor">Sections</label>
+                        <button mat-icon-button
+                            (click)="addSection(view_obj.layout.groups.indexOf(group))"
+                        >
+                            <mat-icon>add</mat-icon>
+                        </button>
                         <app-group-editor
                             [group_obj]="group.sections"
+                            [entity]="entity"
+                            [fields]="fields"
                             (onChange)="group.sections= $event"
                         ></app-group-editor>
                     </div>
+                    <br>
+                    <br>
                 </div>
             </div>
         </div>
@@ -89,13 +126,19 @@
                         <div>
                             <div class="flex">
                                 <mat-form-field>
-                                    <input matInput placeholder="item type" [value]="item.type" (input)="item.type = $event.target.value">
+                                    <mat-label>type</mat-label>
+                                    <mat-select [(value)]="item.type">
+                                        <mat-option *ngFor="let item_type of types" value="{{item_type}}">{{item_type}}</mat-option>
+                                    </mat-select>
                                 </mat-form-field>
-                                <mat-form-field>
+                                <mat-form-field *ngIf="item.valueIsSelect">
                                     <mat-label>value</mat-label>
                                     <mat-select [(value)]="item.value">
                                         <mat-option *ngFor="let item of fields" value="{{item}}">{{item}}</mat-option>
                                     </mat-select>
+                                </mat-form-field>
+                                <mat-form-field *ngIf="!item.valueIsSelect">
+                                    <input matInput placeholder="value" [value]="item.value" (input)="item.value = $event.target.value">
                                 </mat-form-field>
                                 <mat-form-field>
                                     <input matInput placeholder="item width" type="number" [value]="item.width" (input)="item.width = $event.target.value">

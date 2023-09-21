@@ -1,4 +1,5 @@
 abstract class ViewElement {
+    public static num:number = 0
 
     constructor() {}
 
@@ -38,7 +39,7 @@ class View extends ViewElement{
     }
 
     addFilter() {
-        this.filters.push(new ViewFilter())
+        this.filters.push(new ViewFilter({"label":"New Filter"}))
     }
 
     deleteFilter(index:number) {
@@ -80,6 +81,7 @@ class ViewLayout extends ViewElement {
 class ViewGroup extends ViewElement {
     public sections:ViewSection[] = []
     public label:string = ""
+    public id:string = ""
 
     constructor(scheme:any={}) {
         super()
@@ -89,6 +91,8 @@ class ViewGroup extends ViewElement {
             }
         }
         if(scheme['label']) this.label = scheme['label']
+        if(this.label==="") this.label = "UNNAMED"
+        if(this.id==="") this.id = "Group."+(ViewGroup.num++)
     }
 
     override getListDisplay(): string {
@@ -110,6 +114,8 @@ class ViewSection extends ViewElement {
                 this.rows.push(new ViewRow(v))
             }
         }
+        if(this.label==="") this.label = "UNNAMED"
+        if(this.id==="") this.id = "Section."+(ViewSection.num++)
     }
 
     override getListDisplay(): string {
@@ -118,17 +124,28 @@ class ViewSection extends ViewElement {
 }
 
 class ViewRow extends ViewElement {
+    public id:string = ""
+    public label:string = ""
     public columns:ViewColumn[] = []
-    public height:number = 100
 
     constructor(scheme:any={}) {
         super()
-        if(scheme['height']) this.height = scheme['height']
+        //if(scheme['height']) this.height = scheme['height']
         if(scheme['columns']){
             for(let v of scheme["columns"]){
                 this.columns.push(new ViewColumn(v))
             }
         }
+        if(scheme['id']) this.id = scheme['id']
+        if(scheme['label']) this.label = scheme['label']
+        if(this.label==="") this.label = "UNNAMED"
+        if(this.id==="") this.id = "Row."+(ViewRow.num++)
+    }
+
+    get totalwidth():number {
+        let ret = 0
+        this.columns.forEach(item => ret += item.width)
+        return ret > 0 ? ret : 100
     }
 
     override getListDisplay(): string {
@@ -137,17 +154,23 @@ class ViewRow extends ViewElement {
 }
 
 class ViewColumn extends ViewElement {
-    public width:number = 1000
+    public label:string = ""
+    public id:string = ""
+    public width:number = 100
     public items:ViewItem[] = []
 
     constructor(scheme:any={}) {
         super()
-        if(scheme['width']) this.width = scheme['width']
+        if(scheme['width']) this.width = Number.parseInt(scheme['width'])
         if(scheme['items']) {
             for(let v of scheme["items"]){
                 this.items.push(new ViewItem(v))
             }
         }
+        if(scheme['id']) this.id = scheme['id']
+        if(scheme['label']) this.label = scheme['label']
+        if(this.label==="") this.label = "UNNAMED"
+        if(this.id==="") this.id = "Column."+(ViewColumn.num++)
     }
     override getListDisplay(): string {
         return "Column"
@@ -165,6 +188,14 @@ class ViewItem extends ViewElement {
     public has_domain:boolean = false
     public has_widget:boolean = false
 
+    public get valueIsSelect():boolean {
+        return this.type !== "label"
+    }
+
+    public static get typeList():string[] {
+        return ["field","label"]
+    }
+
     constructor(scheme:any={}) {
         super()
         if(scheme['type']) this.type = scheme['type']
@@ -180,6 +211,7 @@ class ViewItem extends ViewElement {
             this.widget = new ViewWidget(scheme['widget'])
             this.has_widget = true
         }
+        if(!ViewItem.typeList.includes(this.type)) this.type = ""
     }
 }
 
@@ -206,17 +238,20 @@ class ViewDomain {
     }
 }
 
-class ViewFilter {
+class ViewFilter extends ViewElement {
     public id:string = ""
     public label:string = ""
     public description:string = ""
     public clause:ViewClause = new ViewClause()
 
     constructor(scheme:any={}) {
+        super()
         if(scheme['id']) this.id = scheme['id']
         if(scheme['label']) this.label = scheme['label']
         if(scheme['description']) this.description = scheme['description']
         if(scheme['clause']) this.clause = new ViewClause(scheme['clause'])
+        if(this.id==="") this.id = "Filter."+(ViewFilter.num++)
+        if(this.label==="") this.label = "UNNAMED"
     }
 }
 

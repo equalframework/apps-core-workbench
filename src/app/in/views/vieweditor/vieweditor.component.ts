@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { ViewService } from '../_services/view.service';
-import { View } from './_objects/View';
+import { View, ViewGroup, ViewItem, ViewSection } from './_objects/View';
 
 @Component({
   selector: 'app-vieweditor',
@@ -19,6 +19,12 @@ export class VieweditorComponent implements OnInit {
   name:string|null
   class_scheme:any
   fields:string[]
+  types = ViewItem.typeList
+
+  domain_visible = false
+  filter_visible = false
+  groups_visible:{[id:number]:boolean} = {}
+  
 
   constructor(
     private router:RouterMemory,
@@ -38,6 +44,9 @@ export class VieweditorComponent implements OnInit {
       this.class_scheme = await this.api.getSchema(this.entity)
       this.fields = this.obk(this.class_scheme['fields'])
       console.log(this.fields)
+      for(let num in this.view_obj.layout.groups) {
+        this.groups_visible[num] = false
+      }
     }
   }
 
@@ -47,6 +56,7 @@ export class VieweditorComponent implements OnInit {
 
   addFilter() {
     this.view_obj.addFilter()
+    this.filter_visible = true
   }
 
   deleteItemLayout(index:number) {
@@ -62,10 +72,21 @@ export class VieweditorComponent implements OnInit {
   }
   
   addGroup() {
-    //TODO
+    this.view_obj.layout.groups.push(new ViewGroup({"label":"New Group"}))
+    for(let num in this.view_obj.layout.groups) {
+      if(!this.groups_visible[num]) this.groups_visible[num] = false
+    }
   }
 
-  addSection(groupindex:number) {
-    //TODO
+  goBack() {
+    this.router.goBack()
+  }
+
+  deleteGroup(index:number){
+    this.view_obj.layout.groups.splice(index,1)
+  }
+
+  addSection(index:number) {
+    this.view_obj.layout.groups[index].sections.push(new ViewSection({"label":"new section"}))
   }
 }
