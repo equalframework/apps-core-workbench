@@ -18,16 +18,13 @@
 
   <!-- custom scripts -->
   <script>
-    function disapear(event){
-      console.log(event.srcElement.style);
-        event.srcElement.style.opacity = .1;
-    }
-    function reapear(event){
-        console.log(event.srcElement.style);
-        event.srcElement.style.opacity = 1;
+    function sendStopDrag() {
+      var elem = document.getElementById("draginfo");
+      var event = new Event('stopdrag');
+      elem.dispatchEvent(event);
     }
   </script>
-  <!--                    -->
+  <!--                -->
 
   <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>

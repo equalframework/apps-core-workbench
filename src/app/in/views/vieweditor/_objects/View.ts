@@ -1,3 +1,5 @@
+import { result } from "lodash"
+
 abstract class ViewElement {
     public static num:number = 0
 
@@ -9,6 +11,10 @@ abstract class ViewElement {
 
     isValid():boolean {
         return false
+    }
+
+    export():any{
+        return {}
     }
 }
 
@@ -45,6 +51,17 @@ class View extends ViewElement{
     deleteFilter(index:number) {
         this.filters.splice(index,1)
     }
+
+    override export():any {
+        let result = super.export()
+        result['name'] = this.name
+        result['description'] = this.description
+        result['domain'] = this.domain.dom
+        result['filters'] = []
+        this.filters.forEach(filter => result['filters'].push(filter.export()))
+        result['layout'] = this.layout.export()
+        return result
+    }
 }
 
 class ViewLayout extends ViewElement {
@@ -76,6 +93,19 @@ class ViewLayout extends ViewElement {
     override getListDisplay(): string {
         return "Layout"
     }
+
+    override export():any {
+        let result = super.export()
+        if(this.groups.length > 0) {
+            result['groups'] = []
+            this.groups.forEach(group => result['groups'].push(group.export()))
+        }
+        if(this.items.length > 0) {
+            result['items'] = []
+            this.items.forEach(item => result['items'].push(item.export()))
+        }
+        return result
+    }
 }
 
 class ViewGroup extends ViewElement {
@@ -91,12 +121,21 @@ class ViewGroup extends ViewElement {
             }
         }
         if(scheme['label']) this.label = scheme['label']
-        if(this.label==="") this.label = "UNNAMED"
+        if(this.label==="") this.label = ""
         if(this.id==="") this.id = "Group."+(ViewGroup.num++)
     }
 
     override getListDisplay(): string {
         return "Group"
+    }
+
+    override export():any {
+        let result = super.export()
+        result['label'] = this.label
+        result['id'] = this.id
+        result['sections'] = []
+        this.sections.forEach(section => result['sections'].push(section.export()))
+        return result
     }
 }
 
@@ -114,12 +153,21 @@ class ViewSection extends ViewElement {
                 this.rows.push(new ViewRow(v))
             }
         }
-        if(this.label==="") this.label = "UNNAMED"
+        if(this.label==="") this.label = ""
         if(this.id==="") this.id = "Section."+(ViewSection.num++)
     }
 
     override getListDisplay(): string {
         return this.label ? this.label : this.id
+    }
+
+    override export() {
+        let result = super.export()
+        result['label'] = this.label
+        result['id'] = this.id
+        result['rows'] = []
+        this.rows.forEach(row => result['rows'].push(row.export()))
+        return result
     }
 }
 
@@ -138,7 +186,7 @@ class ViewRow extends ViewElement {
         }
         if(scheme['id']) this.id = scheme['id']
         if(scheme['label']) this.label = scheme['label']
-        if(this.label==="") this.label = "UNNAMED"
+        if(this.label==="") this.label = ""
         if(this.id==="") this.id = "Row."+(ViewRow.num++)
     }
 
@@ -150,6 +198,15 @@ class ViewRow extends ViewElement {
 
     override getListDisplay(): string {
         return "Row"
+    }
+
+    override export():any {
+        let result = super.export()
+        result['id'] = this.id
+        result['label'] = this.label
+        result['columns'] = []
+        this.columns.forEach(column => result['columns'].push(column.export()))
+        return result
     }
 }
 
@@ -169,11 +226,21 @@ class ViewColumn extends ViewElement {
         }
         if(scheme['id']) this.id = scheme['id']
         if(scheme['label']) this.label = scheme['label']
-        if(this.label==="") this.label = "UNNAMED"
+        if(this.label==="") this.label = ""
         if(this.id==="") this.id = "Column."+(ViewColumn.num++)
     }
     override getListDisplay(): string {
         return "Column"
+    }
+
+    override export() {
+        let result = super.export()
+        result['id'] = this.id
+        result['label'] = this.label
+        result['width'] = this.width
+        result['items'] = []
+        this.items.forEach(item => result['items'].push(item.export()))
+        return result
     }
 }
 
@@ -187,7 +254,6 @@ class ViewItem extends ViewElement {
     public widget:ViewWidget = new ViewWidget()
     public has_domain:boolean = false
     public has_widget:boolean = false
-    public _currently_dragged:boolean = false
 
     public get valueIsSelect():boolean {
         return this.type !== "label"
@@ -214,19 +280,47 @@ class ViewItem extends ViewElement {
         }
         if(!ViewItem.typeList.includes(this.type)) this.type = ""
     }
+
+    override export() {
+        let result = super.export()
+        result['type'] = this.type
+        result['value'] = this.value
+        result['width'] = this.width
+        if(this.sortable)
+            result['sortable'] = this.sortable
+        if(this.readonly)
+            result['readonly'] = this.readonly
+        if(this.has_domain)
+            result['visible'] = this.visible.dom
+        if(this.has_widget)
+            result['widget'] = this.widget.export()
+        return result
+    }
 }
 
-class ViewWidget {
+class ViewWidget extends ViewElement {
     public link:boolean = false
     public heading:boolean = false
     public type:string = ""
     public values:string[] = []
 
     constructor(scheme:any={}) {
+        super()
         if(scheme['link']) this.link = scheme['link']
         if(scheme['heading']) this.heading = scheme['heading']
         if(scheme['type']) this.type = scheme['type']
         if(scheme['values']) this.values = scheme['values']
+    }
+
+    override export():any {
+        let result = super.export()
+        result['link'] = this.link
+        result['heading'] = this.heading
+        if(this.type !== "")
+            result['type'] = this.type
+        if(this.type === "select")
+            result['values'] = this.values
+        return result
     }
 }
 
@@ -252,7 +346,16 @@ class ViewFilter extends ViewElement {
         if(scheme['description']) this.description = scheme['description']
         if(scheme['clause']) this.clause = new ViewClause(scheme['clause'])
         if(this.id==="") this.id = "Filter."+(ViewFilter.num++)
-        if(this.label==="") this.label = "UNNAMED"
+        if(this.label==="") this.label = ""
+    }
+
+    override export() {
+        let result = super.export()
+        result["id"] = this.id
+        result["label"] = this.label
+        result["description"] = this.description
+        result["clause"] = this.clause.arr
+        return result
     }
 }
 

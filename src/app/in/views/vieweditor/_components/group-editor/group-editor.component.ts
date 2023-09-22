@@ -129,11 +129,7 @@ class GroupEditorComponent implements OnInit,OnChanges {
   }
 
   updateDragged(item:ViewItem|undefined) {
-    if(item) {
-      item._currently_dragged = true
-    } else if(this.dragged) {
-      this.dragged._currently_dragged = false
-    }
+    console.log(item ? "drag" : "drop")
     this.dragged = item
   }
 

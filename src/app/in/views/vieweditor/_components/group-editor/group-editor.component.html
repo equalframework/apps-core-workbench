@@ -6,14 +6,14 @@
         (cdkDropListDropped)="drop_section($event)"
     >
         <div cdkDrag *ngFor="let section of group_obj" [class.selected]="selected === section" class="section-selector" (click)="selected = section">
-            <label>
-                {{section.label}}
-            </label>
             <mat-icon cdkDragHandle class="grabable">drag_indicator</mat-icon>
+            <label>
+                {{section.label === "" ? "UNNAMED" : section.label}}
+            </label>
         </div>
     </div>
     <div class="section-editor" *ngIf="selected" >
-        <label class="category-title">Section : {{selected.label}}</label>
+        <label class="category-title">Section : {{selected.label === "" ? "UNNAMED" : selected.label}}</label>
         <button mat-icon-button (click)="editSection(selected)"><mat-icon>edit</mat-icon></button>
         <button mat-icon-button
             (click)="delSection()"
@@ -33,7 +33,8 @@
             cdkDropListGroup
         >
             <div cdkDrag class="row" *ngFor="let row of selected.rows">
-                <label class="category-title">Row : {{row.label}}</label>
+                <mat-icon cdkDragHandle class="grabable">drag_indicator</mat-icon>
+                <label class="category-title">Row : {{row.label === "" ? "UNNAMED" : row.label}}</label>
                 <button mat-icon-button
                     (click)="editRow(row)"
                 >
@@ -49,7 +50,7 @@
                 >
                     <mat-icon>add</mat-icon> column
                 </button>
-                <mat-icon cdkDragHandle class="grabable">drag_indicator</mat-icon>
+
                 <div class="flex"
                     cdkDropList
                     cdkDropListOrientation="horizontal"
@@ -57,7 +58,8 @@
                     (cdkDropListDropped)="drop_col($event)"
                 >
                     <div cdkDrag class="column" *ngFor="let col of row.columns" [style.width.%]="(col.width/row.totalwidth)*100">
-                        <label class="category-title">Column : {{col.label}}</label>
+                        <mat-icon cdkDragHandle class="grabable">drag_indicator</mat-icon>
+                        <label class="category-title">Column : {{col.label === "" ? "UNNAMED" : col.label}}</label>
                         <button mat-icon-button
                             (click)="editColumn(col)"
                         >
@@ -73,17 +75,16 @@
                         >
                             <mat-icon>add</mat-icon> item
                         </button>
-                        <mat-icon cdkDragHandle class="grabable">drag_indicator</mat-icon>
-                        <div>
+                        <div (appDraginfo)="updateDragged(undefined)" id="draginfo" >
                             <div *ngFor="let item of col.items" style="display: inline-block;" [style.width.%]=" item.width > 16.67 ? item.width-item.width%12-2 : 14.67">
                                 <div *ngIf="!(dragged === item)" [appDragtracker]="{data_ref:col.items,ref:item,before:true,dragged:dragged,obj:selected}" class="boundary left"
                                 ></div>
                                 <div 
                                     (dragstart)="updateDragged(item)"
+                                    ondragend="sendStopDrag()"
+                                    [class.track]="dragged === item"
                                     class="item-visualiser" 
                                     draggable="true"
-                                    ondragstart="disapear(event)"
-                                    ondragend="reapear(event)"
                                 >
                                     <mat-icon class="grabable">drag_indicator</mat-icon>
                                     <div class="valuedisp">{{item.value}}</div>
