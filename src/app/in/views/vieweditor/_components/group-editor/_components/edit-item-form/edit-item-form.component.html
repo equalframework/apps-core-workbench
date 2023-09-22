@@ -25,7 +25,7 @@
             <div  class="flex">
                 <mat-checkbox [checked]="data.item.sortable" (change)="data.item.sortable = $event.checked">sortable</mat-checkbox>
                 <mat-checkbox [checked]="data.item.readonly" (change)="data.item.readonly = $event.checked">readonly</mat-checkbox>
-                <mat-checkbox [checked]="data.item.has_domain" (change)="data.item.has_domain= $event.checked">domain visible</mat-checkbox>
+                <mat-checkbox [checked]="data.item.has_domain" (change)="data.item.has_domain= $event.checked">visible property</mat-checkbox>
                 <mat-checkbox [checked]="data.item.has_widget" (change)="data.item.has_widget= $event.checked">widget</mat-checkbox>
             </div>
         </div>
@@ -47,12 +47,25 @@
         <div>
             Visible
         </div>
-        <app-property-domain-component
-        [value]="data.item.visible.dom"
-        [name]="'oui'"
-        [class]="data.entity"
-        (valueChange)="data.item.visible.dom = $event"
+        <label>boolean</label>
+        <mat-slide-toggle
+            [checked]="data.item.is_visible_domain" 
+            (change)="data.item.is_visible_domain = $event.checked"
         >
-        </app-property-domain-component>
+        </mat-slide-toggle>
+        <label>domain</label>
+        <br>
+        <div *ngIf="data.item.is_visible_domain">
+            <app-property-domain-component
+            [value]="data.item.visible.dom"
+            [name]="'oui'"
+            [class]="data.entity"
+            (valueChange)="data.item.visible.dom = $event"
+            >
+            </app-property-domain-component>
+        </div>
+        <div *ngIf="!data.item.is_visible_domain">
+            <mat-checkbox [checked]="data.item.visible_bool" (change)="data.item.visible_bool= $event.checked">Visible</mat-checkbox>
+        </div>
     </div>
 </div>

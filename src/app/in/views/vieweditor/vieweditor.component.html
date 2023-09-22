@@ -11,7 +11,7 @@
         </mat-form-field>
         <mat-form-field class="inputlong">
             <mat-label>View type</mat-label>
-            <mat-select [(value)]="view_obj.type">
+            <mat-select [disabled]="true" [(value)]="view_obj.type">
                 <mat-option value="list">List</mat-option>
                 <mat-option value="form">Form</mat-option>
             </mat-select>
@@ -20,6 +20,14 @@
     <div>
         <mat-form-field class="textarealong">
             <textarea matInput placeholder="view description" [value]="view_obj.description"  (input)="view_obj.description = $event.target.value"></textarea> 
+        </mat-form-field>
+    </div>
+    <div>
+        <mat-form-field class="inputlong">
+            <mat-label>controller</mat-label>
+            <mat-select [(value)]="view_obj.controller">
+                <mat-option *ngFor="let item of collect_controller" value="{{item}}">{{item === "core_model_collect" ? "core_model_collect (default)":item}}</mat-option>
+            </mat-select>
         </mat-form-field>
     </div>
     <app-toggling-button
@@ -38,6 +46,16 @@
             (valueChange)="view_obj.domain.dom = $event"
         >
         </app-property-domain-component>
+    </div>
+    <label class="category-title maincolor">Header</label>
+    <div class="indent">
+        <label class="category-title maincolor">Actions</label>
+        <div class="indent">
+            <app-header-actions
+                [h_scheme]="view_obj.header"
+                [controllers]="action_controllers"
+            ></app-header-actions>
+        </div>
     </div>
     <app-toggling-button
         [on_icon]="'expand_less'"
@@ -153,12 +171,9 @@
                             <div  class="flex">
                                 <mat-checkbox [checked]="item.sortable" (change)="item.sortable = $event.checked">sortable</mat-checkbox>
                                 <mat-checkbox [checked]="item.readonly" (change)="item.readonly = $event.checked">readonly</mat-checkbox>
-                                <mat-checkbox [checked]="item.has_domain" (change)="item.has_domain= $event.checked">domain visible</mat-checkbox>
+                                <mat-checkbox [checked]="item.has_domain" (change)="item.has_domain= $event.checked">visible property</mat-checkbox>
                                 <mat-checkbox [checked]="item.has_widget" (change)="item.has_widget= $event.checked">widget</mat-checkbox>
                             </div>
-                        </div>
-                        <div class="delete-button-container">
-                            <button mat-fab color="primary" (click)="deleteItemLayout(view_obj.layout.items.indexOf(item))"><mat-icon>delete</mat-icon></button>
                         </div>
                     </div>
                     <div *ngIf="item.has_widget" class="widget">
@@ -178,14 +193,28 @@
                         <div>
                             Visible
                         </div>
-                        <app-property-domain-component
-                        [value]="item.visible.dom"
-                        [name]="'oui'"
-                        [class]="entity"
-                        (valueChange)="item.visible.dom = $event"
+                        <label>boolean</label>
+                        <mat-slide-toggle
+                            [checked]="item.is_visible_domain" 
+                            (change)="item.is_visible_domain = $event.checked"
                         >
-                        </app-property-domain-component>
+                        </mat-slide-toggle>
+                        <label>domain</label>
+                        <br>
+                        <div *ngIf="item.is_visible_domain">
+                            <app-property-domain-component
+                            [value]="item.visible.dom"
+                            [name]="'oui'"
+                            [class]="entity"
+                            (valueChange)="item.visible.dom = $event"
+                            >
+                            </app-property-domain-component>
+                        </div>
+                        <div *ngIf="!item.is_visible_domain">
+                            <mat-checkbox [checked]="item.visible_bool" (change)="item.visible_bool= $event.checked">Visible</mat-checkbox>
+                        </div>
                     </div>
+                    
                 </div>
             </div>
         </div>

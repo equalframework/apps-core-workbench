@@ -26,6 +26,8 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { DragTrackerDirective } from './_components/group-editor/dragtracker.directive';
 import { DraginfoDirective } from './_components/group-editor/draginfo.directive';
+import { HeaderActionsComponent } from './_components/header-actions/header-actions.component';
+import { ActionEditorComponent } from './_components/action-editor/action-editor.component';
 
 
 
@@ -44,6 +46,8 @@ import { DraginfoDirective } from './_components/group-editor/draginfo.directive
     TogglingButtonComponent,
     DragTrackerDirective,
     DraginfoDirective,
+    HeaderActionsComponent,
+    ActionEditorComponent,
   ],
   imports: [
     CommonModule,

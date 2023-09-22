@@ -5,6 +5,7 @@ import { ViewService } from '../_services/view.service';
 import { View, ViewGroup, ViewItem, ViewSection } from './_objects/View';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { prettyPrintJson } from 'pretty-print-json';
+import { ViewEditorServicesService } from './_services/view-editor-services.service';
 
 @Component({
   selector: 'app-vieweditor',
@@ -27,12 +28,16 @@ export class VieweditorComponent implements OnInit {
   filter_visible = false
   layout_visible = true
   groups_visible:{[id:number]:boolean} = {}
+
+  collect_controller:string[] = ["core_model_collect"];
+
+  action_controllers:string[]
   
 
   constructor(
     private router:RouterMemory,
     private activatedroute:ActivatedRoute,
-    private api:ViewService,
+    private api:ViewEditorServicesService,
     private popup:MatDialog,
   ) { }
 
@@ -43,6 +48,7 @@ export class VieweditorComponent implements OnInit {
       this.entity = tempsplit[0]
       this.view_id = tempsplit[1]
       this.view_scheme = await this.api.getView(this.entity,this.view_id)
+      console.log(this.view_scheme)
       this.view_obj = new View(this.view_scheme,tempsplit[1].split(".")[0])
       console.log(this.view_obj)
       this.class_scheme = await this.api.getSchema(this.entity)
@@ -51,7 +57,20 @@ export class VieweditorComponent implements OnInit {
       for(let num in this.view_obj.layout.groups) {
         this.groups_visible[num] = false
       }
+      let temp_controller = await this.api.getDataControllerList(this.entity.split("\\")[0])
+      for(let item of temp_controller) {
+        let data =  await this.api.getAnnounceController(item)
+        if(!data) continue
+        if(!data["announcement"]["extends"] || data["announcement"]["extends"] !== "core_model_collect") continue
+        this.collect_controller.push(item)
+      }
+      console.log(this.collect_controller)
+      this.action_controllers = await this.api.getAllActionControllers()
     }
+  }
+
+  ngOnChanges() {
+    console.log(this.collect_controller)
   }
 
   addItemLayout() {
@@ -72,6 +91,7 @@ export class VieweditorComponent implements OnInit {
   } 
 
   logit() {
+    console.log(this.view_obj)
     this.popup.open(DialogOverviewExampleDialog,{data:this.view_obj.export()})
   }
   

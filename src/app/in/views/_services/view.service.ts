@@ -8,7 +8,7 @@ import { ApiService } from 'sb-shared-lib';
 export class ViewService {
     public cached_schema:any
 
-    constructor(private api: ApiService) { }
+    constructor(protected api: ApiService) { }
 
     public async getViews(type:string,entity:string):Promise<string[]> {
         try {

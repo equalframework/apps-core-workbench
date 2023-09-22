@@ -25,6 +25,8 @@ class View extends ViewElement{
     public type:string = "form"
     public domain:ViewDomain = new ViewDomain()
     public filters:ViewFilter[] = []
+    public controller:string = "core_model_collect"
+    public header:ViewHeader
 
     constructor(scheme:any={},type:string) {
         super()
@@ -38,6 +40,9 @@ class View extends ViewElement{
             }
         }
         if(scheme['layout']) this.layout = new ViewLayout(scheme['layout'])
+        if(scheme['controller']) this.controller = scheme['controller']
+        if(scheme['header']) this.header = new ViewHeader(scheme['header'],this.type)
+        else  this.header = new ViewHeader({},this.type)
     }
 
     override getListDisplay(): string {
@@ -56,6 +61,7 @@ class View extends ViewElement{
         let result = super.export()
         result['name'] = this.name
         result['description'] = this.description
+        if(this.controller !== "core_model_collect") result['controller'] = this.controller
         result['domain'] = this.domain.dom
         result['filters'] = []
         this.filters.forEach(filter => result['filters'].push(filter.export()))
@@ -251,9 +257,11 @@ class ViewItem extends ViewElement {
     public sortable:boolean = false
     public readonly:boolean = false
     public visible:ViewDomain = new ViewDomain()
+    public visible_bool:boolean = true
     public widget:ViewWidget = new ViewWidget()
     public has_domain:boolean = false
     public has_widget:boolean = false
+    public is_visible_domain = false
 
     public get valueIsSelect():boolean {
         return this.type !== "label"
@@ -271,7 +279,12 @@ class ViewItem extends ViewElement {
         if(scheme['sortable']) this.sortable = scheme['sortable']
         if(scheme['readonly']) this.readonly = scheme['readonly']
         if(scheme['visible']) {
-            this.visible = new ViewDomain(scheme['visible'])
+            if(typeof(scheme['visible']) === typeof(true)){
+                this.visible_bool = scheme['visible']
+            } else {
+                this.visible = new ViewDomain(scheme['visible'])
+                this.is_visible_domain = true
+            }
             this.has_domain = true
         }
         if(scheme['widget']){
@@ -290,8 +303,13 @@ class ViewItem extends ViewElement {
             result['sortable'] = this.sortable
         if(this.readonly)
             result['readonly'] = this.readonly
-        if(this.has_domain)
-            result['visible'] = this.visible.dom
+        if(this.has_domain){
+            if(this.is_visible_domain)
+                result['visible'] = this.visible.dom
+            else
+                result['visible'] = this.visible_bool
+        }
+            
         if(this.has_widget)
             result['widget'] = this.widget.export()
         return result
@@ -359,6 +377,94 @@ class ViewFilter extends ViewElement {
     }
 }
 
+class ViewHeader extends ViewElement {
+    actions:{[id:string]:{acts :ViewAction[], enabled :boolean, default:boolean}}
+
+    static get actions_for_list():{[id:string]:{acts :ViewAction[], enabled :boolean, default:boolean}}{
+        return {
+            "ACTION.SELECT" : {acts : [], enabled : true, default:true},
+            "ACTION.CREATE": {acts : [], enabled : true, default:true},
+            "ACTION.SAVE": {acts : [], enabled : true, default:true},
+            "ACTION.CANCEL": {acts : [], enabled : true, default:true},
+            "ACTION.EDIT_INLINE": {acts : [], enabled : true, default:true},
+            "ACTION.EDIT_BULK" : {acts : [], enabled : true, default:true},
+            "ACTION.CLONE": {acts : [], enabled : true, default:true},
+            "ACTION.ARCHIVE": {acts : [], enabled : true, default:true},
+            "ACTION.DELETE" : {acts : [], enabled : true, default:true},
+        }
+    }
+
+    static get actions_for_form():{[id:string]:{acts :ViewAction[], enabled :boolean, default:boolean}}{
+        return {
+            "ACTION.CREATE": {acts : [], enabled : true, default:true},
+            "ACTION.EDIT": {acts : [], enabled : true, default:true},
+            "ACTION.SAVE": {acts : [], enabled : true, default:true},
+            "ACTION.CANCEL": {acts : [], enabled : true, default:true},
+        }
+    }
+
+    constructor(scheme:any={},type:string) {
+        super()
+        if(type === 'list') {
+            this.actions = ViewHeader.actions_for_list
+        } else {
+            this.actions = ViewHeader.actions_for_form
+        }
+        if(scheme['actions']) {
+            for(let key in this.actions) {
+                // This is done to differenciate undefined value of false value (dynamic typing sucks)
+                if(typeof(scheme["actions"][key]) !== typeof(undefined)) {
+                    if(typeof(scheme["actions"][key]) === typeof(true)) {
+                        if(scheme['actions'][key] === false)
+                            this.actions[key].enabled = false
+                        if(scheme['actions'][key] === true)
+                            this.actions[key].enabled = true
+                    }
+                    else {
+                        this.actions[key].default = false
+                        this.actions[key].acts = []
+                        scheme['actions'][key].forEach( (act:any) => this.actions[key].acts.push(new ViewAction(act)))
+                    }
+                }
+            }
+            console.log("finished")
+        }
+    }
+}
+
+class ViewAction extends ViewElement {
+    predefined:boolean = false
+    id:string = ""
+    controller:string = ""
+    icon:string = ""
+    description:string = ""
+    label:string = ""
+
+    static predef = [
+        "SAVE_AND_CLOSE",
+        "SAVE_AND_CONTINUE",
+        "SAVE_AND_VIEW",
+        "SAVE_AND_EDIT",
+        "CREATE",
+        "ADD",
+    ]
+
+    get is_predifined():boolean {
+        for(let item of ViewAction.predef) {
+            if(this.id === item) return true
+        }
+        return false
+    }
+
+    constructor(scheme:any={}) {
+        super()
+        if(scheme['controller'] ) this.controller = scheme['controller']
+        if(scheme['description']) this.description = scheme['description']
+        if(scheme['id']) this.id = scheme['id']
+        if(scheme['label']) this.label = scheme['label']
+    }
+}
+
 class ViewClause {
     public arr:string[] = []
 
@@ -379,5 +485,7 @@ export {
     ViewItem,
     ViewElement,
     ViewGroup,
-    ViewWidget
+    ViewWidget,
+    ViewHeader,
+    ViewAction
 }

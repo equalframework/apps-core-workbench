@@ -1,0 +1,28 @@
+<mat-form-field>
+    <input matInput placeholder="id" [value]="obj.id" (change)="obj.id = $event.target.value">
+</mat-form-field>
+<mat-form-field>
+    <input [disabled]="obj.is_predifined" matInput placeholder="label" [value]="obj.label" (keyup)="obj.label = $event.target.value">
+</mat-form-field>
+<div class="icon-preview" [class.disabled]="obj.is_predifined">
+    <mat-icon>{{obj.icon}}</mat-icon>
+</div>
+<mat-form-field class="smolfield">
+    <input [disabled]="obj.is_predifined" matInput placeholder="icon" [value]="obj.icon" (keyup)="obj.icon = $event.target.value">
+    <a  matSuffix href="https://fonts.google.com/icons?icon.set=Material+Icons" target="_blank">
+        <mat-icon class="halp">help</mat-icon>
+    </a>
+</mat-form-field>
+<mat-form-field class="longfield">
+    <input [disabled]="obj.is_predifined" matInput placeholder="controller" [value]="obj.controller" (keyup)="tap($event.target.value)"
+    [matAutocomplete]="auto">
+    <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+        <mat-option *ngFor="let option of filteredOptions" [value]="option">
+          {{option}}
+        </mat-option>
+    </mat-autocomplete>
+</mat-form-field>
+<mat-form-field class="longfield">
+    <input [disabled]="obj.is_predifined" matInput placeholder="description" [value]="obj.description" (keyup)="obj.description = $event.target.value">
+</mat-form-field>
+
