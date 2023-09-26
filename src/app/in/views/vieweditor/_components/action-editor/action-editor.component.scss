@@ -1,3 +1,13 @@
+@import "src/theme.scss";
+
+.holder {
+    border-radius: .5em;
+    padding-top: .5em;
+    padding-left: 1em;
+    padding-right: 1em;
+    background-color: whitesmoke;
+}
+
 .icon-preview {
     display: inline-block;
     //padding-left: .2em;
@@ -18,7 +28,7 @@
 }
 
 .smolfield {
-    width: 10em;
+    width: 8em;
 }
 
 .longfield {
@@ -27,4 +37,27 @@
 
 .icon-preview.disabled {
     border-bottom : none;
+}
+
+.inline {
+    display: inline-block;
+}
+
+.group-item {
+    background-color: mat-color($maincolor,A400,.1);
+    padding-left: .5em;
+    border-radius: .5em;
+    margin-left: 1em;
+}
+
+.group-item mat-icon {
+    transform: scale(.7);
+}
+
+mat-form-field {
+    margin-right: .75em;
+}
+
+mat-checkbox {
+    margin-right: .75em;
 }

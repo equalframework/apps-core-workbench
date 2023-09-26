@@ -28,6 +28,7 @@ export class ValueSelectionComponent implements OnInit {
     }
 
     ngOnChanges() {
+        console.log(this.fields.fields['operand'])
         this.myControl.setValue(this.value[0]);
     }
 

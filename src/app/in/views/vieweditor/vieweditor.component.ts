@@ -1,7 +1,6 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
-import { ViewService } from '../_services/view.service';
 import { View, ViewGroup, ViewItem, ViewSection } from './_objects/View';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { prettyPrintJson } from 'pretty-print-json';
@@ -24,9 +23,17 @@ export class VieweditorComponent implements OnInit {
   fields:string[]
   types = ViewItem.typeList
 
+  compliancy_cache:{ok:boolean,id_list:string[]} 
+
   domain_visible = false
   filter_visible = false
   layout_visible = true
+  header_visible = false
+  header_action_visible = false
+  header_selection_action_visible = false
+  actions_visible = false
+
+  groups:string[] = []
   groups_visible:{[id:number]:boolean} = {}
 
   collect_controller:string[] = ["core_model_collect"];
@@ -67,10 +74,25 @@ export class VieweditorComponent implements OnInit {
       console.log(this.collect_controller)
       this.action_controllers = await this.api.getAllActionControllers()
     }
+    this.api.getCoreGroups().then(data => {
+      for(let key in data) {
+        this.groups.push(data[key]['name'])
+      }
+      console.log(this.groups)
+    })
   }
 
   ngOnChanges() {
-    console.log(this.collect_controller)
+  }
+
+  get idCompliancy():{ok:boolean,id_list:string[]} {
+    this.compliancy_cache =  this.view_obj.id_compliant([])
+    return this.compliancy_cache
+  }
+
+  get idDoublons() {
+    const filtered = this.compliancy_cache.id_list.filter((item, index) => this.compliancy_cache.id_list.indexOf(item) !== index);
+    return filtered.join(",")
   }
 
   addItemLayout() {
@@ -129,7 +151,7 @@ export class DialogOverviewExampleDialog {
   }
 
   get datahtml() {
-    return prettyPrintJson.toHtml(this.data)
+    return prettyPrintJson.toHtml(this.data,{indent:2,quoteKeys:true})
   }
 
   onClick(): void {

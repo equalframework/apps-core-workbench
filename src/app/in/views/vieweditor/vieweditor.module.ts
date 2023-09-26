@@ -28,6 +28,8 @@ import { DragTrackerDirective } from './_components/group-editor/dragtracker.dir
 import { DraginfoDirective } from './_components/group-editor/draginfo.directive';
 import { HeaderActionsComponent } from './_components/header-actions/header-actions.component';
 import { ActionEditorComponent } from './_components/action-editor/action-editor.component';
+import { ItemEditorComponent } from './_components/item-editor/item-editor.component';
+import { ActionsContainerComponent } from './_components/actions-container/actions-container.component';
 
 
 
@@ -48,6 +50,8 @@ import { ActionEditorComponent } from './_components/action-editor/action-editor
     DraginfoDirective,
     HeaderActionsComponent,
     ActionEditorComponent,
+    ItemEditorComponent,
+    ActionsContainerComponent,
   ],
   imports: [
     CommonModule,

@@ -9,6 +9,7 @@ import { ViewAction, ViewHeader } from '../../_objects/View';
 export class HeaderActionsComponent implements OnInit {
 
   @Input() h_scheme:ViewHeader
+  @Input() groups:string[] = []
   @Input() controllers:string[]
   obk = Object.keys
 

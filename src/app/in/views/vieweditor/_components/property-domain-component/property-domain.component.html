@@ -24,7 +24,7 @@
                         <mat-label>Operator</mat-label>
                         <mat-select [value]="tempValue[i][j][1]" (selectionChange)="selectOperator($event.value, i, j)"
                             [disabled]="tempValue[i][j][0] == ''">
-                            <mat-option *ngFor="let operator of validOperators?.[fields?.fields?.[tempValue[i][j][0]]?.type]"
+                            <mat-option *ngFor="let operator of validOperators?.[getTypeFromField(tempValue[i][j][0])]"
                                 [value]="operator">
                                 {{operator}}
                             </mat-option>
@@ -35,16 +35,17 @@
                     <ng-container *ngIf="fields && fields.fields[tempValue[i][j][0]]?.selection != undefined">
                         <app-value-selection class="value"
                             [operand]="tempValue[i][j][0]"
-                            [type]="fields.fields[tempValue[i][j][0]]?.type"
+                            [type]="getTypeFromField(tempValue[i][j][0])"
                             [operator]="tempValue[i][j][1]"
-                            [value]="tempValue[i][j][2]" [fields]="fields"
+                            [value]="tempValue[i][j][2]" 
+                            [fields]="fields"
                             (changeValue)="changeValue($event, i, j)">
                         </app-value-selection>
                     </ng-container>
                     <!-- If there is not a selection for the field of the operand -->
                     <ng-container *ngIf="fields && !fields.fields[tempValue[i][j][0]]?.selection">
                         <app-value class="value"
-                            [type]="fields.fields[tempValue[i][j][0]]?.type"
+                            [type]="getTypeFromField(tempValue[i][j][0])"
                             [operator]="tempValue[i][j][1]"
                             [value]="tempValue[i][j][2]"
                             (changeValue)="changeValue($event, i, j)">

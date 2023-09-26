@@ -12,7 +12,7 @@ export class EditSectionComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<GroupEditorComponent>,
-    @Optional() @Inject(MAT_DIALOG_DATA) public data:ViewSection
+    @Optional() @Inject(MAT_DIALOG_DATA) public data:{section:ViewSection,entity:string}
   ) { }
 
   ngOnInit(): void {

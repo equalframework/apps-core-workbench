@@ -49,4 +49,13 @@ export class ViewEditorServicesService extends ViewService {
       return []
     }
   }
+
+  public async getCoreGroups():Promise<any> {
+    try {
+        return await this.api.fetch('?get=core_model_collect&fields=[name]&lang=en&domain=[]&order=id&sort=asc&entity=core\\Group');
+    }
+    catch (response: any) {
+        return  [];
+    }
+  }
 }

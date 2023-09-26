@@ -1,0 +1,72 @@
+<div class="item">
+    <div class="flex">
+        <div>
+            <div class="flex">
+                <mat-form-field>
+                    <mat-label>type</mat-label>
+                    <mat-select [(value)]="item.type">
+                        <mat-option *ngFor="let item_type of types" value="{{item_type}}">{{item_type}}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field *ngIf="item.valueIsSelect">
+                    <mat-label>value</mat-label>
+                    <mat-select [(value)]="item.value">
+                        <mat-option *ngFor="let item of fields" value="{{item}}">{{item}}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field *ngIf="!item.valueIsSelect">
+                    <input matInput placeholder="value" [value]="item.value" (input)="item.value = $event.target.value">
+                </mat-form-field>
+                <mat-form-field>
+                    <input matInput placeholder="item width" type="number" [value]="item.width" (input)="item.width = $event.target.value">
+                </mat-form-field>
+                <label>%</label>
+            </div>
+            <div  class="flex">
+                <mat-checkbox [checked]="item.sortable" (change)="item.sortable = $event.checked">sortable</mat-checkbox>
+                <mat-checkbox [checked]="item.readonly" (change)="item.readonly = $event.checked">readonly</mat-checkbox>
+                <mat-checkbox [checked]="item.has_domain" (change)="item.has_domain= $event.checked">visible property</mat-checkbox>
+                <mat-checkbox [checked]="item.has_widget" (change)="item.has_widget= $event.checked">widget</mat-checkbox>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="item.has_widget" class="widget">
+        <div>
+            Widget
+        </div>
+        <mat-checkbox [checked]="item.widget.sortable" (change)="item.widget.sortable = $event.checked">sortable</mat-checkbox>
+        <mat-checkbox [checked]="item.widget.link" (change)="item.widget.link = $event.checked">link</mat-checkbox>
+        <mat-checkbox [checked]="item.widget.heading" (change)="item.widget.heading = $event.checked">readonly</mat-checkbox>
+        <mat-form-field>
+            <input matInput placeholder="widget type" [value]="item.widget.type" (input)="item.widget.type= $event.target.value">
+        </mat-form-field>
+        <mat-form-field class="inputlong">
+            <input matInput placeholder="values (splitted by semi-columns)" type="text" [value]="item.widget.values.toString().replaceAll(',',';')" (input)="item.widget.values = $event.target.value.split(';')">
+        </mat-form-field>
+    </div>
+    <div *ngIf="item.has_domain" class="widget">
+        <div>
+            Visible
+        </div>
+        <label>boolean</label>
+        <mat-slide-toggle
+            [checked]="item.is_visible_domain" 
+            (change)="item.is_visible_domain = $event.checked"
+        >
+        </mat-slide-toggle>
+        <label>domain</label>
+        <br>
+        <div *ngIf="item.is_visible_domain">
+            <app-property-domain-component
+            [value]="item.visible.dom"
+            [name]="'oui'"
+            [class]="entity"
+            (valueChange)="item.visible.dom = $event"
+            >
+            </app-property-domain-component>
+        </div>
+        <div *ngIf="!item.is_visible_domain">
+            <mat-checkbox [checked]="item.visible_bool" (change)="item.visible_bool= $event.checked">Visible</mat-checkbox>
+        </div>
+    </div>
+</div>

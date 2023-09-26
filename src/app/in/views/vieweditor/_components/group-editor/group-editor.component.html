@@ -76,7 +76,7 @@
                             <mat-icon>add</mat-icon> item
                         </button>
                         <div (appDraginfo)="updateDragged(undefined)" id="draginfo" >
-                            <div *ngFor="let item of col.items" style="display: inline-block;" [style.width.%]=" item.width > 16.67 ? item.width-item.width%12-2 : 14.67">
+                            <div *ngFor="let item of col.items" style="display: inline-block;" [style.width.%]=" item.width > 100/12 ? item.width : 100/12 ">
                                 <div *ngIf="!(dragged === item)" [appDragtracker]="{data_ref:col.items,ref:item,before:true,dragged:dragged,obj:selected}" class="boundary left"
                                 ></div>
                                 <div 

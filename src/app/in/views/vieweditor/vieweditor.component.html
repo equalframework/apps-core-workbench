@@ -1,10 +1,11 @@
 <div class="title-container">
     <button class="title-btn maincolor" mat-icon-button (click)="goBack()"><mat-icon>arrow_back</mat-icon></button>
     <label class="page-title">View : </label><label class="page-title maincolor endlabel">{{name}}</label>
-    <button class="title-btn accentcolor" mat-icon-button><mat-icon>save</mat-icon></button>
-    <button class="title-btn accentcolor" mat-icon-button><mat-icon>cancel</mat-icon></button>
+    <button [disabled]="!idCompliancy.ok" class="title-btn accentcolor" mat-icon-button><mat-icon>save</mat-icon></button>
+    <button [disabled]="!idCompliancy.ok" class="title-btn accentcolor" mat-icon-button><mat-icon>cancel</mat-icon></button>
 </div>
 <div class="feature-container">
+    <label *ngIf="!idCompliancy.ok" [style.color]="'red'">ERREUR : {{ (idDoublons.length > 0) ? "DES IDS SONT IDENTIQUES ("+idDoublons+")" : "CERTAINS ÉLÉMENTS N'ONT PAS D'ID"}}</label>
     <div>
         <mat-form-field class="inputlong">
             <input matInput placeholder="view name" [value]="view_obj.name"  (input)="view_obj.name = $event.target.value">
@@ -35,10 +36,12 @@
         [off_icon]="'expand_more'"
         [baseState]="domain_visible"
         (toggle)="domain_visible = $event"
+        [disabled]="!view_obj._has_domain"
     ></app-toggling-button>
-    <label class="category-title maincolor">Domain</label>
+    <label [style.opacity]="view_obj._has_domain ? 1 : 0.6" class="category-title maincolor">Domain </label>
+    <mat-slide-toggle [(ngModel)]="view_obj._has_domain"></mat-slide-toggle>
     <br>
-    <div *ngIf="domain_visible" class="indent">
+    <div *ngIf="domain_visible && view_obj._has_domain" class="indent">
         <app-property-domain-component
             [value]="view_obj.domain.dom"
             [name]="'oui'"
@@ -47,14 +50,55 @@
         >
         </app-property-domain-component>
     </div>
-    <label class="category-title maincolor">Header</label>
-    <div class="indent">
-        <label class="category-title maincolor">Actions</label>
-        <div class="indent">
+    <app-toggling-button
+        [on_icon]="'expand_less'"
+        [off_icon]="'expand_more'"
+        [baseState]="header_visible"
+        (toggle)="header_visible = $event"
+        [disabled]="!view_obj._has_header"
+    ></app-toggling-button>
+    <label [style.opacity]="view_obj._has_header ? 1 : 0.6" class="category-title maincolor">Header </label>
+    <mat-slide-toggle [(ngModel)]="view_obj._has_header"></mat-slide-toggle>
+    <br>
+    <div *ngIf="header_visible && view_obj._has_header" class="indent">
+        <app-toggling-button
+            [on_icon]="'expand_less'"
+            [off_icon]="'expand_more'"
+            [baseState]="header_action_visible"
+            (toggle)="header_action_visible = $event"
+            [disabled]="!view_obj.header._has_actions"
+        ></app-toggling-button>
+        <label [style.opacity]="view_obj.header._has_actions ? 1 : 0.6" class="category-title maincolor">Actions </label>
+        <mat-slide-toggle [(ngModel)]="view_obj.header._has_actions"></mat-slide-toggle>
+        <br>
+        <div *ngIf="header_action_visible && view_obj.header._has_actions" class="indent">
             <app-header-actions
                 [h_scheme]="view_obj.header"
                 [controllers]="action_controllers"
+                [groups]="groups"
             ></app-header-actions>
+        </div>
+        <div *ngIf="view_obj.type==='list'">
+            <app-toggling-button
+                [on_icon]="'expand_less'"
+                [off_icon]="'expand_more'"
+                [baseState]="header_selection_action_visible"
+                (toggle)="header_selection_action_visible = $event"
+                [disabled]="!view_obj.header._has_selection_actions"
+            ></app-toggling-button>
+            <label [style.opacity]="view_obj.header._has_selection_actions ? 1 : 0.6" class="category-title maincolor">Selection Actions </label>
+            <mat-slide-toggle [(ngModel)]="view_obj.header._has_selection_actions"></mat-slide-toggle>
+            <br>
+            <div *ngIf="header_selection_action_visible && view_obj.header._has_selection_actions" class="indent">
+                <mat-checkbox [(ngModel)]="view_obj.header.selection_default">Default controller</mat-checkbox>
+                <br>
+                <app-actions-container
+                    [label]="'Edit Selection Actions'"
+                    [acts]="view_obj.header.selection_actions"
+                    [controllers]="action_controllers"
+                    [groups]="groups"
+                ></app-actions-container>
+            </div>
         </div>
     </div>
     <app-toggling-button
@@ -62,11 +106,13 @@
         [off_icon]="'expand_more'"
         [baseState]="filter_visible"
         (toggle)="filter_visible = $event"
+        [disabled]="!view_obj._has_filter"
     ></app-toggling-button>
-    <label class="category-title maincolor">Filters</label>
-    <button mat-fab color="primary" class="addItem" (click)="addFilter()"><mat-icon>add</mat-icon></button>
+    <label [style.opacity]="view_obj._has_filter ? 1 : 0.6" class="category-title maincolor">Filters </label>
+    <mat-slide-toggle [(ngModel)]="view_obj._has_filter"></mat-slide-toggle>
+    <button *ngIf="filter_visible" mat-fab color="primary" class="addItem" (click)="addFilter()"><mat-icon>add</mat-icon></button>
     <br>
-    <div *ngIf="filter_visible" class="indent">
+    <div *ngIf="filter_visible && view_obj._has_filter" class="indent">
         <div class="indent" *ngFor="let filter of view_obj.filters">
             <div class="flex">
                 <div>
@@ -90,6 +136,24 @@
                 </div>
             </div>
         </div>
+    </div>
+    <app-toggling-button
+        [on_icon]="'expand_less'"
+        [off_icon]="'expand_more'"
+        [baseState]="actions_visible"
+        (toggle)="actions_visible = $event"
+        [disabled]="!view_obj._has_actions"
+    ></app-toggling-button>
+    <label [style.opacity]="view_obj._has_actions ? 1 : 0.6" class="category-title maincolor">Actions </label>
+    <mat-slide-toggle [(ngModel)]="view_obj._has_actions"></mat-slide-toggle>
+    <br>
+    <div *ngIf="actions_visible && view_obj._has_actions" class="indent">
+        <app-actions-container
+            [label]="'Edit actions'"
+            [acts]="view_obj.actions"
+            [controllers]="action_controllers"
+            [groups]="groups"
+        ></app-actions-container>
     </div>
     <app-toggling-button
         [on_icon]="'expand_less'"
@@ -144,80 +208,13 @@
             <label class="category-title maincolor">Items</label>
             <button mat-fab color="primary" class="addItem" (click)="addItemLayout()"><mat-icon>add</mat-icon></button>
             <div class="indent">
-                <div *ngFor="let item of view_obj.layout.items" class="item">
-                    <div class="flex">
-                        <div>
-                            <div class="flex">
-                                <mat-form-field>
-                                    <mat-label>type</mat-label>
-                                    <mat-select [(value)]="item.type">
-                                        <mat-option *ngFor="let item_type of types" value="{{item_type}}">{{item_type}}</mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                                <mat-form-field *ngIf="item.valueIsSelect">
-                                    <mat-label>value</mat-label>
-                                    <mat-select [(value)]="item.value">
-                                        <mat-option *ngFor="let item of fields" value="{{item}}">{{item}}</mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                                <mat-form-field *ngIf="!item.valueIsSelect">
-                                    <input matInput placeholder="value" [value]="item.value" (input)="item.value = $event.target.value">
-                                </mat-form-field>
-                                <mat-form-field>
-                                    <input matInput placeholder="item width" type="number" [value]="item.width" (input)="item.width = $event.target.value">
-                                </mat-form-field>
-                                <label>%</label>
-                            </div>
-                            <div  class="flex">
-                                <mat-checkbox [checked]="item.sortable" (change)="item.sortable = $event.checked">sortable</mat-checkbox>
-                                <mat-checkbox [checked]="item.readonly" (change)="item.readonly = $event.checked">readonly</mat-checkbox>
-                                <mat-checkbox [checked]="item.has_domain" (change)="item.has_domain= $event.checked">visible property</mat-checkbox>
-                                <mat-checkbox [checked]="item.has_widget" (change)="item.has_widget= $event.checked">widget</mat-checkbox>
-                            </div>
-                        </div>
-                    </div>
-                    <div *ngIf="item.has_widget" class="widget">
-                        <div>
-                            Widget
-                        </div>
-                        <mat-checkbox [checked]="item.widget.link" (change)="item.widget.link = $event.checked">link</mat-checkbox>
-                        <mat-checkbox [checked]="item.widget.heading" (change)="item.widget.heading = $event.checked">readonly</mat-checkbox>
-                        <mat-form-field>
-                            <input matInput placeholder="widget type" [value]="item.widget.type" (input)="item.widget.type= $event.target.value">
-                        </mat-form-field>
-                        <mat-form-field class="inputlong">
-                            <input matInput placeholder="values (splitted by semi-columns)" type="text" [value]="item.widget.values.toString().replaceAll(',',';')" (input)="item.widget.values = $event.target.value.split(';')">
-                        </mat-form-field>
-                    </div>
-                    <div *ngIf="item.has_domain" class="widget">
-                        <div>
-                            Visible
-                        </div>
-                        <label>boolean</label>
-                        <mat-slide-toggle
-                            [checked]="item.is_visible_domain" 
-                            (change)="item.is_visible_domain = $event.checked"
-                        >
-                        </mat-slide-toggle>
-                        <label>domain</label>
-                        <br>
-                        <div *ngIf="item.is_visible_domain">
-                            <app-property-domain-component
-                            [value]="item.visible.dom"
-                            [name]="'oui'"
-                            [class]="entity"
-                            (valueChange)="item.visible.dom = $event"
-                            >
-                            </app-property-domain-component>
-                        </div>
-                        <div *ngIf="!item.is_visible_domain">
-                            <mat-checkbox [checked]="item.visible_bool" (change)="item.visible_bool= $event.checked">Visible</mat-checkbox>
-                        </div>
-                    </div>
-                    
-                </div>
+                <app-item-editor *ngFor="let item of view_obj.layout.items"
+                    [item]="item"
+                    [entity]="entity"
+                    [fields]="fields"
+                    [types]="types"
+                ></app-item-editor>
             </div>
-        </div>
     </div>
     <button mat-button (click)="logit()">
         show

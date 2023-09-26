@@ -3,17 +3,11 @@
     <mat-checkbox  class="marginright1em" [checked]="!h_scheme.actions[key].enabled" (change)="h_scheme.actions[key].enabled = !$event.checked">Force disable</mat-checkbox>
     <mat-checkbox [disabled]="!h_scheme.actions[key].enabled" class="marginright1em"[checked]="h_scheme.actions[key].default" (change)="h_scheme.actions[key].default = $event.checked">default behavior</mat-checkbox>
     <div class="indent" *ngIf="h_scheme.actions[key].enabled && !h_scheme.actions[key].default">
-        <label>Custom action behavior</label>
-        <button mat-icon-button (click)="create(key)"><mat-icon>add</mat-icon></button>
-        <div class="indent">
-            <label *ngIf="h_scheme.actions[key].acts.length === 0">No custom actions binded.</label>
-            <div *ngFor="let action of h_scheme.actions[key].acts">
-                <app-action-editor
-                    [obj]="action"
-                    [controllers]="controllers"
-                    (delete)="del(key,action)"
-                ></app-action-editor>
-            </div>
-        </div>
+        <app-actions-container
+            [label]="'Custom action behavior'"
+            [acts]="h_scheme.actions[key].acts"
+            [controllers]="controllers"
+            [groups]="groups"
+        ></app-actions-container>
     </div>
 </div>

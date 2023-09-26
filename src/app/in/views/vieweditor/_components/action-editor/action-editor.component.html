@@ -1,28 +1,49 @@
-<mat-form-field>
-    <input matInput placeholder="id" [value]="obj.id" (change)="obj.id = $event.target.value">
-</mat-form-field>
-<mat-form-field>
-    <input [disabled]="obj.is_predifined" matInput placeholder="label" [value]="obj.label" (keyup)="obj.label = $event.target.value">
-</mat-form-field>
-<div class="icon-preview" [class.disabled]="obj.is_predifined">
-    <mat-icon>{{obj.icon}}</mat-icon>
+<div class="holder">
+    <mat-form-field class="longfield">
+        <input matInput placeholder="id" [value]="obj.id" (change)="obj.id = $event.target.value">
+    </mat-form-field>
+    <mat-form-field>
+        <input [disabled]="obj.is_predifined" matInput placeholder="label" [value]="obj.label" (keyup)="obj.label = $event.target.value">
+    </mat-form-field>
+    <div class="icon-preview" [class.disabled]="obj.is_predifined">
+        <mat-icon>{{obj.icon}}</mat-icon>
+    </div>
+    <mat-form-field class="smolfield">
+        <input [disabled]="obj.is_predifined" matInput placeholder="icon" [value]="obj.icon" (keyup)="obj.icon = $event.target.value">
+        <a  matSuffix href="https://fonts.google.com/icons?icon.set=Material+Icons" target="_blank">
+            <mat-icon class="halp">help</mat-icon>
+        </a>
+    </mat-form-field>
+    <mat-form-field class="longfield">
+        <input [disabled]="obj.is_predifined" matInput placeholder="controller" [value]="obj.controller" (keyup)="tap($event.target.value)"
+        [matAutocomplete]="auto">
+        <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+            <mat-option *ngFor="let option of filteredOptions" [value]="option">
+            {{option}}
+            </mat-option>
+        </mat-autocomplete>
+    </mat-form-field>
+    <mat-form-field class="longfield">
+        <input [disabled]="obj.is_predifined" matInput placeholder="description" [value]="obj.description" (keyup)="obj.description = $event.target.value">
+    </mat-form-field>
+    <mat-checkbox [(ngModel)]="obj.confirm">confirm</mat-checkbox>
+    <mat-checkbox [(ngModel)]="obj._has_access">restrict access</mat-checkbox>
+    <button mat-icon-button (click)="deleteme()"><mat-icon>delete</mat-icon></button>
+    <div *ngIf="obj._has_access">
+        <mat-form-field >
+            <input [value]="input" (keyup.enter)="addgroup()" (keyup)="tap2($event.target.value)"  matInput placeholder="groups" [matAutocomplete]="auto2">
+            <button matSuffix mat-icon-button (click)="addgroup()"><mat-icon class="grpsufix"  >add</mat-icon></button>
+            <mat-autocomplete autoActiveFirstOption #auto2="matAutocomplete">
+                <mat-option *ngFor="let option of filteredGroups" [value]="option">
+                    {{option}}
+                </mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
+        <div class="inline group-item-holder">
+            <div class="inline group-item" *ngFor="let item of obj.access['groups']">
+                {{item}}
+                <button mat-icon-button (click)="delete_element(item)"><mat-icon>close</mat-icon></button>
+            </div>
+        </div>
+    </div>
 </div>
-<mat-form-field class="smolfield">
-    <input [disabled]="obj.is_predifined" matInput placeholder="icon" [value]="obj.icon" (keyup)="obj.icon = $event.target.value">
-    <a  matSuffix href="https://fonts.google.com/icons?icon.set=Material+Icons" target="_blank">
-        <mat-icon class="halp">help</mat-icon>
-    </a>
-</mat-form-field>
-<mat-form-field class="longfield">
-    <input [disabled]="obj.is_predifined" matInput placeholder="controller" [value]="obj.controller" (keyup)="tap($event.target.value)"
-    [matAutocomplete]="auto">
-    <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
-        <mat-option *ngFor="let option of filteredOptions" [value]="option">
-          {{option}}
-        </mat-option>
-    </mat-autocomplete>
-</mat-form-field>
-<mat-form-field class="longfield">
-    <input [disabled]="obj.is_predifined" matInput placeholder="description" [value]="obj.description" (keyup)="obj.description = $event.target.value">
-</mat-form-field>
-

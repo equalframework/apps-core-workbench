@@ -1,4 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { log } from 'console';
 import { WorkbenchService } from 'src/app/in/models/_service/models.service';
 
 @Component({
@@ -24,9 +25,10 @@ export class PropertyDomainComponent implements OnInit {
     }
 
     async ngOnChanges() {
-        this.getSchema();
+        this.getSchema().then(() => console.log(this.fields));
         this.transformDomain();
         console.log(this.tempValue)
+        
     }
 
     async getSchema() {
@@ -47,11 +49,20 @@ export class PropertyDomainComponent implements OnInit {
         }
     }
 
+    public getTypeFromField(value:string) {
+        console.log(this.fields.fields[value].type)
+        if(this.fields.fields[value].type === "computed"){
+            console.log(this.fields.fields[value].result_type)
+            return this.fields.fields[value].result_type
+        }
+        return this.fields.fields[value].type 
+    }
+
     public updateOperand(event: any, i: any, j: any) {
         this.tempValue[i][j][0] = event;
         this.tempValue[i][j][1] = '';
         this.tempValue[i][j][2] = this.defaultTypeValue(
-        this.fields.fields[this.tempValue[i][j][0]].type);
+        this.getTypeFromField(this.tempValue[i][j][0]).type);
     }
 
     public selectOperator(value: any, i: any, j: any) {
@@ -59,7 +70,7 @@ export class PropertyDomainComponent implements OnInit {
         if (value == 'in' || value == 'not in' ||!Array.isArray(this.tempValue[i][j][2])) {
             this.tempValue[i][j][2] = [];
         } else {
-            this.tempValue[i][j][2] = this.defaultTypeValue(this.fields.fields[this.tempValue[i][j][0]].type);
+            this.tempValue[i][j][2] = this.defaultTypeValue(this.getTypeFromField(this.tempValue[i][j][0]).type);
         }
     }
 
