@@ -8,7 +8,7 @@ import { prettyPrintJson } from 'pretty-print-json';
     selector: 'app-package-info',
     templateUrl: './package-info.component.html',
     styleUrls: ['./package-info.component.scss'],
-    encapsulation: ViewEncapsulation.None
+    encapsulation : ViewEncapsulation.Emulated,
 })
 
 export class PackageInfoComponent implements OnInit {
@@ -18,10 +18,12 @@ export class PackageInfoComponent implements OnInit {
     @Input() package_consitency:any
     @Output() onModelClick = new EventEmitter<void>();
     @Output() onControllerClick = new EventEmitter<void>();
+    @Output() onViewClick = new EventEmitter<void>();
     public current_initialised = false
     public warn_count:number
     public error_count:number
     public error_list:{type:number, text:string}[]
+    public info_popup = false
 
     constructor(
         private snackBar: MatSnackBar,
@@ -63,6 +65,11 @@ export class PackageInfoComponent implements OnInit {
     public controllerOnClick() {
         console.log("catch!")
         this.onControllerClick.emit()
+    }
+
+    public viewOnClick() {
+        console.log("catch!")
+        this.onViewClick.emit()
     }
 
     public consitencyPrint():any {

@@ -1,14 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { FieldClass } from '../_object/FieldClass';
 import { WorkbenchService } from '../_service/models.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { cloneDeep } from 'lodash';
+import { RouterMemory } from 'src/app/_services/routermemory.service';
 
 @Component({
   selector: 'app-field',
   templateUrl: './field.component.html',
-  styleUrls: ['./field.component.scss']
+  styleUrls: ['./field.component.scss'],
+  encapsulation : ViewEncapsulation.Emulated
 })
 export class FieldComponent implements OnInit {
 
@@ -22,7 +24,7 @@ export class FieldComponent implements OnInit {
 
   constructor(
     private api:WorkbenchService,
-    private route:Router,
+    private route:RouterMemory,
     private activatedRoute:ActivatedRoute,
     private snackBar:MatSnackBar
 
@@ -177,7 +179,7 @@ export class FieldComponent implements OnInit {
 
   public getBack() {
     if(!this.detectAnyChanges()){
-      this.route.navigate(["/models",this.selected_package])
+      this.route.goBack()
     }
   }
 
@@ -221,7 +223,7 @@ export class FieldComponent implements OnInit {
       var schema = this.regenerateSchema()
       var timerId = setTimeout(async () => {
           this.api.updateSchema(schema,this.selected_package,this.selected_class)
-          this.route.navigate([".."])
+          this.route.goBack()
           this.snackBar.open("Saved ! Change can take time to be ", '', {
               duration: 1000,
               horizontalPosition: 'left',

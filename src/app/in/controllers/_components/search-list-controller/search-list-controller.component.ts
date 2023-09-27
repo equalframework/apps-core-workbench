@@ -6,7 +6,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 @Component({
     selector: 'app-search-list-controller',
     templateUrl: './search-list-controller.component.html',
-    styleUrls: ['./search-list-controller.component.scss']
+    styleUrls: ['./search-list-controller.component.scss'],
+    encapsulation : ViewEncapsulation.Emulated
 })
 export class SearchListControllerComponent implements OnInit {
 

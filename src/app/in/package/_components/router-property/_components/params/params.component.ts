@@ -113,7 +113,7 @@ export class ParamsComponent implements OnInit {
 
     public async submit() {
         console.log(this.paramsValue);
-        let response = await this.api.submitController(this.selected_type_controller, this.eq_package, this.controller_name, this.paramsValue);
+        let response = await this.api.submitController(this.selected_type_controller, this.controller_name, this.paramsValue);
         const dialogConfig = new MatDialogConfig();
         dialogConfig.maxHeight = '86vh';
         dialogConfig.minWidth = '70vw';

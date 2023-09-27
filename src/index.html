@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <title>Workbench</title>
 
+  <!--- test ----->
 
   <base href="/">
 
@@ -16,8 +17,14 @@
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
   <!-- custom scripts -->
-  <!--
-  -->
+  <script>
+    function sendStopDrag() {
+      var elem = document.getElementById("draginfo");
+      var event = new Event('stopdrag');
+      elem.dispatchEvent(event);
+    }
+  </script>
+  <!--                -->
 
   <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>

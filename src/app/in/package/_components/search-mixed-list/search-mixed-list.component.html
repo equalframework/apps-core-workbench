@@ -2,30 +2,34 @@
     <mat-form-field class="input search-bar">
         <mat-icon matPrefix class="icon">filter_list</mat-icon>
         <input matInput placeholder="Filter" [formControl]="inputcontrol" (keyup)="onSearch()">
+        <!--(keyup)="onSearch()"--->
+        <button *ngIf="inputcontrol.value && inputcontrol.value !== ''" matSuffix mat-icon-button aria-label="Clear" (click)="clearSearch()">
+            <mat-icon>close</mat-icon>
+        </button>
     </mat-form-field>
     <mat-form-field class="mixed-search-select">
         <mat-select [(value)]="search_scope" class="" (valueChange)="onSelectChange()" >
-            <mat-select-trigger> <mat-icon class="icon-search-small">{{icon_dict[search_scope]}}</mat-icon> {{disp_dict[search_scope]}}</mat-select-trigger>
-            <mat-option [value]="''"><mat-icon>category</mat-icon> all</mat-option>
-            <mat-option [value]="'package'"><mat-icon>inventory</mat-icon> package</mat-option>
-            <mat-option [value]="'class'"><mat-icon>data_object</mat-icon> model</mat-option>
-            <mat-option [value]="'controller'"><mat-icon>code</mat-icon> controller</mat-option>
-            <mat-option [value]="'get'"><mat-icon>data_array</mat-icon> controller-data</mat-option>
-            <mat-option [value]="'do'"><mat-icon>open_in_browser</mat-icon> controller-action</mat-option>
-        </mat-select>   
+            <mat-select-trigger> <mat-icon class="icon-search-small mixed-select-sel-{{search_scope}}">{{type_dict[search_scope].icon}}</mat-icon> {{type_dict[actual_scope].disp}}</mat-select-trigger>
+            <mat-option *ngFor="let key of obk(type_dict)" [value]="key">
+                <mat-icon class="mixed-select-sel-{{key}}">{{type_dict[key].icon}}</mat-icon> {{type_dict[key].disp}}
+            </mat-option>
+        </mat-select>
     </mat-form-field>
-
 </div>
-<mat-list class="list scrollable">
-    <mat-list-item *ngFor="let node of filteredData" class="">
-        <div class="node_container mixed-sel-{{node.type}}" [class.node-hover]="selected_node != node" [class.node-selected]="selected_node == node">
-            <div class="pointable node-text" (click)="onclickNodeSelect(node)">
-                <label class="type-info-mixed-sel type-mixed-sel-{{node.type}}" *ngIf="node.type==='package'"><mat-icon>inventory</mat-icon></label>
-                <label class="type-info-mixed-sel type-mixed-sel-{{node.type}}" *ngIf="node.type==='class'"><mat-icon>data_object</mat-icon></label>
-                <label class="type-info-mixed-sel type-mixed-sel-{{node.type}}" *ngIf="node.type==='do'"><mat-icon>open_in_browser</mat-icon></label>
-                <label class="type-info-mixed-sel type-mixed-sel-{{node.type}}" *ngIf="node.type==='get'"><mat-icon>data_array</mat-icon></label>
-                <label class="name-mixed-sel">{{ node.package ? node.package+"\\" : ""}}{{node.name}}</label>
+<div *ngIf="loading">
+    LOADING
+</div>
+
+<mat-list *ngIf="!loading" class="list">
+    <cdk-virtual-scroll-viewport [itemSize]="48" class="virtual">
+        <mat-list-item *cdkVirtualFor="let node of filteredData" class="">
+            <div class="node_container mixed-sel-{{node.type}}" [class.node-hover]="selected_node != node" [class.node-selected]="selected_node === node">
+                <div class="pointable node-text" (click)="onclickNodeSelect(node)">
+                    <label class="type-info-mixed-sel type-mixed-sel-{{node.type}}"><mat-icon>{{type_dict[node.type].icon}}</mat-icon></label>
+                    <label class="name-mixed-sel">{{node.type==='route'? current_root : ""}}{{ node.package ? (node.type === "do" || node.type === "get" ? "":node.package+"\\") : ""}}{{node.name}}</label>
+                </div>
             </div>
-        </div>
-    </mat-list-item>
+        </mat-list-item>
+    </cdk-virtual-scroll-viewport>
 </mat-list>
+

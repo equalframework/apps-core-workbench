@@ -1,6 +1,6 @@
 <div class="max-height step">
     <div class="title-container max-width">
-        <button (click)="getBack()" mat-icon-button matTooltip="Primary" color="primary" aria-label="Go back">
+        <button [disabled]="this.detectAnyChanges()" (click)="getBack()" mat-icon-button matTooltip="Primary" color="primary" aria-label="Go back">
             <mat-icon>keyboard_backspace</mat-icon>
         </button>
         <mat-label>{{ selected_package }}\{{ selected_class }} :</mat-label>
@@ -8,10 +8,10 @@
             <mat-icon class="info-menu-icon">text_format</mat-icon>
             <mat-label>Fields</mat-label>
         </div>
-        <button (click)="regenerateSchemaAndPublish()" mat-icon-button matTooltip="Primary" color="accent" aria-label="Go back">
+        <button [disabled]="!this.detectAnyChanges()" (click)="regenerateSchemaAndPublish()" mat-icon-button matTooltip="Primary" color="accent" aria-label="Go back">
             <mat-icon>publish</mat-icon>
         </button>
-        <button (click)="cancelAllChanges()" mat-icon-button matTooltip="Primary" color="accent" aria-label="Go back">
+        <button [disabled]="!this.detectAnyChanges()" (click)="cancelAllChanges()" mat-icon-button matTooltip="Primary" color="accent" aria-label="Go back">
             <mat-icon>cancel</mat-icon>
         </button>
     </div>

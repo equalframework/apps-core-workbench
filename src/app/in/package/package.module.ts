@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { DateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
 import { Platform } from '@angular/cdk/platform';
-import { DatePipe } from '@angular/common';
+import { AsyncPipe, DatePipe } from '@angular/common';
 
 import { SharedLibModule, CustomDateAdapter } from 'sb-shared-lib';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -38,6 +38,9 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { SearchMixedListComponent } from './_components/search-mixed-list/search-mixed-list.component';
 import { ModelsInfoModule } from '../models/_components/model-info/models-info.module';
 import { ControllerInfoModule } from '../controllers/_components/controller-info/controller-info.module';
+import { RouteInfoModule } from '../routes/_components/route-info/route-info.module';
+import { ViewsInfoModule } from '../views/_components/views-info/views-info.module';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 
 @NgModule({
@@ -56,7 +59,10 @@ import { ControllerInfoModule } from '../controllers/_components/controller-info
         AppInModelsModule,
         MatGridListModule,
         ModelsInfoModule,
-        ControllerInfoModule
+        ControllerInfoModule,
+        RouteInfoModule,
+        ViewsInfoModule,
+        ScrollingModule,
     ],
     declarations: [
         PackageComponent,
@@ -81,6 +87,7 @@ import { ControllerInfoModule } from '../controllers/_components/controller-info
     ],
     providers: [
         DatePipe,
+        AsyncPipe,
         { provide: DateAdapter, useClass: CustomDateAdapter, deps: [MAT_DATE_LOCALE, Platform] }
     ]
 })

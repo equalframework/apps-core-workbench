@@ -1,1 +1,39 @@
-<p>views-info works!</p>
+<div *ngIf="view_ref ===''" class="max-height max-width margin-container">
+    <label class="packagename">Select package to show properties.</label>
+</div>
+
+<div *ngIf="view_ref !=='' && !view_scheme">
+    This view seems to be malformed
+</div>
+
+<div *ngIf="view_ref !=='' && view_scheme" class="max-width margin-container">
+    <div class="controller-container-top">
+        <div class="flex-labels">
+            <label class="viewname">View : </label>
+            <label class="viewname accent">{{ view_scheme["name"] }}</label>
+        </div>
+        <div>
+            <label class="subpart-title">{{view_scheme['description']}}</label>
+        </div>
+        <br>
+        <div *ngFor="let table of obk(view_scheme['layout'])">
+            <app-item-viewer *ngIf="table === 'items'"
+                [item_scheme]="view_scheme['layout'][table]"
+            >
+            </app-item-viewer>
+            <app-groups-viewer *ngIf="table === 'groups'"
+                [groups_scheme]="view_scheme['layout'][table]"
+            >
+            </app-groups-viewer>
+        </div>
+        <br>
+    </div>
+    <div class="controller-container-bottom">
+        <br>
+        <mat-grid-list [cols]="4" rowHeight="5.5em" class="max-width button-pkg-container">
+            <mat-grid-tile>
+                <button mat-button class="view-info-button" (click)="onEditClick()"><mat-icon>edit</mat-icon><label>edit</label></button>
+            </mat-grid-tile>
+        </mat-grid-list>
+    </div>
+</div>

@@ -10,7 +10,7 @@ import { cloneDeep } from 'lodash';
     selector: 'app-search-list-field',
     templateUrl: './search-list-field.component.html',
     styleUrls: ['./search-list-field.component.scss'],
-    encapsulation: ViewEncapsulation.None
+    encapsulation : ViewEncapsulation.Emulated
 })
 
 export class SearchListFieldComponent implements OnInit {

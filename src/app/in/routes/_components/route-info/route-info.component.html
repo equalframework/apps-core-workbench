@@ -1,0 +1,29 @@
+<div *ngIf="current_route !==''" class="max-width margin-container">
+    <div class="controller-container-top">
+        <div class="flex-labels">
+            <label class="side-menu-title">Route :</label>
+            <label class="side-menu-title accent">{{backend_url}}{{ current_route }}</label>
+        </div>
+        <br>
+        <div>
+            <label class="sub-part-title">Declared in </label>
+            <label class="sub-part-title accent-color">{{route_info['info']['file']}}</label>
+        </div>
+        <br>
+        <label class="sub-part-title">Methods :</label>
+        <div *ngFor="let method of obk(route_info['methods'])" class="container-method container-method-{{method}}">
+            <div class="title-method title-method-{{method}}">
+                <label>{{method}}</label>
+            </div>
+            <div class="indent-method">
+                <div class="desc-method">
+                    <label><strong>description : </strong>{{route_info['methods'][method]['description']}}</label>
+                </div>
+                <div class="spacer"></div>
+                <div class="desc-method">
+                    <label><strong>Uses : </strong><a class="clickable" (click)="sendTo(route_info['methods'][method]['operation'])">{{backend_url}}{{route_info['methods'][method]['operation']}}</a></label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,106 @@
+@import '/src/theme.scss';
+
+$getcolor : #b0d7fe;
+$putcolor : #fdd098;
+$postcolor : #a4e5c7;
+$deletecolor : #fc9e9f;
+
+$getdiluted : #b0d7fe30;
+$putdiluted : #fdd09830;
+$postdiluted : #a4e5c730;
+$deletediluted : #fc9e9f30;
+
+
+.margin-container {
+    margin: 1em;
+    padding: 2em;
+    border-radius: 10px;
+    background-color: whitesmoke;
+    height: calc(100% - 2em);
+}
+
+.flex-labels label {
+    margin-right: 0.5em;
+}
+
+.side-menu-title {
+    font-size: 1.5em;
+}
+
+.accent {
+    color: mat-color($maincolor);
+}
+
+.sub-part-title {
+    font-size: 1.3em;
+}
+
+.accent-color {
+    color : mat-color($accentcolor)
+}
+
+.title-method {
+    margin-bottom: 1em;
+}
+
+.title-method label {
+    padding: .25em .75em;
+    width: auto;
+    font-size: 1.3em;
+    border-radius: .5em;
+}
+
+.title-method-GET label {
+    background-color: $getcolor;
+}
+
+.title-method-POST label {
+    background-color: $postcolor;
+}
+
+.title-method-DELETE label {
+    background-color: $deletecolor;
+}
+
+.title-method-PUT label {
+    background-color: $putcolor;
+}
+
+.container-method {
+    padding: 1em;
+    border-radius: .75em;
+    margin-bottom: 1em;
+    display: flex;
+}
+
+.container-method-GET {
+    background-color: $getdiluted;
+}
+
+.container-method-POST {
+    background-color: $postdiluted;
+}
+
+.container-method-DELETE {
+    background-color: $deletediluted;
+}
+
+.container-method-PUT {
+    background-color: $putdiluted;
+}
+
+.indent-method {
+    margin-left: 2em;
+}
+
+.desc-method {
+    font-size: 1.1em;
+}
+
+.indent-method .spacer {
+    height: 1em;
+}
+
+.clickable {
+    cursor: help;
+}

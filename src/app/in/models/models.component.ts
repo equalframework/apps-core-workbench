@@ -9,12 +9,13 @@ import { FieldClass } from './_object/FieldClass';
 import { fi } from 'date-fns/locale';
 import { cloneDeep, update } from 'lodash';
 import { ActivatedRoute, Params, Router } from '@angular/router';
+import { RouterMemory } from 'src/app/_services/routermemory.service';
 
 @Component({
   selector: 'app-models',
   templateUrl: './models.component.html',
   styleUrls: ['./models.component.scss'],
-  encapsulation: ViewEncapsulation.None
+  encapsulation : ViewEncapsulation.Emulated,
 })
 export class ModelsComponent implements OnInit {
 
@@ -37,7 +38,7 @@ export class ModelsComponent implements OnInit {
         private context: ContextService,
         private api: WorkbenchService,
         private snackBar: MatSnackBar,
-        private route:Router,
+        private route:RouterMemory,
         private activateRoute:ActivatedRoute
     ) { }
 
@@ -69,6 +70,9 @@ export class ModelsComponent implements OnInit {
         this.step = step;
         if(step == 2) {
             this.route.navigate(['/fields',this.selected_package,this.selected_class])
+        }
+        if(step===3) {
+            this.route.navigate(['/views',"entity",this.selected_package+'\\'+this.selected_class])
         }
     }
 
@@ -274,7 +278,7 @@ export class ModelsComponent implements OnInit {
 
     public getBack() {
         if(this.step === 1) {
-            this.route.navigate([".."])
+            this.route.goBack()
         }
         if(this.step === 2 && this.detectAnyChanges()){
             this.snackBar.open("Save or reset changes before quitting.")

@@ -1,0 +1,17 @@
+<p>Edit row informations</p>
+<mat-form-field>
+    <input matInput placeholder="row.id" [value]="data.col.id" (input)="data.col.id = $event.target.value">
+</mat-form-field>
+<mat-form-field>
+    <input matInput placeholder="row name" [value]="data.col.label" (input)="data.col.label = $event.target.value">
+</mat-form-field>
+<mat-checkbox [(ngModel)]="data.col._has_domain">visible domain</mat-checkbox>
+<div *ngIf="data.col._has_domain">
+    <app-property-domain-component
+        [value]="data.col.visible.dom"
+        [name]="'oui'"
+        [class]="data.entity"
+        (valueChange)="data.col.visible.dom = $event"
+    >
+    </app-property-domain-component>
+</div>

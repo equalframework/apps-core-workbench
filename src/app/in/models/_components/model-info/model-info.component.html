@@ -15,31 +15,37 @@
         </div>
         <br>
         <div class="sub-part-class">
-            <label class="sub-part-title">Fields :</label>
-            <div *ngFor="let key of obk(class_scheme['fields'])" >
-                <div *ngIf="key !== 'id' && key !== 'deleted' && key !== 'state'" class="model_cr">
-                    <div class="model_cr_el model_cr_path">
-                        {{key}}
+            <label class="sub-part-title">Fields (</label><label class="sub-part-title accent">{{fieldNumber}}</label><label class="sub-part-title">) :</label>
+            <mat-grid-list cols="2"  rowHeight="5.5em" class="pre-field">
+                <mat-grid-tile *ngFor="let key of obk(this.class_scheme['fields'])">
+                    <div class='field-class-item'>
+                        <div class='field-class-p1'>
+                            <label class='pre-main-color pre-label-bold'>{{ key }}</label>
+                            <label class='pre-label-bold'>:</label>
+                            <label class='pre-accent-color pre-label-bold'>{{ this.class_scheme["fields"][key]["type"] }}</label>
+                            <label *ngIf="
+                                this.class_scheme['fields'][key]['type'] === 'many2one'
+                                ||this.class_scheme['fields'][key]['type'] === 'many2many'
+                                ||this.class_scheme['fields'][key]['type'] === 'one2one'
+                                ||this.class_scheme['fields'][key]['type'] === 'one2many'
+                            "
+                            class='pre-label-bold'>
+                                ({{ this.class_scheme["fields"][key]["foreign_object"] }})
+                            </label>
+                            <div class="field-sep"></div>
+                            <div *ngIf="fieldHasProp(key)" class="field-prop-container">
+                                <span *ngIf="this.class_scheme['fields'][key]['required']" class='material-icons preicon pre-main-color'>priority_high</span>
+                                <span *ngIf="this.class_scheme['fields'][key]['readonly']" class='material-icons preicon pre-main-color'>do_not_touch</span>
+                                <span *ngIf="this.class_scheme['fields'][key]['multilang']" class='material-icons preicon pre-main-color'>translate</span>
+                                <div *ngIf="this.class_scheme['fields'][key]['unique']" class='field-unique-prop'><label class="pre-main-color pre-label-bold">1</label></div>
+                            </div>
+                        </div>
+                        <div class="field-class-p2">
+                            <label>{{ this.class_scheme["fields"][key]["description"] }}</label>
+                        </div>
                     </div>
-                    <div class="model_cr_el model_cr_type">
-                        <label>
-                            {{this.class_scheme['fields'][key]['type']}}
-                        </label>
-                        <label *ngIf="this.class_scheme['fields'][key]['foreign_object']">
-                            [{{this.class_scheme['fields'][key]['foreign_object']}}]
-                        </label>
-                    </div>
-                    
-                    <div class="model_cr_el model_cr_prop">
-                        <label *ngIf="this.class_scheme['fields'][key]['readonly']">READONLY</label>
-                        <label *ngIf="this.class_scheme['fields'][key]['required']">REQUIRED</label>
-                        <label *ngIf="this.class_scheme['fields'][key]['unique']">UNIQUE</label>
-                    </div>
-                    <div class="model_cr_el model_cr_desc">
-                        {{this.class_scheme['fields'][key]['description']}}
-                    </div>
-                </div>
-            </div>
+                </mat-grid-tile>
+            </mat-grid-list>
         </div>
         <br>
     </div>
@@ -48,6 +54,9 @@
         <mat-grid-list [cols]="4" rowHeight="4.5em" class="max-width button-pkg-container">
             <mat-grid-tile>
                 <button mat-button class="package-info-button" (click)="fieldOnClick()"><mat-icon>text_format</mat-icon><label>Fields</label></button>
+            </mat-grid-tile>
+            <mat-grid-tile>
+                <button mat-button class="package-info-button" (click)="viewOnClick()"><mat-icon>view_quilt</mat-icon><label>Views</label></button>
             </mat-grid-tile>
             <mat-grid-tile>
                 <button mat-button class="package-info-button" ><mat-icon>call_split</mat-icon><label>Workflows</label></button>

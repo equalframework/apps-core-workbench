@@ -27,12 +27,8 @@ import { ConstantsComponent } from './_components/router-property/_components/co
 import { AccessComponent } from './_components/router-property/_components/access/access.component';
 import { ArrayComponent } from './_components/router-property/_components/params/_components/array/array.component';
 import { BooleanComponent } from './_components/router-property/_components/params/_components/boolean/boolean.component';
-import { DomainComponent } from './_components/router-property/_components/params/_components/domain/domain.component';
 import { StringComponent } from './_components/router-property/_components/params/_components/string/string.component';
 import { NumberComponent } from './_components/router-property/_components/params/_components/number/number.component';
-import { AutoCompleteComponent } from './_components/router-property/_components/params/_components/domain/_components/auto-complete/auto-complete.component';
-import { ValueComponent } from './_components/router-property/_components/params/_components/domain/_components/value/value.component';
-import { ValueSelectionComponent } from './_components/router-property/_components/params/_components/domain/_components/value-selection/value-selection.component';
 import { ResponseComponentSubmit } from './_components/router-property/_components/params/_components/response/response.component'
 import { ControllerInfoComponent } from './_components/controller-info/controller-info.component';
 import { ControllerInfoModule } from './_components/controller-info/controller-info.module';

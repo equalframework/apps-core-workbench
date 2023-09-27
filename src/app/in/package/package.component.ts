@@ -6,13 +6,14 @@ import { prettyPrintJson } from 'pretty-print-json';
 import { Router } from '@angular/router';
 import { AppInControllersModule } from '../controllers/controllers.module';
 import { eq } from 'lodash';
+import { RouterMemory } from 'src/app/_services/routermemory.service';
 
 
 @Component({
   selector: 'app-package',
   templateUrl: './package.component.html',
   styleUrls: ['./package.component.scss'],
-  encapsulation: ViewEncapsulation.None
+  encapsulation : ViewEncapsulation.Emulated,
 })
 export class PackageComponent implements OnInit {
 
@@ -27,30 +28,54 @@ export class PackageComponent implements OnInit {
     public package_consistency:any
     public schema:any
     public selected_type_controller:string = ''
+    public fetch_error:boolean = false
+    public isloading:boolean = true
+    public routelist:any = {}
 
     constructor(
         private context: ContextService,
         private api: WorkbenchService,
         private snackBar: MatSnackBar,
-        private router:Router
+        private router:RouterMemory
     ) { }
 
     public async ngOnInit() {
+        let args = this.router.retrieveArgs()
+        if(args && args['selected']){
+            this.onclickPackageSelect(args['selected'])
+        }
         let classes = await this.api.getClasses();
-        (await this.api.getPackages()).forEach(async pack => {
-            this.elements.push({name:pack,type:"package"})
-            classes[pack].forEach(classe => {
-                this.elements.push({package:pack ,name:classe,type:"class"})
-            });
-            let x = (await this.api.getControllers(pack));
-            x.data.forEach(cont => {
-                this.elements.push({package:pack,name:cont,type:"get"})
-            });
-            x.actions.forEach(cont => {
-                this.elements.push({package:pack,name:cont,type:"do"})
-            });
-        });
-        console.log(this.elements)
+        this.api.getPackages().then((packarr) => {
+            packarr.forEach(pack => {
+                this.elements.push({name:pack,type:"package"})
+                classes[pack].forEach(classe => {
+                    this.elements.push({package:pack ,name:classe,type:"class"})
+                });
+                this.api.getControllers(pack).then((x) => {
+                    x.data.forEach(cont => {
+                        this.elements.push({package:pack,name:cont,type:"get"})
+                    });
+                    x.actions.forEach(cont => {
+                        this.elements.push({package:pack,name:cont,type:"do"})
+                    });
+                    this.api.getViewByPackage(pack).then((y) => {
+                        y.forEach(view =>{
+                            this.elements.push({name:view,type:"view"})
+                        })
+                        this.elements.sort((a,b) => 
+                            (a.type === "class" ? a.package+a.name : a.name).replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase() < (b.type === "class" ? b.package+b.name : b.name).replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase() ? -1 : 1 
+                        )
+                        this.isloading = false
+                    })
+                })  
+            })
+            this.api.getRoutes().then((d) => {
+                this.routelist = d
+                for(let name in this.routelist){
+                    this.elements.push({name: name, type: "route"})
+                }
+            })
+        })
     }
 
     /**
@@ -70,29 +95,32 @@ export class PackageComponent implements OnInit {
         if(eq_element.type === "do" || eq_element.type === "get") {
                 let response
                 if(eq_element.package)
-                    response = await this.api.getAnnounceController(eq_element.type, eq_element.package, eq_element.name);
+                    response = await this.api.getAnnounceController(eq_element.type, eq_element.name);
                 if (!response) {
+                    this.fetch_error = true
                     this.snackBar.open('Not allowed', 'Close', {
                         duration: 1500,
                         horizontalPosition: 'left',
                         verticalPosition: 'bottom'
                     });
                 } else {
-                    this.selected_element = eq_element;
+                    this.fetch_error = false
                     this.schema = response.announcement;
-                    console.log(this.schema)
                 }
-                return
         }
         this.selected_element = eq_element;
     }
 
     public onClickModels() {
-        this.router.navigate(['/models', this.selected_element.name]);
+        this.router.navigate(['/models', this.selected_element.name],{"selected":this.selected_element});
     }
 
     public onClickControllers() {
-        this.router.navigate(['/controllers', this.selected_element.name]);
+        this.router.navigate(['/controllers', this.selected_element.name],{"selected":this.selected_element});
+    }
+
+    public onClickView() {
+        this.router.navigate(['/views', "package", this.selected_element.name],{"selected":this.selected_element});
     }
     
     /**
@@ -149,8 +177,20 @@ export class PackageComponent implements OnInit {
 
     public onChangeStepModel(event:number) {
         if(event===2) {
-            this.router.navigate(['/fields',this.selected_element.package ? this.selected_element.package : "",this.selected_element.name])
+            this.router.navigate(['/fields',this.selected_element.package ? this.selected_element.package : "",this.selected_element.name],{"selected":this.selected_element})
         }
+        if(event===3 && this.selected_element.package) {
+            this.router.navigate(['/views',"entity",this.selected_element.package+'\\'+this.selected_element.name],{"selected":this.selected_element})
+        }
+    }
+
+    goTo(ev:string) {
+        let el = this.elements.filter(el => el.name === ev)[0]
+        this.onclickPackageSelect(el)
+    }
+
+    onViewEditClick() {
+        this.router.navigate(['/views_edit',this.selected_element.name],{"selected":this.selected_element})
     }
 }
 

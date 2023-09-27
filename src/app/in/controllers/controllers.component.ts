@@ -3,6 +3,7 @@ import { ControllersService } from './_service/controllers.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { prettyPrintJson } from 'pretty-print-json';
 import { ActivatedRoute, Router } from '@angular/router';
+import { RouterMemory } from 'src/app/_services/routermemory.service';
 
 @Component({
     selector: 'app-controllers',
@@ -21,6 +22,7 @@ export class ControllersComponent implements OnInit {
     public schema: any;
     public controller_access_restrained: boolean;
     public selected_desc = '';
+    public fetch_error = false
 
     public step = 1;
 
@@ -28,7 +30,7 @@ export class ControllersComponent implements OnInit {
         private api: ControllersService,
         private snackBar: MatSnackBar,
         private activateRoute: ActivatedRoute,
-        private route:Router
+        private route:RouterMemory
     ) { }
 
     public async ngOnInit() {
@@ -48,20 +50,22 @@ export class ControllersComponent implements OnInit {
      */
     public async onclickControllerSelect(event: { type: string, name: string }) {
         this.selected_type_controller = event.type;
-        let response = await this.api.getAnnounceController(event.type, this.selected_package, event.name);
+        let response = await this.api.getAnnounceController(event.type, event.name);
         this.controller_access_restrained = !response
         if (!response) {
+            this.fetch_error = true
             this.snackBar.open('Not allowed', 'Close', {
                 duration: 1500,
                 horizontalPosition: 'left',
                 verticalPosition: 'bottom'
             });
         } else {
-            this.selected_controller = event.name;
+            this.fetch_error = false
             this.selected_property = 'description'
             this.schema = response.announcement;
             console.log(this.schema)
         }
+        this.selected_controller = event.name;
     }
 
     public changeStep(event:number) {
@@ -135,7 +139,7 @@ export class ControllersComponent implements OnInit {
 
     public getBack() {
         if(this.step === 1) {
-            this.route.navigate([".."])
+            this.route.goBack()
         }
         this.step --;
     }

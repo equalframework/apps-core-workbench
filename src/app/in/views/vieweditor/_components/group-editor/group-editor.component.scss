@@ -1,0 +1,174 @@
+@import "/src/theme.scss";
+
+.parent {
+    border: solid black 1px;
+}
+
+.boundary {
+    display: inline-block;
+    width: 48%;
+    height: 3.5em;
+    margin-bottom: -1.25em;
+    background-color: transparent;
+}
+
+.boundary.left{
+    margin-right: -47.5%;
+}
+
+.boundary.right{
+    margin-left: -47.5%;
+}
+
+
+.flex {
+    display: flex;
+}
+
+.aspectratio {
+    aspect-ratio: 16/7;
+}
+
+.section-selector-container {
+    border-bottom: solid black 1px;
+    width: 100%;
+    overflow-x: scroll;
+    overflow-y: hidden;
+}
+
+.section-selector {
+    display:inline-block;
+    justify-content: left;
+    width: auto;
+    align-items: center;
+    //min-width: 10em;
+    height: 2em;
+    border-right: solid black 1px ;
+    cursor: pointer;
+    white-space: nowrap;
+
+    label {
+        display: inline-block;
+        width: auto;
+        margin-left: .5em;
+        margin-right: 1em;
+    }
+
+    .grabable {
+        transform: translateY(.2em);
+    }
+}
+
+.section-selector.selected {
+    background-color: mat-color($maincolor,A100);
+}
+
+
+
+.section-add-btn {
+    height: 2em;
+    border-right: solid black 1px;
+}
+
+.section-editor button {
+    color : mat-color($maincolor);
+}
+
+
+.section-add-btn button {
+    transform: translateY(-.4em);
+    color: mat-color($maincolor);
+}
+
+.item-visualiser {
+    border : solid 1px black;
+    display: inline-block;
+    margin: 1em 0em;
+    height: 2.5em;
+    width: calc(100% - 1em);
+
+    .grabable {
+        transform: translateY(.25em);
+    }
+}
+
+.item-visualiser .valuedisp {
+    width: calc(100% - 5.5em);
+    display : inline-block
+}
+
+.button-holder {
+    display: inline-block;
+    width: 4em;
+    background-color: white;
+    height: 2.3em;
+
+    button {
+        color: mat-color($maincolor);
+        width: 2em;
+        height: 2em;
+        transform: translateY(.25em);
+    }
+    
+    .btn-icon {
+        transform: scale(.8) translateY(-.25em);
+        margin: 0;
+    }
+}
+
+.row {
+    margin: .5em;
+    border : solid 2px mat-color($maincolor,100);
+}
+
+.column {
+    margin: .2em;
+    border : solid 2px mat-color($accentcolor,100);
+}
+
+.visible {
+    border-style: dashed !important;
+}
+
+.invisible {
+    border-style: dashed !important;
+}
+
+.invisibleicon {
+    transform: translate(.2em,.2em);
+}
+
+.category-title {
+    margin-left: 1em;
+}
+
+// DRAG PART
+
+.cdk-drag-preview {
+    box-sizing: border-box;
+    border-radius: 4px;
+    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+                0 8px 10px 1px rgba(0, 0, 0, 0.14),
+                0 3px 14px 2px rgba(0, 0, 0, 0.12);
+    background-color: white;
+}
+
+.cdk-drag-placeholder {
+opacity: 0;
+}
+
+.cdk-drag-animating {
+transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.example-list.cdk-drop-list-dragging .example-box:not(.cdk-drag-placeholder) {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.grabable {
+    cursor: grab;
+}
+
+.track {
+    opacity: 10%;
+}

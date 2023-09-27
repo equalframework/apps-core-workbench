@@ -1,0 +1,59 @@
+@import "src/theme.scss";
+@import "./_components/group-editor/_components/edit-item-form/edit-item-form.component.scss";
+
+:host {
+    overflow-y: scroll;
+}
+
+.title-container {
+    margin-top: 1em;
+    margin-bottom: 1em;
+    margin-left: 1em;
+}
+
+.title-container .title-btn {
+    transform: translateY(-.2em);
+    margin-right: 1em;
+}
+
+.title-container .endlabel {
+    margin-right: 1em;
+}
+
+.feature-container {
+    border: #e0e0e0 solid 2px;
+    padding: 2em;
+    border-radius: 1em;
+}
+
+.page-title {
+    font-size: 1.5em;
+}
+
+.category-title {
+    font-size: 1.3em;
+}
+
+.maincolor {
+    color : mat-color($maincolor)
+}
+
+.accentcolor {
+    color : mat-color($accentcolor)
+}
+
+.flex {
+    display: flex;
+}
+
+.indent {
+    margin-left: 2em;
+}
+
+.textarealong {
+    width: 70em !important;
+}
+
+.addItem {
+    transform: scale(.7);
+}
