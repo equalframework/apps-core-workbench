@@ -66,11 +66,11 @@
                                 </app-array>
                             </ng-container>
                             <ng-container *ngIf="value.key == 'domain'">
-                                <app-domain
+                                <app-property-domain-component
                                     [value]="getParamsValue(value.key)"
                                     [class]="getEntity()"
                                     (valueChange)="updateParamsValue($event, value.key)">
-                                </app-domain>
+                                </app-property-domain-component>
                             </ng-container>
                         </div>
                         <br>

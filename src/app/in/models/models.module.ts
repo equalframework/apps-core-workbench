@@ -17,6 +17,7 @@ import { SharedLibModule, CustomDateAdapter } from 'sb-shared-lib';
 import { ModelsComponent } from './models.component';
 import { ModelsRoutingModule } from './models-routing.module';
 import { ModelsInfoModule } from './_components/model-info/models-info.module';
+import { PropertyDomainModule } from '../property-domain-component/property-domain.module';
 
 @NgModule({
     imports: [
@@ -28,7 +29,8 @@ import { ModelsInfoModule } from './_components/model-info/models-info.module';
         MatFormFieldModule,
         MatInputModule,
         ModelsRoutingModule,
-        ModelsInfoModule
+        ModelsInfoModule,
+        PropertyDomainModule,
     ],
     declarations: [
         ModelsComponent,

@@ -62,7 +62,7 @@ class GroupEditorComponent implements OnInit,OnChanges {
   }
 
   editRow(row:ViewRow) {
-    this.matDialog.open(EditRowComponent,{data:row})
+    this.matDialog.open(EditRowComponent,{data:{row:row,entity:this.entity}})
 
   }
 
@@ -75,7 +75,7 @@ class GroupEditorComponent implements OnInit,OnChanges {
   }
 
   editColumn(col:ViewColumn) {
-    this.matDialog.open(EditColComponent,{data:col})
+    this.matDialog.open(EditColComponent,{data:{col:col,entity:this.entity}})
   }
 
   addItem(col:ViewColumn) {

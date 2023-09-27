@@ -17,13 +17,10 @@ import { ConstantsComponent } from '../router-property/_components/constants/con
 import { AccessComponent } from '../router-property/_components/access/access.component';
 import { ArrayComponent } from '../router-property/_components/params/_components/array/array.component';
 import { BooleanComponent } from '../router-property/_components/params/_components/boolean/boolean.component';
-import { DomainComponent } from '../router-property/_components/params/_components/domain/domain.component';
 import { StringComponent } from '../router-property/_components/params/_components/string/string.component';
 import { NumberComponent } from '../router-property/_components/params/_components/number/number.component';
-import { AutoCompleteComponent } from '../router-property/_components/params/_components/domain/_components/auto-complete/auto-complete.component';
-import { ValueComponent } from '../router-property/_components/params/_components/domain/_components/value/value.component';
-import { ValueSelectionComponent } from '../router-property/_components/params/_components/domain/_components/value-selection/value-selection.component';
 import { ResponseComponentSubmit } from '../router-property/_components/params/_components/response/response.component';
+import { PropertyDomainModule } from 'src/app/in/property-domain-component/property-domain.module';
 
 @NgModule({
     imports: [
@@ -34,7 +31,7 @@ import { ResponseComponentSubmit } from '../router-property/_components/params/_
         FormsModule,
         MatFormFieldModule,
         MatInputModule,
-        
+        PropertyDomainModule,
     ],
     declarations: [
         ControllerInfoComponent,
@@ -46,12 +43,8 @@ import { ResponseComponentSubmit } from '../router-property/_components/params/_
         AccessComponent,
         ArrayComponent,
         BooleanComponent,
-        DomainComponent,
         StringComponent,
         NumberComponent,
-        AutoCompleteComponent,
-        ValueComponent,
-        ValueSelectionComponent,
         ResponseComponentSubmit,
     ],
     exports: [
@@ -64,7 +57,6 @@ import { ResponseComponentSubmit } from '../router-property/_components/params/_
         AccessComponent,
         ArrayComponent,
         BooleanComponent,
-        DomainComponent,
         StringComponent,
         NumberComponent,
     ]

@@ -2,6 +2,8 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ViewAction } from '../../_objects/View';
 import { Observable } from 'rxjs';
 import { ViewEditorServicesService } from '../../_services/view-editor-services.service';
+import { MatDialog } from '@angular/material/dialog';
+import { PopupParamsComponent } from './_components/popup-params/popup-params.component';
 
 @Component({
   selector: 'app-action-editor',
@@ -13,9 +15,11 @@ export class ActionEditorComponent implements OnInit {
   @Input() obj:ViewAction
   @Input() controllers:string[]
   @Input() groups:string[] = []
+  @Input() entity:string
 
   @Output() delete = new EventEmitter<void>()
   
+  big_disp = false
 
   input = ""
   
@@ -24,8 +28,9 @@ export class ActionEditorComponent implements OnInit {
 
   filteredGroups: string[]
 
-  constructor() { 
-  }
+  constructor(
+    private matdialog:MatDialog
+  ) {}
 
   ngOnInit(){
     this.filteredOptions = ['',...this.controllers]
@@ -36,9 +41,7 @@ export class ActionEditorComponent implements OnInit {
   }
 
   tap(new_value:string) {
-    this.obj.controller = new_value
     this.filteredOptions = ['',...this.controllers.filter((val) => (val.toLowerCase().includes(this.obj.controller)))]
-    this.filteredOptions.push('')
   }
 
   tap2(new_value:string) {
@@ -57,5 +60,15 @@ export class ActionEditorComponent implements OnInit {
   delete_element(group:string) {
     let index = this.obj.access['groups'].indexOf(group)
     this.obj.access['groups'].splice(index,1)
+  }
+
+  show_custom_params(){
+    this.matdialog.open(PopupParamsComponent,{data:this.obj})
+  }
+
+  changeBigDispBy(bool:boolean) {
+    if(bool){
+      this.big_disp = true
+    }
   }
 }

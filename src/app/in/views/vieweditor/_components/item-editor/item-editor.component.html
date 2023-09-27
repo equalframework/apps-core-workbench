@@ -45,16 +45,10 @@
         </mat-form-field>
     </div>
     <div *ngIf="item.has_domain" class="widget">
-        <div>
-            Visible
-        </div>
-        <label>boolean</label>
-        <mat-slide-toggle
-            [checked]="item.is_visible_domain" 
-            (change)="item.is_visible_domain = $event.checked"
-        >
-        </mat-slide-toggle>
-        <label>domain</label>
+        <mat-radio-group [(ngModel)]="item.is_visible_domain">
+            <mat-radio-button [value]="false">boolean</mat-radio-button>
+            <mat-radio-button [value]="true">domain</mat-radio-button>
+        </mat-radio-group>
         <br>
         <div *ngIf="item.is_visible_domain">
             <app-property-domain-component

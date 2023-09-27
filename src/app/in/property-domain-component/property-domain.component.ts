@@ -1,13 +1,13 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { ControllersService } from 'src/app/in/controllers/_service/controllers.service';
+import { Component, OnInit, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
+import { WorkbenchService } from './_service/property-domain.service';
 
 @Component({
-    selector: 'app-domain',
-    templateUrl: './domain.component.html',
-    styleUrls: ['./domain.component.scss']
+    selector: 'app-property-domain-component',
+    templateUrl: './property-domain.component.html',
+    styleUrls: ['./property-domain.component.scss'],
+    encapsulation : ViewEncapsulation.Emulated
 })
-export class DomainComponent implements OnInit {
-
+export class PropertyDomainComponent implements OnInit {
     @Input() value: any;
     @Input() name: any;
     @Input() class: any;
@@ -16,7 +16,7 @@ export class DomainComponent implements OnInit {
     public fields: any;
     tempValue: any;
 
-    constructor(private api: ControllersService) {}
+    constructor(private api: WorkbenchService) {}
 
     async ngOnInit() {
         this.transformDomain();
@@ -25,8 +25,10 @@ export class DomainComponent implements OnInit {
     }
 
     async ngOnChanges() {
-        this.getSchema();
+        this.getSchema().then(() => console.log(this.fields));
         this.transformDomain();
+        console.log(this.tempValue)
+        
     }
 
     async getSchema() {
@@ -40,6 +42,9 @@ export class DomainComponent implements OnInit {
             if (this.tempValue.length == 0) {
                 this.tempValue = [this.tempValue];
             }
+            else if(nbdim(this.tempValue) === 2) {
+                this.tempValue = [this.tempValue];
+            }
             // 1 condition only : [ '{operand}', '{operator}', '{value}' ]
             else if (this.tempValue.length == 3 &&typeof this.tempValue[0] == 'string' &&typeof this.tempValue[1] == 'string') {
                 this.tempValue = [[this.tempValue]];
@@ -47,11 +52,21 @@ export class DomainComponent implements OnInit {
         }
     }
 
+    public getTypeFromField(value:string) {
+        if(this.fields.fields[value]){
+            if(this.fields.fields[value].type === "computed"){
+                console.log(this.fields.fields[value].result_type)
+                return this.fields.fields[value].result_type
+            }
+            return this.fields.fields[value].type 
+        }
+    }
+
     public updateOperand(event: any, i: any, j: any) {
         this.tempValue[i][j][0] = event;
         this.tempValue[i][j][1] = '';
         this.tempValue[i][j][2] = this.defaultTypeValue(
-        this.fields.fields[this.tempValue[i][j][0]].type);
+        this.getTypeFromField(this.tempValue[i][j][0]).type);
     }
 
     public selectOperator(value: any, i: any, j: any) {
@@ -59,7 +74,7 @@ export class DomainComponent implements OnInit {
         if (value == 'in' || value == 'not in' ||!Array.isArray(this.tempValue[i][j][2])) {
             this.tempValue[i][j][2] = [];
         } else {
-            this.tempValue[i][j][2] = this.defaultTypeValue(this.fields.fields[this.tempValue[i][j][0]].type);
+            this.tempValue[i][j][2] = this.defaultTypeValue(this.getTypeFromField(this.tempValue[i][j][0]).type);
         }
     }
 
@@ -120,5 +135,19 @@ export class DomainComponent implements OnInit {
             return '';
         }
     }
+}
 
+
+
+function nbdim(arr:any[],i:number=0):number {
+    if(Array.isArray(arr)){
+        try{
+            let res = nbdim(arr[0],i+1)
+            return res
+        }
+        catch {
+            return i+1
+        }
+    }
+    return i
 }

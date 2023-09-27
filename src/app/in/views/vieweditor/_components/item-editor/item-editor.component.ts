@@ -13,7 +13,6 @@ export class ItemEditorComponent implements OnInit {
   @Input() fields:string[]
   @Input() types:string[]
 
-
   constructor() { }
 
   ngOnInit(): void {

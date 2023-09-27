@@ -1,10 +1,14 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { FormControl } from '@angular/forms';
 
+export const _filter = (opt: string[], value: string): string[] => {
+    const filterValue = value.toLowerCase();
+    return opt.filter(item => item.toLowerCase().includes(filterValue));
+};
 @Component({
-  selector: 'app-value-selection',
-  templateUrl: './value-selection.component.html',
-  styleUrls: ['./value-selection.component.scss']
+    selector: 'app-value-selection',
+    templateUrl: './value-selection.component.html',
+    styleUrls: ['./value-selection.component.scss']
 })
 export class ValueSelectionComponent implements OnInit {
 
@@ -24,6 +28,7 @@ export class ValueSelectionComponent implements OnInit {
     }
 
     ngOnChanges() {
+        console.log(this.fields.fields['operand'])
         this.myControl.setValue(this.value[0]);
     }
 
@@ -40,5 +45,4 @@ export class ValueSelectionComponent implements OnInit {
         console.log(event.value);
         this.changeValue.emit(event.value);
     }
-
 }

@@ -118,12 +118,24 @@
 
 .row {
     margin: .5em;
-    border : solid 1px mat-color($maincolor,100);
+    border : solid 2px mat-color($maincolor,100);
 }
 
 .column {
     margin: .2em;
-    border : solid 1px mat-color($accentcolor,100);
+    border : solid 2px mat-color($accentcolor,100);
+}
+
+.visible {
+    border-style: dashed !important;
+}
+
+.invisible {
+    border-style: dashed !important;
+}
+
+.invisibleicon {
+    transform: translate(.2em,.2em);
 }
 
 .category-title {

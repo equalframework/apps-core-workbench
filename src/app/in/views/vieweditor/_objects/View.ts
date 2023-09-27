@@ -80,7 +80,7 @@ class View extends ViewElement {
         } else this.header = new ViewHeader({}, this.type)
         if (scheme['actions']) {
             this._has_actions = true
-            scheme['actions'].forEach((action: any) => this.actions.push(new ViewAction(action)))
+            scheme['actions'].forEach((action: any) => this.actions.push(new ViewAction(action, true)))
             delete scheme['actions']
         }
         this.leftover = scheme
@@ -293,7 +293,7 @@ class ViewSection extends ViewElement {
         if (this._has_domain) result['visible'] = this.visible.dom
         result['rows'] = []
         this.rows.forEach(row => result['rows'].push(row.export()))
-        
+
         return result
     }
 
@@ -314,6 +314,9 @@ class ViewRow extends ViewElement {
     public id: string = ""
     public label: string = ""
     public columns: ViewColumn[] = []
+    public visible: ViewDomain = new ViewDomain()
+
+    public _has_domain: boolean = false
 
     constructor(scheme: any = {}) {
         super()
@@ -331,6 +334,11 @@ class ViewRow extends ViewElement {
         if (scheme['label']) {
             this.label = scheme['label']
             delete scheme['label']
+        }
+        if (scheme['visible']) {
+            this.visible = new ViewDomain(scheme['visible'])
+            this._has_domain = true
+            delete scheme['visible']
         }
         if (this.id === "") this.id = "row." + (ViewRow.num++)
         this.leftover = scheme
@@ -350,6 +358,7 @@ class ViewRow extends ViewElement {
         let result = super.export()
         result['id'] = this.id
         if (this.label !== "") result['label'] = this.label
+        if (this._has_domain) result['visible'] = this.visible.dom
         result['columns'] = []
         this.columns.forEach(column => result['columns'].push(column.export()))
         return result
@@ -373,6 +382,9 @@ class ViewColumn extends ViewElement {
     public id: string = ""
     public width: number = 100
     public items: ViewItem[] = []
+    public visible: ViewDomain = new ViewDomain()
+
+    public _has_domain: boolean = false
 
     constructor(scheme: any = {}) {
         super()
@@ -394,6 +406,11 @@ class ViewColumn extends ViewElement {
             this.label = scheme['label']
             delete scheme['label']
         }
+        if (scheme['visible']) {
+            this.visible = new ViewDomain(scheme['visible'])
+            this._has_domain = true
+            delete scheme['visible']
+        }
         if (this.id === "") this.id = "column." + (ViewColumn.num++)
         this.leftover = scheme
     }
@@ -405,6 +422,7 @@ class ViewColumn extends ViewElement {
         let result = super.export()
         result['id'] = this.id
         if (this.label !== "") result['label'] = this.label
+        if (this._has_domain) result['visible'] = this.visible.dom
         result['width'] = this.width + '%'
         result['items'] = []
         this.items.forEach(item => result['items'].push(item.export()))
@@ -555,9 +573,7 @@ class ViewDomain {
     public dom: any = []
 
     constructor(scheme: any = []) {
-        console.log(scheme)
-        if (scheme)
-            this.dom = cloneDeep(scheme)
+        this.dom = cloneDeep(scheme)
     }
 }
 
@@ -667,11 +683,9 @@ class ViewHeader extends ViewElement {
         }
         if (scheme['selection']) {
             if (scheme['selection']['default'] !== undefined) {
-                console.log(scheme['selection']['default'])
                 this.selection_default = scheme['selection']['default']
             }
             if (scheme['selection']['actions']) {
-                console.log(scheme['selection']['actions'])
                 this._has_selection_actions = true
                 scheme['selection']['actions'].forEach((action: any) => this.selection_actions.push(new ViewAction(action)))
             }
@@ -740,8 +754,13 @@ class ViewAction extends ViewElement {
     label: string = ""
     params: any = {}
     access = { "groups": ["users"] }
+    visible = new ViewDomain()
+
+
     confirm: boolean = false
 
+    _domainable = false
+    _has_domain = false
     _has_access = false
     _has_params = false
 
@@ -761,7 +780,7 @@ class ViewAction extends ViewElement {
         return false
     }
 
-    constructor(scheme: any = {}) {
+    constructor(scheme: any = {}, domainable = false) {
         super()
         if (scheme['controller']) {
             this.controller = scheme['controller']
@@ -797,6 +816,14 @@ class ViewAction extends ViewElement {
             this.confirm = scheme['confirm']
             delete scheme['confirm']
         }
+        if (domainable) {
+            this._domainable = true
+            if (scheme['visible']) {
+                this.visible = new ViewDomain(scheme['visible'])
+                this._has_domain = true
+                delete scheme['visible']
+            }
+        }
         this.leftover = scheme
     }
 
@@ -811,8 +838,9 @@ class ViewAction extends ViewElement {
         result["icon"] = this.icon
         result["description"] = this.description
         result["label"] = this.label
+        if (this._domainable && this._has_domain) result['visible'] = this.visible.dom
         if (this._has_params) result["params"] = this.params
-        if (this.confirm) result['confirm'] = true
+        result['confirm'] = this.confirm
         return result
     }
 
@@ -830,7 +858,7 @@ class ViewAction extends ViewElement {
 class ViewClause {
     public arr: string[] = []
 
-    constructor(scheme: any = {}) {
+    constructor(scheme: any = []) {
         this.arr = cloneDeep(scheme)
     }
 }
@@ -851,3 +879,4 @@ export {
     ViewHeader,
     ViewAction
 }
+

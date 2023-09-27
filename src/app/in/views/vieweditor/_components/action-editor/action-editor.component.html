@@ -1,5 +1,12 @@
 <div class="holder">
-    <mat-form-field class="longfield">
+    <app-toggling-button
+        [on_icon]="'expand_less'"
+        [off_icon]="'expand_more'"
+        [baseState]="big_disp"
+        (toggle)="big_disp = $event"
+        [disabled]="false"
+    ></app-toggling-button>
+    <mat-form-field>
         <input matInput placeholder="id" [value]="obj.id" (change)="obj.id = $event.target.value">
     </mat-form-field>
     <mat-form-field>
@@ -15,7 +22,9 @@
         </a>
     </mat-form-field>
     <mat-form-field class="longfield">
-        <input [disabled]="obj.is_predifined" matInput placeholder="controller" [value]="obj.controller" (keyup)="tap($event.target.value)"
+        <input [disabled]="obj.is_predifined" matInput placeholder="controller" 
+        [(ngModel)]="obj.controller" 
+        (keyup)="tap($event.target.value)" 
         [matAutocomplete]="auto">
         <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
             <mat-option *ngFor="let option of filteredOptions" [value]="option">
@@ -26,24 +35,41 @@
     <mat-form-field class="longfield">
         <input [disabled]="obj.is_predifined" matInput placeholder="description" [value]="obj.description" (keyup)="obj.description = $event.target.value">
     </mat-form-field>
-    <mat-checkbox [(ngModel)]="obj.confirm">confirm</mat-checkbox>
-    <mat-checkbox [(ngModel)]="obj._has_access">restrict access</mat-checkbox>
+
+    <mat-checkbox [disabled]="obj.is_predifined" [(ngModel)]="obj.confirm">confirm</mat-checkbox>
+    <mat-checkbox [(ngModel)]="obj._has_access" (ngModelChange)="changeBigDispBy(obj._has_access)">restrict access</mat-checkbox>
+    <mat-checkbox *ngIf="obj._domainable" [(ngModel)]="obj._has_domain">visibility</mat-checkbox>
+    
+    <button mat-button [disabled]="obj.is_predifined" (click)="show_custom_params()"><mat-icon>settings</mat-icon>params</button>
+
     <button mat-icon-button (click)="deleteme()"><mat-icon>delete</mat-icon></button>
-    <div *ngIf="obj._has_access">
-        <mat-form-field >
-            <input [value]="input" (keyup.enter)="addgroup()" (keyup)="tap2($event.target.value)"  matInput placeholder="groups" [matAutocomplete]="auto2">
-            <button matSuffix mat-icon-button (click)="addgroup()"><mat-icon class="grpsufix"  >add</mat-icon></button>
-            <mat-autocomplete autoActiveFirstOption #auto2="matAutocomplete">
-                <mat-option *ngFor="let option of filteredGroups" [value]="option">
-                    {{option}}
-                </mat-option>
-            </mat-autocomplete>
-        </mat-form-field>
-        <div class="inline group-item-holder">
-            <div class="inline group-item" *ngFor="let item of obj.access['groups']">
-                {{item}}
-                <button mat-icon-button (click)="delete_element(item)"><mat-icon>close</mat-icon></button>
+
+    <!-- CONDITIONAL DISP PART --->
+    <div *ngIf="big_disp">
+        <div *ngIf="obj._has_access">
+            <mat-form-field >
+                <input [value]="input" (keyup.enter)="addgroup()" (keyup)="tap2($event.target.value)"  matInput placeholder="groups" [matAutocomplete]="auto2">
+                <button matSuffix mat-icon-button (click)="addgroup()"><mat-icon class="grpsufix"  >add</mat-icon></button>
+                <mat-autocomplete autoActiveFirstOption #auto2="matAutocomplete">
+                    <mat-option *ngFor="let option of filteredGroups" [value]="option">
+                        {{option}}
+                    </mat-option>
+                </mat-autocomplete>
+            </mat-form-field>
+            <div class="inline group-item-holder">
+                <div class="inline group-item" *ngFor="let item of obj.access['groups']">
+                    <label>{{item}}</label>
+                    <button mat-icon-button (click)="delete_element(item)"><mat-icon>close</mat-icon></button>
+                </div>
             </div>
+        </div>
+        <div *ngIf="obj._has_domain">
+            <app-property-domain-component
+                [value]="obj.visible.dom"
+                [name]="'oui'"
+                [class]="entity"
+                (valueChange)="obj.visible.dom = $event"
+            ></app-property-domain-component>
         </div>
     </div>
 </div>

@@ -11,12 +11,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FieldRoutingModule } from './field-routing.module';
 import { FieldContentComponent } from '../_components/field-content/field-content.component';
-import { ModelInfoComponent } from '../_components/model-info/model-info.component';
 import { UsageComponent } from '../_components/field-content/_components/usage/usage.component';
-import { ValueSelectionComponent } from '../_components/field-content/_components/_components/property-domain-component/_components/value-selection/value-selection.component';
-import { ValueComponent } from '../_components/field-content/_components/_components/property-domain-component/_components/value/value.component';
-import { AutoCompleteComponent } from '../_components/field-content/_components/_components/property-domain-component/_components/auto-complete/auto-complete.component';
-import { PropertyDomainComponent } from '../_components/field-content/_components/_components/property-domain-component/property-domain.component';
 import { AdvanceComponentComponent } from '../_components/field-content/_components/advance-component/advance-component.component';
 import { PropertyArrayComponentComponent } from '../_components/field-content/_components/_components/property-array-component/property-array-component.component';
 import { PropertyIntegerComponentComponent } from '../_components/field-content/_components/_components/property-integer-component/property-integer-component.component';
@@ -25,6 +20,7 @@ import { PropertySelectClassComponentComponent } from '../_components/field-cont
 import { PropertyStringComponentComponent } from '../_components/field-content/_components/_components/property-string-component/property-string-component.component';
 import { PropertyBooleanComponentComponent } from '../_components/field-content/_components/_components/property-boolean-component/property-boolean-component.component';
 import { RouterPropertyComponent } from '../_components/field-content/_components/router-property/router-property.component';
+import { PropertyDomainModule } from '../../property-domain-component/property-domain.module';
 
 
 
@@ -41,10 +37,6 @@ import { RouterPropertyComponent } from '../_components/field-content/_component
     PropertyIntegerComponentComponent,
     PropertyArrayComponentComponent,
     AdvanceComponentComponent,
-    PropertyDomainComponent,
-    AutoCompleteComponent,
-    ValueComponent,
-    ValueSelectionComponent,
     UsageComponent,
   ],
   imports: [
@@ -56,8 +48,8 @@ import { RouterPropertyComponent } from '../_components/field-content/_component
     FormsModule,
     MatFormFieldModule,
     MatInputModule,
-    FieldRoutingModule
-    
+    FieldRoutingModule,
+    PropertyDomainModule,
   ]
 })
 export class FieldModule { }

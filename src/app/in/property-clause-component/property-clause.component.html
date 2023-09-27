@@ -1,0 +1,74 @@
+
+<ul class="wtree">
+    <ng-container *ngIf="fields">
+        <!-- Remove Clause -->
+        <div class="clause-container">
+            <div>Clause</div>
+        </div>
+        <ul>
+            <li *ngFor="let condition of tempValue; index as j" class="condition">
+                <form style="display: flex; align-items: baseline;" class="leaf">
+                    <!-- Operand -->
+                    <app-auto-complete class="operand"
+                        [label]="'Operand'"
+                        [options]="fields?.fields"
+                        [value]="tempValue[j][0]"
+                        (updateValue)="updateOperand($event, j)">
+                    </app-auto-complete>
+                    <!-- Operator -->
+                    <mat-form-field *ngIf="tempValue[j][0] != ''" appearance="fill" class="operator">
+                        <mat-label>Operator</mat-label>
+                        <mat-select [value]="tempValue[j][1]" (selectionChange)="selectOperator($event.value, j)"
+                            [disabled]="tempValue[j][0] == ''">
+                            <mat-option *ngFor="let operator of validOperators?.[getTypeFromField(tempValue[j][0])]"
+                                [value]="operator">
+                                {{operator}}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <!-- Value -->
+                    <!-- If there is a selection for the field of the operand -->
+                    <ng-container *ngIf="fields && fields.fields[tempValue[j][0]]?.selection != undefined">
+                        <app-value-selection class="value"
+                            [operand]="tempValue[j][0]"
+                            [type]="getTypeFromField(tempValue[j][0])"
+                            [operator]="tempValue[j][1]"
+                            [value]="tempValue[j][2]" 
+                            [fields]="fields"
+                            (changeValue)="changeValue($event, j)">
+                        </app-value-selection>
+                    </ng-container>
+                    <!-- If there is not a selection for the field of the operand -->
+                    <ng-container *ngIf="fields && !fields.fields[tempValue[j][0]]?.selection">
+                        <app-value class="value"
+                            [type]="getTypeFromField(tempValue[j][0])"
+                            [operator]="tempValue[j][1]"
+                            [value]="tempValue[j][2]"
+                            (changeValue)="changeValue($event, j)">
+                        </app-value>
+                    </ng-container>
+                    <!-- Delete Condition -->
+                    <div class="delete-condition">
+                        <mat-icon class="pointable delete-condition-icon" (click)="removeCondition(j)">
+                            delete
+                        </mat-icon>
+                    </div>
+                </form>
+            </li>
+            <li>
+            <!-- Add Condition -->
+            <button mat-button aria-label="Condition" (click)="addCondition()">
+                Add Condition
+            </button>
+            </li>
+        </ul>
+        <li>
+        </li>
+    </ng-container>
+</ul>
+
+<ng-container *ngIf="!fields">
+        <p *ngIf="class">Invalid entity</p>
+        <p *ngIf="!class">No entity selected</p>
+</ng-container>
+

@@ -97,6 +97,7 @@
                     [acts]="view_obj.header.selection_actions"
                     [controllers]="action_controllers"
                     [groups]="groups"
+                    [entity]="entity"
                 ></app-actions-container>
             </div>
         </div>
@@ -110,7 +111,7 @@
     ></app-toggling-button>
     <label [style.opacity]="view_obj._has_filter ? 1 : 0.6" class="category-title maincolor">Filters </label>
     <mat-slide-toggle [(ngModel)]="view_obj._has_filter"></mat-slide-toggle>
-    <button *ngIf="filter_visible" mat-fab color="primary" class="addItem" (click)="addFilter()"><mat-icon>add</mat-icon></button>
+    <button *ngIf="filter_visible && view_obj._has_filter" mat-fab color="primary" class="addItem" (click)="addFilter()"><mat-icon>add</mat-icon></button>
     <br>
     <div *ngIf="filter_visible && view_obj._has_filter" class="indent">
         <div class="indent" *ngFor="let filter of view_obj.filters">
@@ -127,9 +128,12 @@
                             <input matInput placeholder="filter description" [value]="filter.description" (input)="filter.description = $event.target.value">
                         </mat-form-field>
                     </div>
-                    <div>
-                        CLAUSE
-                    </div>
+                    <app-clause-domain-component
+                        [value]="filter.clause.arr"
+                        [name]="'oui'"
+                        [class]="entity"
+                        (valueChange)="filter.clause.arr = $event"
+                    ></app-clause-domain-component>
                 </div>
                 <div class="delete-button-container">
                     <button mat-fab color="primary" (click)="deleteFilter(view_obj.filters.indexOf(filter))"><mat-icon>delete</mat-icon></button>
@@ -153,6 +157,8 @@
             [acts]="view_obj.actions"
             [controllers]="action_controllers"
             [groups]="groups"
+            [entity]="entity"
+            [domainables]="true"
         ></app-actions-container>
     </div>
     <app-toggling-button

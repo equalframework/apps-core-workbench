@@ -12,6 +12,8 @@ export class ActionsContainerComponent implements OnInit {
   @Input() acts:ViewAction[]
   @Input() controllers:string[]
   @Input() groups:string[]
+  @Input() entity:string
+  @Input() domainables:boolean = false
 
   del(action:ViewAction) {
     let index = this.acts.indexOf(action)
@@ -21,7 +23,7 @@ export class ActionsContainerComponent implements OnInit {
   }
 
   create() {
-    this.acts.push(new ViewAction())
+    this.acts.push(new ViewAction({},this.domainables))
   }
 
 

@@ -12,7 +12,7 @@ export class EditRowComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<GroupEditorComponent>,
-    @Optional() @Inject(MAT_DIALOG_DATA) public data:ViewRow
+    @Optional() @Inject(MAT_DIALOG_DATA) public data:{row:ViewRow,entity:string}
   ) { }
 
   ngOnInit(): void {

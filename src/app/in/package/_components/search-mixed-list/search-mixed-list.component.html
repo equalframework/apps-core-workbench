@@ -2,6 +2,7 @@
     <mat-form-field class="input search-bar">
         <mat-icon matPrefix class="icon">filter_list</mat-icon>
         <input matInput placeholder="Filter" [formControl]="inputcontrol" (keyup)="onSearch()">
+        <!--(keyup)="onSearch()"--->
         <button *ngIf="inputcontrol.value && inputcontrol.value !== ''" matSuffix mat-icon-button aria-label="Clear" (click)="clearSearch()">
             <mat-icon>close</mat-icon>
         </button>
@@ -18,13 +19,17 @@
 <div *ngIf="loading">
     LOADING
 </div>
-<mat-list *ngIf="!loading" class="list scrollable">
-    <mat-list-item *ngFor="let node of filteredData" class="">
-        <div class="node_container mixed-sel-{{node.type}}" [class.node-hover]="selected_node != node" [class.node-selected]="selected_node === node">
-            <div class="pointable node-text" (click)="onclickNodeSelect(node)">
-                <label class="type-info-mixed-sel type-mixed-sel-{{node.type}}"><mat-icon>{{type_dict[node.type].icon}}</mat-icon></label>
-                <label class="name-mixed-sel">{{node.type==='route'? current_root : ""}}{{ node.package ? (node.type === "do" || node.type === "get" ? "":node.package+"\\") : ""}}{{node.name}}</label>
+
+<mat-list *ngIf="!loading" class="list">
+    <cdk-virtual-scroll-viewport [itemSize]="48" class="virtual">
+        <mat-list-item *cdkVirtualFor="let node of filteredData" class="">
+            <div class="node_container mixed-sel-{{node.type}}" [class.node-hover]="selected_node != node" [class.node-selected]="selected_node === node">
+                <div class="pointable node-text" (click)="onclickNodeSelect(node)">
+                    <label class="type-info-mixed-sel type-mixed-sel-{{node.type}}"><mat-icon>{{type_dict[node.type].icon}}</mat-icon></label>
+                    <label class="name-mixed-sel">{{node.type==='route'? current_root : ""}}{{ node.package ? (node.type === "do" || node.type === "get" ? "":node.package+"\\") : ""}}{{node.name}}</label>
+                </div>
             </div>
-        </div>
-    </mat-list-item>
+        </mat-list-item>
+    </cdk-virtual-scroll-viewport>
 </mat-list>
+

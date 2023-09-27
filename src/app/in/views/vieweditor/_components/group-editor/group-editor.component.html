@@ -32,7 +32,7 @@
             (cdkDropListDropped)="drop_row($event)"
             cdkDropListGroup
         >
-            <div cdkDrag class="row" *ngFor="let row of selected.rows">
+            <div cdkDrag [class.visible]="row._has_domain" class="row" *ngFor="let row of selected.rows">
                 <mat-icon cdkDragHandle class="grabable">drag_indicator</mat-icon>
                 <label class="category-title">Row : {{row.label === "" ? "UNNAMED" : row.label}}</label>
                 <button mat-icon-button
@@ -57,7 +57,7 @@
                     [cdkDropListData]="row.columns"
                     (cdkDropListDropped)="drop_col($event)"
                 >
-                    <div cdkDrag class="column" *ngFor="let col of row.columns" [style.width.%]="(col.width/row.totalwidth)*100">
+                    <div cdkDrag [class.visible]="col._has_domain" class="column" *ngFor="let col of row.columns" [style.width.%]="(col.width/row.totalwidth)*100">
                         <mat-icon cdkDragHandle class="grabable">drag_indicator</mat-icon>
                         <label class="category-title">Column : {{col.label === "" ? "UNNAMED" : col.label}}</label>
                         <button mat-icon-button
@@ -79,7 +79,9 @@
                             <div *ngFor="let item of col.items" style="display: inline-block;" [style.width.%]=" item.width > 100/12 ? item.width : 100/12 ">
                                 <div *ngIf="!(dragged === item)" [appDragtracker]="{data_ref:col.items,ref:item,before:true,dragged:dragged,obj:selected}" class="boundary left"
                                 ></div>
-                                <div 
+                                <div
+                                    [class.visible]="item.has_domain && item.is_visible_domain"
+                                    [class.invisible]="item.has_domain && !item.is_visible_domain && !item.visible_bool"
                                     (dragstart)="updateDragged(item)"
                                     ondragend="sendStopDrag()"
                                     [class.track]="dragged === item"
@@ -87,7 +89,13 @@
                                     draggable="true"
                                 >
                                     <mat-icon class="grabable">drag_indicator</mat-icon>
-                                    <div class="valuedisp">{{item.value}}</div>
+                                    <div class="valuedisp">
+                                        {{item.value}}
+                                        <mat-icon class="invisibleicon"
+                                            *ngIf="item.has_domain && !item.is_visible_domain && !item.visible_bool"
+                                        >visibility_off</mat-icon>
+                                    </div>
+                                    
                                     <div class="button-holder">
                                         <button mat-icon-button
                                             (click)="editItem(item)"

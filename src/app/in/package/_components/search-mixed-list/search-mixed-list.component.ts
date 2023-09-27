@@ -111,6 +111,7 @@ export class SearchMixedListComponent implements OnInit {
                     || ("view" === this.search_scope && ( node.type === 'list' || node.type === 'form' ))
                 )
         );
+        console.log(this.filteredData)
     }
 
     /**
