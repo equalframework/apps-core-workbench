@@ -6,7 +6,6 @@ import { ControllersService } from '../../_service/controllers.service';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { ResponseComponentSubmit } from '../router-property/_components/params/_components/response/response.component';
-import { filter } from 'rxjs/operators';
 
 @Component({
     selector: 'app-controller-info',
@@ -15,6 +14,26 @@ import { filter } from 'rxjs/operators';
     encapsulation : ViewEncapsulation.Emulated
 })
 
+
+/**
+ * @description
+ * This component is used to display information about controllers on the right of a search list.
+ * 
+ * @Input current_controller name of the controller to display
+ * @Input controller_type type of the controller to display ('do' or 'get')
+ * @Input scheme : announcement of the controller to display
+ * @Input selected_package : package of current_controller
+ * @Input fetch_error : indicate if the announce has been successfully fetched or not
+ * @Input moving : indicate if navigation between type of element is posible (with goto)
+ * 
+ * @Output goto : return an identifier for displaying a new element (here : a route)
+ * 
+ * @attribute paramsValue : dict that hold value of params entered by the user
+ * @attribute presentRequiredParams : dict containing boolean indicating if a param is valid
+ * @attribute canSubmit : indicate if the user is able to sumbit the action
+ * @attibute routes : list of all defined route of the equal instance
+ * @attribute filtered_routes : list of all defined route of the equal instance that mention current_controller
+ */
 export class ControllerInfoComponent implements OnInit {
 
     @Input() current_controller: string;
@@ -22,7 +41,7 @@ export class ControllerInfoComponent implements OnInit {
     @Input() scheme: any;
     @Input() selected_package: string;
     @Input() fetch_error:boolean
-    @Input() moving:boolean = false;
+    @Input() moving:boolean = false
     @Output() goto = new EventEmitter<string>();
     public paramsValue: any;
     public presentRequiredParams: any;
@@ -46,6 +65,10 @@ export class ControllerInfoComponent implements OnInit {
         this.initialization()
     }
 
+    /**
+     * @description
+     * Init paramValue and presentRequiredParams dict, CanSubmit and retrieve routes 
+     */
     public initialization() {
         this.paramsValue = {};
         this.presentRequiredParams = {};
@@ -71,6 +94,12 @@ export class ControllerInfoComponent implements OnInit {
         this.updateCanSubmit()
     }
 
+    /**
+     * @description
+     * filter this.route by taking only routes that mention current_controller
+     * 
+     * @returns the filtered array
+     */
     public filterRoute():any {
         let res:{[id:string]:any} = {}
         let content:string
@@ -91,20 +120,35 @@ export class ControllerInfoComponent implements OnInit {
         return res
     }
 
+    /**
+     * @description
+     * Send to parent the name of the new element to display if this.moving is true
+     * 
+     * @param ev identifier of the element to display
+     */
     public sendTo(ev:string) {
         console.log(ev)
         if(this.moving) this.goto.emit(ev);
     }
 
+    /**
+     * @returns html code of the response header contained in this.scheme
+     */
     get requestString() {
         return prettyPrintJson.toHtml(this.scheme['response'])
     }
 
+    /**
+     * @return param list of the controller (contained in this.scheme)
+     */
     get params(): { type: string, description: string, required: boolean } {
         return this.scheme['params']
     }
 
-    get cliCommand() {
+    /**
+     * @returns the cli command associated to the controller and user input (user input => this.paramsValue)
+     */
+    get cliCommand():string {
         let controllerNameUnderscore = this.current_controller.replace('\\', '_');
         let stringParams = './equal.run --' + this.controller_type + "=" + controllerNameUnderscore;
         for (let key in this.paramsValue) {
@@ -123,6 +167,9 @@ export class ControllerInfoComponent implements OnInit {
         return stringParams
     }
 
+    /**
+     * @returns the access(public|protected|private) value (if exist) contained in this.scheme
+     */
     get AccessString(): string | undefined {
         var result = ""
         if (this.scheme['access'] === undefined) return undefined
@@ -131,6 +178,9 @@ export class ControllerInfoComponent implements OnInit {
         return result
     }
 
+    /**
+     * @returns the url of the REST API associated to the controller and user input (user input => this.paramsValue)
+     */
     get baseRoute() {
         /*var result = "http://equal.local?"+ this.controller_type +"="+this.current_controller
         for( let item in this.scheme['params']) {
@@ -183,6 +233,12 @@ export class ControllerInfoComponent implements OnInit {
         return this.paramsValue[key];
     }
 
+    /**
+     * @description
+     * update a field of this.paramsValue (also update presentRequiredParams and CanSubmit consequently)
+     * @param new_value new value of the dield to update
+     * @param params_name field to update
+     */
     public updateParamsValue(new_value: any, params_name: any) {
         if (new_value === undefined || new_value === "") {
             delete this.paramsValue[params_name];

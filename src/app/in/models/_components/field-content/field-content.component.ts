@@ -1,7 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { isEqual, cloneDeep, indexOf } from 'lodash';
-import { FieldClassArray } from '../../_object/FieldClassArray';
+import { cloneDeep } from 'lodash';
 import { FieldClass } from '../../_object/FieldClass';
 
 @Component({
@@ -11,6 +10,12 @@ import { FieldClass } from '../../_object/FieldClass';
     encapsulation : ViewEncapsulation.Emulated
 })
 
+/**
+ * @see FieldClass
+ * 
+ * @decription
+ * component used to edit fields from a model from a package.
+ */
 export class FieldContentComponent implements OnInit {
 
     @Input() fields: FieldClass[];

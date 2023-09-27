@@ -9,7 +9,12 @@ export class FieldClass {
     public sync_scheme:any = undefined
     public isNew:boolean = false
 
-    constructor(name:string,inherited:boolean=false,synchronised:boolean=true,scheme:any=Model) {
+    // Default value for field
+    static get defaultModel(){
+        return {"type":"string"}
+    }
+
+    constructor(name:string,inherited:boolean=false,synchronised:boolean=true,scheme:any=FieldClass.defaultModel) {
         this.name = name;
         this.sync_name = this.name
         this.inherited = inherited;
@@ -26,7 +31,13 @@ export class FieldClass {
     }
 }
 
-// TODO : Optimise this
+/**
+ * @description
+ * Compare dict1 and dict2 recusrively (could have better optimisation)
+ * @param dict1 
+ * @param dict2 
+ * @returns dict1 === dict2
+ */
 function compareDictRecursif(dict1:any, dict2:any):number {
     if(dict1 === undefined) return -1
     if(dict2 === undefined) return 1
@@ -47,4 +58,3 @@ function compareDictRecursif(dict1:any, dict2:any):number {
     return 0
 }
 
-var Model = {"type":"string"}

@@ -23,6 +23,7 @@ export class VieweditorComponent implements OnInit {
   fields:string[]
   types = ViewItem.typeList
 
+  // this is used to avoid calling the compliancy_id method which has a great cost
   compliancy_cache:{ok:boolean,id_list:string[]} 
 
   domain_visible = false
@@ -55,12 +56,9 @@ export class VieweditorComponent implements OnInit {
       this.entity = tempsplit[0]
       this.view_id = tempsplit[1]
       this.view_scheme = await this.api.getView(this.entity,this.view_id)
-      console.log(this.view_scheme)
       this.view_obj = new View(this.view_scheme,tempsplit[1].split(".")[0])
-      console.log(this.view_obj)
       this.class_scheme = await this.api.getSchema(this.entity)
       this.fields = this.obk(this.class_scheme['fields'])
-      console.log(this.fields)
       for(let num in this.view_obj.layout.groups) {
         this.groups_visible[num] = false
       }
@@ -85,11 +83,13 @@ export class VieweditorComponent implements OnInit {
   ngOnChanges() {
   }
 
+  // Call id_compliant method on view_obj and cache it
   get idCompliancy():{ok:boolean,id_list:string[]} {
     this.compliancy_cache =  this.view_obj.id_compliant([])
     return this.compliancy_cache
   }
 
+  // Look for ids doublons in compliancy_cache
   get idDoublons() {
     const filtered = this.compliancy_cache.id_list.filter((item, index) => this.compliancy_cache.id_list.indexOf(item) !== index);
     return filtered.join(",")
@@ -138,6 +138,7 @@ export class VieweditorComponent implements OnInit {
 }
 
 
+// This component is used to have a preview of the json file (mostly for debug reasons)
 @Component({
   selector: 'dialog-overview-example-dialog',
   template:"<style>pre{overflow-y : scroll; font-size: .8em; height: 50em; width: 80em;}</style><pre  [innerHTML]='datahtml'></pre>"

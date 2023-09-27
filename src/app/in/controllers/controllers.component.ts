@@ -11,6 +11,9 @@ import { RouterMemory } from 'src/app/_services/routermemory.service';
     styleUrls: ['./controllers.component.scss'],
     encapsulation: ViewEncapsulation.None
 })
+/**
+ * Component used to display the component of a package (using /controllers/:package route)
+ */
 export class ControllersComponent implements OnInit {
 
     public packages: any;
