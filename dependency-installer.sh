@@ -40,6 +40,7 @@ cd equal-ui
 # Installing nodejs modules needed to compile equal-ui
 npm install
 # Building equal-ui
+# If this part does not work, you may need to go back to node 14.18 to comply with SSL legacy support
 sh build.sh
 sh export.sh
 
