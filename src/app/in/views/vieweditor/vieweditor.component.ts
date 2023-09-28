@@ -5,6 +5,7 @@ import { View, ViewGroup, ViewItem, ViewSection } from './_objects/View';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { prettyPrintJson } from 'pretty-print-json';
 import { ViewEditorServicesService } from './_services/view-editor-services.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-vieweditor',
@@ -47,6 +48,7 @@ export class VieweditorComponent implements OnInit {
     private activatedroute:ActivatedRoute,
     private api:ViewEditorServicesService,
     private popup:MatDialog,
+    private snackBar:MatSnackBar
   ) { }
 
   async ngOnInit() {
@@ -134,6 +136,26 @@ export class VieweditorComponent implements OnInit {
 
   addSection(index:number) {
     this.view_obj.layout.groups[index].sections.push(new ViewSection({"label":"new section"}))
+  }
+
+  save() {
+    
+    var timerId = setTimeout(async () => {
+      this.api.saveView(this.view_obj.export(),this.entity,this.view_id);
+      this.snackBar.open("Saved ! Change can take time to be ", '', {
+          duration: 1000,
+          horizontalPosition: 'left',
+          verticalPosition: 'bottom'
+      })
+      this.router.goBack();
+    }, 1500);
+    this.snackBar.open("Saving...", 'Cancel', {
+        duration: 1500,
+        horizontalPosition: 'left',
+        verticalPosition: 'bottom'
+    }).onAction().subscribe(() => {
+        clearTimeout(timerId);
+    })
   }
 }
 

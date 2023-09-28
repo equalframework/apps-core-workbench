@@ -184,6 +184,7 @@ class ViewLayout extends ViewElement {
             result['items'] = []
             this.items.forEach(item => result['items'].push(item.export()))
         }
+        console.log(result)
         return result
     }
 

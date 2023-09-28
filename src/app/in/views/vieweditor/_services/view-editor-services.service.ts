@@ -75,4 +75,14 @@ export class ViewEditorServicesService extends ViewService {
         return  [];
     }
   }
+
+  public async saveView(payload:any,entity:string,viewid:string):Promise<boolean> {
+    try {
+      await this.api.fetch("?do=core_config_update-view&entity="+entity+"&view_id="+viewid+"&payload="+JSON.stringify(payload))
+    }
+    catch {
+      return false
+    }
+    return true
+  }
 }

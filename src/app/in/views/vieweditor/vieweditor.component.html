@@ -1,7 +1,7 @@
 <div class="title-container">
     <button class="title-btn maincolor" mat-icon-button (click)="goBack()"><mat-icon>arrow_back</mat-icon></button>
     <label class="page-title">View : </label><label class="page-title maincolor endlabel">{{name}}</label>
-    <button [disabled]="!idCompliancy.ok" class="title-btn accentcolor" mat-icon-button><mat-icon>save</mat-icon></button>
+    <button [disabled]="!idCompliancy.ok" class="title-btn accentcolor" mat-icon-button (click)="save()"><mat-icon>save</mat-icon></button>
     <button [disabled]="!idCompliancy.ok" class="title-btn accentcolor" mat-icon-button><mat-icon>cancel</mat-icon></button>
 </div>
 <div class="feature-container">
@@ -219,6 +219,8 @@
                     [entity]="entity"
                     [fields]="fields"
                     [types]="types"
+                    [displayDelete]="true"
+                    (delete)="deleteItemLayout(view_obj.layout.items.indexOf(item))"
                 ></app-item-editor>
             </div>
     </div>

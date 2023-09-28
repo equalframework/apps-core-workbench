@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
+// TODO add refresh function
+
 @Injectable({
     providedIn: 'root'
 })
