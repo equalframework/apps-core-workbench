@@ -9,7 +9,7 @@
     </mat-select>
 </mat-form-field>
 </div>
-<div>
+<div *ngIf="implemented">
     <mat-form-field *ngIf="need_package">
         <mat-label>Package</mat-label>
         <mat-select [(value)]="selected_package" (valueChange)="onPackageSelect()">
@@ -26,23 +26,26 @@
             </mat-option>
         </mat-select>
     </mat-form-field>
+    <div>
+    <mat-form-field *ngIf="need_subtype" >
+        <mat-label>{{subTypeName}}</mat-label>
+        <mat-select [disabled]="selected_package===''" [(value)]="subtype" (valueChange)="reloadlist()">
+            <mat-option *ngFor="let subtyp of subtypelist" [value]="subtyp">
+                {{subtyp}}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+        <mat-label>Name</mat-label>
+        <input matInput [formControl]="nameControl">
+        <mat-error *ngIf="nameControl.invalid">{{getControlsErrors(nameControl)}}</mat-error>
+    </mat-form-field>
+    </div>
+    <div>
+        <button mat-button [disabled]="createDisabled" (click)="create()"><mat-icon>create</mat-icon>Create</button>
+        <button mat-button (click)="dialogRef.close()"><mat-icon>cancel</mat-icon>Cancel</button>
+    </div>
 </div>
-<div>
-<mat-form-field *ngIf="need_model" >
-    <mat-label>SubType</mat-label>
-    <mat-select [(value)]="subtype" (valueChange)="reloadlist()">
-        <mat-option *ngFor="let subtyp of subtypelist" [value]="subtyp">
-            {{subtyp}}
-        </mat-option>
-    </mat-select>
-</mat-form-field>
-<mat-form-field>
-    <mat-label>Name</mat-label>
-    <input matInput [formControl]="nameControl">
-    <mat-error *ngIf="nameControl.invalid">{{getControlsErrors(nameControl)}}</mat-error>
-</mat-form-field>
-</div>
-<div>
-    <button mat-button [disabled]="createDisabled" (click)="create()"><mat-icon>create</mat-icon>Create</button>
-    <button mat-button (click)="dialogRef.close()"><mat-icon>cancel</mat-icon>Cancel</button>
+<div *ngIf="!implemented">
+    [WIP]
 </div>

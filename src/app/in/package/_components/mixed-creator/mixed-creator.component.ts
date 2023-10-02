@@ -1,8 +1,9 @@
 import { Component, Inject, OnChanges, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ItemTypes } from '../../_constants/ItemTypes';
-import { AbstractControl, AsyncValidatorFn, FormControl, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { AbstractControl, AsyncValidatorFn, FormControl, MaxLengthValidator, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
+import { first, snakeCase } from 'lodash';
 
 @Component({
   selector: 'app-mixed-creator',
@@ -19,6 +20,12 @@ export class MixedCreatorComponent implements OnInit {
   cachemodellist: string[] | undefined = undefined
   selected_package:string = ""
   selected_model:string = ""
+  implemented:boolean = true
+  protected subtypename:string = ""
+
+  get subTypeName() {
+    return this.subtypename === "" ? "Subtype" : this.subtypename
+  }
 
   subtypelist:string[]
   subtype:string
@@ -59,12 +66,15 @@ export class MixedCreatorComponent implements OnInit {
       this.need_package = false
       this.need_model = false
       this.need_subtype = false
+      this.implemented = true
       break
     case "view":
       this.need_package = true
       this.need_model = true
       this.need_subtype = true
+      this.implemented = true
       this.subtypelist = ["list","form"]
+      this.subtypename = "View Type"
       this.cachelist = []
       if(this.selected_package !== "" && this.selected_model !== ""){
         let x = await this.api.listViewFrom(this.selected_package,this.selected_model)
@@ -77,6 +87,21 @@ export class MixedCreatorComponent implements OnInit {
         })
       }
       break
+      case "class":
+        this.need_package = true
+        this.implemented = true
+        this.need_model = false
+        this.need_subtype = true
+        this.subtypename = "Extends from"
+        if(this.selected_package !== "") {
+          let x:string[] = (await this.api.listAllModels())
+          console.log(x)
+          this.subtypelist = ["equal\\orm\\Model",...x]
+          this.cachelist = this.cachemodellist
+        }
+        break;
+      default:
+        this.implemented = false
     }
     
 
@@ -89,15 +114,49 @@ export class MixedCreatorComponent implements OnInit {
   }
 
   resetFormControl() {
+    this.nameControl.clearValidators()
+    this.nameControl.addValidators(Validators.required)
+    this.nameControl.addValidators(Validators.maxLength(65))
+    switch(this.type){
+    case "package":
+      this.nameControl.addValidators(MixedCreatorComponent.snake_case)
+      break;
+    case "view":
+      this.nameControl.addValidators(MixedCreatorComponent.snake_case)
+      break;
+    case "class":
+      this.nameControl.addValidators(MixedCreatorComponent.camelCase)
+      break;
+    }
     this.nameControl.clearAsyncValidators()
     this.nameControl.addAsyncValidators(MixedCreatorComponent.already_taken(this.cachelist))
     this.nameControl.setValue(this.nameControl.value)
+    if(this.NameDisabled) this.nameControl.disable()
+    else this.nameControl.enable()
+  }
+
+  static camelCase(control: AbstractControl): ValidationErrors | null {
+    let valid_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ\\abdefghijkmlnopqrstuvwxyz"
+    for(let char of control.value) {
+      if(!valid_chars.includes(char)) return {"case":true}
+    }
+    let value: string[] = control.value.split("\\")
+    console.log(value[value.length-1])
+    let f = value[value.length-1][0]
+    console.log(f)
+    for(let i=0; i < value.length-1; i++) {
+      if(value[i].toLowerCase() !== value[i]) return {"case":true}
+    }
+    return "ABCDEFGHIJKLMNOPQRSTUVWXYZ".includes(f) ? null : {"case":true}
   }
 
   static snake_case(control: AbstractControl): ValidationErrors | null {
     let value: string = control.value
-
-    return value.toLowerCase() === value ? null : { "case": true }
+    let valid_chars = "abcdefghijkmlnopqrstuvwxyz-"
+    for(let char of value) {
+      if(!valid_chars.includes(char)) return {"case":true}
+    }
+    return null
   }
 
 
@@ -119,16 +178,13 @@ export class MixedCreatorComponent implements OnInit {
     if (controller.getError("required")) return "this field is mandatory"
     if (controller.getError("case")) return "this does not comply with naming standards"
     if (controller.getError("taken")) return "this name is already taken"
+    if (controller.getError("maxlength")) return "this name is too long"
     return ""
   }
 
 
   get createDisabled() {
-    if(this.nameControl.invalid) return true
-    if(this.need_package && this.selected_package === "") return true
-    if(this.need_model && this.selected_model === "") return true
-    if(this.need_subtype && this.subtype === "") return true 
-    return false
+    return this.NameDisabled || this.nameControl.invalid
   }
 
   async create() {
@@ -141,9 +197,16 @@ export class MixedCreatorComponent implements OnInit {
         await this.api.createView(this.selected_package+"\\"+this.selected_model,this.subtype+"."+this.nameControl.value)
         this.dialogRef.close()
         break
+      case "class" :
+        await this.api.createModel(this.selected_package,this.nameControl.value,this.subtype)
+        this.dialogRef.close()
+        break;
       default:
         this.dialogRef.close()
     }
   }
 
+  get NameDisabled() {
+    return (this.need_package && !(this.selected_package)) || (this.need_model && !(this.selected_model)) || (this.need_subtype && !(this.subtype))
+  }
 }

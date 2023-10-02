@@ -39,6 +39,23 @@ export class EmbbedApiService {
         return []
     }
 
+    public async listAllModels():Promise<string[]> {
+        try {
+            let x = (await this.api.fetch('?get=core_config_classes'))
+            let ret:string[] = []
+            for(let key in x) {
+                for(let item of x[key]){
+                    ret.push(key+"\\"+item)
+                }
+            }
+            return ret
+        }
+        catch (response: any) {
+            console.warn('fetch class error', response);
+        }
+        return []
+    }
+
     public async listViewFrom(pkg:string,entity:string|undefined=undefined):Promise<string[]|undefined> {
         if(entity === undefined) {
             try {
@@ -60,4 +77,9 @@ export class EmbbedApiService {
         
     }
 
+    public async createModel(pkg:string,name:string,parent:string){
+        this.api.fetch("?do=core_config_create-model&model="+name+"&package="+pkg+(parent === "equal\\orm\\Model" ? "" : "&extends="+parent))
+    }
+
 }
+ 
