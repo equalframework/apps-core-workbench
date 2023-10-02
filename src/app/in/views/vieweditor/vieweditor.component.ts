@@ -54,6 +54,7 @@ export class VieweditorComponent implements OnInit {
   async ngOnInit() {
     this.name = this.activatedroute.snapshot.paramMap.get("view_name")
     await this.init();
+    console.log(this.view_scheme)
   }
 
   public async init() {

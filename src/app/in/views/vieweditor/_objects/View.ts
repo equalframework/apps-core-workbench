@@ -529,7 +529,7 @@ class ViewWidget extends ViewElement {
     public type: string = ""
     public values: string[] = []
 
-    constructor(scheme: any = {}) {
+    constructor(scheme: any = {}, type:number=0) {
         super()
         if (scheme['link']) {
             this.link = scheme['link']

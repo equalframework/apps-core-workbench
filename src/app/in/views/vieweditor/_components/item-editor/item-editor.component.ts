@@ -1,5 +1,6 @@
 import { Component, Input, OnInit, EventEmitter, Output } from '@angular/core';
 import { ViewItem } from '../../_objects/View';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-item-editor',
@@ -24,5 +25,4 @@ export class ItemEditorComponent implements OnInit {
   onDelete() {
     this.delete.emit()
   }
-
 }
