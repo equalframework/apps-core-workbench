@@ -18,7 +18,7 @@
         <!-- Package content -->
         <mat-grid-tile colspan="3" class="max-height">
             <div *ngIf="isloading" class="max-height max-width">
-                LOADING
+                <mat-spinner></mat-spinner>
             </div>
             <div *ngIf="!isloading" class="max-height max-width">
                 <app-model-info *ngIf="selected_element.type==='class' || selected_element.type===''" class="max-height max-width"

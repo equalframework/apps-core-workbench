@@ -1,0 +1,40 @@
+<app-toggling-button
+    [on_icon]="'expand_less'"
+    [off_icon]="'expand_more'"
+    [baseState]="header_action_visible"
+    (toggle)="header_action_visible = $event"
+    [disabled]="!obj._has_actions"
+></app-toggling-button>
+<label [style.opacity]="obj._has_actions ? 1 : 0.6" class="category-title maincolor">Actions </label>
+<mat-slide-toggle [(ngModel)]="obj._has_actions"></mat-slide-toggle>
+<br>
+<div *ngIf="header_action_visible && obj._has_actions" class="indent">
+    <app-header-actions
+        [h_scheme]="obj"
+        [controllers]="action_controllers"
+        [groups]="groups"
+    ></app-header-actions>
+</div>
+<div *ngIf="type==='list'">
+    <app-toggling-button
+        [on_icon]="'expand_less'"
+        [off_icon]="'expand_more'"
+        [baseState]="header_selection_action_visible"
+        (toggle)="header_selection_action_visible = $event"
+        [disabled]="!obj._has_selection_actions"
+    ></app-toggling-button>
+    <label [style.opacity]="obj._has_selection_actions ? 1 : 0.6" class="category-title maincolor">Selection Actions </label>
+    <mat-slide-toggle [(ngModel)]="obj._has_selection_actions"></mat-slide-toggle>
+    <br>
+    <div *ngIf="header_selection_action_visible && obj._has_selection_actions" class="indent">
+        <mat-checkbox [(ngModel)]="obj.selection_default">Default controller</mat-checkbox>
+        <br>
+        <app-actions-container
+            [label]="'Edit Selection Actions'"
+            [acts]="obj.selection_actions"
+            [controllers]="action_controllers"
+            [groups]="groups"
+            [entity]="entity"
+        ></app-actions-container>
+    </div>
+</div>

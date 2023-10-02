@@ -14,7 +14,7 @@ export class EditItemFormComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<GroupEditorComponent>,
-    @Optional() @Inject(MAT_DIALOG_DATA) public data:{item:ViewItem,entity:string,fields:string[]}
+    @Optional() @Inject(MAT_DIALOG_DATA) public data:{item:ViewItem,entity:string,fields:string[],groups:string[],action_controllers:string[]}
   ) { }
 
   ngOnInit(): void {

@@ -3,9 +3,6 @@ import { ContextService } from 'sb-shared-lib';
 import { WorkbenchService } from './_service/package.service'
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { prettyPrintJson } from 'pretty-print-json';
-import { Router } from '@angular/router';
-import { AppInControllersModule } from '../controllers/controllers.module';
-import { eq } from 'lodash';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
 
 

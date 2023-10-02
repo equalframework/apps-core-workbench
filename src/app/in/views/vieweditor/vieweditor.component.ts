@@ -23,6 +23,7 @@ export class VieweditorComponent implements OnInit {
   class_scheme:any
   fields:string[]
   types = ViewItem.typeList
+  loading = true
 
   // this is used to avoid calling the compliancy_id method which has a great cost
   compliancy_cache:{ok:boolean,id_list:string[]} 
@@ -54,7 +55,7 @@ export class VieweditorComponent implements OnInit {
   async ngOnInit() {
     this.name = this.activatedroute.snapshot.paramMap.get("view_name")
     await this.init();
-    console.log(this.view_scheme)
+    this.loading = false
   }
 
   public async init() {
@@ -63,7 +64,9 @@ export class VieweditorComponent implements OnInit {
       this.entity = tempsplit[0]
       this.view_id = tempsplit[1]
       this.view_scheme = await this.api.getView(this.entity,this.view_id)
+      console.log(this.view_scheme)
       this.view_obj = new View(this.view_scheme,tempsplit[1].split(".")[0])
+      console.log(this.view_obj)
       this.class_scheme = await this.api.getSchema(this.entity)
       this.fields = this.obk(this.class_scheme['fields'])
       for(let num in this.view_obj.layout.groups) {

@@ -14,6 +14,8 @@ export class ItemEditorComponent implements OnInit {
   @Input() fields:string[]
   @Input() types:string[]
   @Input() displayDelete:boolean = false
+  @Input() groups:string[]
+  @Input() action_controllers:string[]
 
   @Output() delete = new EventEmitter<void>();
 

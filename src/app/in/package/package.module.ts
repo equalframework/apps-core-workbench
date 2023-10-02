@@ -42,6 +42,7 @@ import { RouteInfoModule } from '../routes/_components/route-info/route-info.mod
 import { ViewsInfoModule } from '../views/_components/views-info/views-info.module';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MixedCreatorComponent } from './_components/mixed-creator/mixed-creator.component';
+import {  MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 
 @NgModule({
@@ -64,6 +65,7 @@ import { MixedCreatorComponent } from './_components/mixed-creator/mixed-creator
         RouteInfoModule,
         ViewsInfoModule,
         ScrollingModule,
+        MatProgressSpinnerModule,
     ],
     declarations: [
         PackageComponent,

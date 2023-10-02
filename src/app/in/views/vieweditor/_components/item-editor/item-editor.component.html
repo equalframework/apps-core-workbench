@@ -28,7 +28,6 @@
                 <label>%</label>
             </div>
             <div  class="flex">
-                <mat-checkbox [checked]="item.sortable" (change)="item.sortable = $event.checked">sortable</mat-checkbox>
                 <mat-checkbox [checked]="item.readonly" (change)="item.readonly = $event.checked">readonly</mat-checkbox>
                 <mat-checkbox 
                     title="Add a boolean or a domain that tell if this item is displayed or not"
@@ -52,36 +51,73 @@
     </div>
     <!-- WIDGET -->
     <div *ngIf="item.has_widget" class="widget">
-        <div>
-            Widget
+        <div *ngIf="item.viewtype === 0">
+            <div>
+                Widget
+            </div>
+            <mat-checkbox 
+                [checked]="item.widgetList.sortable"
+                (change)="item.widgetList.sortable = $event.checked"
+                title="[LIST ONLY] &#010;if checked, the end user will be able to sort the view by this item"
+            >
+                sortable
+            </mat-checkbox>
+            <mat-checkbox 
+                [checked]="item.widgetList.link" 
+                (change)="item.widgetList.link = $event.checked"
+                title="if checked the item will have a link (behavior change with the type of field)"
+            >
+                link
+            </mat-checkbox>
+            <mat-form-field>
+                <input matInput placeholder="widget type" [value]="item.widgetList.type" (input)="item.widgetList.type= $event.target.value">
+            </mat-form-field>
+            <mat-form-field class="inputlong">
+                <input matInput placeholder="values (splitted by semi-columns)" type="text" [value]="item.widgetList.values.toString().replaceAll(',',';')" (input)="item.widgetList.values = $event.target.value.split(';')">
+            </mat-form-field>
         </div>
-        <mat-checkbox 
-            [checked]="item.widget.sortable"
-            (change)="item.widget.sortable = $event.checked"
-            title="[LIST ONLY] &#010;if checked, the end user will be able to sort the view by this item"
-        >
-            sortable
-        </mat-checkbox>
-        <mat-checkbox 
-            [checked]="item.widget.link" 
-            (change)="item.widget.link = $event.checked"
-            title="if checked the item will have a link (behavior change with the type of field)"
-        >
-            link
-        </mat-checkbox>
-        <mat-checkbox 
-            [checked]="item.widget.heading" 
-            (change)="item.widget.heading = $event.checked"
-            title="if checked the item will not allow modification"
-        >
-            readonly
-        </mat-checkbox>
-        <mat-form-field>
-            <input matInput placeholder="widget type" [value]="item.widget.type" (input)="item.widget.type= $event.target.value">
-        </mat-form-field>
-        <mat-form-field class="inputlong">
-            <input matInput placeholder="values (splitted by semi-columns)" type="text" [value]="item.widget.values.toString().replaceAll(',',';')" (input)="item.widget.values = $event.target.value.split(';')">
-        </mat-form-field>
+        <div *ngIf="item.viewtype === 1">
+            <div>
+                Widget
+            </div>
+            <mat-checkbox 
+                [checked]="item.widgetForm.link" 
+                (change)="item.widgetForm.link = $event.checked"
+                title="if checked the item will have a link (behavior change with the type of field)"
+            >
+                link
+            </mat-checkbox>
+            <mat-checkbox 
+                [checked]="item.widgetForm.heading" 
+                (change)="item.widgetForm.heading = $event.checked"
+                title="if checked the item will appear bigger"
+            >
+                heading
+            </mat-checkbox>
+            <mat-checkbox 
+                [checked]="item.widgetForm._has_header" 
+                (change)="item.widgetForm._has_header = $event.checked"
+                title="[ASSOCIATIVE ONLY] &#010;this will override the header of the default list view for display in the form"
+            >
+                header
+            </mat-checkbox>
+            <mat-form-field>
+                <input matInput placeholder="widget type" [value]="item.widgetForm.type" (input)="item.widgetForm.type= $event.target.value">
+            </mat-form-field>
+            <mat-form-field class="inputlong">
+                <input matInput placeholder="values (splitted by semi-columns)" type="text" [value]="item.widgetForm.values.toString().replaceAll(',',';')" (input)="item.widgetForm.values = $event.target.value.split(';')">
+            </mat-form-field>
+        </div>
+        <div *ngIf="item.widgetForm._has_header">
+            <app-header-editor
+                [obj]="item.widgetForm.header"
+                [type]="'list'"
+                [entity]="entity"
+                [groups]="groups"
+                [action_controllers]="action_controllers"
+            >
+            </app-header-editor>
+        </div>
     </div>
     <!--      -->
     <!-- DOMAIN -->
