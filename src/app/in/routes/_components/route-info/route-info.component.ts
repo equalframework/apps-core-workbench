@@ -1,7 +1,6 @@
 import { EventEmitter, Component, Input, OnChanges, OnInit, Output, ViewEncapsulation } from '@angular/core';
-import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { EnvService } from 'sb-shared-lib';
-import { ResponseComponentSubmit } from 'src/app/in/package/_components/router-property/_components/params/_components/response/response.component';
 import { WorkbenchService } from 'src/app/in/package/_service/package.service';
 
 @Component({

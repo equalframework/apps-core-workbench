@@ -5,6 +5,7 @@ import { View, ViewGroup, ViewItem, ViewSection } from './_objects/View';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { prettyPrintJson } from 'pretty-print-json';
 import { ViewEditorServicesService } from './_services/view-editor-services.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-vieweditor',
@@ -23,6 +24,7 @@ export class VieweditorComponent implements OnInit {
   fields:string[]
   types = ViewItem.typeList
 
+  // this is used to avoid calling the compliancy_id method which has a great cost
   compliancy_cache:{ok:boolean,id_list:string[]} 
 
   domain_visible = false
@@ -46,21 +48,23 @@ export class VieweditorComponent implements OnInit {
     private activatedroute:ActivatedRoute,
     private api:ViewEditorServicesService,
     private popup:MatDialog,
+    private snackBar:MatSnackBar
   ) { }
 
   async ngOnInit() {
     this.name = this.activatedroute.snapshot.paramMap.get("view_name")
+    await this.init();
+  }
+
+  public async init() {
     if(this.name) {
       let tempsplit = this.name.split(":")
       this.entity = tempsplit[0]
       this.view_id = tempsplit[1]
       this.view_scheme = await this.api.getView(this.entity,this.view_id)
-      console.log(this.view_scheme)
       this.view_obj = new View(this.view_scheme,tempsplit[1].split(".")[0])
-      console.log(this.view_obj)
       this.class_scheme = await this.api.getSchema(this.entity)
       this.fields = this.obk(this.class_scheme['fields'])
-      console.log(this.fields)
       for(let num in this.view_obj.layout.groups) {
         this.groups_visible[num] = false
       }
@@ -85,11 +89,13 @@ export class VieweditorComponent implements OnInit {
   ngOnChanges() {
   }
 
+  // Call id_compliant method on view_obj and cache it
   get idCompliancy():{ok:boolean,id_list:string[]} {
     this.compliancy_cache =  this.view_obj.id_compliant([])
     return this.compliancy_cache
   }
 
+  // Look for ids doublons in compliancy_cache
   get idDoublons() {
     const filtered = this.compliancy_cache.id_list.filter((item, index) => this.compliancy_cache.id_list.indexOf(item) !== index);
     return filtered.join(",")
@@ -135,9 +141,48 @@ export class VieweditorComponent implements OnInit {
   addSection(index:number) {
     this.view_obj.layout.groups[index].sections.push(new ViewSection({"label":"new section"}))
   }
+
+  save() {
+    
+    var timerId = setTimeout(async () => {
+      this.api.saveView(this.view_obj.export(),this.entity,this.view_id);
+      this.snackBar.open("Saved ! Change can take time to be ", '', {
+          duration: 1000,
+          horizontalPosition: 'left',
+          verticalPosition: 'bottom'
+      })
+      this.router.goBack();
+    }, 1500);
+    this.snackBar.open("Saving...", 'Cancel', {
+        duration: 1500,
+        horizontalPosition: 'left',
+        verticalPosition: 'bottom'
+    }).onAction().subscribe(() => {
+        clearTimeout(timerId);
+    })
+  }
+
+  cancel() {
+    var timerId = setTimeout(async () => {
+      await this.init()
+      this.snackBar.open("Changes canceled", '', {
+          duration: 1000,
+          horizontalPosition: 'left',
+          verticalPosition: 'bottom'
+      })
+    }, 1500);
+    this.snackBar.open("Canceling...", 'Cancel', {
+        duration: 1500,
+        horizontalPosition: 'left',
+        verticalPosition: 'bottom'
+    }).onAction().subscribe(() => {
+        clearTimeout(timerId);
+    })
+  }
 }
 
 
+// This component is used to have a preview of the json file (mostly for debug reasons)
 @Component({
   selector: 'dialog-overview-example-dialog',
   template:"<style>pre{overflow-y : scroll; font-size: .8em; height: 50em; width: 80em;}</style><pre  [innerHTML]='datahtml'></pre>"

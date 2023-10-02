@@ -26,6 +26,7 @@
             <mat-icon>add</mat-icon> row
         </button>
         <div
+            class="drop-zone"
             cdkDropList 
             cdkDropListOrientation="vertical"
             [cdkDropListData]="selected.rows" 
@@ -51,7 +52,7 @@
                     <mat-icon>add</mat-icon> column
                 </button>
 
-                <div class="flex"
+                <div class="flex drop-zone"
                     cdkDropList
                     cdkDropListOrientation="horizontal"
                     [cdkDropListData]="row.columns"
@@ -76,9 +77,14 @@
                             <mat-icon>add</mat-icon> item
                         </button>
                         <div (appDraginfo)="updateDragged(undefined)" id="draginfo" >
+                            <div *ngIf="col.items.length === 0">
+                                <div [appDragtracker]="{data_ref:col.items,ref:undefined,before:true,dragged:dragged,obj:selected}" class="boundary left"
+                                ></div>
+                            </div>
                             <div *ngFor="let item of col.items" style="display: inline-block;" [style.width.%]=" item.width > 100/12 ? item.width : 100/12 ">
                                 <div *ngIf="!(dragged === item)" [appDragtracker]="{data_ref:col.items,ref:item,before:true,dragged:dragged,obj:selected}" class="boundary left"
                                 ></div>
+                                <!-- ITEM -->
                                 <div
                                     [class.visible]="item.has_domain && item.is_visible_domain"
                                     [class.invisible]="item.has_domain && !item.is_visible_domain && !item.visible_bool"
@@ -109,6 +115,7 @@
                                         </button>
                                     </div>
                                 </div>
+                                <!--     -->
                                 <div *ngIf="!(dragged === item)" [appDragtracker]="{data_ref:col.items,ref:item,before:false,dragged:dragged,obj:selected}" class="boundary right"></div>
                             </div>
                         </div>

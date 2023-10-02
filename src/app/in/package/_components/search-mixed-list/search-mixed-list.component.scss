@@ -1,12 +1,5 @@
 @import "/src/theme.scss";
 
-$package-color : mat-palette($mat-green);
-$class-color : mat-palette($mat-orange);
-$get-color : mat-palette($mat-blue);
-$do-color : mat-palette($mat-blue);
-$route-color : mat-palette($mat-red);
-$view-color : mat-palette($mat-purple);
-
 .node_container {
     display: flex;
     align-items: center;
@@ -207,4 +200,9 @@ $view-color : mat-palette($mat-purple);
 .virtual {
     width: 100%;
     height: 100%;
+}
+
+
+.smallminifab {
+    transform: scale(.8) translateY(.8em);
 }

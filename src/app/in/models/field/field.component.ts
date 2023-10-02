@@ -43,7 +43,11 @@ export class FieldComponent implements OnInit {
     this.fields_for_selected_class = await this.loadUsableField() 
   }
 
-
+  /**
+   * @description
+   * create all the FieldClass object from the model schema
+   * @returns Promise for a prepared field list
+   */
   public async loadUsableField():Promise<FieldClass[]> {
     var a:FieldClass[] = []
     var nonUsable:string[] = ["id","deleted","state"]
@@ -75,6 +79,10 @@ export class FieldComponent implements OnInit {
     return this.fieldSort(a)
   }
 
+  /**
+   * @description
+   * Set the inherited properties for all FieldClass instance in this.field_for_selected_class
+   */
   public async setInherited() {
     var parent_fields
     if (this.schema['parent'] === "equal\\orm\\Model") {
@@ -101,6 +109,11 @@ export class FieldComponent implements OnInit {
     }
   }
 
+  /**
+   * @description sort an array of FieldClass instance by inheritance then by alphabetical order
+   * @param input unsorted array
+   * @returns sorted array
+   */
   public fieldSort(input:FieldClass[]):FieldClass[] {
     var a:number
     var res:FieldClass[] = []

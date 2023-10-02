@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, EventEmitter, Output } from '@angular/core';
 import { ViewItem } from '../../_objects/View';
 
 @Component({
@@ -12,10 +12,17 @@ export class ItemEditorComponent implements OnInit {
   @Input() entity:string
   @Input() fields:string[]
   @Input() types:string[]
+  @Input() displayDelete:boolean = false
+
+  @Output() delete = new EventEmitter<void>();
 
   constructor() { }
 
   ngOnInit(): void {
+  }
+
+  onDelete() {
+    this.delete.emit()
   }
 
 }

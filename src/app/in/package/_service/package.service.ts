@@ -2,29 +2,20 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { promise } from 'protractor';
 import { ApiService } from 'sb-shared-lib';
+import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
 
 
 @Injectable({
     providedIn: 'root'
 })
-export class WorkbenchService {
+export class WorkbenchService extends EmbbedApiService {
     public cached_schema:any
 
     constructor(
-        private api: ApiService,
-        private http: HttpClient
-    ) { }
-
-    /**
-     * // TODO
-     *
-     * @param new_package - The name of the new package.
-     */
-    public createPackage(new_package: string) {
-        // TODO
-        console.warn("New package name: ", new_package);
-    }
-
+        private http: HttpClient,
+        api: ApiService,
+    ) { super(api) }
+    
     /**
      * // TODO
      *

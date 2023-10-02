@@ -7,6 +7,11 @@ import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
   styleUrls: ['./model-info.component.scss'],
   encapsulation: ViewEncapsulation.Emulated
 })
+
+/**
+ * @description
+ * Component used to display information about a model aside with a list of model
+ */
 export class ModelInfoComponent implements OnInit {
   @Input() selected_package:string
   @Input() selected_class:string
@@ -38,6 +43,12 @@ export class ModelInfoComponent implements OnInit {
     this.changeStep.emit(3);
   }
 
+  /**
+   * @description
+   * Looks for properties about a field of the model
+   * @param key name of the field
+   * @returns true if this field has at least one propertie, false else
+   */
   fieldHasProp(key:string):boolean {
     return this.class_scheme['fields'][key]['required'] 
       || this.class_scheme['fields'][key]['readonly']
@@ -45,6 +56,11 @@ export class ModelInfoComponent implements OnInit {
       || this.class_scheme['fields'][key]['unique']
   }
 
+  /**
+   *  @description
+   *  Simple Getter of the number of field
+   * @returns field list length
+   */
   get fieldNumber():number {
     return this.obk(this.class_scheme['fields']).length
   }

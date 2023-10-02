@@ -1,13 +1,14 @@
 import { Directive, HostListener, Input } from '@angular/core';
 import { ViewItem, ViewSection } from '../../_objects/View';
 import { moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { before } from 'lodash';
 
 @Directive({selector: '[appDragtracker]'})
 export class DragTrackerDirective {
 
   @Input() appDragtracker:{
     data_ref:ViewItem[],
-    ref:ViewItem,
+    ref:ViewItem|undefined,
     before:boolean,
     dragged:ViewItem|undefined,
     obj:ViewSection;
@@ -17,24 +18,45 @@ export class DragTrackerDirective {
   onDragOver(evt:any) {
     let dg = this.draggedlist
     if(this.appDragtracker.dragged && dg) {
-      let x = this.appDragtracker.data_ref.indexOf(this.appDragtracker.ref)
       let y = dg.indexOf(this.appDragtracker.dragged)
-      if(x >= 0 && y >= 0) {
-        let index = this.appDragtracker.before ? x : x+1
-        //if(index >= this.appDragtracker.data_ref.length) index = this.appDragtracker.data_ref.length-1
+
+      if(this.appDragtracker.data_ref.length === 0 && this.appDragtracker.ref === undefined) {
+        let y = dg.indexOf(this.appDragtracker.dragged)
         if(this.appDragtracker.data_ref === dg) {
           moveItemInArray(
             this.appDragtracker.data_ref,
             y, 
-            index
+            0
           );
         } else {
           transferArrayItem(
             dg,
             this.appDragtracker.data_ref,
             y,
-            index
+            0
           );
+        }
+        return
+      }
+      if(this.appDragtracker.ref) {
+        let x = this.appDragtracker.data_ref.indexOf(this.appDragtracker.ref)
+        if(x >= 0 && y >= 0) {
+          let index = this.appDragtracker.before ? x : x+1
+          //if(index >= this.appDragtracker.data_ref.length) index = this.appDragtracker.data_ref.length-1
+          if(this.appDragtracker.data_ref === dg) {
+            moveItemInArray(
+              this.appDragtracker.data_ref,
+              y, 
+              index
+            );
+          } else {
+            transferArrayItem(
+              dg,
+              this.appDragtracker.data_ref,
+              y,
+              index
+            );
+          }
         }
       }
     }

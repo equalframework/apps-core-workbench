@@ -13,6 +13,11 @@ import { cloneDeep } from 'lodash';
     encapsulation : ViewEncapsulation.Emulated
 })
 
+/**
+ * @see SearchListComponent
+ * @see FieldClass
+ * Supercharged version of SearchListComponent to display FieldClass element
+ */
 export class SearchListFieldComponent implements OnInit {
 
     @Input() data: FieldClass[];

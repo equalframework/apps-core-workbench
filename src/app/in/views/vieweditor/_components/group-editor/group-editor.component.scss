@@ -172,3 +172,7 @@ transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 .track {
     opacity: 10%;
 }
+
+.drop-zone {
+    min-height: 2em;
+}

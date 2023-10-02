@@ -1,0 +1,102 @@
+@import "/src/theme.scss";
+
+.type-info-mixed-sel mat-icon {
+    transform: scale(.8) translateY(.2em)
+}
+
+
+.name-mixed-sel {
+    width: 85%;
+}
+
+.type-mixed-sel-package {
+    background-color: mat-color($package-color,A100) ;
+    border-radius: .3em;
+}
+
+.type-mixed-sel-class {
+    background-color: mat-color($class-color,A100) ;
+    border-radius: .3em;
+}
+
+.type-mixed-sel-do {
+    background-color: mat-color($do-color,A100) ;
+    border-radius: .3em;
+}
+
+.type-mixed-sel-get {
+    background-color: mat-color($get-color,A100) ;
+    border-radius: .3em;
+}
+
+.type-mixed-sel-route {
+    background-color: mat-color($route-color,A100) ;
+    border-radius: .3em;
+}
+
+.type-mixed-sel-view {
+    background-color: mat-color($view-color,A100) ;
+    border-radius: .3em;
+}
+
+.mixed-select-sel-package {
+    background-color: mat-color($package-color,A100) ;
+    border-radius: .3em;
+    width: 1.5em;
+    padding-left: .25em;
+}
+
+.mixed-select-sel-class {
+    background-color: mat-color($class-color,A100) ;
+    border-radius: .3em;
+    width: 1.5em;
+    padding-left: .25em;
+}
+
+.mixed-select-sel-do {
+    background-color: mat-color($do-color,A100) ;
+    border-radius: .3em;
+    width: 1.5em;
+    padding-left: .25em;
+}
+
+.mixed-select-sel-get {
+    background-color: mat-color($get-color,A100) ;
+    border-radius: .3em;
+    width: 1.5em;
+    padding-left: .25em;
+}
+
+.mixed-select-sel-controller {
+    background-color: mat-color($get-color,A100) ;
+    border-radius: .3em;
+    width: 1.5em;
+    padding-left: .25em;
+}
+
+.mixed-select-sel-route {
+    background-color: mat-color($route-color,A100) ;
+    border-radius: .3em;
+    width: 1.5em;
+    padding-left: .25em;
+}
+
+.mixed-select-sel-view {
+    background-color: mat-color($view-color,A100) ;
+    border-radius: .3em;
+    width: 1.5em;
+    padding-left: .25em;
+}
+
+.mixed-select-sel- {
+    background-color: #ddd;
+    border-radius: .3em;
+    width: 1.5em;
+    padding-left: .25em;
+}
+
+.icon-search-small {
+    transform: translateY(.2em);
+    margin-left : .5em;
+    margin-right : .5em;
+}

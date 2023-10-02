@@ -11,9 +11,8 @@
                 [selected_node]="selected_element"
                 [loading]="isloading"
                 (nodeSelect)="onclickPackageSelect($event)"
-                (nodeUpdate)="onupdatePackage($event)"
-                (nodeDelete)="ondeletePackage($event)"
-                (nodeCreate)="oncreatePackage($event)">
+                (refresh)="refresh()"
+            >
             </app-search-mixed-list>
         </mat-grid-tile>
         <!-- Package content -->

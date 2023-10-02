@@ -29,6 +29,9 @@
                 <mat-checkbox [checked]="item.has_widget" (change)="item.has_widget= $event.checked">widget</mat-checkbox>
             </div>
         </div>
+        <div *ngIf="displayDelete" class="deleter">
+            <button mat-mini-fab (click)="onDelete()"><mat-icon>delete</mat-icon></button>
+        </div>
     </div>
     <div *ngIf="item.has_widget" class="widget">
         <div>

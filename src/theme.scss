@@ -25,3 +25,10 @@ $color-theme : mat-light-theme($maincolor,$accentcolor,$warncolor);
 .json-string {
     color : mat-color($maincolor)!important;
 }
+
+$package-color : mat-palette($mat-green);
+$class-color : mat-palette($mat-orange);
+$get-color : mat-palette($mat-blue);
+$do-color : mat-palette($mat-blue);
+$route-color : mat-palette($mat-red);
+$view-color : mat-palette($mat-purple);
