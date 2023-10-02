@@ -21,7 +21,7 @@ export class ItemEditorComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  Ondelete() {
+  onDelete() {
     this.delete.emit()
   }
 

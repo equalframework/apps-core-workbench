@@ -49,4 +49,4 @@ testem.log
 Thumbs.db
 
 # depedencies source code
-./dep-files
+dep-files

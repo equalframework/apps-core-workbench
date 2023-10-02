@@ -13,16 +13,6 @@ export class WorkbenchService {
     /**
      * // TODO
      *
-     * @param new_package - The name of the new package.
-     */
-    public createPackage(new_package: string) {
-        // TODO
-        console.warn("New package name: ", new_package);
-    }
-
-    /**
-     * // TODO
-     *
      * @param old_node - The name of the old package.
      * @param new_node - The name of the new package.
      */

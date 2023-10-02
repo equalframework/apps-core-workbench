@@ -44,6 +44,16 @@ export class PackageComponent implements OnInit {
         if(args && args['selected']){
             this.onclickPackageSelect(args['selected'])
         }
+        await this.init()
+    }
+
+    async refresh() {
+        this.init()
+    }
+
+    async init() {
+        this.isloading=true
+        this.elements = []
         let classes = await this.api.getClasses();
         this.api.getPackages().then((packarr) => {
             packarr.forEach(pack => {

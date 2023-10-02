@@ -4,6 +4,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { EnvService } from 'sb-shared-lib';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { ItemTypes } from '../../_constants/ItemTypes';
+import { MixedCreatorComponent } from '../mixed-creator/mixed-creator.component';
 
 /** 
  * This component is used to display the list of all object you recover in package.component.ts
@@ -24,6 +26,7 @@ export class SearchMixedListComponent implements OnInit {
     @Input() selected_node:{name:string,type:string}; // The selected object of the list
     @Input() loading:boolean; // Notify if the parent node finished loading
     @Output() nodeSelect = new EventEmitter<{package?:string,name:string,type:string}>();  // Used to send selected object reference to parent
+    @Output() refresh = new EventEmitter<void>();
 
     public obk = Object.keys;   // Object.keys method for utilisation in search-mixed-list.component.html
     public filteredData: {package?:string,name:string,type:string}[];   // filtered derivative of data with purpose to be displayed
@@ -34,16 +37,7 @@ export class SearchMixedListComponent implements OnInit {
     /**
      * This dict is used to display properly all the different types of object contained in filteredData ( or data )
      */
-    public type_dict:{[id:string]:{icon:string,disp:string}} = {
-        "" : {icon:"category",disp:"All"},
-        "package" : {icon:"inventory",disp:"Packages"},
-        "class" : {icon:"data_object",disp:"Models"},
-        "controller" : {icon:"code",disp:"Controllers"},
-        "route" : {icon:"route",disp:"Routes"},
-        "view" : {icon:"view_quilt",disp:"Views"},
-        "get" : {icon:"data_array",disp:"Data providers"},
-        "do" : {icon:"open_in_browser",disp:"Action handlers"},
-    }
+    public type_dict:{[id:string]:{icon:string,disp:string}} = ItemTypes.typeDict
 
     public inputcontrol = new FormControl('') // formcontrol for search input field
 
@@ -130,5 +124,17 @@ export class SearchMixedListComponent implements OnInit {
 
     get actual_scope() {
         return this.type_dict[this.search_scope] ? this.search_scope : ""
+    }
+
+    openCreator() {
+        let d = this.dialog.open(MixedCreatorComponent,{data:{type:this.search_scope}})
+
+        d.afterClosed().subscribe(() => {
+            // Do stuff after the dialog has closed
+            this.refresh.emit()
+            this.onSearch()
+        });
+        
+        
     }
 }

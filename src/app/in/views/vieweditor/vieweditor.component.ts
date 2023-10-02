@@ -53,6 +53,10 @@ export class VieweditorComponent implements OnInit {
 
   async ngOnInit() {
     this.name = this.activatedroute.snapshot.paramMap.get("view_name")
+    await this.init();
+  }
+
+  public async init() {
     if(this.name) {
       let tempsplit = this.name.split(":")
       this.entity = tempsplit[0]
@@ -150,6 +154,24 @@ export class VieweditorComponent implements OnInit {
       this.router.goBack();
     }, 1500);
     this.snackBar.open("Saving...", 'Cancel', {
+        duration: 1500,
+        horizontalPosition: 'left',
+        verticalPosition: 'bottom'
+    }).onAction().subscribe(() => {
+        clearTimeout(timerId);
+    })
+  }
+
+  cancel() {
+    var timerId = setTimeout(async () => {
+      await this.init()
+      this.snackBar.open("Changes canceled", '', {
+          duration: 1000,
+          horizontalPosition: 'left',
+          verticalPosition: 'bottom'
+      })
+    }, 1500);
+    this.snackBar.open("Canceling...", 'Cancel', {
         duration: 1500,
         horizontalPosition: 'left',
         verticalPosition: 'bottom'

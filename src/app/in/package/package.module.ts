@@ -41,6 +41,7 @@ import { ControllerInfoModule } from '../controllers/_components/controller-info
 import { RouteInfoModule } from '../routes/_components/route-info/route-info.module';
 import { ViewsInfoModule } from '../views/_components/views-info/views-info.module';
 import { ScrollingModule } from '@angular/cdk/scrolling';
+import { MixedCreatorComponent } from './_components/mixed-creator/mixed-creator.component';
 
 
 @NgModule({
@@ -84,6 +85,7 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
         ValueSelectionComponent,
         ResponseComponentSubmit,
         PackageInfoComponent,
+        MixedCreatorComponent,
     ],
     providers: [
         DatePipe,
