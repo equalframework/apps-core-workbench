@@ -18,6 +18,7 @@ import { ModelsComponent } from './models.component';
 import { ModelsRoutingModule } from './models-routing.module';
 import { ModelsInfoModule } from './_components/model-info/models-info.module';
 import { PropertyDomainModule } from '../property-domain-component/property-domain.module';
+import { MixedCreatorModule } from '../package/_components/mixed-creator/mixed-creator.module';
 
 @NgModule({
     imports: [
@@ -31,6 +32,7 @@ import { PropertyDomainModule } from '../property-domain-component/property-doma
         ModelsRoutingModule,
         ModelsInfoModule,
         PropertyDomainModule,
+        MixedCreatorModule,
     ],
     declarations: [
         ModelsComponent,

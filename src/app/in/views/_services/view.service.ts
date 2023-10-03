@@ -1,14 +1,17 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from 'sb-shared-lib';
+import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
 
 
 @Injectable({
     providedIn: 'root'
 })
-export class ViewService {
+export class ViewService extends EmbbedApiService {
     public cached_schema:any
 
-    constructor(protected api: ApiService) { }
+    constructor(api: ApiService) {
+        super(api)
+     }
 
     public async getViews(type:string,entity:string):Promise<string[]> {
         try {

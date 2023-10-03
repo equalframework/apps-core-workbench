@@ -11,7 +11,6 @@ import { first, snakeCase } from 'lodash';
   styleUrls: ['./mixed-creator.component.scss']
 })
 export class MixedCreatorComponent implements OnInit {
-
   public t_dict = ItemTypes.trueTypeDict
   public type: string
   public obk: Function = Object.keys
@@ -22,6 +21,11 @@ export class MixedCreatorComponent implements OnInit {
   selected_model:string = ""
   implemented:boolean = true
   protected subtypename:string = ""
+
+  lockType:boolean
+  lockPackage:boolean
+  lockModel:boolean
+  lockSubType:boolean
 
   get subTypeName() {
     return this.subtypename === "" ? "Subtype" : this.subtypename
@@ -47,11 +51,23 @@ export class MixedCreatorComponent implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<MixedCreatorComponent>,
     private api: EmbbedApiService,
-    @Inject(MAT_DIALOG_DATA) public data: { type: string },
+    @Inject(MAT_DIALOG_DATA) public data: { type: string, package?:string, model?:string, sub_type?:string, lock_type ?:boolean, lock_package?: boolean, lock_model?:boolean, lock_subtype?: boolean },
   ) {
     this.type = this.obk(this.t_dict).includes(data.type) ?
       data.type : data.type === "controller" ? "do" : "package"
-      
+
+      this.selected_model = data.model ? data.model : ""
+      this.selected_package = data.package ? data.package : ""
+      this.subtype = data.sub_type ? data.sub_type : ""
+
+      this.lockType = data.lock_type ? data.lock_type : false
+      this.lockPackage = data.lock_package && data.package ? data.lock_package : false
+      this.lockModel = data.lock_model && data.model ? data.lock_model : false
+      this.lockSubType = data.lock_subtype && data.sub_type ? data.lock_subtype : false
+
+      if(this.selected_package) {
+        this.onPackageSelect()
+      }
   }
 
   async ngOnInit() {
@@ -98,6 +114,7 @@ export class MixedCreatorComponent implements OnInit {
           console.log(x)
           this.subtypelist = ["equal\\orm\\Model",...x]
           this.cachelist = this.cachemodellist
+          console.log(this.cachelist)
         }
         break;
       default:
@@ -136,7 +153,7 @@ export class MixedCreatorComponent implements OnInit {
   }
 
   static camelCase(control: AbstractControl): ValidationErrors | null {
-    let valid_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ\\abdefghijkmlnopqrstuvwxyz"
+    let valid_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ\\abcdefghijkmlnopqrstuvwxyz"
     for(let char of control.value) {
       if(!valid_chars.includes(char)) return {"case":true}
     }

@@ -199,6 +199,24 @@ export class PackageComponent implements OnInit {
     onViewEditClick() {
         this.router.navigate(['/views_edit',this.selected_element.name],{"selected":this.selected_element})
     }
+
+    async delElement(node:{package?:string,name:string,type:string}) {
+        switch(node.type) {
+        case "view":
+            let sp = node.name.split(":")
+            let res = await this.api.deleteView(sp[0],sp[1])
+            if(res) this.snackBar.open("Deleted")
+            else this.snackBar.open("Error during deletion")
+            break
+        default:
+            this.snackBar.open("WIP")
+            break;
+        }
+        if(this.selected_element === node){
+            this.selected_element === undefined
+        }
+        this.refresh()
+    }
 }
 
 // This is the object that should be returned by await this.api.getSchema('equal\orm\model')

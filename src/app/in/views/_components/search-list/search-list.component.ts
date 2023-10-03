@@ -16,7 +16,7 @@ export class SearchListComponent implements OnInit {
     @Output() nodeSelect = new EventEmitter<string>();
     @Output() nodeUpdate = new EventEmitter<{old_node: string, new_node: string}>();
     @Output() nodeDelete = new EventEmitter<string>();
-    @Output() nodeCreate = new EventEmitter<string>();
+    @Output() nodeCreate = new EventEmitter<void>();
 
     inputValue: string;
     filteredData: string[];
@@ -83,13 +83,8 @@ export class SearchListComponent implements OnInit {
     public deleteNode(node: string){
         const index = this.data.indexOf(node);
         const index_filtered_data = this.filteredData.indexOf(node);
-
         if (index >= 0 && index_filtered_data >= 0) {
-            let timerId: any;
-            timerId = setTimeout(() => {
-                this.nodeDelete.emit(node);
-            }, 3000);
-            this.snack("Deleting...", timerId);
+            this.nodeDelete.emit(node);
         }
     }
 
@@ -130,12 +125,7 @@ export class SearchListComponent implements OnInit {
     }
 
     public onclickCreate() {
-        let timerId: any;
-            timerId = setTimeout(() => {
-                this.nodeCreate.emit(this.inputValue);
-            }, 5000);
-            this.snack("Created", timerId);
-        this.inputValue = ""
+        this.nodeCreate.emit()
     }
 
     public snack(text: string, timerId: number) {

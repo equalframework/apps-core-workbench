@@ -15,6 +15,7 @@ import { DeleteConfirmationComponent } from './_components/search-list/_componen
 import { ViewsInfoModule } from './_components/views-info/views-info.module';
 import { ViewsComponent } from './views.component';
 import { MatRadioModule } from '@angular/material/radio';
+import { MixedCreatorModule } from '../package/_components/mixed-creator/mixed-creator.module';
 
 
 
@@ -36,6 +37,7 @@ import { MatRadioModule } from '@angular/material/radio';
     ViewsRoutingModule,
     MatDialogModule,
     ViewsInfoModule,
+    MixedCreatorModule
   ]
 })
 export class ViewsModule { }

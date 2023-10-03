@@ -6,6 +6,7 @@ import { EnvService } from 'sb-shared-lib';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { ItemTypes } from '../../_constants/ItemTypes';
 import { MixedCreatorComponent } from '../mixed-creator/mixed-creator.component';
+import { DeleteConfirmationComponent } from './_components/delete-confirmation/delete-confirmation.component';
 
 /** 
  * This component is used to display the list of all object you recover in package.component.ts
@@ -27,6 +28,7 @@ export class SearchMixedListComponent implements OnInit {
     @Input() loading:boolean; // Notify if the parent node finished loading
     @Output() nodeSelect = new EventEmitter<{package?:string,name:string,type:string}>();  // Used to send selected object reference to parent
     @Output() refresh = new EventEmitter<void>();
+    @Output() delete =  new EventEmitter<{package?:string,name:string,type:string}>();
 
     public obk = Object.keys;   // Object.keys method for utilisation in search-mixed-list.component.html
     public filteredData: {package?:string,name:string,type:string}[];   // filtered derivative of data with purpose to be displayed
@@ -136,5 +138,17 @@ export class SearchMixedListComponent implements OnInit {
         });
         
         
+    }
+
+    clickDelete(node:{package?:string,name:string,type:string}) {
+        const dialogRef = this.dialog.open(DeleteConfirmationComponent, {
+            data:  node.name ,
+        });
+
+        dialogRef.afterClosed().subscribe((result) => {
+            if (result) {
+                this.delete.emit(node);
+            }
+        });
     }
 }

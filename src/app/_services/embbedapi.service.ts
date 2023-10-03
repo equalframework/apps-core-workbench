@@ -15,6 +15,16 @@ export class EmbbedApiService {
         this.api.fetch("?do=core_config_create-view&view_id="+view_id+"&entity="+model)
     }
 
+    public async deleteView(entity:string,view_id:string):Promise<boolean>{
+        try {
+            await this.api.fetch("?do=core_config_delete-view&entity="+entity+"&view_id="+view_id)
+            return true
+        } catch {
+            return false
+        }
+        
+    }
+
     public async createPackage(packagename:string) {
         this.api.fetch("?do=core_config_create-package&package="+packagename)
     }

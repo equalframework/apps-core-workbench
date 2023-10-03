@@ -1,6 +1,6 @@
 <div>
 <mat-form-field class="mixed-search-select">
-    <mat-select [(value)]="type" class="" (valueChange)="reloadlist()">
+    <mat-select [disabled]="lockType" [(value)]="type" class="" (valueChange)="reloadlist()">
         <mat-label>Type</mat-label>
         <mat-select-trigger> <mat-icon class="icon-search-small mixed-select-sel-{{type}}">{{t_dict[type].icon}}</mat-icon> {{t_dict[type].disp}}</mat-select-trigger>
         <mat-option *ngFor="let key of obk(t_dict)" [value]="key">
@@ -10,9 +10,9 @@
 </mat-form-field>
 </div>
 <div *ngIf="implemented">
-    <mat-form-field *ngIf="need_package">
+    <mat-form-field *ngIf="need_package" >
         <mat-label>Package</mat-label>
-        <mat-select [(value)]="selected_package" (valueChange)="onPackageSelect()">
+        <mat-select [disabled]="lockPackage" [(value)]="selected_package" (valueChange)="onPackageSelect()">
             <mat-option *ngFor="let pkg of cachepkglist" [value]="pkg">
                 {{pkg}}
             </mat-option>
@@ -20,7 +20,7 @@
     </mat-form-field>
     <mat-form-field *ngIf="need_model" >
         <mat-label>Model</mat-label>
-        <mat-select [disabled]="selected_package===''"  [(value)]="selected_model" (valueChange)="reloadlist()">
+        <mat-select [disabled]="selected_package==='' || lockModel"  [(value)]="selected_model" (valueChange)="reloadlist()">
             <mat-option *ngFor="let model of cachemodellist" [value]="model">
                 {{model}}
             </mat-option>
@@ -29,7 +29,7 @@
     <div>
     <mat-form-field *ngIf="need_subtype" >
         <mat-label>{{subTypeName}}</mat-label>
-        <mat-select [disabled]="selected_package===''" [(value)]="subtype" (valueChange)="reloadlist()">
+        <mat-select [disabled]="selected_package==='' || lockSubType" [(value)]="subtype" (valueChange)="reloadlist()">
             <mat-option *ngFor="let subtyp of subtypelist" [value]="subtyp">
                 {{subtyp}}
             </mat-option>
