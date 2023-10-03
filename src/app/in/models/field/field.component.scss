@@ -58,14 +58,11 @@ pre {
     overflow-x: auto;
 }
 
-.step {
-    margin: 1%;
-}
-
 .title-container {
     display: flex;
     align-items: center;
     font-size : 1.5em;
+    margin-top: 1em;
 }
 
 .title-container button,mat-label {
@@ -92,4 +89,18 @@ pre {
 
 .title-container .solo {
     margin-left: 2.5em;
+}
+
+.border {
+    margin-top: 1em;
+    border: solid 2px #E0E0E0;
+    border-radius: 1em;
+}
+
+.bgcolor {
+    background-color: whitesmoke;
+    margin: 1em;
+    border-radius: 1em;
+    width: calc(100% - 2em);
+    padding: 1em;
 }

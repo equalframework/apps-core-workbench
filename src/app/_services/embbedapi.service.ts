@@ -45,7 +45,6 @@ export class EmbbedApiService {
             console.error(response)
             return undefined
         }
-        
     }
 
     public async listModelFrom(pkg:string):Promise<string[]|undefined> {
@@ -94,6 +93,26 @@ export class EmbbedApiService {
             return []
         }
         
+    }
+
+    public async listControlerFromPackageAndByType(pkg:string,type:"data"|"actions"|"apps",pkname:boolean=false):Promise<string[]> {
+        try {
+            let temp:string[] = (await this.api.fetch("?get=core_config_controllers&package="+pkg))[type]
+            if(pkname) return temp
+            let res:string[] = []
+            for(let item of temp) {
+                res.push(item.split("_").slice(1).join("_"))
+            }
+            return res
+            
+        }catch {
+            return []
+        }
+        
+    }
+
+    public async createController(pkg:string,name:string,type:"do"|"get") {
+        this.api.fetch("?do=core_config_create-controller&controller_name="+name+"&controller_type="+type+"&package="+pkg)
     }
 
     public async createModel(pkg:string,name:string,parent:string){

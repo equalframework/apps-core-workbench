@@ -19,6 +19,7 @@ export class PackageInfoComponent implements OnInit {
     @Output() onModelClick = new EventEmitter<void>();
     @Output() onControllerClick = new EventEmitter<void>();
     @Output() onViewClick = new EventEmitter<void>();
+    @Output() refresh = new EventEmitter<void>();
     public current_initialised = false
     public warn_count:number
     public error_count:number
@@ -74,5 +75,15 @@ export class PackageInfoComponent implements OnInit {
 
     public consitencyPrint():any {
         prettyPrintJson.toHtml(this.package_consitency)
+    }
+
+    public async initPackage() {
+        let x = await this.api.InitPackage(this.current_package)
+        if(x) {
+            this.snackBar.open("Package "+this.current_package+" has been successfully initialised")
+            this.refresh.emit()
+        } else {
+            this.snackBar.open("Error during package initialisation, check package consistency for more informations.")
+        }
     }
 }

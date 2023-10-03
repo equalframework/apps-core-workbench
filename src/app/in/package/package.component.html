@@ -36,6 +36,7 @@
                     (onModelClick)="onClickModels()"
                     (onControllerClick)="onClickControllers()"
                     (onViewClick)="onClickView()"
+                    (refresh)="refresh_consitency()"
                 >
                 </app-package-info>
                 <app-controller-info *ngIf="selected_element.type==='do' || selected_element.type==='get'" class="max-height max-width"

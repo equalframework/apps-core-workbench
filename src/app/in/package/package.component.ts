@@ -118,6 +118,11 @@ export class PackageComponent implements OnInit {
         this.selected_element = eq_element;
     }
 
+    async refresh_consitency() {
+        this.initialised_packages = await this.api.getInitialisedPackages()
+        this.package_consistency = await this.api.getPackageConsistency(this.selected_element.name)
+    }
+
     public onClickModels() {
         this.router.navigate(['/models', this.selected_element.name],{"selected":this.selected_element});
     }

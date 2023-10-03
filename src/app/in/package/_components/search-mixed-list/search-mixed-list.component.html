@@ -15,9 +15,11 @@
             </mat-option>
         </mat-select>
     </mat-form-field>
-    <button mat-mini-fab color="primary" (click)="openCreator()" class="smallminifab">
-        <mat-icon>add</mat-icon>
-    </button>
+    <div class="btnholder-searchlist">
+        <button mat-mini-fab color="primary" (click)="openCreator()" class="smallminifab">
+            <mat-icon>add</mat-icon>
+        </button>
+    </div>
 </div>
 <div *ngIf="loading">
     <mat-spinner></mat-spinner>

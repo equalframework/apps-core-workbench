@@ -267,4 +267,14 @@ export class WorkbenchService extends EmbbedApiService {
             return []
         }
     }
+
+    public async InitPackage(pkg:string):Promise<boolean> {
+        try {
+            await this.api.fetch("?do=core_init_package&package="+pkg)
+            return true
+        } catch {
+            return false
+        }
+        
+    }
 }

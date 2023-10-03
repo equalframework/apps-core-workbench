@@ -3,15 +3,6 @@
     <input matInput placeholder="Filter" (keyup)="onSearch($event.target.value)">
 </mat-form-field>
 
-<div class="add_container">
-    <mat-form-field class="input search-bar">
-        <input matInput [(ngModel)]="inputValue" placeholder="new field name" (keyup)="reformatTextCreate()">
-    </mat-form-field>
-    <button mat-icon-button class="add_button" aria-label="Add node">
-        <mat-icon class="icon pointable" (click)="onclickCreate()">add</mat-icon>
-    </button>
-</div>
-
 <mat-list class="list scrollable">
     <mat-list-item *ngFor="let node of filteredData" class="scrollable">
         <ng-container *ngIf="editingNode === node; else displayMode" class="node_container">
@@ -53,3 +44,12 @@
         </ng-template>
     </mat-list-item>
 </mat-list>
+
+<div class="add_container">
+    <mat-form-field class="input search-bar" title="name of the new field">
+        <input matInput [(ngModel)]="inputValue" placeholder="new field name" (keyup)="reformatTextCreate()">
+    </mat-form-field>
+    <button mat-icon-button class="add_button" title="create a new field">
+        <mat-icon class="icon pointable" (click)="onclickCreate()">add</mat-icon>
+    </button>
+</div>

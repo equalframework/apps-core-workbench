@@ -3,7 +3,6 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ItemTypes } from '../../_constants/ItemTypes';
 import { AbstractControl, AsyncValidatorFn, FormControl, MaxLengthValidator, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
-import { first, snakeCase } from 'lodash';
 
 @Component({
   selector: 'app-mixed-creator',
@@ -75,6 +74,9 @@ export class MixedCreatorComponent implements OnInit {
     this.reloadlist()
   }
 
+  /**
+   * Resync form display with the type of entity selected for creation
+   */
   async reloadlist() {
     switch(this.type) {
     case "package" :
@@ -117,6 +119,24 @@ export class MixedCreatorComponent implements OnInit {
           console.log(this.cachelist)
         }
         break;
+      case "do":
+        this.need_package = true
+        this.implemented = true
+        this.need_model = false
+        this.need_subtype = false
+        if(this.selected_package) {
+          this.cachelist = (await this.api.listControlerFromPackageAndByType(this.selected_package,"actions"))
+        }
+        break
+      case "get":
+        this.need_package = true
+        this.implemented = true
+        this.need_model = false
+        this.need_subtype = false
+        if(this.selected_package) {
+          this.cachelist = (await this.api.listControlerFromPackageAndByType(this.selected_package,"data"))
+        }
+        break
       default:
         this.implemented = false
     }
@@ -144,6 +164,10 @@ export class MixedCreatorComponent implements OnInit {
     case "class":
       this.nameControl.addValidators(MixedCreatorComponent.camelCase)
       break;
+    case "do":
+    case "get":
+      this.nameControl.addValidators(MixedCreatorComponent.snake_case_controller)
+      break
     }
     this.nameControl.clearAsyncValidators()
     this.nameControl.addAsyncValidators(MixedCreatorComponent.already_taken(this.cachelist))
@@ -170,6 +194,15 @@ export class MixedCreatorComponent implements OnInit {
   static snake_case(control: AbstractControl): ValidationErrors | null {
     let value: string = control.value
     let valid_chars = "abcdefghijkmlnopqrstuvwxyz-"
+    for(let char of value) {
+      if(!valid_chars.includes(char)) return {"case":true}
+    }
+    return null
+  }
+
+  static snake_case_controller(control: AbstractControl): ValidationErrors | null {
+    let value: string = control.value
+    let valid_chars = "abcdefghijkmlnopqrstuvwxyz-_"
     for(let char of value) {
       if(!valid_chars.includes(char)) return {"case":true}
     }
@@ -216,6 +249,14 @@ export class MixedCreatorComponent implements OnInit {
         break
       case "class" :
         await this.api.createModel(this.selected_package,this.nameControl.value,this.subtype)
+        this.dialogRef.close()
+        break;
+      case "do" :
+        await this.api.createController(this.selected_package,this.nameControl.value,"do")
+        this.dialogRef.close()
+        break;
+      case "get" :
+        await this.api.createController(this.selected_package,this.nameControl.value,"get")
         this.dialogRef.close()
         break;
       default:
