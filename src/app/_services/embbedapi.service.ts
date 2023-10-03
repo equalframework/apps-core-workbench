@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ApiService } from 'sb-shared-lib';
 
@@ -15,12 +16,20 @@ export class EmbbedApiService {
         this.api.fetch("?do=core_config_create-view&view_id="+view_id+"&entity="+model)
     }
 
-    public async deleteView(entity:string,view_id:string):Promise<boolean>{
+    public getErrorstring(x:any):string {
+        let res = "{"
+        for(let key in x) {
+            res += " "+key +" : "+x[key]+" "
+        }
+        return res + "}"
+    }
+
+    public async deleteView(entity:string,view_id:string):Promise<string|undefined>{
         try {
             await this.api.fetch("?do=core_config_delete-view&entity="+entity+"&view_id="+view_id)
-            return true
-        } catch {
-            return false
+            return undefined
+        } catch(resp:any) {
+            return this.getErrorstring(resp.error.errors)
         }
         
     }

@@ -57,8 +57,8 @@ export class ViewsComponent implements OnInit {
     let sp = event.split(":")
     let res = await this.api.deleteView(sp[0],sp[1])
     this.init()
-    if(res) this.snackBar.open("deleted.")
-    else this.snackBar.open("Error during deletion")
+    if(!res) this.snackBar.open("Deleted")
+    else this.snackBar.open(res)
   }
 
   public oncreateView() {

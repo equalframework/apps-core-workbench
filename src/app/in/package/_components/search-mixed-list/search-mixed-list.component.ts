@@ -63,7 +63,6 @@ export class SearchMixedListComponent implements OnInit {
     }
 
     public async ngOnChanges() {
-        console.log(this.selected_node)
         this.onSearch(false);
     }
 

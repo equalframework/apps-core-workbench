@@ -205,17 +205,19 @@ export class PackageComponent implements OnInit {
         case "view":
             let sp = node.name.split(":")
             let res = await this.api.deleteView(sp[0],sp[1])
-            if(res) this.snackBar.open("Deleted")
-            else this.snackBar.open("Error during deletion")
+            if(!res){
+                this.snackBar.open("Deleted")
+                this.selected_element === undefined
+                this.refresh()
+            }
+            else{
+                this.snackBar.open("error : "+res)
+            }
             break
         default:
             this.snackBar.open("WIP")
             break;
         }
-        if(this.selected_element === node){
-            this.selected_element === undefined
-        }
-        this.refresh()
     }
 }
 
