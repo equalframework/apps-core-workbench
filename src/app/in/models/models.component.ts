@@ -113,7 +113,7 @@ export class ModelsComponent implements OnInit {
                 package: this.selected_package, 
                 lock_type : true,
                 lock_package: true, 
-            }
+            },width : "40em",height: "26em"
         })
 
         d.afterClosed().subscribe(() => {

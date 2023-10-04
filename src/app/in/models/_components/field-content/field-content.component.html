@@ -1,7 +1,8 @@
 
 <!-- Buttons to save or cancel the change on the field -->
 <div class="flex">
-    <div><label class="field-indication">Field : {{actual_field.name}}</label></div>
+    <mat-icon>text_format</mat-icon>
+    <div><label class="field-indication">{{actual_field.name}}</label></div>
     <div class="button-container">
         <button class="button-height" mat-button
             color="primary"
@@ -16,7 +17,7 @@
 <ng-container *ngIf="actual_field.inherited">
     <div class="inheritwarn-text">This field is inherited.</div>
 </ng-container>
-<mat-tab-group mat-align-tabs="center" class="scroll max-height">
+<mat-tab-group mat-align-tabs="left" class="scroll max-height">
     <!--Basic information for a field-->
     <mat-tab label="Basic">
         <div class="form-container">

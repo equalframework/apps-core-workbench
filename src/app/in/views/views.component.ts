@@ -79,7 +79,7 @@ export class ViewsComponent implements OnInit {
           lock_type : true,
           lock_package: true,
           lock_model : true
-        }
+        },width : "40em",height: "26em"
     })
     d.afterClosed().subscribe(() => {
       this.init()

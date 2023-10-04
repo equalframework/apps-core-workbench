@@ -4,6 +4,10 @@
     transform: scale(.8) translateY(.2em)
 }
 
+.mixed-search-select {
+    width: 45%;
+    margin-top: 1em;
+}
 
 .name-mixed-sel {
     width: 85%;
@@ -99,4 +103,27 @@
     transform: translateY(.2em);
     margin-left : .5em;
     margin-right : .5em;
+}
+
+.inset {
+    margin-left: 5%;
+    margin-right: 5%;
+}
+
+.flexing {
+    display: flex;
+    justify-content: space-between;
+}
+
+.bigholder {
+    height : 90%
+}
+
+.flexend {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.title {
+    font-size: 1.3em;
 }

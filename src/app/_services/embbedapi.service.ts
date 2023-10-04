@@ -119,5 +119,14 @@ export class EmbbedApiService {
         this.api.fetch("?do=core_config_create-model&model="+name+"&package="+pkg+(parent === "equal\\orm\\Model" ? "" : "&extends="+parent))
     }
 
+    public async getSchema(entity: string) {
+        try {
+            return await this.api.fetch('?get=core_model_schema&entity=' + entity);
+        }
+        catch (response: any) {
+            console.warn('request error', response);
+        }
+    }
+
 }
  

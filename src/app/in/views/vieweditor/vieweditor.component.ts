@@ -6,6 +6,7 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dial
 import { prettyPrintJson } from 'pretty-print-json';
 import { ViewEditorServicesService } from './_services/view-editor-services.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-vieweditor',
@@ -24,6 +25,7 @@ export class VieweditorComponent implements OnInit {
   fields:string[]
   types = ViewItem.typeList
   loading = true
+  error = false
 
   // this is used to avoid calling the compliancy_id method which has a great cost
   compliancy_cache:{ok:boolean,id_list:string[]} 
@@ -60,34 +62,39 @@ export class VieweditorComponent implements OnInit {
 
   public async init() {
     if(this.name) {
-      let tempsplit = this.name.split(":")
-      this.entity = tempsplit[0]
-      this.view_id = tempsplit[1]
-      this.view_scheme = await this.api.getView(this.entity,this.view_id)
-      console.log(this.view_scheme)
-      this.view_obj = new View(this.view_scheme,tempsplit[1].split(".")[0])
-      console.log(this.view_obj)
-      this.class_scheme = await this.api.getSchema(this.entity)
-      this.fields = this.obk(this.class_scheme['fields'])
-      for(let num in this.view_obj.layout.groups) {
-        this.groups_visible[num] = false
-      }
-      let temp_controller = await this.api.getDataControllerList(this.entity.split("\\")[0])
-      for(let item of temp_controller) {
-        let data =  await this.api.getAnnounceController(item)
-        if(!data) continue
-        if(!data["announcement"]["extends"] || data["announcement"]["extends"] !== "core_model_collect") continue
-        this.collect_controller.push(item)
-      }
-      console.log(this.collect_controller)
-      this.action_controllers = await this.api.getAllActionControllers()
+      try {
+        let tempsplit = this.name.split(":")
+        this.entity = tempsplit[0]
+        this.view_id = tempsplit[1]
+        this.view_scheme = await this.api.getView(this.entity,this.view_id)
+        console.log(this.view_scheme)
+        this.view_obj = new View(this.view_scheme,tempsplit[1].split(".")[0])
+        console.log(this.view_obj)
+        this.class_scheme = await this.api.getSchema(this.entity)
+        this.fields = this.obk(this.class_scheme['fields'])
+        for(let num in this.view_obj.layout.groups) {
+          this.groups_visible[num] = false
+        }
+        let temp_controller = await this.api.getDataControllerList(this.entity.split("\\")[0])
+        for(let item of temp_controller) {
+          let data =  await this.api.getAnnounceController(item)
+          if(!data) continue
+          if(!data["announcement"]["extends"] || data["announcement"]["extends"] !== "core_model_collect") continue
+          this.collect_controller.push(item)
+        }
+        console.log(this.collect_controller)
+        this.action_controllers = await this.api.getAllActionControllers()
+      
+      this.api.getCoreGroups().then(data => {
+        for(let key in data) {
+          this.groups.push(data[key]['name'])
+        }
+        console.log(this.groups)
+      })
+    } catch {
+      this.error = true
     }
-    this.api.getCoreGroups().then(data => {
-      for(let key in data) {
-        this.groups.push(data[key]['name'])
-      }
-      console.log(this.groups)
-    })
+    }
   }
 
   ngOnChanges() {
@@ -149,13 +156,21 @@ export class VieweditorComponent implements OnInit {
   save() {
     
     var timerId = setTimeout(async () => {
-      this.api.saveView(this.view_obj.export(),this.entity,this.view_id);
-      this.snackBar.open("Saved ! Change can take time to be ", '', {
+      let success = await this.api.saveView(this.view_obj.export(),this.entity,this.view_id);
+      if(success) {
+        this.snackBar.open("Saved ! Change can take time to be ", '', {
+            duration: 1000,
+            horizontalPosition: 'left',
+            verticalPosition: 'bottom'
+        })
+        this.router.goBack();
+      } else {
+        this.snackBar.open("ISSUE", 'Error', {
           duration: 1000,
           horizontalPosition: 'left',
           verticalPosition: 'bottom'
       })
-      this.router.goBack();
+      }
     }, 1500);
     this.snackBar.open("Saving...", 'Cancel', {
         duration: 1500,
@@ -182,6 +197,20 @@ export class VieweditorComponent implements OnInit {
     }).onAction().subscribe(() => {
         clearTimeout(timerId);
     })
+  }
+
+  drop_item(event: CdkDragDrop<ViewItem[]>) {
+    console.log(event)
+    if (event.previousContainer === event.container) {
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    } else {
+      transferArrayItem(
+        event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex,
+      );
+    }
   }
 }
 

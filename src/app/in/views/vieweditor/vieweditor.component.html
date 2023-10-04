@@ -1,7 +1,15 @@
-<div *ngIf="loading" class="loader">
+<div *ngIf="error" class="loader">
+    <div>
+        <label>This view is not currently supported for edition</label> 
+    </div>
+    <div>
+        <button mat-flat-button color="primary" (click)="goBack()">Go back</button>
+    </div>
+</div>
+<div *ngIf="!error && loading" class="loader">
     <mat-spinner></mat-spinner>
 </div>
-<div *ngIf="!loading">
+<div *ngIf="!error && !loading">
     <div class="title-container">
         <button class="title-btn maincolor" mat-icon-button (click)="goBack()"><mat-icon>arrow_back</mat-icon></button>
         <label class="page-title">View : </label><label class="page-title maincolor endlabel">{{name}}</label>
@@ -189,15 +197,30 @@
             <div *ngIf="view_obj.type !== 'form'">
                 <label class="category-title maincolor">Items</label>
                 <button mat-fab color="primary" class="addItem" (click)="addItemLayout()"><mat-icon>add</mat-icon></button>
-                <div class="indent">
-                    <app-item-editor *ngFor="let item of view_obj.layout.items"
+                <div class="indent" 
+                    cdkDropList 
+                    [cdkDropListData]="view_obj.layout.items"
+                    (cdkDropListDropped)="drop_item($event)"
+                >
+                    <div cdkDrag *ngFor="let item of view_obj.layout.items" class="item-drag-container">
+                        <div class="flexcenter">
+                            <mat-icon cdkDragHandle>drag_indicator</mat-icon>
+                            <label 
+                                class="item-drag-container-label"
+                            >
+                                {{item.label.trim() !== "" && item.type === "field" ? item.label.trim()+" ["+item.value+"]" : item.value}} ({{item.type}})
+                            </label>
+                        </div>
+                        <app-item-editor
                         [item]="item"
                         [entity]="entity"
                         [fields]="fields"
                         [types]="types"
                         [displayDelete]="true"
                         (delete)="deleteItemLayout(view_obj.layout.items.indexOf(item))"
-                    ></app-item-editor>
+                        ></app-item-editor>
+                    </div>
+                    
                 </div>
         </div>
         <button mat-button (click)="logit()">

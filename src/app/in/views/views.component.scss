@@ -1,0 +1,34 @@
+:host {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.title-container {
+    display: flex;
+    align-items: center;
+    font-size : 1.5em;
+}
+
+.title-container button,mat-label {
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+}
+
+.title-container .info-menu {
+    display: flex;
+    align-items: center;
+}
+
+.title-container .info-menu .info-menu-icon {
+    transform : scale(1.2);
+}
+
+.title-container .info-menu mat-label {
+    margin: 0 !important;
+}
+
+.title-container .solo {
+    margin-left: 2.5em;
+}

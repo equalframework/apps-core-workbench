@@ -1,5 +1,6 @@
+@import "/src/theme.scss";
+
 .item {
-    margin: 1em 0em;
     padding: 1em;
     background-color: ghostwhite;
     border-radius: .5em;
@@ -19,7 +20,10 @@ mat-checkbox {
 }
 
 .widget {
-    background-color: #eee;
+    border: solid 1px #999;
+    border-radius: 1em;
+    padding: 1em;
+    margin-top: .5em;
 }
 
 .inputlong {
@@ -34,4 +38,24 @@ mat-checkbox {
     margin-left: 3em;
     margin-top: auto;
     margin-bottom: auto;
+}
+
+.sup-prop-title {
+    color: mat-color($maincolor);
+}
+
+.ml1em {
+    margin-left: 1em;
+}
+
+.percent-form {
+    width: 6em;
+}
+
+.list-selector {
+    width: 15em;
+}
+
+.justify-between {
+    justify-content: space-between;
 }

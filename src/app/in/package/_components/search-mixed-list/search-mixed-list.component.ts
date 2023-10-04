@@ -128,7 +128,7 @@ export class SearchMixedListComponent implements OnInit {
     }
 
     openCreator() {
-        let d = this.dialog.open(MixedCreatorComponent,{data:{type:this.search_scope}})
+        let d = this.dialog.open(MixedCreatorComponent,{data:{type:this.search_scope},width : "40em",height: "26em"})
 
         d.afterClosed().subscribe(() => {
             // Do stuff after the dialog has closed

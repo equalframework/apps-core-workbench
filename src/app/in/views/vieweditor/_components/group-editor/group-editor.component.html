@@ -115,7 +115,7 @@
                                 >
                                     <mat-icon class="grabable">drag_indicator</mat-icon>
                                     <div class="valuedisp">
-                                        {{item.value}}
+                                        {{item.label.trim() !== "" && item.type === "field" ? item.label.trim()+" ["+item.value+"]" : item.value}}
                                         <mat-icon class="invisibleicon"
                                             *ngIf="item.has_domain && !item.is_visible_domain && !item.visible_bool"
                                         >visibility_off</mat-icon>
