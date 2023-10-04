@@ -160,15 +160,11 @@ export class SearchListControllerComponent implements OnInit {
 
     public onclickCreate() {
         let timerId: any;
-        timerId = setTimeout(() => {
-            if(this.data_selected) {
-                this.nodeCreate.emit({type: 'get', name: this.inputValue});
-            } else {
-                this.nodeCreate.emit({type: 'do', name: this.inputValue});
-            }
-        }, 5000);
-        this.snack("Created", timerId);
-
+        if(this.data_selected) {
+            this.nodeCreate.emit({type: 'get', name: this.inputValue});
+        } else {
+            this.nodeCreate.emit({type: 'do', name: this.inputValue});
+        }
         this.inputValue = ""
     }
 
