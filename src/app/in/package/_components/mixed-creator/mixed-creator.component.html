@@ -38,19 +38,28 @@
             <div class="flexing">
                 <mat-form-field *ngIf="need_subtype" class="mixed-search-select">
                     <mat-label>{{subTypeName}}</mat-label>
-                    <mat-select [disabled]="selected_package==='' || lockSubType" [(value)]="subtype" (valueChange)="reloadlist()">
+                    <mat-select [disabled]="selected_package==='' || lockSubType || addingState" [(value)]="subtype" (valueChange)="reloadlist()">
                         <mat-option *ngFor="let subtyp of subtypelist" [value]="subtyp">
                             {{subtyp}}
                         </mat-option>
                     </mat-select>
+                    <button *ngIf="can_add_subtypes" [disabled]="selected_package==='' || lockSubType || addingState"  matSuffix mat-icon-button (click)="setAddingState(true)"><mat-icon>edit</mat-icon></button>
                 </mat-form-field>
+                
                 <mat-form-field class="mixed-search-select">
-                    <mat-label>Name</mat-label>
+                    <mat-label>{{name_title}}</mat-label>
                     <input matInput [formControl]="nameControl">
                     <mat-error *ngIf="nameControl.invalid">{{getControlsErrors(nameControl)}}</mat-error>
                 </mat-form-field>
             </div>
-
+            <div *ngIf="addingState && can_add_subtypes">
+                <mat-form-field class="mixed-search-select">
+                    <mat-label>custom {{subTypeName}}</mat-label>
+                    <input matInput [formControl]="customSTControl" (input)="reloadlist()">
+                    <button matSuffix mat-icon-button (click)="setAddingState(false)"><mat-icon>cancel</mat-icon></button>
+                    <mat-error *ngIf="customSTControl.invalid">{{getControlsErrors(customSTControl)}}</mat-error>
+                </mat-form-field>
+            </div>
         </div>
         <div *ngIf="!implemented" class="inset">
             [WIP]

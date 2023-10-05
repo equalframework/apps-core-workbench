@@ -1,0 +1,16 @@
+<h2 mat-dialog-title>Delete Confirmation</h2>
+<div>
+    <div style="margin-bottom: 1em;">
+        <mat-checkbox [checked]="imprt" (change)="imprt = $event.checked">import init data</mat-checkbox>
+    </div>
+    <div style="color:orangered;margin-bottom: 1em;">
+        Initializing a package can replace apps/routes of another package by the package's apps/routes if they have the same name.
+    </div>
+    <div style="margin-bottom: 1em;">
+        Are you sure you want to initialize {{data.package}} ?
+    </div>
+</div>
+<div style="display: flex; justify-content: flex-end; align-items: center;">
+    <button mat-button [mat-dialog-close]="undefined">cancel</button>
+    <button mat-button [mat-dialog-close]="{import:imprt}">initialize</button>
+</div>

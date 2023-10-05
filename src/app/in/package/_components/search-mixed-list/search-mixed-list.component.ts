@@ -6,7 +6,7 @@ import { EnvService } from 'sb-shared-lib';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { ItemTypes } from '../../_constants/ItemTypes';
 import { MixedCreatorComponent } from '../mixed-creator/mixed-creator.component';
-import { DeleteConfirmationComponent } from './_components/delete-confirmation/delete-confirmation.component';
+import { DeleteConfirmationComponent } from 'src/app/in/delete-confirmation/delete-confirmation.component';
 
 /** 
  * This component is used to display the list of all object you recover in package.component.ts

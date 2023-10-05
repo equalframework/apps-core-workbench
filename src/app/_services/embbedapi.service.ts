@@ -125,6 +125,25 @@ export class EmbbedApiService {
         }
         catch (response: any) {
             console.warn('request error', response);
+            return {}
+        }
+    }
+
+    public async getRoutesByPackages(pkg:string) {
+        try {
+            return await this.api.fetch('?get=core_config_routes&package=' + pkg);
+        }
+        catch (response: any) {
+            return []
+        }
+    }
+
+    public async createroute(pkg:string,file:string,url:string):Promise<boolean> {
+        try {
+            await this.api.fetch("?do=core_config_create-route&package="+pkg+"&file="+file+"&url="+url)
+            return true
+        } catch {
+            return false
         }
     }
 

@@ -116,17 +116,6 @@ export class WorkbenchService {
         }
     }
 
-    public async getInitialisedPackages():Promise<string[]> {
-        var ret = []
-        try {
-            ret = await this.api.fetch('?get=core_installed-packages');
-        }
-        catch (response: any) {
-            console.warn('fetch package error', response);
-        }
-        return ret;
-    }
-
     /**
      * Return all the classes foreach package
      *

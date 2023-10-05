@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { DeleteConfirmationComponent } from './_components/delete-confirmation/delete-confirmation.component'
+import { DeleteConfirmationComponent } from 'src/app/in/delete-confirmation/delete-confirmation.component'
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({

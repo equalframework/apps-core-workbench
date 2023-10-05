@@ -17,9 +17,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { ControllersComponent } from './controllers.component';
 import { ControllersRoutingModule } from './controllers-routing.module';
 import { SearchListComponent } from './_components/search-list/search-list.component';
-import { DeleteConfirmationComponent } from './_components/search-list-controller/delete-confirmation/delete-confirmation.component';
 import { SearchListControllerComponent } from './_components/search-list-controller/search-list-controller.component';
 import { ControllerInfoModule } from './_components/controller-info/controller-info.module';
+import { DeleteConfirmationModule } from '../delete-confirmation/delete-confirmation.module';
 
 
 @NgModule({
@@ -35,12 +35,12 @@ import { ControllerInfoModule } from './_components/controller-info/controller-i
         MatFormFieldModule,
         MatInputModule,
         MatIconModule,
-        ControllerInfoModule
+        ControllerInfoModule,
+        DeleteConfirmationModule,
     ],
     declarations: [
         ControllersComponent,
         SearchListComponent,
-        DeleteConfirmationComponent,
         SearchListControllerComponent,
     ],
     providers: [

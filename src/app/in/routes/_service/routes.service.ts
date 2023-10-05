@@ -16,7 +16,7 @@ export class RoutesService {
      */
     public async getRoutes() {
         try {
-            return await this.api.fetch('?get=config_routes');
+            return await this.api.fetch('?get=config_live_routes');
         }
         catch (response: any) {
             console.warn('fetch package error', response);
@@ -26,7 +26,7 @@ export class RoutesService {
     /**
      * Return the announcement of a controller
      *
-     * @param string the operation to do ex:?get=config_routes
+     * @param string the operation to do ex:?get=config_live_routes
      * @return array with the announcement of a controller
      */
     public async getAnnounceController(operation: string) {
@@ -41,7 +41,7 @@ export class RoutesService {
     /**
      * Return the respond of a controller after execution
      *
-     * @param string the operation to do ex:?get=config_routes
+     * @param string the operation to do ex:?get=config_live_routes
      * @param array all the parameters for the controller
      * @return array with the respond of a controller's execution
      */

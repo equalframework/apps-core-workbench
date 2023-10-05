@@ -41,10 +41,10 @@ import { ControllerInfoModule } from '../controllers/_components/controller-info
 import { RouteInfoModule } from '../routes/_components/route-info/route-info.module';
 import { ViewsInfoModule } from '../views/_components/views-info/views-info.module';
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { MixedCreatorComponent } from './_components/mixed-creator/mixed-creator.component';
 import {  MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MixedCreatorModule } from './_components/mixed-creator/mixed-creator.module';
-import { DeleteConfirmationComponent } from './_components/search-mixed-list/_components/delete-confirmation/delete-confirmation.component';
+import { DeleteConfirmationModule } from '../delete-confirmation/delete-confirmation.module';
+import { InitValidatorComponent } from './_components/package-info/_components/init-validator/init-validator.component';
 
 
 @NgModule({
@@ -68,7 +68,8 @@ import { DeleteConfirmationComponent } from './_components/search-mixed-list/_co
         ViewsInfoModule,
         ScrollingModule,
         MatProgressSpinnerModule,
-        MixedCreatorModule
+        MixedCreatorModule,
+        DeleteConfirmationModule,
     ],
     declarations: [
         PackageComponent,
@@ -90,7 +91,7 @@ import { DeleteConfirmationComponent } from './_components/search-mixed-list/_co
         ValueSelectionComponent,
         ResponseComponentSubmit,
         PackageInfoComponent,
-        DeleteConfirmationComponent
+        InitValidatorComponent,
     ],
     providers: [
         DatePipe,

@@ -11,18 +11,16 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDialogModule } from '@angular/material/dialog';
-import { DeleteConfirmationComponent } from './_components/search-list/_components/delete-confirmation/delete-confirmation.component';
 import { ViewsInfoModule } from './_components/views-info/views-info.module';
 import { ViewsComponent } from './views.component';
-import { MatRadioModule } from '@angular/material/radio';
 import { MixedCreatorModule } from '../package/_components/mixed-creator/mixed-creator.module';
+import { DeleteConfirmationModule } from '../delete-confirmation/delete-confirmation.module';
 
 
 
 @NgModule({
   declarations: [
     SearchListComponent,
-    DeleteConfirmationComponent,
     ViewsComponent,
   ],
   imports: [
@@ -37,7 +35,8 @@ import { MixedCreatorModule } from '../package/_components/mixed-creator/mixed-c
     ViewsRoutingModule,
     MatDialogModule,
     ViewsInfoModule,
-    MixedCreatorModule
+    MixedCreatorModule,
+    DeleteConfirmationModule
   ]
 })
 export class ViewsModule { }
