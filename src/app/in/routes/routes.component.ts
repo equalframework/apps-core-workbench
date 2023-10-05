@@ -24,7 +24,6 @@ export class RoutesComponent implements OnInit {
     public routes_for_selected_package: string[] = [];
     public schema: any;
     public types: any;
-    beurl = ""
     real_name:{[id:string]:string} = {}
 
     loading = true
@@ -38,7 +37,6 @@ export class RoutesComponent implements OnInit {
     ) { }
 
     public async ngOnInit() {
-        this.beurl = (await this.env.getEnv())['backend_url']
         this.init()
     }
 
@@ -49,9 +47,9 @@ export class RoutesComponent implements OnInit {
         let y = (await this.api.getRoutesByPackages(this.selected_package))
         for(let file in y) {
             for(let route in y[file]) {
-                this.real_name[file.split("-")[0]+"-"+this.beurl+route] = route
-                this.routes_for_selected_package.push(file.split("-")[0]+"-"+this.beurl+route)
-                this.routelist[file.split("-")[0]+"-"+this.beurl+route] = {"info":{"file":file,"package":this.selected_package},"methods":y[file][route]}
+                this.real_name[file.split("-")[0]+"-"+route] = route
+                this.routes_for_selected_package.push(file.split("-")[0]+"-"+route)
+                this.routelist[file.split("-")[0]+"-"+route] = {"info":{"file":file,"package":this.selected_package},"methods":y[file][route]}
             }
         }
         console.log(this.real_name)
