@@ -50,7 +50,7 @@
                 ></app-controller-info>
                 <app-route-info  *ngIf="selected_element.type==='route'"
                     [current_route]="selected_element.name"
-                    [route_info]="routelist[selected_element.name]"
+                    [route_info]="routelist[selected_element.package+selected_element.more+selected_element.name]"
                     (redirect)="goTo($event)"
                 ></app-route-info>
                 <app-views-info  *ngIf="selected_element.type==='view'"

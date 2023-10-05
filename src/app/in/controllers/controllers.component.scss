@@ -99,3 +99,15 @@ pre {
 .title-container .solo {
     margin-left: 2.5em;
 }
+
+.model-label {
+    background-color: mat-color($get-color,A100);
+    margin-left: 0;
+    padding: 0 .3em;
+    border-radius: .2em;
+}
+
+.model-label mat-icon {
+    margin-right: .1em;
+    transform: scale(1.1) translateY(.15em);
+}

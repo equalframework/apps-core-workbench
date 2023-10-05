@@ -4,7 +4,8 @@
             <button (click)="getBack()" mat-icon-button matTooltip="Primary" color="primary" aria-label="Go back">
                 <mat-icon>keyboard_backspace</mat-icon>
             </button>
-            <mat-label>{{ selected_package ? selected_package+" \\ "+entity : entity }} \ Views</mat-label>
+            <mat-label>{{ selected_package ? selected_package+" \\ "+entity : entity }}</mat-label>
+            <mat-label class="model-label"><mat-icon>view_quilt</mat-icon>View</mat-label>
         </div>
         <mat-grid-list cols="4" class="max-height">
             <!-- Class search list, on the left of the screen -->

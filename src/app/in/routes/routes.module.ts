@@ -15,16 +15,8 @@ import { MatIconModule } from '@angular/material/icon';
 
 import { RoutesComponent } from './routes.component';
 import { RoutesRoutingModule } from './routes-routing.module';
-import { ParamsComponent } from './_components/params/params.component';
-import { ArrayComponent } from './_components/params/_components/array/array.component';
-import { BooleanComponent } from './_components/params/_components/boolean/boolean.component';
-import { DomainComponent } from './_components/params/_components/domain/domain.component';
-import { StringComponent } from './_components/params/_components/string/string.component';
-import { NumberComponent } from './_components/params/_components/number/number.component';
-import { AutoCompleteComponent } from './_components/params/_components/domain/_components/auto-complete/auto-complete.component';
-import { ValueComponent } from './_components/params/_components/domain/_components/value/value.component';
-import { ValueSelectionComponent } from './_components/params/_components/domain/_components/value-selection/value-selection.component';
-import { ResponseComponent } from './_components/params/_components/response/response.component'
+import { SearchListComponent } from './_components/search-list/search-list.component';
+import { RouteInfoModule } from './_components/route-info/route-info.module';
 
 
 @NgModule({
@@ -38,24 +30,16 @@ import { ResponseComponent } from './_components/params/_components/response/res
         MatInputModule,
         RoutesRoutingModule,
         MatExpansionModule,
-        MatIconModule
+        MatIconModule,
+        RouteInfoModule,
     ],
     declarations: [
         RoutesComponent,
-        ParamsComponent,
-        ArrayComponent,
-        BooleanComponent,
-        DomainComponent,
-        StringComponent,
-        NumberComponent,
-        AutoCompleteComponent,
-        ValueComponent,
-        ValueSelectionComponent,
-        ResponseComponent
+        SearchListComponent,
     ],
     providers: [
         DatePipe,
         { provide: DateAdapter, useClass: CustomDateAdapter, deps: [MAT_DATE_LOCALE, Platform] }
     ]
 })
-export class AppInRoutesModule { }
+export class RoutesModule { }

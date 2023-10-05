@@ -1,119 +1,149 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { RoutesService } from './_service/routes.service'
-import { method } from 'lodash';
+import { Component, OnInit, ViewEncapsulation, ViewChild } from '@angular/core';
+import { ContextService, EnvService } from 'sb-shared-lib';
+import { prettyPrintJson } from 'pretty-print-json';
+import { cloneDeep, update } from 'lodash';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { MatDialog } from '@angular/material/dialog';
+import { MixedCreatorComponent } from '../package/_components/mixed-creator/mixed-creator.component';
+import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
 
 @Component({
-    selector: 'app-routes',
-    templateUrl: './routes.component.html',
-    styleUrls: ['./routes.component.scss'],
-    encapsulation: ViewEncapsulation.None
+  selector: 'app-routes',
+  templateUrl: './routes.component.html',
+  styleUrls: ['./routes.component.scss'],
+  encapsulation : ViewEncapsulation.Emulated,
 })
 export class RoutesComponent implements OnInit {
 
-    public objectKeys = Object.keys;
-    public routes: any;
-    public filtered_route: any;
-    public routes_controllers: any;
-    public routes_fixed_params: any;
+    routelist:any = {}
+    public child_loaded = false;
+    public step = 1;
+    public selected_package: string = "";
+    public selected_route: string = "";
+    public routes_for_selected_package: string[] = [];
+    public schema: any;
+    public types: any;
+    beurl = ""
+    real_name:{[id:string]:string} = {}
 
-    constructor(private api: RoutesService) { }
+    loading = true
 
-    async ngOnInit() {
-        this.routes = await this.api.getRoutes();
-        console.log(this.routes)
-        this.initialization();
+    constructor(
+        private api: EmbbedApiService,
+        private route:RouterMemory,
+        private activateRoute:ActivatedRoute,
+        public matDialog:MatDialog,
+        public env:EnvService
+    ) { }
+
+    public async ngOnInit() {
+        this.beurl = (await this.env.getEnv())['backend_url']
+        this.init()
     }
 
-    /**
-     * Initialize routes_controller
-     * A object with the announce of controllers for the specified route
-     * A another object with the fixed params in the url for each specified route
-     */
-    private initialization() {
-        this.routes_controllers = {};
-        this.routes_fixed_params = {};
-        for(let key in this.routes) {
-            if (!this.routes_controllers[key]) {
-                this.routes_controllers[key] = {};
-                this.routes_fixed_params[key] = {};
-            }
-            for(let operation in this.routes[key].methods) {
-                this.initializationController(key, operation);
-                this.initializationFixedParams(key, operation);
+    async init() {
+        const a = this.activateRoute.snapshot.paramMap.get('selected_package')
+        this.selected_package =  a ? a : ""
+        this.routes_for_selected_package = []
+        let y = (await this.api.getRoutesByPackages(this.selected_package))
+        for(let file in y) {
+            for(let route in y[file]) {
+                this.real_name[file.split("-")[0]+"-"+this.beurl+route] = route
+                this.routes_for_selected_package.push(file.split("-")[0]+"-"+this.beurl+route)
+                this.routelist[file.split("-")[0]+"-"+this.beurl+route] = {"info":{"file":file,"package":this.selected_package},"methods":y[file][route]}
             }
         }
-
-        this.onSearch("");
+        console.log(this.real_name)
+        this.loading = false
     }
 
     /**
-     * Initialize route_controller with the announcement of controllers for the specified route
+     * Select a class.
      *
-     * @param key string, the path (/users, /user:id, ...)
-     * @param operation string, the operation for the the path (GET, POST, ...)
+     * @param eq_route the class that the user has selected
      */
-    private async initializationController(key: string, operation: string) {
-        this.routes_controllers[key][operation] = await this.api.getAnnounceController(this.routes[key].methods[operation].operation);
-        if(this.routes_controllers[key][operation]) {
-            this.routes_controllers[key][operation] = this.routes_controllers[key][operation]['announcement'];
+    public async onclickClassSelect(eq_route: string) {
+        this.selected_route = eq_route;
+    }
+
+    public async onChangeStep(step:number) {
+        this.step = step;
+        if(step == 2) {
+            this.route.navigate(['/fields',this.selected_package,this.selected_route])
+        }
+        if(step===3) {
+            this.route.navigate(['/views',"entity",this.selected_package+'\\'+this.selected_route])
         }
     }
 
     /**
-     * Initialize routes_fixed_params with a object with key as the name property and value as value property for the specified route
+     * Update the name of a class for the selected package.
      *
-     * @param key string, the path (/users, /user:id, ...)
-     * @param operation string, the operation for the the path (GET, POST, ...)
+     * @param event contains the old and new name of the class
      */
-    private initializationFixedParams(key: string, operation: string) {
-        let pairs = this.routes[key].methods[operation].operation.split("&");
-        pairs = pairs.slice(1);
-        for (const pair of pairs) {
-            const [name, value] = pair.split("=");
-            this.routes_fixed_params[key][operation] = { ...this.routes_fixed_params[key][operation], [name]: value };
-        }
+    public onupdateClass(event: { old_node: string, new_node: string }) {
     }
 
     /**
-     * Change filtered_route with the routes and operations which are respecting the input
+     * Delete a class for the selected package.
      *
-     * @param value string to search
+     * @param eq_route the name of the class which will be deleted
      */
-    public onSearch(value: string) {
-        let temp_filtered: any = {}
-        for(let key in this.routes) {
-            // search on the name (/user, /group, ...)
-            if (key.toLowerCase().includes(value.toLowerCase())) {
-                temp_filtered[key] = [];
-                temp_filtered[key] = Object.keys(this.routes[key].methods);
-            }
-            // search on file name
-            else if(this.routes[key].info.file.toLowerCase().includes(value.toLowerCase())) {
-                temp_filtered[key] = [];
-                temp_filtered[key] = Object.keys(this.routes[key].methods);
-            } else {
-                for(let operation in this.routes[key].methods) {
-                    // search on the operation (GET, POST, ...)
-                    if(operation.toLowerCase().includes(value.toLowerCase())) {
-                        temp_filtered[key] = [];
-                        temp_filtered[key].push(operation);
-                    }
-                    // search ont the controller name
-                    else {
-                        let controller_name = this.getControllerName(key,operation)
-                        if(controller_name.toLowerCase().includes(value.toLowerCase())) {
-                            temp_filtered[key] = [];
-                            temp_filtered[key].push(operation);
-                        }
-                    }
-                }
-            }
+    public ondeleteClass(eq_route: string) {
+    }
+
+    /**
+     * Create a class for the selected package.
+     *
+     * @param eq_route the name of the new class
+     */
+    public oncreateClass() {
+        let d = this.matDialog.open(MixedCreatorComponent,{
+            data: { 
+                type: "route", 
+                package: this.selected_package, 
+                lock_type : true,
+                lock_package: true, 
+            },width : "40em",height: "26em"
+        })
+
+        d.afterClosed().subscribe(() => {
+            // Do stuff after the dialog has closed
+            this.init()
+        });
+    }
+
+
+    /**
+     *
+     * @returns a pretty HTML string of a schema in JSON.
+     */
+    public getJSONSchema() {
+        if(this.schema) {
+            return this.prettyPrint(this.schema);
         }
-
-        this.filtered_route = temp_filtered;
+        return null;
     }
 
-    public getControllerName(route: string, operation: string) {
-        return this.routes[route].methods[operation].operation.split("=", 2)[1].split("&")[0];
+    /**
+     * Function to pretty-print JSON objects as an HTML string
+     *
+     * @param input a JSON
+     * @returns an HTML string
+     */
+    private prettyPrint(input: any) {
+        return prettyPrintJson.toHtml(input);
     }
+
+    public getBack() {
+        if(this.step === 1) {
+            this.route.goBack()
+        }
+        this.step --;
+    }
+
+
+
+
 }

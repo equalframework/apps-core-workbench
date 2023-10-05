@@ -23,15 +23,15 @@ import { DeleteConfirmationComponent } from 'src/app/in/delete-confirmation/dele
 export class SearchMixedListComponent implements OnInit {
 
     
-    @Input() data:{package?:string,name:string,type:string}[]; // The array of object to display
+    @Input() data:{package?:string,name:string,type:string,more?:any}[]; // The array of object to display
     @Input() selected_node:{name:string,type:string}; // The selected object of the list
     @Input() loading:boolean; // Notify if the parent node finished loading
-    @Output() nodeSelect = new EventEmitter<{package?:string,name:string,type:string}>();  // Used to send selected object reference to parent
+    @Output() nodeSelect = new EventEmitter<{package?:string,name:string,type:string,more?:any}>();  // Used to send selected object reference to parent
     @Output() refresh = new EventEmitter<void>();
-    @Output() delete =  new EventEmitter<{package?:string,name:string,type:string}>();
+    @Output() delete =  new EventEmitter<{package?:string,name:string,type:string,more?:any}>();
 
     public obk = Object.keys;   // Object.keys method for utilisation in search-mixed-list.component.html
-    public filteredData: {package?:string,name:string,type:string}[];   // filtered derivative of data with purpose to be displayed
+    public filteredData: {package?:string,name:string,type:string,more?:any}[];   // filtered derivative of data with purpose to be displayed
     public search_value:string = "";    // value part of the search bar field ( is parsed in onSearch() method )
     public search_scope:string = "";    // type part of the search bar field ( is parsed in onSearch() method )
     public current_root:string = "";    // root url of the backend ( parsed in ngOnInit() method )
@@ -98,7 +98,12 @@ export class SearchMixedListComponent implements OnInit {
         this.filteredData = this.data.filter(
             node => 
                 // checking value part
-                (node.package ? node.package+"\\"+node.name : node.name).toLowerCase().includes(this.search_value.toLowerCase())
+                ( node.type === "route" ?
+                    node.package + "-" + node.more + "-" + node.name
+                    :
+                    (node.package ? node.package+"\\"+node.name : node.name)
+                ).toLowerCase().includes(this.search_value.toLowerCase())
+                
                 // checking types part
                 && (this.search_scope === ""
                     || (node.type === this.search_scope)
@@ -114,7 +119,7 @@ export class SearchMixedListComponent implements OnInit {
      *
      * @param node value of the node which is clicked on
      */
-    public onclickNodeSelect(node:{package?:string,name:string,type:string}){
+    public onclickNodeSelect(node:{package?:string,name:string,type:string,more?:any}){
         this.nodeSelect.emit(node);
     }
 
@@ -139,7 +144,7 @@ export class SearchMixedListComponent implements OnInit {
         
     }
 
-    clickDelete(node:{package?:string,name:string,type:string}) {
+    clickDelete(node:{package?:string,name:string,type:string,more?:any}) {
         const dialogRef = this.dialog.open(DeleteConfirmationComponent, {
             data:  node.name ,
         });

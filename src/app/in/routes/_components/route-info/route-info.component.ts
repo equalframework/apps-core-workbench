@@ -16,6 +16,7 @@ export class RouteInfoComponent implements OnInit, OnChanges {
   @Output() redirect = new EventEmitter<string>()
   backend_url:string = ""
   obk = Object.keys
+  public init_routes:any
 
   constructor(
     private env: EnvService,
@@ -24,7 +25,10 @@ export class RouteInfoComponent implements OnInit, OnChanges {
   ) { }
 
   async ngOnInit(){
+    console.log(this.route_info)
     this.backend_url = (await this.env.getEnv())['backend_url']
+    this.init_routes = (await this.api.getRoutes())
+    console.log(this.init_routes)
   }
 
   ngOnChanges() {
