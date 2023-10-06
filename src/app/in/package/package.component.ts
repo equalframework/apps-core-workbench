@@ -29,6 +29,8 @@ export class PackageComponent implements OnInit {
     public isloading:boolean = true
     public routelist:any = {}
 
+    sideload = false
+
     constructor(
         private context: ContextService,
         private api: WorkbenchService,
@@ -75,7 +77,7 @@ export class PackageComponent implements OnInit {
                     }).then( () =>
                         this.api.getViewByPackage(pack).then((y) => {
                             y.forEach(view =>{
-                                this.elements.push({name:view,type:"view"})
+                                this.elements.push({name:view,type:"view",package:pack})
                             })
                             this.elements.sort((a,b) => 
                                 (a.type === "route" ? a.package+a.more+a.name : (a.type === "class" ? a.package+a.name : a.name)).replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase() < (b.type === "class" ? b.package+b.name : b.name).replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase() ? -1 : 1 
@@ -94,6 +96,8 @@ export class PackageComponent implements OnInit {
      * @param eq_package the package that the user has selected
      */
     public async onclickPackageSelect(eq_element:{package?:string,name:string,type:string,more?:any}) {
+        this.selected_element = eq_element;
+        this.sideload = true
         if(eq_element.type === "package") {
             this.initialised_packages = await this.api.getInitialisedPackages()
             this.package_consistency = await this.api.getPackageConsistency(eq_element.name)
@@ -118,7 +122,7 @@ export class PackageComponent implements OnInit {
                     this.schema = response.announcement;
                 }
         }
-        this.selected_element = eq_element;
+        this.sideload = false
     }
 
     async refresh_consitency() {
@@ -136,6 +140,10 @@ export class PackageComponent implements OnInit {
 
     public onClickView() {
         this.router.navigate(['/views', "package", this.selected_element.name],{"selected":this.selected_element});
+    }
+
+    public onClickRoute() {
+        this.router.navigate(['/routes', this.selected_element.name],{"selected":this.selected_element});
     }
     
     /**

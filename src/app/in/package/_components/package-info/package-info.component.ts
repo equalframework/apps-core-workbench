@@ -21,6 +21,7 @@ export class PackageInfoComponent implements OnInit {
     @Output() onModelClick = new EventEmitter<void>();
     @Output() onControllerClick = new EventEmitter<void>();
     @Output() onViewClick = new EventEmitter<void>();
+    @Output() onRouteClick = new EventEmitter<void>();
     @Output() refresh = new EventEmitter<void>();
     public current_initialised = false
     public warn_count:number
@@ -74,6 +75,10 @@ export class PackageInfoComponent implements OnInit {
     public viewOnClick() {
         console.log("catch!")
         this.onViewClick.emit()
+    }
+
+    public routeOnClick() {
+        this.onRouteClick.emit()
     }
 
     public consitencyPrint():any {

@@ -155,4 +155,27 @@ export class SearchMixedListComponent implements OnInit {
             }
         });
     }
+
+    get_node_title(node:{package?:string,name:string,type:string,more?:any}):string{
+        let splitted_name:string[]
+        switch(node.type){
+        case "package" :
+            return "Package - packages/"+node.name
+        case "class" :
+            return "Model - packages/"+node.package+"/classes/"+node.name.replaceAll("\\","/")+".php"
+        case "get" :
+            splitted_name = node.name.split('_')
+            return "Data provider - packages/"+node.package+"/data/"+splitted_name.slice(1).join("/")
+        case "do" :
+            splitted_name = node.name.split('_')
+            return "Data provider - packages/"+node.package+"/actions/"+splitted_name.slice(1).join("/")
+        case "view" :
+            splitted_name = node.name.split('\\')
+            return "View - packages/"+node.package+"/views/"+splitted_name.slice(1).join("/").replace(":",".")
+        case "route" :
+            return "Route - packages/"+node.package+"/init/routes/"+node.more
+        default :
+            return ""
+        }
+    }
 }

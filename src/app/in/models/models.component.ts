@@ -35,6 +35,8 @@ export class ModelsComponent implements OnInit {
     public fields_for_selected_class: FieldClass[];
     public types: any;
     @ViewChild(FieldContentComponent) childComponent: FieldContentComponent;
+    
+    public loading = true
 
     constructor(
         private context: ContextService,
@@ -50,15 +52,20 @@ export class ModelsComponent implements OnInit {
     }
 
     async init() {
+        this.loading = true
         this.packages = await this.api.getPackages();
         this.eq_class = await this.api.getClasses();
         this.types = await this.api.getTypes();
         const a = this.activateRoute.snapshot.paramMap.get('selected_package')
         this.selected_package =  a ? a : ""
         this.classes_for_selected_package = this.eq_class[this.selected_package];
-        this.selected_class = "";
+        this.selected_class = ""
+        let args = this.route.retrieveArgs()
+        if(args && args["class"]) this.onclickClassSelect(args["class"])
         this.selected_field = undefined;
         this.child_loaded = false;
+        this.loading = false
+        console.log(this.loading)
     }
 
     /**
@@ -76,10 +83,10 @@ export class ModelsComponent implements OnInit {
     public async onChangeStep(step:number) {
         this.step = step;
         if(step == 2) {
-            this.route.navigate(['/fields',this.selected_package,this.selected_class])
+            this.route.navigate(['/fields',this.selected_package,this.selected_class],{"class":this.selected_class})
         }
         if(step===3) {
-            this.route.navigate(['/views',"entity",this.selected_package+'\\'+this.selected_class])
+            this.route.navigate(['/views',"entity",this.selected_package+'\\'+this.selected_class],{"class":this.selected_class})
         }
     }
 

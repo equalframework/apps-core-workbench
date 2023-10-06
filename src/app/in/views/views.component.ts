@@ -21,6 +21,8 @@ export class ViewsComponent implements OnInit {
   type:string|null
   entity:string|null
 
+  loading = true
+
   constructor(
     private api:ViewService,
     private activatedRoute:ActivatedRoute,
@@ -32,15 +34,18 @@ export class ViewsComponent implements OnInit {
   
 
   async ngOnInit() {
-    this.init()
+    await this.init()
   }
 
   async init() {
+    this.loading = true
     this.type = this.activatedRoute.snapshot.paramMap.get('type')
     this.entity = this.activatedRoute.snapshot.paramMap.get('entity')
     if(this.type && this.entity)
       this.views_for_selected_package = await this.api.getViews(this.type,this.entity)
-    console.log(this.views_for_selected_package)
+    let args = this.router.retrieveArgs()
+    if(args && args["view"]) this.onclickViewSelect(args["view"])
+    this.loading = false
   }
 
   public getBack() {
@@ -87,6 +92,6 @@ export class ViewsComponent implements OnInit {
   }
 
   goto() {
-    this.router.navigate(["/views_edit",this.selected_view])
+    this.router.navigate(["/views_edit",this.selected_view],{"view":this.selected_view})
   }
 }

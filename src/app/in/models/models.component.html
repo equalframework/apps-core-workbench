@@ -1,5 +1,8 @@
+<div *ngIf="loading" style="display: flex; justify-content: center; align-items: center; height: 100%;">
+    <mat-spinner></mat-spinner>
+</div>
 <!-- Step for class -->
-<ng-container *ngIf="step === 1">
+<ng-container *ngIf="step === 1 && !loading">
     <div class="max-height step">
         <div class="title-container">
             <button (click)="getBack()" mat-icon-button matTooltip="Primary" color="primary" aria-label="Go back">

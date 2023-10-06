@@ -18,10 +18,10 @@
         </mat-grid-tile>
         <!-- Package content -->
         <mat-grid-tile colspan="3" class="max-height">
-            <div *ngIf="isloading" class="max-height max-width">
+            <div *ngIf="isloading || sideload" style="display: flex;align-items: center;justify-content: center; width: 100%; height: 100%;">
                 <mat-spinner></mat-spinner>
             </div>
-            <div *ngIf="!isloading" class="max-height max-width">
+            <div *ngIf="!isloading && !sideload" class="max-height max-width">
                 <app-model-info *ngIf="selected_element.type==='class' || selected_element.type===''" class="max-height max-width"
                     [selected_package]="selected_element.package ? selected_element.package : ''"
                     [selected_class]="selected_element.name"
@@ -36,6 +36,7 @@
                     (onModelClick)="onClickModels()"
                     (onControllerClick)="onClickControllers()"
                     (onViewClick)="onClickView()"
+                    (onRouteClick)="onClickRoute()"
                     (refresh)="refresh_consitency()"
                 >
                 </app-package-info>
