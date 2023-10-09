@@ -41,11 +41,24 @@ export class ViewsComponent implements OnInit {
     this.loading = true
     this.type = this.activatedRoute.snapshot.paramMap.get('type')
     this.entity = this.activatedRoute.snapshot.paramMap.get('entity')
-    if(this.type && this.entity)
-      this.views_for_selected_package = await this.api.getViews(this.type,this.entity)
+    this.views_for_selected_package = await this.getViewForSelectedPackage()
     let args = this.router.retrieveArgs()
     if(args && args["view"]) this.onclickViewSelect(args["view"])
     this.loading = false
+  }
+
+  public async getViewForSelectedPackage():Promise<string[]> {
+    let x:string[]
+    if (this.type && this.entity) {
+      x = await this.api.getViews(this.type,this.entity)
+      
+      let res:string[] = []
+      for(let item  of x) {
+        if(item.includes(this.entity)) res.push(item)
+      }
+      return res
+    }
+    else return []
   }
 
   public getBack() {

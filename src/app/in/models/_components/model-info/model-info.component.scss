@@ -18,6 +18,10 @@
     width: 100%;
 }
 
+.mat-figure {
+    overflow-y: hidden;
+}
+
 .accent {
     color: mat-color($maincolor);
 }

@@ -1,9 +1,11 @@
 <div class="margin-container"*ngIf="selected_class !== ''">
-    <div class="class-container-top">
+    <div class="class-container-title">
         <div class="class-disp-title">
             <label>Class : </label><label class="accent">{{selected_package}}\{{ selected_class }}</label>
         </div>
         <br>
+    </div>
+    <div class="class-container-top">
         <div class="sub-part-class">
             <label class="sub-part-title">Extends : </label>
             <label class="accent-color sub-part-title" *ngIf="class_scheme['parent'] === 'equal\\orm\\Model'">

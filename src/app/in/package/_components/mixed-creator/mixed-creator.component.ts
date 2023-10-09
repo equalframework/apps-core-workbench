@@ -82,7 +82,6 @@ export class MixedCreatorComponent implements OnInit {
             }
           } else if(this.addingState) {
             this.custom_st_list = await this.api.getAllRouteFiles()
-            console.log(this.custom_st_list)
           }
         }
         break

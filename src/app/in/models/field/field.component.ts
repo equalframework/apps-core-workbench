@@ -3,8 +3,9 @@ import { FieldClass } from '../_object/FieldClass';
 import { WorkbenchService } from '../_service/models.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isArray } from 'lodash';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { JsonPipe } from '@angular/common';
 
 @Component({
   selector: 'app-field',
@@ -41,6 +42,7 @@ export class FieldComponent implements OnInit {
     this.selected_field = undefined;
     this.child_loaded = false;
     this.fields_for_selected_class = await this.loadUsableField() 
+    this.setInherited()
   }
 
   /**
@@ -52,29 +54,10 @@ export class FieldComponent implements OnInit {
     var a:FieldClass[] = []
     var nonUsable:string[] = ["id","deleted","state"]
     var fields = this.schema.fields
-    var parent_fields
-    if (this.schema['parent'] === "equal\\orm\\Model") {
-        parent_fields = Model
-    } 
-    else {
-        var parent_scheme = await this.api.getSchema(this.schema['parent'])
-        var parent_fields = parent_scheme.fields
-    }
     var inherited:boolean
     for(var key in fields) {
         if((nonUsable.includes(key))) continue
-        inherited = false
-        if(parent_fields[key] !== undefined){
-            inherited = true
-            for(var info in fields[key]) {
-                if (info === "default") continue; // field can be inherited but have a different default value (for datetime)
-                if (parent_fields[key][info] !== fields[key][info]) {
-                    inherited = false
-                    break
-                }
-            }
-        }
-        a.push(new FieldClass(key,inherited,true,fields[key]))
+        a.push(new FieldClass(key,false,true,fields[key]))
     }
     return this.fieldSort(a)
   }
@@ -99,10 +82,14 @@ export class FieldComponent implements OnInit {
             inherited = true
             for(var info in item.current_scheme) {
                 if(info === "default") continue;
-                if(parent_fields[item.name][info] !== item.current_scheme[info]) {
-                    inherited = false
-                    break
+                if(parent_fields[item.name][info] === item.current_scheme[info]) {
+                    continue
                 }
+                if(equalsCheck(parent_fields[item.name][info] , item.current_scheme[info])){
+                    continue
+                }
+                inherited = false
+                break
             }
         }
         this.fields_for_selected_class[i].inherited = inherited
@@ -162,7 +149,9 @@ export class FieldComponent implements OnInit {
   public ondeleteField(field: FieldClass) {
       const i = this.fields_for_selected_class.indexOf(field)
       if(i >= 0 ) {
-          this.fields_for_selected_class.splice(i,1)
+          this.fields_for_selected_class[i].deleted = true
+          this.fields_for_selected_class[i].checkSync()
+          console.log(this.fields_for_selected_class[i].synchronised)
           return
       }
       //this.api.deleteField(this.selected_package, this.selected_class, field);
@@ -197,7 +186,9 @@ export class FieldComponent implements OnInit {
 
   public detectAnyChanges():boolean {
     for(var i in this.fields_for_selected_class) {
-        if(!this.fields_for_selected_class[i].synchronised) return true
+        if(!this.fields_for_selected_class[i].synchronised) {
+            return true
+        } 
     }
     return false
   }
@@ -222,6 +213,7 @@ export class FieldComponent implements OnInit {
         "state":{"type":"string","selection":["draft","instance","archive"],"default":"instance"}
     }
     for(var item in this.fields_for_selected_class) {
+        if(this.fields_for_selected_class[item].deleted) continue
         const name:string = this.fields_for_selected_class[item].name
         res["fields"][name] = this.fields_for_selected_class[item].current_scheme
     }
@@ -261,22 +253,7 @@ export class FieldComponent implements OnInit {
 
 var Model = {"id":{"type":"integer","readonly":true},"creator":{"type":"many2one","foreign_object":"core\\User","default":1},"created":{"type":"datetime","default":"2023-09-05T11:49:53+00:00","readonly":true},"modifier":{"type":"many2one","foreign_object":"core\\User","default":1},"modified":{"type":"datetime","default":"2023-09-05T11:49:53+00:00","readonly":true},"deleted":{"type":"boolean","default":false},"state":{"type":"string","selection":["draft","instance","archive"],"default":"instance"},"name":{"type":"alias","alias":"id"}}
 
-function compareDictRecursif(dict1:any, dict2:any):number {
-  if(dict1 === undefined) return -1
-  if(dict2 === undefined) return 1
-  if(typeof(dict1) !== typeof({}) && typeof(dict1) !== typeof({}) && dict1 === dict2) {
-      return 0
-  }
-  var res:number
-  for(var item in dict1) {
-      if(dict2[item] === undefined) return 1
-      res = compareDictRecursif(dict1[item],dict2[item])
-      if(res !== 0) return 1
-  }
-  for(var item in dict2) {
-      if(dict1[item] === undefined) return 1
-      res = compareDictRecursif(dict1[item],dict2[item])
-      if(res !== 0) return -1
-  }
-  return 0
+
+function equalsCheck(a:any[], b:any[]) {
+    return isArray(a) && isArray(b) && JSON.stringify(a) === JSON.stringify(b);
 }
