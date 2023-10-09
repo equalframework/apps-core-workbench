@@ -17,21 +17,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { ControllersComponent } from './controllers.component';
 import { ControllersRoutingModule } from './controllers-routing.module';
 import { SearchListComponent } from './_components/search-list/search-list.component';
-import { DeleteConfirmationComponent } from './_components/search-list-controller/delete-confirmation/delete-confirmation.component';
 import { SearchListControllerComponent } from './_components/search-list-controller/search-list-controller.component';
-import { RouterPropertyComponent } from './_components/router-property/router-property.component';
-import { DescriptionComponent } from './_components/router-property/_components/description/description.component';
-import { ParamsComponent } from './_components/router-property/_components/params/params.component';
-import { ResponseComponent } from './_components/router-property/_components/response/response.component';
-import { ConstantsComponent } from './_components/router-property/_components/constants/constants.component';
-import { AccessComponent } from './_components/router-property/_components/access/access.component';
-import { ArrayComponent } from './_components/router-property/_components/params/_components/array/array.component';
-import { BooleanComponent } from './_components/router-property/_components/params/_components/boolean/boolean.component';
-import { StringComponent } from './_components/router-property/_components/params/_components/string/string.component';
-import { NumberComponent } from './_components/router-property/_components/params/_components/number/number.component';
-import { ResponseComponentSubmit } from './_components/router-property/_components/params/_components/response/response.component'
-import { ControllerInfoComponent } from './_components/controller-info/controller-info.component';
 import { ControllerInfoModule } from './_components/controller-info/controller-info.module';
+import { DeleteConfirmationModule } from '../delete-confirmation/delete-confirmation.module';
 
 
 @NgModule({
@@ -47,12 +35,12 @@ import { ControllerInfoModule } from './_components/controller-info/controller-i
         MatFormFieldModule,
         MatInputModule,
         MatIconModule,
-        ControllerInfoModule
+        ControllerInfoModule,
+        DeleteConfirmationModule,
     ],
     declarations: [
         ControllersComponent,
         SearchListComponent,
-        DeleteConfirmationComponent,
         SearchListControllerComponent,
     ],
     providers: [

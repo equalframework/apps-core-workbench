@@ -1,10 +1,11 @@
-<ng-container>
+<ng-container *ngIf="!loading">
     <div class="max-height step">
         <div class="title-container">
             <button (click)="getBack()" mat-icon-button matTooltip="Primary" color="primary" aria-label="Go back">
                 <mat-icon>keyboard_backspace</mat-icon>
             </button>
-            <mat-label>{{ selected_package }}\ Select class</mat-label>
+            <mat-label>{{ (selected_package ? selected_package+" \\ "+entity : entity)?.replaceAll("%5C","\\") }}</mat-label>
+            <mat-label class="model-label"><mat-icon>view_quilt</mat-icon>View</mat-label>
         </div>
         <mat-grid-list cols="4" class="max-height">
             <!-- Class search list, on the left of the screen -->
@@ -15,7 +16,7 @@
                     (nodeSelect)="onclickViewSelect($event)"
                     (nodeUpdate)="onupdateView($event)"
                     (nodeDelete)="ondeleteView($event)"
-                    (nodeCreate)="oncreateView($event)">
+                    (nodeCreate)="oncreateView()">
                 </app-search-list>
             </mat-grid-tile>
             <!-- Class content -->

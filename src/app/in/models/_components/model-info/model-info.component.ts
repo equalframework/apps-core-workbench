@@ -17,6 +17,7 @@ export class ModelInfoComponent implements OnInit {
   @Input() selected_class:string
   @Input() class_scheme:any
   @Output() changeStep = new EventEmitter<number>()
+  @Output() getRef = new EventEmitter<{package?:string,name:string,type:string,more?:any}>()
 
   public obk = Object.keys
   good_field:any
@@ -63,5 +64,11 @@ export class ModelInfoComponent implements OnInit {
    */
   get fieldNumber():number {
     return this.obk(this.class_scheme['fields']).length
+  }
+
+  getref(name:string) {
+    let x = name.split('\\')
+    console.log("plop")
+    this.getRef.emit({package:x[0],name:x.slice(1).join('\\'),type:'class'})
   }
 }

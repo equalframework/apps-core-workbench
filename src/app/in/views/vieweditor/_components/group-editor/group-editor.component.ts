@@ -23,6 +23,8 @@ class GroupEditorComponent implements OnInit,OnChanges {
   @Input() entity:string
   @Input() fields:string[]
   @Output() onChange = new EventEmitter<ViewSection[]>()
+  @Input() groups:string[]
+  @Input() action_controllers:string[]
   dragged:ViewItem|undefined
 
 
@@ -79,11 +81,15 @@ class GroupEditorComponent implements OnInit,OnChanges {
   }
 
   addItem(col:ViewColumn) {
-    col.items.push(new ViewItem({"value":"New Item"}))
+    col.items.push(new ViewItem({"value":"New Item","type":"label"}))
   }
   
   editItem(item:ViewItem) {
-    this.matDialog.open(EditItemFormComponent,{data:{item:item,entity:this.entity,fields:this.fields}})
+    this.matDialog.open(EditItemFormComponent,{
+      data:{item:item,entity:this.entity,fields:this.fields,groups:this.groups,action_controllers :this.action_controllers},
+      height:"40em",
+      width: "90em"
+    })
   }
 
   delItem(col:ViewColumn,item:ViewItem) {

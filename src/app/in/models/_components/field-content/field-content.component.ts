@@ -157,7 +157,8 @@ export class FieldContentComponent implements OnInit {
      * Function that cancel all the changes that are currently on the field.
      */
     public cancelChange() {
-        this.values = this.fields[this.actual_field_index].sync_scheme
+        this.fields[this.actual_field_index].current_scheme = this.fields[this.actual_field_index].sync_scheme
+        this.values = this.fields[this.actual_field_index].current_scheme
         this.selected_type = this.values.type;
         this.properties = this.types[this.selected_type];
         this.hasChanged = !this.fields[this.actual_field_index].checkSync();

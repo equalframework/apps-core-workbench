@@ -54,13 +54,17 @@
                 <button mat-button class="package-info-button" ><mat-icon>translater</mat-icon><label>Translation</label></button>
             </mat-grid-tile>
             <mat-grid-tile>
+                <!-- TODO -->
+                <button mat-button class="package-info-button" (click)="routeOnClick()"><mat-icon>route</mat-icon><label>Routes</label></button>
+            </mat-grid-tile>
+            <mat-grid-tile>
                 <button mat-button class="package-info-button" ><mat-icon>file_present</mat-icon><label>Initial data</label></button>
             </mat-grid-tile>
             <mat-grid-tile>
-                <button mat-button class="package-info-button" ><mat-icon>info</mat-icon><label>Properties</label></button>
+                <button mat-button class="package-info-button" ><mat-icon>apps</mat-icon><label>Applications</label></button>
             </mat-grid-tile>
             <mat-grid-tile>
-                <button mat-button class="package-info-button" ><mat-icon>apps</mat-icon><label>Applications</label></button>
+                <button mat-button class="package-info-button" (click)="initPackage()"><mat-icon>not_started</mat-icon><label>Init package</label></button>
             </mat-grid-tile>
         </mat-grid-list>
     </div>

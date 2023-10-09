@@ -126,7 +126,7 @@ export class WorkbenchService extends EmbbedApiService {
     public async getInitialisedPackages():Promise<string[]> {
         var ret = []
         try {
-            ret = await this.api.fetch('?get=core_installed-packages');
+            ret = await this.api.fetch('?get=core_config_live_packages');
         }
         catch (response: any) {
             console.warn('fetch package error', response);
@@ -182,16 +182,6 @@ export class WorkbenchService extends EmbbedApiService {
         }
         catch (response: any) {
             console.warn('fetch types error', response);
-        }
-    }
-
-
-    public async getSchema(entity: string) {
-        try {
-            return await this.api.fetch('?get=core_model_schema&entity=' + entity);
-        }
-        catch (response: any) {
-            console.warn('request error', response);
         }
     }
 
@@ -253,7 +243,7 @@ export class WorkbenchService extends EmbbedApiService {
 
     public async getRoutes() {
         try {
-            return await this.api.fetch('?get=config_routes');
+            return await this.api.fetch('?get=config_live_routes');
         }
         catch (response: any) {
             console.warn('fetch package error', response);
@@ -266,5 +256,15 @@ export class WorkbenchService extends EmbbedApiService {
         } catch(response) {
             return []
         }
+    }
+
+    public async InitPackage(pkg:string,imprt:boolean):Promise<boolean> {
+        try {
+            await this.api.fetch("?do=core_init_package&package="+pkg+(imprt ? "&import=true":""))
+            return true
+        } catch {
+            return false
+        }
+        
     }
 }

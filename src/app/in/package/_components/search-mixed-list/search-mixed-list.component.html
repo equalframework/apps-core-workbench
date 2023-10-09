@@ -15,21 +15,33 @@
             </mat-option>
         </mat-select>
     </mat-form-field>
-    <button mat-mini-fab color="primary" (click)="openCreator()" class="smallminifab">
-        <mat-icon>add</mat-icon>
-    </button>
+    <div class="btnholder-searchlist">
+        <button mat-mini-fab color="primary" (click)="openCreator()" class="smallminifab">
+            <mat-icon>add</mat-icon>
+        </button>
+    </div>
 </div>
 <div *ngIf="loading">
-    LOADING
+    <mat-spinner></mat-spinner>
 </div>
 
 <mat-list *ngIf="!loading" class="list">
     <cdk-virtual-scroll-viewport [itemSize]="48" class="virtual">
-        <mat-list-item *cdkVirtualFor="let node of filteredData" class="">
-            <div class="node_container mixed-sel-{{node.type}}" [class.node-hover]="selected_node != node" [class.node-selected]="selected_node === node">
+        <mat-list-item 
+            *cdkVirtualFor="let node of filteredData" 
+            class=""
+        >
+            <div 
+                class="node_container mixed-sel-{{node.type}}" 
+                [class.node-hover]="selected_node != node" 
+                [class.node-selected]="selected_node === node"
+                [title]="get_node_title(node)"
+            >
                 <div class="pointable node-text" (click)="onclickNodeSelect(node)">
                     <label class="type-info-mixed-sel type-mixed-sel-{{node.type}}"><mat-icon>{{type_dict[node.type].icon}}</mat-icon></label>
-                    <label class="name-mixed-sel">{{node.type==='route'? current_root : ""}}{{ node.package ? (node.type === "do" || node.type === "get" ? "":node.package+"\\") : ""}}{{node.name}}</label>
+                    <label class="name-mixed-sel" *ngIf="node.type !== 'route'">{{ node.package ? (node.type === "do" || node.type === "get" || node.type === "view" ? "" : node.package+"\\") : ""}}{{node.name}}</label>
+                    <label class="name-mixed-sel" *ngIf="node.type === 'route'">{{ node.package }}-{{node.more.split("-",1)[0]}}-{{node.name}}</label>
+                    <button mat-icon-button (click)="clickDelete(node)"><mat-icon>delete</mat-icon></button>
                 </div>
             </div>
         </mat-list-item>

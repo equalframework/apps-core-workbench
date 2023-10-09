@@ -3,9 +3,6 @@ import { ContextService } from 'sb-shared-lib';
 import { WorkbenchService } from './_service/package.service'
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { prettyPrintJson } from 'pretty-print-json';
-import { Router } from '@angular/router';
-import { AppInControllersModule } from '../controllers/controllers.module';
-import { eq } from 'lodash';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
 
 
@@ -18,10 +15,10 @@ import { RouterMemory } from 'src/app/_services/routermemory.service';
 export class PackageComponent implements OnInit {
 
     public child_loaded = false;
-    public selected_element:{package?:string,name:string,type:string} = {name:"",type:""};
+    public selected_element:{package?:string,name:string,type:string,more?:any} = {name:"",type:""};
     public classes_for_selected_package: string[] = [];
     // http://equal.local/index.php?get=config_packages
-    public elements: {package?:string,name:string,type:string}[] = [];
+    public elements: {package?:string,name:string,type:string,more?:any}[] = [];
     // http://equal.local/index.php?get=core_config_classes
 
     public initialised_packages:string[]
@@ -31,6 +28,8 @@ export class PackageComponent implements OnInit {
     public fetch_error:boolean = false
     public isloading:boolean = true
     public routelist:any = {}
+
+    sideload = false
 
     constructor(
         private context: ContextService,
@@ -68,22 +67,25 @@ export class PackageComponent implements OnInit {
                     x.actions.forEach(cont => {
                         this.elements.push({package:pack,name:cont,type:"do"})
                     });
-                    this.api.getViewByPackage(pack).then((y) => {
-                        y.forEach(view =>{
-                            this.elements.push({name:view,type:"view"})
+                    this.api.getRoutesByPackages(pack).then((y) => {
+                        for(let file in y) {
+                            for(let route in y[file]) {
+                                this.elements.push({package:pack, name:route, type:"route",more:file})
+                                this.routelist[pack+file+route] = {"info":{"file":file,"package":pack},"methods":y[file][route]}
+                            }
+                        }
+                    }).then( () =>
+                        this.api.getViewByPackage(pack).then((y) => {
+                            y.forEach(view =>{
+                                this.elements.push({name:view,type:"view",package:pack})
+                            })
+                            this.elements.sort((a,b) => 
+                                (a.type === "route" ? a.package+a.more+a.name : (a.type === "class" ? a.package+a.name : a.name)).replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase() < (b.type === "class" ? b.package+b.name : b.name).replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase() ? -1 : 1 
+                            )
+                            this.isloading = false
                         })
-                        this.elements.sort((a,b) => 
-                            (a.type === "class" ? a.package+a.name : a.name).replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase() < (b.type === "class" ? b.package+b.name : b.name).replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase() ? -1 : 1 
-                        )
-                        this.isloading = false
-                    })
+                    )
                 })  
-            })
-            this.api.getRoutes().then((d) => {
-                this.routelist = d
-                for(let name in this.routelist){
-                    this.elements.push({name: name, type: "route"})
-                }
             })
         })
     }
@@ -93,7 +95,9 @@ export class PackageComponent implements OnInit {
      *
      * @param eq_package the package that the user has selected
      */
-    public async onclickPackageSelect(eq_element:{package?:string,name:string,type:string}) {
+    public async onclickPackageSelect(eq_element:{package?:string,name:string,type:string,more?:any}) {
+        this.selected_element = eq_element;
+        this.sideload = true
         if(eq_element.type === "package") {
             this.initialised_packages = await this.api.getInitialisedPackages()
             this.package_consistency = await this.api.getPackageConsistency(eq_element.name)
@@ -118,7 +122,12 @@ export class PackageComponent implements OnInit {
                     this.schema = response.announcement;
                 }
         }
-        this.selected_element = eq_element;
+        this.sideload = false
+    }
+
+    async refresh_consitency() {
+        this.initialised_packages = await this.api.getInitialisedPackages()
+        this.package_consistency = await this.api.getPackageConsistency(this.selected_element.name)
     }
 
     public onClickModels() {
@@ -131,6 +140,10 @@ export class PackageComponent implements OnInit {
 
     public onClickView() {
         this.router.navigate(['/views', "package", this.selected_element.name],{"selected":this.selected_element});
+    }
+
+    public onClickRoute() {
+        this.router.navigate(['/routes', this.selected_element.name],{"selected":this.selected_element});
     }
     
     /**
@@ -194,13 +207,35 @@ export class PackageComponent implements OnInit {
         }
     }
 
-    goTo(ev:string) {
-        let el = this.elements.filter(el => el.name === ev)[0]
-        this.onclickPackageSelect(el)
+    goTo(ev:{name:string,package?:string,type?:string}) {
+        console.log("miam")
+        let els = this.elements.filter(el => (el.name === ev.name && (!ev.package || ev.package === el.package)))
+        console.log(els)
+        this.onclickPackageSelect(els[0])
     }
 
     onViewEditClick() {
         this.router.navigate(['/views_edit',this.selected_element.name],{"selected":this.selected_element})
+    }
+
+    async delElement(node:{package?:string,name:string,type:string,more?:any}) {
+        switch(node.type) {
+        case "view":
+            let sp = node.name.split(":")
+            let res = await this.api.deleteView(sp[0],sp[1])
+            if(!res){
+                this.snackBar.open("Deleted")
+                this.selected_element === undefined
+                this.refresh()
+            }
+            else{
+                this.snackBar.open("error : "+res)
+            }
+            break
+        default:
+            this.snackBar.open("WIP")
+            break;
+        }
     }
 }
 

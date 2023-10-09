@@ -6,6 +6,7 @@ import { EnvService } from 'sb-shared-lib';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { ItemTypes } from '../../_constants/ItemTypes';
 import { MixedCreatorComponent } from '../mixed-creator/mixed-creator.component';
+import { DeleteConfirmationComponent } from 'src/app/in/delete-confirmation/delete-confirmation.component';
 
 /** 
  * This component is used to display the list of all object you recover in package.component.ts
@@ -22,14 +23,15 @@ import { MixedCreatorComponent } from '../mixed-creator/mixed-creator.component'
 export class SearchMixedListComponent implements OnInit {
 
     
-    @Input() data:{package?:string,name:string,type:string}[]; // The array of object to display
+    @Input() data:{package?:string,name:string,type:string,more?:any}[]; // The array of object to display
     @Input() selected_node:{name:string,type:string}; // The selected object of the list
     @Input() loading:boolean; // Notify if the parent node finished loading
-    @Output() nodeSelect = new EventEmitter<{package?:string,name:string,type:string}>();  // Used to send selected object reference to parent
+    @Output() nodeSelect = new EventEmitter<{package?:string,name:string,type:string,more?:any}>();  // Used to send selected object reference to parent
     @Output() refresh = new EventEmitter<void>();
+    @Output() delete =  new EventEmitter<{package?:string,name:string,type:string,more?:any}>();
 
     public obk = Object.keys;   // Object.keys method for utilisation in search-mixed-list.component.html
-    public filteredData: {package?:string,name:string,type:string}[];   // filtered derivative of data with purpose to be displayed
+    public filteredData: {package?:string,name:string,type:string,more?:any}[];   // filtered derivative of data with purpose to be displayed
     public search_value:string = "";    // value part of the search bar field ( is parsed in onSearch() method )
     public search_scope:string = "";    // type part of the search bar field ( is parsed in onSearch() method )
     public current_root:string = "";    // root url of the backend ( parsed in ngOnInit() method )
@@ -61,7 +63,6 @@ export class SearchMixedListComponent implements OnInit {
     }
 
     public async ngOnChanges() {
-        console.log(this.selected_node)
         this.onSearch(false);
     }
 
@@ -97,7 +98,12 @@ export class SearchMixedListComponent implements OnInit {
         this.filteredData = this.data.filter(
             node => 
                 // checking value part
-                (node.package ? node.package+"\\"+node.name : node.name).toLowerCase().includes(this.search_value.toLowerCase())
+                ( node.type === "route" ?
+                    node.package + "-" + node.more + "-" + node.name
+                    :
+                    (node.package ? node.package+"\\"+node.name : node.name)
+                ).toLowerCase().includes(this.search_value.toLowerCase())
+                
                 // checking types part
                 && (this.search_scope === ""
                     || (node.type === this.search_scope)
@@ -113,7 +119,7 @@ export class SearchMixedListComponent implements OnInit {
      *
      * @param node value of the node which is clicked on
      */
-    public onclickNodeSelect(node:{package?:string,name:string,type:string}){
+    public onclickNodeSelect(node:{package?:string,name:string,type:string,more?:any}){
         this.nodeSelect.emit(node);
     }
 
@@ -127,7 +133,7 @@ export class SearchMixedListComponent implements OnInit {
     }
 
     openCreator() {
-        let d = this.dialog.open(MixedCreatorComponent,{data:{type:this.search_scope}})
+        let d = this.dialog.open(MixedCreatorComponent,{data:{type:this.search_scope},width : "40em",height: "26em"})
 
         d.afterClosed().subscribe(() => {
             // Do stuff after the dialog has closed
@@ -136,5 +142,40 @@ export class SearchMixedListComponent implements OnInit {
         });
         
         
+    }
+
+    clickDelete(node:{package?:string,name:string,type:string,more?:any}) {
+        const dialogRef = this.dialog.open(DeleteConfirmationComponent, {
+            data:  node.name ,
+        });
+
+        dialogRef.afterClosed().subscribe((result) => {
+            if (result) {
+                this.delete.emit(node);
+            }
+        });
+    }
+
+    get_node_title(node:{package?:string,name:string,type:string,more?:any}):string{
+        let splitted_name:string[]
+        switch(node.type){
+        case "package" :
+            return "Package - packages/"+node.name
+        case "class" :
+            return "Model - packages/"+node.package+"/classes/"+node.name.replaceAll("\\","/")+".php"
+        case "get" :
+            splitted_name = node.name.split('_')
+            return "Data provider - packages/"+node.package+"/data/"+splitted_name.slice(1).join("/")
+        case "do" :
+            splitted_name = node.name.split('_')
+            return "Data provider - packages/"+node.package+"/actions/"+splitted_name.slice(1).join("/")
+        case "view" :
+            splitted_name = node.name.split('\\')
+            return "View - packages/"+node.package+"/views/"+splitted_name.slice(1).join("/").replace(":",".")
+        case "route" :
+            return "Route - packages/"+node.package+"/init/routes/"+node.more
+        default :
+            return ""
+        }
     }
 }

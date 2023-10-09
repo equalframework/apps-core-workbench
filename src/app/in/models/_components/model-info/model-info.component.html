@@ -6,7 +6,12 @@
         <br>
         <div class="sub-part-class">
             <label class="sub-part-title">Extends : </label>
-            <label class="accent-color sub-part-title">{{class_scheme["parent"]}}</label>
+            <label class="accent-color sub-part-title" *ngIf="class_scheme['parent'] === 'equal\\orm\\Model'">
+                Model
+            </label>
+            <a class="accent-color sub-part-title" *ngIf="class_scheme['parent'] !== 'equal\\orm\\Model'" (click)="getref(class_scheme['parent'])">
+                {{class_scheme['parent']}}
+            </a>
         </div>
         <br>
         <div class="sub-part-class">
@@ -34,10 +39,34 @@
                             </label>
                             <div class="field-sep"></div>
                             <div *ngIf="fieldHasProp(key)" class="field-prop-container">
-                                <span *ngIf="this.class_scheme['fields'][key]['required']" class='material-icons preicon pre-main-color'>priority_high</span>
-                                <span *ngIf="this.class_scheme['fields'][key]['readonly']" class='material-icons preicon pre-main-color'>do_not_touch</span>
-                                <span *ngIf="this.class_scheme['fields'][key]['multilang']" class='material-icons preicon pre-main-color'>translate</span>
-                                <div *ngIf="this.class_scheme['fields'][key]['unique']" class='field-unique-prop'><label class="pre-main-color pre-label-bold">1</label></div>
+                                <span 
+                                    *ngIf="this.class_scheme['fields'][key]['required']" 
+                                    class='material-icons preicon pre-main-color'
+                                    title="{{key}} is required"
+                                >
+                                    priority_high
+                                </span>
+                                <span 
+                                    *ngIf="this.class_scheme['fields'][key]['readonly']" 
+                                    class='material-icons preicon pre-main-color'
+                                    title="{{key}} is readonly"
+                                >
+                                    do_not_touch
+                                </span>
+                                <span 
+                                    *ngIf="this.class_scheme['fields'][key]['multilang']" 
+                                    class='material-icons preicon pre-main-color'
+                                    title="{{key}} is multilang"
+                                >
+                                    translate
+                                </span>
+                                <div 
+                                    *ngIf="this.class_scheme['fields'][key]['unique']" 
+                                    class='field-unique-prop'
+                                    title="{{key}} is unique"
+                                >
+                                    <label class="pre-main-color pre-label-bold">1</label>
+                                </div>
                             </div>
                         </div>
                         <div class="field-class-p2">

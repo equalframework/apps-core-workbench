@@ -15,7 +15,13 @@ abstract class ViewElement {
     }
 
     export(): any {
-        return this.leftover
+        let result:any = {}
+        for(let key in this.leftover) {
+            if(this.leftover[key]) {
+                result[key] = this.leftover[key]
+            }
+        }
+        return result
     }
 
     id_compliant(id_list: string[]): { ok: boolean, id_list: string[] } {
@@ -41,8 +47,8 @@ class View extends ViewElement {
     public _has_actions = false
     public _has_selection_actions = false
 
-    constructor(scheme: any = {}, type: string) {
-        scheme = cloneDeep(scheme)
+    constructor(schem: any = {}, type: string) {
+        let scheme = cloneDeep(schem)
         super()
         this.type = type
         if (scheme['name']) {
@@ -149,7 +155,7 @@ class ViewLayout extends ViewElement {
         super()
         if (scheme["items"]) {
             for (let v of scheme["items"]) {
-                this.items.push(new ViewItem(v))
+                this.items.push(new ViewItem(v,0))
             }
             delete scheme["items"]
         }
@@ -395,7 +401,7 @@ class ViewColumn extends ViewElement {
         }
         if (scheme['items']) {
             for (let v of scheme["items"]) {
-                this.items.push(new ViewItem(v))
+                this.items.push(new ViewItem(v,1))
             }
             delete scheme['items']
         }
@@ -443,14 +449,16 @@ class ViewItem extends ViewElement {
     public type: string = ""
     public value: string = ""
     public width: number = 100
-    public sortable: boolean = false
-    public readonly: boolean = false
+    public readonly:boolean = false
     public visible: ViewDomain = new ViewDomain()
     public visible_bool: boolean = true
-    public widget: ViewWidget = new ViewWidget()
+    public widgetList: ViewListWidget = new ViewListWidget()
+    public widgetForm: ViewFormWidget = new ViewFormWidget()
+    public viewtype:number = 0
     public has_domain: boolean = false
     public has_widget: boolean = false
-    public is_visible_domain = false
+    public is_visible_domain:boolean = false
+    public label:string = ""
 
     public get valueIsSelect(): boolean {
         return this.type !== "label"
@@ -460,8 +468,9 @@ class ViewItem extends ViewElement {
         return ["field", "label"]
     }
 
-    constructor(scheme: any = {}) {
+    constructor(scheme: any = {},type:number=0) {
         super()
+        this.viewtype = type
         if (scheme['type']) {
             this.type = scheme['type']
             delete scheme['type']
@@ -474,10 +483,16 @@ class ViewItem extends ViewElement {
             this.width = Number.parseInt(scheme['width'])
             delete scheme['width']
         }
+        console.log(scheme['sortable'])
         if (scheme['sortable']) {
-            this.sortable = scheme['sortable']
+            console.log('pop')
+            if(!scheme['widget']){
+                scheme['widget'] = {}
+            }
+            scheme['widget']['sortable'] = scheme['sortable']
             delete scheme['sortable']
         }
+        console.log(scheme['readonly'])
         if (scheme['readonly']) {
             this.readonly = scheme['readonly']
             delete scheme['readonly']
@@ -493,9 +508,17 @@ class ViewItem extends ViewElement {
             delete scheme['visible']
         }
         if (scheme['widget']) {
-            this.widget = new ViewWidget(scheme['widget'])
+            if(this.viewtype === 0) {
+                this.widgetList = new ViewListWidget(scheme['widget'])
+            } else {
+                this.widgetForm = new ViewFormWidget(scheme['widget'])
+            }
             this.has_widget = true
             delete scheme['widget']
+        }
+        if(scheme['label']){
+            this.label = scheme['label']
+            delete scheme['label']
         }
         if (!ViewItem.typeList.includes(this.type)) this.type = ""
         this.leftover = scheme
@@ -506,38 +529,37 @@ class ViewItem extends ViewElement {
         result['type'] = this.type
         result['value'] = this.value
         result['width'] = this.width + "%"
-        if (this.sortable)
-            result['sortable'] = this.sortable
-        if (this.readonly)
-            result['readonly'] = this.readonly
+        if(this.label.trim() !== "" && this.type === "field") {
+            result['label'] = this.label.trim()
+        }
         if (this.has_domain) {
             if (this.is_visible_domain)
                 result['visible'] = this.visible.dom
             else
                 result['visible'] = this.visible_bool
         }
-        if (this.has_widget)
-            result['widget'] = this.widget.export()
+        if (this.has_widget){
+            if(this.viewtype === 0) {
+                result['widget'] = this.widgetList.export()
+            } else {
+                result['widget'] = this.widgetForm.export()
+            }
+        }
         return result
     }
 }
 
-class ViewWidget extends ViewElement {
+class ViewListWidget extends ViewElement {
     public sortable: boolean = false
     public link: boolean = false
-    public heading: boolean = false
     public type: string = ""
     public values: string[] = []
 
-    constructor(scheme: any = {}) {
+    constructor(scheme: any = {}, type:number=0) {
         super()
         if (scheme['link']) {
             this.link = scheme['link']
             delete scheme['link']
-        }
-        if (scheme['heading']) {
-            this.heading = scheme['heading']
-            delete scheme['heading']
         }
         if (scheme['type']) {
             this.type = scheme['type']
@@ -558,14 +580,74 @@ class ViewWidget extends ViewElement {
         let result = super.export()
         if (this.link)
             result['link'] = this.link
-        if (this.heading)
-            result['heading'] = this.heading
         if (this.sortable)
             result['sortable'] = this.sortable
         if (this.type !== "")
             result['type'] = this.type
         if (this.type === "select")
             result['values'] = this.values
+        return result
+    }
+}
+
+class ViewFormWidget extends ViewElement {
+    public link: boolean = false
+    public heading: boolean = false
+    public type: string = ""
+    public values: string[] = []
+    public header:ViewHeader = new ViewHeader({},"list")
+    public view:string = ""
+
+    public _has_header = false
+    public _has_view = false
+
+    constructor(scheme: any = {}) {
+        super()
+        if (scheme['link']) {
+            this.link = scheme['link']
+            delete scheme['link']
+        }
+        if (scheme['heading']) {
+            this.heading = scheme['heading']
+            delete scheme['heading']
+        }
+        if (scheme['type']) {
+            this.type = scheme['type']
+            delete scheme['type']
+        }
+        if (scheme['values']) {
+            this.values = scheme['values']
+            delete scheme['values']
+        }
+        if (scheme['header']) {
+            this.header = new ViewHeader(scheme['header'],"list")
+            this._has_header = true
+            delete scheme['header']
+        }
+        if (scheme["view"]){
+            this.view = scheme['view']
+            this._has_view = true
+            delete scheme['view']
+        }
+        this.leftover = scheme
+    }
+
+    override export(): any {
+        let result = super.export()
+        if (this.link)
+            result['link'] = this.link
+        if (this.heading)
+            result['heading'] = this.heading
+        if (this.type !== "")
+            result['type'] = this.type
+        if (this.type === "select")
+            result['values'] = this.values
+        if(this._has_header) {
+            result['header'] = this.header.export()
+        }
+        if(this._has_view) {
+            result['view'] = this.view
+        }
         return result
     }
 }
@@ -665,6 +747,8 @@ class ViewHeader extends ViewElement {
         if (scheme['actions']) {
             this._has_actions = true
             for (let key in this.actions) {
+                console.log(key)
+                console.log(scheme["actions"][key])
                 // This is done to differenciate undefined value of false value (dynamic typing sucks)
                 if (typeof (scheme["actions"][key]) !== typeof (undefined)) {
                     if (typeof (scheme["actions"][key]) === typeof (true)) {
@@ -876,7 +960,8 @@ export {
     ViewItem,
     ViewElement,
     ViewGroup,
-    ViewWidget,
+    ViewListWidget,
+    ViewFormWidget,
     ViewHeader,
     ViewAction
 }

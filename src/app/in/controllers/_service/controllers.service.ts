@@ -111,7 +111,7 @@ export class ControllersService {
      */
     public async getRoutes() {
         try {
-            return await this.api.fetch('?get=config_routes');
+            return await this.api.fetch('?get=config_live_routes');
         }
         catch (response: any) {
             console.warn('fetch package error', response);

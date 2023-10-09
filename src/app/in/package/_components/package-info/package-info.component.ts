@@ -3,6 +3,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { isEqual, cloneDeep, indexOf } from 'lodash';
 import { WorkbenchService } from '../../_service/package.service';
 import { prettyPrintJson } from 'pretty-print-json';
+import { MatDialog } from '@angular/material/dialog';
+import { InitValidatorComponent } from './_components/init-validator/init-validator.component';
 
 @Component({
     selector: 'app-package-info',
@@ -19,6 +21,8 @@ export class PackageInfoComponent implements OnInit {
     @Output() onModelClick = new EventEmitter<void>();
     @Output() onControllerClick = new EventEmitter<void>();
     @Output() onViewClick = new EventEmitter<void>();
+    @Output() onRouteClick = new EventEmitter<void>();
+    @Output() refresh = new EventEmitter<void>();
     public current_initialised = false
     public warn_count:number
     public error_count:number
@@ -27,7 +31,8 @@ export class PackageInfoComponent implements OnInit {
 
     constructor(
         private snackBar: MatSnackBar,
-        private api: WorkbenchService
+        private api: WorkbenchService,
+        private matDialog: MatDialog
     ) { }
 
     async ngOnInit() {
@@ -72,7 +77,27 @@ export class PackageInfoComponent implements OnInit {
         this.onViewClick.emit()
     }
 
+    public routeOnClick() {
+        this.onRouteClick.emit()
+    }
+
     public consitencyPrint():any {
         prettyPrintJson.toHtml(this.package_consitency)
+    }
+
+    public async initPackage() {
+        let d = this.matDialog.open(InitValidatorComponent,{data:{package:this.current_package},width:"35em"})
+        d.afterClosed().subscribe(async (result) => {
+            if(result){
+                let x = await this.api.InitPackage(this.current_package,result.import)
+                if(x) {
+                    this.snackBar.open("Package "+this.current_package+" has been successfully initialised")
+                    this.refresh.emit()
+                } else {
+                    this.snackBar.open("Error during package initialisation, check package consistency for more informations.")
+                }
+            }
+        })
+        
     }
 }

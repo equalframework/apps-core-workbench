@@ -4,6 +4,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { prettyPrintJson } from 'pretty-print-json';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { MixedCreatorComponent } from '../package/_components/mixed-creator/mixed-creator.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
     selector: 'app-controllers',
@@ -33,10 +35,15 @@ export class ControllersComponent implements OnInit {
         private api: ControllersService,
         private snackBar: MatSnackBar,
         private activateRoute: ActivatedRoute,
-        private route:RouterMemory
+        private route:RouterMemory,
+        private matDialog:MatDialog
     ) { }
 
     public async ngOnInit() {
+        this.init()
+    }
+
+    async init() {
         this.packages = await this.api.getPackages();
         const a = this.activateRoute.snapshot.paramMap.get('selected_package')
         this.selected_package = a ? a : ''
@@ -108,7 +115,19 @@ export class ControllersComponent implements OnInit {
      * @param new_package the name of the new controller
      */
     public oncreateController(event: { type: string, name: string }) {
-
+        console.log('SIUUUUU')
+        let d = this.matDialog.open(MixedCreatorComponent,{
+            data: { 
+                type: event.type, 
+                package: this.selected_package, 
+                lock_type : true,
+                lock_package: true, 
+            },width : "40em",height: "26em"
+        })
+        d.afterClosed().subscribe(() => {
+            // Do stuff after the dialog has closed
+            this.init()
+        });
     }
 
     /**

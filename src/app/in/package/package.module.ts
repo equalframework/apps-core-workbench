@@ -41,7 +41,10 @@ import { ControllerInfoModule } from '../controllers/_components/controller-info
 import { RouteInfoModule } from '../routes/_components/route-info/route-info.module';
 import { ViewsInfoModule } from '../views/_components/views-info/views-info.module';
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { MixedCreatorComponent } from './_components/mixed-creator/mixed-creator.component';
+import {  MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MixedCreatorModule } from './_components/mixed-creator/mixed-creator.module';
+import { DeleteConfirmationModule } from '../delete-confirmation/delete-confirmation.module';
+import { InitValidatorComponent } from './_components/package-info/_components/init-validator/init-validator.component';
 
 
 @NgModule({
@@ -64,6 +67,9 @@ import { MixedCreatorComponent } from './_components/mixed-creator/mixed-creator
         RouteInfoModule,
         ViewsInfoModule,
         ScrollingModule,
+        MatProgressSpinnerModule,
+        MixedCreatorModule,
+        DeleteConfirmationModule,
     ],
     declarations: [
         PackageComponent,
@@ -85,7 +91,7 @@ import { MixedCreatorComponent } from './_components/mixed-creator/mixed-creator
         ValueSelectionComponent,
         ResponseComponentSubmit,
         PackageInfoComponent,
-        MixedCreatorComponent,
+        InitValidatorComponent,
     ],
     providers: [
         DatePipe,

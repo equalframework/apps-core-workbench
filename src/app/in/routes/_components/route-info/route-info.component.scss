@@ -104,3 +104,15 @@ $deletediluted : #fc9e9f30;
 .clickable {
     cursor: help;
 }
+
+.inited {
+    color : mat-color($newcolor)
+}
+
+.not-inited {
+    color : mat-color($editedcolor)
+}
+
+label mat-icon {
+    transform: translateY(.2em);
+}

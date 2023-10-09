@@ -8,14 +8,14 @@
             <mat-icon class="info-menu-icon">text_format</mat-icon>
             <mat-label>Fields</mat-label>
         </div>
-        <button [disabled]="!this.detectAnyChanges()" (click)="regenerateSchemaAndPublish()" mat-icon-button matTooltip="Primary" color="accent" aria-label="Go back">
-            <mat-icon>publish</mat-icon>
+        <button [disabled]="!this.detectAnyChanges()" (click)="regenerateSchemaAndPublish()" mat-icon-button matTooltip="Primary" color="accent" title="Save changes">
+            <mat-icon>save</mat-icon>
         </button>
-        <button [disabled]="!this.detectAnyChanges()" (click)="cancelAllChanges()" mat-icon-button matTooltip="Primary" color="accent" aria-label="Go back">
+        <button [disabled]="!this.detectAnyChanges()" (click)="cancelAllChanges()" mat-icon-button matTooltip="Primary" color="accent" title="Cancel all current changes">
             <mat-icon>cancel</mat-icon>
         </button>
     </div>
-    <mat-grid-list cols="4" class="max-height">
+    <mat-grid-list cols="4" class="max-height border">
         <!-- Field search list, on the left of the screen -->
         <mat-grid-tile colspan="1" class="max-height">
             <app-search-list-field class="max-height max-width"
@@ -28,7 +28,7 @@
         </mat-grid-tile>
         <!-- Field content -->
         <mat-grid-tile colspan="3" class="max-height">
-            <app-field-content *ngIf="selected_field != undefined" class="max-height max-width"
+            <app-field-content *ngIf="selected_field != undefined" class="max-height bgcolor"
                 [fields]="fields_for_selected_class"
                 [actual_field]="selected_field"
                 [types]="types"

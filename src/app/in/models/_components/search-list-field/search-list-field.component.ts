@@ -1,10 +1,10 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { DeleteConfirmationComponent } from '../search-list/_components/delete-confirmation/delete-confirmation.component'
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FieldClassArray } from '../../_object/FieldClassArray';
 import { FieldClass } from '../../_object/FieldClass';
 import { cloneDeep } from 'lodash';
+import { DeleteConfirmationComponent } from 'src/app/in/delete-confirmation/delete-confirmation.component';
 
 @Component({
     selector: 'app-search-list-field',

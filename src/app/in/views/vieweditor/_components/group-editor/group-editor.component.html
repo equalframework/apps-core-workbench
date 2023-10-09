@@ -5,7 +5,13 @@
         [cdkDropListData]="group_obj" 
         (cdkDropListDropped)="drop_section($event)"
     >
-        <div cdkDrag *ngFor="let section of group_obj" [class.selected]="selected === section" class="section-selector" (click)="selected = section">
+        <div cdkDrag 
+            title="{{section.id}} : {{section.label}}"
+            *ngFor="let section of group_obj" 
+            [class.selected]="selected === section" 
+            class="section-selector" 
+            (click)="selected = section"
+        >
             <mat-icon cdkDragHandle class="grabable">drag_indicator</mat-icon>
             <label>
                 {{section.label === "" ? "UNNAMED" : section.label}}
@@ -14,14 +20,21 @@
     </div>
     <div class="section-editor" *ngIf="selected" >
         <label class="category-title">Section : {{selected.label === "" ? "UNNAMED" : selected.label}}</label>
-        <button mat-icon-button (click)="editSection(selected)"><mat-icon>edit</mat-icon></button>
+        <button mat-icon-button 
+            (click)="editSection(selected)"
+            title="Edit properties of section {{selected.label}}"
+        >
+            <mat-icon>edit</mat-icon>
+        </button>
         <button mat-icon-button
             (click)="delSection()"
+            title="Delete selection : {{selected.label}}"
         >
             <mat-icon>delete</mat-icon>
         </button>
         <button mat-button
-                (click)="addRow()"
+            (click)="addRow()"
+            title="Create a new row in {{selected.label}}"
         >
             <mat-icon>add</mat-icon> row
         </button>
@@ -38,20 +51,22 @@
                 <label class="category-title">Row : {{row.label === "" ? "UNNAMED" : row.label}}</label>
                 <button mat-icon-button
                     (click)="editRow(row)"
+                    title="Edit properties of row {{row.label === '' ? 'UNNAMED' : row.label}}"
                 >
                     <mat-icon>edit</mat-icon>
                 </button>
                 <button mat-icon-button
                     (click)="delRow(row)"
+                    title="Delete row {{row.label === '' ? 'UNNAMED' : row.label}}"
                 >
                     <mat-icon>delete</mat-icon>
                 </button>
                 <button mat-button
                     (click)="addCol(row)"
+                    title="Add a new column in {{row.label === '' ? 'UNNAMED' : row.label}}"
                 >
                     <mat-icon>add</mat-icon> column
                 </button>
-
                 <div class="flex drop-zone"
                     cdkDropList
                     cdkDropListOrientation="horizontal"
@@ -63,16 +78,19 @@
                         <label class="category-title">Column : {{col.label === "" ? "UNNAMED" : col.label}}</label>
                         <button mat-icon-button
                             (click)="editColumn(col)"
+                            title="Edit properties of column {{col.label === '' ? 'UNNAMED' : col.label}}"
                         >
                             <mat-icon>edit</mat-icon>
                         </button>
                         <button mat-icon-button
                             (click)="delColumn(row,col)"
+                            title="Delete column {{col.label === '' ? 'UNNAMED' : col.label}}"
                         >
                             <mat-icon>delete</mat-icon>
                         </button>
                         <button mat-button
                             (click)="addItem(col)"
+                            title="Add a new item in {{col.label === '' ? 'UNNAMED' : col.label}}"
                         >
                             <mat-icon>add</mat-icon> item
                         </button>
@@ -93,10 +111,11 @@
                                     [class.track]="dragged === item"
                                     class="item-visualiser" 
                                     draggable="true"
+                                    title="Type : {{item.type}}"
                                 >
                                     <mat-icon class="grabable">drag_indicator</mat-icon>
                                     <div class="valuedisp">
-                                        {{item.value}}
+                                        {{item.label.trim() !== "" && item.type === "field" ? item.label.trim()+" ["+item.value+"]" : item.value}}
                                         <mat-icon class="invisibleicon"
                                             *ngIf="item.has_domain && !item.is_visible_domain && !item.visible_bool"
                                         >visibility_off</mat-icon>
@@ -105,11 +124,13 @@
                                     <div class="button-holder">
                                         <button mat-icon-button
                                             (click)="editItem(item)"
+                                            title="Edit item"
                                         >
                                             <mat-icon class="btn-icon">edit</mat-icon>
                                         </button>
                                         <button mat-icon-button
                                             (click)="delItem(col,item)"
+                                            title="Delete item"
                                         >
                                             <mat-icon class="btn-icon">delete</mat-icon>
                                         </button>

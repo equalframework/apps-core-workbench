@@ -6,8 +6,23 @@
         </div>
         <br>
         <div>
+            <label class="sub-part-title inited"
+                *ngIf="init_routes[current_route] && init_routes[current_route]['info']['file'] === route_info['info']['file']"
+            >
+                <mat-icon>check_circle</mat-icon>
+                This route is live.
+            </label>
+            <label class="sub-part-title not-inited"
+                *ngIf="!init_routes[current_route] || init_routes[current_route]['info']['file'] !== route_info['info']['file']"
+            >
+                <mat-icon>error</mat-icon>
+                This route is not live.
+            </label>
+        </div>
+        <br>
+        <div>
             <label class="sub-part-title">Declared in </label>
-            <label class="sub-part-title accent-color">{{route_info['info']['file']}}</label>
+            <label class="sub-part-title accent-color">packages/{{route_info['info']['package']}}/init/routes/{{route_info['info']['file']}}</label>
         </div>
         <br>
         <label class="sub-part-title">Methods :</label>

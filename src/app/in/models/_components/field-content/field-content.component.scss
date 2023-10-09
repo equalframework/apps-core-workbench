@@ -2,6 +2,10 @@
 
 $warning : map-get($color-theme,warn); 
 
+:host {
+    overflow: hidden;
+}
+
 .form-container {
     padding: 20px 20px 0px 20px;
     height: fit-content;
@@ -35,8 +39,7 @@ $warning : map-get($color-theme,warn);
 }
 
 .button-container {
-    display: flex;
-    justify-content: flex-end;
+    margin-left: auto;
     height: max-content;
 }
 
@@ -54,7 +57,6 @@ $warning : map-get($color-theme,warn);
 .scroll, .mat-tab-body-content, .mat-tab-body.mat-tab-body-active .mat-tab-body-content {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
 }
 
 .mat-tab-body-wrapper{
@@ -76,4 +78,19 @@ $warning : map-get($color-theme,warn);
 .inheritwarn-text {
     text-align: center;
     background-color: mat-color($warning);
+}
+
+.flex {
+    display: flex;
+    align-items: center;
+    border-bottom: solid 1px #E0E0E0;
+}
+
+.field-indication {
+    font-size: 1.2em;
+}
+
+app-advance-component {
+    display: block;
+    min-height: 50vh;
 }

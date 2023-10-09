@@ -11,13 +11,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
 import { SearchListComponent } from './_components/search-list/search-list.component';
-import { DeleteConfirmationComponent } from './_components/search-list/_components/delete-confirmation/delete-confirmation.component';
 
 import { SharedLibModule, CustomDateAdapter } from 'sb-shared-lib';
 import { ModelsComponent } from './models.component';
 import { ModelsRoutingModule } from './models-routing.module';
 import { ModelsInfoModule } from './_components/model-info/models-info.module';
 import { PropertyDomainModule } from '../property-domain-component/property-domain.module';
+import { MixedCreatorModule } from '../package/_components/mixed-creator/mixed-creator.module';
+import { DeleteConfirmationModule } from '../delete-confirmation/delete-confirmation.module';
 
 @NgModule({
     imports: [
@@ -31,12 +32,12 @@ import { PropertyDomainModule } from '../property-domain-component/property-doma
         ModelsRoutingModule,
         ModelsInfoModule,
         PropertyDomainModule,
+        MixedCreatorModule,
+        DeleteConfirmationModule,
     ],
     declarations: [
         ModelsComponent,
         SearchListComponent,
-        DeleteConfirmationComponent,
-        
     ],
     providers: [
         DatePipe,

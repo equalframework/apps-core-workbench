@@ -17,7 +17,7 @@ export class RouterMemory {
     public saved_args: {[route:string]:{[val:string]:any}} = {}
 
     public navigate(command:any[],args:{[val:string]:any}|undefined=undefined) {
-        this.previous.push(this.router.url)
+        this.previous.push(this.router.url.replaceAll("%5C","\\"))
         if(args) {
             for (let [k, v] of Object.entries(args)) {
                 this.updateArg(k,v)

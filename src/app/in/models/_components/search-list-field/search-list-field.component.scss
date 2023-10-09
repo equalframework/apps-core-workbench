@@ -1,5 +1,9 @@
 @import "/src/theme.scss";
 
+:root {
+    margin-left: 1em;
+}
+
 .node_container {
     display: flex;
     align-items: center;
@@ -28,7 +32,7 @@
 
 .list {
     // - (stepper) and - (add_container)
-    height: calc(100% - (65px) - (65px));
+    height: calc(100% - 200px);
     overflow: auto;
 
     background: rgb(245, 245, 245);

@@ -1,14 +1,15 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { DeleteConfirmationComponent } from 'src/app/in/delete-confirmation/delete-confirmation.component'
+import { DeleteConfirmationComponent } from '../../../delete-confirmation/delete-confirmation.component'
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
     selector: 'app-search-list',
     templateUrl: './search-list.component.html',
     styleUrls: ['./search-list.component.scss'],
-    encapsulation: ViewEncapsulation.None
+    encapsulation : ViewEncapsulation.Emulated
 })
+
 export class SearchListComponent implements OnInit {
 
     @Input() data: string[];
@@ -23,6 +24,8 @@ export class SearchListComponent implements OnInit {
     editingNode: string = "";
     editedNode: string = "";
 
+    srchvalue = ""
+
     constructor(
         private dialog: MatDialog,
         private snackBar: MatSnackBar
@@ -33,9 +36,7 @@ export class SearchListComponent implements OnInit {
     }
 
     public ngOnChanges() {
-        if (Array.isArray(this.data)) {
-            this.filteredData = [...this.data];
-        }
+        this.onSearch(this.srchvalue)
     }
 
     /**
@@ -44,6 +45,7 @@ export class SearchListComponent implements OnInit {
      * @param value value of the filter
      */
     public onSearch(value: string) {
+        this.srchvalue = value
         this.filteredData = this.data.filter(node => node.toLowerCase().includes(value.toLowerCase()));
     }
 
@@ -83,8 +85,13 @@ export class SearchListComponent implements OnInit {
     public deleteNode(node: string){
         const index = this.data.indexOf(node);
         const index_filtered_data = this.filteredData.indexOf(node);
+
         if (index >= 0 && index_filtered_data >= 0) {
-            this.nodeDelete.emit(node);
+            let timerId: any;
+            timerId = setTimeout(() => {
+                this.nodeDelete.emit(node);
+            }, 3000);
+            this.snack("Deleting...", timerId);
         }
     }
 
@@ -125,7 +132,7 @@ export class SearchListComponent implements OnInit {
     }
 
     public onclickCreate() {
-        this.nodeCreate.emit()
+        this.nodeCreate.emit();
     }
 
     public snack(text: string, timerId: number) {

@@ -12,20 +12,22 @@
                 [loading]="isloading"
                 (nodeSelect)="onclickPackageSelect($event)"
                 (refresh)="refresh()"
+                (delete)="delElement($event)"
             >
             </app-search-mixed-list>
         </mat-grid-tile>
         <!-- Package content -->
         <mat-grid-tile colspan="3" class="max-height">
-            <div *ngIf="isloading" class="max-height max-width">
-                LOADING
+            <div *ngIf="isloading || sideload" style="display: flex;align-items: center;justify-content: center; width: 100%; height: 100%;">
+                <mat-spinner></mat-spinner>
             </div>
-            <div *ngIf="!isloading" class="max-height max-width">
+            <div *ngIf="!isloading && !sideload" class="max-height max-width">
                 <app-model-info *ngIf="selected_element.type==='class' || selected_element.type===''" class="max-height max-width"
                     [selected_package]="selected_element.package ? selected_element.package : ''"
                     [selected_class]="selected_element.name"
                     [class_scheme]="schema"
                     (changeStep)="onChangeStepModel($event)"
+                    (getRef)="goTo($event)"
                 >
                 </app-model-info>
                 <app-package-info *ngIf="selected_element.type==='package'" class="max-height max-width"
@@ -35,6 +37,8 @@
                     (onModelClick)="onClickModels()"
                     (onControllerClick)="onClickControllers()"
                     (onViewClick)="onClickView()"
+                    (onRouteClick)="onClickRoute()"
+                    (refresh)="refresh_consitency()"
                 >
                 </app-package-info>
                 <app-controller-info *ngIf="selected_element.type==='do' || selected_element.type==='get'" class="max-height max-width"
@@ -44,12 +48,12 @@
                     [fetch_error]="fetch_error"
                     [selected_package]="selected_element.package ? selected_element.package : ''"
                     [moving]="true"
-                    (goto)="goTo($event)"
+                    (goto)="goTo({name:$event})"
                 ></app-controller-info>
                 <app-route-info  *ngIf="selected_element.type==='route'"
                     [current_route]="selected_element.name"
-                    [route_info]="routelist[selected_element.name]"
-                    (redirect)="goTo($event)"
+                    [route_info]="routelist[selected_element.package+selected_element.more+selected_element.name]"
+                    (redirect)="goTo({name:$event})"
                 ></app-route-info>
                 <app-views-info  *ngIf="selected_element.type==='view'"
                     [view_ref]="selected_element.name"

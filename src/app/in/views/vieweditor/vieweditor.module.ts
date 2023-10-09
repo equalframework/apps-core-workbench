@@ -31,6 +31,8 @@ import { PropertyDomainModule } from '../../property-domain-component/property-d
 import { PropertyClauseComponent } from '../../property-clause-component/property-clause.component';
 import { PropertyClauseModule } from '../../property-clause-component/property-clause.module';
 import { PopupParamsComponent } from './_components/action-editor/_components/popup-params/popup-params.component';
+import { HeaderEditorComponent } from './_components/header-editor/header-editor.component';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 
 
@@ -50,6 +52,7 @@ import { PopupParamsComponent } from './_components/action-editor/_components/po
     ItemEditorComponent,
     ActionsContainerComponent,
     PopupParamsComponent,
+    HeaderEditorComponent,
   ],
   imports: [
     CommonModule,
@@ -70,6 +73,7 @@ import { PopupParamsComponent } from './_components/action-editor/_components/po
     MatChipsModule,
     PropertyDomainModule,
     PropertyClauseModule,
+    MatProgressSpinnerModule
   ]
 })
 export class VieweditorModule { }

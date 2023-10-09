@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { DeleteConfirmationComponent } from './delete-confirmation/delete-confirmation.component';
+import { DeleteConfirmationComponent } from '../../../delete-confirmation/delete-confirmation.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
@@ -160,15 +160,11 @@ export class SearchListControllerComponent implements OnInit {
 
     public onclickCreate() {
         let timerId: any;
-        timerId = setTimeout(() => {
-            if(this.data_selected) {
-                this.nodeCreate.emit({type: 'get', name: this.inputValue});
-            } else {
-                this.nodeCreate.emit({type: 'do', name: this.inputValue});
-            }
-        }, 5000);
-        this.snack("Created", timerId);
-
+        if(this.data_selected) {
+            this.nodeCreate.emit({type: 'get', name: this.inputValue});
+        } else {
+            this.nodeCreate.emit({type: 'do', name: this.inputValue});
+        }
         this.inputValue = ""
     }
 

@@ -6,7 +6,7 @@
 
 .boundary {
     display: inline-block;
-    width: 48%;
+    width: 47.5%;
     height: 3.5em;
     margin-bottom: -1.25em;
     background-color: transparent;
@@ -52,6 +52,13 @@
         width: auto;
         margin-left: .5em;
         margin-right: 1em;
+        cursor: inherit;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
     }
 
     .grabable {
