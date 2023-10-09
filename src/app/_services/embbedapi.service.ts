@@ -138,6 +138,31 @@ export class EmbbedApiService {
         }
     }
 
+    public async getAllRouteFiles():Promise<string[]> {
+        
+        let result:string[] = []
+        let x:string[]
+        try {
+            x = (await this.api.fetch('?get=core_config_packages'))
+        }
+        catch (response: any) {
+            x =  []
+        }
+        for(let pkg of x){
+            let files:{[file:string]:any}
+            try {
+                files = (await this.api.fetch('?get=core_config_routes&package=' + pkg))
+            } catch {
+                files = {}
+            }
+            for(let file in files) {
+                result.push(file)
+            }
+        }
+        return result
+        
+    }
+
     public async createroute(pkg:string,file:string,url:string):Promise<boolean> {
         try {
             await this.api.fetch("?do=core_config_create-route&package="+pkg+"&file="+file+"&url="+url)

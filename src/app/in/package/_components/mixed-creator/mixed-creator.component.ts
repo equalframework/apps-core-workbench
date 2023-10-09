@@ -80,6 +80,9 @@ export class MixedCreatorComponent implements OnInit {
             for(let key in x[this.subtype]) {
               this.cachelist.push(key)
             }
+          } else if(this.addingState) {
+            this.custom_st_list = await this.api.getAllRouteFiles()
+            console.log(this.custom_st_list)
           }
         }
         break
@@ -106,7 +109,7 @@ export class MixedCreatorComponent implements OnInit {
       case "route":
         this.nameControl.addValidators(MixedCreatorComponent.url_case_controller)
         this.customSTControl.addValidators(MixedCreatorComponent.route_file_controller)
-        this.customSTControl.addValidators(MixedCreatorComponent.already_taken(this.subtypelist))
+        this.customSTControl.addValidators(MixedCreatorComponent.already_taken(this.custom_st_list))
       }
   }
 
@@ -172,12 +175,13 @@ export class MixedCreatorComponent implements OnInit {
 
   subtypelist:string[]
   subtype:string
+  custom_st_list:string[]
 
   need_package:boolean;
   need_model:boolean;
   need_subtype:boolean;
   can_add_subtypes:boolean;
-
+  
   addingState:boolean = false;
 
   old_type:string 
@@ -186,6 +190,7 @@ export class MixedCreatorComponent implements OnInit {
   old_addingState:boolean = false
   old_subtype:string
   old_customST_valid:boolean
+
 
   nameControl:FormControl = new FormControl("", {
     validators: [
