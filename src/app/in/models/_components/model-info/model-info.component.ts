@@ -68,7 +68,6 @@ export class ModelInfoComponent implements OnInit {
 
   getref(name:string) {
     let x = name.split('\\')
-    console.log("plop")
     this.getRef.emit({package:x[0],name:x.slice(1).join('\\'),type:'class'})
   }
 }

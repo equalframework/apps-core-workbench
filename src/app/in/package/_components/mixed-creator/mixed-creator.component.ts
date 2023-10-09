@@ -45,10 +45,8 @@ export class MixedCreatorComponent implements OnInit {
         this.subtypename = "Extends from"
         if(this.selected_package !== "") {
           let x:string[] = (await this.api.listAllModels())
-          console.log(x)
           this.subtypelist = ["equal\\orm\\Model",...x]
           this.cachelist = this.cachemodellist
-          console.log(this.cachelist)
         }
         break;
       case "do":
@@ -78,8 +76,6 @@ export class MixedCreatorComponent implements OnInit {
           let x = await this.api.getRoutesByPackages(this.selected_package)
           this.subtypelist = Object.keys(x)
           this.cachelist = []
-          console.log(this.subtype)
-          console.log(x[this.subtype])
           if(x[this.subtype] && !this.addingState){
             for(let key in x[this.subtype]) {
               this.cachelist.push(key)
@@ -237,8 +233,6 @@ export class MixedCreatorComponent implements OnInit {
    */
   async reloadlist() {
     if(!this.hasSomethingChanged) {
-      console.log('ignored')
-      console.log(this.old_selected_model+" | "+this.selected_model)
       return
     }
     this.name_title = "Name"
@@ -296,9 +290,7 @@ export class MixedCreatorComponent implements OnInit {
       if(!valid_chars.includes(char)) return {"case":true}
     }
     let value: string[] = control.value.split("\\")
-    console.log(value[value.length-1])
     let f = value[value.length-1][0]
-    console.log(f)
     for(let i=0; i < value.length-1; i++) {
       if(value[i].toLowerCase() !== value[i]) return {"case":true}
     }
@@ -350,7 +342,6 @@ export class MixedCreatorComponent implements OnInit {
 
   static already_taken(pkglist: string[] | undefined): ValidatorFn {
     return (control: AbstractControl):ValidationErrors | null => {
-      console.log(pkglist)
       if (pkglist === undefined) return { "taken": true }
 
       for (let pkg of pkglist) {
@@ -382,7 +373,6 @@ export class MixedCreatorComponent implements OnInit {
 
   setAddingState(state:boolean){
     this.addingState = state
-    console.log(this.addingState)
     this.reloadlist()
   }
 }

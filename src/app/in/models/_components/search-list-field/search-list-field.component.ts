@@ -38,7 +38,6 @@ export class SearchListFieldComponent implements OnInit {
         ) { }
 
     public ngOnInit(): void {
-        console.log("ngOnInit search list");
     }
 
     public ngOnChanges() {

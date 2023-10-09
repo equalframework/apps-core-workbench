@@ -141,7 +141,6 @@ export class FieldComponent implements OnInit {
         }
         input = temp
     }
-    console.log(res)
     return res
   }
 
@@ -222,13 +221,10 @@ export class FieldComponent implements OnInit {
         "deleted":{"type":"boolean","default":false},
         "state":{"type":"string","selection":["draft","instance","archive"],"default":"instance"}
     }
-    console.log(this.schema)
     for(var item in this.fields_for_selected_class) {
         const name:string = this.fields_for_selected_class[item].name
         res["fields"][name] = this.fields_for_selected_class[item].current_scheme
     }
-    console.log(res)
-    console.log(compareDictRecursif(res,this.schema))
     return res
   }
 

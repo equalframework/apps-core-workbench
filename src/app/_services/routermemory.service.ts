@@ -21,11 +21,8 @@ export class RouterMemory {
         if(args) {
             for (let [k, v] of Object.entries(args)) {
                 this.updateArg(k,v)
-                console.log(k)
             }
         }
-        console.log(this.retrieveArgs())
-        console.log(this.previous)
         this.router.navigate(command)
     }
 
@@ -37,7 +34,6 @@ export class RouterMemory {
         } catch {
             route = "/"
         }
-        console.log(this.previous)
         this.router.navigate([route])
     }
 
@@ -49,6 +45,5 @@ export class RouterMemory {
         let r = this.router.url
         if(!this.saved_args[r]) this.saved_args[r] = {}
         this.saved_args[r][key] = value
-        console.log(this.saved_args[r])
     }
 }

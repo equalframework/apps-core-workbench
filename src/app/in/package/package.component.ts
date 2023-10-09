@@ -104,7 +104,6 @@ export class PackageComponent implements OnInit {
         }
         if(eq_element.type === "class") {
             this.schema = await this.api.getSchema(eq_element.package + '\\' + eq_element.name);
-            console.log(this.schema)
         }
         if(eq_element.type === "do" || eq_element.type === "get") {
                 let response
@@ -208,9 +207,7 @@ export class PackageComponent implements OnInit {
     }
 
     goTo(ev:{name:string,package?:string,type?:string}) {
-        console.log("miam")
         let els = this.elements.filter(el => (el.name === ev.name && (!ev.package || ev.package === el.package)))
-        console.log(els)
         this.onclickPackageSelect(els[0])
     }
 

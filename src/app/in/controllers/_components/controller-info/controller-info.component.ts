@@ -103,7 +103,7 @@ export class ControllerInfoComponent implements OnInit {
     public filterRoute():any {
         let res:{[id:string]:any} = {}
         let content:string
-        let lookup = "?"+this.controller_type+"="+this.selected_package+"_"+this.current_controller
+        let lookup = "?"+this.controller_type+"="+this.current_controller
         for (let key in this.routes) {
             for (let method in this.routes[key]['methods']) {
                 content = this.routes[key]['methods'][method]['operation']
@@ -127,7 +127,6 @@ export class ControllerInfoComponent implements OnInit {
      * @param ev identifier of the element to display
      */
     public sendTo(ev:string) {
-        console.log(ev)
         if(this.moving) this.goto.emit(ev);
     }
 
@@ -154,7 +153,6 @@ export class ControllerInfoComponent implements OnInit {
         for (let key in this.paramsValue) {
             if (isArray(this.paramsValue[key])) {
                 let arrayString = (JSON.stringify(this.paramsValue[key])).replaceAll('"', '');
-                console.log(arrayString)
                 stringParams += ' --' + key + '=\'' + arrayString + '\'';
             } else if (isObject(this.paramsValue[key])) {
                 stringParams += ' --' + key + '=\'{' + this.paramsValue[key] + '}\'';
@@ -192,7 +190,6 @@ export class ControllerInfoComponent implements OnInit {
         for (let key in this.paramsValue) {
             if (isArray(this.paramsValue[key])) {
                 let arrayString = (JSON.stringify(this.paramsValue[key])).replaceAll('"', '');
-                console.log(arrayString)
                 stringParams += '&' + key + '=\'' + arrayString + '\'';
             } else if (isObject(this.paramsValue[key])) {
                 stringParams += '&' + key + '=\'{' + this.paramsValue[key] + '}\'';
@@ -257,7 +254,6 @@ export class ControllerInfoComponent implements OnInit {
     }
 
     public updateCanSubmit() {
-        console.log(this.presentRequiredParams)
         if (Object.keys(this.presentRequiredParams).length === 0) {
             this.canSubmit = true;
         } else {
@@ -274,7 +270,6 @@ export class ControllerInfoComponent implements OnInit {
     }
 
     public async submit() {
-        console.log(this.paramsValue);
         let response = await this.api.submitController(this.controller_type, this.current_controller, this.paramsValue);
         const dialogConfig = new MatDialogConfig();
         dialogConfig.maxHeight = '86vh';

@@ -43,7 +43,6 @@ export class PackageInfoComponent implements OnInit {
         this.current_initialised = this.package_init_list.indexOf(this.current_package) >= 0
         this.error_list = this.package_consitency["result"]
         this.countErrors()
-        console.log(this.error_list)
     }
 
     public countErrors() {
@@ -63,17 +62,14 @@ export class PackageInfoComponent implements OnInit {
     }
 
     public modelOnClick() {
-        console.log("catch!")
         this.onModelClick.emit()
     }
 
     public controllerOnClick() {
-        console.log("catch!")
         this.onControllerClick.emit()
     }
 
     public viewOnClick() {
-        console.log("catch!")
         this.onViewClick.emit()
     }
 
