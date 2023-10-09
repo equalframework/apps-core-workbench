@@ -27,6 +27,7 @@
                     [selected_class]="selected_element.name"
                     [class_scheme]="schema"
                     (changeStep)="onChangeStepModel($event)"
+                    (getRef)="goTo($event)"
                 >
                 </app-model-info>
                 <app-package-info *ngIf="selected_element.type==='package'" class="max-height max-width"
@@ -47,12 +48,12 @@
                     [fetch_error]="fetch_error"
                     [selected_package]="selected_element.package ? selected_element.package : ''"
                     [moving]="true"
-                    (goto)="goTo($event)"
+                    (goto)="goTo({name:$event})"
                 ></app-controller-info>
                 <app-route-info  *ngIf="selected_element.type==='route'"
                     [current_route]="selected_element.name"
                     [route_info]="routelist[selected_element.package+selected_element.more+selected_element.name]"
-                    (redirect)="goTo($event)"
+                    (redirect)="goTo({name:$event})"
                 ></app-route-info>
                 <app-views-info  *ngIf="selected_element.type==='view'"
                     [view_ref]="selected_element.name"

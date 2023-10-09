@@ -207,9 +207,11 @@ export class PackageComponent implements OnInit {
         }
     }
 
-    goTo(ev:string) {
-        let el = this.elements.filter(el => el.name === ev)[0]
-        this.onclickPackageSelect(el)
+    goTo(ev:{name:string,package?:string,type?:string}) {
+        console.log("miam")
+        let els = this.elements.filter(el => (el.name === ev.name && (!ev.package || ev.package === el.package)))
+        console.log(els)
+        this.onclickPackageSelect(els[0])
     }
 
     onViewEditClick() {
