@@ -1,8 +1,8 @@
 <div *ngIf="current_controller ===''" class="max-height max-width margin-container">
     <label class="packagename">Select a controller to show properties.</label>
 </div>
-<div *ngIf="current_controller !==''" class="max-width margin-container">
-    <div class="scrollable max-height">
+<div *ngIf="current_controller !==''" class="margin-container" style="height: 100%;">
+    <div class="title-controller">
         <div class="flex-labels">
             <label class="packagename">Controller :</label>
             <label class="packagename accent">{{ current_controller }}</label>
@@ -15,6 +15,10 @@
         <div *ngIf="!fetch_error">
             <label class="content-label">Description</label>
             <p class="content-desc">{{scheme['description']}}</p>
+        </div>
+    </div>
+    <div class="core-prez">
+        <div *ngIf="!fetch_error">
             <div *ngIf="AccessString !== undefined">
                 <br>
                 <label class="content-label">Access</label>

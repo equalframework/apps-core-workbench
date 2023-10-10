@@ -75,10 +75,19 @@
                 link
             </mat-checkbox>
             <mat-form-field>
-                <input matInput placeholder="widget type" [value]="item.widgetList.type" (input)="item.widgetList.type= $event.target.value">
+                <mat-label>type</mat-label>
+                <mat-select [(value)]="item.widgetList.type">
+                    <mat-option *ngFor="let item of equal_types" [value]="item">{{item}}</mat-option>
+                </mat-select>
             </mat-form-field>
             <mat-form-field class="inputlong">
                 <input matInput placeholder="values (splitted by semi-columns)" type="text" [value]="item.widgetList.values.toString().replaceAll(',',';')" (input)="item.widgetList.values = $event.target.value.split(';')">
+            </mat-form-field>
+            <mat-form-field>
+                <mat-label>type</mat-label>
+                <mat-select [(value)]="item.widgetList.usage">
+                    <mat-option *ngFor="let item of equal_usage" [value]="item">{{item}}</mat-option>
+                </mat-select>
             </mat-form-field>
         </div>
         <!-- FORM WIDGET -->
@@ -117,10 +126,19 @@
                 view
             </mat-checkbox>
             <mat-form-field>
-                <input matInput placeholder="widget type" [value]="item.widgetForm.type" (input)="item.widgetForm.type= $event.target.value">
+                <mat-label>type</mat-label>
+                <mat-select [(value)]="item.widgetForm.type">
+                    <mat-option *ngFor="let item of equal_types" [value]="item">{{item}}</mat-option>
+                </mat-select>
             </mat-form-field>
             <mat-form-field class="inputlong">
                 <input matInput placeholder="values (splitted by semi-columns)" type="text" [value]="item.widgetForm.values.toString().replaceAll(',',';')" (input)="item.widgetForm.values = $event.target.value.split(';')">
+            </mat-form-field>
+            <mat-form-field>
+                <mat-label>type</mat-label>
+                <mat-select [(value)]="item.widgetForm.usage">
+                    <mat-option *ngFor="let item of equal_usage" [value]="item">{{item}}</mat-option>
+                </mat-select>
             </mat-form-field>
         </div>
         <div *ngIf="item.widgetForm._has_view">

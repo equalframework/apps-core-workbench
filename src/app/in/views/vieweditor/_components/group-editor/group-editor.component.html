@@ -118,7 +118,16 @@
                                         {{item.label.trim() !== "" && item.type === "field" ? item.label.trim()+" ["+item.value+"]" : item.value}}
                                         <mat-icon class="invisibleicon"
                                             *ngIf="item.has_domain && !item.is_visible_domain && !item.visible_bool"
+                                            title="this item has its visible property set to false"
                                         >visibility_off</mat-icon>
+                                        <mat-icon class="invisibleicon"
+                                            *ngIf="item.has_widget && item.widgetForm.heading"
+                                            title="this item will be displayed bigger due to its widget heading set to true"
+                                        >text_increase</mat-icon>
+                                        <mat-icon class="invisibleicon"
+                                            *ngIf="item.readonly"
+                                            title="this item has its readonly property set to true"
+                                        >do_not_touch</mat-icon>
                                     </div>
                                     
                                     <div class="button-holder">

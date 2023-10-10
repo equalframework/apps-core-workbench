@@ -29,8 +29,8 @@
 .package-info-button {
     color : mat-color($maincolor) !important;
     background-color:  #e4e4e4 !important;
-    min-width: 20em;
-    height: 4em;
+    min-width: 80%;
+    height: 80%;
 }
 
 .package-info-button label {
@@ -50,8 +50,12 @@
     margin-top: 2em;
 }
 
+.class-container-title {
+    height: 60px;
+}
+
 .class-container-top {
-    height: 75%;
+    height: calc(75% - 60px);
     overflow-y: scroll;
 }
 

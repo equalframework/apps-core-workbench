@@ -18,6 +18,9 @@ export class ItemEditorComponent implements OnInit {
   @Input() groups:string[]
   @Input() action_controllers:string[]
 
+  equal_types:string[]
+  equal_usage:any
+
   @Output() delete = new EventEmitter<void>();
 
   obk = Object.keys
@@ -31,12 +34,16 @@ export class ItemEditorComponent implements OnInit {
   ) { }
 
   async ngOnInit(){
+    this.equal_types = ["",...(await this.api.getTypeList())]
+    this.equal_usage = ["",...(await this.api.getUsageList())]
+    
     if(this.item.viewtype === 1){
       this.scheme = await this.api.getSchema(this.entity)
       this.set_has_view(this.item.widgetForm._has_view)
       console.log(this.scheme)
     }
-    
+    console.log(this.equal_types)
+    console.log(this.equal_usage)
   }
 
   onDelete() {

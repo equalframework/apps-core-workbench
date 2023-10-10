@@ -553,6 +553,7 @@ class ViewListWidget extends ViewElement {
     public sortable: boolean = false
     public link: boolean = false
     public type: string = ""
+    public usage:string= ""
     public values: string[] = []
 
     constructor(scheme: any = {}, type:number=0) {
@@ -564,6 +565,10 @@ class ViewListWidget extends ViewElement {
         if (scheme['type']) {
             this.type = scheme['type']
             delete scheme['type']
+        }
+        if (scheme['usage']) {
+            this.usage = scheme['usage']
+            delete scheme['usage']
         }
         if (scheme['values']) {
             this.values = scheme['values']
@@ -584,6 +589,8 @@ class ViewListWidget extends ViewElement {
             result['sortable'] = this.sortable
         if (this.type !== "")
             result['type'] = this.type
+        if (this.usage !== "")
+            result['usage'] = this.usage
         if (this.type === "select")
             result['values'] = this.values
         return result
@@ -594,6 +601,7 @@ class ViewFormWidget extends ViewElement {
     public link: boolean = false
     public heading: boolean = false
     public type: string = ""
+    public usage:string = ""
     public values: string[] = []
     public header:ViewHeader = new ViewHeader({},"list")
     public view:string = ""
@@ -614,6 +622,10 @@ class ViewFormWidget extends ViewElement {
         if (scheme['type']) {
             this.type = scheme['type']
             delete scheme['type']
+        }
+        if (scheme['usage']) {
+            this.usage = scheme['usage']
+            delete scheme['usage']
         }
         if (scheme['values']) {
             this.values = scheme['values']
@@ -640,6 +652,8 @@ class ViewFormWidget extends ViewElement {
             result['heading'] = this.heading
         if (this.type !== "")
             result['type'] = this.type
+        if (this.usage !== "")
+            result['usage'] = this.usage
         if (this.type === "select")
             result['values'] = this.values
         if(this._has_header) {

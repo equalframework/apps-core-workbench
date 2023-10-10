@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { isObject } from 'lodash';
 import { ApiService } from 'sb-shared-lib';
 
 // TODO add refresh function
@@ -172,5 +173,40 @@ export class EmbbedApiService {
         }
     }
 
+    public async getTypeList() {
+        try {
+            return Object.keys(await this.api.fetch("?get=core_config_types"))
+        }
+        catch {
+            return []
+        }
+    }
+
+    public async getUsageList() {
+        try {
+            let x = await this.api.fetch("?get=core_config_usage")
+            let y = this.construct_usage_list(x)
+            return y.filter((v:string) => !v.endsWith("/")).sort((a:string,b:string) => {
+                for(let i = 0; i < a.length && i < b.length ; i++) {
+                    if( a < b ) return -1
+                    if( a > b ) return 1
+                }
+                return a.length - b.length
+            })
+        } catch {
+            return []
+        }
+    }
+
+    protected construct_usage_list(object:any,):string[] {
+        let result = Object.keys(object)
+        Object.keys(object).forEach((element) => {
+            result = result.concat(
+                Object.keys(object[element])
+                    .map((field) => (!isNaN(parseFloat(field)) && isFinite(parseFloat(field))) ? field = `${element}/${object[element][field]}` : `${element}/${field}`)
+            )
+        })
+        return result
+    }
 }
  
