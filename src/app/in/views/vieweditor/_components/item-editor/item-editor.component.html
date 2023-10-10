@@ -84,10 +84,11 @@
                 <input matInput placeholder="values (splitted by semi-columns)" type="text" [value]="item.widgetList.values.toString().replaceAll(',',';')" (input)="item.widgetList.values = $event.target.value.split(';')">
             </mat-form-field>
             <mat-form-field>
-                <mat-label>type</mat-label>
-                <mat-select [(value)]="item.widgetList.usage">
-                    <mat-option *ngFor="let item of equal_usage" [value]="item">{{item}}</mat-option>
-                </mat-select>
+                <mat-label>Usage</mat-label>
+                <input matInput [(ngModel)]="item.widgetList.usage" [matAutocomplete]="auto" (keyup)="filterUsage()">
+                <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+                    <mat-option *ngFor="let item of filtered_equal_usage" [value]="item">{{item}}</mat-option>
+                </mat-autocomplete>
             </mat-form-field>
         </div>
         <!-- FORM WIDGET -->
@@ -135,10 +136,11 @@
                 <input matInput placeholder="values (splitted by semi-columns)" type="text" [value]="item.widgetForm.values.toString().replaceAll(',',';')" (input)="item.widgetForm.values = $event.target.value.split(';')">
             </mat-form-field>
             <mat-form-field>
-                <mat-label>type</mat-label>
-                <mat-select [(value)]="item.widgetForm.usage">
-                    <mat-option *ngFor="let item of equal_usage" [value]="item">{{item}}</mat-option>
-                </mat-select>
+                <mat-label>Usage</mat-label>
+                <input matInput [(ngModel)]="item.widgetForm.usage" [matAutocomplete]="auto" (keyup)="filterUsage()">
+                <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+                    <mat-option *ngFor="let item of filtered_equal_usage" [value]="item">{{item}}</mat-option>
+                </mat-autocomplete>
             </mat-form-field>
         </div>
         <div *ngIf="item.widgetForm._has_view">

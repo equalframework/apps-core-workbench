@@ -19,7 +19,8 @@ export class ItemEditorComponent implements OnInit {
   @Input() action_controllers:string[]
 
   equal_types:string[]
-  equal_usage:any
+  equal_usage:string[]
+  filtered_equal_usage:string[]
 
   @Output() delete = new EventEmitter<void>();
 
@@ -36,6 +37,7 @@ export class ItemEditorComponent implements OnInit {
   async ngOnInit(){
     this.equal_types = ["",...(await this.api.getTypeList())]
     this.equal_usage = ["",...(await this.api.getUsageList())]
+    this.filterUsage()
     
     if(this.item.viewtype === 1){
       this.scheme = await this.api.getSchema(this.entity)
@@ -99,6 +101,15 @@ export class ItemEditorComponent implements OnInit {
       foreign : this.scheme['fields'][this.item.value]['foreign_object'],
       lists : {},
     }
+  }
+
+  filterUsage() {
+    if(this.item.viewtype == 1){
+      this.filtered_equal_usage = this.equal_usage.filter((item) => item.includes(this.item.widgetForm.usage))
+    } else {
+      this.filtered_equal_usage = this.equal_usage.filter((item) => item.includes(this.item.widgetList.usage))
+    }
+    
   }
 }
 
