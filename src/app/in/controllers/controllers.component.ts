@@ -103,8 +103,14 @@ export class ControllersComponent implements OnInit {
      *
      * @param controller the name of the controller which will be deleted
      */
-    public ondeleteController(event: { type: string, name: string }) {
-
+    public async ondeleteController(event: { type: string, name: string }) {
+            let nom = event.name.split("_").slice(1).join("_")
+            let res = await this.api.deleteController(this.selected_package,event.type,nom)
+            if(!res){
+                this.snackBar.open("Deleted")
+                this.selected_controller= ""
+                this.init()
+            }
     }
 
     /**

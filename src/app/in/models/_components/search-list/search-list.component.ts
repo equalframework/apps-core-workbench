@@ -85,11 +85,7 @@ export class SearchListComponent implements OnInit {
         const index_filtered_data = this.filteredData.indexOf(node);
 
         if (index >= 0 && index_filtered_data >= 0) {
-            let timerId: any;
-            timerId = setTimeout(() => {
-                this.nodeDelete.emit(node);
-            }, 3000);
-            this.snack("Deleting...", timerId);
+            this.nodeDelete.emit(node);
         }
     }
 

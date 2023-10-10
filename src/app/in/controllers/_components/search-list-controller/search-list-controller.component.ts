@@ -108,17 +108,12 @@ export class SearchListControllerComponent implements OnInit {
             index = this.data['actions'].indexOf(this.editingNode);
             index_filtered_data = this.filteredData.indexOf(node);
         }
-
         if (index >= 0 && index_filtered_data >= 0) {
-            let timerId: any;
-            timerId = setTimeout(() => {
-                if(this.data_selected) {
-                    this.nodeDelete.emit({type: 'get', name: node});
-                } else {
-                    this.nodeDelete.emit({type: 'do', name: node});
-                }
-            }, 5000);
-            this.snack("Deleted", timerId);
+            if(this.data_selected) {
+                this.nodeDelete.emit({type: 'get', name: node});
+            } else {
+                this.nodeDelete.emit({type: 'do', name: node});
+            }
         }
     }
 

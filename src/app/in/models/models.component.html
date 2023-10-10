@@ -10,7 +10,7 @@
             </button>
             <mat-label>{{ selected_package }}</mat-label><mat-label class="model-label"><mat-icon>data_object</mat-icon>Models</mat-label>
         </div>
-        <mat-grid-list cols="4" class="max-height">
+        <mat-grid-list cols="4" class="grid-full-size">
             <!-- Class search list, on the left of the screen -->
             <mat-grid-tile colspan="1" class="max-height">
                 <app-search-list class="max-height max-width"
@@ -23,7 +23,7 @@
                 </app-search-list>
             </mat-grid-tile>
             <!-- Class content -->
-            <mat-grid-tile colspan="3" class="max-height max-width" id="schema">
+            <mat-grid-tile colspan="3" class="max-width" id="schema">
                 <app-model-info class="max-height max-width"
                 [selected_package]="selected_package"
                 [selected_class]="selected_class"

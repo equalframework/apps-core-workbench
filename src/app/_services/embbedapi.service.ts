@@ -25,12 +25,13 @@ export class EmbbedApiService {
         return res + "}"
     }
 
-    public async deleteView(entity:string,view_id:string):Promise<string|undefined>{
+    public async deleteView(entity:string,view_id:string):Promise<any|undefined>{
         try {
             await this.api.fetch("?do=core_config_delete-view&entity="+entity+"&view_id="+view_id)
             return undefined
-        } catch(resp:any) {
-            return this.getErrorstring(resp.error.errors)
+        } catch(response) {
+            this.api.errorFeedback(response)
+            return response
         }
         
     }
@@ -207,6 +208,36 @@ export class EmbbedApiService {
             )
         })
         return result
+    }
+
+    public async deletePackage(pkg:string):Promise<any> {
+        try {
+            await this.api.fetch("?do=core_config_delete-package&package="+pkg)
+            return undefined
+        } catch(response) {
+            this.api.errorFeedback(response)
+            return response
+        }
+    }
+
+    public async deleteModel(pkg:string,model:string):Promise<any> {
+        try {
+            await this.api.fetch("?do=core_config_delete-model&package="+pkg+"&model="+model)
+            return undefined
+        } catch(response) {
+            this.api.errorFeedback(response)
+            return response
+        }
+    }
+
+    public async deleteController(pkg:string,type:string,name:string):Promise<any> {
+        try {
+            await this.api.fetch("?do=core_config_delete-controller&package="+pkg+"&controller_name="+name+"&controller_type="+type)
+            return undefined
+        } catch(response) {
+            this.api.errorFeedback(response)
+            return response
+        }
     }
 }
  

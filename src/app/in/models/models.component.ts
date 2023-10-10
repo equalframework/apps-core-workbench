@@ -102,8 +102,13 @@ export class ModelsComponent implements OnInit {
      *
      * @param eq_class the name of the class which will be deleted
      */
-    public ondeleteClass(eq_class: string) {
-        this.api.deleteClass(this.selected_package, eq_class);
+    public async ondeleteClass(eq_class: string) {
+        let res = await this.api.deleteModel(this.selected_package,eq_class)
+        if(!res){
+            this.snackBar.open("Deleted")
+            this.selected_class = ""
+            this.init()
+        }
     }
 
     /**

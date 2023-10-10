@@ -1,13 +1,19 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { isArray } from 'lodash';
 import { ApiService } from 'sb-shared-lib';
+import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
 
 @Injectable({
     providedIn: 'root'
 })
-export class ControllersService {
+export class ControllersService extends EmbbedApiService {
 
-    constructor(private api: ApiService) { }
+    
+
+    constructor(api: ApiService) {
+        super(api)
+     }
 
     /**
      * Return all the packages available.
@@ -58,7 +64,7 @@ export class ControllersService {
      * @param array all the parameters for the controller
      * @returns array with the respond of a controller's execution
      */
-    public async submitController(type_controller: string, controller_name: string, params: []) {
+    public async submitController(type_controller: string, controller_name: string, params: []):Promise<{err:boolean,resp:any}> {
         let stringParams = '';
         for(let key in params) {
             if(isArray(params[key])) {
@@ -67,12 +73,11 @@ export class ControllersService {
                 stringParams += '&' + key + '=' + params[key];
             }
         }
-
         try {
-            return await this.api.fetch('?' + type_controller + '=' + controller_name + stringParams);
+            return {err : false, resp: (await this.api.fetch('?' + type_controller + '=' + controller_name + stringParams))};
         }
-        catch (response: any) {
-            return null;
+        catch (response) {
+            return {err : true, resp:response}
         }
     }
 

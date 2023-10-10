@@ -279,6 +279,7 @@ export class ControllerInfoComponent implements OnInit {
             'top': '12vh'
         };
         const dialogRef = this.dialog.open(ResponseComponentSubmit, dialogConfig);
+        console.log(response)
         dialogRef.componentInstance.data = response;
     }
 

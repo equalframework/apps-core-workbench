@@ -216,17 +216,49 @@ export class PackageComponent implements OnInit {
     }
 
     async delElement(node:{package?:string,name:string,type:string,more?:any}) {
+        let res
         switch(node.type) {
         case "view":
             let sp = node.name.split(":")
-            let res = await this.api.deleteView(sp[0],sp[1])
+            res = await this.api.deleteView(sp[0],sp[1])
             if(!res){
                 this.snackBar.open("Deleted")
-                this.selected_element === undefined
+                this.selected_element = {name:"",type:""}
                 this.refresh()
             }
-            else{
-                this.snackBar.open("error : "+res)
+            break
+        case "package":
+            res = await this.api.deletePackage(node.name)
+            if(!res){
+                this.snackBar.open("Deleted")
+                this.selected_element = {name:"",type:""}
+                this.refresh()
+            }
+            break
+        case "class":
+            if(node.package) {
+                res = await this.api.deleteModel(node.package,node.name)
+                if(!res){
+                    this.snackBar.open("Deleted")
+                    this.selected_element = {name:"",type:""}
+                    this.refresh()
+                }
+            }else {
+                this.snackBar.open("Error : unknown model")
+            }
+            break
+        case "do":
+        case "get":
+            if(node.package) {
+                let nom = node.name.split("_").slice(1).join("_")
+                res = await this.api.deleteController(node.package,node.type,nom)
+                if(!res){
+                    this.snackBar.open("Deleted")
+                    this.selected_element = {name:"",type:""}
+                    this.refresh()
+                }
+            }else {
+                this.snackBar.open("Error : unknown controller")
             }
             break
         default:
