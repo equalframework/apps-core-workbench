@@ -44,6 +44,10 @@ export class ModelInfoComponent implements OnInit {
     this.changeStep.emit(3);
   }
 
+  tradOnClick() {
+    this.changeStep.emit(4)
+  }
+
   /**
    * @description
    * Looks for properties about a field of the model

@@ -204,6 +204,9 @@ export class PackageComponent implements OnInit {
         if(event===3 && this.selected_element.package) {
             this.router.navigate(['/views',"entity",this.selected_element.package+'\\'+this.selected_element.name],{"selected":this.selected_element})
         }
+        if(event===4 && this.selected_element.package) {
+            this.router.navigate(['/translation',"model",this.selected_element.package,this.selected_element.name],{"selected":this.selected_element})
+        }
     }
 
     goTo(ev:{name:string,package?:string,type?:string}) {

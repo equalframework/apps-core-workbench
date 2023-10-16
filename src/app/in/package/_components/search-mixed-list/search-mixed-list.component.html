@@ -41,7 +41,7 @@
                     <label class="type-info-mixed-sel type-mixed-sel-{{node.type}}"><mat-icon>{{type_dict[node.type].icon}}</mat-icon></label>
                     <label class="name-mixed-sel" *ngIf="node.type !== 'route'">{{ node.package ? (node.type === "do" || node.type === "get" || node.type === "view" ? "" : node.package+"\\") : ""}}{{node.name}}</label>
                     <label class="name-mixed-sel" *ngIf="node.type === 'route'">{{ node.package }}-{{node.more.split("-",1)[0]}}-{{node.name}}</label>
-                    <button mat-icon-button (click)="clickDelete(node)"><mat-icon>delete</mat-icon></button>
+                    <button mat-icon-button (click)="clickDelete(node)" class="del-mixed-sel"><mat-icon>delete</mat-icon></button>
                 </div>
             </div>
         </mat-list-item>

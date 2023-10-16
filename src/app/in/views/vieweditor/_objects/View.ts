@@ -190,7 +190,6 @@ class ViewLayout extends ViewElement {
             result['items'] = []
             this.items.forEach(item => result['items'].push(item.export()))
         }
-        console.log(result)
         return result
     }
 
@@ -483,16 +482,13 @@ class ViewItem extends ViewElement {
             this.width = Number.parseInt(scheme['width'])
             delete scheme['width']
         }
-        console.log(scheme['sortable'])
         if (scheme['sortable']) {
-            console.log('pop')
             if(!scheme['widget']){
                 scheme['widget'] = {}
             }
             scheme['widget']['sortable'] = scheme['sortable']
             delete scheme['sortable']
         }
-        console.log(scheme['readonly'])
         if (scheme['readonly']) {
             this.readonly = scheme['readonly']
             delete scheme['readonly']
@@ -720,34 +716,93 @@ class ViewFilter extends ViewElement {
     }
 }
 
-class ViewHeader extends ViewElement {
-    actions: { [id: string]: { acts: ViewAction[], enabled: boolean, default: boolean } }
-    selection_actions: ViewAction[] = []
-    selection_default: boolean = true
-
-    _has_actions = false
+class ViewSelection extends ViewElement {
+    predef_actions: { [id: string]: {visible: boolean} } = {
+        "ACTION.EDIT_INLINE": { visible: true},
+        "ACTION.CLONE": { visible: true},
+        "ACTION.DELETE": { visible: true},
+        "ACTION.EDIT_BULK" : {visible : true},
+        "ACTION.ARCHIVE" : {visible : true},
+    }
+    actions: ViewAction[] = []
+    default: boolean = true
     _has_selection_actions = false
 
-    static get actions_for_list(): { [id: string]: { acts: ViewAction[], enabled: boolean, default: boolean } } {
+    constructor(scheme:any={}) {
+        super()
+        if (scheme['default'] !== undefined) {
+            console.log("default catched")
+            this.default = scheme['default']
+            delete scheme['default']
+            console.log("next...")
+            this._has_selection_actions = true
+        }
+        if (scheme['actions']) {
+            console.log("actions catched")
+            this._has_selection_actions = true
+            console.log(scheme["actions"])
+            scheme['actions'].forEach((action: any) => {
+                if( Object.keys(this.predef_actions).includes(action.id)) {
+                    this.predef_actions[action.id].visible = action.visible
+                } else {
+                    this.actions.push(new ViewAction(action)) 
+                }
+            })
+            delete scheme['actions']
+        }
+        if (scheme['default'] !== undefined || scheme['actions'])
+            console.log("selection parsing finished")
+        this.leftover = scheme
+    }
+ 
+    public override export() {
+        let result = super.export()
+        if(!this.default) result["default"] = false
+        if (this._has_selection_actions) {
+            result["actions"] = []
+            for(let key in this.predef_actions) {
+                if(!this.predef_actions[key].visible) {
+                    result["actions"].push({id:key,visible:this.predef_actions[key].visible})
+                }
+            }
+            this.actions.forEach(act => result["actions"].push(act.export()))
+        }
+        return result
+    }
+
+    public override id_compliant(id_list: string[]): { ok: boolean; id_list: string[]; } {
+        let ret = {ok:true, id_list:id_list}
+        if (this._has_selection_actions) {
+            for (let action of this.actions) {
+                ret = action.id_compliant(ret.id_list)
+                if (!ret.ok) return { ok: false, id_list: ret.id_list }
+            }
+        }
+        return ret
+    }
+}
+
+class ViewHeader extends ViewElement {
+    actions: { [id: string]: { acts: ViewPreDefAction[], enabled: boolean, default: boolean , possible_ids: string[]} }
+    selection : ViewSelection = new ViewSelection()
+    _has_actions = false
+    
+
+    static get actions_for_list(): { [id: string]: { acts: ViewPreDefAction[], enabled: boolean, default: boolean, possible_ids: string[] } } {
         return {
-            "ACTION.SELECT": { acts: [], enabled: true, default: true },
-            "ACTION.CREATE": { acts: [], enabled: true, default: true },
-            "ACTION.SAVE": { acts: [], enabled: true, default: true },
-            "ACTION.CANCEL": { acts: [], enabled: true, default: true },
-            "ACTION.EDIT_INLINE": { acts: [], enabled: true, default: true },
-            "ACTION.EDIT_BULK": { acts: [], enabled: true, default: true },
-            "ACTION.CLONE": { acts: [], enabled: true, default: true },
-            "ACTION.ARCHIVE": { acts: [], enabled: true, default: true },
-            "ACTION.DELETE": { acts: [], enabled: true, default: true },
+            "ACTION.SELECT": { acts: [], enabled: true, default: true, possible_ids: ["SELECT"] },
+            "ACTION.CREATE": { acts: [], enabled: true, default: true, possible_ids: ["CREATE"] },
+            "ACTION.SAVE": { acts: [], enabled: true, default: true, possible_ids: ["SAVE_AND_CLOSE","SAVE_AND_CONTINUE","SAVE_AND_VIEW","SAVE_AND_EDIT"] },
+            "ACTION.CANCEL": { acts: [], enabled: true, default: true, possible_ids:["CANCEL"] },
         }
     }
 
-    static get actions_for_form(): { [id: string]: { acts: ViewAction[], enabled: boolean, default: boolean } } {
+    static get actions_for_form(): { [id: string]: { acts: ViewPreDefAction[], enabled: boolean, default: boolean, possible_ids: string[] } } {
         return {
-            "ACTION.CREATE": { acts: [], enabled: true, default: true },
-            "ACTION.EDIT": { acts: [], enabled: true, default: true },
-            "ACTION.SAVE": { acts: [], enabled: true, default: true },
-            "ACTION.CANCEL": { acts: [], enabled: true, default: true },
+            "ACTION.CREATE": { acts: [], enabled: true, default: true, possible_ids: ["SELECT"] },
+            "ACTION.EDIT": { acts: [], enabled: true, default: true, possible_ids : ["EDIT"] },
+            "ACTION.SAVE": { acts: [], enabled: true, default: true, possible_ids: ["SAVE_AND_CLOSE","SAVE_AND_CONTINUE","SAVE_AND_VIEW","SAVE_AND_EDIT"] },
+            "ACTION.CANCEL": { acts: [], enabled: true, default: true, possible_ids:["CANCEL"] },
         }
     }
 
@@ -761,8 +816,6 @@ class ViewHeader extends ViewElement {
         if (scheme['actions']) {
             this._has_actions = true
             for (let key in this.actions) {
-                console.log(key)
-                console.log(scheme["actions"][key])
                 // This is done to differenciate undefined value of false value (dynamic typing sucks)
                 if (typeof (scheme["actions"][key]) !== typeof (undefined)) {
                     if (typeof (scheme["actions"][key]) === typeof (true)) {
@@ -774,25 +827,20 @@ class ViewHeader extends ViewElement {
                     else {
                         this.actions[key].default = false
                         this.actions[key].acts = []
-                        scheme['actions'][key].forEach((act: any) => this.actions[key].acts.push(new ViewAction(act)))
+                        scheme['actions'][key].forEach((act: any) => this.actions[key].acts.push(new ViewPreDefAction(act)))
                     }
                 }
             }
             delete scheme['actions']
         }
         if (scheme['selection']) {
-            if (scheme['selection']['default'] !== undefined) {
-                this.selection_default = scheme['selection']['default']
-            }
-            if (scheme['selection']['actions']) {
-                this._has_selection_actions = true
-                scheme['selection']['actions'].forEach((action: any) => this.selection_actions.push(new ViewAction(action)))
-            }
+            console.log("selection detected")
+            console.log(scheme['selection'])
+            this.selection = new ViewSelection(scheme['selection'])
             delete scheme['selection']
         }
         this.leftover = scheme
     }
-
     override export() {
         let result = super.export()
         if (this._has_actions) {
@@ -809,14 +857,8 @@ class ViewHeader extends ViewElement {
                 })
             }
         }
-        if (!this.selection_default || this._has_selection_actions) {
-            result['selection'] = {}
-            if (!this.selection_default) result['selection']['default'] = false
-            if (this._has_selection_actions) {
-                result['selection']['actions'] = []
-                this.selection_actions.forEach(action => result['selection']['actions'].push(action.export()))
-            }
-        }
+        if(this.selection._has_selection_actions || !this.selection.default)
+            result["selection"] = this.selection.export()
         return result
     }
 
@@ -835,12 +877,8 @@ class ViewHeader extends ViewElement {
                 }
             }
         }
-        if (this._has_selection_actions) {
-            for (let action of this.selection_actions) {
-                ret = action.id_compliant(ret.id_list)
-                if (!ret.ok) return ret
-            }
-        }
+        ret = this.selection.id_compliant(ret.id_list)
+        if (!ret.ok) return ret
         return { ok: true, id_list: ret.id_list }
     }
 }
@@ -855,6 +893,8 @@ class ViewAction extends ViewElement {
     access = { "groups": ["users"] }
     visible = new ViewDomain()
 
+    static index = 0
+
 
     confirm: boolean = false
 
@@ -863,21 +903,6 @@ class ViewAction extends ViewElement {
     _has_access = false
     _has_params = false
 
-    static predef = [
-        "SAVE_AND_CLOSE",
-        "SAVE_AND_CONTINUE",
-        "SAVE_AND_VIEW",
-        "SAVE_AND_EDIT",
-        "CREATE",
-        "ADD",
-    ]
-
-    get is_predifined(): boolean {
-        for (let item of ViewAction.predef) {
-            if (this.id === item) return true
-        }
-        return false
-    }
 
     constructor(scheme: any = {}, domainable = false) {
         super()
@@ -923,6 +948,7 @@ class ViewAction extends ViewElement {
                 delete scheme['visible']
             }
         }
+        if(this.id === "") this.id = "action.id."+(ViewAction.index++)
         this.leftover = scheme
     }
 
@@ -932,7 +958,6 @@ class ViewAction extends ViewElement {
         if (this._has_access) {
             result["access"] = this.access
         }
-        if (this.is_predifined) return result
         result["controller"] = this.controller
         result["icon"] = this.icon
         result["description"] = this.description
@@ -946,11 +971,79 @@ class ViewAction extends ViewElement {
     override id_compliant(id_list: string[]): { ok: boolean; id_list: string[]; } {
         let ret = super.id_compliant(id_list)
         if (!ret.ok) return ret
-        if (!this.is_predifined) {
-            if (ret.id_list.includes(this.id) || this.id == "") return { ok: false, id_list: [...ret.id_list, this.id] }
-            ret.id_list = [...ret.id_list, this.id]
-        }
+        if (ret.id_list.includes(this.id) || this.id == "") return { ok: false, id_list: [...ret.id_list, this.id] }
+        ret.id_list = [...ret.id_list, this.id]
         return { ok: true, id_list: ret.id_list }
+    }
+}
+
+class ViewPreDefAction extends ViewElement {
+    id: string = ""
+    description:string =""
+    controller: string = ""
+    domain:ViewDomain = new ViewDomain()
+    view :string = ""
+    access = { "groups": ["users"] }
+
+    static index = 0
+
+    _has_domain = false
+    _has_access = false
+    _has_params = false
+    _has_view = false
+
+    constructor(scheme: any = {}) {
+        super()
+        if (scheme['controller']) {
+            this.controller = scheme['controller']
+            delete scheme['controller']
+        }
+        if (scheme['id']) {
+            this.id = scheme['id']
+            delete scheme['id']
+        }
+        if (scheme["access"]) {
+            this.access = scheme["access"]
+            this._has_access = true
+            delete scheme['access']
+        }
+        if (scheme['description']) {
+            this.description = scheme['description']
+            delete scheme['description']
+        }
+        if(scheme['domain']) {
+            this._has_domain = true
+            this.domain = scheme["domain"]
+            delete scheme["domain"]
+        }
+        if(scheme['view']) {
+            this._has_view = true
+            this.view = scheme["view"]
+            delete scheme["view"]
+        }
+        if(this.id === "") this.id = "action.id."+(ViewAction.index++)
+        this.leftover = scheme
+    }
+
+    override export() {
+        let result = super.export()
+        result["id"] = this.id
+        if (this._has_access) {
+            result["access"] = this.access
+        }
+        if(this.controller)
+            result["controller"] = this.controller
+        if(this.description)
+            result["description"] = this.description
+        if(this._has_view)
+            result["view"] = this.view
+        if(this._has_domain)
+            result["domain"] = this.domain.dom
+        return result
+    }
+
+    override id_compliant(id_list: string[]): { ok: boolean; id_list: string[]; } {
+        return {ok:true,id_list:id_list}
     }
 }
 
@@ -977,6 +1070,8 @@ export {
     ViewListWidget,
     ViewFormWidget,
     ViewHeader,
-    ViewAction
+    ViewAction,
+    ViewPreDefAction,
+    ViewSelection
 }
 

@@ -91,7 +91,8 @@ export class VieweditorComponent implements OnInit {
         }
         console.log(this.groups)
       })
-    } catch {
+    } catch(err) {
+      console.error(err)
       this.error = true
     }
     }
@@ -103,6 +104,7 @@ export class VieweditorComponent implements OnInit {
   // Call id_compliant method on view_obj and cache it
   get idCompliancy():{ok:boolean,id_list:string[]} {
     this.compliancy_cache =  this.view_obj.id_compliant([])
+    console.log(this.compliancy_cache)
     return this.compliancy_cache
   }
 

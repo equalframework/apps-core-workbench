@@ -11,7 +11,7 @@ import { ViewRow } from '../../../../_objects/View';
 export class EditRowComponent implements OnInit {
 
   constructor(
-    public dialogRef: MatDialogRef<GroupEditorComponent>,
+    @Optional() public dialogRef: MatDialogRef<GroupEditorComponent>,
     @Optional() @Inject(MAT_DIALOG_DATA) public data:{row:ViewRow,entity:string}
   ) { }
 

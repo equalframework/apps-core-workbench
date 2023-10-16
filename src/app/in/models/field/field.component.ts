@@ -5,7 +5,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { cloneDeep, isArray } from 'lodash';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
-import { JsonPipe } from '@angular/common';
 
 @Component({
   selector: 'app-field',

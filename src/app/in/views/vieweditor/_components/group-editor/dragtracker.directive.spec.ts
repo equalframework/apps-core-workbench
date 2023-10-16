@@ -1,8 +1,8 @@
-import { DragtrackerDirective } from './dragtracker.directive';
+import { DragTrackerDirective } from './dragtracker.directive';
 
-describe('DragtrackerDirective', () => {
+describe('DragTrackerDirective', () => {
   it('should create an instance', () => {
-    const directive = new DragtrackerDirective();
+    const directive = new DragTrackerDirective();
     expect(directive).toBeTruthy();
   });
 });

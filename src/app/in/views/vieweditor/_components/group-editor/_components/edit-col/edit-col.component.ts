@@ -11,7 +11,7 @@ import { ViewColumn, ViewRow } from '../../../../_objects/View';
 export class EditColComponent implements OnInit {
 
   constructor(
-    public dialogRef: MatDialogRef<GroupEditorComponent>,
+    @Optional() public dialogRef: MatDialogRef<GroupEditorComponent>,
     @Optional() @Inject(MAT_DIALOG_DATA) public data:{col:ViewColumn,entity:string}
   ) { }
 

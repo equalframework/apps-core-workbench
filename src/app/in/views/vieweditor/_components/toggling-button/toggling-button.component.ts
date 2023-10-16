@@ -8,8 +8,8 @@ import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 export class TogglingButtonComponent implements OnInit {
 
   @Input() baseState:boolean = true
-  @Input() on_icon:string = ""
-  @Input() off_icon:string = ""
+  @Input() enabledIcon:string = ""
+  @Input() disabledIcon:string = ""
   @Input() disabled:boolean = false
   @Output() toggle = new EventEmitter<boolean>()
 

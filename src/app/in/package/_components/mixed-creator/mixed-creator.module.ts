@@ -4,7 +4,7 @@ import { Platform } from '@angular/cdk/platform';
 import { AsyncPipe, DatePipe } from '@angular/common';
 
 import { SharedLibModule, CustomDateAdapter } from 'sb-shared-lib';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule} from '@angular/material/table';
 import { FormsModule } from '@angular/forms';
@@ -38,9 +38,14 @@ import {  MatProgressSpinnerModule } from '@angular/material/progress-spinner';
         MixedCreatorComponent
     ],
     providers: [
-        DatePipe,
-        AsyncPipe,
-        { provide: DateAdapter, useClass: CustomDateAdapter, deps: [MAT_DATE_LOCALE, Platform] }
+        {
+            provide : MatDialogRef,
+            useValue: {}
+        },
+        {
+            provide:MAT_DIALOG_DATA,
+            useValue:{}
+        },
     ]
 })
 export class MixedCreatorModule { }

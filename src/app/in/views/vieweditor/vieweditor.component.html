@@ -44,8 +44,8 @@
             </mat-form-field>
         </div>
         <app-toggling-button
-            [on_icon]="'expand_less'"
-            [off_icon]="'expand_more'"
+            [enabledIcon]="'expand_less'"
+            [disabledIcon]="'expand_more'"
             [baseState]="domain_visible"
             (toggle)="domain_visible = $event"
             [disabled]="!view_obj._has_domain"
@@ -63,8 +63,8 @@
             </app-property-domain-component>
         </div>
         <app-toggling-button
-            [on_icon]="'expand_less'"
-            [off_icon]="'expand_more'"
+            [enabledIcon]="'expand_less'"
+            [disabledIcon]="'expand_more'"
             [baseState]="header_visible"
             (toggle)="header_visible = $event"
             [disabled]="!view_obj._has_header"
@@ -85,8 +85,8 @@
         </div>
         <!------->
         <app-toggling-button
-            [on_icon]="'expand_less'"
-            [off_icon]="'expand_more'"
+            [enabledIcon]="'expand_less'"
+            [disabledIcon]="'expand_more'"
             [baseState]="filter_visible"
             (toggle)="filter_visible = $event"
             [disabled]="!view_obj._has_filter"
@@ -124,8 +124,8 @@
             </div>
         </div>
         <app-toggling-button
-            [on_icon]="'expand_less'"
-            [off_icon]="'expand_more'"
+            [enabledIcon]="'expand_less'"
+            [disabledIcon]="'expand_more'"
             [baseState]="actions_visible"
             (toggle)="actions_visible = $event"
             [disabled]="!view_obj._has_actions"
@@ -144,8 +144,8 @@
             ></app-actions-container>
         </div>
         <app-toggling-button
-            [on_icon]="'expand_less'"
-            [off_icon]="'expand_more'"
+            [enabledIcon]="'expand_less'"
+            [disabledIcon]="'expand_more'"
             [baseState]="layout_visible"
             (toggle)="layout_visible = $event"
         ></app-toggling-button>
@@ -162,8 +162,8 @@
                     <div *ngFor="let group of view_obj.layout.groups">
                         <div>
                             <app-toggling-button
-                                [on_icon]="'expand_less'"
-                                [off_icon]="'expand_more'"
+                                [enabledIcon]="'expand_less'"
+                                [disabledIcon]="'expand_more'"
                                 [baseState]="groups_visible[view_obj.layout.groups.indexOf(group)]"
                                 (toggle)="groups_visible[view_obj.layout.groups.indexOf(group)] = $event"
                             ></app-toggling-button>

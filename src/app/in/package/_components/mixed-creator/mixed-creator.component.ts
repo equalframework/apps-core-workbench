@@ -1,4 +1,4 @@
-import { Component, Inject, OnChanges, OnInit } from '@angular/core';
+import { Component, Inject, OnChanges, OnInit, Optional } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ItemTypes } from '../../_constants/ItemTypes';
 import { AbstractControl, AsyncValidatorFn, FormControl, MaxLengthValidator, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
@@ -150,7 +150,7 @@ export class MixedCreatorComponent implements OnInit {
   // ---------------------------------------------------------------------------------------------------------
 
   public t_dict = ItemTypes.trueTypeDict
-  public type: string
+  public type: string = ""
   public obk: Function = Object.keys
   cachelist: string[] | undefined = undefined
   cachepkglist: string[] | undefined = undefined
@@ -206,12 +206,17 @@ export class MixedCreatorComponent implements OnInit {
   })
 
   constructor(
-    public dialogRef: MatDialogRef<MixedCreatorComponent>,
+    @Optional() public dialogRef: MatDialogRef<MixedCreatorComponent>,
     private api: EmbbedApiService,
-    @Inject(MAT_DIALOG_DATA) public data: { type: string, package?:string, model?:string, sub_type?:string, lock_type ?:boolean, lock_package?: boolean, lock_model?:boolean, lock_subtype?: boolean },
+    @Optional() @Inject(MAT_DIALOG_DATA) public data: { type: string, package?:string, model?:string, sub_type?:string, lock_type ?:boolean, lock_package?: boolean, lock_model?:boolean, lock_subtype?: boolean },
   ) {
+    console.log(data)
+    if (!data){
+      this.type = "package" 
+      return
+    }
     this.type = this.obk(this.t_dict).includes(data.type) ?
-      data.type : data.type === "controller" ? "do" : "package"
+      data.type : (data.type === "controller" ? "do" : "package")
 
       this.selected_model = data.model ? data.model : ""
       this.selected_package = data.package ? data.package : ""
