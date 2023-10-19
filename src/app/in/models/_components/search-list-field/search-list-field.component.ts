@@ -38,7 +38,6 @@ export class SearchListFieldComponent implements OnInit {
         ) { }
 
     public ngOnInit(): void {
-        console.log("ngOnInit search list");
     }
 
     public ngOnChanges() {
@@ -93,7 +92,7 @@ export class SearchListFieldComponent implements OnInit {
             timerId = setTimeout(() => {
                 this.nodeDelete.emit(node);
                 this.filteredData.splice(index_filtered_data,1)
-            }, 5000);
+            }, 1000);
             this.snack("Deleted", timerId);
             return
         }
@@ -151,7 +150,7 @@ export class SearchListFieldComponent implements OnInit {
 
     public snack(text: string, timerId: number) {
         this.snackBar.open(text, 'Undo', {
-            duration: 5000,
+            duration: 1000,
             horizontalPosition: 'left',
             verticalPosition: 'bottom'
         }).onAction().subscribe(() => {

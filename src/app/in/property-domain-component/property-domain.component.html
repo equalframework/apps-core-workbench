@@ -31,25 +31,41 @@
                         </mat-select>
                     </mat-form-field>
                     <!-- Value -->
-                    <!-- If there is a selection for the field of the operand -->
-                    <ng-container *ngIf="fields && fields.fields[tempValue[i][j][0]]?.selection != undefined">
-                        <app-value-selection class="value"
-                            [operand]="tempValue[i][j][0]"
-                            [type]="getTypeFromField(tempValue[i][j][0])"
-                            [operator]="tempValue[i][j][1]"
-                            [value]="tempValue[i][j][2]" 
-                            [fields]="fields"
-                            (changeValue)="changeValue($event, i, j)">
-                        </app-value-selection>
+                    <mat-checkbox class="isenvcheck" *ngIf="fields" [checked]="is_env[i][j]" (change)="is_env[i][j] = $event.checked; tempValue[i][j][2]=''">env value</mat-checkbox>
+                    <ng-container *ngIf="!is_env[i][j]">
+                        <!-- If there is a selection for the field of the operand -->
+                        <ng-container *ngIf="fields && fields.fields[tempValue[i][j][0]]?.selection != undefined">
+                            <app-value-selection class="value"
+                                [operand]="tempValue[i][j][0]"
+                                [type]="getTypeFromField(tempValue[i][j][0])"
+                                [operator]="tempValue[i][j][1]"
+                                [value]="tempValue[i][j][2]" 
+                                [fields]="fields"
+                                (changeValue)="changeValue($event, i, j)">
+                            </app-value-selection>
+                        </ng-container>
+                        <!-- If there is not a selection for the field of the operand -->
+                        <ng-container *ngIf="fields && !fields.fields[tempValue[i][j][0]]?.selection">
+                            <app-value class="value"
+                                [type]="getTypeFromField(tempValue[i][j][0])"
+                                [operator]="tempValue[i][j][1]"
+                                [value]="tempValue[i][j][2]"
+                                (changeValue)="changeValue($event, i, j)">
+                            </app-value>
+                        </ng-container>
                     </ng-container>
-                    <!-- If there is not a selection for the field of the operand -->
-                    <ng-container *ngIf="fields && !fields.fields[tempValue[i][j][0]]?.selection">
-                        <app-value class="value"
-                            [type]="getTypeFromField(tempValue[i][j][0])"
-                            [operator]="tempValue[i][j][1]"
-                            [value]="tempValue[i][j][2]"
-                            (changeValue)="changeValue($event, i, j)">
-                        </app-value>
+                    <ng-container *ngIf="is_env[i][j] && fields">
+                        <mat-form-field appearance="fill">
+                            <mat-label>Environment Variable</mat-label>
+                            <mat-select [value]="tempValue[i][j][2].split('.')[0]" (change)="changeEnvVar($event.target.value,i,j)">
+                                <mat-option value="object">object</mat-option>
+                                <mat-option value="user">user</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <mat-form-field appearance="fill">
+                            <mat-label>Attribute</mat-label>
+                            <input matInput [value]="tempValue[i][j][2].split('.').slice(1).join('.')" (change)="changeAttribute($event.target.value,i,j)">
+                        </mat-form-field>
                     </ng-container>
                     <!-- Delete Condition -->
                     <div class="delete-condition">

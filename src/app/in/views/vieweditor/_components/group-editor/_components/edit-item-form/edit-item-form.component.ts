@@ -13,7 +13,7 @@ export class EditItemFormComponent implements OnInit {
   types = ViewItem.typeList
 
   constructor(
-    public dialogRef: MatDialogRef<GroupEditorComponent>,
+    @Optional() public dialogRef: MatDialogRef<GroupEditorComponent>,
     @Optional() @Inject(MAT_DIALOG_DATA) public data:{item:ViewItem,entity:string,fields:string[],groups:string[],action_controllers:string[]}
   ) { }
 

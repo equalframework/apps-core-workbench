@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, Optional } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
@@ -11,8 +11,8 @@ export class InitValidatorComponent implements OnInit {
   imprt = false
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data:{package:string},
-    public dialogRef: MatDialogRef<InitValidatorComponent>
+    @Optional() @Inject(MAT_DIALOG_DATA) public data:{package:string},
+    @Optional() public dialogRef: MatDialogRef<InitValidatorComponent>
   ) { }
 
   ngOnInit(): void {

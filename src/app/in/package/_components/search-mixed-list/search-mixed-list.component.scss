@@ -76,6 +76,13 @@
     .node-selected {
         background-color: #dbdbdb !important;
     }
+    
+
+}
+
+
+::ng-deep .cdk-virtual-scroll-content-wrapper {
+    width: 100% !important;
 }
 
 ::-webkit-scrollbar {
@@ -103,18 +110,28 @@
 }
 
 .type-info-mixed-sel {
+    display:inline-block;
     width: 10%;
     text-align: center;
     margin-right: 5%;
 }
 
+
 .type-info-mixed-sel mat-icon {
     transform: scale(.8) translateY(.2em)
 }
 
+.del-mixed-sel {
+    display:inline-block;
+    width: 10%;
+}
 
 .name-mixed-sel {
-    width: 85%;
+    overflow: hidden;
+    white-space: nowrap;
+    display:inline-block;
+    width: 80%;
+    text-overflow: ellipsis;
 }
 
 .type-mixed-sel-package {

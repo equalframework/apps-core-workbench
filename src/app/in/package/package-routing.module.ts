@@ -28,6 +28,10 @@ const routes: Routes = [
     path : 'routes/:selected_package',
     loadChildren : () => import('../routes/routes.module').then(m => m.RoutesModule)
   },
+  {
+    path : 'translation/:type/:selected_package/:selected_model',
+    loadChildren : () => import('src/app/in/model-trad-editor/model-trad-editor.module').then(m => m.ModelTradEditorModule)
+  },
   // wildcard route (accept root and any sub route that does not match any of the routes above)
   {
       path: '**',

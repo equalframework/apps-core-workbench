@@ -10,7 +10,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatAutocompleteModule, MatAutocompleteOrigin } from '@angular/material/autocomplete';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { GroupEditorComponent } from './_components/group-editor/group-editor.component';
 import { EditSectionComponent } from './_components/group-editor/_components/edit-section/edit-section.component';
 import { EditRowComponent } from './_components/group-editor/_components/edit-row/edit-row.component';
@@ -33,6 +33,16 @@ import { PropertyClauseModule } from '../../property-clause-component/property-c
 import { PopupParamsComponent } from './_components/action-editor/_components/popup-params/popup-params.component';
 import { HeaderEditorComponent } from './_components/header-editor/header-editor.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { PreDefActionsContainerComponent } from './_components/predef-actions-container/predef-actions-container.component';
+import { PreDefActionEditorComponent } from './_components/predef-actions-container/_component/predef-action-editor/predef-action-editor.component';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { ViewEditorServicesService } from './_services/view-editor-services.service';
+import { HttpClientModule } from '@angular/common/http';
+import { Router, RouterModule } from '@angular/router';
+import { SharedLibModule } from 'sb-shared-lib';
+import { RouteEditorComponent } from './_components/route-editor/route-editor.component';
+import { RouteEditComponent } from './_components/route-editor/route-edit/route-edit.component';
+import { AccessEditorComponent } from './_components/access-editor/access-editor.component';
 
 
 
@@ -53,6 +63,11 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     ActionsContainerComponent,
     PopupParamsComponent,
     HeaderEditorComponent,
+    PreDefActionsContainerComponent,
+    PreDefActionEditorComponent,
+    RouteEditorComponent,
+    RouteEditComponent,
+    AccessEditorComponent,
   ],
   imports: [
     CommonModule,
@@ -73,7 +88,25 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatChipsModule,
     PropertyDomainModule,
     PropertyClauseModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatDialogModule,
+    HttpClientModule,
+    RouterModule,
+    SharedLibModule
+  ],
+  providers: [
+    {
+      provide : MatDialogRef,
+      useValue: {}
+    },
+    {
+      provide:MAT_DIALOG_DATA,
+      useValue:{}
+    },
+    ViewEditorServicesService,
+    HttpClientModule,
+    MatDialogModule,
+    RouterModule
   ]
 })
 export class VieweditorModule { }

@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ViewAction, ViewHeader } from '../../_objects/View';
+import { ViewAction, ViewHeader, ViewPreDefAction } from '../../_objects/View';
 
 @Component({
   selector: 'app-header-actions',
@@ -11,6 +11,7 @@ export class HeaderActionsComponent implements OnInit {
   @Input() h_scheme:ViewHeader
   @Input() groups:string[] = []
   @Input() controllers:string[]
+  @Input() entity:string
   obk = Object.keys
 
   constructor() { }
@@ -18,7 +19,7 @@ export class HeaderActionsComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  del(key:string,action:ViewAction) {
+  del(key:string,action:ViewPreDefAction) {
     let index = this.h_scheme.actions[key].acts.indexOf(action)
     if(index >= 0) {
       this.h_scheme.actions[key].acts.splice(index,1)
@@ -26,7 +27,7 @@ export class HeaderActionsComponent implements OnInit {
   }
 
   create(key:string) {
-    this.h_scheme.actions[key].acts.push(new ViewAction())
+    this.h_scheme.actions[key].acts.push(new ViewPreDefAction())
   }
 
 }

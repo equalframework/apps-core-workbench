@@ -1,0 +1,11 @@
+<button mat-button (click)="createRoute()"><mat-icon>add</mat-icon>New route</button>
+<div cdkDropList [cdkDropListData]="obj" (cdkDropListDropped)="drop($event)" cdkDropListOrientation="vertical">
+    <app-route-edit
+        *ngFor="let route of obj ; index as i"
+        cdkDrag
+        [route]="route"
+        [entity]="entity"
+        [model_list]="entity_list"
+        (deleteme)="onDeletionRequest(i)"
+    ></app-route-edit>
+</div>

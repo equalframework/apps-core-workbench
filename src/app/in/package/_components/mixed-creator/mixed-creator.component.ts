@@ -1,4 +1,4 @@
-import { Component, Inject, OnChanges, OnInit } from '@angular/core';
+import { Component, Inject, OnChanges, OnInit, Optional } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ItemTypes } from '../../_constants/ItemTypes';
 import { AbstractControl, AsyncValidatorFn, FormControl, MaxLengthValidator, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
@@ -24,7 +24,7 @@ export class MixedCreatorComponent implements OnInit {
       this.need_model = true
       this.need_subtype = true
       this.implemented = true
-      this.subtypelist = ["list","form"]
+      this.subtypelist = ["list","form","search"]
       this.subtypename = "View Type"
       this.cachelist = []
       if(this.selected_package !== "" && this.selected_model !== ""){
@@ -45,10 +45,8 @@ export class MixedCreatorComponent implements OnInit {
         this.subtypename = "Extends from"
         if(this.selected_package !== "") {
           let x:string[] = (await this.api.listAllModels())
-          console.log(x)
           this.subtypelist = ["equal\\orm\\Model",...x]
           this.cachelist = this.cachemodellist
-          console.log(this.cachelist)
         }
         break;
       case "do":
@@ -78,12 +76,12 @@ export class MixedCreatorComponent implements OnInit {
           let x = await this.api.getRoutesByPackages(this.selected_package)
           this.subtypelist = Object.keys(x)
           this.cachelist = []
-          console.log(this.subtype)
-          console.log(x[this.subtype])
           if(x[this.subtype] && !this.addingState){
             for(let key in x[this.subtype]) {
               this.cachelist.push(key)
             }
+          } else if(this.addingState) {
+            this.custom_st_list = await this.api.getAllRouteFiles()
           }
         }
         break
@@ -110,7 +108,7 @@ export class MixedCreatorComponent implements OnInit {
       case "route":
         this.nameControl.addValidators(MixedCreatorComponent.url_case_controller)
         this.customSTControl.addValidators(MixedCreatorComponent.route_file_controller)
-        this.customSTControl.addValidators(MixedCreatorComponent.already_taken(this.subtypelist))
+        this.customSTControl.addValidators(MixedCreatorComponent.already_taken(this.custom_st_list))
       }
   }
 
@@ -152,7 +150,7 @@ export class MixedCreatorComponent implements OnInit {
   // ---------------------------------------------------------------------------------------------------------
 
   public t_dict = ItemTypes.trueTypeDict
-  public type: string
+  public type: string = ""
   public obk: Function = Object.keys
   cachelist: string[] | undefined = undefined
   cachepkglist: string[] | undefined = undefined
@@ -176,12 +174,13 @@ export class MixedCreatorComponent implements OnInit {
 
   subtypelist:string[]
   subtype:string
+  custom_st_list:string[]
 
   need_package:boolean;
   need_model:boolean;
   need_subtype:boolean;
   can_add_subtypes:boolean;
-
+  
   addingState:boolean = false;
 
   old_type:string 
@@ -190,6 +189,7 @@ export class MixedCreatorComponent implements OnInit {
   old_addingState:boolean = false
   old_subtype:string
   old_customST_valid:boolean
+
 
   nameControl:FormControl = new FormControl("", {
     validators: [
@@ -206,12 +206,17 @@ export class MixedCreatorComponent implements OnInit {
   })
 
   constructor(
-    public dialogRef: MatDialogRef<MixedCreatorComponent>,
+    @Optional() public dialogRef: MatDialogRef<MixedCreatorComponent>,
     private api: EmbbedApiService,
-    @Inject(MAT_DIALOG_DATA) public data: { type: string, package?:string, model?:string, sub_type?:string, lock_type ?:boolean, lock_package?: boolean, lock_model?:boolean, lock_subtype?: boolean },
+    @Optional() @Inject(MAT_DIALOG_DATA) public data: { type: string, package?:string, model?:string, sub_type?:string, lock_type ?:boolean, lock_package?: boolean, lock_model?:boolean, lock_subtype?: boolean },
   ) {
+    console.log(data)
+    if (!data){
+      this.type = "package" 
+      return
+    }
     this.type = this.obk(this.t_dict).includes(data.type) ?
-      data.type : data.type === "controller" ? "do" : "package"
+      data.type : (data.type === "controller" ? "do" : "package")
 
       this.selected_model = data.model ? data.model : ""
       this.selected_package = data.package ? data.package : ""
@@ -237,8 +242,6 @@ export class MixedCreatorComponent implements OnInit {
    */
   async reloadlist() {
     if(!this.hasSomethingChanged) {
-      console.log('ignored')
-      console.log(this.old_selected_model+" | "+this.selected_model)
       return
     }
     this.name_title = "Name"
@@ -271,7 +274,7 @@ export class MixedCreatorComponent implements OnInit {
   }
 
   async onPackageSelect() {
-    this.cachemodellist = await this.api.listModelFrom(this.selected_package)
+    this.cachemodellist = [...(await this.api.listModelFrom(this.selected_package)),...(await this.api.listControlerFromPackageAndByType(this.selected_package,"data"))]
     this.reloadlist()
   }
 
@@ -296,9 +299,7 @@ export class MixedCreatorComponent implements OnInit {
       if(!valid_chars.includes(char)) return {"case":true}
     }
     let value: string[] = control.value.split("\\")
-    console.log(value[value.length-1])
     let f = value[value.length-1][0]
-    console.log(f)
     for(let i=0; i < value.length-1; i++) {
       if(value[i].toLowerCase() !== value[i]) return {"case":true}
     }
@@ -350,7 +351,6 @@ export class MixedCreatorComponent implements OnInit {
 
   static already_taken(pkglist: string[] | undefined): ValidatorFn {
     return (control: AbstractControl):ValidationErrors | null => {
-      console.log(pkglist)
       if (pkglist === undefined) return { "taken": true }
 
       for (let pkg of pkglist) {
@@ -382,7 +382,6 @@ export class MixedCreatorComponent implements OnInit {
 
   setAddingState(state:boolean){
     this.addingState = state
-    console.log(this.addingState)
     this.reloadlist()
   }
 }

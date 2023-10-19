@@ -112,7 +112,6 @@ export class ParamsComponent implements OnInit {
     }
 
     public async submit() {
-        console.log(this.paramsValue);
         let response = await this.api.submitController(this.selected_type_controller, this.controller_name, this.paramsValue);
         const dialogConfig = new MatDialogConfig();
         dialogConfig.maxHeight = '86vh';
@@ -136,7 +135,6 @@ export class ParamsComponent implements OnInit {
         for(let key in this.paramsValue) {
             if(isArray(this.paramsValue[key])) {
                 let arrayString = (JSON.stringify(this.paramsValue[key])).replaceAll('"', '');
-                console.log(arrayString)
                 stringParams += ' --' + key + '=\'' + arrayString + '\'';
             } else if(isObject(this.paramsValue[key])) {
                 stringParams += ' --' + key + '=\'{' + this.paramsValue[key] + '}\'';

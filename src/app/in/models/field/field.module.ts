@@ -50,6 +50,6 @@ import { PropertyDomainModule } from '../../property-domain-component/property-d
     MatInputModule,
     FieldRoutingModule,
     PropertyDomainModule,
-  ]
+  ],
 })
 export class FieldModule { }

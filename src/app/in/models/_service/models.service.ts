@@ -1,14 +1,17 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from 'sb-shared-lib';
+import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
 
 
 @Injectable({
     providedIn: 'root'
 })
-export class WorkbenchService {
+export class WorkbenchService extends EmbbedApiService {
     public cached_schema:any
 
-    constructor(private api: ApiService) { }
+    constructor(api: ApiService) {
+        super(api)
+     }
 
     /**
      * // TODO
@@ -19,16 +22,6 @@ export class WorkbenchService {
     public updatePackage(old_node: string, new_node: string) {
         // TODO
         console.warn("Update name package, old name: ", old_node, ", new name: ", new_node);
-    }
-
-    /**
-     * // TODO
-     *
-     * @param eq_package - name of the package to delete.
-     */
-    public deletePackage(eq_package: string) {
-        // TODO
-        console.warn("Package deleted: ", eq_package);
     }
 
     /**

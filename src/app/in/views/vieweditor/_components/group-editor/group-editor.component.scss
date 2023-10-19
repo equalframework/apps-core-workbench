@@ -87,21 +87,28 @@
     color: mat-color($maincolor);
 }
 
-.item-visualiser {
-    border : solid 1px black;
+.inlinediv{
     display: inline-block;
-    margin: 1em 0em;
-    height: 2.5em;
-    width: calc(100% - 1em);
-
-    .grabable {
-        transform: translateY(.25em);
-    }
+    width: 100%;
 }
 
-.item-visualiser .valuedisp {
-    width: calc(100% - 5.5em);
-    display : inline-block
+.item-visualiser {
+    border : solid 1px black;
+    margin: 1em .25em;
+    height: 2.5em;
+    width: calc(100% - .5em);
+    display: flex;
+    align-items: center;
+
+    .valuedisp {
+
+        width: calc(100% - 5.5em);
+        display : inline-block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
 }
 
 .button-holder {
@@ -143,6 +150,7 @@
 
 .invisibleicon {
     transform: translate(.2em,.2em);
+    opacity: .6;
 }
 
 .category-title {

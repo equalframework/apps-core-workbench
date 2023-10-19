@@ -1,0 +1,16 @@
+@import "src/theme.scss";
+
+.group-item {
+    background-color: mat-color($maincolor,A400,.1);
+    padding-left: .5em;
+    border-radius: .5em;
+    margin-left: 1em;
+}
+
+.group-item mat-icon {
+    transform: scale(.7);
+}
+
+.inline {
+    display: inline-block;
+}

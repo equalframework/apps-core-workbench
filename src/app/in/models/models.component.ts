@@ -65,7 +65,6 @@ export class ModelsComponent implements OnInit {
         this.selected_field = undefined;
         this.child_loaded = false;
         this.loading = false
-        console.log(this.loading)
     }
 
     /**
@@ -77,7 +76,6 @@ export class ModelsComponent implements OnInit {
         
         this.schema = await this.api.getSchema(this.selected_package + '\\' + eq_class);
         this.selected_class = eq_class;
-        console.log(this.schema)
     }
 
     public async onChangeStep(step:number) {
@@ -104,8 +102,13 @@ export class ModelsComponent implements OnInit {
      *
      * @param eq_class the name of the class which will be deleted
      */
-    public ondeleteClass(eq_class: string) {
-        this.api.deleteClass(this.selected_package, eq_class);
+    public async ondeleteClass(eq_class: string) {
+        let res = await this.api.deleteModel(this.selected_package,eq_class)
+        if(!res){
+            this.snackBar.open("Deleted")
+            this.selected_class = ""
+            this.init()
+        }
     }
 
     /**
@@ -165,12 +168,10 @@ export class ModelsComponent implements OnInit {
             "deleted":{"type":"boolean","default":false},
             "state":{"type":"string","selection":["draft","instance","archive"],"default":"instance"}
         }
-        console.log(this.schema)
         for(var item in this.fields_for_selected_class) {
             const name:string = this.fields_for_selected_class[item].name
             res["fields"][name] = this.fields_for_selected_class[item].current_scheme
         }
-        console.log(res)
 
         return res
     }

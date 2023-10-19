@@ -146,3 +146,40 @@ You can add, edit or remove properties from a type of element independently of t
 for the parsing, testing and exporting, each element calls its child method making a tree traversal of the structure.
 
 it also make sure to pass unhandled part of the structure without altering it (see `leftover` attribute).
+
+### Testing with Karma and Jasmine
+
+To test your version of eQual Workbench you can use the built-in tool of angular. with this command :
+
+```bash
+ng test
+```
+
+Please make sure you have provided a chrome/chromium executable path in the environment variable CHROME_BIN. Karma need it to test angular components.
+
+#### Known issue when testing and how to fix them
+
+##### no provider for httpClient !
+
+You need to import SharedLibModule in your testing dynamic module to fix this issue. Do not import http client or it will be resulting in another bug
+
+##### Injector has already been destroyed.
+
+The easy fix for this one is to tell Jasmine to not destroy the Injector after each tests using this call inside of the anonymous function of the describe block : 
+
+```js
+beforeAll(() => {
+// Deactivate teardown for these tests because of a problem with
+// the primeNg dialog.
+TestBed.resetTestEnvironment();
+TestBed.initTestEnvironment(
+    BrowserDynamicTestingModule,
+    platformBrowserDynamicTesting(),
+    {teardown: {destroyAfterEach: false}}
+    );
+});
+```
+
+##### this.currentLoader.getTranslation is not a function
+
+This is due to providing HttpClient or importing HttpClientModule into your test file. it can also happen when you are using TranslationLoader instead of TranslationFakeLoader.

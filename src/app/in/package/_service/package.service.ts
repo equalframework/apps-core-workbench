@@ -30,16 +30,6 @@ export class WorkbenchService extends EmbbedApiService {
     /**
      * // TODO
      *
-     * @param eq_package - name of the package to delete.
-     */
-    public deletePackage(eq_package: string) {
-        // TODO
-        console.warn("Package deleted: ", eq_package);
-    }
-
-    /**
-     * // TODO
-     *
      * @param eq_package - The name of package for the new class.
      * @param new_class - The name of the new class.
      */

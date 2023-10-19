@@ -17,7 +17,7 @@ export class PopupParamsComponent implements OnInit {
   struct:{[id:string]:{info:any,content:any,enabled:boolean,disp:string}} = {}
 
   constructor(
-    public dialogRef: MatDialogRef<PopupParamsComponent>,
+    @Optional() public dialogRef: MatDialogRef<PopupParamsComponent>,
     @Optional() @Inject(MAT_DIALOG_DATA) public data:ViewAction,
     private api:ViewEditorServicesService
   ) { }

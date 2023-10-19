@@ -78,10 +78,8 @@ export class FieldContentComponent implements OnInit {
 
     public ngOnChanges() {
         this.actual_field_index = this.fields.indexOf(this.actual_field)
-        console.log(this.fields[this.actual_field_index].isNew)
         this.synchronised = this.fields[this.actual_field_index].synchronised
         this.values = this.fields[this.actual_field_index].current_scheme;
-        console.log(this.values)
         this.selected_type = this.values['type'];
         this.properties = this.types[this.selected_type];
         this.hasChanged = !this.fields[this.actual_field_index].checkSync()

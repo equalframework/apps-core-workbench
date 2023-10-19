@@ -34,7 +34,6 @@ export class StringComponent implements OnInit {
         this.value ? this.inputValue = this.value : this.inputValue = '';
         if (this.selection) {
             this.turnSelectionIntoDict()
-            console.log(this.corrected_selection)
             if(!this.required && !this.corrected_selection[""]) {
                 this.corrected_selection[""] = "";
             }
@@ -44,7 +43,6 @@ export class StringComponent implements OnInit {
             );
             this.myControl.setValue(this.getKeyByValue(this.corrected_selection,this.value));
         }
-        console.log(this.corrected_selection)
     }
 
     private getKeyByValue(object:{[id:string]:string}, value:string) {
@@ -58,7 +56,6 @@ export class StringComponent implements OnInit {
     }
 
     public turnSelectionIntoDict() {
-        console.log(this.selection)
         if(this.selection === undefined) return
         let temp:{[id:string]:string} = {}
         if(!this.selection[0]) {

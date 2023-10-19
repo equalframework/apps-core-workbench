@@ -1,7 +1,7 @@
 <div class="holder">
     <app-toggling-button
-        [on_icon]="'expand_less'"
-        [off_icon]="'expand_more'"
+        [enabledIcon]="'expand_less'"
+        [disabledIcon]="'expand_more'"
         [baseState]="big_disp"
         (toggle)="big_disp = $event"
         [disabled]="false"
@@ -10,19 +10,19 @@
         <input matInput placeholder="id" [value]="obj.id" (change)="obj.id = $event.target.value">
     </mat-form-field>
     <mat-form-field>
-        <input [disabled]="obj.is_predifined" matInput placeholder="label" [value]="obj.label" (keyup)="obj.label = $event.target.value">
+        <input matInput placeholder="label" [value]="obj.label" (keyup)="obj.label = $event.target.value">
     </mat-form-field>
-    <div class="icon-preview" [class.disabled]="obj.is_predifined">
+    <div class="icon-preview">
         <mat-icon>{{obj.icon}}</mat-icon>
     </div>
     <mat-form-field class="smolfield">
-        <input [disabled]="obj.is_predifined" matInput placeholder="icon" [value]="obj.icon" (keyup)="obj.icon = $event.target.value">
+        <input matInput placeholder="icon" [value]="obj.icon" (keyup)="obj.icon = $event.target.value">
         <a  matSuffix href="https://fonts.google.com/icons?icon.set=Material+Icons" target="_blank">
             <mat-icon class="halp">help</mat-icon>
         </a>
     </mat-form-field>
     <mat-form-field class="longfield">
-        <input [disabled]="obj.is_predifined" matInput placeholder="controller" 
+        <input matInput placeholder="controller" 
         [(ngModel)]="obj.controller" 
         (keyup)="tap($event.target.value)" 
         [matAutocomplete]="auto">
@@ -33,35 +33,24 @@
         </mat-autocomplete>
     </mat-form-field>
     <mat-form-field class="longfield">
-        <input [disabled]="obj.is_predifined" matInput placeholder="description" [value]="obj.description" (keyup)="obj.description = $event.target.value">
+        <input matInput placeholder="description" [value]="obj.description" (keyup)="obj.description = $event.target.value">
     </mat-form-field>
 
-    <mat-checkbox [disabled]="obj.is_predifined" [(ngModel)]="obj.confirm">confirm</mat-checkbox>
+    <mat-checkbox [(ngModel)]="obj.confirm">confirm</mat-checkbox>
     <mat-checkbox [(ngModel)]="obj._has_access" (ngModelChange)="changeBigDispBy(obj._has_access)">restrict access</mat-checkbox>
     <mat-checkbox *ngIf="obj._domainable" [(ngModel)]="obj._has_domain">visibility</mat-checkbox>
     
-    <button mat-button [disabled]="obj.is_predifined" (click)="show_custom_params()"><mat-icon>settings</mat-icon>params</button>
+    <button mat-button (click)="show_custom_params()"><mat-icon>settings</mat-icon>params</button>
 
     <button mat-icon-button (click)="deleteme()"><mat-icon>delete</mat-icon></button>
 
     <!-- CONDITIONAL DISP PART --->
     <div *ngIf="big_disp">
         <div *ngIf="obj._has_access">
-            <mat-form-field >
-                <input [value]="input" (keyup.enter)="addgroup()" (keyup)="tap2($event.target.value)"  matInput placeholder="groups" [matAutocomplete]="auto2">
-                <button matSuffix mat-icon-button (click)="addgroup()"><mat-icon class="grpsufix"  >add</mat-icon></button>
-                <mat-autocomplete autoActiveFirstOption #auto2="matAutocomplete">
-                    <mat-option *ngFor="let option of filteredGroups" [value]="option">
-                        {{option}}
-                    </mat-option>
-                </mat-autocomplete>
-            </mat-form-field>
-            <div class="inline group-item-holder">
-                <div class="inline group-item" *ngFor="let item of obj.access['groups']">
-                    <label>{{item}}</label>
-                    <button mat-icon-button (click)="delete_element(item)"><mat-icon>close</mat-icon></button>
-                </div>
-            </div>
+            <app-access-editor
+                [obj]="obj.access"
+                [groups]="groups"
+            ></app-access-editor>
         </div>
         <div *ngIf="obj._has_domain">
             <app-property-domain-component

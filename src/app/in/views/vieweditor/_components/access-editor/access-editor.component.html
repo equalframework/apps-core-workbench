@@ -1,0 +1,17 @@
+<div>
+    <mat-form-field >
+        <input [(ngModel)]="input" (keyup.enter)="addgroup()" (keyup)="tap2($event.target.value)"  matInput placeholder="groups" [matAutocomplete]="auto2">
+        <button matSuffix mat-icon-button (click)="addgroup()"><mat-icon class="grpsufix"  >add</mat-icon></button>
+        <mat-autocomplete autoActiveFirstOption #auto2="matAutocomplete">
+            <mat-option *ngFor="let option of filteredGroups" [value]="option">
+                {{option}}
+            </mat-option>
+        </mat-autocomplete>
+    </mat-form-field>
+    <div class="inline group-item-holder">
+        <div class="inline group-item" *ngFor="let item of obj['groups']">
+            <label>{{item}}</label>
+            <button mat-icon-button (click)="delete_element(item)"><mat-icon>close</mat-icon></button>
+        </div>
+    </div>
+</div>

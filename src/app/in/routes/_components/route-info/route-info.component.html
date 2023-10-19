@@ -6,14 +6,17 @@
         </div>
         <br>
         <div>
+            <mat-spinner *ngIf="!init_routes">
+
+            </mat-spinner>
             <label class="sub-part-title inited"
-                *ngIf="init_routes[current_route] && init_routes[current_route]['info']['file'] === route_info['info']['file']"
+                *ngIf="init_routes && init_routes[current_route] && init_routes[current_route]['info']['file'] === route_info['info']['file']"
             >
                 <mat-icon>check_circle</mat-icon>
                 This route is live.
             </label>
             <label class="sub-part-title not-inited"
-                *ngIf="!init_routes[current_route] || init_routes[current_route]['info']['file'] !== route_info['info']['file']"
+                *ngIf="init_routes && (!init_routes[current_route] || init_routes[current_route]['info']['file'] !== route_info['info']['file'])"
             >
                 <mat-icon>error</mat-icon>
                 This route is not live.

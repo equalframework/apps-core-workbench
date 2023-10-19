@@ -85,16 +85,19 @@ export class SearchMixedListComponent implements OnInit {
     public onSearch(updaterouter:boolean=true) {
         if(updaterouter) this.router.updateArg('searchvalue',this.inputcontrol.value)
         let splitted = this.inputcontrol.value.split(":")
-        console.log(splitted)
         if(splitted.length > 1) {
             this.search_scope = splitted[0]
-            this.search_value = splitted[1]
+            this.search_value = splitted.slice(1).join(":")
         }
         else {
             this.search_scope = ""
             this.search_value = splitted[0]
         }
-        this.search_scope = this.actual_scope
+        if(this.search_scope !== this.actual_scope) {
+            this.search_value = this.search_scope+":"+this.search_value
+            this.search_scope = this.actual_scope
+        }
+        
         this.filteredData = this.data.filter(
             node => 
                 // checking value part
@@ -111,7 +114,6 @@ export class SearchMixedListComponent implements OnInit {
                     || ("view" === this.search_scope && ( node.type === 'list' || node.type === 'form' ))
                 )
         );
-        console.log(this.filteredData)
     }
 
     /**

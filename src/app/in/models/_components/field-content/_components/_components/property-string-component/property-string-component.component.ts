@@ -49,7 +49,6 @@ export class PropertyStringComponentComponent implements OnInit {
     }
 
     public updateValue(value: any) {
-        console.log(value);
         this.valueChange.emit(value);
     }
 

@@ -17,6 +17,8 @@ export class HeaderEditorComponent implements OnInit {
   header_action_visible:boolean = false
   header_selection_action_visible:boolean = false
 
+  obk = Object.keys
+
   constructor() { }
 
   ngOnInit(): void {

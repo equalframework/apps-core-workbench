@@ -24,12 +24,11 @@ export class ValueSelectionComponent implements OnInit {
     constructor() { }
 
     ngOnInit(): void {
-        this.myControl.setValue(this.value[0]);
+        console.log(this.fields.fields[this.operand])
+        this.myControl.setValue(this.value);
     }
 
     ngOnChanges() {
-        console.log(this.fields.fields['operand'])
-        this.myControl.setValue(this.value[0]);
     }
 
     public containsOption(option: any) {
@@ -44,5 +43,13 @@ export class ValueSelectionComponent implements OnInit {
     public onOptionChange(event: any) {
         console.log(event.value);
         this.changeValue.emit(event.value);
+    }
+
+    get options() {
+        if (! (typeof this.fields.fields['operand'] === "object")) {
+            return this.fields.fields[this.operand].selection
+        } else {
+            return Object.keys(this.fields.fields[this.operand].selection)
+        }
     }
 }

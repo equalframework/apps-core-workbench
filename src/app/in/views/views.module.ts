@@ -15,6 +15,8 @@ import { ViewsInfoModule } from './_components/views-info/views-info.module';
 import { ViewsComponent } from './views.component';
 import { MixedCreatorModule } from '../package/_components/mixed-creator/mixed-creator.module';
 import { DeleteConfirmationModule } from '../delete-confirmation/delete-confirmation.module';
+import { ViewService } from './_services/view.service';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 
 
@@ -36,7 +38,12 @@ import { DeleteConfirmationModule } from '../delete-confirmation/delete-confirma
     MatDialogModule,
     ViewsInfoModule,
     MixedCreatorModule,
-    DeleteConfirmationModule
+    DeleteConfirmationModule,
+    HttpClientModule
+  ],
+  providers : [
+    ViewService,
+    HttpClientModule
   ]
 })
 export class ViewsModule { }

@@ -163,3 +163,12 @@ pre {
     border: 1px solid silver;
     padding: .5em;
 }
+
+.core-prez {
+    overflow-y: scroll;
+    height: calc(100% - 145px);
+}
+
+.title-controller {
+    height : 145px;
+}

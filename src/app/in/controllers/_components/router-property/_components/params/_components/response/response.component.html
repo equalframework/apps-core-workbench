@@ -5,6 +5,15 @@
     </button>
 </div>
 <div mat-dialog-content class="dialog-content">
+    <p>Request status</p>
+    <pre [innerHTML]="responseinfo">
+    </pre>
+    <p>Client message :</p>
+    <div class="max-height" id="schema">
+        <pre [innerHTML]="error_message">
+        </pre>
+    </div>
+    <p>Body :</p>
     <div class="max-height" id="schema">
         <pre [innerHTML]="getJSONSchema()">
         </pre>

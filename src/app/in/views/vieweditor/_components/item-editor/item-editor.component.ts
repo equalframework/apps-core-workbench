@@ -18,6 +18,10 @@ export class ItemEditorComponent implements OnInit {
   @Input() groups:string[]
   @Input() action_controllers:string[]
 
+  equal_types:string[]
+  equal_usage:string[]
+  filtered_equal_usage:string[]
+
   @Output() delete = new EventEmitter<void>();
 
   obk = Object.keys
@@ -31,12 +35,18 @@ export class ItemEditorComponent implements OnInit {
   ) { }
 
   async ngOnInit(){
+    this.equal_types = ["",...(await this.api.getTypeList())]
+    this.equal_usage = ["",...(await this.api.getUsageList())]
+    this.filterUsage()
+    
     if(this.item.viewtype === 1){
       this.scheme = await this.api.getSchema(this.entity)
       this.set_has_view(this.item.widgetForm._has_view)
       console.log(this.scheme)
     }
-    
+    console.log(this.equal_types)
+    console.log(this.equal_usage)
+    console.log(this.scheme["fields"][this.item.value])
   }
 
   onDelete() {
@@ -45,6 +55,7 @@ export class ItemEditorComponent implements OnInit {
 
   update_has_field() {
     this.set_has_view(this.item.widgetForm._has_view)
+    this.set_has_domain(this.item.widgetForm._has_view)
     this.set_has_header(this.item.widgetForm._has_header)
   }
 
@@ -54,6 +65,11 @@ export class ItemEditorComponent implements OnInit {
     if (this.item.widgetForm._has_view) {
       this.getlistOptions4View()
     }
+  }
+
+  set_has_domain($event:boolean) {
+    if(this.item.viewtype !== 1) return
+    this.item.widgetForm._has_domain = $event && this._has_viewEnabled
   }
 
   set_has_header($event:boolean) {
@@ -92,6 +108,15 @@ export class ItemEditorComponent implements OnInit {
       foreign : this.scheme['fields'][this.item.value]['foreign_object'],
       lists : {},
     }
+  }
+
+  filterUsage() {
+    if(this.item.viewtype == 1){
+      this.filtered_equal_usage = this.equal_usage.filter((item) => item.includes(this.item.widgetForm.usage))
+    } else {
+      this.filtered_equal_usage = this.equal_usage.filter((item) => item.includes(this.item.widgetList.usage))
+    }
+    
   }
 }
 

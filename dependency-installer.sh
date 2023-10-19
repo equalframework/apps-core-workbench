@@ -41,7 +41,7 @@ cd equal-ui
 npm install
 # Building equal-ui
 # If this part does not work, you may need to go back to node 14.18 to comply with SSL legacy support
-sh build.sh
+# sh build.sh
 sh export.sh
 
 # You should good to go ! you can compile apps with the build.sh file in the app directory

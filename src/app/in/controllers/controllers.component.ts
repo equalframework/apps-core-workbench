@@ -47,7 +47,6 @@ export class ControllersComponent implements OnInit {
         this.packages = await this.api.getPackages();
         const a = this.activateRoute.snapshot.paramMap.get('selected_package')
         this.selected_package = a ? a : ''
-        console.log(this.selected_package)
         this.controllers = await this.api.getControllers(this.selected_package);
         this.selected_controller = "";
         this.selected_property = "";
@@ -73,7 +72,6 @@ export class ControllersComponent implements OnInit {
             this.fetch_error = false
             this.selected_property = 'description'
             this.schema = response.announcement;
-            console.log(this.schema)
         }
         this.selected_controller = event.name;
     }
@@ -105,8 +103,14 @@ export class ControllersComponent implements OnInit {
      *
      * @param controller the name of the controller which will be deleted
      */
-    public ondeleteController(event: { type: string, name: string }) {
-
+    public async ondeleteController(event: { type: string, name: string }) {
+            let nom = event.name.split("_").slice(1).join("_")
+            let res = await this.api.deleteController(this.selected_package,event.type,nom)
+            if(!res){
+                this.snackBar.open("Deleted")
+                this.selected_controller= ""
+                this.init()
+            }
     }
 
     /**
@@ -115,7 +119,6 @@ export class ControllersComponent implements OnInit {
      * @param new_package the name of the new controller
      */
     public oncreateController(event: { type: string, name: string }) {
-        console.log('SIUUUUU')
         let d = this.matDialog.open(MixedCreatorComponent,{
             data: { 
                 type: event.type, 
