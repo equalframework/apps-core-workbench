@@ -31,4 +31,8 @@ export class RouteEditorComponent implements OnInit {
   drop(event: CdkDragDrop<ViewRoute[]>) {
     moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
   }
+
+  onDeletionRequest(index:number) {
+    this.obj.splice(index,1)
+  }
 }

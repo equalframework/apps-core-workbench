@@ -49,7 +49,7 @@ export class EmbbedApiService {
         }
     }
 
-    public async listModelFrom(pkg:string):Promise<string[]|undefined> {
+    public async listModelFrom(pkg:string):Promise<string[]> {
         try {
             return (await this.api.fetch('?get=core_config_classes'))[pkg];
         }

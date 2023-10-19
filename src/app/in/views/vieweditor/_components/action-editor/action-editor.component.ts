@@ -44,24 +44,6 @@ export class ActionEditorComponent implements OnInit {
     this.filteredOptions = ['',...this.controllers.filter((val) => (val.toLowerCase().includes(this.obj.controller)))]
   }
 
-  tap2(new_value:string) {
-    this.input = new_value
-    this.filteredGroups = this.groups.filter((val) => (val.toLowerCase().includes(this.input)))
-  }
-
-  addgroup() {
-    let index = this.obj.access['groups'].indexOf(this.input)
-    if(index === -1 && this.input.trimStart() !== "") {
-      this.obj.access["groups"].push(this.input)
-    }
-    this.input = ""
-  }
-
-  delete_element(group:string) {
-    let index = this.obj.access['groups'].indexOf(group)
-    this.obj.access['groups'].splice(index,1)
-  }
-
   show_custom_params(){
     this.matdialog.open(PopupParamsComponent,{data:this.obj})
   }

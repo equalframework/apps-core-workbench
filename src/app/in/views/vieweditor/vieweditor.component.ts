@@ -38,9 +38,11 @@ export class VieweditorComponent implements OnInit {
   header_selection_action_visible = false
   actions_visible = false
   routes_visible = false
+  access_visible = false
 
   groups:string[] = []
   groups_visible:{[id:number]:boolean} = {}
+  
 
   collect_controller:string[] = ["core_model_collect"];
 
@@ -86,15 +88,15 @@ export class VieweditorComponent implements OnInit {
         console.log(this.collect_controller)
         this.action_controllers = await this.api.getAllActionControllers()
       
-      this.api.getCoreGroups().then(data => {
-        for(let key in data) {
-          this.groups.push(data[key]['name'])
-        }
-        console.log(this.groups)
-      })
-    } catch(err) {
-      console.error(err)
-      this.error = true
+        this.api.getCoreGroups().then(data => {
+          for(let key in data) {
+            this.groups.push(data[key]['name'])
+          }
+          console.log(this.groups)
+        })
+      } catch(err) {
+        console.error(err)
+        this.error = true
     }
     }
   }

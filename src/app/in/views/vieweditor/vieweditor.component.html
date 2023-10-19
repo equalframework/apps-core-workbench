@@ -36,131 +36,150 @@
                 <textarea matInput placeholder="view description" [value]="view_obj.description"  (input)="view_obj.description = $event.target.value"></textarea> 
             </mat-form-field>
         </div>
-        <div>
-            <mat-form-field class="inputlong">
-                <mat-label>controller</mat-label>
-                <mat-select [(value)]="view_obj.controller">
-                    <mat-option *ngFor="let item of collect_controller" value="{{item}}">{{item === "core_model_collect" ? "core_model_collect (default)":item}}</mat-option>
-                </mat-select>
-            </mat-form-field>
-        </div>
-        <app-toggling-button
-            [enabledIcon]="'expand_less'"
-            [disabledIcon]="'expand_more'"
-            [baseState]="routes_visible"
-            (toggle)="routes_visible = $event"
-            [disabled]="!view_obj._has_routes"
-        ></app-toggling-button>
-        <label [style.opacity]="view_obj._has_routes ? 1 : 0.6" class="category-title maincolor">Routes </label>
-        <mat-slide-toggle [(ngModel)]="view_obj._has_routes"></mat-slide-toggle>
-        <br>
-        <div *ngIf="routes_visible && view_obj._has_routes" class="indent">
-            <app-route-editor
-                [obj]="view_obj.routes"
-                [entity]="entity"
-            >
-            </app-route-editor>
-        </div>
-        <app-toggling-button
-            [enabledIcon]="'expand_less'"
-            [disabledIcon]="'expand_more'"
-            [baseState]="domain_visible"
-            (toggle)="domain_visible = $event"
-            [disabled]="!view_obj._has_domain"
-        ></app-toggling-button>
-        <label [style.opacity]="view_obj._has_domain ? 1 : 0.6" class="category-title maincolor">Domain </label>
-        <mat-slide-toggle [(ngModel)]="view_obj._has_domain"></mat-slide-toggle>
-        <br>
-        <div *ngIf="domain_visible && view_obj._has_domain" class="indent">
-            <app-property-domain-component
-                [value]="view_obj.domain.dom"
-                [name]="'oui'"
-                [class]="entity"
-                (valueChange)="view_obj.domain.dom = $event"
-            >
-            </app-property-domain-component>
-        </div>
-        <app-toggling-button
-            [enabledIcon]="'expand_less'"
-            [disabledIcon]="'expand_more'"
-            [baseState]="header_visible"
-            (toggle)="header_visible = $event"
-            [disabled]="!view_obj._has_header"
-        ></app-toggling-button>
-        <label [style.opacity]="view_obj._has_header ? 1 : 0.6" class="category-title maincolor">Header </label>
-        <mat-slide-toggle [(ngModel)]="view_obj._has_header"></mat-slide-toggle>
-        <br>
-        <!--HEADER-->
-        <div *ngIf="header_visible && view_obj._has_header" class="indent">
-            <app-header-editor
-                [obj]="view_obj.header"
-                [type]="view_obj.type"
-                [groups]="groups"
-                [action_controllers]="action_controllers"
-                [entity]="entity"
-            >
-            </app-header-editor>
-        </div>
-        <!------->
-        <app-toggling-button
-            [enabledIcon]="'expand_less'"
-            [disabledIcon]="'expand_more'"
-            [baseState]="filter_visible"
-            (toggle)="filter_visible = $event"
-            [disabled]="!view_obj._has_filter"
-        ></app-toggling-button>
-        <label [style.opacity]="view_obj._has_filter ? 1 : 0.6" class="category-title maincolor">Filters </label>
-        <mat-slide-toggle [(ngModel)]="view_obj._has_filter"></mat-slide-toggle>
-        <button *ngIf="filter_visible && view_obj._has_filter" mat-fab color="primary" class="addItem" (click)="addFilter()"><mat-icon>add</mat-icon></button>
-        <br>
-        <div *ngIf="filter_visible && view_obj._has_filter" class="indent">
-            <div class="indent" *ngFor="let filter of view_obj.filters">
-                <div class="flex">
-                    <div>
+        <ng-container *ngIf="view_obj.type !== 'search'">
+            <div>
+                <mat-form-field class="inputlong">
+                    <mat-label>controller</mat-label>
+                    <mat-select [(value)]="view_obj.controller">
+                        <mat-option *ngFor="let item of collect_controller" value="{{item}}">{{item === "core_model_collect" ? "core_model_collect (default)":item}}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <app-toggling-button
+                [enabledIcon]="'expand_less'"
+                [disabledIcon]="'expand_more'"
+                [baseState]="access_visible"
+                (toggle)="access_visible = $event"
+                [disabled]="!view_obj._has_access"
+            ></app-toggling-button>
+            <label [style.opacity]="view_obj._has_access ? 1 : 0.6" class="category-title maincolor">Access </label>
+            <mat-slide-toggle [(ngModel)]="view_obj._has_access"></mat-slide-toggle>
+            <br>
+            <div class="indent" *ngIf="access_visible">
+                <app-access-editor
+                    [obj]="view_obj.access"
+                    [groups]="groups"
+                >
+                </app-access-editor>
+            </div>
+            <app-toggling-button
+                [enabledIcon]="'expand_less'"
+                [disabledIcon]="'expand_more'"
+                [baseState]="routes_visible"
+                (toggle)="routes_visible = $event"
+                [disabled]="!view_obj._has_routes"
+            ></app-toggling-button>
+            <label [style.opacity]="view_obj._has_routes ? 1 : 0.6" class="category-title maincolor">Routes </label>
+            <mat-slide-toggle [(ngModel)]="view_obj._has_routes"></mat-slide-toggle>
+            <br>
+            <div *ngIf="routes_visible && view_obj._has_routes" class="indent">
+                <app-route-editor
+                    [obj]="view_obj.routes"
+                    [entity]="entity"
+                >
+                </app-route-editor>
+            </div>
+            <app-toggling-button
+                [enabledIcon]="'expand_less'"
+                [disabledIcon]="'expand_more'"
+                [baseState]="domain_visible"
+                (toggle)="domain_visible = $event"
+                [disabled]="!view_obj._has_domain"
+            ></app-toggling-button>
+            <label [style.opacity]="view_obj._has_domain ? 1 : 0.6" class="category-title maincolor">Domain </label>
+            <mat-slide-toggle [(ngModel)]="view_obj._has_domain"></mat-slide-toggle>
+            <br>
+            <div *ngIf="domain_visible && view_obj._has_domain" class="indent">
+                <app-property-domain-component
+                    [value]="view_obj.domain.dom"
+                    [name]="'oui'"
+                    [class]="entity"
+                    (valueChange)="view_obj.domain.dom = $event"
+                >
+                </app-property-domain-component>
+            </div>
+            <app-toggling-button
+                [enabledIcon]="'expand_less'"
+                [disabledIcon]="'expand_more'"
+                [baseState]="header_visible"
+                (toggle)="header_visible = $event"
+                [disabled]="!view_obj._has_header"
+            ></app-toggling-button>
+            <label [style.opacity]="view_obj._has_header ? 1 : 0.6" class="category-title maincolor">Header </label>
+            <mat-slide-toggle [(ngModel)]="view_obj._has_header"></mat-slide-toggle>
+            <br>
+            <!--HEADER-->
+            <div *ngIf="header_visible && view_obj._has_header" class="indent">
+                <app-header-editor
+                    [obj]="view_obj.header"
+                    [type]="view_obj.type"
+                    [groups]="groups"
+                    [action_controllers]="action_controllers"
+                    [entity]="entity"
+                >
+                </app-header-editor>
+            </div>
+            <!------->
+            <app-toggling-button
+                [enabledIcon]="'expand_less'"
+                [disabledIcon]="'expand_more'"
+                [baseState]="filter_visible"
+                (toggle)="filter_visible = $event"
+                [disabled]="!view_obj._has_filter"
+            ></app-toggling-button>
+            <label [style.opacity]="view_obj._has_filter ? 1 : 0.6" class="category-title maincolor">Filters </label>
+            <mat-slide-toggle [(ngModel)]="view_obj._has_filter"></mat-slide-toggle>
+            <button *ngIf="filter_visible && view_obj._has_filter" mat-fab color="primary" class="addItem" (click)="addFilter()"><mat-icon>add</mat-icon></button>
+            <br>
+            <div *ngIf="filter_visible && view_obj._has_filter" class="indent">
+                <div class="indent" *ngFor="let filter of view_obj.filters">
+                    <div class="flex">
                         <div>
-                            <mat-form-field>
-                                <input matInput placeholder="filter id" [value]="filter.id" (input)="filter.id = $event.target.value">
-                            </mat-form-field>
-                            <mat-form-field>
-                                <input matInput placeholder="filter label" [value]="filter.label" (input)="filter.label = $event.target.value">
-                            </mat-form-field>
-                            <mat-form-field class="inputlong">
-                                <input matInput placeholder="filter description" [value]="filter.description" (input)="filter.description = $event.target.value">
-                            </mat-form-field>
+                            <div>
+                                <mat-form-field>
+                                    <input matInput placeholder="filter id" [value]="filter.id" (input)="filter.id = $event.target.value">
+                                </mat-form-field>
+                                <mat-form-field>
+                                    <input matInput placeholder="filter label" [value]="filter.label" (input)="filter.label = $event.target.value">
+                                </mat-form-field>
+                                <mat-form-field class="inputlong">
+                                    <input matInput placeholder="filter description" [value]="filter.description" (input)="filter.description = $event.target.value">
+                                </mat-form-field>
+                            </div>
+                            <app-clause-domain-component
+                                [value]="filter.clause.arr"
+                                [name]="'oui'"
+                                [class]="entity"
+                                (valueChange)="filter.clause.arr = $event"
+                            ></app-clause-domain-component>
                         </div>
-                        <app-clause-domain-component
-                            [value]="filter.clause.arr"
-                            [name]="'oui'"
-                            [class]="entity"
-                            (valueChange)="filter.clause.arr = $event"
-                        ></app-clause-domain-component>
-                    </div>
-                    <div class="delete-button-container">
-                        <button mat-fab color="primary" (click)="deleteFilter(view_obj.filters.indexOf(filter))"><mat-icon>delete</mat-icon></button>
+                        <div class="delete-button-container">
+                            <button mat-fab color="primary" (click)="deleteFilter(view_obj.filters.indexOf(filter))"><mat-icon>delete</mat-icon></button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <app-toggling-button
-            [enabledIcon]="'expand_less'"
-            [disabledIcon]="'expand_more'"
-            [baseState]="actions_visible"
-            (toggle)="actions_visible = $event"
-            [disabled]="!view_obj._has_actions"
-        ></app-toggling-button>
-        <label [style.opacity]="view_obj._has_actions ? 1 : 0.6" class="category-title maincolor">Actions </label>
-        <mat-slide-toggle [(ngModel)]="view_obj._has_actions"></mat-slide-toggle>
-        <br>
-        <div *ngIf="actions_visible && view_obj._has_actions" class="indent">
-            <app-actions-container
-                [label]="'Edit actions'"
-                [acts]="view_obj.actions"
-                [controllers]="action_controllers"
-                [groups]="groups"
-                [entity]="entity"
-                [domainables]="true"
-            ></app-actions-container>
-        </div>
+            <app-toggling-button
+                [enabledIcon]="'expand_less'"
+                [disabledIcon]="'expand_more'"
+                [baseState]="actions_visible"
+                (toggle)="actions_visible = $event"
+                [disabled]="!view_obj._has_actions"
+            ></app-toggling-button>
+            <label [style.opacity]="view_obj._has_actions ? 1 : 0.6" class="category-title maincolor">Actions </label>
+            <mat-slide-toggle [(ngModel)]="view_obj._has_actions"></mat-slide-toggle>
+            <br>
+            <div *ngIf="actions_visible && view_obj._has_actions" class="indent">
+                <app-actions-container
+                    [label]="'Edit actions'"
+                    [acts]="view_obj.actions"
+                    [controllers]="action_controllers"
+                    [groups]="groups"
+                    [entity]="entity"
+                    [domainables]="true"
+                ></app-actions-container>
+            </div>
+        </ng-container>
         <app-toggling-button
             [enabledIcon]="'expand_less'"
             [disabledIcon]="'expand_more'"
@@ -212,7 +231,7 @@
                     </div>
                 </div>
             </div>
-            <div *ngIf="view_obj.type !== 'form'">
+            <div *ngIf="view_obj.type === 'list'">
                 <label class="category-title maincolor">Items</label>
                 <button mat-fab color="primary" class="addItem" (click)="addItemLayout()"><mat-icon>add</mat-icon></button>
                 <div class="indent" 

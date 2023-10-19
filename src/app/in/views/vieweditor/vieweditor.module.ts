@@ -42,6 +42,7 @@ import { Router, RouterModule } from '@angular/router';
 import { SharedLibModule } from 'sb-shared-lib';
 import { RouteEditorComponent } from './_components/route-editor/route-editor.component';
 import { RouteEditComponent } from './_components/route-editor/route-edit/route-edit.component';
+import { AccessEditorComponent } from './_components/access-editor/access-editor.component';
 
 
 
@@ -66,6 +67,7 @@ import { RouteEditComponent } from './_components/route-editor/route-edit/route-
     PreDefActionEditorComponent,
     RouteEditorComponent,
     RouteEditComponent,
+    AccessEditorComponent,
   ],
   imports: [
     CommonModule,

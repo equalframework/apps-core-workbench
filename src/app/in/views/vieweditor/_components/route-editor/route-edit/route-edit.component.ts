@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ViewRoute } from '../../../_objects/View';
 import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
 
@@ -12,6 +12,8 @@ export class RouteEditComponent implements OnInit {
   @Input() route:ViewRoute
   @Input() entity: string
   @Input() model_list:string[]
+
+  @Output() deleteme =  new EventEmitter<void>()
 
   filtered_model_list:string[]
 
@@ -37,6 +39,10 @@ export class RouteEditComponent implements OnInit {
     let x = await this.api.listViewFrom(this.route.context.entity.split("\\")[0],this.route.context.entity.split('\\').slice(1).join('\\'))
     this.ext_entity_view_list = x ? x : []
     console.log(this.ext_entity_view_list)
+  }
+
+  onClickDelete() {
+    this.deleteme.emit()
   }
 
 }

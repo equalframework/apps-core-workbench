@@ -84,6 +84,8 @@ export class Translator {
         }
         for(let key in this.view) {
             res["view"][key] = {}
+            res["view"][key]["name"] = this.view[key].name.value
+            res["view"][key]["description"] = this.view[key].description.value
             if(Object.keys(this.view[key].layout).length > 0) {
                 res["view"][key]["layout"] = {}
                 for(let id in this.view[key].layout) {

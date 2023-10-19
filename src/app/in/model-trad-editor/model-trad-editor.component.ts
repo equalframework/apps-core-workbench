@@ -152,9 +152,9 @@ export class ModelTradEditorComponent implements OnInit {
       return
     }
     this.data[this.lang_name.value] = await this.createNewLang()
-    this.lang_name.setValue("")
-    console.log(this.data)
     this.adding_language = false
+    this.lang = this.lang_name.value
+    this.lang_name.setValue("")
   }
 
   static snake_case(control: AbstractControl): ValidationErrors | null {
@@ -192,7 +192,7 @@ export class ModelTradEditorComponent implements OnInit {
   }
 
   debugExport() {
-    this.dialog.open(ModelTradJsonComponent,{data:this.data[this.lang].export(),height : "80%",width : "80%"})
+    this.dialog.open(ModelTradJsonComponent,{data: this.data[this.lang] ? this.data[this.lang].export() : {},height : "80%",width : "80%"})
   }
 
   saveall() {

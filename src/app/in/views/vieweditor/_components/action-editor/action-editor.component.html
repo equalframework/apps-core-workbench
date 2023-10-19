@@ -47,21 +47,10 @@
     <!-- CONDITIONAL DISP PART --->
     <div *ngIf="big_disp">
         <div *ngIf="obj._has_access">
-            <mat-form-field >
-                <input [value]="input" (keyup.enter)="addgroup()" (keyup)="tap2($event.target.value)"  matInput placeholder="groups" [matAutocomplete]="auto2">
-                <button matSuffix mat-icon-button (click)="addgroup()"><mat-icon class="grpsufix"  >add</mat-icon></button>
-                <mat-autocomplete autoActiveFirstOption #auto2="matAutocomplete">
-                    <mat-option *ngFor="let option of filteredGroups" [value]="option">
-                        {{option}}
-                    </mat-option>
-                </mat-autocomplete>
-            </mat-form-field>
-            <div class="inline group-item-holder">
-                <div class="inline group-item" *ngFor="let item of obj.access['groups']">
-                    <label>{{item}}</label>
-                    <button mat-icon-button (click)="delete_element(item)"><mat-icon>close</mat-icon></button>
-                </div>
-            </div>
+            <app-access-editor
+                [obj]="obj.access"
+                [groups]="groups"
+            ></app-access-editor>
         </div>
         <div *ngIf="obj._has_domain">
             <app-property-domain-component

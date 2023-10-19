@@ -24,7 +24,7 @@ export class MixedCreatorComponent implements OnInit {
       this.need_model = true
       this.need_subtype = true
       this.implemented = true
-      this.subtypelist = ["list","form"]
+      this.subtypelist = ["list","form","search"]
       this.subtypename = "View Type"
       this.cachelist = []
       if(this.selected_package !== "" && this.selected_model !== ""){
@@ -274,7 +274,7 @@ export class MixedCreatorComponent implements OnInit {
   }
 
   async onPackageSelect() {
-    this.cachemodellist = await this.api.listModelFrom(this.selected_package)
+    this.cachemodellist = [...(await this.api.listModelFrom(this.selected_package)),...(await this.api.listControlerFromPackageAndByType(this.selected_package,"data"))]
     this.reloadlist()
   }
 

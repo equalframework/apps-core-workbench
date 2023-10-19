@@ -40,6 +40,7 @@ class View extends ViewElement {
     public header: ViewHeader
     public actions: ViewAction[] = []
     public routes: ViewRoute[] = []
+    public access = { "groups": ["users"] }
 
 
     public _has_domain = false
@@ -48,6 +49,7 @@ class View extends ViewElement {
     public _has_actions = false
     public _has_selection_actions = false
     public _has_routes = false
+    public _has_access = false
 
     constructor(schem: any = {}, type: string) {
         let scheme = cloneDeep(schem)
@@ -96,6 +98,11 @@ class View extends ViewElement {
             scheme['routes'].forEach((route:any) => this.routes.push(new ViewRoute(route)))
             delete scheme['routes']
         }
+        if(scheme["access"]) {
+            this._has_access = true
+            this.access = scheme["access"]
+            delete scheme["access"]
+        }
         this.leftover = scheme
     }
 
@@ -115,6 +122,9 @@ class View extends ViewElement {
         let result = super.export()
         result['name'] = this.name
         result['description'] = this.description
+        if (this._has_access) {
+            result["access"] = this.access
+        }
         if (this._has_routes) {
             result['routes'] = []
             this.routes.forEach(route => result['routes'].push(route.export()))
