@@ -46,6 +46,7 @@ export class ItemEditorComponent implements OnInit {
     }
     console.log(this.equal_types)
     console.log(this.equal_usage)
+    console.log(this.scheme["fields"][this.item.value])
   }
 
   onDelete() {
@@ -54,6 +55,7 @@ export class ItemEditorComponent implements OnInit {
 
   update_has_field() {
     this.set_has_view(this.item.widgetForm._has_view)
+    this.set_has_domain(this.item.widgetForm._has_view)
     this.set_has_header(this.item.widgetForm._has_header)
   }
 
@@ -63,6 +65,11 @@ export class ItemEditorComponent implements OnInit {
     if (this.item.widgetForm._has_view) {
       this.getlistOptions4View()
     }
+  }
+
+  set_has_domain($event:boolean) {
+    if(this.item.viewtype !== 1) return
+    this.item.widgetForm._has_domain = $event && this._has_viewEnabled
   }
 
   set_has_header($event:boolean) {

@@ -64,6 +64,7 @@ export class EmbbedApiService {
             let x = (await this.api.fetch('?get=core_config_classes'))
             let ret:string[] = []
             for(let key in x) {
+                console.log(key)
                 for(let item of x[key]){
                     ret.push(key+"\\"+item)
                 }

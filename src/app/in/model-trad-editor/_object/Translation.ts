@@ -18,6 +18,7 @@ export class Translator {
     view:{[id:string]:ViewTranslator} = {}
     error:ErrorTranslator = new ErrorTranslator()
     ok:boolean = true
+    view_leftover:any = {}
 
     constructor(model:string[],view:{name:string,view:View}[]) {
         for(let item of model) {
@@ -48,7 +49,10 @@ export class Translator {
         console.log("view")
         if(values["view"]) {
             for(let item in values["view"]) {
-                if(!this.view[item]) continue
+                if(!this.view[item]){
+                    this.view_leftover[item] = values["view"][item]
+                    continue
+                }
                 this.view[item].fill(values["view"][item])
             }
         }
@@ -57,6 +61,73 @@ export class Translator {
             this.error.fill(values["error"])
         }
         console.log("finished")
+    }
+
+    export() {
+        let res:any = {
+            "name" : this.name.value,
+            "plural" : this.plural.value,
+            "description" : this.description.value,
+            "model" : {},
+            "view" : {},
+            "error" : {}
+        }
+
+        for(let key in this.model) {
+            if(this.model[key].is_active) {
+                res["model"][key] = {
+                    "label" : this.model[key].label.value,
+                    "description" : this.model[key].description.value,
+                    "help" : this.model[key].help.value
+                }
+            }
+        }
+        for(let key in this.view) {
+            res["view"][key] = {}
+            if(Object.keys(this.view[key].layout).length > 0) {
+                res["view"][key]["layout"] = {}
+                for(let id in this.view[key].layout) {
+                    if(!this.view[key].layout[id].is_active) continue
+                    res["view"][key]["layout"][id] = {
+                        "label" : this.view[key].layout[id].label.value
+                    }
+                }
+            }
+            if(Object.keys(this.view[key].actions).length > 0) {
+                res["view"][key]["actions"] = {}
+                for(let id in this.view[key].actions) {
+                    if(!this.view[key].actions[id].is_active) continue
+                    res["view"][key]["actions"][id] = {
+                        "label" : this.view[key].actions[id].label.value,
+                        "description" : this.view[key].actions[id].description.value
+                    }
+                }
+            }
+            if(Object.keys(this.view[key].routes).length > 0) {
+                res["view"][key]["routes"] = {}
+                for(let id in this.view[key].routes) {
+                    if(!this.view[key].routes[id].is_active) continue
+                    res["view"][key]["routes"][id] = {
+                        "label" : this.view[key].routes[id].label.value,
+                        "description" : this.view[key].routes[id].description.value
+                    }
+                }
+            }
+        }
+        for(let key in this.view_leftover){
+            res["view"][key] = this.view_leftover[key]
+        }
+
+        for(let key in this.error._base) {
+            if(!this.error._base[key].active) continue
+            res["error"][key] = {}
+            for(let id in this.error._base[key].val) {
+                if(!this.error._base[key].val[id].is_active) continue
+                res["error"][key][id] = this.error._base[key].val[id]._val.value
+            }
+        }
+
+        return res
     }
 } 
 
@@ -71,6 +142,9 @@ export class ErrorTranslator {
 
     fill(values:any) {
         for(let key in values) {
+            if(!this._base[key]) {
+                this._base[key] = {active:false,val:{}}
+            } 
             this._base[key].active = true
             for(let k2 in values[key]) {
                 this._base[key].val[k2] = new ErrorItemTranslator()
@@ -101,17 +175,20 @@ export class ModelTranslator {
 
 export class ViewTranslator {
     layout:{[id:string]:ViewLayoutItemTranslator} = {}
-    is_active:boolean = false
     name:Translation = new Translation()
     description:Translation = new Translation()
-    actions:{[id:string]:ViewLayoutItemTranslator} = {}
+    actions:{[id:string]:ViewActionTranslator} = {}
+    routes:{[id:string]:ViewRouteTranslator} = {}
 
     constructor(view:View) {
         for(let id of view.layout.id_compliant([]).id_list) {
             this.layout[id] = new ViewLayoutItemTranslator()
         }
         for(let action of view.actions) {
-            this.actions[action.id] = new ViewLayoutItemTranslator()
+            this.actions[action.id] = new ViewActionTranslator()
+        }
+        for(let route of view.routes) {
+            this.routes[route.id] = new ViewRouteTranslator()
         }
     }
 
@@ -130,6 +207,40 @@ export class ViewTranslator {
                 this.actions[item].fill(values["actions"][item])
             }
         }
+        if(values["routes"]) {
+            for(let item in values["routes"]) {
+                if(!this.routes[item]) continue
+                this.routes[item].fill(values["routes"][item])
+            }
+        }
+    }
+}
+
+export class ViewRouteTranslator {
+    label:Translation = new Translation()
+    description:Translation = new Translation()
+
+    is_active:boolean = false
+
+    fill(values:any) {
+        if(values) 
+            this.label = new Translation(values["label"])
+            this.description = new Translation(values["description"])
+            this.is_active = true
+    }
+}
+
+export class ViewActionTranslator {
+    label:Translation = new Translation()
+    description:Translation = new Translation()
+
+    is_active:boolean = false
+
+    fill(values:any) {
+        if(values) 
+            this.label = new Translation(values["label"])
+            this.description = new Translation(values["description"])
+            this.is_active = true
     }
 }
 

@@ -90,6 +90,7 @@
                     <mat-option *ngFor="let item of filtered_equal_usage" [value]="item">{{item}}</mat-option>
                 </mat-autocomplete>
             </mat-form-field>
+
         </div>
         <!-- FORM WIDGET -->
         <div *ngIf="item.viewtype === 1">
@@ -126,6 +127,14 @@
             >
                 view
             </mat-checkbox>
+            <mat-checkbox
+                [disabled]="!_has_viewEnabled"
+                [checked]="item.widgetForm._has_domain"
+                (change)="set_has_domain($event.checked)"
+                title="[ASSOCIATIVE ONLY] &#010;this will override the default domain of the view to display in the form"
+            >
+                domain
+            </mat-checkbox>
             <mat-form-field>
                 <mat-label>type</mat-label>
                 <mat-select [(value)]="item.widgetForm.type">
@@ -157,11 +166,20 @@
             <app-header-editor
                 [obj]="item.widgetForm.header"
                 [type]="'list'"
-                [entity]="entity"
+                [entity]="this.scheme['fields'][this.item.value]['foreign_object']"
                 [groups]="groups"
                 [action_controllers]="action_controllers"
             >
             </app-header-editor>
+        </div>
+        <div *ngIf="item.widgetForm._has_domain">
+            <app-property-domain-component
+                [value]="item.widgetForm.domain.dom"
+                [name]="'oui'"
+                [class]="this.scheme['fields'][this.item.value]['foreign_object']"
+                (valueChange)="item.widgetForm.domain.dom = $event"
+            >
+            </app-property-domain-component>
         </div>
     </div>
     <!--      -->

@@ -4,6 +4,7 @@
 </div>
 <div *ngIf="!loading" class="appholder">
     <div class="partheader">
+        <button mat-icon-button (click)="goBack()"><mat-icon color="primary">keyboard_backspace</mat-icon></button>
         <label>Translations of </label>
         <label class="packagename">{{package}}</label>
         <label class="inbetween">
@@ -16,17 +17,24 @@
     <div *ngIf="obk(data).length === 0">
         No traduction on this model.
     </div>
-    <div *ngIf="obk(data).length > 0" style="height: 100%;">
-        <div class="lang-selected" *ngIf="!adding_language">
-            <mat-form-field>
-                <mat-label>Translation language</mat-label>
-                <mat-select [(value)]="lang">
-                    <mat-option *ngFor="let lg of obk(data)" [value]="lg">{{lg}}</mat-option>
-                </mat-select>
-            </mat-form-field>
-            <button mat-button (click)="startAddingLanguage()"><mat-icon>add</mat-icon>Add language</button>
+    <div style="height: 100%;">
+        <div class="lang-selected spcbtwin tabpadding" *ngIf="!adding_language">
+            <div class="info-left">
+                <mat-form-field>
+                    <mat-label>Translation language</mat-label>
+                    <mat-select [(value)]="lang">
+                        <mat-option *ngFor="let lg of obk(data)" [value]="lg">{{lg}}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <button mat-button (click)="startAddingLanguage()"><mat-icon>add</mat-icon>Add language</button>
+            </div>
+            <div class="buttons-right">
+                <button mat-button (click)="saveall()"><mat-icon>save</mat-icon>Save all traduction</button>
+                <button mat-button><mat-icon>cancel</mat-icon>Cancel all changes</button>
+                <button mat-button (click)="debugExport()"><mat-icon>bug_report</mat-icon>Show json</button>
+            </div>
         </div>
-        <div class="lang-selected" *ngIf="adding_language">
+        <div class="lang-selected tabpadding" *ngIf="adding_language">
             <mat-form-field>
                 <mat-label>Language code</mat-label>
                 <input matInput #langcode [formControl]="lang_name">
@@ -34,7 +42,7 @@
             <button mat-button (click)="stopAddingLanguage()"><mat-icon>close</mat-icon>Cancel</button>
             <button mat-button [disabled]="lang_name.invalid" (click)="createLanguage()"><mat-icon>done</mat-icon>Create</button>
         </div>
-        <mat-tab-group class="partcontent" animationDuration="0ms" [lang]="lang" mat-align-tabs="center">
+        <mat-tab-group *ngIf="obk(data).length > 0" class="partcontent" animationDuration="0ms" [lang]="lang" mat-align-tabs="center">
             <mat-tab label="Model" class="modeltradholder tabpadding">
                 <div class="tabpadding">
                     <br>
@@ -154,7 +162,7 @@
                                 </mat-tab>
                                 <br>
                                 <mat-tab label="Actions" *ngIf="obk(data[lang].view[view].actions).length>0">
-                                    <div class="modelitems">
+                                    <div class="modelitems tabpadding">
                                         <mat-grid-list class="listarr" cols="16" rowHeight="2em" class="titlelistarr">
                                             <mat-grid-tile class="itemarr">
                                                 traduction
@@ -162,8 +170,11 @@
                                             <mat-grid-tile class="itemarr" colspan="2">
                                                 Field
                                             </mat-grid-tile>
-                                            <mat-grid-tile colspan="13" class="itemarr">
+                                            <mat-grid-tile colspan="5" class="itemarr">
                                                 Label
+                                            </mat-grid-tile>
+                                            <mat-grid-tile colspan="8" class="itemarr">
+                                                description
                                             </mat-grid-tile>
                                         </mat-grid-list>
                                         <mat-grid-list class="listarr" *ngFor="let key of obk(data[lang].view[view].actions)" cols="16" rowHeight="2em">
@@ -174,11 +185,52 @@
                                                 <label class="fieldnamelabel">{{key}}</label>
                                             </mat-grid-tile>
                                             <ng-container *ngIf="data[lang].view[view].actions[key].is_active">
-                                                <mat-grid-tile colspan="13" class="itemarr">
+                                                <mat-grid-tile colspan="5" class="itemarr">
                                                     <input spellcheck="true" placeholder="no traduction for this field" matInput [(ngModel)]="data[lang].view[view].actions[key].label.value">
+                                                </mat-grid-tile>
+                                                <mat-grid-tile colspan="8" class="itemarr">
+                                                    <input spellcheck="true" placeholder="no traduction for this field" matInput [(ngModel)]="data[lang].view[view].actions[key].description.value">
                                                 </mat-grid-tile>
                                             </ng-container>
                                             <ng-container *ngIf="!data[lang].view[view].actions[key].is_active">
+                                                <mat-grid-tile colspan="13" class="placeholder">
+                                                </mat-grid-tile>
+                                            </ng-container>
+                                        </mat-grid-list>     
+                                    </div>
+                                </mat-tab>
+                                <mat-tab label="routes" *ngIf="obk(data[lang].view[view].routes).length>0">
+                                    <div class="modelitems tabpadding">
+                                        <mat-grid-list class="listarr" cols="16" rowHeight="2em" class="titlelistarr">
+                                            <mat-grid-tile class="itemarr">
+                                                traduction
+                                            </mat-grid-tile>
+                                            <mat-grid-tile class="itemarr" colspan="2">
+                                                Field
+                                            </mat-grid-tile>
+                                            <mat-grid-tile colspan="5" class="itemarr">
+                                                Label
+                                            </mat-grid-tile>
+                                            <mat-grid-tile colspan="8" class="itemarr">
+                                                description
+                                            </mat-grid-tile>
+                                        </mat-grid-list>
+                                        <mat-grid-list class="listarr" *ngFor="let key of obk(data[lang].view[view].routes)" cols="16" rowHeight="2em">
+                                            <mat-grid-tile class="itemarr" colspan="1">
+                                                <mat-checkbox [checked]="data[lang].view[view].routes[key].is_active" (change)="data[lang].view[view].routes[key].is_active = $event.checked"></mat-checkbox>
+                                            </mat-grid-tile>
+                                            <mat-grid-tile class="itemarr" colspan="2">
+                                                <label class="fieldnamelabel">{{key}}</label>
+                                            </mat-grid-tile>
+                                            <ng-container *ngIf="data[lang].view[view].routes[key].is_active">
+                                                <mat-grid-tile colspan="5" class="itemarr">
+                                                    <input spellcheck="true" placeholder="no traduction for this field" matInput [(ngModel)]="data[lang].view[view].routes[key].label.value">
+                                                </mat-grid-tile>
+                                                <mat-grid-tile colspan="8" class="itemarr">
+                                                    <input spellcheck="true" placeholder="no traduction for this field" matInput [(ngModel)]="data[lang].view[view].routes[key].description.value">
+                                                </mat-grid-tile>
+                                            </ng-container>
+                                            <ng-container *ngIf="!data[lang].view[view].routes[key].is_active">
                                                 <mat-grid-tile colspan="13" class="placeholder">
                                                 </mat-grid-tile>
                                             </ng-container>

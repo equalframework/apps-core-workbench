@@ -40,6 +40,8 @@ import { ViewEditorServicesService } from './_services/view-editor-services.serv
 import { HttpClientModule } from '@angular/common/http';
 import { Router, RouterModule } from '@angular/router';
 import { SharedLibModule } from 'sb-shared-lib';
+import { RouteEditorComponent } from './_components/route-editor/route-editor.component';
+import { RouteEditComponent } from './_components/route-editor/route-edit/route-edit.component';
 
 
 
@@ -62,6 +64,8 @@ import { SharedLibModule } from 'sb-shared-lib';
     HeaderEditorComponent,
     PreDefActionsContainerComponent,
     PreDefActionEditorComponent,
+    RouteEditorComponent,
+    RouteEditComponent,
   ],
   imports: [
     CommonModule,

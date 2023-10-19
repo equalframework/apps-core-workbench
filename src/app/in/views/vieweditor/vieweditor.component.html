@@ -27,6 +27,7 @@
                 <mat-select [disabled]="true" [(value)]="view_obj.type">
                     <mat-option value="list">List</mat-option>
                     <mat-option value="form">Form</mat-option>
+                    <mat-option value="search">Search</mat-option>
                 </mat-select>
             </mat-form-field>
         </div>
@@ -42,6 +43,23 @@
                     <mat-option *ngFor="let item of collect_controller" value="{{item}}">{{item === "core_model_collect" ? "core_model_collect (default)":item}}</mat-option>
                 </mat-select>
             </mat-form-field>
+        </div>
+        <app-toggling-button
+            [enabledIcon]="'expand_less'"
+            [disabledIcon]="'expand_more'"
+            [baseState]="routes_visible"
+            (toggle)="routes_visible = $event"
+            [disabled]="!view_obj._has_routes"
+        ></app-toggling-button>
+        <label [style.opacity]="view_obj._has_routes ? 1 : 0.6" class="category-title maincolor">Routes </label>
+        <mat-slide-toggle [(ngModel)]="view_obj._has_routes"></mat-slide-toggle>
+        <br>
+        <div *ngIf="routes_visible && view_obj._has_routes" class="indent">
+            <app-route-editor
+                [obj]="view_obj.routes"
+                [entity]="entity"
+            >
+            </app-route-editor>
         </div>
         <app-toggling-button
             [enabledIcon]="'expand_less'"
@@ -152,7 +170,7 @@
         <label class="category-title maincolor">Layout</label>
         <br>
         <div *ngIf="layout_visible" class="indent">
-            <div *ngIf="view_obj.type === 'form'">
+            <div *ngIf="view_obj.type === 'form' || view_obj.type === 'search'">
                 <div class="indent">
                     <label class="category-title maincolor">Groups</label>
                     <button mat-fab color="primary" class="addItem" (click)="addGroup()"><mat-icon>add</mat-icon></button>

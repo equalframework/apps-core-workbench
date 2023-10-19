@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Inject, OnInit, Optional, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslationService } from './_services/translation.service';
 import { ErrorItemTranslator, Translator } from './_object/Translation';
@@ -7,6 +7,9 @@ import { MatTabGroup } from '@angular/material/tabs';
 import { AbstractControl, FormControl, ValidationErrors, Validators } from '@angular/forms';
 import { snakeCase } from 'lodash';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { prettyPrintJson } from 'pretty-print-json';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-model-trad-editor',
@@ -42,8 +45,10 @@ export class ModelTradEditorComponent implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
+    private router:RouterMemory,
     private api:TranslationService,
-    private snack:MatSnackBar
+    private snack:MatSnackBar,
+    private dialog:MatDialog
   ) { }
 
   async ngOnInit() {
@@ -148,6 +153,7 @@ export class ModelTradEditorComponent implements OnInit {
     }
     this.data[this.lang_name.value] = await this.createNewLang()
     this.lang_name.setValue("")
+    console.log(this.data)
     this.adding_language = false
   }
 
@@ -181,4 +187,35 @@ export class ModelTradEditorComponent implements OnInit {
     return null
   }
 
+  goBack() {
+    this.router.goBack()
+  }
+
+  debugExport() {
+    this.dialog.open(ModelTradJsonComponent,{data:this.data[this.lang].export(),height : "80%",width : "80%"})
+  }
+
+  saveall() {
+    this.api.saveTrads(this.package,this.model,this.data)
+  }
+
+}
+
+@Component({
+  selector: 'app-model-trad-editor',
+  template: "<pre [innerHtml]='datajson'><pre>"
+})
+class ModelTradJsonComponent implements OnInit {
+  constructor(
+    @Optional() public dialogRef: MatDialogRef<ModelTradJsonComponent>,
+    @Optional() @Inject(MAT_DIALOG_DATA) public data:any,
+  ) {}
+
+  ngOnInit(): void {
+      
+  }
+
+  get datajson() {
+    return prettyPrintJson.toHtml(this.data)
+  }
 }

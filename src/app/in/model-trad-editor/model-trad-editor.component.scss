@@ -15,6 +15,8 @@ $bordercolor : #939399;
 
 .partheader {
     height: 4em;
+    margin-bottom: 2em;
+    border-bottom: solid 1px #e0e0e0;
     display: flex;
     align-items: center;
 
@@ -51,8 +53,13 @@ $bordercolor : #939399;
     height: 4em;
 }
 
+.spcbtwin {
+    display: flex;
+    justify-content: space-between;
+}
+
 .partcontent {
-    height: calc(100% - 8em);
+    height: calc(100% - 10em);
     overflow-y: hidden;
 }
 
@@ -126,4 +133,8 @@ $bordercolor : #939399;
 .errsname {
     color: mat-color($maincolor);
     font-size: 1.1em;
+}
+
+.buttons-right {
+
 }
