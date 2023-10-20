@@ -13,6 +13,11 @@
     height: calc(100% - 4em);
 }
 
+.class-container-bottom {
+    margin-top: .5em;
+    height: 4em;
+}
+
 .flex-labels label {
     margin-right: 0.5em;
 }
@@ -166,7 +171,7 @@ pre {
 
 .core-prez {
     overflow-y: scroll;
-    height: calc(100% - 145px);
+    height: calc(100% - 145px - 4em);
 }
 
 .title-controller {

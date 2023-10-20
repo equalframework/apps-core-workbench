@@ -43,6 +43,9 @@ export class ControllerInfoComponent implements OnInit {
     @Input() fetch_error:boolean
     @Input() moving:boolean = false
     @Output() goto = new EventEmitter<string>();
+
+    @Output() navigate = new EventEmitter<number>()
+
     public paramsValue: any;
     public presentRequiredParams: any;
     public canSubmit: boolean
@@ -307,5 +310,9 @@ export class ControllerInfoComponent implements OnInit {
                 verticalPosition: 'bottom'
             });
         }
+    }
+
+    nav(choice:number) {
+        this.navigate.emit(choice)
     }
 }

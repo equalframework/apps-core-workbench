@@ -269,6 +269,15 @@ export class PackageComponent implements OnInit {
             break;
         }
     }
+
+    controllerNav(choice:number) {
+        switch(choice) {
+        case 1:
+            break
+        case 2:
+            this.router.navigate(['/translation',"controller",this.selected_element.package,this.selected_element.name.split("_").slice(1).join("\\")],{"selected":this.selected_element})
+        }
+    }
 }
 
 // This is the object that should be returned by await this.api.getSchema('equal\orm\model')

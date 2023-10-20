@@ -49,6 +49,7 @@
                     [selected_package]="selected_element.package ? selected_element.package : ''"
                     [moving]="true"
                     (goto)="goTo({name:$event})"
+                    (navigate)="controllerNav($event)"
                 ></app-controller-info>
                 <app-route-info  *ngIf="selected_element.type==='route'"
                     [current_route]="selected_element.name"

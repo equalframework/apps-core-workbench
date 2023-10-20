@@ -124,4 +124,14 @@
         </div>
         <br>
     </div>
+    <div class="class-container-bottom">
+        <mat-grid-list [cols]="4" rowHeight="100%" class="max-width button-pkg-container">
+            <mat-grid-tile>
+                <button mat-button class="package-info-button" (click)="nav(1)"><mat-icon>text_format</mat-icon><label>Params</label></button>
+            </mat-grid-tile>
+            <mat-grid-tile>
+                <button mat-button class="package-info-button" (click)="nav(2)"><mat-icon>translate</mat-icon><label>Translations</label></button>
+            </mat-grid-tile>
+        </mat-grid-list>
+    </div>
 </div>
