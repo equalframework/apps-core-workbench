@@ -1,0 +1,26 @@
+<div *ngIf="error">
+    Something gone wrong...
+</div>
+<div *ngIf="!error" class="full">
+    <div>
+        <label>{{ type }} {{ controller }}</label>
+    </div>
+    <mat-grid-list cols="4" class="full" rowHeight="100%">
+        <mat-grid-tile class="full">
+            <app-param-list
+                [list]="paramList"
+                [selectedIndex]="selectedIndex"
+                (select)="onSelection($event)"
+                (CRUD)="onChange($event)"
+            ></app-param-list>
+        </mat-grid-tile>
+        <mat-grid-tile colspan="3" class="full">
+            <app-param-side-pane
+                [param]="paramList[selectedIndex]"
+                [types]="types"
+                [usages]="usages"
+                (CRUD)="onChange($event)"
+            ></app-param-side-pane>
+        </mat-grid-tile>
+    </mat-grid-list>
+</div>

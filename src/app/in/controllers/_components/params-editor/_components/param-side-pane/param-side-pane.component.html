@@ -1,0 +1,97 @@
+
+<div *ngIf="param">
+    <div class="name-container">
+        <div>
+            <label>Parameter </label>
+            <ng-container *ngIf="!nameBeingEdited">
+                <label class="maincolor">{{param.name}}</label>
+                <button mat-icon-button color="primary" (click)="setNameBeingEdited(true)"><mat-icon>edit</mat-icon></button>
+            </ng-container>
+            <ng-container *ngIf="nameBeingEdited">
+                <mat-form-field class="editname">
+                    <input class="maincolor" matInput [formControl]="nameControl">
+                </mat-form-field>
+                <button mat-icon-button color="primary" (click)="setNameBeingEdited(false)"><mat-icon>cancel</mat-icon></button>
+                <button mat-icon-button color="primary" [disabled]="nameControl.invalid" (click)="changeName()"><mat-icon>save</mat-icon></button>
+            </ng-container>
+        </div>
+    </div>
+    <div>
+        <mat-form-field class="desc">
+            <textarea matInput [value]="param.description" (keydown)="noCancel($event)" (change)="changeDesc($event.target.value)"></textarea>
+        </mat-form-field>
+    </div>
+    <div>
+        <mat-form-field>
+            <mat-label>Type</mat-label>
+            <mat-select [value]="param.type" (valueChange)="changeTypeValue($event)">
+                <mat-option *ngFor="let type of types" [value]="type">{{type}}</mat-option>
+            </mat-select>
+        </mat-form-field>
+        <label> > </label>
+        <mat-form-field>
+            <mat-label>Usage</mat-label>
+            <mat-select [disabled]="!usageForCurrentType" [value]="param.usage.usage" (valueChange)="changeUsage($event)">
+                <mat-option *ngFor="let usage of usageForCurrentType" [value]="usage">{{usage}}</mat-option>
+            </mat-select>
+        </mat-form-field>
+        <label> / </label>
+        <mat-form-field>
+            <mat-label>Sub usage</mat-label>
+            <mat-select [disabled]="!possibleSubUsage" [value]="param.usage.subusage" (valueChange)="changeSubUsage($event)">
+                <mat-option *ngFor="let subusage of possibleSubUsage" [value]="subusage">{{subusage}}</mat-option>
+            </mat-select>
+        </mat-form-field>
+        <label> . </label>
+        <mat-form-field>
+            <mat-label>Variation</mat-label>
+            <mat-select [disabled]="!possibleVariations" [value]="param.usage.variation" (valueChange)="changeVariation($event)">
+                <mat-option *ngFor="let variation of possibleVariations" [value]="variation">{{variation}}</mat-option>
+            </mat-select>
+        </mat-form-field>
+        <label> : </label>
+        <ng-container *ngIf="!hasFreeLength">
+            <mat-form-field>
+                <mat-label>Length</mat-label>
+                <mat-select [disabled]="!possibleLength" [value]="param.usage.length" (valueChange)="changeLength($event)">
+                    <mat-option *ngFor="let lg of possibleLength" [value]="lg">{{lg}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </ng-container>
+        <ng-container *ngIf="hasFreeLength">
+            <mat-form-field>
+                <mat-label>Length</mat-label>
+                <input matInput [value]="param.usage.length" (keydown)="noCancel($event)" (change)="changeLength($event.target.value); $event.target.value = param.usage.length">
+            </mat-form-field>
+        </ng-container>
+        <ng-container *ngIf="canHaveBoundaries">
+            <label>{{" { "}}</label>
+            <mat-form-field class="smallfield">
+                <mat-label>Min</mat-label>
+                <input matInput type="number" [value]="param.usage.min" (keydown)="noCancel($event)" (change)="changeMin($event.target.value)">
+            </mat-form-field>
+            <label> , </label>
+            <mat-form-field class="smallfield">
+                <mat-label>Max</mat-label>
+                <input matInput type="number" [value]="param.usage.max" (keydown)="noCancel($event)" (change)="changeMax($event.target.value)">
+            </mat-form-field>
+            <label>{{" } "}}</label>
+        </ng-container>
+    </div>
+    <div>
+        <mat-checkbox [checked]="param.required" (change)="changeRequired($event.checked)">Required</mat-checkbox>
+        <mat-checkbox [checked]="param._has_default" (change)="change_has_default($event.checked)">Default</mat-checkbox>
+        <mat-checkbox [checked]="param._visibility" (change)="change_visibility($event.checked)">Visibility</mat-checkbox>
+    </div>
+    <div *ngIf="param._has_default">
+        <!--  TODO : SETTERS -->
+        <mat-form-field *ngIf="param.type === 'float' || param.type === 'integer'">
+            <mat-label>Default value</mat-label>
+            <input matInput type="number" [value]="param.default" (keydown)="noCancel($event)">
+        </mat-form-field>
+        <mat-form-field *ngIf="param.type === 'string'">
+            <mat-label>Default value</mat-label>
+            <input matInput [value]="param.default" (keydown)="noCancel($event)">
+        </mat-form-field>
+    </div>
+</div>

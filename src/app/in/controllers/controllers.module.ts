@@ -20,6 +20,9 @@ import { SearchListComponent } from './_components/search-list/search-list.compo
 import { SearchListControllerComponent } from './_components/search-list-controller/search-list-controller.component';
 import { ControllerInfoModule } from './_components/controller-info/controller-info.module';
 import { DeleteConfirmationModule } from '../delete-confirmation/delete-confirmation.module';
+import { ParamsEditorComponent } from './_components/params-editor/params-editor.component';
+import { ParamListComponent } from './_components/params-editor/_components/param-list/param-list.component';
+import { ParamSidePaneComponent } from './_components/params-editor/_components/param-side-pane/param-side-pane.component';
 
 
 @NgModule({
@@ -42,6 +45,9 @@ import { DeleteConfirmationModule } from '../delete-confirmation/delete-confirma
         ControllersComponent,
         SearchListComponent,
         SearchListControllerComponent,
+        ParamsEditorComponent,
+        ParamListComponent,
+        ParamSidePaneComponent,
     ],
     providers: [
         DatePipe,

@@ -9,7 +9,7 @@ const routes: Routes = [
     loadChildren: () => import('../models/models.module').then(m => m.AppInModelsModule)
   },
   {
-      path: 'controllers/:selected_package',
+      path: 'controllers',
       loadChildren: () => import('../controllers/controllers.module').then(m => m.AppInControllersModule)
   },
   {

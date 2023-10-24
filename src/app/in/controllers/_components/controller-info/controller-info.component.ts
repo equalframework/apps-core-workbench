@@ -66,6 +66,7 @@ export class ControllerInfoComponent implements OnInit {
     public async ngOnChanges() {
         this.routes = await this.api.getRoutes();
         this.initialization()
+        console.log(this.scheme)
     }
 
     /**
