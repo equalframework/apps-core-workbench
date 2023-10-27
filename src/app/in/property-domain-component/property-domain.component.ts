@@ -42,7 +42,7 @@ export class PropertyDomainComponent implements OnInit {
     }
 
     async getSchema() {
-        this.fields = await this.api.getSchema(this.class);
+        this.fields =  await this.api.getSchema(this.class);
     }
 
     transformDomain() {

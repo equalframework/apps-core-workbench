@@ -8,13 +8,20 @@
             <label class="packagename accent">{{ current_controller }}</label>
             <label class="packagename accent-color">({{ controller_type.toUpperCase() }})</label>
         </div>
+        <div>
+            <label *ngIf="!fetch_error && scheme['deprecated']" class="depecrated">
+                <mat-icon class="warnicon">warning</mat-icon>
+                DEPRECATED : This controller is deprecated. It may be deleted in future update.
+            </label>
+        </div>
         <br>
         <div *ngIf="fetch_error">
             It looks like you don't have the rights to see this controller informations
         </div>
+
         <div *ngIf="!fetch_error">
-            <label class="content-label">Description</label>
-            <p class="content-desc">{{scheme['description']}}</p>
+            <label class="content-label">Description</label><br>
+            <label class="content-desc">{{scheme['description']}}</label>
         </div>
     </div>
     <div class="core-prez">
@@ -123,5 +130,15 @@
             </div>
         </div>
         <br>
+    </div>
+    <div class="class-container-bottom">
+        <mat-grid-list [cols]="4" rowHeight="100%" class="max-width button-pkg-container">
+            <mat-grid-tile>
+                <button mat-button class="package-info-button" (click)="nav(1)"><mat-icon>text_format</mat-icon><label>Params</label></button>
+            </mat-grid-tile>
+            <mat-grid-tile>
+                <button mat-button class="package-info-button" (click)="nav(2)"><mat-icon>translate</mat-icon><label>Translations</label></button>
+            </mat-grid-tile>
+        </mat-grid-list>
     </div>
 </div>

@@ -1,6 +1,6 @@
 #!/bin/bash
 rm -rf .angular
-npm link sb-shared-lib
+# npm link sb-shared-lib
 # --configuration production
 ng build --configuration production --base-href="/workbench/"
 touch manifest.json && rm -f web.app && cp manifest.json dist/symbiose/ && cd dist/symbiose && zip -r ../../web.app * && cd ../..

@@ -45,6 +45,7 @@ import {  MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MixedCreatorModule } from './_components/mixed-creator/mixed-creator.module';
 import { DeleteConfirmationModule } from '../delete-confirmation/delete-confirmation.module';
 import { InitValidatorComponent } from './_components/package-info/_components/init-validator/init-validator.component';
+import { HeaderModule } from '../header/header.module';
 
 
 @NgModule({
@@ -70,6 +71,7 @@ import { InitValidatorComponent } from './_components/package-info/_components/i
         MatProgressSpinnerModule,
         MixedCreatorModule,
         DeleteConfirmationModule,
+        HeaderModule
     ],
     declarations: [
         PackageComponent,

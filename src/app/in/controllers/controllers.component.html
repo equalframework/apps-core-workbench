@@ -26,36 +26,8 @@
                 [scheme]="schema"
                 [selected_package]="selected_package"
                 [fetch_error]="fetch_error"
+                (navigate)="controllerNav($event)"
             ></app-controller-info>
-        </mat-grid-tile>
-    </mat-grid-list>
-</div>
-<!-- Step for Property -->
-<div class="max-height step" *ngIf="step === 2">
-    <div class="title-container">
-        <button (click)="getBack()" mat-icon-button matTooltip="Primary" color="primary" aria-label="Go back">
-            <mat-icon>keyboard_backspace</mat-icon>
-        </button>
-        <mat-label>{{ selected_package }}\{{selected_controller}}</mat-label>
-    </div>
-    <mat-grid-list cols="4" class="max-height">
-        <!-- Property search list, on the left of the screen -->
-        <mat-grid-tile colspan="1" class="max-height">
-            <app-search-list class="max-height max-width" *ngIf="schema"
-                [data]="getProperties()"
-                [selected_node]="selected_property"
-                (nodeSelect)="onclickPropertySelect($event)">
-            </app-search-list>
-        </mat-grid-tile>
-        <!-- Property content -->
-        <mat-grid-tile colspan="3" class="max-height">
-            <app-router-property class="max-width max-height"
-                [selected_property]="selected_property"
-                [schema]="schema"
-                [eq_package]="selected_package"
-                [controller_name]="selected_controller"
-                [selected_type_controller]="selected_type_controller">
-            </app-router-property>
         </mat-grid-tile>
     </mat-grid-list>
 </div>

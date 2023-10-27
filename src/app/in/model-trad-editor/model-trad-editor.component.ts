@@ -52,7 +52,6 @@ export class ModelTradEditorComponent implements OnInit {
   ) { }
 
   async ngOnInit() {
-    this.loading = true
     const a = this.activatedRoute.snapshot.paramMap.get('selected_package')
     const b = this.activatedRoute.snapshot.paramMap.get('selected_model')
     const c = this.activatedRoute.snapshot.paramMap.get('type')
@@ -63,10 +62,13 @@ export class ModelTradEditorComponent implements OnInit {
     }
     this.package = a
     this.model = b
+    await this.init()
+  }
+
+  async init() {
+    this.loading = true
 
     let langs = await this.api.getTradsLists(this.package,this.model)
-    console.log(langs)
-    langs['fr'] = langs['fr'] ? langs['fr'] : ['']
 
     for(let lang in langs) {
       let x = await this.api.getTrads(this.package,this.model,lang)
@@ -108,7 +110,7 @@ export class ModelTradEditorComponent implements OnInit {
     for(let view of views) {
       console.log(view)
       let sp = view.split(":")
-      if(!sp[1].includes("list.")&&!sp[1].includes("form.") ) continue
+      if(!sp[1].includes("list.")&&!sp[1].includes("form.")&&!sp[1].includes("search.") ) continue
       let sch = await this.api.getView(sp[0],sp[1])
       console.log(sch)
       vs.push({name:sp[1],view:new View(sch,sp[1].split(".")[0])})

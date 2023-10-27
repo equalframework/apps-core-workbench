@@ -6,11 +6,15 @@
 }
 
 .margin-container {
-    margin: 1em;
     padding: 2em;
     border-radius: 10px;
     background-color: whitesmoke;
     height: calc(100% - 4em);
+}
+
+.class-container-bottom {
+    margin-top: .5em;
+    height: 4em;
 }
 
 .flex-labels label {
@@ -166,9 +170,18 @@ pre {
 
 .core-prez {
     overflow-y: scroll;
-    height: calc(100% - 145px);
+    height: calc(100% - 155px - 4em);
 }
 
 .title-controller {
-    height : 145px;
+    height : 155px;
+}
+
+.depecrated {
+    color: mat-color($warncolor);
+    font-size : 1.1em;
+}
+
+.warnicon {
+    transform: translateY(.2em);
 }
