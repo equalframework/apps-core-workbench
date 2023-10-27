@@ -20,7 +20,7 @@ export class VieweditorComponent implements OnInit {
   view_scheme:any;
   obk = Object.keys;
   view_obj:View
-  name:string|null
+  name:string
   class_scheme:any
   fields:string[]
   types = ViewItem.typeList
@@ -58,7 +58,8 @@ export class VieweditorComponent implements OnInit {
   ) { }
 
   async ngOnInit() {
-    this.name = this.activatedroute.snapshot.paramMap.get("view_name")
+    let a = this.activatedroute.snapshot.paramMap.get("view_name")
+    this.name = a ? a : ""
     await this.init();
     this.loading = false
   }
@@ -214,6 +215,13 @@ export class VieweditorComponent implements OnInit {
         event.previousIndex,
         event.currentIndex,
       );
+    }
+  }
+
+  handleCustomButton(name:string) {
+    if(name === "Show JSON"){
+      this.logit()
+      return
     }
   }
 }

@@ -1,0 +1,61 @@
+<div class="nameholder">
+    <div class="left">
+        <button mat-icon-button class="primary"
+            *ngIf="buttonBack" 
+            [disabled]="buttonBackDisabled" 
+            (click)="onButtonBack.emit()"
+        >
+            <mat-icon>keyboard_backspace</mat-icon>
+        </button>
+        <div class="name">
+            <ng-content></ng-content>   
+        </div>
+    </div>
+    <div class="right">
+        <button mat-icon-button 
+            *ngIf="buttonCancelOne" 
+            [disabled]="buttonCancelOneDisabled" 
+            (click)="onButtonCancelOne.emit()"
+        >
+            <mat-icon>undo</mat-icon>
+        </button>
+        <button mat-icon-button 
+            *ngIf="buttonRevertOne" 
+            [disabled]="buttonRevertOneDisabled" 
+            (click)="onButtonRevertOne.emit()"
+        >
+            <mat-icon>redo</mat-icon>
+        </button>
+        <button mat-stroked-button
+            *ngIf="buttonSave" 
+            [disabled]="buttonSaveDisabled" 
+            (click)="onButtonSave.emit()"
+        >
+            <mat-icon>save</mat-icon> Save
+        </button>
+        <button mat-stroked-button
+            *ngIf="buttonCancel" 
+            [disabled]="buttonCancelDisabled" 
+            (click)="onButtonCancel.emit()"
+        >
+            <mat-icon>cancel</mat-icon> Cancel all
+        </button>
+        <button mat-icon-button
+            *ngIf="customButton" 
+            [matMenuTriggerFor]="customButtons"
+            [disabled]="!customButtonList || customButtonList.length < 1"
+        >
+            <mat-icon>more_horiz</mat-icon>
+        </button>
+        <mat-menu #customButtons >
+            <button mat-menu-item class="primary"
+                *ngFor="let button of customButtonList; index as index"
+                [disabled]="button.disabled"
+                (click)="onCustomButton.emit(button.name)"
+            >
+                <mat-icon class="primary" >bug_report</mat-icon> show JSON
+            </button>
+        </mat-menu>
+        
+    </div>
+</div>

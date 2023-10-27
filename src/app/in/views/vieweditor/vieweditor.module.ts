@@ -43,6 +43,7 @@ import { SharedLibModule } from 'sb-shared-lib';
 import { RouteEditorComponent } from './_components/route-editor/route-editor.component';
 import { RouteEditComponent } from './_components/route-editor/route-edit/route-edit.component';
 import { AccessEditorComponent } from './_components/access-editor/access-editor.component';
+import { HeaderModule } from '../../header/header.module';
 
 
 
@@ -92,7 +93,8 @@ import { AccessEditorComponent } from './_components/access-editor/access-editor
     MatDialogModule,
     HttpClientModule,
     RouterModule,
-    SharedLibModule
+    SharedLibModule,
+    HeaderModule
   ],
   providers: [
     {

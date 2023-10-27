@@ -80,5 +80,12 @@ pre {
 }
 
 .package-grid-list {
-    height: calc(100% - 4em);
+    height: calc(100% - 80px);
+}
+
+.marginpaddin {
+    padding: .5em;
+    margin: .5em;
+    height: calc( 100% - 1em );
+    width: calc( 100% - 1em );
 }

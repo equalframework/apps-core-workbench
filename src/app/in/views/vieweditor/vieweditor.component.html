@@ -10,12 +10,25 @@
     <mat-spinner></mat-spinner>
 </div>
 <div *ngIf="!error && !loading">
-    <div class="title-container">
-        <button class="title-btn maincolor" mat-icon-button (click)="goBack()"><mat-icon>arrow_back</mat-icon></button>
-        <label class="page-title">View : </label><label class="page-title maincolor endlabel">{{name}}</label>
-        <button [disabled]="!idCompliancy.ok" class="title-btn accentcolor" mat-icon-button (click)="save()"><mat-icon>save</mat-icon></button>
-        <button [disabled]="!idCompliancy.ok" class="title-btn accentcolor" mat-icon-button (click)="cancel()"><mat-icon>cancel</mat-icon></button>
-    </div>
+    <app-in-header
+        [buttonBack]="true"
+        (onButtonBack)="goBack()"
+        [buttonSave]="true"
+        [buttonSaveDisabled]="!idCompliancy.ok"
+        (onButtonSave)="save()"
+        [buttonCancel]="true"
+        (onButtonCancel)="cancel()"
+        [customButton]="true"
+        [customButtonList]="[{name:'Show JSON', icon:'bug_report', disabled: false}]"
+        (onCustomButton)="handleCustomButton($event)"
+    >
+        <label>Edition of </label>
+        <label class="packagename names">{{name.split('\\')[0]}}</label>
+        <label>{{view_obj.type === 'search' ? "_" : "\\"}}</label>
+        <label [class.controllername]="view_obj.type === 'search'" [class.classname]="view_obj.type !== 'search'" class="names">{{name.split(':')[0].split('\\').slice(1).join(view_obj.type === 'search' ? "_" : "\\")}}</label>
+        <label>:</label>
+        <label class="viewname names">{{name.split(':').slice(1).join(':')}}</label>
+    </app-in-header>
     <div class="feature-container">
         <label *ngIf="!idCompliancy.ok" [style.color]="'red'">ERREUR : {{ (idDoublons.length > 0) ? "DES IDS SONT IDENTIQUES ("+idDoublons+")" : "CERTAINS ÉLÉMENTS N'ONT PAS D'ID"}}</label>
         <div>
@@ -249,19 +262,15 @@
                             </label>
                         </div>
                         <app-item-editor
-                        [item]="item"
-                        [entity]="entity"
-                        [fields]="fields"
-                        [types]="types"
-                        [displayDelete]="true"
-                        (delete)="deleteItemLayout(view_obj.layout.items.indexOf(item))"
+                            [item]="item"
+                            [entity]="entity"
+                            [fields]="fields"
+                            [types]="types"
+                            [displayDelete]="true"
+                            (delete)="deleteItemLayout(view_obj.layout.items.indexOf(item))"
                         ></app-item-editor>
                     </div>
-                    
                 </div>
         </div>
-        <button mat-button (click)="logit()">
-            show
-        </button>
     </div>
 </div>

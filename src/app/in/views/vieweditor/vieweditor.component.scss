@@ -5,19 +5,25 @@
     overflow-y: scroll;
 }
 
-.title-container {
-    margin-top: 1em;
-    margin-bottom: 1em;
-    margin-left: 1em;
+.packagename {
+    background-color: mat-color($package-color,A100);
 }
 
-.title-container .title-btn {
-    transform: translateY(-.2em);
-    margin-right: 1em;
+.classname {
+    background-color: mat-color($class-color,A100);
 }
 
-.title-container .endlabel {
-    margin-right: 1em;
+.controllername {
+    background-color: mat-color($do-color,A100);
+}
+
+.viewname {
+    background-color: mat-color($view-color,A100);
+}
+
+.names {
+    padding: 0 .3em;
+    border-radius: .2em;
 }
 
 .feature-container {

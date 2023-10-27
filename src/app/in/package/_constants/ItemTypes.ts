@@ -34,4 +34,9 @@ export class ItemTypes {
         }
         return ret
     }
+
+    public static getIconForType(type:string):string {
+        console.log(type)
+        return this.types[type] ? this.types[type].icon : ""
+    }
 }

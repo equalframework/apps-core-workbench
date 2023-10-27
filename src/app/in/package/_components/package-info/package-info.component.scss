@@ -6,11 +6,10 @@
 }
 
 .margin-container {
-    margin: 1em;
     padding: 2em;
     border-radius: 10px;
     background-color: whitesmoke;
-    height: calc(100% - 2em);
+    height: 100%
 }
 
 .flex-labels label {

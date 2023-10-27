@@ -1,3 +1,6 @@
+import { fi } from "date-fns/locale"
+import { isArray, isObject } from "lodash"
+
 export class Param {
     public name:string = ""
     public description:string = ""
@@ -7,14 +10,17 @@ export class Param {
     public required:boolean = false
     public _visibility:boolean = false
     public _visibility_is_domain:boolean = false
-    public visible_bool:boolean
-    public visible_domain:boolean
+    public visible_bool:boolean = true
+    public visible_domain:any = []
     public selection:any[] = []
     public default:any
     public readonly:boolean
+    public domain:any
+    public foreign_object:string = ""
 
     public _has_default:boolean = false
     public _has_selection:boolean = false
+    public _has_domain:boolean = false
 
     leftover:any = {}
 
@@ -64,7 +70,64 @@ export class Param {
             }
             delete scheme["visible"]
         }
+        if( scheme['domain'] ) {
+            this._has_domain = true
+            this.domain = scheme['domain']
+            delete scheme['domain']
+        }
+        if( scheme['foreign_object']) {
+            this.foreign_object = scheme['foreign_object']
+            delete scheme['foreign_object']
+        }
         this.leftover = scheme
+    }
+
+    public toSchema() {
+        return {
+            "type" : this.type
+        }
+    }
+
+    public export():{[id:string]:any} {
+        let res:{[id:string]:any} =  {
+            "name" : this.name,
+            "description" : this.description,
+            "help" : this.help,
+            "type"  : this.type
+        }
+        if(this.type === 'many2one' || this.type === 'one2many' || this.type === 'one2one') {
+            res['foreign_object'] = this.foreign_object
+        }
+        if(this.usage.hasUsage()) {
+            res['usage'] = this.usage.export()
+        }
+        if(this.required) {
+            res['required'] = this.required
+        }
+        if(this.readonly) {
+            res['readonly'] = this.readonly
+        }
+        if(this._visibility) {
+            if(this._visibility_is_domain) {
+                res['visible'] = this.visible_domain
+            } else {
+                res['visible'] = this.visible_bool
+            }
+        }
+        if(this._has_selection && this.selection.length > 0) {
+            res['selection'] = this.selection
+        }
+        if(this._has_default) {
+            res['default'] = isArray(this.default) || isObject(this.default) ? JSON.stringify(this.default) : this.default
+        }
+        if(this._has_domain) {
+            res['domain'] = this.domain
+        }
+        for(let key in this.leftover) {
+            res[key] = this.leftover[key]
+        }
+
+        return res
     }
 }
 
@@ -167,5 +230,25 @@ export class Usage {
 
     public setMax(value:string) {
         this._max = value ? value : undefined
+    }
+
+    public export():string {
+        let res = ""
+        if(this._usage) res += this._usage
+        if(this._subusage) res += "/"+this.subusage
+        if(this._variation) res += "."+this.variation
+        if(this._length && this._length.length > 0) res += ":"+this.length
+        if(this._max || this._min) {
+            res += "{"
+            if(this._min) res += this.min
+            if(this._max && this._min) res += ","
+            if(this._max) res += this.max
+            res += "}"
+        }
+        return res
+    }
+
+    public hasUsage():boolean {
+        return this._usage ? true : false || this._max ? true : false || this._min ? true : false
     }
 }
