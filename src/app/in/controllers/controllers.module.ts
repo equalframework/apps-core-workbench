@@ -47,7 +47,6 @@ import { PropertyDomainModule } from '../property-domain-component/property-doma
         FormsModule,
         MatFormFieldModule,
         MatInputModule,
-        MatIconModule,
         ControllerInfoModule,
         DeleteConfirmationModule,
         UsagesModule,

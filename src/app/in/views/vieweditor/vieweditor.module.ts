@@ -76,7 +76,7 @@ import { HeaderModule } from '../../header/header.module';
     MatInputModule,
     MatFormFieldModule,
     MatSelectModule,
-    MatIconModule,
+    
     MatCheckboxModule,
     MatButtonModule,
     MatSlideToggleModule,

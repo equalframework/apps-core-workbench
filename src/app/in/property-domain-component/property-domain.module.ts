@@ -5,7 +5,7 @@ import { AutoCompleteComponent } from './_components/auto-complete/auto-complete
 import { ValueComponent } from './_components/value/value.component';
 import { ValueSelectionComponent } from './_components/value-selection/value-selection.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatIconModule } from '@angular/material/icon';
+import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -35,6 +35,7 @@ import { MatInputModule } from '@angular/material/input';
     ReactiveFormsModule,
     MatButtonModule,
     MatInputModule,
+    MatIconModule
   ],
   exports : [
     PropertyDomainComponent

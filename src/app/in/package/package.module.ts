@@ -37,6 +37,7 @@ import { AppInModelsModule } from '../models/models.module';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { SearchMixedListComponent } from './_components/search-mixed-list/search-mixed-list.component';
 import { ModelsInfoModule } from '../models/_components/model-info/models-info.module';
+import { ControllerInfoModule } from '../controllers/_components/controller-info/controller-info.module';
 import { RouteInfoModule } from '../routes/_components/route-info/route-info.module';
 import { ViewsInfoModule } from '../views/_components/views-info/views-info.module';
 import { ScrollingModule } from '@angular/cdk/scrolling';
@@ -45,8 +46,6 @@ import { MixedCreatorModule } from './_components/mixed-creator/mixed-creator.mo
 import { DeleteConfirmationModule } from '../delete-confirmation/delete-confirmation.module';
 import { InitValidatorComponent } from './_components/package-info/_components/init-validator/init-validator.component';
 import { HeaderModule } from '../header/header.module';
-import { MatChipsModule } from '@angular/material/chips';
-import { AppInControllersModule } from '../controllers/controllers.module';
 
 
 @NgModule({
@@ -61,19 +60,18 @@ import { AppInControllersModule } from '../controllers/controllers.module';
         FormsModule,
         MatFormFieldModule,
         MatInputModule,
-        MatIconModule,
+        
         AppInModelsModule,
         MatGridListModule,
         ModelsInfoModule,
-        AppInControllersModule,
+        ControllerInfoModule,
         RouteInfoModule,
         ViewsInfoModule,
         ScrollingModule,
         MatProgressSpinnerModule,
         MixedCreatorModule,
         DeleteConfirmationModule,
-        HeaderModule,
-        MatChipsModule,
+        HeaderModule
     ],
     declarations: [
         PackageComponent,

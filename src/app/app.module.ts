@@ -24,6 +24,7 @@ import localeFr from '@angular/common/locales/fr';
 import { PackageModule } from './in/package/package.module';
 import { TranslateModule } from '@ngx-translate/core';
 import { TypeInputComponent } from './in/type-input/type-input.component';
+import { MatIconModule } from '@angular/material/icon';
 
 registerLocaleData(localeFr);
 
@@ -43,7 +44,7 @@ registerLocaleData(localeFr);
         PlatformModule,
         NgxMaterialTimepickerModule.setLocale('fr-BE'),
         TranslateModule.forRoot(),
-        HttpClientModule
+        HttpClientModule,
     ],
     providers: [
         // add HTTP interceptor to inject AUTH header to any outgoing request

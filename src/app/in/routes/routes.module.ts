@@ -30,7 +30,7 @@ import { RouteInfoModule } from './_components/route-info/route-info.module';
         MatInputModule,
         RoutesRoutingModule,
         MatExpansionModule,
-        MatIconModule,
+        
         RouteInfoModule,
     ],
     declarations: [

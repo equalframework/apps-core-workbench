@@ -5,7 +5,7 @@ import { isArray, isObject, isString } from 'lodash';
 import { ControllersService } from '../../_service/controllers.service';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { ResponseComponentSubmit } from '../router-property/_components/params/_components/response/response.component';
+import { ResponseComponentSubmit } from '../response/response.component';
 
 @Component({
     selector: 'app-controller-info',

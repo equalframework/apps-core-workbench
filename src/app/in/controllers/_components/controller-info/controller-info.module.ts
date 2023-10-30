@@ -9,18 +9,9 @@ import { MatInputModule } from '@angular/material/input';
 
 import { SharedLibModule } from 'sb-shared-lib';
 import { ControllerInfoComponent } from './controller-info.component';
-import { RouterPropertyComponent } from '../router-property/router-property.component';
-import { DescriptionComponent } from '../router-property/_components/description/description.component';
-import { ParamsComponent } from '../router-property/_components/params/params.component';
-import { ResponseComponent } from '../router-property/_components/response/response.component';
-import { ConstantsComponent } from '../router-property/_components/constants/constants.component';
-import { AccessComponent } from '../router-property/_components/access/access.component';
-import { ArrayComponent } from '../router-property/_components/params/_components/array/array.component';
-import { BooleanComponent } from '../router-property/_components/params/_components/boolean/boolean.component';
-import { StringComponent } from '../router-property/_components/params/_components/string/string.component';
-import { NumberComponent } from '../router-property/_components/params/_components/number/number.component';
-import { ResponseComponentSubmit } from '../router-property/_components/params/_components/response/response.component';
+import { ResponseComponentSubmit } from '../response/response.component';
 import { PropertyDomainModule } from 'src/app/in/property-domain-component/property-domain.module';
+import { TypeInputModule } from 'src/app/in/type-input/type-input.module';
 
 @NgModule({
     imports: [
@@ -32,33 +23,14 @@ import { PropertyDomainModule } from 'src/app/in/property-domain-component/prope
         MatFormFieldModule,
         MatInputModule,
         PropertyDomainModule,
+        TypeInputModule
     ],
     declarations: [
         ControllerInfoComponent,
-        RouterPropertyComponent,
-        DescriptionComponent,
-        ParamsComponent,
-        ResponseComponent,
-        ConstantsComponent,
-        AccessComponent,
-        ArrayComponent,
-        BooleanComponent,
-        StringComponent,
-        NumberComponent,
         ResponseComponentSubmit,
     ],
     exports: [
         ControllerInfoComponent,
-        RouterPropertyComponent,
-        DescriptionComponent,
-        ParamsComponent,
-        ResponseComponent,
-        ConstantsComponent,
-        AccessComponent,
-        ArrayComponent,
-        BooleanComponent,
-        StringComponent,
-        NumberComponent,
     ]
 })
 export class ControllerInfoModule { }
