@@ -12,11 +12,9 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatIconModule } from '@angular/material/icon';
 
 import { ControllersComponent } from './controllers.component';
 import { ControllersRoutingModule } from './controllers-routing.module';
-import { SearchListComponent } from './_components/search-list/search-list.component';
 import { SearchListControllerComponent } from './_components/search-list-controller/search-list-controller.component';
 import { ControllerInfoModule } from './_components/controller-info/controller-info.module';
 import { DeleteConfirmationModule } from '../delete-confirmation/delete-confirmation.module';
@@ -59,7 +57,6 @@ import { PropertyDomainModule } from '../property-domain-component/property-doma
     ],
     declarations: [
         ControllersComponent,
-        SearchListComponent,
         SearchListControllerComponent,
         ParamsEditorComponent,
         ParamListComponent,
@@ -68,7 +65,6 @@ import { PropertyDomainModule } from '../property-domain-component/property-doma
         AutoCompleteComponent,
         ValueComponent,
         ValueSelectionComponent,
-
     ],
     providers: [
         DatePipe,

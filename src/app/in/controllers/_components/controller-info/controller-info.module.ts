@@ -7,15 +7,15 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
-import { SharedLibModule } from 'sb-shared-lib';
 import { ControllerInfoComponent } from './controller-info.component';
 import { ResponseComponentSubmit } from '../response/response.component';
 import { PropertyDomainModule } from 'src/app/in/property-domain-component/property-domain.module';
 import { TypeInputModule } from 'src/app/in/type-input/type-input.module';
+import { MatIconModule } from '@angular/material/icon';
+import { MatGridListModule } from '@angular/material/grid-list';
 
 @NgModule({
     imports: [
-        SharedLibModule,
         MatTableModule,
         MatStepperModule,
         MatTabsModule,
@@ -23,7 +23,9 @@ import { TypeInputModule } from 'src/app/in/type-input/type-input.module';
         MatFormFieldModule,
         MatInputModule,
         PropertyDomainModule,
-        TypeInputModule
+        TypeInputModule,
+        MatIconModule,
+        MatGridListModule
     ],
     declarations: [
         ControllerInfoComponent,

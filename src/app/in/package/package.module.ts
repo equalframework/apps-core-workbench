@@ -16,7 +16,6 @@ import { MatIconModule } from '@angular/material/icon';
 
 import { PackageComponent } from './package.component';
 import { PackageRoutingModule } from './package-routing.module';
-import { SearchListComponent } from './_components/search-list/search-list.component';
 import { PackageInfoComponent } from './_components/package-info/package-info.component';
 import { AppInModelsModule } from '../models/models.module';
 import { MatGridListModule } from '@angular/material/grid-list';
@@ -60,7 +59,6 @@ import { HeaderModule } from '../header/header.module';
     ],
     declarations: [
         PackageComponent,
-        SearchListComponent,
         SearchMixedListComponent,
         PackageInfoComponent,
         InitValidatorComponent,
