@@ -3,6 +3,7 @@
 :host {
     height: 100%;
     width: 100%;
+    overflow-x: hidden;
 }
 
 .margin-container {
@@ -171,6 +172,7 @@ pre {
 .core-prez {
     overflow-y: scroll;
     height: calc(100% - 155px - 4em);
+    overflow-x: hidden;
 }
 
 .title-controller {

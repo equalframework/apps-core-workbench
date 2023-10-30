@@ -38,7 +38,6 @@
                     <app-package-info *ngIf="selected_element.type==='package'" class="max-height max-width"
                         [current_package]="selected_element.name"
                         [package_init_list]="initialised_packages"
-                        [package_consitency]="package_consistency"
                         (onModelClick)="onClickModels()"
                         (onControllerClick)="onClickControllers()"
                         (onViewClick)="onClickView()"

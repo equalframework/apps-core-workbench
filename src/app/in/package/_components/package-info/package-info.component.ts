@@ -16,18 +16,23 @@ import { InitValidatorComponent } from './_components/init-validator/init-valida
 export class PackageInfoComponent implements OnInit {
 
     @Input() current_package:string;
-    @Input() package_init_list:string[];
-    @Input() package_consitency:any
+    @Input() package_init_list:string[]; 
+
     @Output() onModelClick = new EventEmitter<void>();
     @Output() onControllerClick = new EventEmitter<void>();
     @Output() onViewClick = new EventEmitter<void>();
     @Output() onRouteClick = new EventEmitter<void>();
     @Output() refresh = new EventEmitter<void>();
+
+    package_consitency:any
+
     public current_initialised = false
     public warn_count:number
     public error_count:number
     public error_list:{type:number, text:string}[]
     public info_popup = false
+
+    public consistency_loading = true
 
     constructor(
         private snackBar: MatSnackBar,
@@ -36,13 +41,23 @@ export class PackageInfoComponent implements OnInit {
     ) { }
 
     async ngOnInit() {
+        this.consistency_loading = true
         this.current_initialised = this.package_init_list.indexOf(this.current_package) >= 0
+        if(this.current_initialised)
+            this.package_consitency = await this.api.getPackageConsistency(this.current_package)
+        //this.error_list = this.package_consitency["result"]
+        //this.countErrors()
+        this.consistency_loading = false
     }
 
     public async ngOnChanges() {
+        this.consistency_loading = true
         this.current_initialised = this.package_init_list.indexOf(this.current_package) >= 0
+        if(this.current_initialised)
+            this.package_consitency = await this.api.getPackageConsistency(this.current_package)
         this.error_list = this.package_consitency["result"]
         this.countErrors()
+        this.consistency_loading = false
     }
 
     public countErrors() {

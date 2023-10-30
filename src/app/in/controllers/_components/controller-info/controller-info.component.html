@@ -46,37 +46,13 @@
                     </div>
                     <div class="flex">
                         <div class="flex card-content2">
-                            <ng-container *ngIf="getType(value.key) == 'string'">
-                                <app-string
-                                    [value]="getParamsValue(value.key)"
-                                    [required]="isRequired(value.key)"
-                                    [selection]="getSelection(value.key)"
-                                    (valueChange)="updateParamsValue($event, value.key)">
-                                </app-string>
-                            </ng-container>
-                            <ng-container *ngIf="getType(value.key) == 'integer' || getType(value.key) == 'float'">
-                                <app-number
-                                    [value]="getParamsValue(value.key)"
-                                    [required]="isRequired(value.key)"
-                                    [selection]="getSelection(value.key)"
-                                    [params_property]="value.value"
-                                    (valueChange)="updateParamsValue($event, value.key)">
-                                </app-number>
-                            </ng-container>
-                            <ng-container *ngIf="getType(value.key) == 'boolean'">
-                                <app-boolean
-                                    [value]="getParamsValue(value.key)"
-                                    [required]="isRequired(value.key)"
-                                    (valueChange)="updateParamsValue($event, value.key)">
-                                </app-boolean>
-                            </ng-container>
-                            <ng-container *ngIf="getType(value.key) == 'array' && value.key != 'domain'">
-                                <app-array
-                                    [value]="getParamsValue(value.key)"
-                                    (valueChange)="updateParamsValue($event, value.key)">
-                                </app-array>
-                            </ng-container>
-                            <ng-container *ngIf="value.key == 'domain'">
+                            <app-type-input *ngIf="getType(value.key) !== 'array' || value.key !== 'domain' || !getEntity()"
+                                [type]="getType(value.key)"
+                                [name]="value.key"
+                                [value]="getParamsValue(value.key)"
+                                (changed)="updateParamsValue($event, value.key)"
+                            ></app-type-input>
+                            <ng-container *ngIf="getType(value.key) === 'array' && value.key === 'domain' && getEntity()">
                                 <app-property-domain-component
                                     [value]="getParamsValue(value.key)"
                                     [class]="getEntity()"

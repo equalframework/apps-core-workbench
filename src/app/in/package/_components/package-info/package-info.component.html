@@ -9,18 +9,21 @@
             <label class="packagename">Package :</label>
             <label class="packagename accent">{{ current_package }}</label>
         </div>
-        <div *ngIf="error_count !== 0 || warn_count !== 0" class="lineflex warncolor">
+        <div class="lineflex" *ngIf="consistency_loading">
+            <mat-spinner [diameter]="24"></mat-spinner>
+            <label class="ml5px">Testing consistency...</label>
+        </div>
+        <div *ngIf="package_consitency && (error_count !== 0 || warn_count !== 0)" class="lineflex warncolor">
             <mat-icon>error</mat-icon>
             <label  class="warncolor">{{error_count}} errors and {{warn_count}} warnings</label>
         </div>
-        <div *ngIf="error_count === 0 && warn_count === 0" class="lineflex newcolor">
+        <div *ngIf="package_consitency && (error_count === 0 && warn_count === 0)" class="lineflex newcolor">
             <mat-icon>check_circle</mat-icon>
             <label>No error or warning on this package</label>
         </div>
-
-        <div *ngIf="!current_initialised" class="lineflex warncolor">
+        <div *ngIf="!current_initialised" class="lineflex">
             <mat-icon>error</mat-icon>
-            <label  class="warncolor">This package has not been initialised</label>
+            <label>This package has not been initialised</label>
         </div>
         <div *ngIf="current_initialised" class="lineflex newcolor">
             <mat-icon>check_circle</mat-icon>
@@ -29,7 +32,7 @@
         <br>
     </div>
     <div class="controller-container-top">
-        <div class="consistency-info">
+        <div *ngIf="package_consitency" class="consistency-info">
             <mat-icon 
                 class="pointable icon" 
                 *ngIf="(error_count !== 0 || warn_count !== 0)"
@@ -37,6 +40,7 @@
             >
                 {{ info_popup ? "expand_less" : "expand_more" }}
             </mat-icon>
+
             <pre *ngIf="info_popup && (error_count !== 0 || warn_count !== 0)" class="limited_size"><p *ngFor="let item of error_list" [class.color-red]="item.type==2" [class.color-orange]="item.type==1" class="err_warnitem">   {{item.text}}</p></pre>
         </div>
     </div>
