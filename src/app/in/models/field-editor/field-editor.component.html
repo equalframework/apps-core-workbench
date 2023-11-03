@@ -1,21 +1,25 @@
 <app-in-header
     [buttonBack]="true"
     (onButtonBack)="goBack()"
-    [buttonCancelOne]="true"
+    [buttonCancelOne]="!loading"
     [buttonCancelOneDisabled]="this.fieldListHistory.length <= 1"
     (onButtonCancelOne)="cancelOneChange()"
-    [buttonRevertOne]="true"
+    [buttonRevertOne]="!loading"
     [buttonRevertOneDisabled]="this.fieldFutureHistory.length < 1"
     (onButtonRevertOne)="revertOneChange()"
-    [buttonSave]="true"
+    [buttonSave]="!loading"
     (onButtonSave)="savedata()"
-    [customButton]="true"
+    [customButton]="!loading"
     [customButtonList]="[{name:'Show JSON',icon:'debug',disabled:false}]"
     (onCustomButton)="showJSON()"
 >
     <label>Fields of </label><label>{{selected_package}}</label><label>\</label><label>{{selected_class}}</label>
 </app-in-header>
-<app-classic-layout>
+<div *ngIf="loading" style="display: flex; align-items: center; justify-content: center; flex-direction: column;" class="full">
+    <mat-spinner></mat-spinner>
+    <label style="font-size: 20px; margin-top: 1em;">Loading...</label>
+</div>
+<app-classic-layout *ngIf="!loading">
     <app-field-editor-list
         [list]="fieldList"
         [parentList]="parentFieldList"
@@ -32,5 +36,6 @@
         [computeds]="computeds"
         [dummyscheme]="DummyScheme"
         (CRUD)="onChange($event)"
+        (navToParent)="navigateToParent()"
     ></app-field-editor-sp>
 </app-classic-layout>

@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewEncapsulation, ViewChild } from '@angular/core';
 import { ContextService } from 'sb-shared-lib';
 import { WorkbenchService } from './_service/models.service'
-import { FieldContentComponent } from './_components/field-content/field-content.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { prettyPrintJson } from 'pretty-print-json';
 import { FieldClassArray } from './_object/FieldClassArray';
@@ -34,7 +33,6 @@ export class ModelsComponent implements OnInit {
     public schema: any;
     public fields_for_selected_class: FieldClass[];
     public types: any;
-    @ViewChild(FieldContentComponent) childComponent: FieldContentComponent;
     
     public loading = true
 

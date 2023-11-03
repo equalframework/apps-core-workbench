@@ -24,6 +24,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { AppInControllersModule } from '../../controllers/controllers.module';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { PropertyDomainModule } from '../../property-domain-component/property-domain.module';
+import { MatProgressSpinnerModule, MatSpinner } from '@angular/material/progress-spinner';
 
 
 
@@ -56,7 +57,8 @@ import { PropertyDomainModule } from '../../property-domain-component/property-d
     MatSlideToggleModule,
     AppInControllersModule,
     MatExpansionModule,
-    PropertyDomainModule
+    PropertyDomainModule,
+    MatProgressSpinnerModule
   ]
 })
 export class FieldEditorModule { }

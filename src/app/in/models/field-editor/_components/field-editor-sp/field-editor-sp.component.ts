@@ -21,6 +21,7 @@ export class FieldEditorSpComponent implements OnInit {
   @Input() dummyscheme:any = {}
 
   @Output() CRUD = new EventEmitter<string>()
+  @Output() navToParent = new EventEmitter<void>()
 
   nameEdit:boolean = false
 
@@ -297,6 +298,10 @@ export class FieldEditorSpComponent implements OnInit {
       event.stopImmediatePropagation()
     }
   } 
+
+  navigateToParent() {
+    this.navToParent.emit()
+  }
 
 }
 

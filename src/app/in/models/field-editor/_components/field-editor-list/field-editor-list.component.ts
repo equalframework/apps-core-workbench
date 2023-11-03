@@ -49,7 +49,7 @@ export class FieldEditorListComponent implements OnInit {
 
   ngOnInit(): void {
     console.log("=============")
-    this.filteredList = this.list.sort((p1, p2) => p1.name.localeCompare(p2.name));
+    this.filteredList = this._filter("")
     console.log(this.filteredList)
     this.filterControl.valueChanges.subscribe(data => {
       console.log("RTIO")
@@ -112,6 +112,7 @@ export class FieldEditorListComponent implements OnInit {
   }
 
   isInherited(field:Field):boolean {
+    if(field.isUneditable) return true
     for(let item of this.parentList) {
       if(field.name === item.name) return true
     }
@@ -119,6 +120,7 @@ export class FieldEditorListComponent implements OnInit {
   }
 
   isOverrided(field:Field):boolean {
+    if(field.isUneditable) return false
     for(let item of this.parentList) {
       if(field.name === item.name) {
         return !field.areSimilar(item)

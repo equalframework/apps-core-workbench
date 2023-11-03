@@ -39,6 +39,7 @@ export class FieldEditorComponent implements OnInit {
   fieldName:string[] = []
   computeds:string[] = []
 
+  loading:boolean = true
 
   get lastIndex():number {
     return this.fieldListHistory.length - 1
@@ -75,16 +76,16 @@ export class FieldEditorComponent implements OnInit {
     for(let item in this.scheme["fields"]) {
       this.fieldList.push(new Field(cloneDeep(this.scheme["fields"][item]),item))
     }
-    if(this.scheme.parent !== "model") {
+    if(this.scheme.parent !== "equal\\orm\\Model") {
       this.parent_scheme = await this.api.getSchema(this.scheme.parent);
     }
     for(let item in this.parent_scheme["fields"]) {
       this.parentFieldList.push(new Field(cloneDeep(this.parent_scheme["fields"][item]),item))
     }
-    console.log(this.parentFieldList)
+    
     this.models = await this.api.listAllModels()
-    console.log(this.fieldList)
     this.onChange("")
+    this.loading = false
   }
 
   public cancelOneChange() {
@@ -170,10 +171,17 @@ export class FieldEditorComponent implements OnInit {
     await this.api.updateSchema(this.export2JSON(),this.selected_package,this.selected_class)
     this.matSnack.open("Saved","INFO")
   }
+
+  public navigateToParent() {
+    if(this.scheme["parent"] === "equal\\orm\\Model") {
+      this.matSnack.open("You cannot edit equal\\orm\\Model","ERROR")
+      return
+    }
+    this.router.navigate(["fields",this.scheme["parent"].split("\\")[0],this.scheme["parent"].split("\\").slice(1).join("\\")])
+  }
 }
 
-var Model = {"id":{"type":"integer","readonly":true},"creator":{"type":"many2one","foreign_object":"core\\User","default":1},"created":{"type":"datetime","default":"2023-09-05T11:49:53+00:00","readonly":true},"modifier":{"type":"many2one","foreign_object":"core\\User","default":1},"modified":{"type":"datetime","default":"2023-09-05T11:49:53+00:00","readonly":true},"deleted":{"type":"boolean","default":false},"state":{"type":"string","selection":["draft","instance","archive"],"default":"instance"},"name":{"type":"alias","alias":"id"}}
-
+var Model = {"fields":{"id":{"type":"integer","readonly":true},"creator":{"type":"many2one","foreign_object":"core\\User","default":1},"created":{"type":"datetime","default":"2023-09-05T11:49:53+00:00","readonly":true},"modifier":{"type":"many2one","foreign_object":"core\\User","default":1},"modified":{"type":"datetime","default":"2023-09-05T11:49:53+00:00","readonly":true},"deleted":{"type":"boolean","default":false},"state":{"type":"string","selection":["draft","instance","archive"],"default":"instance"},"name":{"type":"alias","alias":"id"}}}
 
 @Component({
   selector: 'jsonator',

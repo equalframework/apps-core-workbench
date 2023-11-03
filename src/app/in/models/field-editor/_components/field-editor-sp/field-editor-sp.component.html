@@ -23,7 +23,7 @@
             <label>This field is not overridable from workbench because it is used by the database logic of eQual</label>
         </div>
         <div *ngIf="!field.isUneditable && inherited" class="infoBanner">
-            <label>This field is inherited from the parent class. Its name cannot be changed here</label>
+            <label>This field is inherited from the parent class. Its name cannot be changed here. </label><a style="cursor :pointer;" (click)="navigateToParent()">see the parent model</a>
         </div>
     </div>
     <mat-tab-group class="full">
