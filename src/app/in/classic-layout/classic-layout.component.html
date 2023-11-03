@@ -1,0 +1,16 @@
+<div class="package-grid-list">
+    <mat-grid-list cols="4" rowHeight="100%">
+        <!-- Package search list, on the left of the screen -->
+        <mat-grid-tile colspan="1">
+            <div class="marginpaddin">
+                <ng-content select="[list]"></ng-content>
+            </div>
+        </mat-grid-tile>
+        <!-- Package content -->
+        <mat-grid-tile colspan="3">
+            <div class="marginpaddin">
+                <ng-content select="[sidepane]"></ng-content>
+            </div>
+        </mat-grid-tile>
+    </mat-grid-list>
+</div>

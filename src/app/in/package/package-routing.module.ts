@@ -14,7 +14,7 @@ const routes: Routes = [
   },
   {
     path : 'fields/:selected_package/:selected_class',
-    loadChildren: () => import('../models/field/field.module').then(m => m.FieldModule)
+    loadChildren: () => import('../models/field-editor/field-editor.module').then(m => m.FieldEditorModule)
   },
   {
     path : 'views/:type/:entity',

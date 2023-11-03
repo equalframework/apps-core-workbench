@@ -30,6 +30,8 @@ import { MixedCreatorModule } from './_components/mixed-creator/mixed-creator.mo
 import { DeleteConfirmationModule } from '../delete-confirmation/delete-confirmation.module';
 import { InitValidatorComponent } from './_components/package-info/_components/init-validator/init-validator.component';
 import { HeaderModule } from '../header/header.module';
+import { MatChipsModule } from '@angular/material/chips';
+import { ClassicLayoutModule } from '../classic-layout/classic-layout.module';
 
 
 @NgModule({
@@ -55,7 +57,9 @@ import { HeaderModule } from '../header/header.module';
         MatProgressSpinnerModule,
         MixedCreatorModule,
         DeleteConfirmationModule,
-        HeaderModule
+        HeaderModule,
+        MatChipsModule,
+        ClassicLayoutModule
     ],
     declarations: [
         PackageComponent,

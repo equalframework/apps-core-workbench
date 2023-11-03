@@ -93,8 +93,13 @@
 }
 
 .err_warnitem {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
     margin: 0;
     padding: 0;
+    width: 100%;
+    text-overflow: ellipsis;
 }
 
 .pointable {
@@ -116,4 +121,24 @@
 
 .ml5px {
     margin-left: 5px;
+}
+
+.toggle-chip {
+    display: inline-block;
+    padding: .25em .5em;
+    border-radius: .2em;
+    margin: 0 .2em;
+    background-color: #dddddd;
+}
+
+.toggle-chip.checked.chip-warning {
+    background-color: mat-color($editedcolor,A100);
+}
+
+.toggle-chip.checked.chip-error {
+    background-color: mat-color($warncolor,A100);
+}
+
+.bold {
+    font-weight: bold;
 }

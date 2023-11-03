@@ -58,6 +58,27 @@
               "budgets": [
                 {
                   "type": "initial",
+                  "maximumWarning": "3mb",
+                  "maximumError": "5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "10kb",
+                  "maximumError": "1mb"
+                }
+              ]
+            },
+            "developpement": {
+              "optimization": false,
+              "outputHashing": "all",
+              "sourceMap": true,
+              "namedChunks": false,
+              "extractLicenses": false,
+              "vendorChunk": true,
+              "buildOptimizer": true,
+              "budgets": [
+                {
+                  "type": "initial",
                   "maximumWarning": "10mb",
                   "maximumError": "15mb"
                 },
@@ -79,6 +100,9 @@
           "configurations": {
             "production": {
               "browserTarget": "symbiose:build:production"
+            },
+            "developpement": {
+              "browserTarget": "symbiose:build:developpement"
             }
           }
         },

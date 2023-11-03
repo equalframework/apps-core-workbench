@@ -1,4 +1,4 @@
-<div *ngIf="current_controller ===''" class="max-height max-width margin-container">
+<div *ngIf="current_controller ===''" class="full margin-container">
     <label class="packagename">Select a controller to show properties.</label>
 </div>
 <div *ngIf="current_controller !==''" class="margin-container" style="height: 100%;">
@@ -86,10 +86,10 @@
             </div>
             <br>
             <div>
-                <label class="content-label">Custom routes</label>
+                <label class="content-label">Live routes</label>
                 <div *ngFor="let item of obk(filtered_routes)">
                     <a class="cr-click" [class.clickable]="moving" (click)="sendTo(item)">
-                        <div *ngFor="let method of obk(filtered_routes[item]['methods'])" class="controller_cr">
+                        <div *ngFor="let method of obk(filtered_routes[item]['methods'])" class="controller_cr {{method}}">
                             <div class="controller_cr_el controller_cr_method {{method}}">
                                 {{method}}
                             </div>
@@ -107,7 +107,7 @@
         </div>
         <br>
     </div>
-    <div class="class-container-bottom">
+    <div class="class-container-bottom" *ngIf="!fetch_error">
         <mat-grid-list [cols]="4" rowHeight="100%" class="max-width button-pkg-container">
             <mat-grid-tile>
                 <button mat-button class="package-info-button" (click)="nav(1)"><mat-icon>text_format</mat-icon><label>Params</label></button>

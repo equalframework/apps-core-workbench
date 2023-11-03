@@ -2,7 +2,7 @@
 <label> > </label>
 <mat-form-field>
     <mat-label>Usage</mat-label>
-    <mat-select  [value]="usage.usage" (valueChange)="changeUsage($event)">
+    <mat-select  [disabled]="disabled" [value]="usage.usage" (valueChange)="changeUsage($event)">
         <mat-option *ngFor="let usage of usageForCurrentType" [value]="usage">{{usage}}</mat-option>
     </mat-select>
 </mat-form-field>
@@ -11,7 +11,7 @@
     <label> / </label>
     <mat-form-field>
         <mat-label>Sub usage</mat-label>
-        <mat-select [value]="usage.subusage" (valueChange)="changeSubUsage($event)">
+        <mat-select [disabled]="disabled" [value]="usage.subusage" (valueChange)="changeSubUsage($event)">
             <mat-option *ngFor="let subusage of possibleSubUsage" [value]="subusage">{{subusage}}</mat-option>
         </mat-select>
     </mat-form-field>
@@ -20,7 +20,7 @@
     <label> . </label>
     <mat-form-field >
         <mat-label>Variation</mat-label>
-        <mat-select [value]="usage.variation" (valueChange)="changeVariation($event)">
+        <mat-select [disabled]="disabled" [value]="usage.variation" (valueChange)="changeVariation($event)">
             <mat-option *ngFor="let variation of possibleVariations" [value]="variation">{{variation}}</mat-option>
         </mat-select>
     </mat-form-field>
@@ -30,7 +30,7 @@
     <ng-container *ngIf="!hasFreeLength">
         <mat-form-field>
             <mat-label>Length</mat-label>
-            <mat-select [value]="usage.length" (valueChange)="changeLength($event)">
+            <mat-select [disabled]="disabled" [value]="usage.length" (valueChange)="changeLength($event)">
                 <mat-option *ngFor="let lg of possibleLength" [value]="lg.toString()">{{lg}}</mat-option>
             </mat-select>
         </mat-form-field>
@@ -38,7 +38,7 @@
     <ng-container *ngIf="hasFreeLength">
         <mat-form-field>
             <mat-label>Length</mat-label>
-            <input matInput [value]="usage.length" (keydown)="noCancel($event)" (change)="changeLength($event.target.value); $event.target.value = usage.length">
+            <input matInput [disabled]="disabled" [value]="usage.length" (keydown)="noCancel($event)" (change)="changeLength($event.target.value); $event.target.value = usage.length">
         </mat-form-field>
     </ng-container>
 </ng-container>
@@ -46,12 +46,12 @@
     <label>{{" { "}}</label>
     <mat-form-field class="smallfield">
         <mat-label>Min</mat-label>
-        <input matInput type="number" [value]="usage.min" (keydown)="noCancel($event)" (change)="changeMin($event.target.value)">
+        <input matInput type="number" [disabled]="disabled" [value]="usage.min" (keydown)="noCancel($event)" (change)="changeMin($event.target.value)">
     </mat-form-field>
     <label> , </label>
     <mat-form-field class="smallfield">
         <mat-label>Max</mat-label>
-        <input matInput type="number" [value]="usage.max" (keydown)="noCancel($event)" (change)="changeMax($event.target.value)">
+        <input matInput type="number" [disabled]="disabled" [value]="usage.max" (keydown)="noCancel($event)" (change)="changeMax($event.target.value)">
     </mat-form-field>
     <label>{{" } "}}</label>
 </ng-container>

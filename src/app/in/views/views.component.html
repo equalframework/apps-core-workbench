@@ -1,32 +1,31 @@
 <ng-container *ngIf="!loading">
-    <div class="max-height step">
-        <div class="title-container">
-            <button (click)="getBack()" mat-icon-button matTooltip="Primary" color="primary" aria-label="Go back">
-                <mat-icon>keyboard_backspace</mat-icon>
-            </button>
-            <mat-label>{{ (selected_package ? selected_package+" \\ "+entity : entity)?.replaceAll("%5C","\\") }}</mat-label>
-            <mat-label class="model-label"><mat-icon>view_quilt</mat-icon>View</mat-label>
-        </div>
-        <mat-grid-list cols="4" class="max-height">
-            <!-- Class search list, on the left of the screen -->
-            <mat-grid-tile colspan="1" class="max-height">
-                <app-search-list class="max-height max-width"
-                    [data]="views_for_selected_package"
-                    [selected_node]="selected_view"
-                    (nodeSelect)="onclickViewSelect($event)"
-                    (nodeUpdate)="onupdateView($event)"
-                    (nodeDelete)="ondeleteView($event)"
-                    (nodeCreate)="oncreateView()">
-                </app-search-list>
-            </mat-grid-tile>
-            <!-- Class content -->
-            <mat-grid-tile colspan="3" class="max-height" id="schema">
-                <app-views-info
-                    [view_ref]="selected_view"
-                    (goto)="goto()"
-                >
-                </app-views-info>
-            </mat-grid-tile>
-        </mat-grid-list>
+    <div class="full">
+        <app-in-header
+            [buttonBack]="true"
+            (onButtonBack)="getBack()"
+        >   
+            <label class="package-label">{{entity.replaceAll("%5C","\\").split("\\",1)}}</label>
+            <ng-container *ngIf="entity.replaceAll('%5C','\\').split('\\').length > 1">
+                <label>\</label>
+                <label class="model-label">{{entity.replaceAll("%5C","\\").split("\\").slice(1).join("\\")}}</label>
+            </ng-container>
+            <label>:</label>
+            <label class="view-label"><mat-icon>view_quilt</mat-icon>View</label>
+        </app-in-header>
+        <app-classic-layout>
+            <app-search-list list class="full"
+                [data]="views_for_selected_package"
+                [selected_node]="selected_view"
+                (nodeSelect)="onclickViewSelect($event)"
+                (nodeUpdate)="onupdateView($event)"
+                (nodeDelete)="ondeleteView($event)"
+                (nodeCreate)="oncreateView()">
+            </app-search-list>
+            <app-views-info sidepane class="full"
+                [view_ref]="selected_view"
+                (goto)="goto()"
+            >
+            </app-views-info>
+        </app-classic-layout>
     </div>
 </ng-container>

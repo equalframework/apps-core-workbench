@@ -3,36 +3,31 @@
 </div>
 <!-- Step for class -->
 <ng-container *ngIf="step === 1 && !loading">
-    <div class="max-height step">
-        <div class="title-container">
-            <button (click)="getBack()" mat-icon-button matTooltip="Primary" color="primary" aria-label="Go back">
-                <mat-icon>keyboard_backspace</mat-icon>
-            </button>
-            <mat-label>{{ selected_package }}</mat-label><mat-label class="model-label"><mat-icon>data_object</mat-icon>Models</mat-label>
-        </div>
-        <mat-grid-list cols="4" class="grid-full-size">
-            <!-- Class search list, on the left of the screen -->
-            <mat-grid-tile colspan="1" class="max-height">
-                <app-search-list class="max-height max-width"
-                    [data]="classes_for_selected_package"
-                    [selected_node]="selected_class"
-                    (nodeSelect)="onclickClassSelect($event)"
-                    (nodeUpdate)="onupdateClass($event)"
-                    (nodeDelete)="ondeleteClass($event)"
-                    (nodeCreate)="oncreateClass()">
-                </app-search-list>
-            </mat-grid-tile>
-            <!-- Class content -->
-            <mat-grid-tile colspan="3" class="max-width" id="schema">
-                <app-model-info class="max-height max-width"
+    <div class="full">
+        <app-in-header
+            [buttonBack]="true"
+            (onButtonBack)="getBack()"
+        >
+            <label class="package-label">{{ selected_package }}</label>\<label class="model-label"><mat-icon>data_object</mat-icon>Models</label>
+        </app-in-header>
+        <app-classic-layout>
+            <app-search-list list class="full"
+                [data]="classes_for_selected_package"
+                [selected_node]="selected_class"
+                (nodeSelect)="onclickClassSelect($event)"
+                (nodeUpdate)="onupdateClass($event)"
+                (nodeDelete)="ondeleteClass($event)"
+                (nodeCreate)="oncreateClass()"
+            >
+            </app-search-list>
+            <app-model-info sidepane class="full"
                 [selected_package]="selected_package"
                 [selected_class]="selected_class"
                 [class_scheme]="schema"
                 (changeStep)="onChangeStep($event)"
-                >
-                </app-model-info>
-            </mat-grid-tile>
-        </mat-grid-list>
+            >
+            </app-model-info>
+        </app-classic-layout>
     </div>
 </ng-container>
 <!-- Step for field -->

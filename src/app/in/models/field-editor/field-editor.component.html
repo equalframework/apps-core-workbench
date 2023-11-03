@@ -1,0 +1,36 @@
+<app-in-header
+    [buttonBack]="true"
+    (onButtonBack)="goBack()"
+    [buttonCancelOne]="true"
+    [buttonCancelOneDisabled]="this.fieldListHistory.length <= 1"
+    (onButtonCancelOne)="cancelOneChange()"
+    [buttonRevertOne]="true"
+    [buttonRevertOneDisabled]="this.fieldFutureHistory.length < 1"
+    (onButtonRevertOne)="revertOneChange()"
+    [buttonSave]="true"
+    (onButtonSave)="savedata()"
+    [customButton]="true"
+    [customButtonList]="[{name:'Show JSON',icon:'debug',disabled:false}]"
+    (onCustomButton)="showJSON()"
+>
+    <label>Fields of </label><label>{{selected_package}}</label><label>\</label><label>{{selected_class}}</label>
+</app-in-header>
+<app-classic-layout>
+    <app-field-editor-list
+        [list]="fieldList"
+        [parentList]="parentFieldList"
+        [selectedIndex]="selected_index"
+        (CRUD)="onChange($event)"
+        (select)="selected_index = $event"
+    ></app-field-editor-list>
+    <app-field-editor-sp sidepane
+        [inherited]="isInherited(fieldList[selected_index])"
+        [field]="fieldList[selected_index]"
+        [types]="types"
+        [models]="models"
+        [fields]="fieldName"
+        [computeds]="computeds"
+        [dummyscheme]="DummyScheme"
+        (CRUD)="onChange($event)"
+    ></app-field-editor-sp>
+</app-classic-layout>

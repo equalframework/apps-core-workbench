@@ -90,7 +90,7 @@ export class ParamSidePaneComponent implements OnInit,OnChanges {
       this.param.type = value
       this.param.default = undefined
       this.param.selection = []
-      if(value !== 'one2one' && value !== 'one2many' && value !== 'many2one') {
+      if(value !== 'many2many' && value !== 'one2many' && value !== 'many2one') {
         this.param._has_domain = false
       }
       this.CRUD.emit("changed type of "+this.param.name+" to "+this.param.type)

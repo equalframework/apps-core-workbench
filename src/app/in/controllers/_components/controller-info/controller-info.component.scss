@@ -153,6 +153,42 @@ a.cr-click {
     border-bottom-left-radius: 10px;
 }
 
+.controller_cr_method.GET {
+    background-color: $getcolor;
+}
+.controller_cr.GET {
+    background-color: $getdiluted;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+.controller_cr_method.POST {
+    background-color: $postcolor;
+}
+.controller_cr.POST {
+    background-color: $postdiluted;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+.controller_cr_method.PUT {
+    background-color: $putcolor;
+}
+.controller_cr.PUT {
+    background-color: $putdiluted;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+.controller_cr_method.DELETE {
+    background-color: $deletecolor;
+}
+.controller_cr.DELETE {
+    background-color: $deletediluted;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
 .controller_cr_desc {
     width: 50em;
     border-top-right-radius: 10px;

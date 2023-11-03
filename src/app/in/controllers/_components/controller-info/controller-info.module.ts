@@ -13,9 +13,12 @@ import { PropertyDomainModule } from 'src/app/in/property-domain-component/prope
 import { TypeInputModule } from 'src/app/in/type-input/type-input.module';
 import { MatIconModule } from '@angular/material/icon';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
     imports: [
+        CommonModule,
         MatTableModule,
         MatStepperModule,
         MatTabsModule,
@@ -25,7 +28,8 @@ import { MatGridListModule } from '@angular/material/grid-list';
         PropertyDomainModule,
         TypeInputModule,
         MatIconModule,
-        MatGridListModule
+        MatGridListModule,
+        MatButtonModule
     ],
     declarations: [
         ControllerInfoComponent,

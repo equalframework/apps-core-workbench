@@ -184,6 +184,15 @@ export class EmbbedApiService {
         }
     }
 
+    public async getTypeDirective() {
+        try {
+            return await this.api.fetch("?get=core_config_types")
+        }
+        catch {
+            return []
+        }
+    }
+
     public async getUsageList() {
         try {
             let x = await this.api.fetch("?get=core_config_usage")

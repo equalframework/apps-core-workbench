@@ -34,6 +34,10 @@ export class PackageInfoComponent implements OnInit {
 
     public consistency_loading = true
 
+    public want_errors:boolean = true
+
+    public want_warning:boolean = true
+
     constructor(
         private snackBar: MatSnackBar,
         private api: WorkbenchService,
@@ -43,8 +47,7 @@ export class PackageInfoComponent implements OnInit {
     async ngOnInit() {
         this.consistency_loading = true
         this.current_initialised = this.package_init_list.indexOf(this.current_package) >= 0
-        if(this.current_initialised)
-            this.package_consitency = await this.api.getPackageConsistency(this.current_package)
+        this.package_consitency = await this.api.getPackageConsistency(this.current_package)
         //this.error_list = this.package_consitency["result"]
         //this.countErrors()
         this.consistency_loading = false
@@ -53,8 +56,7 @@ export class PackageInfoComponent implements OnInit {
     public async ngOnChanges() {
         this.consistency_loading = true
         this.current_initialised = this.package_init_list.indexOf(this.current_package) >= 0
-        if(this.current_initialised)
-            this.package_consitency = await this.api.getPackageConsistency(this.current_package)
+        this.package_consitency = await this.api.getPackageConsistency(this.current_package)
         this.error_list = this.package_consitency["result"]
         this.countErrors()
         this.consistency_loading = false
@@ -96,11 +98,17 @@ export class PackageInfoComponent implements OnInit {
         prettyPrintJson.toHtml(this.package_consitency)
     }
 
+    public get filtered_error_list() {
+        return this.error_list.filter((item) => (
+            (item.text.includes("ERROR") && this.want_errors) || (item.text.includes("WARN") && this.want_warning)
+        ))
+    }
+
     public async initPackage() {
         let d = this.matDialog.open(InitValidatorComponent,{data:{package:this.current_package},width:"35em"})
         d.afterClosed().subscribe(async (result) => {
             if(result){
-                let x = await this.api.InitPackage(this.current_package,result.import)
+                let x = await this.api.InitPackage(this.current_package,result.import,result.csd,result.impcsd)
                 if(x) {
                     this.snackBar.open("Package "+this.current_package+" has been successfully initialised")
                     this.refresh.emit()

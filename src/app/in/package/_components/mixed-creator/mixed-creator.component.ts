@@ -1,4 +1,4 @@
-import { Component, Inject, OnChanges, OnInit, Optional } from '@angular/core';
+import { Component, Inject, OnChanges, OnInit, Optional, ViewEncapsulation } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ItemTypes } from '../../_constants/ItemTypes';
 import { AbstractControl, AsyncValidatorFn, FormControl, MaxLengthValidator, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
@@ -7,7 +7,8 @@ import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
 @Component({
   selector: 'app-mixed-creator',
   templateUrl: './mixed-creator.component.html',
-  styleUrls: ['./mixed-creator.component.scss']
+  styleUrls: ['./mixed-creator.component.scss'],
+  encapsulation : ViewEncapsulation.Emulated
 })
 export class MixedCreatorComponent implements OnInit {
 

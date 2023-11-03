@@ -13,6 +13,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { HeaderModule } from '../header/header.module';
 
 
 
@@ -36,7 +37,8 @@ import { MatButtonModule } from '@angular/material/button';
     MatButtonModule,
     FormsModule,
     ReactiveFormsModule,
-    MatIconModule
+    MatIconModule,
+    HeaderModule
   ],
 })
 export class ModelTradEditorModule { }

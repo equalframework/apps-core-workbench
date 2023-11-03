@@ -31,6 +31,7 @@ import { ValueSelectionComponent } from './_components/params-editor/_components
 import { MatRadioModule } from '@angular/material/radio';
 import { HeaderModule } from '../header/header.module';
 import { PropertyDomainModule } from '../property-domain-component/property-domain.module';
+import { ClassicLayoutModule } from '../classic-layout/classic-layout.module';
 
 
 @NgModule({
@@ -53,7 +54,8 @@ import { PropertyDomainModule } from '../property-domain-component/property-doma
         TypeInputModule,
         MatRadioModule,
         HeaderModule,
-        PropertyDomainModule
+        PropertyDomainModule,
+        ClassicLayoutModule
     ],
     declarations: [
         ControllersComponent,
@@ -65,6 +67,9 @@ import { PropertyDomainModule } from '../property-domain-component/property-doma
         AutoCompleteComponent,
         ValueComponent,
         ValueSelectionComponent,
+    ],
+    exports : [
+        PropertyDomainComponent2
     ],
     providers: [
         DatePipe,

@@ -1,33 +1,27 @@
 
-<div class="max-height step" *ngIf="step === 1">
-    <mat-grid-list cols="4" class="max-height">
-        <div class="title-container">
-            <button (click)="getBack()" mat-icon-button matTooltip="Primary" color="primary" aria-label="Go back">
-                <mat-icon>keyboard_backspace</mat-icon>
-            </button>
-            <mat-label>{{ selected_package }}</mat-label><mat-label class="model-label"><mat-icon>code</mat-icon>Controllers</mat-label>
-        </div>
-        <!-- Controller search list, on the left of the screen -->
-        <mat-grid-tile colspan="1" class="max-height">
-            <app-search-list-controller class="max-height max-width" *ngIf="controllers"
-                [data]="controllers"
-                [selected_node]="selected_controller"
-                (nodeSelect)="onclickControllerSelect($event)"
-                (nodeUpdate)="onupdateController($event)"
-                (nodeDelete)="ondeleteController($event)"
-                (nodeCreate)="oncreateController($event)">
-            </app-search-list-controller>
-        </mat-grid-tile>
-        <!-- Controller content -->
-        <mat-grid-tile colspan="3" id="schema">
-            <app-controller-info
-                [current_controller]="selected_controller"
-                [controller_type]="selected_type_controller"
-                [scheme]="schema"
-                [selected_package]="selected_package"
-                [fetch_error]="fetch_error"
-                (navigate)="controllerNav($event)"
-            ></app-controller-info>
-        </mat-grid-tile>
-    </mat-grid-list>
+<div class="full">
+    <app-in-header
+        [buttonBack]="true"
+        (onButtonBack)="getBack()"
+    >
+        <label class="package-label">{{ selected_package }}</label>_<label class="model-label"><mat-icon>code</mat-icon>Controllers</label>
+    </app-in-header>
+    <app-classic-layout>
+        <app-search-list-controller list class="max-height max-width" *ngIf="controllers"
+            [data]="controllers"
+            [selected_node]="selected_controller"
+            (nodeSelect)="onclickControllerSelect($event)"
+            (nodeUpdate)="onupdateController($event)"
+            (nodeDelete)="ondeleteController($event)"
+            (nodeCreate)="oncreateController($event)">
+        </app-search-list-controller>
+        <app-controller-info sidepane class="full"
+            [current_controller]="selected_controller"
+            [controller_type]="selected_type_controller"
+            [scheme]="schema"
+            [selected_package]="selected_package"
+            [fetch_error]="fetch_error"
+            (navigate)="controllerNav($event)"
+        ></app-controller-info>
+    </app-classic-layout>
 </div>

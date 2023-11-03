@@ -4,7 +4,6 @@
         <mat-label>Filter</mat-label>
         <input matInput [formControl]="filterControl">
     </mat-form-field>
-    <button mat-mini-fab color="primary" (click)="createItem()"><mat-icon>add</mat-icon></button>
 </div>
 <mat-list class="list">
     <mat-list-item *ngFor="let item of filteredList" class="item" (click)="onClickItem(list.indexOf(item))" [class.selected]="this.selectedIndex === list.indexOf(item)">
@@ -19,3 +18,9 @@
         </div>
     </mat-list-item>
 </mat-list>
+<div class="creator">
+    <mat-form-field class="fieldcreate">
+        <input matInput [formControl]="createControl" (keydown.enter)="createItem()">
+    </mat-form-field>
+    <button class="buttoncreate" (click)="createItem()"><mat-icon>add</mat-icon> Param</button>
+</div>

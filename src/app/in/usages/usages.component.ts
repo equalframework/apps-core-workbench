@@ -12,6 +12,7 @@ export class UsagesComponent implements OnInit {
   @Input() usage:Usage
   @Input() name:string
   @Input() type:string
+  @Input() disabled:boolean = false
   @Output() CRUD = new EventEmitter<string>()
 
   constructor(
