@@ -86,9 +86,7 @@
 }
 
 .params-container {
-    padding: 1em;
-    background-color: ghostwhite;
-    border: 1px solid silver;
+
 }
 
 .controller-container-spacer {
@@ -108,7 +106,6 @@
 }
 
 .controller-param-title {
-    color : mat-color($maincolor);
     font-size : 1em;
 }
 
@@ -207,12 +204,12 @@ pre {
 
 .core-prez {
     overflow-y: scroll;
-    height: calc(100% - 155px - 4em);
+    height: calc(100% - 60px - 4em);
     overflow-x: hidden;
 }
 
 .title-controller {
-    height : 155px;
+    height : 60px;
 }
 
 .depecrated {
@@ -222,4 +219,27 @@ pre {
 
 .warnicon {
     transform: translateY(.2em);
+}
+
+
+
+.flextitlepannel {
+    display: flex;
+    align-items: center;
+    .typeicon {
+        margin-right: .5em;
+        padding: .1em .5em;
+        background-color: mat-color($maincolor,A100);
+        display: flex;
+        align-items: center;
+        border-radius: 10px;
+    }
+}
+
+.valuewrapper {
+    margin-right: 10px;
+    max-width: 20% !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    overflow:hidden
 }

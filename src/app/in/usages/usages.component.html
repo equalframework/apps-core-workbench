@@ -1,5 +1,5 @@
 <ng-container *ngIf="usageForCurrentType">
-<label> > </label>
+<label *ngIf="show_inset" > > </label>
 <mat-form-field>
     <mat-label>Usage</mat-label>
     <mat-select  [disabled]="disabled" [value]="usage.usage" (valueChange)="changeUsage($event)">

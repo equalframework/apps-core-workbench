@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { DateAdapter, MAT_DATE_LOCALE, MatNativeDateModule } from '@angular/material/core';
+import { DateAdapter, MAT_DATE_LOCALE, MatNativeDateModule, MatRipple, MatRippleModule } from '@angular/material/core';
 import { Platform } from '@angular/cdk/platform';
 import { DatePipe } from '@angular/common';
 
@@ -32,6 +32,9 @@ import { MatRadioModule } from '@angular/material/radio';
 import { HeaderModule } from '../header/header.module';
 import { PropertyDomainModule } from '../property-domain-component/property-domain.module';
 import { ClassicLayoutModule } from '../classic-layout/classic-layout.module';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { ReturnTypeEditorComponent } from './_components/return-type-editor/return-type-editor.component';
+import { AutocompleteModule } from '../autocomplete/autocomplete.module';
 
 
 @NgModule({
@@ -55,7 +58,10 @@ import { ClassicLayoutModule } from '../classic-layout/classic-layout.module';
         MatRadioModule,
         HeaderModule,
         PropertyDomainModule,
-        ClassicLayoutModule
+        ClassicLayoutModule,
+        MatExpansionModule,
+        AutocompleteModule,
+        MatRippleModule
     ],
     declarations: [
         ControllersComponent,
@@ -67,6 +73,7 @@ import { ClassicLayoutModule } from '../classic-layout/classic-layout.module';
         AutoCompleteComponent,
         ValueComponent,
         ValueSelectionComponent,
+        ReturnTypeEditorComponent,
     ],
     exports : [
         PropertyDomainComponent2

@@ -2,6 +2,7 @@ import { Component, Input, OnInit, EventEmitter, Output } from '@angular/core';
 import { ViewItem } from '../../_objects/View';
 import { Router } from '@angular/router';
 import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
+import { ViewEditorServicesService } from '../../_services/view-editor-services.service';
 
 @Component({
   selector: 'app-item-editor',
@@ -18,8 +19,7 @@ export class ItemEditorComponent implements OnInit {
   @Input() groups:string[]
   @Input() action_controllers:string[]
 
-  equal_types:string[]
-  equal_usage:string[]
+  protected widget_types:{[id:string]:string[]}
   filtered_equal_usage:string[]
 
   @Output() delete = new EventEmitter<void>();
@@ -31,24 +31,25 @@ export class ItemEditorComponent implements OnInit {
   scheme:any
 
   constructor(
-    private api :EmbbedApiService
+    private api :ViewEditorServicesService
   ) { }
 
   async ngOnInit(){
-    this.equal_types = ["",...(await this.api.getTypeList())]
-    this.equal_usage = ["",...(await this.api.getUsageList())]
-    this.filterUsage()
-    
+    this.widget_types = await this.api.getWidgetTypes()
+    this.scheme = await this.api.getSchema(this.entity)
     if(this.item.viewtype === 1){
-      this.scheme = await this.api.getSchema(this.entity)
       this.set_has_view(this.item.widgetForm._has_view)
-      console.log(this.scheme)
     }
-    console.log(this.equal_types)
-    console.log(this.equal_usage)
-    console.log(this.scheme["fields"][this.item.value])
+    console.log(this.scheme)
   }
 
+  get widgetTypes():string[] {
+    console.log(this.scheme)
+    if(this.item.type === "label") return [""]
+    if(!Object.keys(this.widget_types).includes((this.scheme.fields[this.item.value].type))) return [""]
+    return ["",...this.widget_types[this.scheme.fields[this.item.value].type]]
+  }
+  
   onDelete() {
     this.delete.emit()
   }
@@ -86,6 +87,12 @@ export class ItemEditorComponent implements OnInit {
     ) 
   }
 
+  get fieldType():string {
+    if(this.item.type === "label") return "string"
+    if(this.scheme['fields'][this.item.value]['type'] === "computed") return this.scheme['fields'][this.item.value]['result_type']
+    return this.scheme['fields'][this.item.value]['type']
+  }
+
   async getlistOptions4View(){
     if(this.item.viewtype !== 1) return
     console.log(this.scheme['fields'][this.item.value]['foreign_object']===this.cachelist.foreign)
@@ -108,15 +115,6 @@ export class ItemEditorComponent implements OnInit {
       foreign : this.scheme['fields'][this.item.value]['foreign_object'],
       lists : {},
     }
-  }
-
-  filterUsage() {
-    if(this.item.viewtype == 1){
-      this.filtered_equal_usage = this.equal_usage.filter((item) => item.includes(this.item.widgetForm.usage))
-    } else {
-      this.filtered_equal_usage = this.equal_usage.filter((item) => item.includes(this.item.widgetList.usage))
-    }
-    
   }
 }
 

@@ -1,5 +1,5 @@
-<span class="title">Domain</span>
-<ul class="wtree">
+<label class="title">Domain</label><button mat-icon-button (click)="viewmode = (viewmode+1)%2"><mat-icon> {{ viewmode=== 0 ? "data_object" : "edit" }}</mat-icon></button>
+<ul *ngIf="viewmode === 0" class="wtree">
     <ng-container *ngIf="fields">
         <li *ngFor="let clause of tempValue; index as i">
         <!-- Remove Clause -->
@@ -31,7 +31,7 @@
                         </mat-select>
                     </mat-form-field>
                     <!-- Value -->
-                    <mat-checkbox class="isenvcheck" *ngIf="fields" [checked]="is_env[i][j]" (change)="is_env[i][j] = $event.checked; tempValue[i][j][2]=''">env value</mat-checkbox>
+                    <mat-checkbox class="isenvcheck" *ngIf="fields" [checked]="is_env[i][j]" (change)="changeEnv($event.checked,i,j)">env value</mat-checkbox>
                     <ng-container *ngIf="!is_env[i][j]">
                         <!-- If there is a selection for the field of the operand -->
                         <ng-container *ngIf="fields && fields.fields[tempValue[i][j][0]]?.selection != undefined">
@@ -91,6 +91,9 @@
         </li>
     </ng-container>
 </ul>
+<div *ngIf="viewmode===1">
+    <pre [innerHTML]="json" class="jsonviewer"></pre>
+</div>
 
 <ng-container *ngIf="!fields">
         <p *ngIf="class">Invalid entity</p>

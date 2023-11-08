@@ -1,0 +1,7 @@
+<div class="content">
+    <ng-content></ng-content>
+</div>
+<div class="button">
+    <button *ngIf="closeButton" mat-button (click)="close.emit()">close</button>
+    <button *ngIf="okButton" mat-button (click)="ok.emit()">{{okButtonText}}</button>
+</div>

@@ -7,6 +7,7 @@ import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { ItemTypes } from '../../_constants/ItemTypes';
 import { MixedCreatorComponent } from '../mixed-creator/mixed-creator.component';
 import { DeleteConfirmationComponent } from 'src/app/in/delete-confirmation/delete-confirmation.component';
+import { contains } from 'jquery';
 
 /** 
  * This component is used to display the list of all object you recover in package.component.ts
@@ -15,50 +16,50 @@ import { DeleteConfirmationComponent } from 'src/app/in/delete-confirmation/dele
  * You can also describe the spelling rule of the name in search-mixed-list.component.html
 */
 @Component({
-  selector: 'app-search-mixed-list',
-  templateUrl: './search-mixed-list.component.html',
-  styleUrls: ['./search-mixed-list.component.scss'],
-  encapsulation : ViewEncapsulation.Emulated
+    selector: 'app-search-mixed-list',
+    templateUrl: './search-mixed-list.component.html',
+    styleUrls: ['./search-mixed-list.component.scss'],
+    encapsulation: ViewEncapsulation.Emulated
 })
 export class SearchMixedListComponent implements OnInit {
 
-    
-    @Input() data:{package?:string,name:string,type:string,more?:any}[]; // The array of object to display
-    @Input() selected_node:{name:string,type:string}; // The selected object of the list
-    @Input() loading:boolean; // Notify if the parent node finished loading
-    @Output() nodeSelect = new EventEmitter<{package?:string,name:string,type:string,more?:any}>();  // Used to send selected object reference to parent
+
+    @Input() data: { package?: string, name: string, type: string, more?: any }[]; // The array of object to display
+    @Input() selected_node: { name: string, type: string }; // The selected object of the list
+    @Input() loading: boolean; // Notify if the parent node finished loading
+    @Output() nodeSelect = new EventEmitter<{ package?: string, name: string, type: string, more?: any }>();  // Used to send selected object reference to parent
     @Output() refresh = new EventEmitter<void>();
-    @Output() delete =  new EventEmitter<{package?:string,name:string,type:string,more?:any}>();
+    @Output() delete = new EventEmitter<{ package?: string, name: string, type: string, more?: any }>();
 
     public obk = Object.keys;   // Object.keys method for utilisation in search-mixed-list.component.html
-    public filteredData: {package?:string,name:string,type:string,more?:any}[];   // filtered derivative of data with purpose to be displayed
-    public search_value:string = "";    // value part of the search bar field ( is parsed in onSearch() method )
-    public search_scope:string = "";    // type part of the search bar field ( is parsed in onSearch() method )
-    public current_root:string = "";    // root url of the backend ( parsed in ngOnInit() method )
+    public filteredData: { package?: string, name: string, type: string, more?: any }[];   // filtered derivative of data with purpose to be displayed
+    public search_value: string = "";    // value part of the search bar field ( is parsed in onSearch() method )
+    public search_scope: string = "";    // type part of the search bar field ( is parsed in onSearch() method )
+    public current_root: string = "";    // root url of the backend ( parsed in ngOnInit() method )
 
     /**
      * This dict is used to display properly all the different types of object contained in filteredData ( or data )
      */
-    public type_dict:{[id:string]:{icon:string,disp:string}} = ItemTypes.typeDict
+    public type_dict: { [id: string]: { icon: string, disp: string } } = ItemTypes.typeDict
 
     public inputcontrol = new FormControl('') // formcontrol for search input field
 
     constructor(
         private dialog: MatDialog, // could be useful later
         private env: EnvService, // used to parse the backend url
-        private router:RouterMemory
-    ) { 
-        
+        private router: RouterMemory
+    ) {
+
     }
 
     public async ngOnInit() {
         this.current_root = (await this.env.getEnv())['backend_url']
         let arg = this.router.retrieveArgs()
-        if(arg && arg['searchvalue']) {
+        if (arg && arg['searchvalue']) {
             this.inputcontrol.setValue(arg['searchvalue'])
         } else {
             this.inputcontrol.setValue("package:")
-        }   
+        }
         this.onSearch();
     }
 
@@ -70,22 +71,22 @@ export class SearchMixedListComponent implements OnInit {
      * This method synchronise the search input with the search select
      */
     public onSelectChange() {
-        if(this.search_scope !== "")
-            this.inputcontrol.setValue(this.search_scope+":"+this.search_value)
-        else 
+        if (this.search_scope !== "")
+            this.inputcontrol.setValue(this.search_scope + ":" + this.search_value)
+        else
             this.inputcontrol.setValue(this.search_value)
         this.onSearch()
-    }       
+    }
 
     /**
      * Parse the search input and filter object to display the search result
      *
      * @param value value of the filter
      */
-    public onSearch(updaterouter:boolean=true) {
-        if(updaterouter) this.router.updateArg('searchvalue',this.inputcontrol.value)
+    public onSearch(updaterouter: boolean = true) {
+        if (updaterouter) this.router.updateArg('searchvalue', this.inputcontrol.value)
         let splitted = this.inputcontrol.value.split(":")
-        if(splitted.length > 1) {
+        if (splitted.length > 1) {
             this.search_scope = splitted[0]
             this.search_value = splitted.slice(1).join(":")
         }
@@ -93,26 +94,42 @@ export class SearchMixedListComponent implements OnInit {
             this.search_scope = ""
             this.search_value = splitted[0]
         }
-        if(this.search_scope !== this.actual_scope) {
-            this.search_value = this.search_scope+":"+this.search_value
+        if (this.search_scope !== this.actual_scope) {
+            this.search_value = this.search_scope + ":" + this.search_value
             this.search_scope = this.actual_scope
         }
-        
+
+        let arrow_split = this.search_value.split(">")
+        let search_package = arrow_split.length > 1 ? arrow_split[0] : ""
+        let search_args = (arrow_split.length > 1 ? arrow_split.slice(1).join("=>") : arrow_split[0]).split(" ")
+
+        console.log(search_args)
+
         this.filteredData = this.data.filter(
-            node => 
-                // checking value part
-                ( node.type === "route" ?
-                    node.package + "-" + node.more + "-" + node.name
-                    :
-                    (node.package ? node.package+"\\"+node.name : node.name)
-                ).toLowerCase().includes(this.search_value.toLowerCase())
-                
-                // checking types part
-                && (this.search_scope === ""
+            (node:any) => {
+                let contains = true
+                let naming: string = ""
+                if(node.type === "route") naming = (node.package ? node.package : "") + "-" + (node.more ? node.more : "") + "-" + node.name
+                else if(node.type === "class") naming = (node.package ? node.package : "") + "\\" + node.name
+                else naming = node.name
+                for (let arg of search_args) {
+                    if(search_package && (((node.package && node.package !== search_package)) || (!node.package && node.name !==search_package))){
+                        contains = false
+                        break
+                    }
+                    if (!naming.toLowerCase().includes(arg.toLowerCase()))  {
+                        contains = false
+                        break
+                    }
+                        
+                }
+
+                return contains && (this.search_scope === ""
                     || (node.type === this.search_scope)
-                    || ("controller" === this.search_scope && ( node.type === 'get' || node.type === 'do' ))
-                    || ("view" === this.search_scope && ( node.type === 'list' || node.type === 'form' ))
+                    || ("controller" === this.search_scope && (node.type === 'get' || node.type === 'do'))
+                    || ("view" === this.search_scope && (node.type === 'list' || node.type === 'form'))
                 )
+            }
         );
     }
 
@@ -121,7 +138,7 @@ export class SearchMixedListComponent implements OnInit {
      *
      * @param node value of the node which is clicked on
      */
-    public onclickNodeSelect(node:{package?:string,name:string,type:string,more?:any}){
+    public onclickNodeSelect(node: { package?: string, name: string, type: string, more?: any }) {
         this.nodeSelect.emit(node);
     }
 
@@ -135,20 +152,20 @@ export class SearchMixedListComponent implements OnInit {
     }
 
     openCreator() {
-        let d = this.dialog.open(MixedCreatorComponent,{data:{type:this.search_scope},width : "40em",height: "26em"})
+        let d = this.dialog.open(MixedCreatorComponent, { data: { type: this.search_scope }, width: "40em", height: "26em" })
 
         d.afterClosed().subscribe(() => {
             // Do stuff after the dialog has closed
             this.refresh.emit()
             this.onSearch()
         });
-        
-        
+
+
     }
 
-    clickDelete(node:{package?:string,name:string,type:string,more?:any}) {
+    clickDelete(node: { package?: string, name: string, type: string, more?: any }) {
         const dialogRef = this.dialog.open(DeleteConfirmationComponent, {
-            data:  node.name ,
+            data: node.name,
         });
 
         dialogRef.afterClosed().subscribe((result) => {
@@ -158,26 +175,26 @@ export class SearchMixedListComponent implements OnInit {
         });
     }
 
-    get_node_title(node:{package?:string,name:string,type:string,more?:any}):string{
-        let splitted_name:string[]
-        switch(node.type){
-        case "package" :
-            return "Package - packages/"+node.name
-        case "class" :
-            return "Model - packages/"+node.package+"/classes/"+node.name.replaceAll("\\","/")+".php"
-        case "get" :
-            splitted_name = node.name.split('_')
-            return "Data provider - packages/"+node.package+"/data/"+splitted_name.slice(1).join("/")
-        case "do" :
-            splitted_name = node.name.split('_')
-            return "Data provider - packages/"+node.package+"/actions/"+splitted_name.slice(1).join("/")
-        case "view" :
-            splitted_name = node.name.split('\\')
-            return "View - packages/"+node.package+"/views/"+splitted_name.slice(1).join("/").replace(":",".")
-        case "route" :
-            return "Route - packages/"+node.package+"/init/routes/"+node.more
-        default :
-            return ""
+    get_node_title(node: { package?: string, name: string, type: string, more?: any }): string {
+        let splitted_name: string[]
+        switch (node.type) {
+            case "package":
+                return "Package - packages/" + node.name
+            case "class":
+                return "Model - packages/" + node.package + "/classes/" + node.name.replaceAll("\\", "/") + ".php"
+            case "get":
+                splitted_name = node.name.split('_')
+                return "Data provider - packages/" + node.package + "/data/" + splitted_name.slice(1).join("/")
+            case "do":
+                splitted_name = node.name.split('_')
+                return "Data provider - packages/" + node.package + "/actions/" + splitted_name.slice(1).join("/")
+            case "view":
+                splitted_name = node.name.split('\\')
+                return "View - packages/" + node.package + "/views/" + splitted_name.slice(1).join("/").replace(":", ".")
+            case "route":
+                return "Route - packages/" + node.package + "/init/routes/" + node.more
+            default:
+                return ""
         }
     }
 }

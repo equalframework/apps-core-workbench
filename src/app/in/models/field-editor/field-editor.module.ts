@@ -59,6 +59,6 @@ import { MatProgressSpinnerModule, MatSpinner } from '@angular/material/progress
     MatExpansionModule,
     PropertyDomainModule,
     MatProgressSpinnerModule
-  ]
+  ],
 })
 export class FieldEditorModule { }

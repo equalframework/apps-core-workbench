@@ -11,6 +11,7 @@ import { FieldClass } from '../models/_object/FieldClass';
 export class TypeInputComponent implements OnInit,OnChanges {
 
   @Input() type:string = 'string'
+  @Input() usage:string = ''
   @Input() value:any = undefined
   @Input() name:string = ""
   @Input() disabled:boolean = false

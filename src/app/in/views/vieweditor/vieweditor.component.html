@@ -9,7 +9,7 @@
 <div *ngIf="!error && loading" class="loader">
     <mat-spinner></mat-spinner>
 </div>
-<div *ngIf="!error && !loading">
+<div *ngIf="!error && !loading" class="full">
     <app-in-header
         [buttonBack]="true"
         (onButtonBack)="goBack()"

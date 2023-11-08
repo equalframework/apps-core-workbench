@@ -43,7 +43,7 @@ npm install
 # If this part does not work, you may need to go back to node 14.18 to comply with SSL legacy support
 # sh build.sh
 sh export.sh
-
+npm link sb-shared-lib
 # You should good to go ! you can compile apps with the build.sh file in the app directory
 
 # REMINDER : To deploy the app in a Unix environment, you need to change the base-href

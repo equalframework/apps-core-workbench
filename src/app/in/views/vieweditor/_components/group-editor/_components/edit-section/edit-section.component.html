@@ -1,17 +1,21 @@
-<p>Edit section informations</p>
-<mat-form-field>
-    <input matInput placeholder="section_id" [value]="data.section.id" (input)="data.section.id = $event.target.value">
-</mat-form-field>
-<mat-form-field>
-    <input matInput placeholder="section name" [value]="data.section.label" (input)="data.section.label = $event.target.value">
-</mat-form-field>
-<mat-checkbox [(ngModel)]="data.section._has_domain">visible domain</mat-checkbox>
-<div *ngIf="data.section._has_domain">
-    <app-property-domain-component
-    [value]="data.section.visible.dom"
-    [name]="'oui'"
-    [class]="data.entity"
-    (valueChange)="data.section.visible.dom = $event"
-    >
-    </app-property-domain-component>
-</div>
+<app-popup-layout
+    (close)="dialogRef.close()"
+>
+    <p>Edit section informations</p>
+    <mat-form-field>
+        <input matInput placeholder="section_id" [value]="data.section.id" (input)="data.section.id = $event.target.value">
+    </mat-form-field>
+    <mat-form-field>
+        <input matInput placeholder="section name" [value]="data.section.label" (input)="data.section.label = $event.target.value">
+    </mat-form-field>
+    <mat-checkbox [(ngModel)]="data.section._has_domain">visible domain</mat-checkbox>
+    <div *ngIf="data.section._has_domain">
+        <app-property-domain-component
+        [value]="data.section.visible.dom"
+        [name]="'oui'"
+        [class]="data.entity"
+        (valueChange)="data.section.visible.dom = $event"
+        >
+        </app-property-domain-component>
+    </div>
+</app-popup-layout>

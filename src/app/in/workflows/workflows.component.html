@@ -1,0 +1,22 @@
+<div class="flexcol full">
+    <div class>
+        <app-autocomplete
+            [value]="selected_class"
+            [values]="models"
+            name="Select models"
+            (valueChange)="selected_class = $event"
+            (keydown.enter)="addOne()"
+            width="20em"
+        >
+        </app-autocomplete>
+        <div *ngFor="let class of selected_classes">
+            <label>{{class}}</label>
+        </div>
+    </div>
+    <div class="full">
+        <div>
+        <label *ngFor="let col of color" style="display :inline-block;" [style.color]="col.color" [style.margin-right.em]="1">{{col.type}}</label>
+        </div>
+        <figure id="test"></figure>
+    </div>
+</div>

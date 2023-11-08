@@ -6,6 +6,7 @@ import { ControllersService } from '../../_service/controllers.service';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { ResponseComponentSubmit } from '../response/response.component';
+import { TypeUsageService } from 'src/app/_services/type-usage.service';
 
 @Component({
     selector: 'app-controller-info',
@@ -46,6 +47,8 @@ export class ControllerInfoComponent implements OnInit {
 
     @Output() navigate = new EventEmitter<number>()
 
+    iconType:any
+
     public paramsValue: any;
     public presentRequiredParams: any;
     public canSubmit: boolean
@@ -53,14 +56,18 @@ export class ControllerInfoComponent implements OnInit {
     public filtered_routes: {[id:string]:any} = {}
     public obk = Object.keys
 
+    tojsonstring = JSON.stringify
+
     constructor(
         private snackBar: MatSnackBar,
         private api: ControllersService,
         public dialog: MatDialog,
         private clipboard: Clipboard,
+        private typeUsage:TypeUsageService
     ) { }
 
     async ngOnInit() {
+        this.iconType = this.typeUsage.typeIcon
     }
 
     public async ngOnChanges() {
@@ -210,7 +217,8 @@ export class ControllerInfoComponent implements OnInit {
         return this.scheme['params'][value].type;
     }
 
-    public getUsage(value: any) {
+    public getUsage(value: any):string {
+        if(!this.scheme['params'][value].usage) return ""
         return this.scheme['params'][value].usage;
     }
 

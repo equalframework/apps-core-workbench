@@ -7,7 +7,7 @@
         <label class="package-label">{{ selected_package }}</label>_<label class="model-label"><mat-icon>code</mat-icon>Controllers</label>
     </app-in-header>
     <app-classic-layout>
-        <app-search-list-controller list class="max-height max-width" *ngIf="controllers"
+        <app-search-list-controller list class="full" *ngIf="controllers"
             [data]="controllers"
             [selected_node]="selected_controller"
             (nodeSelect)="onclickControllerSelect($event)"

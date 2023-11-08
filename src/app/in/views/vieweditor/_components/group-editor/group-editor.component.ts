@@ -81,7 +81,7 @@ class GroupEditorComponent implements OnInit,OnChanges {
   }
 
   addItem(col:ViewColumn) {
-    col.items.push(new ViewItem({"value":"New Item","type":"label"}))
+    col.items.push(new ViewItem({"value":"New Item","type":"label"},1))
   }
   
   editItem(item:ViewItem) {

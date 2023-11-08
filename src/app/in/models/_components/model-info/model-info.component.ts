@@ -19,6 +19,24 @@ export class ModelInfoComponent implements OnInit {
   @Output() changeStep = new EventEmitter<number>()
   @Output() getRef = new EventEmitter<{package?:string,name:string,type:string,more?:any}>()
 
+  public iconList: { [id: string]: string } = {
+    "string": "format_quote",
+    "integer": "123",
+    "array": "data_array",
+    "float": "money",
+    "boolean": "question_mark",
+    "computed": "functions",
+    "alias": "type_specimen",
+    "binary": "looks_one",
+    "date": "today",
+    "datetime": "event",
+    "time": "access_time",
+    "text": "article",
+    "many2one": "call_merge",
+    "one2many": "call_split",
+    "many2many": "height"
+  }
+
   public obk = Object.keys
   good_field:any
 

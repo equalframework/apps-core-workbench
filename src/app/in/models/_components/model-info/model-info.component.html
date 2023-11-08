@@ -1,82 +1,93 @@
 <div class="margin-container"*ngIf="selected_class !== ''">
     <div class="class-container-title">
         <div class="class-disp-title">
-            <label>Class : </label><label class="accent">{{selected_package}}\{{ selected_class }}</label>
+            <div>
+                <label>Class : </label><label class="accent">{{selected_package}}\{{ selected_class }}</label>
+            </div>
+            <div>
+                <label class="sub-part-title">Extends : </label>
+                <label class="accent-color sub-part-title" *ngIf="class_scheme['parent'] === 'equal\\orm\\Model'">
+                    Model
+                </label>
+                <a class="accent-color sub-part-title" *ngIf="class_scheme['parent'] !== 'equal\\orm\\Model'" (click)="getref(class_scheme['parent'])">
+                    {{class_scheme['parent']}}
+                </a>
+            </div>
+            <br>
+            <div>
+                <label class="sub-part-title">DB Table : </label>
+                <label class="accent-color sub-part-title">{{class_scheme['table']}}</label>
+            </div>
+            <div>
+                <label class="sub-part-title accent">{{fieldNumber}} </label><label class="sub-part-title">Fields</label>
+            </div>
         </div>
-        <br>
+        <div>
+            <label>{{this.class_scheme['description']}}</label>
+        </div>
     </div>
     <div class="class-container-top">
+
         <div class="sub-part-class">
-            <label class="sub-part-title">Extends : </label>
-            <label class="accent-color sub-part-title" *ngIf="class_scheme['parent'] === 'equal\\orm\\Model'">
-                Model
-            </label>
-            <a class="accent-color sub-part-title" *ngIf="class_scheme['parent'] !== 'equal\\orm\\Model'" (click)="getref(class_scheme['parent'])">
-                {{class_scheme['parent']}}
-            </a>
-        </div>
-        <br>
-        <div class="sub-part-class">
-            <label class="sub-part-title">Database table : </label>
-            <label class="accent-color sub-part-title">{{class_scheme['table']}}</label>
-        </div>
-        <br>
-        <div class="sub-part-class">
-            <label class="sub-part-title">Fields (</label><label class="sub-part-title accent">{{fieldNumber}}</label><label class="sub-part-title">) :</label>
-            <mat-grid-list cols="2"  rowHeight="5.5em" class="pre-field">
-                <mat-grid-tile *ngFor="let key of obk(this.class_scheme['fields'])">
-                    <div class='field-class-item'>
-                        <div class='field-class-p1'>
-                            <label class='pre-main-color pre-label-bold'>{{ key }}</label>
-                            <label class='pre-label-bold'>:</label>
-                            <label class='pre-accent-color pre-label-bold'>{{ this.class_scheme["fields"][key]["type"] }}</label>
-                            <label *ngIf="
-                                this.class_scheme['fields'][key]['type'] === 'many2one'
-                                ||this.class_scheme['fields'][key]['type'] === 'many2many'
-                                ||this.class_scheme['fields'][key]['type'] === 'one2one'
-                                ||this.class_scheme['fields'][key]['type'] === 'one2many'
-                            "
-                            class='pre-label-bold'>
-                                ({{ this.class_scheme["fields"][key]["foreign_object"] }})
-                            </label>
-                            <div class="field-sep"></div>
-                            <div *ngIf="fieldHasProp(key)" class="field-prop-container">
-                                <span 
-                                    *ngIf="this.class_scheme['fields'][key]['required']" 
-                                    class='material-icons preicon pre-main-color'
-                                    title="{{key}} is required"
-                                >
-                                    priority_high
-                                </span>
-                                <span 
-                                    *ngIf="this.class_scheme['fields'][key]['readonly']" 
-                                    class='material-icons preicon pre-main-color'
-                                    title="{{key}} is readonly"
-                                >
-                                    do_not_touch
-                                </span>
-                                <span 
-                                    *ngIf="this.class_scheme['fields'][key]['multilang']" 
-                                    class='material-icons preicon pre-main-color'
-                                    title="{{key}} is multilang"
-                                >
-                                    translate
-                                </span>
-                                <div 
-                                    *ngIf="this.class_scheme['fields'][key]['unique']" 
-                                    class='field-unique-prop'
-                                    title="{{key}} is unique"
-                                >
-                                    <label class="pre-main-color pre-label-bold">1</label>
+            <mat-accordion>
+                <mat-expansion-panel *ngFor="let key of obk(this.class_scheme['fields'])">
+                    <mat-expansion-panel-header>
+                        <mat-panel-title>
+                            <div class="paneltitle">
+                                <div class="typeicon">
+                                    <mat-icon>{{iconList[this.class_scheme['fields'][key]['type']]}}</mat-icon>
                                 </div>
+                                <label>{{key}}</label>
+                            </div>
+                        </mat-panel-title>
+                        <mat-panel-description>
+                            {{this.class_scheme['fields'][key]['description']}}
+                        </mat-panel-description>
+                        <div *ngIf="fieldHasProp(key)" class="field-prop-container">
+                            <span 
+                                *ngIf="this.class_scheme['fields'][key]['required']" 
+                                class='material-icons preicon'
+                                title="{{key}} is required"
+                            >
+                                priority_high
+                            </span>
+                            <span 
+                                *ngIf="this.class_scheme['fields'][key]['readonly']" 
+                                class='material-icons preicon'
+                                title="{{key}} is readonly"
+                            >
+                                do_not_touch
+                            </span>
+                            <span 
+                                *ngIf="this.class_scheme['fields'][key]['multilang']" 
+                                class='material-icons preicon'
+                                title="{{key}} is multilang"
+                            >
+                                translate
+                            </span>
+                            <div 
+                                *ngIf="this.class_scheme['fields'][key]['unique']" 
+                                class='field-unique-prop'
+                                title="{{key}} is unique"
+                            >
+                                <label class="pre-label-bold">1</label>
                             </div>
                         </div>
-                        <div class="field-class-p2">
-                            <label>{{ this.class_scheme["fields"][key]["description"] }}</label>
-                        </div>
-                    </div>
-                </mat-grid-tile>
-            </mat-grid-list>
+                    </mat-expansion-panel-header>
+                    <p>
+                        Type : {{ this.class_scheme["fields"][key]["type"] }}
+                    </p>
+                    <p *ngIf="['computed'].includes(this.class_scheme['fields'][key]['type'])">
+                        Result type : {{ this.class_scheme["fields"][key]["result_type"] }}
+                    </p>
+                    <p>
+                        usage : {{ this.class_scheme["fields"][key]["usage"] ? this.class_scheme["fields"][key]["usage"] : "none" }}
+                    </p>
+                    <p *ngIf="['many2one','one2one','one2many'].includes(this.class_scheme['fields'][key]['type'])">
+                        Foreign object : {{ this.class_scheme["fields"][key]["foreign_object"] }}
+                    </p>
+                </mat-expansion-panel>
+            </mat-accordion>
         </div>
         <br>
     </div>

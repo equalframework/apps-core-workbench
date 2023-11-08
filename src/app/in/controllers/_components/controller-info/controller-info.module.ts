@@ -15,6 +15,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 @NgModule({
     imports: [
@@ -29,7 +30,8 @@ import { MatButtonModule } from '@angular/material/button';
         TypeInputModule,
         MatIconModule,
         MatGridListModule,
-        MatButtonModule
+        MatButtonModule,
+        MatExpansionModule
     ],
     declarations: [
         ControllerInfoComponent,

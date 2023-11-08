@@ -7,10 +7,14 @@
 
 .class-disp-title {
     font-size: 1.5em;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .margin-container {
     padding: 2em;
+    padding-bottom: 0.5em ;
     border-radius: 10px;
     background-color: whitesmoke;
     width: 100%;
@@ -49,11 +53,11 @@
 }
 
 .class-container-title {
-    height: 60px;
+    height: 80px;
 }
 
 .class-container-top {
-    height: calc(75% - 60px);
+    height: calc(75% - 80px);
     overflow-y: scroll;
 }
 
@@ -123,15 +127,35 @@
 }
 
 .field-prop-container {
-    border: solid grey 1px;
     display: flex;
-    border-radius: .75em;
+    border-radius: 10px;
     min-width: 3em;
     justify-content: center;
     padding: 0em .5em;
     margin-left: auto;
+    margin-right: 1em;
+    background-color: mat-color($accentcolor,A100);
 }
 
 a.sub-part-title{
     cursor: help;
+}
+
+.paneltitle {
+    display: inline-flex;
+    align-items: center;
+    width: 20%;
+
+    label {
+        margin-left: .5em;
+        font-size: 1.1em;
+    }
+
+    .typeicon {
+        padding: .1em .5em;
+        background-color: mat-color($maincolor,A100);
+        display: flex;
+        align-items: center;
+        border-radius: 10px;
+    }
 }

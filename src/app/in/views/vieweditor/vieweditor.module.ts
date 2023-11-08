@@ -44,6 +44,9 @@ import { RouteEditorComponent } from './_components/route-editor/route-editor.co
 import { RouteEditComponent } from './_components/route-editor/route-edit/route-edit.component';
 import { AccessEditorComponent } from './_components/access-editor/access-editor.component';
 import { HeaderModule } from '../../header/header.module';
+import { PopupLayoutComponent } from '../../popup-layout/popup-layout.component';
+import { PopupLayoutModule } from '../../popup-layout/popup-layout.module';
+import { UsagesModule } from '../../usages/usages.module';
 
 
 
@@ -94,7 +97,9 @@ import { HeaderModule } from '../../header/header.module';
     HttpClientModule,
     RouterModule,
     SharedLibModule,
-    HeaderModule
+    HeaderModule,
+    PopupLayoutModule,
+    UsagesModule
   ],
   providers: [
     {

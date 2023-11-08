@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 
 import { SharedLibModule } from 'sb-shared-lib';
 import { ModelInfoComponent } from './model-info.component';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 @NgModule({
     imports: [
@@ -19,7 +20,7 @@ import { ModelInfoComponent } from './model-info.component';
         FormsModule,
         MatFormFieldModule,
         MatInputModule,
-        
+        MatExpansionModule
     ],
     declarations: [
         ModelInfoComponent
