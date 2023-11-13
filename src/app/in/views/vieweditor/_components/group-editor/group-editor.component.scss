@@ -1,5 +1,6 @@
 @import "/src/theme.scss";
 
+
 .parent {
     border: solid black 1px;
 }
@@ -9,7 +10,9 @@
     width: 47.5%;
     height: 3.5em;
     margin-bottom: -1.25em;
-    background-color: transparent;
+    position: relative;
+    background-color: red;
+    z-index: 1000;
 }
 
 .boundary.left{

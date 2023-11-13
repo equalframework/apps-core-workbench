@@ -21,7 +21,6 @@
     "@angular/platform-browser": "~13.3.4",
     "@angular/platform-browser-dynamic": "~13.3.4",
     "@angular/router": "~13.3.4",
-    "@google/workflow-graph": "^0.1.1",
     "@ngx-translate/core": "^13.0.0",
     "@ngx-translate/http-loader": "^6.0.0",
     "@reactivex/rxjs": "^6.6.7",

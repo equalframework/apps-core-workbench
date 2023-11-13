@@ -1,0 +1,37 @@
+<div class="full flowcontainer " #boundary>
+    <div class="full strings">
+        <svg class="full" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <marker id="arrowhead" markerWidth="10" markerHeight="10" 
+                refX="0" refY="5" orient="auto">
+                <polygon points="-5 0, 5 5, -5 10" fill="#424242"/>
+                </marker>
+                <marker  markerWidth="10" markerHeight="10" >
+                    <circle  
+                        r="10" 
+                        fill="#424242"
+                    />
+                </marker>
+            </defs>
+            <g *ngFor="let link of links; index as i">
+                <path  
+                    [attr.d]="getPathStringBetween(link.from,link.to,link.anchorFrom,link.anchorTo)" 
+                    stroke="#424242" fill="none" stroke-width="2px" 
+                    marker-end="url(#arrowhead)"
+                    marker-mid="url(#circle_center)"
+                />
+                
+            </g>
+        </svg>
+    </div>
+    <div class="full boundary" >
+        <app-workflow-node cdkDrag
+            *ngFor="let node of nodes; index as i"
+            [node]="node"
+            (cdkDragMoved)="mv(node,$event)" 
+            [cdkDragFreeDragPosition]="node.position"
+            [state]="state"
+            (linkeToMe)="finishCreateLink(i,$event)"
+        ></app-workflow-node>
+    </div>
+</div>

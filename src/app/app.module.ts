@@ -23,8 +23,6 @@ import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar';
 import localeFr from '@angular/common/locales/fr';
 import { PackageModule } from './in/package/package.module';
 import { TranslateModule } from '@ngx-translate/core';
-import { TypeInputComponent } from './in/type-input/type-input.component';
-import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 
 registerLocaleData(localeFr);

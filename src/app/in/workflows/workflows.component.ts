@@ -1,7 +1,7 @@
+import { CdkDragEnd } from '@angular/cdk/drag-drop';
 import { Component, OnChanges, OnInit } from '@angular/core';
 
 import * as d3 from "d3"
-import { createServer } from 'http';
 import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
 
 @Component({
@@ -14,8 +14,9 @@ export class WorkflowsComponent implements OnInit, OnChanges {
   models: string[] = []
 
   selected_class: string = ""
+  tabIndex: number = 1
 
-  color:{type:string,color:string}[] = []
+  color: { type: string, color: string }[] = []
   w = 10
   h = 10
 
@@ -37,12 +38,18 @@ export class WorkflowsComponent implements OnInit, OnChanges {
     console.log(this.test)
     this.color = this.chart()
     console.log(this.color)
+
   }
 
   ngOnChanges() {
     console.log("CALLED")
     this.chart()
   }
+
+  dragoff(event: CdkDragEnd) {
+    console.log(event)
+  }
+
 
   async createSet(): Promise<{ source: string, target: string, type: string }[]> {
     let set: { source: string, target: string, type: string }[] = []
@@ -148,8 +155,8 @@ export class WorkflowsComponent implements OnInit, OnChanges {
 
     // ts-expect-error
     //invalidation.then(() => simulation.stop());
-    let ret:{type:string,color:string}[] = []
-    types.forEach(type => ret.push({type:type,color:color(type)}))
+    let ret: { type: string, color: string }[] = []
+    types.forEach(type => ret.push({ type: type, color: color(type) }))
     return ret
   }
 

@@ -1,0 +1,12 @@
+<div #bdy class="node">
+    <mat-icon>flag</mat-icon>
+    {{node.name}}
+    <button *ngIf="state === 'linking-to'" class="top-left-button" mat-mini-fab (click)="linkeToMe.emit(anchor.TopLeft)"><mat-icon>link</mat-icon></button>
+    <button *ngIf="state === 'linking-to'" class="top-button" mat-mini-fab (click)="linkeToMe.emit(anchor.Top)"><mat-icon>link</mat-icon></button>
+    <button *ngIf="state === 'linking-to'" class="top-right-button" mat-mini-fab (click)="linkeToMe.emit(anchor.TopRight)"><mat-icon>link</mat-icon></button>
+    <button *ngIf="state === 'linking-to'" class="middle-left-button" mat-mini-fab (click)="linkeToMe.emit(anchor.MiddleLeft)"><mat-icon>link</mat-icon></button>
+    <button *ngIf="state === 'linking-from'" class="middle-right-button" mat-mini-fab (click)="linkeToMe.emit(anchor.MiddleRight)"><mat-icon>link</mat-icon></button>
+    <button *ngIf="state === 'linking-from'" class="bottom-left-button" mat-mini-fab (click)="linkeToMe.emit(anchor.BottomLeft)"><mat-icon>link</mat-icon></button>
+    <button *ngIf="state === 'linking-from'" class="bottom-button" mat-mini-fab (click)="linkeToMe.emit(anchor.Bottom)"><mat-icon>link</mat-icon></button>
+    <button *ngIf="state === 'linking-from'" class="bottom-right-button" mat-mini-fab (click)="linkeToMe.emit(anchor.BottomRight)"><mat-icon>link</mat-icon></button>
+</div>

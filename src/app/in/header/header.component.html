@@ -40,6 +40,7 @@
         >
             <mat-icon>cancel</mat-icon> Cancel all
         </button>
+        <button mat-stroked-button *ngFor="let butn of contextualButton" [disabled]="butn.disabled"><mat-icon>{{butn.icon}}</mat-icon>{{butn.name}}</button>
         <button mat-icon-button
             *ngIf="customButton" 
             [matMenuTriggerFor]="customButtons"

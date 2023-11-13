@@ -1,0 +1,67 @@
+:host {
+    position: absolute;
+}
+
+.node {
+    display: inline-block;
+    background-color: whitesmoke;
+    padding: 1em;
+    border-radius: 10px;
+
+
+    .bottom-button {
+        position:absolute;
+        bottom: 0;
+        left: 50%;
+        transform: scale(0.5) translate(-100%,75%) ;
+    }
+
+    .top-button {
+        position:absolute;
+        top: 0;
+        left: 50%;
+        transform: scale(0.5) translate(-100%,-75%) ;
+    }
+
+    .top-left-button {
+        position:absolute;
+        top: 0;
+        left: 0;
+        transform: scale(0.5) translate(-75%,-75%) ;
+    }
+
+    .top-right-button {
+        position:absolute;
+        top: 0;
+        right: 0;
+        transform: scale(0.5) translate(75%,-75%) ;
+    }
+
+    .bottom-left-button {
+        position:absolute;
+        bottom: 0;
+        left: 0;
+        transform: scale(0.5) translate(-75%,75%) ;
+    }
+
+    .bottom-right-button {
+        position:absolute;
+        bottom: 0;
+        right: 0;
+        transform: scale(0.5) translate(75%,75%) ;
+    }
+
+    .middle-left-button {
+        position:absolute;
+        top: 50%;
+        left: 0;
+        transform: scale(0.5) translate(-75%,-100%) ;
+    }
+
+    .middle-right-button {
+        position:absolute;
+        top: 50%;
+        right: 0;
+        transform: scale(0.5) translate(75%,-100%) ;
+    }
+}
