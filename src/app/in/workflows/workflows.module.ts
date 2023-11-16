@@ -11,6 +11,14 @@ import { WorkflowNodeComponent } from './_components/workflow-node/workflow-node
 import { MatButtonModule } from '@angular/material/button';
 import { ClassicLayoutModule } from '../classic-layout/classic-layout.module';
 import { HeaderModule } from '../header/header.module';
+import { MatGridList, MatGridListModule } from '@angular/material/grid-list';
+import { PropertiesEditorComponent } from './_components/properties-editor/properties-editor.component';
+import { MatFormField, MatFormFieldModule } from '@angular/material/form-field';
+import { MatInput, MatInputModule } from '@angular/material/input';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { TypeInputComponent } from '../type-input/type-input.component';
+import { TypeInputModule } from '../type-input/type-input.module';
+import { PropertyDomainModule } from '../property-domain-component/property-domain.module';
 
 
 
@@ -18,7 +26,8 @@ import { HeaderModule } from '../header/header.module';
   declarations: [
     WorkflowsComponent,
     WorkflowDisplayerComponent,
-    WorkflowNodeComponent
+    WorkflowNodeComponent,
+    PropertiesEditorComponent
   ],
   imports: [
     CommonModule,
@@ -29,7 +38,14 @@ import { HeaderModule } from '../header/header.module';
     MatIconModule,
     MatButtonModule,
     ClassicLayoutModule,
-    HeaderModule
+    HeaderModule,
+    MatGridListModule,
+    MatFormFieldModule,
+    MatInputModule,
+    ReactiveFormsModule,
+    FormsModule,
+    TypeInputModule,
+    PropertyDomainModule
   ]
 })
 export class WorkflowsModule { }

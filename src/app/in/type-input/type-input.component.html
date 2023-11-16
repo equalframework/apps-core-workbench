@@ -1,8 +1,8 @@
-<mat-form-field class="full" *ngIf="type === 'float' || type === 'integer' || this.type === 'many2one'">
+<mat-form-field class="fullo" *ngIf="type === 'float' || type === 'integer' || this.type === 'many2one'">
     <mat-label>{{name}} value</mat-label>
     <input [disabled]="disabled" matInput type="number" [value]="value" (keydown)="noCancel($event)" (change)="changed.emit($event.target.value)">
 </mat-form-field>
-<mat-form-field class="full" *ngIf="type === 'string'">
+<mat-form-field class="fullo" *ngIf="type === 'string'">
     <mat-label>{{name}} value</mat-label>
     <input [disabled]="disabled" matInput [value]="value  ? value : ''" (keydown)="noCancel($event)" (change)="changed.emit($event.target.value)">
 </mat-form-field>
@@ -12,7 +12,7 @@
         <textarea matInput rows="8" [formControl]="JsonControl" (keydown.Tab)="TabBehavior($event)" (keydown)="noCancel($event)"  (change)="changeDefaultFromJson()"></textarea>
     </mat-form-field>
 </ng-container>
-<mat-form-field class="full" *ngIf="type === 'date'">
+<mat-form-field class="fullo" *ngIf="type === 'date'">
     <mat-label>{{name}} value</mat-label>
     <input [disabled]="disabled" matInput [matDatepicker]="picker" [value]="value" (keydown)="noCancel($event)" (change)="changed.emit($event.target.value)">
     <mat-hint>DD/MM/YYYY</mat-hint>
@@ -20,13 +20,13 @@
     <mat-datepicker #picker></mat-datepicker>
 </mat-form-field>
 <ng-container *ngIf="type === 'datetime'">
-    <mat-form-field class="full" >
+    <mat-form-field class="fullo" >
         <mat-label>{{name}} value (in local time)</mat-label>
         <input [disabled]="disabled" matInput type="datetime-local" [value]="defaultAsDateTimeLocal" (keydown)="noCancel($event)" (change)="changeDefaultDate($event.target.value)">
     </mat-form-field>
 </ng-container>
 <ng-container *ngIf="type === 'time'">
-    <mat-form-field class="full">
+    <mat-form-field class="fullo">
         <mat-label>{{name}} value</mat-label>
         <input [disabled]="disabled" matInput type="time" [value]="value" (keydown)="noCancel($event)" (change)="changed.emit($event.target.value)">
     </mat-form-field>

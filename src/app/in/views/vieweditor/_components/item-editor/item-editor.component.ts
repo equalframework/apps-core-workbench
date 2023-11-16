@@ -40,11 +40,9 @@ export class ItemEditorComponent implements OnInit {
     if(this.item.viewtype === 1){
       this.set_has_view(this.item.widgetForm._has_view)
     }
-    console.log(this.scheme)
   }
 
   get widgetTypes():string[] {
-    console.log(this.scheme)
     if(this.item.type === "label") return [""]
     if(!Object.keys(this.widget_types).includes((this.scheme.fields[this.item.value].type))) return [""]
     return ["",...this.widget_types[this.scheme.fields[this.item.value].type]]

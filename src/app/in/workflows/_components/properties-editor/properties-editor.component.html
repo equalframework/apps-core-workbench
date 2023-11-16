@@ -1,0 +1,56 @@
+
+<div class="context-menu">
+    <div *ngIf="state === 'edit-link'" class="full">
+        <div *ngIf="selectedLink < 0">
+            <label>Select a link to see its properties</label>
+        </div>
+        <div *ngIf="selectedLink >= 0" class="full">
+            <div class="link-title flexcenter">
+                <label>From {{links[selectedLink].from.name}} to {{links[selectedLink].to.name}}</label><br>
+                <button mat-flat-button color="warn" (click)="requestDeleteLink.emit()">delete link</button>
+            </div>
+            <div class="scroll link-content">
+                <app-type-input
+                    type="string"
+                    name="Name"
+                    [value]="links[selectedLink].name"
+                    (changed)="links[selectedLink].name = $event"
+                ></app-type-input>
+                <app-type-input
+                    type="string"
+                    name="description"
+                    [value]="links[selectedLink].description"
+                    (changed)="links[selectedLink].description = $event"
+                ></app-type-input>
+                <app-type-input
+                    type="string"
+                    name="help"
+                    [value]="links[selectedLink].help"
+                    (changed)="links[selectedLink].help = $event"
+                ></app-type-input>
+                <app-type-input
+                    type="array"
+                    name="Watch"
+                    [value]="links[selectedLink].watch"
+                    (changed)="links[selectedLink].watch = $event"
+                ></app-type-input>
+                <app-type-input
+                    type="string"
+                    name="OnAfter"
+                    [value]="links[selectedLink].onafter"
+                    (changed)="links[selectedLink].onafter = $event"
+                ></app-type-input>
+                <div style="overflow-x: scroll;">
+                    <app-property-domain-component 
+                        [class]="'core\\User'"
+                        [(value)]="links[selectedLink].domain"
+                        [can_have_env]="false"
+                    ></app-property-domain-component>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="state === 'create-node'">
+        CREATE NODE
+    </div>
+</div>

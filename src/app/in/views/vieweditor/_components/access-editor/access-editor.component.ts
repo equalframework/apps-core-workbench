@@ -35,8 +35,10 @@ export class AccessEditorComponent implements OnInit {
   }
 
   delete_element(group:string) {
-    let index = this.obj.access['groups'].indexOf(group)
-    this.obj.access['groups'].splice(index,1)
+    console.log(this.obj['groups'])
+    let index = this.obj['groups'].indexOf(group)
+    console.log(index)
+    this.obj['groups'].splice(index,1)
   }
 
 }

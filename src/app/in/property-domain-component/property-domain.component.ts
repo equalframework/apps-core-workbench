@@ -12,6 +12,7 @@ export class PropertyDomainComponent implements OnInit {
     @Input() value: any;
     @Input() name: any;
     @Input() class: any;
+    @Input() can_have_env:boolean = true
     @Output() valueChange = new EventEmitter<[]>();
     public validOperators: any;
     public fields: any;

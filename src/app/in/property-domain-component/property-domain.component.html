@@ -31,8 +31,8 @@
                         </mat-select>
                     </mat-form-field>
                     <!-- Value -->
-                    <mat-checkbox class="isenvcheck" *ngIf="fields" [checked]="is_env[i][j]" (change)="changeEnv($event.checked,i,j)">env value</mat-checkbox>
-                    <ng-container *ngIf="!is_env[i][j]">
+                    <mat-checkbox *ngIf="can_have_env && fields" class="isenvcheck" [checked]="is_env[i][j]" (change)="changeEnv($event.checked,i,j)">env value</mat-checkbox>
+                    <ng-container *ngIf="!can_have_env || !is_env[i][j]">
                         <!-- If there is a selection for the field of the operand -->
                         <ng-container *ngIf="fields && fields.fields[tempValue[i][j][0]]?.selection != undefined">
                             <app-value-selection class="value"
@@ -54,7 +54,7 @@
                             </app-value>
                         </ng-container>
                     </ng-container>
-                    <ng-container *ngIf="is_env[i][j] && fields">
+                    <ng-container *ngIf="can_have_env && is_env[i][j] && fields">
                         <mat-form-field appearance="fill">
                             <mat-label>Environment Variable</mat-label>
                             <mat-select [value]="tempValue[i][j][2].split('.')[0]" (selectionChange)="changeEnvVar($event.value,i,j)">
