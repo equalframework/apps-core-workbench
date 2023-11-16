@@ -275,6 +275,9 @@ export class PackageComponent implements OnInit {
         case 2:
             this.router.navigate(['/translation',"controller",this.selected_element.package,this.selected_element.name.split("_").slice(1).join("\\")],{"selected":this.selected_element})
             break
+        case 3:
+            this.router.navigate(["/controllers","return",this.selected_element.type,this.selected_element.name],{"selected":this.selected_element})
+            break
         }
     }
 }

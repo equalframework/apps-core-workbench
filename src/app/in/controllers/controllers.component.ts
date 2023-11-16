@@ -177,6 +177,9 @@ export class ControllersComponent implements OnInit {
         case 2:
             this.route.navigate(['/translation',"controller",this.selected_package,this.selected_controller.split("_").slice(1).join("\\")],{"selected":this.selected_controller})
             break
+        case 3:
+            this.route.navigate(['/controllers/return',this.selected_type_controller ,this.selected_controller],{"selected":this.selected_controller})
+            break
         }
     }
 }
