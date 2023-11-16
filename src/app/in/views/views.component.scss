@@ -35,14 +35,28 @@
     margin-left: 2.5em;
 }
 
-.model-label {
+.view-label {
     background-color: mat-color($view-color,A100);
     margin-left: 0;
     padding: 0 .3em;
     border-radius: .2em;
 }
 
-.model-label mat-icon {
+.view-label mat-icon {
     margin-right: .1em;
     transform: scale(1.1) translateY(.15em);
+}
+
+.model-label {
+    background-color: mat-color($class-color,A100);
+    margin-left: 0;
+    padding: 0 .3em;
+    border-radius: .2em;
+}
+
+.package-label {
+    background-color: mat-color($package-color,A100);
+    margin-left: 0;
+    padding: 0 .3em;
+    border-radius: .2em;
 }

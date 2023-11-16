@@ -1,0 +1,52 @@
+@import "src/theme.scss";
+
+:host {
+    height: 100%;
+    width: 100%;
+}
+
+.flexcol {
+    display: flex;
+}
+#test {
+    width: calc(100% - 20em);
+    height: 100%;
+    margin: 0;
+}
+
+.full ::ng-deep .mat-tab-body-wrapper {
+    height: calc(100% - 48px)
+}
+
+.holder {
+    height: calc(100% - 80px);
+}
+
+.marginel {
+    margin: .5em;
+    height: calc(100% - 1em);
+    width: calc( 100% - 1em);
+}
+
+.sizeanim {
+    transition: all .2s ease-in-out;
+}
+
+.mode-selected {
+    background-color: mat-color($maincolor);
+    color: white;
+}
+
+.modecontainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100% ;
+    background-color: whitesmoke;
+    height: 55px;
+    border-radius: 10px;
+    button {
+        margin: 0 .25em;
+    }
+    margin: 0 1em;
+}

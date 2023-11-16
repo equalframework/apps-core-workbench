@@ -100,8 +100,7 @@
                                 ></div>
                             </div>
                             <div *ngFor="let item of col.items" style="display: inline-block;" [style.width.%]=" item.width > 100/12 ? item.width : 100/12 ">
-                                <div *ngIf="!(dragged === item)" [appDragtracker]="{data_ref:col.items,ref:item,before:true,dragged:dragged,obj:selected}" class="boundary left"
-                                ></div>
+                                <div *ngIf="!(dragged === item) && dragged" [appDragtracker]="{data_ref:col.items,ref:item,before:true,dragged:dragged,obj:selected}" class="boundary left"></div>
                                 <!-- ITEM -->
                                 <div class="inlinediv">
                                     <div
@@ -148,7 +147,7 @@
                                     </div>
                                 </div>
                                 <!--     -->
-                                <div *ngIf="!(dragged === item)" [appDragtracker]="{data_ref:col.items,ref:item,before:false,dragged:dragged,obj:selected}" class="boundary right"></div>
+                                <div *ngIf="!(dragged === item) && dragged" [appDragtracker]="{data_ref:col.items,ref:item,before:false,dragged:dragged,obj:selected}" class="boundary right"></div>
                             </div>
                         </div>
                     </div>

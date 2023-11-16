@@ -248,9 +248,9 @@ export class WorkbenchService extends EmbbedApiService {
         }
     }
 
-    public async InitPackage(pkg:string,imprt:boolean):Promise<boolean> {
+    public async InitPackage(pkg:string,imprt:boolean,csd:boolean,impcsd:boolean):Promise<boolean> {
         try {
-            await this.api.fetch("?do=core_init_package&package="+pkg+(imprt ? "&import=true":""))
+            await this.api.fetch("?do=core_init_package&package="+pkg+(imprt ? "&import=true":"")+"&cascade"+(csd ? "true" : "false")+"&import_cascade"+(impcsd ? "true" : "false"))
             return true
         } catch {
             return false

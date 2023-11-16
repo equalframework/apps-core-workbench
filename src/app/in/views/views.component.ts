@@ -19,7 +19,7 @@ export class ViewsComponent implements OnInit {
   selected_view:string = "";
 
   type:string|null
-  entity:string|null
+  entity:string
 
   loading = true
 
@@ -40,7 +40,8 @@ export class ViewsComponent implements OnInit {
   async init() {
     this.loading = true
     this.type = this.activatedRoute.snapshot.paramMap.get('type')
-    this.entity = this.activatedRoute.snapshot.paramMap.get('entity')
+    let a = this.activatedRoute.snapshot.paramMap.get('entity')
+    this.entity = a ? a : ""
     this.views_for_selected_package = await this.getViewForSelectedPackage()
     let args = this.router.retrieveArgs()
     if(args && args["view"]) this.onclickViewSelect(args["view"])

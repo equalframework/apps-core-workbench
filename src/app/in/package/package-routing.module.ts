@@ -14,7 +14,7 @@ const routes: Routes = [
   },
   {
     path : 'fields/:selected_package/:selected_class',
-    loadChildren: () => import('../models/field/field.module').then(m => m.FieldModule)
+    loadChildren: () => import('../models/field-editor/field-editor.module').then(m => m.FieldEditorModule)
   },
   {
     path : 'views/:type/:entity',
@@ -31,6 +31,10 @@ const routes: Routes = [
   {
     path : 'translation/:type/:selected_package/:selected_model',
     loadChildren : () => import('src/app/in/model-trad-editor/model-trad-editor.module').then(m => m.ModelTradEditorModule)
+  },
+  {
+    path: 'test',
+    loadChildren : () => import('src/app/in/workflows/workflows.module').then(m => m.WorkflowsModule)
   },
   // wildcard route (accept root and any sub route that does not match any of the routes above)
   {

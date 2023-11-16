@@ -23,7 +23,7 @@ import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar';
 import localeFr from '@angular/common/locales/fr';
 import { PackageModule } from './in/package/package.module';
 import { TranslateModule } from '@ngx-translate/core';
-import { TypeInputComponent } from './in/type-input/type-input.component';
+import { RouterModule } from '@angular/router';
 
 registerLocaleData(localeFr);
 
@@ -43,7 +43,10 @@ registerLocaleData(localeFr);
         PlatformModule,
         NgxMaterialTimepickerModule.setLocale('fr-BE'),
         TranslateModule.forRoot(),
-        HttpClientModule
+        HttpClientModule,
+    ],
+    exports: [
+        RouterModule
     ],
     providers: [
         // add HTTP interceptor to inject AUTH header to any outgoing request

@@ -1,3 +1,5 @@
+@import "src/theme.scss";
+
 .node_container {
     display: flex;
     align-items: center;
@@ -12,7 +14,7 @@
 
 .input {
     height: 65px;
-    width: calc(100% - 40px);
+    width:  100%;
     padding: 0px !important;
 }
 
@@ -24,9 +26,21 @@
     padding: 0px !important;
 }
 
+.createbutton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1em;
+    height: calc(10% - 30px);
+    background-color: mat-color($maincolor);
+    color : white;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
 .list {
     // - (stepper) and - (add_container)
-    height: calc(100% - (65px) - (65px));
+    height: calc(90% - 35px - 1em);
     overflow: auto;
 
     background: rgb(245, 245, 245);
@@ -92,4 +106,8 @@
     height: 30px;
     line-height: 30px;
     margin-left: 10px;
+}
+
+::ng-deep .mat-list-item-content {
+    padding: 0 5px !important;
 }

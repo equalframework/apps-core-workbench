@@ -95,7 +95,7 @@ export class Param {
             "help" : this.help,
             "type"  : this.type
         }
-        if(this.type === 'many2one' || this.type === 'one2many' || this.type === 'one2one') {
+        if(this.type === 'many2one' || this.type === 'one2many' || this.type === 'many2many') {
             res['foreign_object'] = this.foreign_object
         }
         if(this.usage.hasUsage()) {

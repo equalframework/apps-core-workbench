@@ -35,6 +35,7 @@ import { MatInputModule } from '@angular/material/input';
     ReactiveFormsModule,
     MatButtonModule,
     MatInputModule,
+    MatIconModule,
   ],
   exports : [
     PropertyClauseComponent

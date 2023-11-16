@@ -1,0 +1,34 @@
+@import "src/theme.scss";
+
+:host {
+    height: calc(100% - 1em);
+    width: calc( 100% - 1em);
+}
+
+.context-menu {
+    background-color: whitesmoke;
+    border-radius: 10px;
+    height: calc(100%);
+    width: 100%;
+    padding: 1em 0em;
+}
+
+.scroll {
+    overflow-y: scroll;
+}
+
+.flexcenter {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.link-title {
+    height: 50px;
+}
+
+.link-content {
+    height: calc(100% - 50px);
+    padding: 0 1em;
+}

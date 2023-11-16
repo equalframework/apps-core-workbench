@@ -1,12 +1,12 @@
-<div *ngIf="view_ref ===''" class="max-height max-width margin-container">
+<div *ngIf="view_ref ===''" class="full margin-container">
     <label class="packagename">Select package to show properties.</label>
 </div>
 
-<div *ngIf="view_ref !=='' && !view_scheme">
+<div *ngIf="view_ref !=='' && !view_scheme" class="full">
     This view seems to be malformed
 </div>
 
-<div *ngIf="view_ref !=='' && view_scheme" class="max-width margin-container">
+<div *ngIf="view_ref !=='' && view_scheme" class="full margin-container">
     <div class="controller-container-top">
         <div class="flex-labels">
             <label class="viewname">View : </label>

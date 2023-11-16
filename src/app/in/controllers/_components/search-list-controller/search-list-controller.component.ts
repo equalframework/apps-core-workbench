@@ -24,6 +24,8 @@ export class SearchListControllerComponent implements OnInit {
     public editedNode: string = "";
     public data_selected = true;
 
+    search_value = ""
+
     constructor(
         private dialog: MatDialog,
         private snackBar: MatSnackBar
@@ -34,7 +36,7 @@ export class SearchListControllerComponent implements OnInit {
     }
 
     public ngOnChanges() {
-        this.onSearch('');
+        this.onSearch(this.search_value);
     }
 
     /**
@@ -43,6 +45,7 @@ export class SearchListControllerComponent implements OnInit {
      * @param value value of the filter
      */
     public onSearch(value: string) {
+        this.search_value = value
         if(this.data_selected) {
             this.filteredData = Object.values(this.data['data']).filter((node: any) => node.toLowerCase().includes(value.toLowerCase()));
         } else {

@@ -7,7 +7,9 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 })
 export class HeaderComponent implements OnInit {
 
-  @Input() customButtonList:{name:string,icon:string,disabled:false}[]
+  @Input() customButtonList:{name:string,icon:string,disabled:false}[] = []
+
+  @Input() contextualButton:{name:string,icon:string,disabled:false}[] = []
 
   // Buttons display
   @Input() buttonBack:boolean = false
@@ -31,6 +33,7 @@ export class HeaderComponent implements OnInit {
   @Output() onButtonSave = new EventEmitter<void>()
   @Output() onButtonCancel = new EventEmitter<void>()
   @Output() onCustomButton = new EventEmitter<string>()
+  @Output() onContextualButton = new EventEmitter<string>()
 
   constructor() { }
 

@@ -1,5 +1,7 @@
+@import "src/theme.scss";
+
 :host {
-    height: calc(100% - 1em);
+    height: 100%;
 }
 
 .node_container {
@@ -16,7 +18,7 @@
 
 .input {
     height: 65px;
-    width: calc(100% - 40px);
+    width: 100%;
     padding: 0px !important;
     margin-bottom: -11px;
 }
@@ -31,8 +33,21 @@
     padding: 0px !important;
 }
 
+.createbutton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1em;
+    height: calc(10% - 30px);
+    background-color: mat-color($maincolor);
+    color : white;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+
 .list {
-    height: calc(100% - (65px) - (51px) - (54px));
+    height: calc(90% - 70px - .5em);
     overflow: auto;
     background-color: whitesmoke;
 

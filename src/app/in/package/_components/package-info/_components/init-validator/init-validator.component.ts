@@ -9,6 +9,8 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 export class InitValidatorComponent implements OnInit {
 
   imprt = false
+  csd = true
+  impcsd = false
 
   constructor(
     @Optional() @Inject(MAT_DIALOG_DATA) public data:{package:string},

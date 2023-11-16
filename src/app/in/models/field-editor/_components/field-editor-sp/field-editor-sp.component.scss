@@ -1,0 +1,141 @@
+@import "src/theme.scss";
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
+
+:host {
+    width: 100%;
+    height: 100%;
+}
+
+.scrollable {
+    overflow-y: scroll;
+}
+
+.sidepane {
+    padding: 2em;
+    background-color: whitesmoke;
+    border-radius: 1em;
+    height: 100%;
+}
+
+.content {
+    margin: 0 1em;
+    margin-top: 2em;
+    margin-bottom: 2em;
+}
+
+.name-container {
+    display: flex;
+    font-size: 1.5em;
+    height: 60px;
+    align-items: center;
+}
+
+.maincolor {
+    color: mat-color($maincolor)
+}
+
+.editname .mat-form-field-infix {
+    margin: 0;
+    border: 0;
+}
+
+.fieldarea {
+    width: 100%;
+}
+
+.checkboxcontainer {
+    display: flex;
+    align-items: center;
+}
+
+.thirdfield {
+    width: calc(33.3% - 1em);
+    margin-right:1em;
+}
+
+.conditionalcontainer {
+    margin-top: 1.5em;
+    padding: 1.5em;
+    border-radius: 1em;
+    border: solid #000 1px;
+
+    .title {
+        color: mat-color($maincolor);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 1.2em;
+        margin-bottom: 1em;
+    }
+}
+
+.selection-el {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.t-input-holder{
+    display: flex;
+    align-items: center;
+    width: 80%;
+    justify-content: space-around;
+    app-type-input{
+        width: 80%;
+    }
+} 
+
+.deps-holder {
+    height: 40px;
+
+    .dependency-chip {
+        display: inline-flex;
+        align-items: center;
+        padding: .5em 1em;
+        border-radius: 1em;
+        background-color: mat-color($accentcolor,A200);
+        color: white;
+        margin-right: .5em;
+    
+        .pseudo-button {
+            cursor:pointer;
+        }
+    }
+}
+
+.toggleicon {
+    margin-right: 1em;
+    transform: scale(1.2) translateY(.1em);
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    color : #747474
+}
+
+.toggleicon.on {
+    color : mat-color($accentcolor) !important
+}
+
+
+  
+.mat-expansion-panel-header-description {
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mat-mdc-form-field + .mat-mdc-form-field {
+margin-left: 8px;
+}
+
+.infoBanner {
+    width: 100%;
+    background-color: mat-color($class-color,A100);
+    text-align: center;
+    padding: 2px 0;
+    border-radius: 10px;
+}
+
+.bannerholder {
+    min-height: 28px;
+}

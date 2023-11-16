@@ -101,6 +101,14 @@ pre {
     border-radius: .2em;
 }
 
+.package-label {
+    background-color: mat-color($package-color,A100);
+    margin-left: 0;
+    padding: 0 .3em;
+    border-radius: .2em;
+}
+
+
 .model-label mat-icon {
     margin-right: .1em;
     transform: scale(1.1) translateY(.15em);
@@ -112,4 +120,8 @@ pre {
 
 #schema {
     height: 100%
+}
+
+.content {
+    height: calc(100% - 80px);
 }

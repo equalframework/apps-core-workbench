@@ -15,11 +15,6 @@
             </mat-option>
         </mat-select>
     </mat-form-field>
-    <div class="btnholder-searchlist">
-        <button mat-mini-fab color="primary" (click)="openCreator()" class="smallminifab">
-            <mat-icon>add</mat-icon>
-        </button>
-    </div>
 </div>
 <div *ngIf="loading">
     <mat-spinner></mat-spinner>
@@ -48,3 +43,6 @@
     </cdk-virtual-scroll-viewport>
 </mat-list>
 
+<div *ngIf="!loading" class="adder" (click)="openCreator()">
+    <mat-icon style="margin-right: 1em;">add</mat-icon> Create new component
+</div>

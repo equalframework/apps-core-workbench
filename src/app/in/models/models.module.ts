@@ -19,6 +19,9 @@ import { ModelsInfoModule } from './_components/model-info/models-info.module';
 import { PropertyDomainModule } from '../property-domain-component/property-domain.module';
 import { MixedCreatorModule } from '../package/_components/mixed-creator/mixed-creator.module';
 import { DeleteConfirmationModule } from '../delete-confirmation/delete-confirmation.module';
+import { HeaderModule } from '../header/header.module';
+import { ClassicLayoutModule } from '../classic-layout/classic-layout.module';
+import { FieldEditorComponent } from './field-editor/field-editor.component';
 
 @NgModule({
     imports: [
@@ -34,6 +37,8 @@ import { DeleteConfirmationModule } from '../delete-confirmation/delete-confirma
         PropertyDomainModule,
         MixedCreatorModule,
         DeleteConfirmationModule,
+        HeaderModule,
+        ClassicLayoutModule,
     ],
     declarations: [
         ModelsComponent,

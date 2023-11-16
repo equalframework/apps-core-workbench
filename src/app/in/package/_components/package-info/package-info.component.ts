@@ -16,18 +16,27 @@ import { InitValidatorComponent } from './_components/init-validator/init-valida
 export class PackageInfoComponent implements OnInit {
 
     @Input() current_package:string;
-    @Input() package_init_list:string[];
-    @Input() package_consitency:any
+    @Input() package_init_list:string[]; 
+
     @Output() onModelClick = new EventEmitter<void>();
     @Output() onControllerClick = new EventEmitter<void>();
     @Output() onViewClick = new EventEmitter<void>();
     @Output() onRouteClick = new EventEmitter<void>();
     @Output() refresh = new EventEmitter<void>();
+
+    package_consitency:any
+
     public current_initialised = false
     public warn_count:number
     public error_count:number
     public error_list:{type:number, text:string}[]
     public info_popup = false
+
+    public consistency_loading = true
+
+    public want_errors:boolean = true
+
+    public want_warning:boolean = true
 
     constructor(
         private snackBar: MatSnackBar,
@@ -36,13 +45,21 @@ export class PackageInfoComponent implements OnInit {
     ) { }
 
     async ngOnInit() {
+        this.consistency_loading = true
         this.current_initialised = this.package_init_list.indexOf(this.current_package) >= 0
+        this.package_consitency = await this.api.getPackageConsistency(this.current_package)
+        //this.error_list = this.package_consitency["result"]
+        //this.countErrors()
+        this.consistency_loading = false
     }
 
     public async ngOnChanges() {
+        this.consistency_loading = true
         this.current_initialised = this.package_init_list.indexOf(this.current_package) >= 0
+        this.package_consitency = await this.api.getPackageConsistency(this.current_package)
         this.error_list = this.package_consitency["result"]
         this.countErrors()
+        this.consistency_loading = false
     }
 
     public countErrors() {
@@ -81,11 +98,17 @@ export class PackageInfoComponent implements OnInit {
         prettyPrintJson.toHtml(this.package_consitency)
     }
 
+    public get filtered_error_list() {
+        return this.error_list.filter((item) => (
+            (item.text.includes("ERROR") && this.want_errors) || (item.text.includes("WARN") && this.want_warning)
+        ))
+    }
+
     public async initPackage() {
         let d = this.matDialog.open(InitValidatorComponent,{data:{package:this.current_package},width:"35em"})
         d.afterClosed().subscribe(async (result) => {
             if(result){
-                let x = await this.api.InitPackage(this.current_package,result.import)
+                let x = await this.api.InitPackage(this.current_package,result.import,result.csd,result.impcsd)
                 if(x) {
                     this.snackBar.open("Package "+this.current_package+" has been successfully initialised")
                     this.refresh.emit()

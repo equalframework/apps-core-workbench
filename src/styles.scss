@@ -71,3 +71,22 @@ ngx-material-timepicker-toggle {
 .mat-figure {
   height: 100%;
 }
+
+
+::-webkit-scrollbar {
+  width: 5px !important;
+  height: 5px !important;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background: mat-color($maincolor) !important;
+}
+
+.full {
+  width: 100% !important;
+  height: 100% !important;
+}

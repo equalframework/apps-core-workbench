@@ -3,9 +3,6 @@
         <button matPrefix mat-icon-button><mat-icon class="icon">filter_list</mat-icon></button>
         <input matInput placeholder="Filter" (keyup)="onSearch($event.target.value)">
     </mat-form-field>
-    <button mat-icon-button class="add_button" aria-label="Add node">
-        <mat-icon class="icon pointable" (click)="onclickCreate()">add</mat-icon>
-    </button>
 </div>
 
 <mat-list class="list scrollable">
@@ -29,7 +26,7 @@
             <div class="node_container" [class.node-hover]="selected_node != node" [class.node-selected]="selected_node == node">
                 <div class="pointable node-text" (click)="onclickNodeSelect(node)">{{ node }}</div>
                 <div class="icons">
-                    <button mat-icon-button aria-label="Edit node button">
+                    <button disabled mat-icon-button aria-label="Edit node button">
                         <mat-icon (click)="onEditNode(node)">edit</mat-icon>
                     </button>
                     <button mat-icon-button aria-label="Delete node button">
@@ -40,3 +37,7 @@
         </ng-template>
     </mat-list-item>
 </mat-list>
+
+<div class="createbutton" (click)="onclickCreate()">
+    <mat-icon style="margin-right: 1em;">add</mat-icon> Create model
+</div>

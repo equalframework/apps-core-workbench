@@ -1,0 +1,204 @@
+<div class="full flowcontainer " #boundary
+    [style.background-position]="bgPos"
+    (mousemove)="trackMouse($event)"
+    (mouseup)="grabbed = false"
+    (mousedown)="grabbed = true"
+    [class.grabbed] = "grabbed"
+>
+    <div class="full strings" [style.z-index]="['edit-link'].includes(state) ? 1000 : undefined">
+        <svg class="full" xmlns="http://www.w3.org/2000/svg" >
+            <style>
+                tspan.material-icons {
+                    font-family: 'Material Icons';
+                    font-weight: normal;
+                    font-style: normal;
+                    font-size: 25px;
+                    line-height: 1;
+                    letter-spacing: normal;
+                    text-transform: none;
+                    display: inline-block;
+                    white-space: nowrap;
+                    word-wrap: normal;
+                    direction: ltr;
+                    -webkit-font-feature-settings: 'liga';
+                    -webkit-font-smoothing: antialiased;
+                    user-select: none;
+                  }
+                  tspan.material-icons.small {
+                    font-size: 10px;
+                  }
+                  g {
+                    cursor: pointer;
+                  }
+            </style>
+            <defs>
+                <marker id="arrowhead" markerWidth="10" markerHeight="10" 
+                refX="0" refY="5" orient="auto">
+                    <polygon points="-5 0, 5 5, -5 10" fill="#424242"/>
+                </marker>
+                <marker id="arrowhead-selected" markerWidth="10" markerHeight="10" 
+                refX="0" refY="5" orient="auto">
+                    <polygon points="-5 0, 5 5, -5 10" fill="#3F51B5"/>
+                </marker>
+            </defs>
+            <g *ngFor="let link of links; index as i" (click)="selectForEdition(i)" (mousedown)="$event.stopPropagation()">
+                <g *ngIf="i!==selectedLink">
+                    <g *ngIf="getPathStringBetween(link.from,link.to,link.anchorFrom,link.anchorTo) as line">
+                        <path 
+                            [attr.d]="line.path" 
+                            stroke="#424242" fill="none" stroke-width="2px" 
+                            marker-end='url(#arrowhead)'
+                            
+                        />
+                        <g 
+                            *ngIf="['edit-link'].includes(state)"
+                        >
+                            <g>
+                                <circle  
+                                    r="17.5" 
+                                    fill='#424242' [attr.cx]="line.center.x" [attr.cy]="line.center.y"
+                                />
+                                <text [attr.x]="line.center.x-12.5" [attr.y]="line.center.y+12.5">
+                                    <tspan class="material-icons" fill="white" >
+                                        edit
+                                    </tspan>
+                                </text>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </g>
+            <g *ngIf="!(['edit-from','edit-to'].includes(state))">
+                <g *ngIf="links[selectedLink] as link">
+                    <g *ngIf="getPathStringBetween(link.from,link.to,link.anchorFrom,link.anchorTo) as line">
+                        <path 
+                            [attr.d]="line.path" 
+                            stroke="#3F51B5" fill="none" stroke-width="2px" 
+                            marker-end='url(#arrowhead-selected)'
+                            
+                        />
+                        <g 
+                            *ngIf="['edit-link'].includes(state)"
+                        >
+                            <g>
+                                <circle  
+                                    r="17.5" 
+                                    fill="#3F51B5" [attr.cx]="line.center.x" [attr.cy]="line.center.y"
+                                />
+                                <text [attr.x]="line.center.x-12.5" [attr.y]="line.center.y+12.5">
+                                    <tspan class="material-icons" fill="white" >
+                                        edit
+                                    </tspan>
+                                </text>
+                            </g>
+                            <g>
+                                <g (click)="requestState.emit('edit-from')">
+                                    <circle  
+                                        r="10" 
+                                        fill="#FF4081" [attr.cx]="line.start.x" [attr.cy]="line.start.y"
+                                    />
+                                    <text [attr.x]="line.start.x-5" [attr.y]="line.start.y+5">
+                                        <tspan class="material-icons small" fill="white" >
+                                            anchor
+                                        </tspan>
+                                    </text>
+                                </g>
+                                <g (click)="requestState.emit('edit-to')">
+                                    <circle  
+                                        r="10" 
+                                        fill="#FF4081" [attr.cx]="line.end.x" [attr.cy]="line.end.y"
+                                    />
+                                    <text [attr.x]="line.end.x-5" [attr.y]="line.end.y+5">
+                                        <tspan class="material-icons small" fill="white" >
+                                            anchor
+                                        </tspan>
+                                    </text>
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </g>
+            <g *ngIf="state === 'linking-to' && selectedNode > 0 && selectedAnchor">
+                <g *ngIf="getPathStringBetween(nodes[selectedNode],mouse_pos,selectedAnchor,anchor.Top) as line">
+                    <path 
+                        [attr.d]="line.path" 
+                        stroke="#424242" fill="none" stroke-width="2px" 
+                    />
+                    <g 
+                        *ngIf="['edit-link'].includes(state)"
+                    >
+                        <circle  
+                            r="17.5" 
+                            fill="#424242" [attr.cx]="line.center.x" [attr.cy]="line.center.y"
+                        />
+                        <text [attr.x]="line.center.x-12.5" [attr.y]="line.center.y+12.5">
+                            <tspan class="material-icons" fill="white" >
+                                edit
+                            </tspan>
+                        </text>
+                    </g>
+                </g>
+            </g>
+            <g *ngIf="state === 'edit-to'">
+                <g *ngIf="getPathStringBetween(links[selectedLink].from,mouse_pos,links[selectedLink].anchorFrom,anchor.Top) as line">
+                    <path 
+                        [attr.d]="line.path" 
+                        stroke="#3F51B5" fill="none" stroke-width="2px" 
+                    />
+                    <g 
+                        *ngIf="['edit-link'].includes(state)"
+                    >
+                        <circle  
+                            r="17.5" 
+                            fill="#3F51B5" [attr.cx]="line.center.x" [attr.cy]="line.center.y"
+                        />
+                        <text [attr.x]="line.center.x-12.5" [attr.y]="line.center.y+12.5">
+                            <tspan class="material-icons" fill="white" >
+                                edit
+                            </tspan>
+                        </text>
+                    </g>
+                </g>
+            </g>
+            <g *ngIf="state === 'edit-from'">
+                <g *ngIf="getPathStringBetween(mouse_pos,links[selectedLink].to,anchor.Top,links[selectedLink].anchorTo) as line">
+                    <path 
+                        [attr.d]="line.path" 
+                        stroke="#3F51B5" fill="none" stroke-width="2px" 
+                        marker-end="url('#arrowhead-selected')"
+                    />
+                    <g 
+                        *ngIf="['edit-link'].includes(state)"
+                    >
+                        <circle  
+                            r="17.5" 
+                            fill="#3F51B5" [attr.cx]="line.center.x" [attr.cy]="line.center.y"
+                        />
+                        <text [attr.x]="line.center.x-12.5" [attr.y]="line.center.y+12.5">
+                            <tspan class="material-icons" fill="white" >
+                                edit
+                            </tspan>
+                        </text>
+                    </g>
+                </g>
+            </g>
+        </svg>
+    </div>
+    <div class="full boundary">
+        <app-workflow-node 
+            class="dragelement"
+            *ngFor="let node of nodes; index as i" 
+            cdkDrag 
+            (cdkDragMoved)="mv(node,$event)"
+            [style.top.px]="initialpos[i].position.y - 55 + offset.y "
+            [style.left.px]="initialpos[i].position.x + offset.x"
+            [node]="node"
+            [state]="state"
+            
+            [selected]="i===selectedNode"
+            (mousedown)="$event.stopPropagation()"
+            (linkeToMe)="finishCreateLink(i,$event)"
+        ></app-workflow-node>
+    </div>
+</div>

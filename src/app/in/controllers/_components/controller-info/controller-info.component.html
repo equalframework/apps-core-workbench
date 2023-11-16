@@ -1,4 +1,4 @@
-<div *ngIf="current_controller ===''" class="max-height max-width margin-container">
+<div *ngIf="current_controller ===''" class="full margin-container">
     <label class="packagename">Select a controller to show properties.</label>
 </div>
 <div *ngIf="current_controller !==''" class="margin-container" style="height: 100%;">
@@ -18,14 +18,13 @@
         <div *ngIf="fetch_error">
             It looks like you don't have the rights to see this controller informations
         </div>
-
-        <div *ngIf="!fetch_error">
-            <label class="content-label">Description</label><br>
-            <label class="content-desc">{{scheme['description']}}</label>
-        </div>
     </div>
     <div class="core-prez">
         <div *ngIf="!fetch_error">
+            <div *ngIf="!fetch_error">
+                <label class="content-label">Description</label><br>
+                <label class="content-desc">{{scheme['description']}}</label>
+            </div>
             <div *ngIf="AccessString !== undefined">
                 <br>
                 <label class="content-label">Access</label>
@@ -37,46 +36,34 @@
             <br>
             <label class="content-label">params</label>
             <div class="params-container">
-                <div *ngFor="let value of params | keyvalue" class="params-mat-card">
-                    <div>
-                        <p class="controller-param-title">{{value.key}} : {{getType(value.key)}} <strong *ngIf="isRequired(value.key)">(required)</strong></p>
-                    </div>
-                    <div>
-                        <p>{{getDescription(value.key)}}</p>
-                    </div>
-                    <div class="flex">
-                        <div class="flex card-content2">
-                            <ng-container *ngIf="getType(value.key) == 'string'">
-                                <app-string
-                                    [value]="getParamsValue(value.key)"
-                                    [required]="isRequired(value.key)"
-                                    [selection]="getSelection(value.key)"
-                                    (valueChange)="updateParamsValue($event, value.key)">
-                                </app-string>
-                            </ng-container>
-                            <ng-container *ngIf="getType(value.key) == 'integer' || getType(value.key) == 'float'">
-                                <app-number
-                                    [value]="getParamsValue(value.key)"
-                                    [required]="isRequired(value.key)"
-                                    [selection]="getSelection(value.key)"
-                                    [params_property]="value.value"
-                                    (valueChange)="updateParamsValue($event, value.key)">
-                                </app-number>
-                            </ng-container>
-                            <ng-container *ngIf="getType(value.key) == 'boolean'">
-                                <app-boolean
-                                    [value]="getParamsValue(value.key)"
-                                    [required]="isRequired(value.key)"
-                                    (valueChange)="updateParamsValue($event, value.key)">
-                                </app-boolean>
-                            </ng-container>
-                            <ng-container *ngIf="getType(value.key) == 'array' && value.key != 'domain'">
-                                <app-array
-                                    [value]="getParamsValue(value.key)"
-                                    (valueChange)="updateParamsValue($event, value.key)">
-                                </app-array>
-                            </ng-container>
-                            <ng-container *ngIf="value.key == 'domain'">
+                <mat-accordion>
+                    <mat-expansion-panel *ngFor="let value of params | keyvalue" class="params-mat-card">
+                        <mat-expansion-panel-header>
+                            <mat-panel-title>
+                                <div class="flextitlepannel">
+                                    <div class="typeicon">
+                                        <mat-icon >{{iconType[getType(value.key)]}}</mat-icon>
+                                    </div>
+                                    <label class="controller-param-title">{{value.key}} <strong *ngIf="isRequired(value.key)">(required)</strong></label>
+                                </div>
+                            </mat-panel-title>
+                            <mat-panel-description>
+                                <label>{{getDescription(value.key)}}</label>
+                            </mat-panel-description>
+                            <div class="valuewrapper">
+                                <label class="valuedisplayer" [style.opacity]="getParamsValue(value.key) ? 1 : 0.6">
+                                    {{getParamsValue(value.key) ? "value :" : "(no value)"}} {{ getType(value.key) !== "array" ? getParamsValue(value.key) : tojsonstring(getParamsValue(value.key))}}
+                                </label>
+                            </div>
+                        </mat-expansion-panel-header>
+                        <div class="card-content2">
+                            <app-type-input *ngIf="!getUsage(value.key).startsWith('array/domain') || !getEntity()"
+                                [type]="getType(value.key)"
+                                [name]="value.key"
+                                [value]="getParamsValue(value.key)"
+                                (changed)="updateParamsValue($event, value.key)"
+                            ></app-type-input>
+                            <ng-container *ngIf="getUsage(value.key).startsWith('array/domain') && getEntity()">
                                 <app-property-domain-component
                                     [value]="getParamsValue(value.key)"
                                     [class]="getEntity()"
@@ -84,9 +71,8 @@
                                 </app-property-domain-component>
                             </ng-container>
                         </div>
-                        <br>
-                    </div>
-                </div>
+                    </mat-expansion-panel>
+                </mat-accordion>
             </div>
             <br>
             <button mat-button class="action-controller-button" (click)="submit()" [disabled]="!canSubmit">
@@ -110,10 +96,10 @@
             </div>
             <br>
             <div>
-                <label class="content-label">Custom routes</label>
+                <label class="content-label">Live routes</label>
                 <div *ngFor="let item of obk(filtered_routes)">
                     <a class="cr-click" [class.clickable]="moving" (click)="sendTo(item)">
-                        <div *ngFor="let method of obk(filtered_routes[item]['methods'])" class="controller_cr">
+                        <div *ngFor="let method of obk(filtered_routes[item]['methods'])" class="controller_cr {{method}}">
                             <div class="controller_cr_el controller_cr_method {{method}}">
                                 {{method}}
                             </div>
@@ -131,10 +117,13 @@
         </div>
         <br>
     </div>
-    <div class="class-container-bottom">
+    <div class="class-container-bottom" *ngIf="!fetch_error">
         <mat-grid-list [cols]="4" rowHeight="100%" class="max-width button-pkg-container">
             <mat-grid-tile>
                 <button mat-button class="package-info-button" (click)="nav(1)"><mat-icon>text_format</mat-icon><label>Params</label></button>
+            </mat-grid-tile>
+            <mat-grid-tile>
+                <button mat-button class="package-info-button" (click)="nav(3)"><mat-icon>reply</mat-icon><label>Response</label></button>
             </mat-grid-tile>
             <mat-grid-tile>
                 <button mat-button class="package-info-button" (click)="nav(2)"><mat-icon>translate</mat-icon><label>Translations</label></button>

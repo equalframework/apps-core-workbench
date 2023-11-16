@@ -10,7 +10,12 @@ export class RouterMemory {
     constructor(
         private router : Router,
         private activatedRoute : ActivatedRoute,
-    ) {}
+    ) {
+        // This is needed to make reload on same route working.
+        this.router.routeReuseStrategy.shouldReuseRoute = function(){
+            return false;
+        }
+    }
 
     public previous:any[] = []
 

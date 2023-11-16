@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
 import { WorkbenchService } from './_service/property-domain.service';
+import { prettyPrintJson } from 'pretty-print-json';
 
 @Component({
     selector: 'app-property-domain-component',
@@ -11,11 +12,16 @@ export class PropertyDomainComponent implements OnInit {
     @Input() value: any;
     @Input() name: any;
     @Input() class: any;
+    @Input() can_have_env:boolean = true
     @Output() valueChange = new EventEmitter<[]>();
     public validOperators: any;
     public fields: any;
     public is_env: boolean[][] = []
     tempValue: any;
+
+    oldclass:string = ""
+
+    public viewmode:number = 0
 
     constructor(private api: WorkbenchService) { }
 
@@ -23,10 +29,20 @@ export class PropertyDomainComponent implements OnInit {
         this.transformDomain();
         this.validOperators = await this.api.getValidOperators();
         this.getSchema();
+        
+    }
+
+    fixdomain() {
+        this.is_env = []
         for (let i = 0; i < this.tempValue.length; i++) {
             this.is_env.push([])
-            for (let j = 0; j < this.tempValue[i].length; i++) {
-                console.log(this.tempValue[i][j])
+            console.log("i : "+i)
+            console.log(this.is_env)
+            console.log(this.tempValue[i])
+            let l = this.tempValue[i].length
+            for (let j = 0; j < l; j++) {
+                console.log("j : "+j)
+                console.log(this.is_env[i])
                 this.is_env[i].push(
                     this.tempValue[i][j][2] && (this.tempValue[i][j][2].includes("object.") || this.tempValue[i][j][2].includes("user."))
                 )
@@ -35,20 +51,23 @@ export class PropertyDomainComponent implements OnInit {
     }
 
     async ngOnChanges() {
-        this.getSchema().then(() => console.log(this.fields));
         this.transformDomain();
         console.log(this.tempValue)
-
+        this.fixdomain()
+        this.getSchema()
     }
 
     async getSchema() {
-        this.fields =  await this.api.getSchema(this.class);
+        if(this.class !== this.oldclass){
+            this.fields =  await this.api.getSchema(this.class);
+            this.oldclass = this.class
+        }
+        
     }
 
     transformDomain() {
         if (this.value) {
             this.tempValue = [...this.value];
-            // empty  domain : []
             if (this.tempValue.length == 0) {
                 this.tempValue = [this.tempValue];
             }
@@ -80,11 +99,21 @@ export class PropertyDomainComponent implements OnInit {
 
     public selectOperator(value: any, i: any, j: any) {
         this.tempValue[i][j][1] = value;
+        if(this.is_env[i][j]) return
         if (value == 'in' || value == 'not in' || !Array.isArray(this.tempValue[i][j][2])) {
             this.tempValue[i][j][2] = [];
         } else {
             this.tempValue[i][j][2] = this.defaultTypeValue(this.getTypeFromField(this.tempValue[i][j][0]).type);
         }
+        this.valueChange.emit(this.tempValue)
+    }
+
+    changeEnv(value:boolean,i:number,j:number) {
+        this.is_env[i][j] = value
+        if(this.is_env[i][j])
+            this.tempValue[i][j][2]= ''
+        else 
+            this.selectOperator(this.tempValue[i][j][1],i,j)
     }
 
     public changeValue(new_value: any, i: any, j: any) {
@@ -121,11 +150,13 @@ export class PropertyDomainComponent implements OnInit {
     }
 
     public addCondition(index: any) {
-        this.tempValue[index].push(['', '', '']);
+        this.tempValue[index].push(["","",""]);
+        this.is_env[index].push(false)
     }
 
     public addClause() {
-        this.tempValue.push([['', '', '']]);
+        this.tempValue.push([["","",""]]);
+        this.is_env.push([false])
     }
 
     public removeCondition(i: any, j: any) {
@@ -154,6 +185,10 @@ export class PropertyDomainComponent implements OnInit {
         } else {
             return '';
         }
+    }
+
+    get json() {
+        return prettyPrintJson.toHtml(this.value)
     }
 }
 

@@ -22,7 +22,6 @@ export class PackageComponent implements OnInit {
     // http://equal.local/index.php?get=core_config_classes
 
     public initialised_packages:string[]
-    public package_consistency:any
     public schema:any
     public selected_type_controller:string = ''
     public fetch_error:boolean = false
@@ -100,7 +99,6 @@ export class PackageComponent implements OnInit {
         this.sideload = true
         if(eq_element.type === "package") {
             this.initialised_packages = await this.api.getInitialisedPackages()
-            this.package_consistency = await this.api.getPackageConsistency(eq_element.name)
         }
         if(eq_element.type === "class") {
             this.schema = await this.api.getSchema(eq_element.package + '\\' + eq_element.name);
@@ -126,7 +124,6 @@ export class PackageComponent implements OnInit {
 
     async refresh_consitency() {
         this.initialised_packages = await this.api.getInitialisedPackages()
-        this.package_consistency = await this.api.getPackageConsistency(this.selected_element.name)
     }
 
     public onClickModels() {
@@ -277,6 +274,9 @@ export class PackageComponent implements OnInit {
             break
         case 2:
             this.router.navigate(['/translation',"controller",this.selected_element.package,this.selected_element.name.split("_").slice(1).join("\\")],{"selected":this.selected_element})
+            break
+        case 3:
+            this.router.navigate(["/controllers","return",this.selected_element.type,this.selected_element.name],{"selected":this.selected_element})
             break
         }
     }

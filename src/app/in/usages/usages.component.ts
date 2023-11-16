@@ -12,6 +12,8 @@ export class UsagesComponent implements OnInit {
   @Input() usage:Usage
   @Input() name:string
   @Input() type:string
+  @Input() disabled:boolean = false
+  @Input() show_inset:boolean = true
   @Output() CRUD = new EventEmitter<string>()
 
   constructor(
@@ -63,7 +65,7 @@ export class UsagesComponent implements OnInit {
   }
 
   get usageForCurrentType(): string[] | undefined {
-    if (this.typeUsage.usages[this.type]) {
+    if (this.typeUsage.usages && this.typeUsage.usages[this.type]) {
       return ["", ...(Object.keys(this.typeUsage.usages[this.type]).filter(item => item !== "length_free" && item !== "length_dim" && item !== "boundary"))]
     }
     return undefined
@@ -77,7 +79,7 @@ export class UsagesComponent implements OnInit {
   }
 
   get possibleVariations(): string[] | undefined {
-    if ( this.usage.usage
+    if ( this.typeUsage.usages && this.usage.usage
       && this.typeUsage.usages[this.type]
       && this.typeUsage.usages[this.type][this.usage.usage]
       && this.typeUsage.usages[this.type][this.usage.usage].subusages
@@ -91,7 +93,7 @@ export class UsagesComponent implements OnInit {
 
   get possibleLength(): string[] | undefined {
     if (
-      this.usage.usage
+      this.typeUsage.usages && this.usage.usage
       && this.typeUsage.usages[this.type]
       && this.typeUsage.usages[this.type][this.usage.usage]
     ) {
@@ -120,6 +122,7 @@ export class UsagesComponent implements OnInit {
   get hasFreeLength(): boolean {
     let res = false
     if(
+      this.typeUsage.usages &&
       this.typeUsage.usages[this.type]
     ){
       if (this.typeUsage.usages[this.type].length_free !== undefined) {
@@ -157,6 +160,7 @@ export class UsagesComponent implements OnInit {
   get lengthDim(): number {
     let res = 1
     if(
+      this.typeUsage.usages &&
       this.typeUsage.usages[this.type]
     ){
       if (this.typeUsage.usages[this.type].length_dim !== undefined) {
@@ -194,6 +198,7 @@ export class UsagesComponent implements OnInit {
   get canHaveBoundaries(): boolean {
     let res = false
     if(
+      this.typeUsage.usages &&
       this.typeUsage.usages[this.type]
     ){
       if (this.typeUsage.usages[this.type].boundary !== undefined) {

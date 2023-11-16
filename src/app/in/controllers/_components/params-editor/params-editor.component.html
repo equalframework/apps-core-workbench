@@ -25,26 +25,20 @@
             <label>{{ controller.split("_").slice(1).join('_') }}</label>
         </div>
     </app-in-header>
-    <div class="grid">
-        <mat-grid-list cols="4" class="full" rowHeight="100%">
-            <mat-grid-tile>
-                <app-param-list
-                    [list]="paramList"
-                    [selectedIndex]="selectedIndex"
-                    (select)="onSelection($event)"
-                    (CRUD)="onChange($event)"
-                ></app-param-list>
-            </mat-grid-tile>
-            <mat-grid-tile colspan="3">
-                <app-param-side-pane
-                    [param]="paramList[selectedIndex]"
-                    [types]="types"
-                    [usages]="usages"
-                    [scheme]="sch"
-                    [modelList]="modelList"
-                    (CRUD)="onChange($event)"
-                ></app-param-side-pane>
-            </mat-grid-tile>
-        </mat-grid-list>
-    </div>
+    <app-classic-layout>
+        <app-param-list
+            [list]="paramList"
+            [selectedIndex]="selectedIndex"
+            (select)="onSelection($event)"
+            (CRUD)="onChange($event)"
+        ></app-param-list>
+        <app-param-side-pane sidepane
+            [param]="paramList[selectedIndex]"
+            [types]="types"
+            [usages]="usages"
+            [scheme]="sch"
+            [modelList]="modelList"
+            (CRUD)="onChange($event)"
+        ></app-param-side-pane>
+    </app-classic-layout>
 </div>

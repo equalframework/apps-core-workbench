@@ -1,0 +1,80 @@
+@import "src/theme.scss";
+
+:host {
+    width: 100%;
+    height: 100%;
+}
+
+.typeinfo {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 .5em;
+    border-radius: 10px;
+    background-color: mat-color($maincolor,A100);
+    margin-right: .5em;
+}
+
+
+.deletebuttoncontainer {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: .5em;
+    border-radius: 50%;
+    padding: 1px;
+
+    .deletebutton {
+        color : mat-color($accentcolor);
+
+    }
+}
+
+.package-name {
+    background-color: mat-color($package-color,A100);
+    padding: 0 5px;
+    border-radius: 5px;
+}
+
+.controller-name {
+    background-color: mat-color($get-color,A100);
+    padding: 0 5px;
+    border-radius: 5px;
+}
+
+.part {
+    margin: .5em 1em;
+    padding : 1em;
+    width: calc(100% - 2em);
+    //border: solid #ddd 1px;
+    background-color: whitesmoke;
+    border-radius: 10px;
+
+    .part-title {
+        font-size: 1.3em;
+        margin-bottom: 1em;
+        color: mat-color($maincolor);
+    }
+
+    .part-content {
+        display: inline-block;
+        padding: 0 2em;
+        width: calc(100%);
+    }
+
+    .subpart {
+        padding: 1em;
+        border: solid #ddd 1px;
+        border-radius: 10px;
+
+        .subpart-title {
+            font-size: 1.1em;
+            margin-bottom: 1em;
+        }
+    }
+    
+}
+
+.scrollable-part {
+    overflow-y: scroll;
+    height: calc(100% - 80px);
+}

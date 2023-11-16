@@ -85,4 +85,13 @@ export class ViewEditorServicesService extends ViewService {
     }
     return true
   }
+
+  public async getWidgetTypes():Promise<{[id:string]:string[]}> {
+    try {
+      return await this.api.fetch("?get=core_config_widget-types")
+    }
+    catch {
+      return {}
+    }
+  }
 }

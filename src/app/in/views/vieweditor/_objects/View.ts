@@ -1,4 +1,5 @@
 import { cloneDeep, result } from "lodash"
+import { Usage } from "src/app/in/controllers/_components/params-editor/_objects/Params"
 
 abstract class ViewElement {
     public static num: number = 0
@@ -586,7 +587,7 @@ class ViewListWidget extends ViewElement {
     public sortable: boolean = false
     public link: boolean = false
     public type: string = ""
-    public usage:string= ""
+    public usage:Usage= new Usage("")
     public values: string[] = []
     public domain: ViewDomain = new ViewDomain()
 
@@ -603,7 +604,7 @@ class ViewListWidget extends ViewElement {
             delete scheme['type']
         }
         if (scheme['usage']) {
-            this.usage = scheme['usage']
+            this.usage = new Usage(scheme['usage'])
             delete scheme['usage']
         }
         if (scheme['values']) {
@@ -626,8 +627,8 @@ class ViewListWidget extends ViewElement {
             result['sortable'] = this.sortable
         if (this.type !== "")
             result['type'] = this.type
-        if (this.usage !== "")
-            result['usage'] = this.usage
+        if (this.usage.export() !== "")
+            result['usage'] = this.usage.export()
         if (this.type === "select")
             result['values'] = this.values
 
@@ -639,7 +640,7 @@ class ViewFormWidget extends ViewElement {
     public link: boolean = false
     public heading: boolean = false
     public type: string = ""
-    public usage:string = ""
+    public usage:Usage = new Usage("")
     public values: string[] = []
     public header:ViewHeader = new ViewHeader({},"list")
     public view:string = ""
@@ -664,7 +665,7 @@ class ViewFormWidget extends ViewElement {
             delete scheme['type']
         }
         if (scheme['usage']) {
-            this.usage = scheme['usage']
+            this.usage = new Usage(scheme['usage'])
             delete scheme['usage']
         }
         if (scheme['values']) {
@@ -697,8 +698,8 @@ class ViewFormWidget extends ViewElement {
             result['heading'] = this.heading
         if (this.type !== "")
             result['type'] = this.type
-        if (this.usage !== "")
-            result['usage'] = this.usage
+        if (this.usage.export() !== "")
+            result['usage'] = this.usage.export()
         if (this.type === "select")
             result['values'] = this.values
         if(this._has_header) {

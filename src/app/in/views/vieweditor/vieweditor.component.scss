@@ -2,7 +2,9 @@
 @import "./_components/group-editor/_components/edit-item-form/edit-item-form.component.scss";
 
 :host {
-    overflow-y: scroll;
+    overflow-y: hidden;
+    width: 100%;
+    height: 100%;
 }
 
 .packagename {
@@ -27,7 +29,11 @@
 }
 
 .feature-container {
-    border: #e0e0e0 solid 2px;
+    overflow-x: scroll ;
+    height: calc(100% - 80px);
+    border-top: #e0e0e0 solid 2px;
+    border-left: #e0e0e0 solid 2px;
+    border-right: #e0e0e0 solid 2px;
     padding: 2em;
     border-radius: 1em;
 }

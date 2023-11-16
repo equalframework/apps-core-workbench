@@ -16,6 +16,7 @@ export class DragTrackerDirective {
 
   @HostListener('dragover', ['$event'])
   onDragOver(evt:any) {
+    console.log("DRAGGED ON | before : "+this.appDragtracker.before)
     let dg = this.draggedlist
     if(this.appDragtracker.dragged && dg) {
       let y = dg.indexOf(this.appDragtracker.dragged)

@@ -3,15 +3,12 @@
         <button matPrefix mat-icon-button><mat-icon class="icon">filter_list</mat-icon></button>
         <input matInput placeholder="Filter" (keyup)="onSearch($event.target.value)">
     </mat-form-field>
-    <button mat-icon-button class="add_button" aria-label="Add node">
-        <mat-icon class="icon pointable" (click)="onclickCreate()">add</mat-icon>
-    </button>
 </div>
 
 <div class="data-action">
     <div class="type-container">
-        <div class="type-controller" (click)="dataSelected(true)">Data</div>
-        <div class="type-controller" (click)="dataSelected(false)">Actions</div>
+        <div class="type-controller" (click)="dataSelected(true)"><mat-icon>data_array</mat-icon>Data</div>
+        <div class="type-controller" (click)="dataSelected(false)"><mat-icon>open_in_browser</mat-icon>Actions</div>
     </div>
     <div [class.lineLeft]="data_selected" [class.lineRight]="!data_selected"></div>
 </div>
@@ -48,3 +45,6 @@
         </ng-template>
     </mat-list-item>
 </mat-list>
+<div class="createbutton" (click)="onclickCreate()">
+    <mat-icon style="margin-right: 1em;">add</mat-icon><label>Create a controller</label>
+</div>

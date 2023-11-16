@@ -30,7 +30,7 @@
 </ng-container>
 
 <!-- String and text type -->
-<ng-container *ngIf="type == 'string' || type == 'text'" class="max-width">
+<ng-container *ngIf="type !== 'integer' && type !== 'float' && type !== 'many2one' && type !== 'one2many' && type !== 'many2many'" class="max-width">
     <ng-container *ngIf="operator != 'in' && operator != 'not in' && operator != 'contains'">
         <mat-form-field class="max-width height-auto" appearance="fill">
         <input matInput placeholder="Value" [(ngModel)]="value" (change)="updateValueString($event)">

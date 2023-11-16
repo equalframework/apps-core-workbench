@@ -27,6 +27,8 @@ export class ParamListComponent implements OnInit, OnChanges {
   public filterControl = new FormControl("")
   public incremeter = 0
 
+  public createControl = new FormControl("")
+
   public iconList: { [id: string]: string } = {
     "string": "format_quote",
     "integer": "123",
@@ -76,8 +78,9 @@ export class ParamListComponent implements OnInit, OnChanges {
   }
 
   createItem() {
-    this.list.push(new Param("new_param_" + (this.incremeter++)))
+    this.list.push(new Param(this.createControl.value ? this.createControl.value : "new_param_" + (this.incremeter++)))
     this.CRUD.emit("Creation of a new param")
+    this.createControl.setValue("")
     this.filteredList = this._filter(this.filterControl.value)
   }
 

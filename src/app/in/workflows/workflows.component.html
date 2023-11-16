@@ -1,0 +1,68 @@
+<div *ngIf="tabIndex === 1" class="full">
+    <app-in-header>
+        <label>Workflow </label><label>{{state}} | node : {{selectedNode}} | link : {{selectedLink}}</label>
+    </app-in-header>
+    <div class="modecontainer">
+        <button mat-flat-button 
+            [class.mode-selected]="['normal'].includes(this.state)"
+            (click)="changeState('normal')"
+        >
+            <mat-icon>preview</mat-icon>
+        </button>
+        <button mat-flat-button 
+            [class.mode-selected]="['linking-from','linking-to'].includes(this.state)"
+            (click)="requestLinkFrom()"
+        >
+            <mat-icon>add_link</mat-icon>
+        </button>
+        <button
+            mat-flat-button
+            [class.mode-selected]="['create-node'].includes(this.state)"
+            (click)="changeState('create-node')"
+        >
+            <mat-icon>control_point</mat-icon>
+        </button>
+        <button
+            [class.mode-selected]="['edit-link','edit-to','edit-from'].includes(this.state)"
+            mat-flat-button (click)="changeState('edit-link')"
+        >
+            <mat-icon>link</mat-icon>
+        </button>
+        <button
+            mat-flat-button
+            [class.mode-selected]="['create-node'].includes(this.state)"
+        >
+            <mat-icon>drive_file_rename_outline</mat-icon>
+        </button>
+    </div>
+    <div class="holder">
+        <mat-grid-list cols="12" rowHeight="100%">
+            <mat-grid-tile [colspan]="sizeViewer" class="sizeanim">
+                <div sidepane class="marginel">
+                    <app-workflow-displayer
+                        [state]="state"
+                        [nodes]="nodes"
+                        [links]="links"
+                        [selectedNode]="selectedNode"
+                        [selectedLink]="selectedLink"
+                        (selectLink)="selectedLink = $event"
+                        (selectNode)="selectedNode = $event; log($event)"
+                        (requestState)="changeState($event)"
+                    >
+                    </app-workflow-displayer>
+                </div>
+            </mat-grid-tile>
+            <mat-grid-tile *ngIf="sizeEditor > 0"  [colspan]="sizeEditor" class="sizeanim">
+                <app-properties-editor
+                    [selectedNode]="selectedNode"
+                    [selectedLink]="selectedLink"
+                    [links]="links"
+                    [nodes]="nodes"
+                    [state]="state"
+                    (requestState)="changeState($event)"
+                    (requestDeleteLink)="deleteLink()"
+                ></app-properties-editor>
+            </mat-grid-tile>
+        </mat-grid-list>
+    </div>
+</div>

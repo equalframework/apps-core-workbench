@@ -68,7 +68,7 @@ export class ControllersService extends EmbbedApiService {
         let stringParams = '';
         for(let key in params) {
             if(isArray(params[key])) {
-                stringParams += '&' + key + '=[' + params[key] + "]";
+                stringParams += '&' + key + '=' + JSON.stringify(params[key])
             } else {
                 stringParams += '&' + key + '=' + params[key];
             }

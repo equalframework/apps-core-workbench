@@ -1,0 +1,30 @@
+<div>
+    <mat-form-field class="filterinput">
+        <mat-icon matPrefix>filter_list</mat-icon>
+        <mat-label>Filter</mat-label>
+        <input matInput [formControl]="filterControl">
+    </mat-form-field>
+</div>
+<mat-list class="list">
+    <mat-list-item *ngFor="let item of filteredList" class="item" (click)="onClickItem(list.indexOf(item))" [class.selected]="this.selectedIndex === list.indexOf(item)">
+        <div class="icon" [class.icon-uneditable]="item.isUneditable" [class.icon-overridden]="isOverrided(item)" [class.icon-inherited]="isInherited(item)">
+            <mat-icon>{{iconList[item.type]}}</mat-icon>
+        </div>
+        <div class="name">
+            <label>{{item.name}}</label>
+        </div>
+        <div class="button" *ngIf="!item.isUneditable && !isInherited(item)">
+            <button mat-icon-button (click)="deleteItem(list.indexOf(item))"><mat-icon>delete</mat-icon></button>
+            
+        </div>
+        <div class="button" *ngIf="isOverrided(item) && !item.isUneditable">
+            <button mat-icon-button (click)="resetFieldToParent(list.indexOf(item))"><mat-icon>close</mat-icon></button>
+        </div>
+    </mat-list-item>
+</mat-list>
+<div class="creator">
+    <mat-form-field class="fieldcreate">
+        <input matInput [formControl]="createControl" (keydown.enter)="createItem()">
+    </mat-form-field>
+    <button class="buttoncreate" (click)="createItem()"><mat-icon>add</mat-icon> Field</button>
+</div>

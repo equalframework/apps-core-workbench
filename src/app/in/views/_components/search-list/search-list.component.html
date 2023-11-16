@@ -3,9 +3,6 @@
         <button matPrefix mat-icon-button><mat-icon class="icon">filter_list</mat-icon></button>
         <input matInput placeholder="Filter" (keyup)="onSearch($event.target.value)">
     </mat-form-field>
-    <button mat-icon-button class="add_button" aria-label="Add node">
-        <mat-icon class="icon pointable" (click)="onclickCreate()">add</mat-icon>
-    </button>
 </div>
 
 <mat-list class="list scrollable">
@@ -40,3 +37,6 @@
         </ng-template>
     </mat-list-item>
 </mat-list>
+<div class="createbutton" (click)="onclickCreate()">
+    <mat-icon style="margin-right: 1em;">add</mat-icon> Create new view
+</div>

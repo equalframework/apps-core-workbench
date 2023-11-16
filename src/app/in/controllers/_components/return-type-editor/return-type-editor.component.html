@@ -1,0 +1,174 @@
+<app-in-header
+    [buttonBack]="true"
+    (onButtonBack)="goBack()"
+    [buttonCancelOne]="true"
+    [buttonCancelOneDisabled]="lastIndex < 1"
+    (onButtonCancelOne)="cancelOneChange()"
+    [buttonRevertOne]="true"
+    (onButtonRevertOne)="revertOneChange()"
+    [buttonRevertOneDisabled]="objectFutureHistory.length < 1"
+>
+    <label>Response of </label>
+    <label class="package-name">{{controller.split("_")[0]}}</label>
+    <label>_</label>
+    <label class="controller-name">{{controller.split("_").slice(1).join("_")}}</label>
+</app-in-header>
+<div class="scrollable-part">
+    <div class="part">
+        <div class="part-title">
+            <label >Http header</label>
+        </div>
+        <div class="part-content">
+            <app-type-input style="width: 20em;display: inline-block; margin-right: 1em;"
+                type="string"
+                name="content-type"
+                [value]="object.contentType"
+                (changed)="changeContentType($event)"
+            ></app-type-input>
+            <app-type-input style="width: 20em; display: inline-block;"
+                type="string"
+                name="charset"
+                [value]="object.charset"
+                (changed)="changeCharset($event)"
+            ></app-type-input>
+            <app-type-input 
+                type="array"
+                name="accept-origin"
+                [value]="object.acceptOrigin"
+                (changed)="changeAcceptOrigin($event)"
+            ></app-type-input>
+        </div>
+    </div>
+    <div class="part">
+        <div class="part-title">
+            <label >descriptor</label>
+        </div>
+        <div class="part-content">
+            <mat-form-field>
+                <mat-label>Return type</mat-label>
+                <input matInput (keydown)="noCancel($event)" [formControl]="typeControl" [matAutocomplete]="auto">
+                <mat-autocomplete #auto>
+                    <mat-optgroup *ngIf="filtered_customs.length >0" label="Return types">
+                        <mat-option *ngFor="let type of filtered_customs" [value]="type">{{type}}</mat-option>
+                    </mat-optgroup>
+                    <mat-optgroup *ngIf="filtered_normals.length >0" label="Classic types">
+                        <mat-option *ngFor="let type of filtered_normals" [value]="type">{{type}}</mat-option>
+                    </mat-optgroup>
+                </mat-autocomplete>
+            </mat-form-field>
+            <app-usages
+                *ngIf="this.normals.includes(object.type)"
+                [usage]="object.usage"
+                [type]="object.type"
+                (CRUD)="onChange($event)"
+                name="oui"
+            >
+            </app-usages>
+            <mat-form-field style="margin-left: 1em;">
+                <mat-label>Quantity</mat-label>
+                <mat-select [value]="object.qty" (valueChange)="changeQty($event.target.value)">
+                    <mat-option value="one">one</mat-option>
+                    <mat-option value="many">many</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <app-autocomplete style="margin-left: 1em;"
+                *ngIf="object.type === 'entity'"
+                name="Entity"
+                [value]="object.entity"
+                (updateValue)="changeEntity($event)"
+                [values]="this.entities"
+            ></app-autocomplete>
+            <mat-slide-toggle style="margin-left: 1em;"
+                *ngIf="object.type === 'any'" 
+                [checked]="object._has_format" 
+                (change)="changeHasFormat($event.checked)"
+            >
+                Format
+            </mat-slide-toggle>
+            <div *ngIf="object.type === 'any'">
+                <div *ngIf="object._has_format" class="subpart">
+                    <div class="subpart-title">
+                        <label>Format</label>
+                    </div>
+                    <button style="margin-bottom: 1em;" mat-stroked-button (click)=addFormatItem()><mat-icon>add</mat-icon> field</button>
+                    <mat-accordion>
+                        <mat-expansion-panel *ngFor="let item of object.format; index as index">
+                            <mat-expansion-panel-header>
+                                <mat-panel-title>
+                                    <div class="typeinfo">
+                                        <mat-icon>
+                                            {{typeIconList[item.type] ? typeIconList[item.type] : "category"}}
+                                        </mat-icon>
+                                    </div>
+                                    <label [style.opacity]="item.name ? 1 : 0.6">
+                                        {{item.name ? item.name : "(no name)"}}
+                                    </label>
+                                </mat-panel-title>
+                                <mat-panel-description>
+                                    <label [style.opacity]="item.description ? 1 : 0.6">
+                                        {{item.description ? item.description : "(no description)"}}
+                                    </label>
+                                </mat-panel-description>
+                                <div class="deletebuttoncontainer" matRipple>
+                                    <mat-icon class="deletebutton" (click)="deleteFormatItem(index);$event.stopPropagation()">delete</mat-icon>
+                                </div>
+                            </mat-expansion-panel-header>
+                            <div>
+                                <mat-form-field >
+                                    <mat-label>Name</mat-label>
+                                    <input matInput [value]="item.name" (change)="changeFormatName(index,$event.target.value)" (keydown)="noCancel($event)">
+                                </mat-form-field>
+                                <mat-form-field style="margin-left: 1em; width: 50em;">
+                                    <mat-label>Desc</mat-label>
+                                    <input matInput [value]="item.description" (change)="changeFormatDescription(index,$event.target.value)" (keydown)="noCancel($event)">
+                                </mat-form-field>
+                            </div>
+                            <div>
+                                <app-autocomplete
+                                    name="type"
+                                    [value]="item.type"
+                                    [values]="normals"
+                                    (valueChange)="changeFormatType(index,$event)"
+                                >
+                                </app-autocomplete>
+                                <app-usages
+                                    name="format item {{index}}"
+                                    [usage]="item.usage"
+                                    [type]="item.type"
+                                    (CRUD)="onChange($event)"
+                                ></app-usages>
+                            </div>
+                            <div><mat-checkbox [checked]="item._has_selection" (change)="changeHasSelection(index,$event.checked)">selection</mat-checkbox></div>
+                            <br>
+                            <mat-accordion *ngIf="item._has_selection">
+                                <button mat-stroked-button (click)="addFormatSelectionItem(index)"><mat-icon>add</mat-icon> add selection item</button>
+                                <br><br>
+                                <mat-expansion-panel *ngFor="let sel of item.selection; index as jndex">
+                                    <mat-expansion-panel-header>
+                                        <mat-panel-title>
+                                            <div style="display: flex; height: 100%; align-items: center;">
+                                                <label>Selection item {{jndex}}</label>
+                                            </div>
+                                        </mat-panel-title>
+                                        <mat-panel-description>
+                                            {{sel ? "value : "+sel : "no value"}}
+                                        </mat-panel-description>
+                                        <div class="deletebuttoncontainer" matRipple>
+                                            <mat-icon class="deletebutton" (click)="deleteFormatSelectionItem(index,jndex);$event.stopPropagation()">delete</mat-icon>
+                                        </div>
+                                    </mat-expansion-panel-header>
+                                    <app-type-input
+                                        name="Selection item {{jndex}}"
+                                        [value]="sel"
+                                        (changed)="changeSelectionItem(index,jndex,$event)"
+                                    >
+                                    </app-type-input>
+                                </mat-expansion-panel>
+                            </mat-accordion>
+                        </mat-expansion-panel>
+                    </mat-accordion>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { DateAdapter, MAT_DATE_LOCALE, MatNativeDateModule } from '@angular/material/core';
+import { DateAdapter, MAT_DATE_LOCALE, MatNativeDateModule, MatRipple, MatRippleModule } from '@angular/material/core';
 import { Platform } from '@angular/cdk/platform';
 import { DatePipe } from '@angular/common';
 
@@ -12,11 +12,9 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatIconModule } from '@angular/material/icon';
 
 import { ControllersComponent } from './controllers.component';
 import { ControllersRoutingModule } from './controllers-routing.module';
-import { SearchListComponent } from './_components/search-list/search-list.component';
 import { SearchListControllerComponent } from './_components/search-list-controller/search-list-controller.component';
 import { ControllerInfoModule } from './_components/controller-info/controller-info.module';
 import { DeleteConfirmationModule } from '../delete-confirmation/delete-confirmation.module';
@@ -33,6 +31,10 @@ import { ValueSelectionComponent } from './_components/params-editor/_components
 import { MatRadioModule } from '@angular/material/radio';
 import { HeaderModule } from '../header/header.module';
 import { PropertyDomainModule } from '../property-domain-component/property-domain.module';
+import { ClassicLayoutModule } from '../classic-layout/classic-layout.module';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { ReturnTypeEditorComponent } from './_components/return-type-editor/return-type-editor.component';
+import { AutocompleteModule } from '../autocomplete/autocomplete.module';
 
 
 @NgModule({
@@ -47,7 +49,6 @@ import { PropertyDomainModule } from '../property-domain-component/property-doma
         FormsModule,
         MatFormFieldModule,
         MatInputModule,
-        MatIconModule,
         ControllerInfoModule,
         DeleteConfirmationModule,
         UsagesModule,
@@ -56,11 +57,14 @@ import { PropertyDomainModule } from '../property-domain-component/property-doma
         TypeInputModule,
         MatRadioModule,
         HeaderModule,
-        PropertyDomainModule
+        PropertyDomainModule,
+        ClassicLayoutModule,
+        MatExpansionModule,
+        AutocompleteModule,
+        MatRippleModule
     ],
     declarations: [
         ControllersComponent,
-        SearchListComponent,
         SearchListControllerComponent,
         ParamsEditorComponent,
         ParamListComponent,
@@ -69,7 +73,10 @@ import { PropertyDomainModule } from '../property-domain-component/property-doma
         AutoCompleteComponent,
         ValueComponent,
         ValueSelectionComponent,
-
+        ReturnTypeEditorComponent,
+    ],
+    exports : [
+        PropertyDomainComponent2
     ],
     providers: [
         DatePipe,
