@@ -23,10 +23,19 @@ export class PropertyDomainComponent2 implements OnInit {
         this.transformDomain();
         this.validOperators = await this.api.getValidOperators();
         this.getSchema();
+    }
+
+    fixdomain() {
+        this.is_env = []
         for (let i = 0; i < this.tempValue.length; i++) {
             this.is_env.push([])
-            for (let j = 0; j < this.tempValue[i].length; i++) {
-                console.log(this.tempValue[i][j])
+            console.log("i : "+i)
+            console.log(this.is_env)
+            console.log(this.tempValue[i])
+            let l = this.tempValue[i].length
+            for (let j = 0; j < l; j++) {
+                console.log("j : "+j)
+                console.log(this.is_env[i])
                 this.is_env[i].push(
                     this.tempValue[i][j][2] && (this.tempValue[i][j][2].includes("object.") || this.tempValue[i][j][2].includes("user."))
                 )
@@ -35,10 +44,10 @@ export class PropertyDomainComponent2 implements OnInit {
     }
 
     async ngOnChanges() {
-        this.getSchema().then(() => console.log(this.fields));
         this.transformDomain();
         console.log(this.tempValue)
-
+        this.fixdomain()
+        this.getSchema()
     }
 
     async getSchema() {
@@ -87,6 +96,14 @@ export class PropertyDomainComponent2 implements OnInit {
         }
     }
 
+    changeEnv(value:boolean,i:number,j:number) {
+        this.is_env[i][j] = value
+        if(this.is_env[i][j])
+            this.tempValue[i][j][2]= ''
+        else 
+            this.selectOperator(this.tempValue[i][j][1],i,j)
+    }
+
     public changeValue(new_value: any, i: any, j: any) {
         if (this.tempValue[i][j][1] == 'in' || this.tempValue[i][j][1] == 'not in' || this.tempValue[i][j][1] == 'contains') {
             if (!Array.isArray(this.tempValue[i][j][2])) {
@@ -123,10 +140,12 @@ export class PropertyDomainComponent2 implements OnInit {
 
     public addCondition(index: any) {
         this.tempValue[index].push(['', '', '']);
+        this.is_env[index].push(false)
     }
 
     public addClause() {
         this.tempValue.push([['', '', '']]);
+        this.is_env.push([false])
     }
 
     public removeCondition(i: any, j: any) {
