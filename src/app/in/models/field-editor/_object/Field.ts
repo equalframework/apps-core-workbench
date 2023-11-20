@@ -13,7 +13,9 @@ export class Field {
     public required:boolean = false
     public multilang:boolean = false
     public unique:boolean = false
+    public store:boolean = false
     public selection:any[] = []
+
     public default:any = undefined
 
     public foreign_object:string = ""

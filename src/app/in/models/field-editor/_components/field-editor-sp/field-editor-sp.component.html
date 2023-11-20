@@ -140,6 +140,11 @@
                             <mat-checkbox [disabled]="field.isUneditable" [checked]="field.unique" (change)="changeUnique($event.checked)">unique</mat-checkbox>
                         </div>
                     </mat-grid-tile>
+                    <mat-grid-tile *ngIf="finalTypeDirective['store']">
+                        <div class="full checkboxcontainer">
+                            <mat-checkbox [disabled]="field.isUneditable" [checked]="field.store" (change)="changeStore($event.checked)">store</mat-checkbox>
+                        </div>
+                    </mat-grid-tile>
                     <mat-grid-tile *ngIf="finalTypeDirective['default']">
                         <div class="full checkboxcontainer">
                             <mat-checkbox [disabled]="field.isUneditable" [checked]="field._has_default" (change)="changeHasDefault($event.checked)">default value</mat-checkbox>

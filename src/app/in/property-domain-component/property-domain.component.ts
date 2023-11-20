@@ -13,7 +13,7 @@ export class PropertyDomainComponent implements OnInit {
     @Input() name: any;
     @Input() class: any;
     @Input() can_have_env:boolean = true
-    @Output() valueChange = new EventEmitter<[]>();
+    @Output() valueChange = new EventEmitter<any>();
     public validOperators: any;
     public fields: any;
     public is_env: boolean[][] = []

@@ -127,7 +127,7 @@ export class FieldEditorSpComponent implements OnInit {
 
   changeForeignField(value :string) {
     if(this.field){
-      this.field.foreign_object = value
+      this.field.foreign_field = value
       this.CRUD.emit("Changed foreign_field of "+this.field.name)
     }
   }
@@ -143,6 +143,13 @@ export class FieldEditorSpComponent implements OnInit {
     if(this.field){
       this.field.unique = value
       this.CRUD.emit("Toggeled unique of "+this.field.name)
+    }
+  }
+
+  changeStore(value :boolean) {
+    if(this.field){
+      this.field.store = value
+      this.CRUD.emit("Toggeled store of "+this.field.name)
     }
   }
 
