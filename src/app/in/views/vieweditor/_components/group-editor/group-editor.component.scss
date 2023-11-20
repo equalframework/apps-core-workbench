@@ -3,6 +3,8 @@
 
 .parent {
     border: solid black 1px;
+    border-radius: 10px;
+    overflow: hidden;
 }
 
 .boundary {
@@ -11,7 +13,7 @@
     height: 3.5em;
     margin-bottom: -1.25em;
     position: relative;
-    background-color: red;
+    background-color: transparent;
     z-index: 1000;
 }
 
@@ -40,7 +42,8 @@
 }
 
 .section-selector {
-    display:inline-block;
+    display:inline-flex;
+    align-items: center;
     justify-content: left;
     width: auto;
     align-items: center;
@@ -55,7 +58,6 @@
         display: inline-block;
         width: auto;
         margin-left: .5em;
-        margin-right: 1em;
         cursor: inherit;
         -webkit-touch-callout: none;
         -webkit-user-select: none;
@@ -63,10 +65,6 @@
         -moz-user-select: none;
         -ms-user-select: none;
         user-select: none;
-    }
-
-    .grabable {
-        transform: translateY(.2em);
     }
 }
 
@@ -79,6 +77,11 @@
 .section-add-btn {
     height: 2em;
     border-right: solid black 1px;
+}
+
+.section-editor {
+    padding: 1em;
+    padding-top : 0;
 }
 
 .section-editor button {
@@ -103,6 +106,8 @@
     width: calc(100% - .5em);
     display: flex;
     align-items: center;
+    border-radius: 10px;
+    overflow: hidden;
 
     .valuedisp {
 
@@ -154,11 +159,17 @@
 .row {
     margin: .5em;
     border : solid 2px mat-color($maincolor,100);
+    background-color: whitesmoke;
+    padding: 1em;
+    border-radius: 10px;
 }
 
 .column {
-    margin: .2em;
+    margin: .5em;
     border : solid 2px mat-color($accentcolor,100);
+    padding: 1em;
+    border-radius: 10px;
+    background-color: white;
 }
 
 .visible {

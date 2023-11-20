@@ -80,19 +80,19 @@
             ></app-autocomplete>
             <mat-slide-toggle style="margin-left: 1em;"
                 *ngIf="object.type === 'any'" 
-                [checked]="object._has_format" 
+                [checked]="object._has_values" 
                 (change)="changeHasFormat($event.checked)"
             >
                 Format
             </mat-slide-toggle>
             <div *ngIf="object.type === 'any'">
-                <div *ngIf="object._has_format" class="subpart">
+                <div *ngIf="object._has_values" class="subpart">
                     <div class="subpart-title">
                         <label>Format</label>
                     </div>
                     <button style="margin-bottom: 1em;" mat-stroked-button (click)=addFormatItem()><mat-icon>add</mat-icon> field</button>
                     <mat-accordion>
-                        <mat-expansion-panel *ngFor="let item of object.format; index as index">
+                        <mat-expansion-panel *ngFor="let item of object.values; index as index">
                             <mat-expansion-panel-header>
                                 <mat-panel-title>
                                     <div class="typeinfo">
