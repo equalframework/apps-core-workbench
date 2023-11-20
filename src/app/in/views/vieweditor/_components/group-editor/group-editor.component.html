@@ -64,6 +64,8 @@
                     <div class="part-header-right">
                         <mat-icon cdkDragHandle class="grabable">drag_indicator</mat-icon>
                         <label class="category-title">Row : {{row.label === "" ? "UNNAMED" : row.label}}</label>
+                        <mat-icon  *ngIf="row.totalwidth > 100" class="color-warn">warning</mat-icon> 
+                        <label *ngIf="row.totalwidth > 100" class="color-warn">Column total width exceeds 100%</label>
                     </div>
                     <div class="part-header-left">
                         <button mat-button
@@ -95,7 +97,7 @@
                     [cdkDropListData]="row.columns"
                     (cdkDropListDropped)="drop_col($event)"
                 >
-                    <div cdkDrag [class.visible]="col._has_domain" class="column" *ngFor="let col of row.columns" [style.width.%]="(col.width/row.totalwidth)*100">
+                    <div cdkDrag [class.visible]="col._has_domain" class="column" *ngFor="let col of row.columns" [style.width.%]="(row.totalwidth > 100) ? (col.width/row.totalwidth)*100 : col.width">
                         <div class="part-header">
                             <div class="part-header-left">
                                 <mat-icon cdkDragHandle class="grabable">drag_indicator</mat-icon>

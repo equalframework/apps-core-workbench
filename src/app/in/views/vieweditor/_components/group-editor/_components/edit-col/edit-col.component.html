@@ -9,7 +9,7 @@
         <input matInput placeholder="col name" [value]="data.col.label" (input)="data.col.label = $event.target.value">
     </mat-form-field>
     <mat-form-field>
-        <input matInput type="number" placeholder="col width" [value]="data.col.width" (input)="data.col.width = $event.target.value">
+        <input matInput type="number" placeholder="col width" [value]="data.col.width" (input)="data.col.width = parseInt($event.target.value)">
         <div matSuffix>%</div>
     </mat-form-field>
     <mat-checkbox [(ngModel)]="data.col._has_domain">visible domain</mat-checkbox>
