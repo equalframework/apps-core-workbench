@@ -47,6 +47,7 @@ import { HeaderModule } from '../../header/header.module';
 import { PopupLayoutComponent } from '../../popup-layout/popup-layout.component';
 import { PopupLayoutModule } from '../../popup-layout/popup-layout.module';
 import { UsagesModule } from '../../usages/usages.module';
+import { MatMenuModule } from '@angular/material/menu';
 
 
 
@@ -72,6 +73,7 @@ import { UsagesModule } from '../../usages/usages.module';
     RouteEditorComponent,
     RouteEditComponent,
     AccessEditorComponent,
+
   ],
   imports: [
     CommonModule,
@@ -79,7 +81,7 @@ import { UsagesModule } from '../../usages/usages.module';
     MatInputModule,
     MatFormFieldModule,
     MatSelectModule,
-    
+    MatMenuModule,
     MatCheckboxModule,
     MatButtonModule,
     MatSlideToggleModule,
