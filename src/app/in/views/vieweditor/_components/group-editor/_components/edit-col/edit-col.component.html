@@ -3,10 +3,14 @@
 >
     <p>Edit column informations</p>
     <mat-form-field>
-        <input matInput placeholder="row.id" [value]="data.col.id" (input)="data.col.id = $event.target.value">
+        <input matInput placeholder="col.id" [value]="data.col.id" (input)="data.col.id = $event.target.value">
     </mat-form-field>
     <mat-form-field>
-        <input matInput placeholder="row name" [value]="data.col.label" (input)="data.col.label = $event.target.value">
+        <input matInput placeholder="col name" [value]="data.col.label" (input)="data.col.label = $event.target.value">
+    </mat-form-field>
+    <mat-form-field>
+        <input matInput type="number" placeholder="col width" [value]="data.col.width" (input)="data.col.width = $event.target.value">
+        <div matSuffix>%</div>
     </mat-form-field>
     <mat-checkbox [(ngModel)]="data.col._has_domain">visible domain</mat-checkbox>
     <div *ngIf="data.col._has_domain">
