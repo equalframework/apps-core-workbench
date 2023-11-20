@@ -112,8 +112,8 @@ export class ReturnTypeEditorComponent implements OnInit {
     this.object.type = value
     this.object.entity = ""
     this.object.usage = new Usage("")
-    this.object._has_format = false
-    this.object.format = []
+    this.object._has_values = false
+    this.object.values = []
     this.onChange("Changed return type")
   }
 
@@ -128,55 +128,55 @@ export class ReturnTypeEditorComponent implements OnInit {
   }
 
   changeHasFormat(value:boolean) {
-    this.object._has_format = value
-    this.onChange("toggled format")
+    this.object._has_values = value
+    this.onChange("toggled values")
   }
 
   changeFormatType(index:number,value:string) {
-    this.object.format[index].type = value
-    this.object.format[index].selection = []
-    this.object.format[index]._has_selection = false
-    this.onChange("Changed type of a field of format")
+    this.object.values[index].type = value
+    this.object.values[index].selection = []
+    this.object.values[index]._has_selection = false
+    this.onChange("Changed type of a field of values")
   }
 
   changeFormatName(index:number,value:string) {
-    this.object.format[index].name = value
-    this.onChange("Changed name of a field of format")
+    this.object.values[index].name = value
+    this.onChange("Changed name of a field of values")
   }
 
   changeFormatDescription(index:number,value:string) {
-    this.object.format[index].description = value
-    this.onChange("Changed description of a field of format")
+    this.object.values[index].description = value
+    this.onChange("Changed description of a field of values")
   }
 
   changeHasSelection(index:number,value:boolean) {
-    this.object.format[index]._has_selection = value
+    this.object.values[index]._has_selection = value
     this.onChange("toggled selection")
   }
 
 
   addFormatItem() {
-    this.object.format.push( new ReturnFormatItem() )
+    this.object.values.push( new ReturnFormatItem() )
     this.onChange("Added format item")
   }
 
   deleteFormatItem(index:number) {
-    this.object.format.splice(index,1)
+    this.object.values.splice(index,1)
     this.onChange("deleted format item")
   }
 
   changeSelectionItem(index:number,jndex:number,value:string) {
-    this.object.format[index].selection[jndex] = value
+    this.object.values[index].selection[jndex] = value
     this.onChange("edited selection of format item "+index)
   }
 
   addFormatSelectionItem(index:number) {
-    this.object.format[index].selection.push(undefined)
+    this.object.values[index].selection.push(undefined)
     this.onChange("Added selection item in format item "+index)
   }
 
   deleteFormatSelectionItem(index:number,jndex:number) {
-    this.object.format[index].selection.splice(jndex,1)
+    this.object.values[index].selection.splice(jndex,1)
     this.onChange("Added selection item in format item "+index)
   }
 

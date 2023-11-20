@@ -63,12 +63,6 @@
                         <div class="indent">
                             <div *ngFor="let group of view_obj.layout.groups">
                                 <div>
-                                    <app-toggling-button
-                                        [enabledIcon]="'expand_less'"
-                                        [disabledIcon]="'expand_more'"
-                                        [baseState]="groups_visible[view_obj.layout.groups.indexOf(group)]"
-                                        (toggle)="groups_visible[view_obj.layout.groups.indexOf(group)] = $event"
-                                    ></app-toggling-button>
                                     <mat-form-field>
                                         <input matInput placeholder="Group name" [value]="group.label==='' ? 'UNNAMED' : group.label" (change)="group.label = $event.target.value==='UNNAMED' ? '' : $event.target.value">
                                     </mat-form-field>
@@ -77,11 +71,7 @@
                                     </mat-form-field>
                                     <button mat-fab color="primary" class="section-add-btn" (click)="deleteGroup(view_obj.layout.groups.indexOf(group))"><mat-icon>delete</mat-icon></button>
                                 </div>
-                                <div *ngIf="groups_visible[view_obj.layout.groups.indexOf(group)]" class="indent">
-                                    <label class="category-title maincolor">Sections</label>
-                                    <button mat-fab color="primary" class="addItem" (click)="addSection(view_obj.layout.groups.indexOf(group))">
-                                        <mat-icon>add</mat-icon>
-                                    </button>
+                                <div class="indent">
                                     <app-group-editor
                                         [group_obj]="group.sections"
                                         [entity]="entity"

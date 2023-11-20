@@ -15,9 +15,9 @@ export class ReturnValue {
     public qty:string = "many"
     public usage:Usage = new Usage("")
     public entity:string = ""
-    public format:ReturnFormatItem[] = []
+    public values:ReturnFormatItem[] = []
 
-    public _has_format = false
+    public _has_values = false
 
     constructor(scheme:any = {}) {
         if(scheme["content-type"]) {
@@ -32,29 +32,29 @@ export class ReturnValue {
             this.contentType = scheme["accept-origin"]
             delete scheme["accept-origin"]
         }
-        if(scheme["descriptor"]){
-            if(scheme["descriptor"]["type"]) {
-                this.type = scheme["descriptor"]["type"]
-                delete scheme["descriptor"]["type"]
+        if(scheme["schema"]){
+            if(scheme["schema"]["type"]) {
+                this.type = scheme["schema"]["type"]
+                delete scheme["schema"]["type"]
             }
-            if(scheme["descriptor"]["qty"]) {
-                this.qty = scheme["descriptor"]["qty"]
-                delete scheme["descriptor"]["qty"]
+            if(scheme["schema"]["qty"]) {
+                this.qty = scheme["schema"]["qty"]
+                delete scheme["schema"]["qty"]
             }
-            if(scheme["descriptor"]["usage"]) {
-                this.usage = new Usage(scheme["descriptor"]["usage"])
-                delete scheme["descriptor"]["usage"]
+            if(scheme["schema"]["usage"]) {
+                this.usage = new Usage(scheme["schema"]["usage"])
+                delete scheme["schema"]["usage"]
             }
-            if(scheme["descriptor"]["entity"]) {
-                this.entity = scheme["descriptor"]["entity"]
-                delete scheme["descriptor"]["entity"]
+            if(scheme["schema"]["entity"]) {
+                this.entity = scheme["schema"]["entity"]
+                delete scheme["schema"]["entity"]
             }
-            if(scheme["descriptor"]["format"]) {
-                this._has_format = true
-                scheme["descriptor"]["format"].foreach((k:string,v:string) => {
-                    this.format.push(new ReturnFormatItem(v,k))
+            if(scheme["schema"]["values"]) {
+                this._has_values = true
+                scheme["schema"]["value"].foreach((k:string,v:string) => {
+                    this.values.push(new ReturnFormatItem(v,k))
                 });
-                delete scheme["descriptor"]["format"]
+                delete scheme["schema"]["format"]
             }
         }
         

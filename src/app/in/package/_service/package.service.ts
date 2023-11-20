@@ -180,7 +180,7 @@ export class WorkbenchService extends EmbbedApiService {
      */
     public async updateSchema(new_schema: {}, eq_package: string, eq_class: string) {
         try {
-            return await this.api.fetch('?do=config_save-model&part=class&entity=' + eq_package + "\\" + eq_class + '&payload=' + JSON.stringify(new_schema));
+            return await this.api.fetch('?do=config_update-model&part=class&entity=' + eq_package + "\\" + eq_class + '&payload=' + JSON.stringify(new_schema));
         }
         catch (response: any) {
             console.warn('request error', response);

@@ -19,33 +19,38 @@
                 </label>
                 <button mat-icon-button [matMenuTriggerFor]="menuSection"><mat-icon>more_vert</mat-icon></button>
                 <mat-menu #menuSection="matMenu">
-                    <button mat-icon-button 
+                    <button mat-menu-item 
                         (click)="editSection(section)"
                         title="Edit properties of section {{section.label}}"
                     >
-                        <mat-icon>edit</mat-icon>
+                        <mat-icon>edit</mat-icon> Edit  {{section.label}}
                     </button>
-                    <button mat-icon-button
+                    <button mat-menu-item
                         (click)="delSection()"
                         title="Delete selection : {{section.label}}"
                     >
-                        <mat-icon>delete</mat-icon>
+                        <mat-icon>delete</mat-icon> Delete {{section.label}}
                     </button>
                 </mat-menu>
             </div>
         </div>
         <div>
-            <button mat-button><mat-icon>add</mat-icon> Section</button>
+            <button mat-button (click)="addSection()"><mat-icon>add</mat-icon> Section</button>
         </div>
     </div>
     <div class="section-editor" *ngIf="selected" >
-        <label class="category-title">Section : {{selected.label === "" ? "UNNAMED" : selected.label}}</label>
-        <button mat-button
-            (click)="addRow()"
-            title="Create a new row in {{selected.label}}"
-        >
-            <mat-icon>add</mat-icon> row
-        </button>
+        <div  class="part-header">
+            <div class="part-header-left"></div>
+            <div class="part-header-right">
+                <button mat-button
+                    (click)="addRow()"
+                    title="Create a new row in {{selected.label}}"
+                >
+                    <mat-icon>add</mat-icon> row
+                </button>
+            </div>
+        </div>
+        
         <div
             class="drop-zone"
             cdkDropList 
@@ -61,6 +66,12 @@
                         <label class="category-title">Row : {{row.label === "" ? "UNNAMED" : row.label}}</label>
                     </div>
                     <div class="part-header-left">
+                        <button mat-button
+                            (click)="addCol(row)"
+                            title="Add a new column in {{row.label === '' ? 'UNNAMED' : row.label}}"
+                        >
+                            <mat-icon>add</mat-icon> column
+                        </button>
                         <button mat-icon-button [matMenuTriggerFor]="menuRow"><mat-icon>more_vert</mat-icon></button>
                         <mat-menu #menuRow="matMenu">
                             <button mat-menu-item
@@ -76,12 +87,6 @@
                                 <mat-icon>delete</mat-icon> Delete {{row.label === '' ? 'UNNAMED' : row.label}}
                             </button>
                         </mat-menu>
-                        <button mat-button
-                            (click)="addCol(row)"
-                            title="Add a new column in {{row.label === '' ? 'UNNAMED' : row.label}}"
-                        >
-                            <mat-icon>add</mat-icon> column
-                        </button>
                     </div>
                 </div>
                 <div class="flex drop-zone"
@@ -97,6 +102,12 @@
                                 <label class="category-title">Column : {{col.label === "" ? "UNNAMED" : col.label}}</label>
                             </div>
                             <div class="part-header-right">
+                                <button mat-button
+                                    (click)="addItem(col)"
+                                    title="Add a new item in {{col.label === '' ? 'UNNAMED' : col.label}}"
+                                >
+                                    <mat-icon>add</mat-icon> item
+                                </button>
                                 <button mat-icon-button [matMenuTriggerFor]="menuCol"><mat-icon>more_vert</mat-icon></button>
                                 <mat-menu #menuCol="matMenu">
                                     <button mat-menu-item
@@ -112,13 +123,6 @@
                                         <mat-icon>delete</mat-icon> Delete {{col.label === '' ? 'UNNAMED' : col.label}}
                                 </button>
                                 </mat-menu>
-                                
-                                <button mat-button
-                                    (click)="addItem(col)"
-                                    title="Add a new item in {{col.label === '' ? 'UNNAMED' : col.label}}"
-                                >
-                                    <mat-icon>add</mat-icon> item
-                                </button>
                             </div>
                         </div>
                         <div (appDraginfo)="updateDragged(undefined)" id="draginfo" >

@@ -55,6 +55,10 @@ class GroupEditorComponent implements OnInit,OnChanges {
     this.matDialog.open(EditSectionComponent,{data:{section:el,entity:this.entity}})
   }
 
+  addSection() {
+    this.group_obj.push(new ViewSection({"label":"New Section"}))
+  }
+
   addRow() {
     this.selected?.rows.push(new ViewRow({"label":"New Row"}))
   }
