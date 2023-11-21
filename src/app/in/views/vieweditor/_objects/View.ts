@@ -579,6 +579,9 @@ class ViewItem extends ViewElement {
                 result['widget'] = this.widgetForm.export()
             }
         }
+        if(this.readonly) {
+            result["readonly"] = this.readonly
+        }
         return result
     }
 }

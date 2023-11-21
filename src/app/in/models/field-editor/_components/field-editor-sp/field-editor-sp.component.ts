@@ -153,6 +153,13 @@ export class FieldEditorSpComponent implements OnInit {
     }
   }
 
+  changeInstant(value :boolean) {
+    if(this.field){
+      this.field.instant = value
+      this.CRUD.emit("Toggeled instant of "+this.field.name)
+    }
+  }
+
   changeRequired(value :boolean) {
     if(this.field){
       this.field.required = value
@@ -293,6 +300,13 @@ export class FieldEditorSpComponent implements OnInit {
   public DeleteDependency(index:number) {
     this.field?.dependencies.splice(index,1)
     this.CRUD.emit("deleted dependecy to "+this.field?.name)
+  }
+
+  public changeSelection(index:number,value:any) {
+    if(this.field){
+      this.field.selection[index] = value
+      this.CRUD.emit("changed value of selection")
+    }
   }
 
   noCancel(event: KeyboardEvent) {

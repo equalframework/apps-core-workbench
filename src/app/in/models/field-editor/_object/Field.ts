@@ -14,6 +14,7 @@ export class Field {
     public multilang:boolean = false
     public unique:boolean = false
     public store:boolean = false
+    public instant:boolean = false
     public selection:any[] = []
 
     public default:any = undefined

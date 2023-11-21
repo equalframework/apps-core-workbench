@@ -25,11 +25,11 @@ export class ReturnValue {
             delete scheme["content-type"]
         }
         if(scheme["charset"]) {
-            this.contentType = scheme["charset"]
+            this.charset = scheme["charset"]
             delete scheme["charset"]
         }
         if(scheme["accept-origin"]) {
-            this.contentType = scheme["accept-origin"]
+            this.acceptOrigin = scheme["accept-origin"]
             delete scheme["accept-origin"]
         }
         if(scheme["schema"]){
@@ -57,7 +57,20 @@ export class ReturnValue {
                 delete scheme["schema"]["format"]
             }
         }
-        
+    }
+
+    public export() {
+        return {
+            "content-type" : this.contentType,
+            "accept-origin" : this.acceptOrigin,
+            "charset" : this.charset,
+            "schema" : {
+                "type" : this.type,
+                "qty" : this.qty,
+                "usage" : ReturnValue.customTypes.includes(this.type) ? undefined : this.usage,
+                "values" : this._has_values ? this.values.map(value => value.export()) : undefined
+            }
+        }
     }
 }
 
@@ -88,6 +101,16 @@ export class ReturnFormatItem {
             this._has_selection = true
             this.selection = scheme["selection"]
             delete scheme["selection"]
+        }
+    }
+
+    export() {
+        return {
+            "name" : this.name,
+            "description" : this.description,
+            "type" : this.type,
+            "usage" : this.usage,
+            "selection" : this._has_selection ? this.selection : undefined
         }
     }
 }
