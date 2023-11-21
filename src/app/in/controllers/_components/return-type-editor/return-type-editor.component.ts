@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, Optional } from '@angular/core';
 import { Form, FormControl } from '@angular/forms';
 import { ReturnFormatItem, ReturnValue } from './_objects/ReturnValue';
 import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
@@ -9,6 +9,8 @@ import { Usage } from '../params-editor/_objects/Params';
 import { ActivatedRoute } from '@angular/router';
 import { ControllersService } from '../../_service/controllers.service';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { prettyPrintJson } from 'pretty-print-json';
 
 @Component({
   selector: 'app-return-type-editor',
@@ -62,7 +64,8 @@ export class ReturnTypeEditorComponent implements OnInit {
     private api:ControllersService,
     private matSnack:MatSnackBar,
     private activatedRoute:ActivatedRoute,
-    private router:RouterMemory
+    private router:RouterMemory,
+    private dialog:MatDialog
   ) { }
 
   async ngOnInit() {
@@ -245,4 +248,34 @@ export class ReturnTypeEditorComponent implements OnInit {
     this.router.goBack()
   }
 
+  showJson() {
+    this.dialog.open(Jsonator,{data:this.object.export(),width:"75%",height:"85%"})
+  }
+
+  save() {
+    let payload = cloneDeep(this.scheme)
+    payload.announcement.response = this.object.export()
+    this.api.updateController(this.controller,this.controller_type,payload.announcement)
+  }
+
+}
+
+
+@Component({
+  selector: 'jsonator',
+  template: "<pre [innerHtml]='datajson'><pre>"
+})
+class Jsonator implements OnInit {
+  constructor(
+    @Optional() public dialogRef: MatDialogRef<Jsonator>,
+    @Optional() @Inject(MAT_DIALOG_DATA) public data:any,
+  ) {}
+
+  ngOnInit(): void {
+      
+  }
+
+  get datajson() {
+    return prettyPrintJson.toHtml(this.data)
+  }
 }

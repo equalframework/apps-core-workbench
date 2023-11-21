@@ -59,7 +59,8 @@ export class ParamsEditorComponent implements OnInit {
     private router:RouterMemory,
     private activatedRoute:ActivatedRoute,
     private matSnack:MatSnackBar,
-    private dialog:MatDialog
+    private dialog:MatDialog,
+    private snack:MatSnackBar
   ) { }
 
   onKeydown(event: KeyboardEvent) {
@@ -89,7 +90,7 @@ export class ParamsEditorComponent implements OnInit {
     this.scheme = await this.api.getAnnounceController(this.type,this.controller)
     console.log(this.scheme)
     for(let key in this.scheme["announcement"]["params"]) {
-        this.paramList.push(new Param(key,this.scheme["announcement"]["params"][key]))
+        this.paramList.push(new Param(key,cloneDeep(this.scheme["announcement"]["params"][key])))
     }
     //this.paramList =  this.paramList.sort((p1,p2) => p1.name.localeCompare(p2.name)) 
     console.log(this.paramList)
@@ -149,7 +150,9 @@ export class ParamsEditorComponent implements OnInit {
     for(let item of this.paramList) {
       res[item.name] = item.export()
     }
-    return res
+    let result = cloneDeep(this.scheme)
+    result["announcement"]["params"] = res
+    return result["announcement"]
   }
 
   showJson() {
@@ -166,6 +169,14 @@ export class ParamsEditorComponent implements OnInit {
 
   goBack() {
     this.router.goBack()
+  }
+
+  async save() {
+    this.snack.open("Saving...","INFO")
+    let result = await this.api.updateController(this.controller,this.type,this.export())
+    if(result) {
+      this.snack.open("Saved !","INFO")
+    }
   }
 
 }

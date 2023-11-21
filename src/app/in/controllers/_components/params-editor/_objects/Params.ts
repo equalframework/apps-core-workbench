@@ -90,7 +90,6 @@ export class Param {
 
     public export():{[id:string]:any} {
         let res:{[id:string]:any} =  {
-            "name" : this.name,
             "description" : this.description,
             "help" : this.help,
             "type"  : this.type

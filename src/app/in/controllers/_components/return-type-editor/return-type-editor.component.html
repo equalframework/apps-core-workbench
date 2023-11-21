@@ -7,6 +7,11 @@
     [buttonRevertOne]="true"
     (onButtonRevertOne)="revertOneChange()"
     [buttonRevertOneDisabled]="objectFutureHistory.length < 1"
+    [buttonSave]="true"
+    (onButtonSave)="save()"
+    [customButton]="true"
+    [customButtonList]="[{name:'show JSON',icon:'bug_report',disabled:false}]"
+    (onCustomButton)="showJson()"
 >
     <label>Response of </label>
     <label class="package-name">{{controller.split("_")[0]}}</label>
