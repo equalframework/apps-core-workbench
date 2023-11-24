@@ -43,7 +43,7 @@ export class TypeInputComponent implements OnInit,OnChanges {
     console.log("getting : "+d.toISOString())
     console.log(d.getTimezoneOffset())
     //d.setHours(d.getHours(),d.getMinutes()+d.getTimezoneOffset(),d.getSeconds(),0)
-    this.changed.emit(d.toISOString())
+    this.changed.emit(d.getTime()/1000)
     console.log("emitting : "+d.toISOString())
   }
 

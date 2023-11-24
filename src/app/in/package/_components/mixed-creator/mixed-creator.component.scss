@@ -28,6 +28,7 @@
     border-radius: .3em;
 }
 
+
 .type-mixed-sel-get {
     background-color: mat-color($get-color,A100) ;
     border-radius: .3em;
@@ -126,4 +127,11 @@
 
 .title {
     font-size: 1.3em;
+}
+
+.mixed-select-sel-menu {
+    background-color: mat-color($menu-color,A100) ;
+    border-radius: .3em;
+    width: 1.5em;
+    padding-left: .25em;
 }

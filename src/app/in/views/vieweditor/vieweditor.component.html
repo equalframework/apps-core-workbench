@@ -200,6 +200,52 @@
                     </ng-template>
                     <div class="tab-item indent">
                         <div>
+                            <label class="category-title maincolor">Operations</label>
+                            <button mat-mini-fab color="primary" (click)="addOperation()"><mat-icon>add</mat-icon></button>
+                            <div class="indent" *ngFor="let operation of view_obj.operations ; index as i">
+                                <mat-form-field>
+                                    <mat-label>Operation name</mat-label>
+                                    <input matInput [(ngModel)]="operation.name">
+                                </mat-form-field>
+                                <button mat-mini-fab color="primary" (click)="addOp(i)"><mat-icon>add</mat-icon></button>
+                                <button mat-mini-fab (click)="delOperation(i)"><mat-icon>delete</mat-icon></button>
+                                <div class="indent" *ngFor="let op of operation.ops ; index as j">
+                                    <mat-form-field>
+                                        <mat-label>Field</mat-label>
+                                        <mat-select [(value)]="op.name">
+                                            <mat-option *ngFor="let item of fieldList(operation,op.name)" [value]="item">{{item}}</mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+                                    <mat-form-field>
+                                        <mat-label>Operations</mat-label>
+                                        <mat-select [(value)]="op.operation">
+                                            <mat-option value="SUM">SUM</mat-option>
+                                            <mat-option value="COUNT">COUNT</mat-option>
+                                            <mat-option value="MIN">MIN</mat-option>
+                                            <mat-option value="MAX">MAX</mat-option>
+                                            <mat-option value="AVG">AVG</mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+                                    
+                                    <mat-form-field>
+                                        <mat-label>Prefix</mat-label>
+                                        <input matInput [(ngModel)]="op.prefix">
+                                    </mat-form-field>
+                                    <mat-form-field>
+                                        <mat-label>Suffix</mat-label>
+                                        <input matInput [(ngModel)]="op.suffix">
+                                    </mat-form-field>
+                                    <button mat-mini-fab (click)="delOp(i,j)"><mat-icon>delete</mat-icon></button>
+                                    <br>
+                                    <app-usages
+                                        [type]="op.operation==='COUNT' ? 'integer' : 'float'"
+                                        [usage]="op.usage"
+                                    >
+                                    </app-usages>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
                             <mat-form-field class="inputlong">
                                 <mat-label>controller</mat-label>
                                 <mat-select [(value)]="view_obj.controller">

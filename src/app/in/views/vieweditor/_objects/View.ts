@@ -30,11 +30,88 @@ abstract class ViewElement {
     }
 }
 
+class ViewOperation extends ViewElement {
+    public ops:{
+        name : string,
+        usage:Usage,
+        operation:string,
+        prefix:string,
+        suffix:string,
+        leftover:any,
+    }[] = []
+    public name:string = ""
+
+    get fieldTaken():string[] {
+        let ret = []
+        for(let op of this.ops) {
+            ret.push(op.name)
+        }
+        return ret
+    }
+
+    constructor (scheme:any={},name:string) {
+        super()
+        this.name = name
+        for(let op in scheme) {
+            let l = this.ops.push({
+                name : op,
+                usage : new Usage(""),
+                operation : "",
+                prefix : "",
+                suffix : "",
+                leftover : {}
+            })
+            if(scheme[op].usage) {
+                this.ops[l-1].usage = new Usage(scheme[op].usage)
+                delete scheme[op].usage
+            }
+            if(scheme[op].operation) {
+                this.ops[l-1].operation = scheme[op].operation
+                delete scheme[op].operation
+            }
+            if(scheme[op].prefix) {
+                this.ops[l-1].prefix = scheme[op].prefix
+                delete scheme[op].prefix
+            }
+            if(scheme[op].suffix) {
+                this.ops[l-1].suffix = scheme[op].suffix
+                delete scheme[op].suffix
+            }
+            this.ops[l-1].leftover = scheme[op]
+            delete scheme[op]
+        }
+        this.leftover = scheme
+    }
+
+    override export() {
+        let result = super.export()
+        if(Object.keys(this.ops).length > 0){
+            for(let op of this.ops) {
+                result[op.name] = op.leftover
+                const usage = op.usage.export()
+                if(usage) {
+                    result[op.name].usage = usage
+                }
+                if(op.operation) {
+                    result[op.name].operation = op.operation
+                }
+                if(op.prefix) {
+                    result[op.name].prefix = op.prefix
+                }
+                if(op.suffix) {
+                    result[op.name].suffix = op.suffix
+                }
+            }
+        }
+        return result
+    }
+}
+
 class View extends ViewElement {
-    public layout: ViewLayout = new ViewLayout()
+    public layout: ViewLayout = new ViewLayout("form")
     public name: string = ""
     public description: string = ""
-    public type: string = "form"
+    public type:string = "form"
     public domain: ViewDomain = new ViewDomain()
     public filters: ViewFilter[] = []
     public controller: string = "core_model_collect"
@@ -42,6 +119,7 @@ class View extends ViewElement {
     public actions: ViewAction[] = []
     public routes: ViewRoute[] = []
     public access = { "groups": ["users"] }
+    public operations:ViewOperation[] = []
 
 
     public _has_domain = false
@@ -77,7 +155,7 @@ class View extends ViewElement {
             delete scheme['filters']
         }
         if (scheme['layout']) {
-            this.layout = new ViewLayout(scheme['layout'])
+            this.layout = new ViewLayout(this.type,scheme['layout'])
             delete scheme['layout']
         }
         if (scheme['controller']) {
@@ -104,6 +182,12 @@ class View extends ViewElement {
             this.access = scheme["access"]
             delete scheme["access"]
         }
+        if(scheme["operations"]) {
+            for(let k in scheme["operations"]) {
+                this.operations.push(new ViewOperation(scheme.operations[k],k))
+            }
+            delete scheme["operations"]
+        }
         this.leftover = scheme
     }
 
@@ -123,6 +207,12 @@ class View extends ViewElement {
         let result = super.export()
         result['name'] = this.name
         result['description'] = this.description
+        if(Object.keys(this.operations).length > 0) {
+            result['operations'] = {}
+            for(let op of this.operations) {
+                result.operations[op.name] = op.export()
+            }
+        }
         if (this._has_access) {
             result["access"] = this.access
         }
@@ -182,15 +272,17 @@ class ViewLayout extends ViewElement {
     public groups: ViewGroup[] = []
     public items: ViewItem[] = []
 
-    constructor(scheme: any = {}) {
+    public _view_type:string
+
+    constructor(view_type:string,scheme: any = {}) {
         super()
-        if (scheme["items"]) {
+        this._view_type = view_type
+        if (scheme["items"] && ['list'].includes(this._view_type)) {
             for (let v of scheme["items"]) {
                 this.items.push(new ViewItem(v,0))
             }
             delete scheme["items"]
-        }
-        if (scheme["groups"]) {
+        } if (scheme["groups"] && ['form','search'].includes(this._view_type)) {
             for (let v of scheme["groups"]) {
                 this.groups.push(new ViewGroup(v))
             }
@@ -1248,6 +1340,7 @@ export {
     ViewPreDefAction,
     ViewSelection,
     ViewRoute,
-    ViewRouteContext
+    ViewRouteContext,
+    ViewOperation
 }
 

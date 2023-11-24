@@ -86,12 +86,13 @@ export class Field {
     get JSON():any {
         let res = cloneDeep(this._leftover)
         for(let key in this) {
-            if(!Field.type_directives[this.type][key]) continue
-            if(key === "name") continue
-            if(key === "usage") {
+            if(key === "usage" && Field.type_directives[this.finalType].usage) {
                 res[key] = this.usage.export()
                 continue
             }
+            if(!Field.type_directives[this.type][key]) continue
+            if(key === "name") continue
+            
             if(key === 'default' && !this._has_default) continue
             if(key === 'selection' && !this._has_selection) continue
             if(key === 'dependencies' && !this._has_dependencies) continue

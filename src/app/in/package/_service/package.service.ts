@@ -248,6 +248,14 @@ export class WorkbenchService extends EmbbedApiService {
         }
     }
 
+    public async getMenuByPackage(pkg:string):Promise<string[]> {
+        try {
+            return await this.api.fetch("?get=core_config_menus&package="+pkg)
+        } catch(response) {
+            return []
+        }
+    }
+
     public async InitPackage(pkg:string,imprt:boolean,csd:boolean,impcsd:boolean):Promise<boolean> {
         try {
             await this.api.fetch("?do=core_init_package&package="+pkg+(imprt ? "&import=true":"")+"&cascade="+(csd ? "true" : "false")+"&import_cascade="+(impcsd ? "true" : "false"))
@@ -255,6 +263,5 @@ export class WorkbenchService extends EmbbedApiService {
         } catch {
             return false
         }
-        
     }
 }

@@ -32,6 +32,7 @@ import { InitValidatorComponent } from './_components/package-info/_components/i
 import { HeaderModule } from '../header/header.module';
 import { MatChipsModule } from '@angular/material/chips';
 import { ClassicLayoutModule } from '../classic-layout/classic-layout.module';
+import { MenuModule } from '../menu/menu.module';
 
 
 @NgModule({
@@ -59,7 +60,8 @@ import { ClassicLayoutModule } from '../classic-layout/classic-layout.module';
         DeleteConfirmationModule,
         HeaderModule,
         MatChipsModule,
-        ClassicLayoutModule
+        ClassicLayoutModule,
+        MenuModule
     ],
     declarations: [
         PackageComponent,
