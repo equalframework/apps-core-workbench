@@ -34,7 +34,8 @@
     border-top: #e0e0e0 solid 2px;
     border-left: #e0e0e0 solid 2px;
     border-right: #e0e0e0 solid 2px;
-    padding: 2em;
+    padding-top: 1.5em;
+    padding-bottom: .5em;
     border-radius: 1em;
 }
 
@@ -59,7 +60,7 @@
 }
 
 .indent {
-    margin-left: 2em;
+    margin: 0 2em;
 }
 
 .textarealong {
@@ -120,4 +121,32 @@ transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 
 .grabable {
     cursor: grab;
+}
+
+
+.inputlong {
+    width: 20em;
+    margin-right: .5em;
+}
+
+.inputlonglong {
+    width: 30em;
+    margin-right: .5em;
+}
+
+.tab-label-icon {
+    margin-right: .5em;
+}
+
+.tabgrp {
+    height: calc(100% - 65px);
+}
+
+.tab-item {
+    padding-top: 1em;
+    height: 100%;
+}
+
+.name {
+    margin: 0 1.5em;
 }

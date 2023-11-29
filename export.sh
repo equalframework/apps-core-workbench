@@ -1,2 +1,2 @@
 #!/bin/bash
-rm -rf ../../../../public/workbench && mkdir ../../../../public/workbench && cp -a dist/symbiose/* ../../../../public/workbench/
+rm ../web.app; rm ../manifest.json; cp web.app ../web.app; cp manifest.json ../manifest.json

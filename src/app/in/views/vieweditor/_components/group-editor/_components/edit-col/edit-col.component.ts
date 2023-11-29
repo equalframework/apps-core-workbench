@@ -15,6 +15,8 @@ export class EditColComponent implements OnInit {
     @Optional() @Inject(MAT_DIALOG_DATA) public data:{col:ViewColumn,entity:string}
   ) { }
 
+  parseInt = parseInt
+    
   ngOnInit(): void {
     console.log(this.data)
   }

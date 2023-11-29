@@ -5,7 +5,7 @@
     <label class="solo">Select an eQual component</label>
 </app-in-header>
 <app-classic-layout>
-    <app-search-mixed-list list class="max-height max-width"
+    <app-search-mixed-list list class="full"
         [data]="elements"
         [selected_node]="selected_element"
         [loading]="isloading"
@@ -18,7 +18,7 @@
         <div *ngIf="isloading || sideload" style="display: flex;align-items: center;justify-content: center; width: 100%; height: 100%;">
             <mat-spinner></mat-spinner>
         </div>
-        <div *ngIf="!isloading && !sideload" class="max-height max-width">
+        <div *ngIf="!isloading && !sideload" class="full">
             <app-model-info *ngIf="selected_element.type==='class'" class="max-height max-width"
                 [selected_package]="selected_element.package ? selected_element.package : ''"
                 [selected_class]="selected_element.name"
@@ -56,6 +56,10 @@
                 [view_ref]="selected_element.name"
                 (goto)="onViewEditClick()"
             ></app-views-info>
+            <app-menu-info *ngIf="selected_element.type === 'menu'"
+                [menu_name]="selected_element.name"
+                [package]="selected_element.package ? selected_element.package : ''"
+            ></app-menu-info>
         </div>
     </ng-container>
 </app-classic-layout>

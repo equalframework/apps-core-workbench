@@ -120,32 +120,42 @@
                     </mat-form-field>
                 </div> 
                 <mat-grid-list rowHeight="3em" cols="4">
-                    <mat-grid-tile *ngIf="finalTypeDirective['readonly']">
+                    <mat-grid-tile *ngIf="typeDirective['readonly']">
                         <div class="full checkboxcontainer">
                             <mat-checkbox [disabled]="field.isUneditable" [checked]="field.readonly" (change)="changeReadonly($event.checked)">readonly</mat-checkbox>
                         </div>
                     </mat-grid-tile>
-                    <mat-grid-tile *ngIf="finalTypeDirective['required']">
+                    <mat-grid-tile *ngIf="typeDirective['required']">
                         <div class="full checkboxcontainer">
                             <mat-checkbox [disabled]="field.isUneditable" [checked]="field.required" (change)="changeRequired($event.checked)">required</mat-checkbox>
                         </div>
                     </mat-grid-tile>
-                    <mat-grid-tile *ngIf="finalTypeDirective['multilang']">
+                    <mat-grid-tile *ngIf="typeDirective['multilang']">
                         <div class="full checkboxcontainer">
                             <mat-checkbox [disabled]="field.isUneditable" [checked]="field.multilang" (change)="changeMultilang($event.checked)">multilang</mat-checkbox>
                         </div>
                     </mat-grid-tile>
-                    <mat-grid-tile *ngIf="finalTypeDirective['unique']">
+                    <mat-grid-tile *ngIf="typeDirective['unique']">
                         <div class="full checkboxcontainer">
                             <mat-checkbox [disabled]="field.isUneditable" [checked]="field.unique" (change)="changeUnique($event.checked)">unique</mat-checkbox>
                         </div>
                     </mat-grid-tile>
-                    <mat-grid-tile *ngIf="finalTypeDirective['default']">
+                    <mat-grid-tile *ngIf="typeDirective['store']">
+                        <div class="full checkboxcontainer">
+                            <mat-checkbox [disabled]="field.isUneditable" [checked]="field.store" (change)="changeStore($event.checked)">store</mat-checkbox>
+                        </div>
+                    </mat-grid-tile>
+                    <mat-grid-tile *ngIf="typeDirective['instant']">
+                        <div class="full checkboxcontainer">
+                            <mat-checkbox [disabled]="field.isUneditable" [checked]="field.instant" (change)="changeInstant($event.checked)">instant</mat-checkbox>
+                        </div>
+                    </mat-grid-tile>
+                    <mat-grid-tile *ngIf="typeDirective['default']">
                         <div class="full checkboxcontainer">
                             <mat-checkbox [disabled]="field.isUneditable" [checked]="field._has_default" (change)="changeHasDefault($event.checked)">default value</mat-checkbox>
                         </div>
                     </mat-grid-tile>
-                    <mat-grid-tile *ngIf="finalTypeDirective['selection']">
+                    <mat-grid-tile *ngIf="typeDirective['selection']">
                         <div class="full checkboxcontainer">
                             <mat-checkbox [disabled]="field.isUneditable" [checked]="field._has_selection" (change)="changeHasSelection($event.checked)">selection</mat-checkbox>
                         </div>
@@ -174,6 +184,7 @@
                                 [value]="item"
                                 [type]="field.finalType"
                                 name="option {{index+1}}"
+                                (changed)="changeSelection(index,$event)"
                             ></app-type-input>
                             <button mat-icon-button (click)="deleteSelection(index)"><mat-icon>delete</mat-icon></button>
                         </div>
@@ -210,6 +221,12 @@
                             <mat-form-field class="thirdfield">
                                 <mat-label>ondetach</mat-label>
                                 <input matInput [value]="field.ondetach" (keydown)="noCancel($event)" (change)="changeOnDetach($event.target.value)">
+                            </mat-form-field>
+                        </ng-container>
+                        <ng-container *ngIf="typeDirective['onrevert']">
+                            <mat-form-field class="thirdfield">
+                                <mat-label>onrevert</mat-label>
+                                <input matInput [value]="field.onrevert" (keydown)="noCancel($event)" (change)="changeOnRevert($event.target.value)">
                             </mat-form-field>
                         </ng-container>
                     </mat-expansion-panel>

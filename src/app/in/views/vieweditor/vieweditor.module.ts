@@ -5,7 +5,6 @@ import { ViewEditorRoutingModule } from './vieweditor-routing.module';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -28,25 +27,24 @@ import { ActionsContainerComponent } from './_components/actions-container/actio
 import { MatRadioModule } from '@angular/material/radio';
 import { MatChipsModule } from '@angular/material/chips';
 import { PropertyDomainModule } from '../../property-domain-component/property-domain.module';
-import { PropertyClauseComponent } from '../../property-clause-component/property-clause.component';
 import { PropertyClauseModule } from '../../property-clause-component/property-clause.module';
 import { PopupParamsComponent } from './_components/action-editor/_components/popup-params/popup-params.component';
 import { HeaderEditorComponent } from './_components/header-editor/header-editor.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PreDefActionsContainerComponent } from './_components/predef-actions-container/predef-actions-container.component';
 import { PreDefActionEditorComponent } from './_components/predef-actions-container/_component/predef-action-editor/predef-action-editor.component';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { ViewEditorServicesService } from './_services/view-editor-services.service';
 import { HttpClientModule } from '@angular/common/http';
-import { Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { SharedLibModule } from 'sb-shared-lib';
 import { RouteEditorComponent } from './_components/route-editor/route-editor.component';
 import { RouteEditComponent } from './_components/route-editor/route-edit/route-edit.component';
 import { AccessEditorComponent } from './_components/access-editor/access-editor.component';
 import { HeaderModule } from '../../header/header.module';
-import { PopupLayoutComponent } from '../../popup-layout/popup-layout.component';
 import { PopupLayoutModule } from '../../popup-layout/popup-layout.module';
 import { UsagesModule } from '../../usages/usages.module';
+import { MatMenuModule } from '@angular/material/menu';
 
 
 
@@ -72,6 +70,7 @@ import { UsagesModule } from '../../usages/usages.module';
     RouteEditorComponent,
     RouteEditComponent,
     AccessEditorComponent,
+
   ],
   imports: [
     CommonModule,
@@ -79,7 +78,7 @@ import { UsagesModule } from '../../usages/usages.module';
     MatInputModule,
     MatFormFieldModule,
     MatSelectModule,
-    
+    MatMenuModule,
     MatCheckboxModule,
     MatButtonModule,
     MatSlideToggleModule,
@@ -100,6 +99,9 @@ import { UsagesModule } from '../../usages/usages.module';
     HeaderModule,
     PopupLayoutModule,
     UsagesModule
+  ],
+  exports : [
+    AccessEditorComponent
   ],
   providers: [
     {

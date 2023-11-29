@@ -1,0 +1,98 @@
+@import "src/theme.scss";
+
+:host{
+    width: 100%;
+    height: 100%;
+}
+
+.item-pretty-holder {
+
+    width: 100%;
+    border-bottom: solid 1px #d3d3d3;
+    border-right: solid 1px #d3d3d3;
+    
+}
+
+.input-id {
+    width: 15em;
+}
+
+.input-label {
+    width: 15em;
+}
+
+.input-icon {
+    width: 15em;
+}
+
+.input-description {
+    width: 35em;
+}
+
+.gridholder {
+    height: calc(100% - 165px - 1em);
+    width: 100%;
+}
+
+.margin-paddin {
+    margin: .5em;
+    padding: 2em;
+    width: 100%;
+    height: calc(100% - 1em);
+    background-color: whitesmoke;
+    border-radius: 10px;
+    overflow-y: scroll;
+}
+
+.margin {
+    margin: .5em;
+    height: calc(100% - 1em);
+    width: 100%;
+    background-color: whitesmoke;
+    border-radius: 10px;
+    padding: 10px 0;
+}
+
+.scroll-y {
+    overflow-y: scroll;
+    height: calc(100% - 2em - 36px);
+}
+
+.domain-holder {
+    background-color: #eee;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.padded-checkboxes {
+    padding: 1em;
+}
+
+.checkbox-holder {
+    width: 100%;
+    padding-left: 10%;
+}
+
+.button-holder {
+    padding: 1em;
+}
+
+.object-info {
+    background-color: whitesmoke;
+    padding: 10px 1em;
+    margin: 0 .5em;
+    margin-bottom: .5em;
+    border-radius: 10px;
+}
+
+.package-name {
+    background-color: mat-color($package-color,A100);
+    padding: 0 5px;
+    border-radius: 5px;
+}
+
+.menu-name {
+    background-color: mat-color($menu-color,A100);
+    padding: 0 5px;
+    border-radius: 5px;
+}

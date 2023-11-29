@@ -13,7 +13,10 @@ export class Field {
     public required:boolean = false
     public multilang:boolean = false
     public unique:boolean = false
+    public store:boolean = false
+    public instant:boolean = false
     public selection:any[] = []
+
     public default:any = undefined
 
     public foreign_object:string = ""
@@ -32,6 +35,7 @@ export class Field {
     public onupdate:string = ""
     public ondelete:string = ""
     public ondetach:string = ""
+    public onrevert:string = ""
     public visible:any = []
     public sort:"asc"|"desc" = "asc"
     public domain:any = []
@@ -83,12 +87,13 @@ export class Field {
     get JSON():any {
         let res = cloneDeep(this._leftover)
         for(let key in this) {
-            if(!Field.type_directives[this.type][key]) continue
-            if(key === "name") continue
-            if(key === "usage") {
+            if(key === "usage" && Field.type_directives[this.finalType].usage) {
                 res[key] = this.usage.export()
                 continue
             }
+            if(!Field.type_directives[this.type][key]) continue
+            if(key === "name") continue
+            
             if(key === 'default' && !this._has_default) continue
             if(key === 'selection' && !this._has_selection) continue
             if(key === 'dependencies' && !this._has_dependencies) continue

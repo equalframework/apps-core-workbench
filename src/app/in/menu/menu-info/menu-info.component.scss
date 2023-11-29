@@ -1,0 +1,57 @@
+@import "src/theme.scss";
+
+:host {
+    width: 100%;
+    height: 100%;
+}
+
+.holder {
+    background-color: whitesmoke;
+    border-radius: 10px;
+    padding: 2em;
+}
+
+.class-container-title {
+    height: 80px;
+}
+
+.class-container-top {
+    height: calc(87.5% - 80px);
+    overflow-y: scroll;
+}
+
+.class-container-bottom {
+    height: 12.5%;
+}
+
+
+.sp-title {
+    font-size: 1.5em;
+}
+
+.package-name {
+    background-color: mat-color($package-color,A100);
+    padding: 0 5px;
+    border-radius: 5px;
+}
+
+.menu-name {
+    background-color: mat-color($menu-color,A100);
+    padding: 0 5px;
+    border-radius: 5px;
+}
+
+.package-info-button {
+    color : mat-color($maincolor) !important;
+    background-color:  #e4e4e4 !important;
+    min-width: 80%;
+    height: 80%;
+}
+
+.package-info-button label {
+    font-size: 1.1em;
+}
+
+.package-info-button mat-icon {
+    margin-right: 1em;
+}

@@ -166,7 +166,7 @@ export class ControllerInfoComponent implements OnInit {
                 let arrayString = (JSON.stringify(this.paramsValue[key])).replaceAll('"', '');
                 stringParams += ' --' + key + '=\'' + arrayString + '\'';
             } else if (isObject(this.paramsValue[key])) {
-                stringParams += ' --' + key + '=\'{' + this.paramsValue[key] + '}\'';
+                stringParams += ' --' + key + '=\'' + JSON.stringify(this.paramsValue[key]) + '\'';
             } else if (isString(this.paramsValue[key])) {
                 stringParams += ' --' + key + '=' + (this.paramsValue[key].replace('\\', '\\\\'));
             } else {
@@ -203,9 +203,9 @@ export class ControllerInfoComponent implements OnInit {
                 let arrayString = (JSON.stringify(this.paramsValue[key])).replaceAll('"', '');
                 stringParams += '&' + key + '=\'' + arrayString + '\'';
             } else if (isObject(this.paramsValue[key])) {
-                stringParams += '&' + key + '=\'{' + this.paramsValue[key] + '}\'';
+                stringParams += '&' + key + '=\'' + JSON.stringify(this.paramsValue[key]) + '\'';
             } else if (isString(this.paramsValue[key])) {
-                stringParams += '&' + key + '=' + (this.paramsValue[key].replace('\\', '\\\\'));
+                stringParams += '&' + key + '=' + (this.paramsValue[key]);
             } else {
                 stringParams += '&' + key + '=' + this.paramsValue[key];
             }
@@ -249,6 +249,7 @@ export class ControllerInfoComponent implements OnInit {
      * @param params_name field to update
      */
     public updateParamsValue(new_value: any, params_name: any) {
+        console.log(new_value)
         if (new_value === undefined || new_value === "") {
             delete this.paramsValue[params_name];
             if (this.scheme['params'][params_name]['required']) {

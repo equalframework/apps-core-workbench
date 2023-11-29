@@ -12,6 +12,7 @@
         [buttonRevertOneDisabled]="paramFutureHistory.length === 0"
         (onButtonRevertOne)="revertOneChange()"
         [buttonSave]="true"
+        (onButtonSave)="save()"
         [customButton]="true"
         [customButtonList]="[{name:'show JSON',icon:'bug_report',disabled:false}]"
         (onCustomButton)="handleCustomButton($event)"

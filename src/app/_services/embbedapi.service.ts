@@ -114,6 +114,25 @@ export class EmbbedApiService {
         
     }
 
+    public async listControllersByType(type:"data"|"actions"|"apps"):Promise<string[]> {
+        try {
+            let res:string[] = []
+            let pkgs = (await this.listPackages())
+            if(pkgs) {
+                for(let pkg of pkgs) {
+                    let temp:string[] = (await this.api.fetch("?get=core_config_controllers&package="+pkg))[type]
+                    for(let item of temp) {
+                        res.push(item)
+                    }
+                    
+                }
+            }
+            return res  
+        }catch {
+            return []
+        }
+    }
+
     public async createController(pkg:string,name:string,type:"do"|"get") {
         this.api.fetch("?do=core_config_create-controller&controller_name="+name+"&controller_type="+type+"&package="+pkg)
     }

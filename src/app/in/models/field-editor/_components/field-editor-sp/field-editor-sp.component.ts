@@ -127,7 +127,7 @@ export class FieldEditorSpComponent implements OnInit {
 
   changeForeignField(value :string) {
     if(this.field){
-      this.field.foreign_object = value
+      this.field.foreign_field = value
       this.CRUD.emit("Changed foreign_field of "+this.field.name)
     }
   }
@@ -143,6 +143,20 @@ export class FieldEditorSpComponent implements OnInit {
     if(this.field){
       this.field.unique = value
       this.CRUD.emit("Toggeled unique of "+this.field.name)
+    }
+  }
+
+  changeStore(value :boolean) {
+    if(this.field){
+      this.field.store = value
+      this.CRUD.emit("Toggeled store of "+this.field.name)
+    }
+  }
+
+  changeInstant(value :boolean) {
+    if(this.field){
+      this.field.instant = value
+      this.CRUD.emit("Toggeled instant of "+this.field.name)
     }
   }
 
@@ -247,6 +261,13 @@ export class FieldEditorSpComponent implements OnInit {
     }
   }
 
+  changeOnRevert(value:string) {
+    if (this.field) {
+      this.field.onrevert = value
+      this.CRUD.emit("changed onrevert of "+this.field.name)
+    }
+  }
+
   changeOnDelete(value:string) {
     if (this.field) {
       this.field.ondelete = value
@@ -286,6 +307,13 @@ export class FieldEditorSpComponent implements OnInit {
   public DeleteDependency(index:number) {
     this.field?.dependencies.splice(index,1)
     this.CRUD.emit("deleted dependecy to "+this.field?.name)
+  }
+
+  public changeSelection(index:number,value:any) {
+    if(this.field){
+      this.field.selection[index] = value
+      this.CRUD.emit("changed value of selection")
+    }
   }
 
   noCancel(event: KeyboardEvent) {

@@ -15,6 +15,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MixedCreatorComponent } from './mixed-creator.component';
 import {  MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { AutocompleteModule } from 'src/app/in/autocomplete/autocomplete.module';
 
 
 @NgModule({
@@ -30,6 +31,7 @@ import {  MatProgressSpinnerModule } from '@angular/material/progress-spinner';
         MatInputModule,
         
         MatProgressSpinnerModule,
+        AutocompleteModule
     ],
     declarations: [
         MixedCreatorComponent,

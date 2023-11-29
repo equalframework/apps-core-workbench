@@ -73,17 +73,25 @@ export class PackageComponent implements OnInit {
                                 this.routelist[pack+file+route] = {"info":{"file":file,"package":pack},"methods":y[file][route]}
                             }
                         }
-                    }).then( () =>
+                    }).then( () => {
                         this.api.getViewByPackage(pack).then((y) => {
                             y.forEach(view =>{
                                 this.elements.push({name:view,type:"view",package:pack})
                             })
-                            this.elements.sort((a,b) => 
-                                (a.type === "route" ? a.package+a.more+a.name : (a.type === "class" ? a.package+a.name : a.name)).replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase() < (b.type === "class" ? b.package+b.name : b.name).replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase() ? -1 : 1 
-                            )
-                            this.isloading = false
-                        })
-                    )
+                            this.api.getMenuByPackage(pack).then((y) => {
+                                y.forEach(view =>{
+                                    this.elements.push({name:view,type:"menu",package:pack})
+                                })
+                                this.elements.sort((a,b) => 
+                                    (a.type === "route" ? a.package+a.more+a.name : ( (a.type === "class" || a.type === "menu") ? a.package+a.name : a.name)).replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase() < (b.type === "class" ? b.package+b.name : b.name).replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase() ? -1 : 1 
+                                )
+                                
+                                this.isloading = false
+                            });
+                            
+                        });
+                        
+                    })
                 })  
             })
         })

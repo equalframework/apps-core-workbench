@@ -157,6 +157,11 @@
     border-radius: .3em;
 }
 
+.type-mixed-sel-menu {
+    background-color: mat-color($menu-color,A100) ;
+    border-radius: .3em;
+}
+
 .type-mixed-sel-route {
     background-color: mat-color($route-color,A100) ;
     border-radius: .3em;
@@ -203,6 +208,13 @@
 
 .mixed-select-sel-controller {
     background-color: mat-color($get-color,A100) ;
+    border-radius: .3em;
+    width: 1.5em;
+    padding-left: .25em;
+}
+
+.mixed-select-sel-menu {
+    background-color: mat-color($menu-color,A100) ;
     border-radius: .3em;
     width: 1.5em;
     padding-left: .25em;

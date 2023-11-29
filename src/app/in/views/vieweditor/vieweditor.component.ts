@@ -1,12 +1,13 @@
 import { Component, Inject, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
-import { View, ViewGroup, ViewItem, ViewSection } from './_objects/View';
+import { View, ViewGroup, ViewItem, ViewOperation, ViewSection } from './_objects/View';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { prettyPrintJson } from 'pretty-print-json';
 import { ViewEditorServicesService } from './_services/view-editor-services.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { Usage } from '../../controllers/_components/params-editor/_objects/Params';
 
 @Component({
   selector: 'app-vieweditor',
@@ -21,11 +22,14 @@ export class VieweditorComponent implements OnInit {
   obk = Object.keys;
   view_obj:View
   name:string
-  class_scheme:any
-  fields:string[]
+
   types = ViewItem.typeList
   loading = true
   error = false
+
+  // --- ONLY FOR list,form,search VIEW ---
+  class_scheme:any
+  fields:string[]
 
   // this is used to avoid calling the compliancy_id method which has a great cost
   compliancy_cache:{ok:boolean,id_list:string[]} 
@@ -41,7 +45,6 @@ export class VieweditorComponent implements OnInit {
   access_visible = false
 
   groups:string[] = []
-  groups_visible:{[id:number]:boolean} = {}
   
 
   collect_controller:string[] = ["core_model_collect"];
@@ -70,15 +73,12 @@ export class VieweditorComponent implements OnInit {
         let tempsplit = this.name.split(":")
         this.entity = tempsplit[0]
         this.view_id = tempsplit[1]
+        this.class_scheme = await this.api.getSchema(this.entity)
+        this.fields = this.obk(this.class_scheme['fields'])
         this.view_scheme = await this.api.getView(this.entity,this.view_id)
         console.log(this.view_scheme)
         this.view_obj = new View(this.view_scheme,tempsplit[1].split(".")[0])
         console.log(this.view_obj)
-        this.class_scheme = await this.api.getSchema(this.entity)
-        this.fields = this.obk(this.class_scheme['fields'])
-        for(let num in this.view_obj.layout.groups) {
-          this.groups_visible[num] = false
-        }
         let temp_controller = await this.api.getDataControllerList(this.entity.split("\\")[0])
         for(let item of temp_controller) {
           let data =  await this.api.getAnnounceController(item)
@@ -141,9 +141,6 @@ export class VieweditorComponent implements OnInit {
   
   addGroup() {
     this.view_obj.layout.groups.push(new ViewGroup({"label":"New Group"}))
-    for(let num in this.view_obj.layout.groups) {
-      if(!this.groups_visible[num]) this.groups_visible[num] = false
-    }
   }
 
   goBack() {
@@ -223,6 +220,35 @@ export class VieweditorComponent implements OnInit {
       this.logit()
       return
     }
+  }
+
+  fieldList(operation:ViewOperation,field:string):string[] {
+    let b:string[] = [field]
+    b.push(...Object.keys(this.class_scheme.fields).filter( (item:string) => !operation.fieldTaken.includes(item)))
+    return b
+  }
+
+  addOperation() {
+    this.view_obj.operations.push(new ViewOperation({},""))
+  }
+
+  addOp(index:number) {
+    this.view_obj.operations[index].ops.push({
+      name : "",
+      usage: new Usage(""),
+      operation: "COUNT",
+      prefix: "",
+      suffix: "",
+      leftover: {},
+    })
+  }
+
+  delOperation(index:number) {
+    this.view_obj.operations.splice(index,1)
+  }
+
+  delOp(index:number,jndex:number) {
+    this.view_obj.operations[index].ops.splice(jndex,1)
   }
 }
 

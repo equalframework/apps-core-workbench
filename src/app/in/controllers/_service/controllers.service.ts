@@ -122,4 +122,18 @@ export class ControllersService extends EmbbedApiService {
             console.warn('fetch package error', response);
         }
     }
+
+    public async updateController(name:string,type:string,payload:any):Promise<boolean> {
+        try {
+            await this.api.fetch(`?do=core_config_update-controller&controller=${name}&operation=${type}&payload=${JSON.stringify(payload)}`)
+            return true
+        } catch(resp) {
+            //@ts-expect-error
+            if(resp.status >= 300) {
+                this.api.errorFeedback(resp)
+                return false
+            }
+            return true
+        }
+    }
 }
