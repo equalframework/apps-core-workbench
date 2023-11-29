@@ -35,6 +35,7 @@ export class Field {
     public onupdate:string = ""
     public ondelete:string = ""
     public ondetach:string = ""
+    public onrevert:string = ""
     public visible:any = []
     public sort:"asc"|"desc" = "asc"
     public domain:any = []

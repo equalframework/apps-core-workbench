@@ -261,6 +261,13 @@ export class FieldEditorSpComponent implements OnInit {
     }
   }
 
+  changeOnRevert(value:string) {
+    if (this.field) {
+      this.field.onrevert = value
+      this.CRUD.emit("changed onrevert of "+this.field.name)
+    }
+  }
+
   changeOnDelete(value:string) {
     if (this.field) {
       this.field.ondelete = value

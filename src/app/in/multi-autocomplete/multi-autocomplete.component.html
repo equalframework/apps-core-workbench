@@ -1,0 +1,11 @@
+<div style="display: inline-block;">
+    <mat-form-field [style.width]="width">
+        <mat-label>{{name}}</mat-label>
+        <input matInput [matAutocomplete]="auto" [formControl]="valueControl">
+        <mat-autocomplete #auto>
+            <mat-optgroup *ngFor="let key of obk(f_values)" [label]="key">
+                <mat-option autoActiveFirstOption *ngFor="let item of f_values[key]" [value]="item">{{item}}</mat-option>
+            </mat-optgroup>
+        </mat-autocomplete>
+    </mat-form-field>
+</div>

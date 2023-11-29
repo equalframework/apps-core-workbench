@@ -223,6 +223,12 @@
                                 <input matInput [value]="field.ondetach" (keydown)="noCancel($event)" (change)="changeOnDetach($event.target.value)">
                             </mat-form-field>
                         </ng-container>
+                        <ng-container *ngIf="typeDirective['onrevert']">
+                            <mat-form-field class="thirdfield">
+                                <mat-label>onrevert</mat-label>
+                                <input matInput [value]="field.onrevert" (keydown)="noCancel($event)" (change)="changeOnRevert($event.target.value)">
+                            </mat-form-field>
+                        </ng-container>
                     </mat-expansion-panel>
                     <mat-expansion-panel *ngIf="typeDirective['sort']">
                         <mat-expansion-panel-header>

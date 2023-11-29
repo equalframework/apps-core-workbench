@@ -1,8 +1,19 @@
 <div class="holder full">
-    <div>
+    <div class="class-container-title">
         <label class="sp-title">Menu </label>
-        <label class="sp-title">{{menu_name}}</label>
-        <label> of </label>
-        <label class="sp-title">{{package}}</label>
+        <label class="sp-title menu-name">{{menu_name}}</label>
+        <label class="sp-title"> of </label>
+        <label class="sp-title package-name">{{package}}</label>
+    </div>
+    <div class="class-container-top"></div>
+    <div class="class-container-bottom">
+        <mat-grid-list [cols]="4" rowHeight="100%" class="max-width button-pkg-container">
+            <mat-grid-tile>
+                <button mat-button class="package-info-button" ><mat-icon>edit</mat-icon><label>Edit</label></button>
+            </mat-grid-tile>
+            <mat-grid-tile>
+                <button mat-button class="package-info-button" ><mat-icon>translate</mat-icon><label>Translations</label></button>
+            </mat-grid-tile>
+        </mat-grid-list>
     </div>
 </div>
