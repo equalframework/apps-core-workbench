@@ -59,6 +59,7 @@
             <app-menu-info *ngIf="selected_element.type === 'menu'"
                 [menu_name]="selected_element.name"
                 [package]="selected_element.package ? selected_element.package : ''"
+                (navigate)='menuNav($event)'
             ></app-menu-info>
         </div>
     </ng-container>

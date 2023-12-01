@@ -157,13 +157,6 @@ export class PackageComponent implements OnInit {
      */
     public onupdatePackage(event: { old_node: string, new_node: string }) {
         this.api.updatePackage(event.old_node, event.new_node);
-        /* MAY BE USEFUL WHEN LINK TO BACKEND
-        if (this.selected_package == event.old_node) {
-            this.selected_package = event.new_node;
-        }
-        this.eq_class[event.new_node] = this.eq_class[event.old_node];
-        delete this.eq_class[event.old_node];
-        */
     }
 
     /**
@@ -173,14 +166,6 @@ export class PackageComponent implements OnInit {
      */
     public ondeletePackage(eq_package: string) {
         this.api.deletePackage(eq_package);
-        /* MAY BE USEFUL WHEN LINK TO BACKEND
-        if (this.selected_package == eq_package) {
-            this.selected_package = "";
-            this.selected_class = "";
-            this.selected_field = "";
-            this.child_loaded = false;
-        }
-        */
     }
 
     /**
@@ -286,6 +271,14 @@ export class PackageComponent implements OnInit {
         case 3:
             this.router.navigate(["/controllers","return",this.selected_element.type,this.selected_element.name],{"selected":this.selected_element})
             break
+        }
+    }
+
+    menuNav(choice:number) {
+        switch(choice) {
+            case 1: 
+                this.router.navigate(['/menu/edit/',this.selected_element.package,this.selected_element.name]);
+                break;
         }
     }
 }

@@ -13,12 +13,5 @@ export class ViewService extends EmbbedApiService {
         super(api)
     }
 
-    public async getSchema(entity: string) {
-        try {
-            return await this.api.fetch('?get=core_model_schema&entity=' + entity);
-        }
-        catch (response: any) {
-            console.warn('request error', response);
-        }
-    }
+
 }

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 @Component({
   selector: 'app-menu-info',
@@ -9,6 +9,8 @@ export class MenuInfoComponent implements OnInit {
 
   @Input() menu_name:string = ""
   @Input() package:string = ""
+
+  @Output() navigate = new EventEmitter<number>();
 
 
   constructor() { }
