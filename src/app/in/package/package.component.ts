@@ -149,6 +149,10 @@ export class PackageComponent implements OnInit {
     public onClickRoute() {
         this.router.navigate(['/routes', this.selected_element.name],{"selected":this.selected_element});
     }
+
+    public onClickInitData() {
+        this.router.navigate(['/initdata', this.selected_element.name],{"selected":this.selected_element});
+    }
     
     /**
      * Update the name of a package.

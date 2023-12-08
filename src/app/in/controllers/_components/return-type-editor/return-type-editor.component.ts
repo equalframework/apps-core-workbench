@@ -81,8 +81,6 @@ export class ReturnTypeEditorComponent implements OnInit {
     this.typeIconList = this.TypeUsage.typeIcon
     this.normals = await this.api.getTypeList()
     this.entities = await this.api.listAllModels()
-    console.log(this.scheme)
-    console.log(this.scheme.announcement.response)
     this.object = new ReturnValue(cloneDeep(this.scheme.announcement.response))
     this.typeControl.setValue(this.object.type)
     this.typeControl.valueChanges.subscribe(value => {
@@ -122,12 +120,13 @@ export class ReturnTypeEditorComponent implements OnInit {
 
   changeQty(value:string) {
     this.object.qty = value
+    console.log(this.object.qty)
     this.onChange("Changed Quantity")
   }
 
   changeEntity(value:string) {
     this.object.entity = value
-    this.onChange("Changed Quantity")
+    this.onChange("Changed entity")
   }
 
   changeHasFormat(value:boolean) {

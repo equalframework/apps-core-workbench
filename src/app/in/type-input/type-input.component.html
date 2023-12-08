@@ -7,7 +7,7 @@
     <input [disabled]="disabled" matInput [value]="value  ? value : ''" (keydown)="noCancel($event)" (change)="changed.emit($event.target.value)">
 </mat-form-field>
 <ng-container *ngIf="type === 'array' || this.type === 'one2many' || this.type === 'many2many'">
-    <mat-form-field class="codeblock">
+    <mat-form-field class="codeblock bg">
         <mat-label>{{name}}</mat-label>
         <textarea matInput rows="8" [formControl]="JsonControl" (keydown.Tab)="TabBehavior($event)" (keydown)="noCancel($event)"  (change)="changeDefaultFromJson()"></textarea>
     </mat-form-field>
@@ -32,7 +32,7 @@
     </mat-form-field>
 </ng-container>
 <ng-container *ngIf="type==='boolean'">
-    <mat-checkbox [disabled]="disabled" [value]="value" (change)="changed.emit($event.checked)">{{name}}</mat-checkbox>
+    <mat-checkbox [disabled]="disabled" [checked]="value" (change)="changed.emit($event.checked)">{{name}}</mat-checkbox>
 </ng-container>
 <ng-container *ngIf="cannotBeDisplayed">
     Sorry, this type cannot be displayed or manually entered in Workbench.

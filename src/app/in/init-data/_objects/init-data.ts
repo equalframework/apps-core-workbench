@@ -1,0 +1,232 @@
+import { strict } from "assert";
+import { cloneDeep } from "lodash";
+import { EmbbedApiService } from "src/app/_services/embbedapi.service";
+
+export class UnparsableError extends Error {
+
+}
+
+export class InitDataFile {
+    public name:string = "new_file.json"
+    public entities:{[entity:string]:InitDataEntitySection} = {}
+
+    constructor(private api:EmbbedApiService,name?:string, schema:any = [] ) {
+        if(name) {
+            this.name = name
+        }
+        for(let entity of schema) {
+            console.log(entity)
+            if(entity.name) {
+                if(!this.entities[entity.name]) {
+                    try {
+                        this.entities[entity.name] = new InitDataEntitySection(api,entity)
+                    } catch(e) {
+                        throw e
+                    }
+                } else {
+                    this.entities[entity.name].addItems(entity.lang, entity.data)
+                }
+            }
+        }
+    }
+
+    export():any[] {
+        let result:any[] = []
+        for(let entity_k in this.entities) {
+            result.push(...this.entities[entity_k].export())
+        }
+        return result
+    }
+}
+
+export class InitDataEntitySection {
+    private num:number = 1
+    private entity:string
+    private fields:{name:string,type:string, multilang:boolean, required:boolean}[] = []
+    public items : InitDataEntityInstance[] = []
+    allUsedLangs:string[] =  ['en']
+    public get AllField() {
+        return cloneDeep(this.fields)
+    }
+    public get MultilangField() {
+        return cloneDeep(this.fields).filter(item => item.multilang)
+    }
+    public get name() {
+        return this.entity
+    }
+    public getInstanceById(id:number):InitDataEntityInstance {
+        for(let instance of this.items) {
+            if(instance.id === id) {
+                return instance
+            }
+        }
+        this.items.push(new InitDataEntityInstance(id,this.allUsedLangs))
+        return this.items[this.items.length - 1]
+    }
+
+    public isIdTaken(id:number):boolean  {
+        for(let instance of this.items) {
+            if(instance.id === id) {
+                return true
+            }
+        }
+        return false
+    }
+
+    constructor(
+        private api:EmbbedApiService,
+        scheme:any
+    ) {
+        if(!scheme.name) {
+            throw new UnparsableError()
+        }
+        this.entity = scheme.name
+        this.getSchema(scheme)
+        
+        this.addItems(scheme.lang,scheme.data)
+    }
+
+    ok = false
+
+    async getSchema(scheme:any) {
+        let a:{[id:string]:any} =  (await this.api.getSchema(this.entity))['fields']
+        for (const [k, field] of Object.entries(a)) {
+            this.fields.push({name:k, type:field.type, multilang:!!field.multilang, required:!!field.required})
+        }
+        
+        if(!scheme.lang) {
+            throw new UnparsableError()
+        }
+        this.ok = true
+    }
+
+    addLang(lang:string) {
+        if(this.allUsedLangs.includes(lang)) return
+        this.allUsedLangs.push(lang)
+        for(let item of this.items) {
+            item.addLang(lang)
+        }
+    }
+
+    removeLang(lang:string) {
+        if(lang === 'en') return
+        this.allUsedLangs.splice(this.allUsedLangs.indexOf(lang),1)
+        for(let item of this.items) {
+           item.deleteLang(lang)
+        }
+    }
+
+    RenameLang(from:string,to:string) {
+        if(from === 'en' || to === 'en' || from == to || this.allUsedLangs.includes(to)) return
+        this.allUsedLangs[this.allUsedLangs.indexOf(from)] = to
+        for(let item of this.items) {
+            item.renameLang(from,to)
+        }
+    }
+
+    async addItems(lang:string,data:any) {
+        const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+        while(!this.ok) {
+            await sleep(10)
+        }
+        this.addLang(lang)
+        for(let item of data) {
+            let strict = true
+            if(!item.id) {
+                for(;this.isIdTaken(this.num);this.num++);
+                item.id = this.num++
+                strict = false
+            }
+            this.getInstanceById(item.id).updateLang(lang,item,this.fields,strict)
+        }
+    }
+
+    export():any[] {
+        let result:any[] = []
+        for(let lang of this.allUsedLangs) {
+            result.push({
+                name : this.name,
+                lang : lang,
+                data : []
+            })
+            for(let instance of this.items) {
+                const data = instance.export(lang)
+                if(data) {
+                    result[result.length - 1].data.push(data)
+                }
+            }
+            if(result[result.length - 1].data.length === 0) {
+                result.splice(result.length - 1,1)
+            }
+        }
+        return result
+    }
+}
+
+export class InitDataEntityInstance {
+    public id:number;
+    public id_strict:boolean;
+    public otherfield:{[lang:string]:any} = {"en" : {}};
+    public selected:boolean = false
+
+    constructor(id:number,langs:string[]) {
+        this.id = id
+        for(let lang of langs) {
+            this.otherfield[lang] = {}
+        }
+    }
+
+    public renameLang(from:string, to:string) {
+        if(from === 'en') return
+        if(Object.keys(this.otherfield).includes(to)) return 
+        this.otherfield[to] = cloneDeep(this.otherfield[from])
+        delete this.otherfield[from]
+    }
+
+    public addLang(lang:string) {
+        if(Object.keys(this.otherfield).includes(lang)) return 
+        this.otherfield[lang] = {}
+    }
+
+    public deleteLang(lang:string) {
+        if(lang === 'en') return 
+        delete this.otherfield[lang]
+    }
+
+
+    updateLang(lang:string,data:any,fields:{name:string,type:string, multilang:boolean, required:boolean}[], id_strict:boolean) {
+        if(!this.id_strict){
+            this.id_strict = id_strict
+        }
+        //console.log("======== "+lang+" ==========")
+        //console.log(fields)
+        if(!this.otherfield[lang]) {
+            this.otherfield[lang] = {}
+        }
+        for(let field of fields) {
+            if(field.name === 'id') {
+                continue
+            }
+            //console.log(field.name+"  =>  "+field.multilang+" "+data[field.name])
+            if((lang === 'en' || field.multilang) && data[field.name]) {
+                this.otherfield[lang][field.name] = data[field.name]
+            }
+        }
+    }
+
+    export(lang:string) {
+        let res:any = {  }
+        if(this.id_strict) {
+            res.id = this.id
+        }
+        for(let field_k in this.otherfield[lang]) {
+            if(this.otherfield[lang][field_k]) {
+                res[field_k] = this.otherfield[lang][field_k]
+            }
+        }
+        if(lang === 'en') {
+            return res
+        }
+        return Object.keys(res).length <= (this.id_strict ? 1 : 0) ? undefined : res
+    }
+}

@@ -67,7 +67,7 @@ export class ReturnValue {
             "schema" : {
                 "type" : this.type,
                 "qty" : this.qty,
-                "usage" : ReturnValue.customTypes.includes(this.type) ? undefined : this.usage,
+                "usage" : ReturnValue.customTypes.includes(this.type) ? undefined : this.usage.export(),
                 "values" : this._has_values ? this.values.map(value => value.export()) : undefined
             }
         }

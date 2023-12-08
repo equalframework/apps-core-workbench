@@ -23,6 +23,7 @@ export class PackageInfoComponent implements OnInit {
     @Output() onViewClick = new EventEmitter<void>();
     @Output() onRouteClick = new EventEmitter<void>();
     @Output() refresh = new EventEmitter<void>();
+    @Output() onIDClick = new EventEmitter<void>(); 
 
     package_consitency:any
 
@@ -94,6 +95,9 @@ export class PackageInfoComponent implements OnInit {
         this.onRouteClick.emit()
     }
 
+    public initdataOnClick() {
+        this.onIDClick.emit()
+    }
     public consitencyPrint():any {
         prettyPrintJson.toHtml(this.package_consitency)
     }

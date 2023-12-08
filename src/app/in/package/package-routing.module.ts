@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 import { PackageComponent } from './package.component';
+import { InitDataComponent } from '../init-data/init-data.component';
 
 const routes: Routes = [
   {
@@ -39,6 +40,10 @@ const routes: Routes = [
   {
     path : 'menu',
     loadChildren : () => import('src/app/in/menu/menu.module').then(m => m.MenuModule)
+  },
+  {
+    path : 'initdata/:package',
+    component : InitDataComponent
   },
   // wildcard route (accept root and any sub route that does not match any of the routes above)
   {

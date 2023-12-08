@@ -1,0 +1,37 @@
+<app-in-header
+ [customButtonList]="[{icon:'debug',name:'show JSON',disabled:false}]"
+ [customButton]="true"
+ (onCustomButton)="showJSON()"
+ [buttonSave]="true"
+ (onButtonSave)="save()"
+>
+    <label>Initial data of</label>
+</app-in-header>
+
+<ng-container *ngIf="this.loading">
+    <div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <mat-spinner></mat-spinner>
+        <label>Loading...</label>
+    </div>
+</ng-container>
+<ng-container *ngIf="this.error">
+    <div>
+        <label>Something went wrong...</label>
+    </div>
+</ng-container>
+<ng-container *ngIf="!this.error && !this.loading">
+<app-classic-layout class="full">
+    <app-param-list
+        [list]="file_list"
+        (select)="selected_file_index = $event"
+        [selectedIndex]="selected_file_index"
+    >
+    </app-param-list>
+    <app-init-sidepane sidepane
+        [file]="file_list[selected_file_index]"
+    >
+    </app-init-sidepane>
+
+</app-classic-layout>
+
+</ng-container>

@@ -284,7 +284,25 @@ export class EmbbedApiService {
         try {
             return await this.api.fetch("?get=core_model_view&view_id="+name+"&entity="+entity)
         } catch (response) {
-            return null
+            return {}
+        }
+    }
+
+    public async getInitData(pkg:string):Promise<{[id:string]:any}> {
+        try {
+            return (await this.api.fetch(`?get=core_config_init-data&package=${pkg}`))
+        } catch {
+            return {}
+        }
+    }
+
+    public async updateInitData(pkg:string,payload:string):Promise<boolean> {
+        try {
+            await this.api.post(`?do=core_config_update-init-data&package=${pkg}`,{payload:payload})
+            return true
+        } catch(e) {
+            this.api.errorFeedback(e)
+            return false
         }
     }
 
