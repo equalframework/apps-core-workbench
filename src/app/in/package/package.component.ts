@@ -151,7 +151,11 @@ export class PackageComponent implements OnInit {
     }
 
     public onClickInitData() {
-        this.router.navigate(['/initdata', this.selected_element.name],{"selected":this.selected_element});
+        this.router.navigate(['/initdata/init', this.selected_element.name],{"selected":this.selected_element});
+    }
+
+    public onClickInitDemoData() {
+        this.router.navigate(['/initdata/demo', this.selected_element.name],{"selected":this.selected_element});
     }
     
     /**
@@ -218,6 +222,14 @@ export class PackageComponent implements OnInit {
         case "view":
             let sp = node.name.split(":")
             res = await this.api.deleteView(sp[0],sp[1])
+            if(!res){
+                this.snackBar.open("Deleted")
+                this.selected_element = {name:"",type:""}
+                this.refresh()
+            }
+            break
+        case "menu":
+            res = await this.api.deleteView(node.package+"\\menu",node.name)
             if(!res){
                 this.snackBar.open("Deleted")
                 this.selected_element = {name:"",type:""}

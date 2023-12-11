@@ -3,6 +3,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ItemTypes } from '../../_constants/ItemTypes';
 import { AbstractControl, AsyncValidatorFn, FormControl, MaxLengthValidator, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
+import { WorkbenchService } from '../../_service/package.service';
 
 @Component({
   selector: 'app-mixed-creator',
@@ -36,6 +37,21 @@ export class MixedCreatorComponent implements OnInit {
         })
         .forEach(item => {
           return this.cachelist?.push(item.split(":")[1].split(".")[1])
+        })
+      }
+      break
+      case "menu":
+      this.need_package = true
+      //this.need_model = true
+      this.need_subtype = true
+      this.implemented = true
+      this.subtypelist = ["left","top"]
+      this.subtypename = "View Type"
+      this.cachelist = []
+      if(this.selected_package !== ""){
+        let x = await this.api.getMenuByPackage(this.selected_package)
+        x.forEach(item => {
+          return this.cachelist?.push(item.split(".")[0])
         })
       }
       break
@@ -99,6 +115,9 @@ export class MixedCreatorComponent implements OnInit {
       case "view":
         this.nameControl.addValidators(MixedCreatorComponent.snake_case)
         break;
+      case "menu" : 
+        this.nameControl.addValidators(MixedCreatorComponent.snake_case)
+        break;
       case "class":
         this.nameControl.addValidators(MixedCreatorComponent.camelCase)
         break;
@@ -121,6 +140,10 @@ export class MixedCreatorComponent implements OnInit {
         break
       case "view" :
         await this.api.createView(this.selected_package+"\\"+this.selected_model,this.subtype+"."+this.nameControl.value)
+        this.dialogRef.close()
+        break
+      case "menu" :
+        await this.api.createView(this.selected_package+"\\menu",this.nameControl.value+"."+this.subtype)
         this.dialogRef.close()
         break
       case "class" :
@@ -208,7 +231,7 @@ export class MixedCreatorComponent implements OnInit {
 
   constructor(
     @Optional() public dialogRef: MatDialogRef<MixedCreatorComponent>,
-    private api: EmbbedApiService,
+    private api: WorkbenchService,
     @Optional() @Inject(MAT_DIALOG_DATA) public data: { type: string, package?:string, model?:string, sub_type?:string, lock_type ?:boolean, lock_package?: boolean, lock_model?:boolean, lock_subtype?: boolean },
   ) {
     console.log(data)

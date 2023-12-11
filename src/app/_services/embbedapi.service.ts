@@ -288,19 +288,20 @@ export class EmbbedApiService {
         }
     }
 
-    public async getInitData(pkg:string):Promise<{[id:string]:any}> {
+    public async getInitData(pkg:string,type:string):Promise<{[id:string]:any}> {
         try {
-            return (await this.api.fetch(`?get=core_config_init-data&package=${pkg}`))
+            return (await this.api.fetch(`?get=core_config_init-data&package=${pkg}&type=${type}`))
         } catch {
             return {}
         }
     }
 
-    public async updateInitData(pkg:string,payload:string):Promise<boolean> {
+    public async updateInitData(pkg:string,type:string,payload:string):Promise<boolean> {
         try {
-            await this.api.post(`?do=core_config_update-init-data&package=${pkg}`,{payload:payload})
+            await this.api.post(`?do=core_config_update-init-data&package=${pkg}&type=${type}`,{payload:payload})
             return true
         } catch(e) {
+            console.log(e)
             this.api.errorFeedback(e)
             return false
         }

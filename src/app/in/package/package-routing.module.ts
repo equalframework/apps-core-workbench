@@ -42,7 +42,7 @@ const routes: Routes = [
     loadChildren : () => import('src/app/in/menu/menu.module').then(m => m.MenuModule)
   },
   {
-    path : 'initdata/:package',
+    path : 'initdata/:type/:package',
     component : InitDataComponent
   },
   // wildcard route (accept root and any sub route that does not match any of the routes above)

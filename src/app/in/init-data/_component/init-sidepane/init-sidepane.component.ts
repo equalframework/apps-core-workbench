@@ -9,7 +9,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { InitPopupEditorComponent } from '../init-popup-editor/init-popup-editor.component';
 import { SortValue } from '@material/data-table';
 import { EntityDialogComponent } from '../entity-dialog/entity-dialog.component';
-import { MatTabChangeEvent } from '@angular/material/tabs';
+import { MatTab, MatTabChangeEvent } from '@angular/material/tabs';
 import { LangPopupComponent } from '../lang-popup/lang-popup.component';
 
 @Component({
@@ -47,8 +47,17 @@ export class InitSidepaneComponent implements OnInit,OnChanges {
   }
 
   async ngOnChanges() {
-    this.entity_index = Math.min(0,this.obk(this.file.entities).length-1)
-    console.log(this.entity_index)
+    try {
+      this.entity_index = Math.min(0,this.obk(this.file.entities).length-1)
+    } catch {
+      this.entity_index = -1
+    }
+    
+    await this.refrsh()
+  }
+
+  async refrsh() {
+    this.entity_index
     if(this.entity_index >= 0) {
       const key = this.obk(this.file.entities)[this.entity_index]
       this.viewField = (await this.api.getView(
@@ -61,7 +70,7 @@ export class InitSidepaneComponent implements OnInit,OnChanges {
     this.page = new PageEvent()
     this.page.pageSize = 10
     this.page.pageIndex = 0
-    this.current_sort
+    this.current_sort =  {active : "", direction : 'asc'}
   }
 
   sorted:any[]
@@ -153,8 +162,8 @@ export class InitSidepaneComponent implements OnInit,OnChanges {
   }
 
   refresh(evt:MatTabChangeEvent) {
-    const ntity = this.obk(this.file.entities)[evt.index]
-    this.sortData({active:"",direction : "asc"},this.file.entities[ntity].items)
+    //this.ngOnChanges()
+    this.refrsh()
   }
 
   openCreateSection() {
@@ -163,6 +172,8 @@ export class InitSidepaneComponent implements OnInit,OnChanges {
       if(data && !this.file.entities[data]) {
         this.file.entities[data] = new InitDataEntitySection(this.api,{name:data,lang:'en',data:[]})
         this.entity_index = Math.min(Math.max(this.entity_index,0),this.obk(this.file.entities).length-1)
+        //@ts-expect-error
+        this.refresh({index : Math.max(this.file.entities.length-1,this.entity_index)})
       }
     })
   }

@@ -142,3 +142,9 @@
 .bold {
     font-weight: bold;
 }
+
+.divtitle {
+    display : flex;
+    align-items: center;
+    justify-content: space-between;
+}

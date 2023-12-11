@@ -1,11 +1,15 @@
 <app-in-header
- [customButtonList]="[{icon:'debug',name:'show JSON',disabled:false}]"
- [customButton]="true"
- (onCustomButton)="showJSON()"
- [buttonSave]="true"
- (onButtonSave)="save()"
+    [buttonBack]="true"
+    (onButtonBack)="goBack()"
+    [customButtonList]="[{icon:'debug',name:'show JSON',disabled:false}]"
+    [customButton]="true"
+    (onCustomButton)="showJSON()"
+    [buttonSave]="true"
+    (onButtonSave)="save()"
 >
-    <label>Initial data of</label>
+    <label *ngIf="type === 'init'">Initial data of </label>
+    <label *ngIf="type === 'demo'">Demo data of </label>
+    <label class="packagename">{{package}}</label>
 </app-in-header>
 
 <ng-container *ngIf="this.loading">

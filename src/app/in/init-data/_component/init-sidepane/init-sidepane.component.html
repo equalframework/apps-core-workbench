@@ -1,12 +1,15 @@
 <div sidepane class="full">
-    <ng-container *ngIf="obk(file.entities).length <= 0">
+    <ng-container *ngIf="!file">
+        Select or create a file to see its content
+    </ng-container>
+    <ng-container *ngIf="file && obk(file.entities).length <= 0">
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
             <label>This file is empty.</label>
             <br>
             <button mat-raised-button color="primary" (click)="openCreateSection()">Create an entity record</button>
         </div>
     </ng-container>
-    <ng-container *ngIf="obk(file.entities).length > 0">
+    <ng-container *ngIf="file && obk(file.entities).length > 0">
         <button mat-icon-button class="abs-button-add" color="primary" (click)="openCreateSection()"><mat-icon>add</mat-icon></button>
         <mat-tab-group class="full tabgrp shrinked-header" [(selectedIndex)]="entity_index" (selectedTabChange)="refresh($event)" animationDuration="0ms">
             <mat-tab *ngFor="let entity of obk(file.entities)" class="full ">

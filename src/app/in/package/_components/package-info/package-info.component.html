@@ -5,10 +5,15 @@
 
 <div *ngIf="current_package !==''" class="max-width margin-container">
     <div class="controller-container-title">
-        <div class="flex-labels">
-            <label class="packagename">Package :</label>
-            <label class="packagename accent">{{ current_package }}</label>
-        </div>
+        <div class="divtitle">
+            <div class="flex-labels">
+                <label class="packagename">Package :</label>
+                <label class="packagename accent">{{ current_package }}</label>
+            </div>
+            <div>
+                <button mat-button color="primary" (click)="initPackage()"><mat-icon>not_started</mat-icon><label>Init package</label></button>
+            </div>
+        </div> 
         <div class="lineflex" *ngIf="consistency_loading">
             <mat-spinner [diameter]="24"></mat-spinner>
             <label class="ml5px">Testing consistency...</label>
@@ -64,10 +69,10 @@
                 <button mat-button class="package-info-button" (click)="initdataOnClick()"><mat-icon>file_present</mat-icon><label>Initial data</label></button>
             </mat-grid-tile>
             <mat-grid-tile>
-                <button mat-button class="package-info-button" style="opacity: 0.6;" disabled><mat-icon>apps</mat-icon><label>Applications</label></button>
+                <button mat-button class="package-info-button" (click)="initdemodataOnClick()"><mat-icon>file_present</mat-icon><label>Demo data</label></button>
             </mat-grid-tile>
             <mat-grid-tile>
-                <button mat-button class="package-info-button" (click)="initPackage()"><mat-icon>not_started</mat-icon><label>Init package</label></button>
+                <button mat-button class="package-info-button" style="opacity: 0.6;" disabled><mat-icon>apps</mat-icon><label>Applications</label></button>
             </mat-grid-tile>
         </mat-grid-list>
     </div>
