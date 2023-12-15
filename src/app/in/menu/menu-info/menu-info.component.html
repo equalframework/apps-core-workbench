@@ -12,7 +12,7 @@
                 <button mat-button class="package-info-button" (click)="navigate.emit(1)" ><mat-icon>edit</mat-icon><label>Edit</label></button>
             </mat-grid-tile>
             <mat-grid-tile>
-                <button mat-button class="package-info-button" ><mat-icon>translate</mat-icon><label>Translations</label></button>
+                <button mat-button class="package-info-button" (click)="navigate.emit(2)"><mat-icon>translate</mat-icon><label>Translations</label></button>
             </mat-grid-tile>
         </mat-grid-list>
     </div>

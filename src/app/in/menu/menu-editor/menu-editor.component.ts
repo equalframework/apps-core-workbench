@@ -8,6 +8,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ViewEditorServicesService } from '../../views/vieweditor/_services/view-editor-services.service';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { prettyPrintJson } from 'pretty-print-json';
+import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-menu-editor',
@@ -116,6 +117,19 @@ export class MenuEditorComponent implements OnInit {
   showJSON() {
     this.dialog.open(Jsonator,{data:this.object.export(),width:"70%",height:"85%"})
   }
+  
+  drop(event: CdkDragDrop<MenuItem[]>) {
+    if (event.previousContainer === event.container) {
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    } else {
+      transferArrayItem(
+        event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex,
+      );
+    }
+  }
 }
 
 @Component({
@@ -135,4 +149,6 @@ class Jsonator implements OnInit {
   get datajson() {
     return prettyPrintJson.toHtml(this.data)
   }
+
+
 }

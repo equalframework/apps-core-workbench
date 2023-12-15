@@ -295,9 +295,8 @@ export class PackageComponent implements OnInit {
             case 1: 
                 this.router.navigate(['/menu/edit/',this.selected_element.package,this.selected_element.name]);
                 break;
+            case 2 :
+                this.router.navigate(['translation/menu/',this.selected_element.package,this.selected_element.name])
         }
     }
 }
-
-// This is the object that should be returned by await this.api.getSchema('equal\orm\model')
-var Model = {"id":{"type":"integer","readonly":true},"creator":{"type":"many2one","foreign_object":"core\\User","default":1},"created":{"type":"datetime","default":"2023-09-05T11:49:53+00:00","readonly":true},"modifier":{"type":"many2one","foreign_object":"core\\User","default":1},"modified":{"type":"datetime","default":"2023-09-05T11:49:53+00:00","readonly":true},"deleted":{"type":"boolean","default":false},"state":{"type":"string","selection":["draft","instance","archive"],"default":"instance"},"name":{"type":"alias","alias":"id"}}

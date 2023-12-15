@@ -297,7 +297,7 @@ export class FieldEditorSpComponent implements OnInit {
   }
 
   public addToDependencies() {
-    if(this.field && !this.field.dependencies.includes(this.dependencyInput)) {
+    if(this.field && !this.field.dependencies.includes(this.dependencyInput) && this.dependencyInput) {
       this.field.dependencies.push(this.dependencyInput)
       this.dependencyInput = ""
       this.CRUD.emit("added dependecy to "+this.field.name)

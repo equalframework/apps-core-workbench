@@ -7,6 +7,7 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { ResponseComponentSubmit } from '../response/response.component';
 import { TypeUsageService } from 'src/app/_services/type-usage.service';
+import { EnvService } from 'sb-shared-lib';
 
 @Component({
     selector: 'app-controller-info',
@@ -58,16 +59,20 @@ export class ControllerInfoComponent implements OnInit {
 
     tojsonstring = JSON.stringify
 
+    local:string
+
     constructor(
         private snackBar: MatSnackBar,
         private api: ControllersService,
         public dialog: MatDialog,
         private clipboard: Clipboard,
-        private typeUsage:TypeUsageService
+        private typeUsage:TypeUsageService,
+        private env:EnvService
     ) { }
 
     async ngOnInit() {
         this.iconType = this.typeUsage.typeIcon
+        this.local = (await this.env.getEnv())["backend_url"]
     }
 
     public async ngOnChanges() {
@@ -197,7 +202,7 @@ export class ControllerInfoComponent implements OnInit {
         }
         return result*/
         let controllerNameUnderscore = this.current_controller.replace('\\', '_');
-        let stringParams = 'http://equal.local?' + this.controller_type + "=" + controllerNameUnderscore;
+        let stringParams = this.local + '?' + this.controller_type + "=" + controllerNameUnderscore;
         for (let key in this.paramsValue) {
             if (isArray(this.paramsValue[key])) {
                 let arrayString = (JSON.stringify(this.paramsValue[key])).replaceAll('"', '');

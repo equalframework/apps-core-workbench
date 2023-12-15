@@ -1,4 +1,4 @@
-import { cloneDeep, result } from "lodash"
+import { clone, cloneDeep, isObject, result } from "lodash"
 import { Usage } from "src/app/in/controllers/_components/params-editor/_objects/Params"
 
 abstract class ViewElement {
@@ -120,6 +120,10 @@ class View extends ViewElement {
     public routes: ViewRoute[] = []
     public access = { "groups": ["users"] }
     public operations:ViewOperation[] = []
+    public limit:number = 0
+    public groupBy:ViewGroupBy = new ViewGroupBy()
+    public order:"asc"|"desc"|"" = ""
+    public sort:string = ""
 
 
     public _has_domain = false
@@ -129,6 +133,8 @@ class View extends ViewElement {
     public _has_selection_actions = false
     public _has_routes = false
     public _has_access = false
+    public _has_limit = false
+    public _has_group_by = false
 
     constructor(schem: any = {}, type: string) {
         let scheme = cloneDeep(schem)
@@ -188,6 +194,20 @@ class View extends ViewElement {
             }
             delete scheme["operations"]
         }
+        if(scheme["limit"]) {
+            this._has_limit = true
+            this.limit = scheme["limit"]
+            delete scheme["limit"]
+        }
+        if(scheme["group_by"]) {
+            this._has_group_by = true
+            this.groupBy = new ViewGroupBy(scheme["group_by"])
+            delete scheme["group_by"]
+        }
+        if(scheme["sort"]) {
+            this.sort = scheme["sort"]
+            delete scheme["sort"]
+        }
         this.leftover = scheme
     }
 
@@ -213,6 +233,8 @@ class View extends ViewElement {
                 result.operations[op.name] = op.export()
             }
         }
+        if (this._has_limit) result["limit"] = this.limit
+        if (this._has_group_by) result["group_by"] = this.groupBy.export()
         if (this._has_access) {
             result["access"] = this.access
         }
@@ -268,6 +290,85 @@ class View extends ViewElement {
     }
 }
 
+class ViewGroupBy extends ViewElement {
+    public items:ViewGroupByItem[]  = []
+    constructor(scheme:any[]=[]) {
+        super()
+        console.log(scheme)
+        for(let item of scheme) {
+            this.items.push(new ViewGroupByItem(item))
+        }
+    }
+    override export() {
+        let res = []
+        for(let item of this.items) {
+            if(item.export())
+                res.push(item.export())
+        }
+        return res
+    }
+}
+
+class ViewGroupByItem extends ViewElement {
+    public field:string = ""
+    public operation:ViewGroupByItemOperation = new ViewGroupByItemOperation()
+
+    get _only_field() {
+        return this.operation.export().length < 2
+    }
+
+    constructor(scheme:any={}) {
+        super()
+        if(isObject(scheme)){
+            const cast:{[id:string]:any} = cloneDeep(scheme)
+            if(cast["field"]) {
+                this.field = cast["field"]
+            }
+            if(cast["operation"]) {
+                this.operation = new ViewGroupByItemOperation(cast["operation"])
+            }
+        } else {
+            this.field = scheme.toString()
+        }
+    }
+
+    override export() {
+        if(this._only_field) {
+            return this.field ? this.field : undefined
+        } else {
+            let res = super.export()
+            if(this.field) res.field = this.field
+            res.operation = this.operation.export()
+            return res
+        }
+    }
+}
+
+class ViewGroupByItemOperation extends ViewElement {
+    public operator:string = ""
+    public operand:string = ""
+
+    constructor(scheme:any[]=[]) {
+        super()
+        if (scheme.length > 0) {
+            this.operator = scheme.shift()
+        }
+        if(scheme.length > 0) {
+            this.operand = scheme.shift()
+        }
+        this.leftover = scheme
+    }
+
+    override export() {
+        let res:string[] = []
+        if(this.operator) res.push(this.operator)
+        if(this.operand) res.push(this.operand)
+        return res
+    }
+}
+
+
+
 class ViewLayout extends ViewElement {
     public groups: ViewGroup[] = []
     public items: ViewItem[] = []
@@ -321,6 +422,10 @@ class ViewLayout extends ViewElement {
         if (!ret.ok) return { ok: false, id_list: ret.id_list }
         for (let group of this.groups) {
             ret = group.id_compliant(ret.id_list)
+            if (!ret.ok) return { ok: false, id_list: ret.id_list }
+        }
+        for (let item of this.items) {
+            ret = item.id_compliant(ret.id_list)
             if (!ret.ok) return { ok: false, id_list: ret.id_list }
         }
         return { ok: true, id_list: ret.id_list }
@@ -563,6 +668,10 @@ class ViewColumn extends ViewElement {
         if (!ret.ok) return { ok: false, id_list: ret.id_list }
         if (ret.id_list.includes(this.id) || this.id == "") return { ok: false, id_list: [...ret.id_list, this.id] }
         ret.id_list = [...ret.id_list, this.id]
+        for (let item of this.items) {
+            ret = item.id_compliant(ret.id_list)
+            if (!ret.ok) return { ok: false, id_list: ret.id_list }
+        }
         return { ok: true, id_list: ret.id_list }
     }
 }
@@ -581,6 +690,7 @@ class ViewItem extends ViewElement {
     public has_widget: boolean = false
     public is_visible_domain:boolean = false
     public label:string = ""
+    public id:string = ""
 
     public get valueIsSelect(): boolean {
         return this.type !== "label"
@@ -588,6 +698,16 @@ class ViewItem extends ViewElement {
 
     public static get typeList(): string[] {
         return ["field", "label"]
+    }
+
+    public get hasRestrainedVisibility() {
+        if(!this.has_domain) {
+            return false
+        } 
+        if (this.is_visible_domain) {
+            return true
+        }
+        return !this.visible_bool
     }
 
     constructor(scheme: any = {},type:number=0) {
@@ -646,12 +766,17 @@ class ViewItem extends ViewElement {
             this.has_widget = true
             delete scheme['widget']
         }
+        if(scheme['id']) {
+            this.id = scheme['id']
+            delete scheme['id']
+        }
         if (!ViewItem.typeList.includes(this.type)) this.type = ""
         this.leftover = scheme
     }
 
     override export() {
         let result = super.export()
+        if ( this.id ) result['id'] = this.id
         result['type'] = this.type
         result['value'] = this.value
         result['width'] = this.width + "%"
@@ -675,6 +800,18 @@ class ViewItem extends ViewElement {
             result["readonly"] = this.readonly
         }
         return result
+    }
+
+    override id_compliant(id_list: string[]): { ok: boolean; id_list: string[]; } {
+        let res = super.id_compliant(id_list)
+        if(this.id) {
+            if(res.id_list.includes(this.id)){
+                return {ok:false,id_list : [...res.id_list,this.id]}
+            }
+            res.id_list.push(this.id)
+            return res
+        }
+        return res
     }
 }
 
@@ -1341,6 +1478,9 @@ export {
     ViewSelection,
     ViewRoute,
     ViewRouteContext,
-    ViewOperation
+    ViewOperation,
+    ViewGroupBy,
+    ViewGroupByItem,
+    ViewGroupByItemOperation
 }
 

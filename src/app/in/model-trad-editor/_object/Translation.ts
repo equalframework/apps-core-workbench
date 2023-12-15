@@ -1,3 +1,4 @@
+import { Menu } from "../../menu/_object/Menu"
 import { View } from "../../views/vieweditor/_objects/View"
 
 export class Translation {
@@ -35,6 +36,15 @@ export class Translator {
         this.error = new ErrorTranslator(model)
     }
 
+    static MenuConstructor(menu:Menu):Translator {
+        let res = new Translator([],[])
+        res.view["menu"] = new ViewTranslator(new View({},"list"))
+        for(let id of menu.id_compliancy([]).id_list) {
+            res.view["menu"].layout[id] = new ViewLayoutItemTranslator()
+        }
+        return res
+    }
+
     fill(values:any) {
         this.name = new Translation(values["name"])
         this.description = new Translation(values["description"])
@@ -68,67 +78,74 @@ export class Translator {
             "name" : this.name.value,
             "plural" : this.plural.value,
             "description" : this.description.value,
-            "model" : {},
-            "view" : {},
-            "error" : {}
         }
-
-        for(let key in this.model) {
-            if(this.model[key].is_active) {
-                res["model"][key] = {
-                    "label" : this.model[key].label.value,
-                    "description" : this.model[key].description.value,
-                    "help" : this.model[key].help.value
-                }
-            }
-        }
-        for(let key in this.view) {
-            res["view"][key] = {}
-            res["view"][key]["name"] = this.view[key].name.value
-            res["view"][key]["description"] = this.view[key].description.value
-            if(Object.keys(this.view[key].layout).length > 0) {
-                res["view"][key]["layout"] = {}
-                for(let id in this.view[key].layout) {
-                    if(!this.view[key].layout[id].is_active) continue
-                    res["view"][key]["layout"][id] = {
-                        "label" : this.view[key].layout[id].label.value
-                    }
-                }
-            }
-            if(Object.keys(this.view[key].actions).length > 0) {
-                res["view"][key]["actions"] = {}
-                for(let id in this.view[key].actions) {
-                    if(!this.view[key].actions[id].is_active) continue
-                    res["view"][key]["actions"][id] = {
-                        "label" : this.view[key].actions[id].label.value,
-                        "description" : this.view[key].actions[id].description.value
-                    }
-                }
-            }
-            if(Object.keys(this.view[key].routes).length > 0) {
-                res["view"][key]["routes"] = {}
-                for(let id in this.view[key].routes) {
-                    if(!this.view[key].routes[id].is_active) continue
-                    res["view"][key]["routes"][id] = {
-                        "label" : this.view[key].routes[id].label.value,
-                        "description" : this.view[key].routes[id].description.value
+        if(Object.keys(this.model).length > 0) {
+            res.model = {}
+            for(let key in this.model) {
+                if(this.model[key].is_active) {
+                    res["model"][key] = {
+                        "label" : this.model[key].label.value,
+                        "description" : this.model[key].description.value,
+                        "help" : this.model[key].help.value
                     }
                 }
             }
         }
-        for(let key in this.view_leftover){
-            res["view"][key] = this.view_leftover[key]
-        }
-
-        for(let key in this.error._base) {
-            if(!this.error._base[key].active) continue
-            res["error"][key] = {}
-            for(let id in this.error._base[key].val) {
-                if(!this.error._base[key].val[id].is_active) continue
-                res["error"][key][id] = this.error._base[key].val[id]._val.value
+        if(Object.keys(this.view).length > 0) {
+            res.view = {}
+            for(let key in this.view) {
+                res["view"][key] = {}
+                res["view"][key]["name"] = this.view[key].name.value
+                res["view"][key]["description"] = this.view[key].description.value
+                if(Object.keys(this.view[key].layout).length > 0) {
+                    res["view"][key]["layout"] = {}
+                    for(let id in this.view[key].layout) {
+                        if(!this.view[key].layout[id].is_active) continue
+                        res["view"][key]["layout"][id] = {
+                            "label" : this.view[key].layout[id].label.value
+                        }
+                    }
+                }
+                if(Object.keys(this.view[key].actions).length > 0) {
+                    res["view"][key]["actions"] = {}
+                    for(let id in this.view[key].actions) {
+                        if(!this.view[key].actions[id].is_active) continue
+                        res["view"][key]["actions"][id] = {
+                            "label" : this.view[key].actions[id].label.value,
+                            "description" : this.view[key].actions[id].description.value
+                        }
+                    }
+                }
+                if(Object.keys(this.view[key].routes).length > 0) {
+                    res["view"][key]["routes"] = {}
+                    for(let id in this.view[key].routes) {
+                        if(!this.view[key].routes[id].is_active) continue
+                        res["view"][key]["routes"][id] = {
+                            "label" : this.view[key].routes[id].label.value,
+                            "description" : this.view[key].routes[id].description.value
+                        }
+                    }
+                }
+            }
+            
+            for(let key in this.view_leftover){
+                res["view"][key] = this.view_leftover[key]
             }
         }
-
+        if(Object.keys(this.error).length > 0) {
+            res.error = {}
+            for(let key in this.error._base) {
+                if(!this.error._base[key].active) continue
+                res["error"][key] = {}
+                for(let id in this.error._base[key].val) {
+                    if(!this.error._base[key].val[id].is_active) continue
+                    res["error"][key][id] = this.error._base[key].val[id]._val.value
+                }
+            }
+            if(Object.keys(res.error).length <= 0) {
+                delete res.error
+            }
+        }
         return res
     }
 } 

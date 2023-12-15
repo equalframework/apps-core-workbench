@@ -20,7 +20,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MultiAutocompleteModule } from '../multi-autocomplete/multi-autocomplete.module';
 import { VieweditorModule } from '../views/vieweditor/vieweditor.module';
 import { MatDividerModule } from '@angular/material/divider';
-
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 
 @NgModule({
@@ -49,7 +49,8 @@ import { MatDividerModule } from '@angular/material/divider';
     MatCheckboxModule,
     MultiAutocompleteModule,
     VieweditorModule,
-    MatDividerModule
+    MatDividerModule,
+    DragDropModule
   ],
   exports : [
     MenuInfoComponent
