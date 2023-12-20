@@ -34,7 +34,7 @@ const routes: Routes = [
     loadChildren : () => import('src/app/in/model-trad-editor/model-trad-editor.module').then(m => m.ModelTradEditorModule)
   },
   {
-    path: 'test',
+    path: 'workflow/:package/:model',
     loadChildren : () => import('src/app/in/workflows/workflows.module').then(m => m.WorkflowsModule)
   },
   {

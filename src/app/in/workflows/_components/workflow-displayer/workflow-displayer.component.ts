@@ -48,6 +48,10 @@ export class WorkflowDisplayerComponent implements OnInit,AfterViewChecked,After
     this.requestState.emit("normal")
   }
 
+  get mousePosOffsetted():WorkflowNode {
+    return new WorkflowNode("mouse_offset",{ position : {x : this.mouse_pos.position.x - this.offset.x , y : this.mouse_pos.position.y - this.offset.y}})
+  }
+
   trackMouse(event:MouseEvent) {
     let boxp = this.boundary.nativeElement.getBoundingClientRect()
     let old = cloneDeep(this.mouse_pos.position)
@@ -56,8 +60,18 @@ export class WorkflowDisplayerComponent implements OnInit,AfterViewChecked,After
     if(this.grabbed) {
       this.offset.x += (this.mouse_pos.position.x - old.x)
       this.offset.y += (this.mouse_pos.position.y - old.y)
-      console.log(this.offset)
     }
+  }
+
+  mouseDown() {
+    if(['create-node'].includes(this.state)){
+      const pos =  {x : this.mouse_pos.position.x - this.offset.x, y: this.mouse_pos.position.y - this.offset.y}
+      console.log(pos)
+      this.nodes.push(new WorkflowNode('new_node',{position : pos}))
+    } else {
+      this.grabbed = true
+    }
+    
   }
 
   get bgPos() {
@@ -90,8 +104,8 @@ export class WorkflowDisplayerComponent implements OnInit,AfterViewChecked,After
      let res = document.querySelectorAll("app-workflow-node")
      res.forEach((node,index) => {
       let box = node.getBoundingClientRect()
-      this.nodes[index].position.x = box.x - this.boxp.x
-      this.nodes[index].position.y = box.y - this.boxp.y + 56
+      this.nodes[index].position.x = box.x - this.boxp.x - this.offset.x
+      this.nodes[index].position.y = box.y - this.boxp.y + 56 - this.offset.y
      })
   }
 
@@ -112,6 +126,11 @@ export class WorkflowDisplayerComponent implements OnInit,AfterViewChecked,After
   getPathStringBetween(node1: WorkflowNode, node2: WorkflowNode, anchor1: Anchor, anchor2: Anchor): {path:string,center:{x:number,y:number},start:{x:number,y:number},end:{x:number,y:number}} {
     let p1 = cloneDeep(node1.position)
     let p2 = cloneDeep(node2.position)
+
+    p1.x += this.offset.x
+    p1.y += this.offset.y
+    p2.x += this.offset.x
+    p2.y += this.offset.y
 
     if (anchor1 === Anchor.Bottom || anchor1 === Anchor.Top)
       p1.x += node1.width / 2
@@ -314,6 +333,9 @@ export class WorkflowDisplayerComponent implements OnInit,AfterViewChecked,After
         this.links[this.selectedLink].from = this.nodes[index]
         this.links[this.selectedLink].anchorFrom = anchor
         this.requestState.emit('edit-link')
+        break
+      case "edit-node":
+        this.selectNode.emit(index)
         break
     }
   }

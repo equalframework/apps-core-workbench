@@ -1,3 +1,4 @@
+import { cloneDeep } from "lodash";
 import { WorkflowNode } from "./WorkflowNode";
 
 export enum Anchor {
@@ -14,8 +15,11 @@ export class WorkflowLink {
     public watch:string[] = []
     public description:string = ""
     public help:string = ""
-    public domain:any = []
+    public domain:any[] = []
+    public policies:string[] = []
     onafter:string = ""
+
+    leftover:any = {}
 
     get status():string {
         return this.to.name
@@ -29,7 +33,6 @@ export class WorkflowLink {
         this.anchorFrom = anchorFrom
         this.anchorTo = anchorTo
 
-        console.log(scheme)
 
         if(scheme.name) {
             this.name = scheme.name
@@ -50,6 +53,58 @@ export class WorkflowLink {
         if(scheme.onafter) {
             this.onafter = scheme.onafter
             delete scheme.onafter
+        }
+        if(scheme.policies) {
+            this.policies = scheme.policies
+            delete scheme.policies
+        }
+        if(scheme.domain) {
+            this.domain = scheme.domain
+            delete scheme.domain
+        }
+        delete scheme.status
+    }
+    
+    export() {
+        let ret:any = {}
+        for(let key in this.leftover) {
+            if(this.leftover[key]) {
+                try {
+                    if(this.leftover[key].length > 0) {
+                        continue
+                    }
+                } catch {}
+                ret[key] = this.leftover[key]
+            }
+        }
+        if(this.description) {
+            ret.description = this.description
+        }
+        if(this.help) {
+            ret.help = this.help
+        }
+        if(this.watch.length > 0) {
+            ret.watch = this.watch
+        }
+        if(this.onafter) {
+            ret.onafter = this.onafter
+        }
+        if(this.policies.length > 0) {
+            ret.policies = this.policies
+        }
+        if(this.domain.length > 0) {
+            ret.domain = this.domain
+        }
+        if(this.status) {
+            ret.status = this.status
+        }
+        return ret
+    }
+
+    generateMetaData() {
+        return {
+            anchorFrom : this.anchorFrom,
+            anchorTo : this.anchorTo,
         }
     }
 }

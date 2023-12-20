@@ -54,7 +54,7 @@
                 [disabled]="button.disabled"
                 (click)="onCustomButton.emit(button.name)"
             >
-                <mat-icon class="primary" >bug_report</mat-icon> show JSON
+                <mat-icon class="primary">{{button.icon}}</mat-icon> {{button.name}}
             </button>
         </mat-menu>
         

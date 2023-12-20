@@ -1,6 +1,6 @@
 
 <div #bdy class="node" [class.selected]="selected">
-    <mat-icon>flag</mat-icon>
+    <mat-icon>{{node.icon}}</mat-icon>
     {{node.name}}
     <ng-container *ngIf="!selected">
         <button *ngIf="['linking-to','linking-from','edit-from','edit-to'].includes(state)" class="anchor top-left-button" mat-mini-fab (click)="linkeToMe.emit(anchor.TopLeft)"><mat-icon>anchor</mat-icon></button>
@@ -12,4 +12,8 @@
         <button *ngIf="['linking-to','linking-from','edit-from','edit-to'].includes(state)" class="anchor bottom-button" mat-mini-fab (click)="linkeToMe.emit(anchor.Bottom)"><mat-icon>anchor</mat-icon></button>
         <button *ngIf="['linking-to','linking-from','edit-from','edit-to'].includes(state)" class="anchor bottom-right-button" mat-mini-fab (click)="linkeToMe.emit(anchor.BottomRight)"><mat-icon>anchor</mat-icon></button>
     </ng-container>
+    <ng-container *ngIf="['edit-node'].includes(state) && !selected">
+        <button class="editbutton" color="primary" mat-mini-fab (click)="linkeToMe.emit()"><mat-icon>edit</mat-icon></button>
+    </ng-container>
+    <!-- dx : {{node.initialPos.x - node.position.x}} |  dy : {{node.initialPos.y - node.position.y}} -->
 </div>

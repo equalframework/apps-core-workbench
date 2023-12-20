@@ -66,6 +66,10 @@ export class ModelInfoComponent implements OnInit {
     this.changeStep.emit(4)
   }
 
+  workflowOnClick() {
+    this.changeStep.emit(5)
+  }
+
   /**
    * @description
    * Looks for properties about a field of the model

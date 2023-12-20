@@ -32,3 +32,15 @@
     height: calc(100% - 50px);
     padding: 0 1em;
 }
+
+.chips-holder {
+    min-height: 40px;
+    .chips {
+        display: inline-flex;
+        align-items: center;
+        background-color: mat-color($maincolor);
+        color : white;
+        padding-left : 10px;
+        border-radius: 10px;
+    }
+}

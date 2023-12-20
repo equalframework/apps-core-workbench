@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { error } from 'console';
 import { isObject } from 'lodash';
 import { ApiService } from 'sb-shared-lib';
 
@@ -302,6 +303,75 @@ export class EmbbedApiService {
             return true
         } catch(e) {
             console.log(e)
+            this.api.errorFeedback(e)
+            return false
+        }
+    }
+
+    public async getWorkflow(pkg:string,model:string):Promise<any> {
+        try {
+            return {exists : true, info : await this.api.get(`?get=core_model_workflow&entity=${pkg}\\${model}`)}
+        } catch(e:any) {
+            const cast:HttpErrorResponse = e
+            if(cast.status === 404) {
+                return {exists : false, info : {}}
+            }
+            else {
+                this.api.errorFeedback(e)
+                return {}
+            }
+        }
+    }
+
+    public async saveWorkflow(pkg:string,model:string,payload:string):Promise<boolean> {
+        try {
+            await this.api.post(`?do=core_config_update-workflow&entity=${pkg}\\${model}`,{payload : payload})
+            return true
+        } catch(e) {
+            console.error(e)
+            this.api.errorFeedback(e)
+            return false
+        }
+    }
+
+    public async createWorkflow(pkg:string,model:string):Promise<boolean> {
+        try {
+            await this.api.post(`?do=core_config_create-workflow&entity=${pkg}\\${model}`)
+            return true
+        } catch(e) {
+            console.error(e)
+            this.api.errorFeedback(e)
+            return false
+        }
+    }
+
+    public async fetchMetaData(code:string,reference:string):Promise<any[]> {
+        try {
+            return await this.api.get(`?get=core_model_collect&entity=core\\Meta&fields=[value]&domain=[[code,=,${code}],[reference,=,${reference}]]`)
+        } catch(e) {
+            console.error(e)
+            this.api.errorFeedback(e)
+            return []
+        }
+    }
+
+    public async createMetaData(code:string,reference:string,payload:string):Promise<boolean> {
+        try {
+            await this.api.post(`?do=core_model_create&entity=core\\Meta`,{"fields" : {"value" : payload, "code" : code, reference : reference}})
+            return true
+        } catch(e) {
+            console.error(e)
+            this.api.errorFeedback(e)
+            return false
+        }
+    }
+
+    public async saveMetaData(id:number,payload:string):Promise<boolean> {
+        try {
+            await this.api.post(`?do=core_model_update&entity=core\\Meta&id=${id}`,{"fields" : {"value" : payload}})
+            return true
+        } catch(e) {
+            console.error(e)
             this.api.errorFeedback(e)
             return false
         }

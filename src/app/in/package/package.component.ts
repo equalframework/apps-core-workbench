@@ -205,6 +205,9 @@ export class PackageComponent implements OnInit {
         if(event===4 && this.selected_element.package) {
             this.router.navigate(['/translation',"model",this.selected_element.package,this.selected_element.name],{"selected":this.selected_element})
         }
+        if(event===5) {
+            this.router.navigate(['/workflow',this.selected_element.package,this.selected_element.name],{"class":this.selected_element})
+        }
     }
 
     goTo(ev:{name:string,package?:string,type?:string}) {
@@ -215,6 +218,11 @@ export class PackageComponent implements OnInit {
     onViewEditClick() {
         this.router.navigate(['/views_edit',this.selected_element.name],{"selected":this.selected_element})
     }
+
+    onViewTranslationClick() {
+        this.router.navigate(['/translation', this.selected_element.name.split(":").slice(1)[0].split(".")[0] === 'search' ? 'controller' : 'model',this.selected_element.package,this.selected_element.name.split(":")[0].split("\\").slice(1).join("\\")],{"selected":this.selected_element})
+    }
+
 
     async delElement(node:{package?:string,name:string,type:string,more?:any}) {
         let res

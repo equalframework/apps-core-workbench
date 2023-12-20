@@ -1,5 +1,5 @@
 import { CdkDragEnd } from '@angular/cdk/drag-drop';
-import { Component, OnChanges, OnInit } from '@angular/core';
+import { Component, Inject, OnChanges, OnInit, Optional } from '@angular/core';
 
 import * as d3 from "d3"
 import { Subject } from 'rxjs';
@@ -7,6 +7,11 @@ import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
 import { WorkflowNode } from './_components/workflow-displayer/_objects/WorkflowNode';
 import { Anchor, WorkflowLink, test } from './_components/workflow-displayer/_objects/WorkflowLink';
 import { cloneDeep } from 'lodash';
+import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { ActivatedRoute } from '@angular/router';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { prettyPrintJson } from 'pretty-print-json';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-workflows',
@@ -29,6 +34,12 @@ export class WorkflowsComponent implements OnInit, OnChanges {
 
   selectedNode:number = -1
 
+  package:string = ""
+  model:string = ""
+
+  model_scheme:any = {}
+
+  need_save:boolean = false
 
   changeState(state:string) {
     if(this.state !== state) {
@@ -58,30 +69,85 @@ export class WorkflowsComponent implements OnInit, OnChanges {
   test: { source: string, target: string, type: string }[] = []
 
   constructor(
-    private api: EmbbedApiService
+    private api: EmbbedApiService,
+    private router:RouterMemory,
+    private activatedRoute:ActivatedRoute,
+    private matDialog:MatDialog,
+    private snackBar:MatSnackBar
   ) { }
 
   async ngOnInit() {
-    let orig = {x : 200, y:200}
-    for(let node in test) {
-      this.nodes.push(new WorkflowNode(node,{description:test[node].description,position : cloneDeep(orig)}))
-      orig.y += 100
-      orig.x += 100
+    await this.init()
+  }
+
+  has_meta_data:number|undefined = undefined
+
+  exists:boolean = false
+
+  async init() {
+    const map = this.activatedRoute.snapshot.paramMap
+    const a = map.get("package")
+    const b = map.get("model")
+    if(a) {
+      this.package = a
+    } 
+    if(b) {
+      this.model = b
     }
-    for(let node in test) {
-      for(let link in test[node].transitions) {
-        console.log(link)
-        let a = this.getNodeByName(node)
-        let b = this.getNodeByName(test[node].transitions[link].status)
-        console.log(test[node].transitions[link].status)
-        if(a && b)
-        this.links.push(
-          new WorkflowLink(a,b,Anchor.MiddleRight,Anchor.MiddleLeft, Object.assign(test[node].transitions[link],{name:link}))
-        )
+    this.nodes = []
+    this.links = []
+    const r = await this.api.getWorkflow(this.package,this.model)
+    if(r.exists !== null && r.exists !== undefined) {
+      this.exists = r.exists
+      const metadata = await this.api.fetchMetaData('workflow',this.package+'.'+this.model)
+      console.log(metadata)
+      this.has_meta_data = Object.keys(metadata).length > 0 ? metadata[0].id : undefined
+      this.model_scheme = await this.api.getSchema(this.package+"\\"+this.model)
+      const res = r.info
+      let orig = {x : 200, y:200}
+      let mdt:any = {}
+      if(this.has_meta_data) {
+        mdt = JSON.parse(metadata[0].value)
+      }
+      for(let node in res) {
+        console.log( mdt[node] )
+        const pos = (!this.has_meta_data || !mdt || !mdt[node] || !mdt[node].position)  ? cloneDeep(orig) : mdt[node].position 
+        this.nodes.push(new WorkflowNode(node,{description:res[node].description,position : pos, help:res[node].help,icon:res[node].icon}))
+        orig.y += 100
+        orig.x += 100
+      }
+      for(let node in res) {
+        for(let link in res[node].transitions) {
+          console.log(link)
+          let a = this.getNodeByName(node)
+          let b = this.getNodeByName(res[node].transitions[link].status)
+          console.log(res[node].transitions[link].status)
+          if(!b) {
+            b = new WorkflowNode(res[node].transitions[link].status,{position : cloneDeep(orig)})
+            this.nodes.push(b)
+            orig.y += 100
+            orig.x += 100
+            this.need_save = true
+          }
+          if(a && b) {
+            const anch1 = (!this.has_meta_data || !mdt || !mdt[a.name] || !mdt[a.name].transitions || !mdt[a.name].transitions[link] ||!mdt[a.name].transitions[link].anchorFrom) 
+              ? Anchor.MiddleRight 
+              : mdt[a.name].transitions[link].anchorFrom
+            const anch2 = (!this.has_meta_data || !mdt || !mdt[a.name] || !mdt[a.name].transitions || !mdt[a.name].transitions[link] || !mdt[a.name].transitions[link].anchorFrom)
+              ? Anchor.MiddleLeft 
+              : mdt[a.name].transitions[link].anchorTo
+            this.links.push(
+
+              new WorkflowLink(a,b,anch1,anch2, Object.assign(res[node].transitions[link],{name:link}))
+            )
+          } 
+        }
       }
     }
-    console.log(this.nodes)
-    console.log(this.links)
+  }
+
+  reset() {
+    this.init()
   }
 
   getNodeByName(name:string):WorkflowNode|null {
@@ -99,6 +165,23 @@ export class WorkflowsComponent implements OnInit, OnChanges {
     if(this.selectedLink >= 0)
       this.links.splice(this.selectedLink,1)
     this.selectedLink = -1
+  }
+
+  deleteNode() {
+    if(this.selectedNode >= 0) {
+      const deleted = this.nodes.splice(this.selectedNode,1)
+      
+      let new_links = []
+      for(let link of this.links) {
+        if(link.from === deleted[0] || link.to === deleted[0] ) {
+          continue
+        }
+        new_links.push(link)
+      }
+      this.links = new_links
+      this.selectedNode = -1
+      console.log(this.links)
+    }
   }
 
   dragoff(event: CdkDragEnd) {
@@ -134,5 +217,101 @@ export class WorkflowsComponent implements OnInit, OnChanges {
       default :
         return 3
     }
+  }
+
+  goBack() {
+    this.router.goBack()
+  }
+
+  export() {
+    let exp:{[id:string]:any} = {}
+    for(let node of this.nodes) {
+      exp[node.name] = node.export()
+      exp[node.name].transitions = {}
+      for(let link of this.links) {
+        if(link.from === node){
+          exp[node.name].transitions[link.name] = link.export()
+        }
+      }
+    }
+    return exp
+  }
+
+  exportMetaData() {
+    let exp:{[id:string]:any} = {}
+    for(let node of this.nodes) {
+      exp[node.name] = node.generateMetaData()
+      exp[node.name].transitions = {}
+      for(let link of this.links) {
+        if(link.from === node){
+          exp[node.name].transitions[link.name] = link.generateMetaData()
+        }
+      }
+    }
+    return exp
+  }
+
+  async save() {
+    if(!this.exists) {
+      const create = await this.api.createWorkflow(this.package,this.model)
+      if(!create){
+        return
+      }
+    }
+    const ret = await this.api.saveWorkflow(this.package,this.model,JSON.stringify(this.export()))
+    if(!ret){
+      return
+    }
+    let rmd = false
+    if(this.has_meta_data) {
+      rmd = await this.api.saveMetaData(this.has_meta_data,JSON.stringify(this.exportMetaData())) 
+    } else {
+      rmd = await this.api.createMetaData("workflow",this.package+"."+this.model,JSON.stringify(this.exportMetaData()))
+    }
+    if(!rmd) {
+      return
+    }
+    this.snackBar.open("Saved successfully !","INFO")
+    this.init()
+  }
+
+  showJSON() {
+    this.matDialog.open(Jsonator,{data:this.export(), width:"70vw", height:"85vh"})
+  }
+
+  showJSONMetaData() {
+    this.matDialog.open(Jsonator,{data:this.exportMetaData(), width:"70vw", height:"85vh"})
+  }
+
+  navigateToParent() {
+    if(this.model_scheme.parent !== "model") {
+      this.router.navigate(["workflow",this.model_scheme.parent.split("\\")[0],this.model_scheme.parent.split("\\").slice(1).join("\\")])
+    }
+  }
+
+  customButtonBehavior(evt:string) {
+    switch( evt ) {
+      case "Show JSON" : 
+        this.showJSON()
+        break
+      case "Show JSON meta data" :
+        this.showJSONMetaData()
+        break
+    }
+  }
+}
+
+@Component({
+  selector: 'jsonator',
+  template: "<pre [innerHtml]='datajson'><pre>"
+})
+class Jsonator {
+  constructor(
+    @Optional() public dialogRef: MatDialogRef<Jsonator>,
+    @Optional() @Inject(MAT_DIALOG_DATA) public data:any,
+  ) {}
+
+  get datajson() {
+    return prettyPrintJson.toHtml(this.data)
   }
 }

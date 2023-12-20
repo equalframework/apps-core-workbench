@@ -1,6 +1,7 @@
 import { Component, Input, OnChanges, OnInit, Output, EventEmitter } from '@angular/core';
 import { ViewService } from '../../_services/view.service';
 import { View } from '../../vieweditor/_objects/View';
+import { RouterMemory } from 'src/app/_services/routermemory.service';
 
 @Component({
   selector: 'app-views-info',
@@ -10,6 +11,7 @@ import { View } from '../../vieweditor/_objects/View';
 export class ViewsInfoComponent implements OnChanges {
   @Input() view_ref:string
   @Output() goto = new EventEmitter<void>()
+  @Output() translations = new EventEmitter<void>()
 
   view_id:string;
   entity:string;
@@ -17,7 +19,7 @@ export class ViewsInfoComponent implements OnChanges {
   obk = Object.keys
 
   constructor(
-    private api:ViewService
+    private api:ViewService,
   ) { }
 
   async ngOnChanges(){
@@ -30,6 +32,10 @@ export class ViewsInfoComponent implements OnChanges {
 
   onEditClick() {
     this.goto.emit()
+  }
+
+  onTranslationClick() {
+    this.translations.emit()
   }
 
 }
