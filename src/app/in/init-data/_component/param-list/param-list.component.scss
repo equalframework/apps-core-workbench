@@ -19,8 +19,10 @@
 }
 
 .name {
-    padding: 0 2em;
-    width: calc( 100% - max(2em,10%) );
+    width: calc( 100% - 80px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: no-wrap;
 }
 
 .item {
@@ -34,6 +36,10 @@
 .filterinput {
     margin-right: 10px;
     width : 100%
+}
+
+.button {
+    width: 80px
 }
 
 .creator {

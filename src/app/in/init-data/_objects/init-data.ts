@@ -176,6 +176,18 @@ export class InitDataEntityInstance {
         }
     }
 
+    static ImportFromRealData(data:any = {},fields:any):InitDataEntityInstance {
+        let f:{name:string,type:string, multilang:boolean, required:boolean}[] = []
+        for (const [k, field] of Object.entries(fields)) {
+            const cast:any = field
+            f.push({name:k, type:cast.type, multilang:!!cast.multilang, required:!!cast.required})
+        }
+        let ret = new InitDataEntityInstance(0,['en'])
+        ret.id = data.id
+        ret.updateLang("en",data,f,true)
+        return ret
+    }
+
     public renameLang(from:string, to:string) {
         if(from === 'en') return
         if(Object.keys(this.otherfield).includes(to)) return 
@@ -208,7 +220,7 @@ export class InitDataEntityInstance {
                 continue
             }
             //console.log(field.name+"  =>  "+field.multilang+" "+data[field.name])
-            if((lang === 'en' || field.multilang) && data[field.name]) {
+            if((lang === 'en' || field.multilang) && !['computed','alias'].includes(field.type) && data[field.name]) {
                 this.otherfield[lang][field.name] = data[field.name]
             }
         }

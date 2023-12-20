@@ -11,6 +11,7 @@ import { SortValue } from '@material/data-table';
 import { EntityDialogComponent } from '../entity-dialog/entity-dialog.component';
 import { MatTab, MatTabChangeEvent } from '@angular/material/tabs';
 import { LangPopupComponent } from '../lang-popup/lang-popup.component';
+import { ImporterComponent } from '../importer/importer.component';
 
 @Component({
   selector: 'app-init-sidepane',
@@ -192,5 +193,18 @@ export class InitSidepaneComponent implements OnInit,OnChanges {
   openLangEditor() {
     const ntity = this.obk(this.file.entities)[this.entity_index]
     this.dialog.open(LangPopupComponent,{data:this.file.entities[ntity],width: "50vw",height:"60vh"})
+  }
+
+  ImportFromDB() {
+    const ntity = this.obk(this.file.entities)[this.entity_index]
+    const d = this.dialog.open(ImporterComponent,{data:{entity:ntity,vf:this.viewField},width:"70%", height:"80%"})
+    d.afterClosed().subscribe((data:InitDataEntityInstance[]) => {
+      for(let item of data) {
+        item.selected = false
+        this.file.entities[ntity].items.push(item)
+      }
+      this.refrsh()
+    })
+    
   }
 }

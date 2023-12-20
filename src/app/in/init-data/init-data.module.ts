@@ -25,6 +25,7 @@ import { AutocompleteModule } from '../autocomplete/autocomplete.module';
 import { MatMenuModule } from '@angular/material/menu';
 import { LangPopupComponent } from './_component/lang-popup/lang-popup.component';
 import { MatProgressSpinner, MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ImporterComponent } from './_component/importer/importer.component';
 
 
 
@@ -35,7 +36,8 @@ import { MatProgressSpinner, MatProgressSpinnerModule } from '@angular/material/
     InitSidepaneComponent,
     InitPopupEditorComponent,
     EntityDialogComponent,
-    LangPopupComponent
+    LangPopupComponent,
+    ImporterComponent
   ],
   imports: [
     CommonModule,

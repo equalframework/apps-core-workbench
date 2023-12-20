@@ -32,18 +32,14 @@ export class ParamListComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
-    console.log("=============")
     this.filteredList = this.list.sort((p1, p2) => p1.name.localeCompare(p2.name));
     console.log(this.filteredList)
     this.filterControl.valueChanges.subscribe(data => {
-      console.log("RTIO")
       this.filteredList = this._filter(data)
     })
   }
 
   ngOnChanges(): void {
-    console.log("----")
-    console.log(this.list)
     this.filteredList = this._filter(this.filterControl.value)
   }
 
@@ -78,6 +74,24 @@ export class ParamListComponent implements OnInit, OnChanges {
     this.CRUD.emit("deletion of " + d[0].name)
     this.onClickItem(-1)
     this.filteredList = this._filter(this.filterControl.value)
+  }
+
+  renamedItem:number = -1
+  renameValue:string = ""
+
+  renameItem(index:number) {
+    this.renamedItem = index
+    this.renameValue = this.list[this.renamedItem].name
+  }
+
+  rename() {
+    this.list[this.renamedItem].name = this.renameValue.endsWith(".json") ? this.renameValue : this.renameValue+".json"
+    this.cancel()
+  }
+
+  cancel() {
+    this.renamedItem = -1
+    this.renameValue = ""
   }
 
 }

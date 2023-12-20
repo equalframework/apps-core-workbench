@@ -377,5 +377,15 @@ export class EmbbedApiService {
         }
     }
 
+    public async getAllInstanceFrom(entity:string,fields:string[] = []):Promise<any[]> {
+        try {
+            return await this.api.get(`?get=core_model_collect&entity=${entity}&fields=${JSON.stringify(fields)}`)
+        } catch(e) {
+            console.error(e)
+            this.api.errorFeedback(e)
+            return []
+        }
+    }
+
 }
  

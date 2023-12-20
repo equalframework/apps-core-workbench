@@ -49,7 +49,7 @@
     </mat-grid-list>
     <mat-grid-list cols="3" rowHeight="12em">
         <ng-container *ngFor="let field of data.fields" >
-            <mat-grid-tile *ngIf="!['id','modifier','modified','created','creator','state','deleted'].includes(field.name) && ['many2many'].includes(field.type)" >
+            <mat-grid-tile *ngIf="!['id','modifier','modified','created','creator','state','deleted'].includes(field.name) && ['many2many','one2many'].includes(field.type)" >
                 <div class="input-holder">
                     <app-type-input style="width: 100%;"
                         [name]="field.name"

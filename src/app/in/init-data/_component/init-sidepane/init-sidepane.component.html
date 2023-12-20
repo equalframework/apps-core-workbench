@@ -28,6 +28,7 @@
                             <button [disabled]="selected.length <= 0" mat-button (click)="toggleIdSelection()"><mat-icon>verified</mat-icon><label> Toggle id</label></button>
                         </div>
                         <div>
+                            <button mat-button (click)="ImportFromDB()"><mat-icon>save_alt</mat-icon> Import from DB</button>
                             <button mat-button (click)="createItem()"><mat-icon>add_circle</mat-icon> Create item</button>
                         </div>
                     </div>
