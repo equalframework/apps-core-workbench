@@ -20,7 +20,8 @@ const routes: Routes = [
          */
         path: '',
         loadChildren: () => import('./in/package/package.module').then(m => m.PackageModule)
-    }
+
+    },
 ];
 
 @NgModule({

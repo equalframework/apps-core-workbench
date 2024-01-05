@@ -27,6 +27,20 @@
             <mat-icon>redo</mat-icon>
         </button>
         <button mat-stroked-button
+            *ngIf="buttonNew" 
+            [disabled]="buttonNewDisabled" 
+            (click)="onButtonNew.emit()"
+        >
+            <mat-icon>note_add</mat-icon> New
+        </button>
+        <button mat-stroked-button
+            *ngIf="buttonLoad" 
+            [disabled]="buttonLoadDisabled" 
+            (click)="onButtonLoad.emit()"
+        >
+            <mat-icon>upload_file</mat-icon> Load
+        </button>
+        <button mat-stroked-button
             *ngIf="buttonSave" 
             [disabled]="buttonSaveDisabled" 
             (click)="onButtonSave.emit()"

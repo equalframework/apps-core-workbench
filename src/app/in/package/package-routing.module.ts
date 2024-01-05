@@ -45,11 +45,16 @@ const routes: Routes = [
     path : 'initdata/:type/:package',
     component : InitDataComponent
   },
+  {
+    path: 'uml',
+    loadChildren: () => import('src/app/in/uml-or/uml-or.module').then(m => m.UMLORModule)
+  },
   // wildcard route (accept root and any sub route that does not match any of the routes above)
   {
       path: '**',
       component: PackageComponent
-  }
+  },
+
 ];
 
 @NgModule({

@@ -16,6 +16,8 @@ export class HeaderComponent implements OnInit {
   @Input() buttonCancelOne:boolean = false
   @Input() buttonRevertOne:boolean = false
   @Input() buttonSave:boolean = false
+  @Input() buttonLoad:boolean = false
+  @Input() buttonNew:boolean = false
   @Input() buttonCancel:boolean = false
   @Input() customButton:boolean = false
 
@@ -24,6 +26,8 @@ export class HeaderComponent implements OnInit {
   @Input() buttonCancelOneDisabled:boolean = false
   @Input() buttonRevertOneDisabled:boolean = false
   @Input() buttonSaveDisabled:boolean = false
+  @Input() buttonLoadDisabled:boolean = false
+  @Input() buttonNewDisabled:boolean = false
   @Input() buttonCancelDisabled:boolean = false
 
   // Button Actions
@@ -31,6 +35,8 @@ export class HeaderComponent implements OnInit {
   @Output() onButtonCancelOne = new EventEmitter<void>()
   @Output() onButtonRevertOne = new EventEmitter<void>()
   @Output() onButtonSave = new EventEmitter<void>()
+  @Output() onButtonLoad = new EventEmitter<void>()
+  @Output() onButtonNew = new EventEmitter<void>()
   @Output() onButtonCancel = new EventEmitter<void>()
   @Output() onCustomButton = new EventEmitter<string>()
   @Output() onContextualButton = new EventEmitter<string>()

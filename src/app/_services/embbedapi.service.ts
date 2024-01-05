@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { error } from 'console';
+import { truncateSync } from 'fs';
 import { isObject } from 'lodash';
 import { ApiService } from 'sb-shared-lib';
 
@@ -380,6 +381,36 @@ export class EmbbedApiService {
     public async getAllInstanceFrom(entity:string,fields:string[] = []):Promise<any[]> {
         try {
             return await this.api.get(`?get=core_model_collect&entity=${entity}&fields=${JSON.stringify(fields)}`)
+        } catch(e) {
+            console.error(e)
+            this.api.errorFeedback(e)
+            return []
+        }
+    }
+
+    public async saveUML(pkg:string,type:string,path:string,payload:string):Promise<boolean> {
+        try {
+            await this.api.post(`?do=core_config_update-uml&package=${pkg}&type=${type}&path=${path}`,{"payload":payload})
+            return true
+        } catch(e) {
+            console.error(e)
+            this.api.errorFeedback(e)
+            return false
+        }
+    }
+
+    public async getUMLList(type:string):Promise<{[id:string]:string[]}> {
+        try {
+            return await this.api.get(`?get=core_config_umls&type=${type}`)
+        } catch(e) {
+            this.api.errorFeedback(e)
+            return {}
+        }
+    }
+
+    public async getUMLContent(pkg:string,type:string,path:string):Promise<any[]> {
+        try {
+            return await this.api.get(`?get=core_config_uml&package=${pkg}&type=${type}&path=${path}`)
         } catch(e) {
             console.error(e)
             this.api.errorFeedback(e)

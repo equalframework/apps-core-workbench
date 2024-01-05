@@ -1,0 +1,18 @@
+
+<div #bdy class="node" [class.selected]="selected">
+    <ng-container *ngIf="['edit-node'].includes(state) && !selected">
+        <button class="editbutton" color="primary" mat-mini-fab (click)="linkeToMe.emit()"><mat-icon>edit</mat-icon></button>
+    </ng-container>
+    <div class="name">
+        <label>{{node.entity}}</label>
+    </div>
+    <div class="field" *ngFor="let field of node.DisplayFields; index as index" [class.altbg]="index%2===0">
+        <mat-icon color="primary">{{typeIcon[node.fields[field].type === 'computed' ? node.fields[field].result_type : node.fields[field].type]}}</mat-icon>
+        <label>{{field}}</label>
+        <mat-icon *ngIf="node.fields[field].readonly" color="accent" >do_not_touch</mat-icon>
+        <mat-icon *ngIf="node.fields[field].required" color="accent" >priority_high</mat-icon>
+        <label class="unique" *ngIf="node.fields[field].unique">1</label>
+        <mat-icon *ngIf="node.fields[field].type === 'computed'" color="accent" >{{typeIcon['computed']}}</mat-icon>
+    </div>
+    <!-- dx : {{node.initialPos.x - node.position.x}} |  dy : {{node.initialPos.y - node.position.y}} -->
+</div>
