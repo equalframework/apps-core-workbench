@@ -150,3 +150,59 @@ transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 .name {
     margin: 0 1.5em;
 }
+
+.toggleicon {
+    margin-right: 1em;
+    transform: scale(1.2) translateY(.1em);
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    color : #747474
+}
+
+.toggleicon.on {
+    color : mat-color($accentcolor) !important
+}
+
+.itemprez {
+    display: flex;
+    align-items: center;
+
+    .typeicon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: mat-color($maincolor,A100);
+        border-radius: 10px;
+        padding: 0 .5em;
+        margin-right: 10px;
+    }
+}
+
+.property-icon-holder {
+    margin-right: 10px;
+
+    .property-icon {
+        margin: 0 5px;
+    }
+}
+
+$border: #949494;
+$ident: 20px;
+$left: -($ident);
+
+.tree {
+    list-style-type: none;
+    padding-left: 10px;
+    position: relative;
+    &:before {
+        content: "";
+        position: absolute;
+        top: -10px;
+        left:$left;
+        border-left: 1.5px solid $border;
+        border-bottom:1.5px solid $border;
+        width:$ident;
+        height:35px;
+    }
+}

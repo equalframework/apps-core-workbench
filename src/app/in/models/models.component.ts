@@ -87,6 +87,9 @@ export class ModelsComponent implements OnInit {
         if(step===4) {
             this.route.navigate(['/translation/model',this.selected_package,this.selected_class],{"class":this.selected_class})
         }
+        if(step===5) {
+            this.route.navigate(['/workflow',this.selected_package,this.selected_class],{"class":this.selected_class})
+        }
     }
 
     /**

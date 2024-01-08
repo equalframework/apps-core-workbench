@@ -16,8 +16,8 @@
     >
         <label>Translations of </label>
         <label class="packagename">{{package}}</label>
-        <label class="inbetween">{{ entitype === "model" ? "\\" : "_" }}</label>
-        <label class="{{entitype}}name">{{entitype === "model" ? model : model.replaceAll("\\","_")}}</label>
+        <label class="inbetween">{{ entitype === "model" ? "\\" : (entitype === "controller" ? "_" : " ") }}</label>
+        <label class="{{entitype}}name">{{entitype !== "controller" ? model : model.replaceAll("\\","_")}}</label>
     </app-in-header>
     <div *ngIf="obk(data).length === 0">
         No traduction on this model.
@@ -48,12 +48,12 @@
             <mat-tab label="Model" class="modeltradholder tabpadding">
                 <div class="tabpadding">
                     <br>
-                    <mat-form-field class="nameinput">
+                    <mat-form-field class="nameinput" *ngIf="entitype !== 'menu'">
                         <mat-label>Model name (singular)</mat-label>
                         <input matInput spellcheck="true" [(ngModel)]="data[lang].name.value">
                     </mat-form-field>
-                    /
-                    <mat-form-field class="nameinput">
+                    <label *ngIf="entitype !== 'menu'">/</label>
+                    <mat-form-field class="nameinput" *ngIf="entitype !== 'menu'">
                         <mat-label>Model name (plural)</mat-label>
                         <input matInput spellcheck="true" [(ngModel)]="data[lang].plural.value">
                     </mat-form-field>
@@ -62,7 +62,7 @@
                         <mat-label>Model description</mat-label>
                         <input matInput spellcheck="true" [(ngModel)]="data[lang].description.value">
                     </mat-form-field>
-                    <div class="modelitems">
+                    <div class="modelitems" *ngIf="entitype !== 'menu'">
                         <mat-grid-list class="listarr" cols="16" rowHeight="2em" class="titlelistarr">
                             <mat-grid-tile class="itemarr">
                                 traduction
@@ -244,7 +244,7 @@
                     </mat-tab-group>
                 </div>
             </mat-tab>
-            <mat-tab label="Error" class="tabpadding">
+            <mat-tab label="Error" class="tabpadding" *ngIf="entitype !== 'menu'">
                 <div class="tabpadding">
                     <div *ngFor="let errs of obk(data[lang].error._base)" class="errorsblock">
                         <label class="errsname">{{errs}}</label>

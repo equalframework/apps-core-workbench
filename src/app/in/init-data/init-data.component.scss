@@ -1,0 +1,17 @@
+
+@import "src/theme.scss";
+
+:host {
+    width: 100%;
+    height: 100%;
+}
+
+.tabgrp ::ng-deep .mat-tab-body-wrapper {
+    height: 100%;
+}
+
+.packagename {
+    background-color: mat-color($package-color,A100);
+    padding : 0 .25em;
+    border-radius : .25em;
+}

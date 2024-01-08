@@ -45,6 +45,7 @@ import { HeaderModule } from '../../header/header.module';
 import { PopupLayoutModule } from '../../popup-layout/popup-layout.module';
 import { UsagesModule } from '../../usages/usages.module';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 
 
@@ -98,7 +99,8 @@ import { MatMenuModule } from '@angular/material/menu';
     SharedLibModule,
     HeaderModule,
     PopupLayoutModule,
-    UsagesModule
+    UsagesModule,
+    MatExpansionModule
   ],
   exports : [
     AccessEditorComponent

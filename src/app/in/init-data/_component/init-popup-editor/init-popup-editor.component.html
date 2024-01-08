@@ -1,0 +1,66 @@
+<app-popup-layout
+    (close)="ref.close()"
+    [okButton]="true"
+    okButtonText="save"
+    (ok)="ref.close(data.data)"
+>
+    <div class="header">
+        <div class="input-id">
+            <app-type-input 
+                name="id"
+                type="integer"
+                [value]="data.data.id"
+                (changed)="data.data.id = $event"
+                [disabled]="!data.data.id_strict"
+            >
+            </app-type-input>
+            <app-type-input style="margin-left: 1em;"
+                name="Id strict"
+                type="boolean"
+                [value]="data.data.id_strict"
+                (changed)="data.data.id_strict = $event"
+            >
+            </app-type-input>
+        </div>
+        <div>
+            <mat-form-field>
+                <mat-label>Language</mat-label>
+                <mat-select [(value)]="selected_lang">
+                    <mat-option *ngFor="let lang of obk(data.data.otherfield)" [value]="lang" >{{lang}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+    </div>
+    <mat-grid-list cols="3" rowHeight="5em">
+        <ng-container *ngFor="let field of data.fields" >
+        <mat-grid-tile *ngIf="!['id','modifier','modified','created','creator','state','deleted'].includes(field.name) && !['computed','alias','array','many2many','one2many'].includes(field.type)" >
+            <div class="input-holder">
+                <app-type-input style="width: 100%;"
+                    [name]="field.name"
+                    [type]="field.type"
+                    [disabled]="selected_lang !== 'en' && !field.multilang"
+                    [value]="field.multilang ? data.data.otherfield[selected_lang][field.name] : data.data.otherfield['en'][field.name]"
+                    (changed)="field.multilang ? data.data.otherfield[selected_lang][field.name]  = $event : data.data.otherfield['en'][field.name] = $event"
+                >
+                </app-type-input>
+            </div>
+        </mat-grid-tile>
+        </ng-container>
+    </mat-grid-list>
+    <mat-grid-list cols="3" rowHeight="12em">
+        <ng-container *ngFor="let field of data.fields" >
+            <mat-grid-tile *ngIf="!['id','modifier','modified','created','creator','state','deleted'].includes(field.name) && ['many2many','one2many'].includes(field.type)" >
+                <div class="input-holder">
+                    <app-type-input style="width: 100%;"
+                        [name]="field.name"
+                        [type]="field.type"
+                        [disabled]="selected_lang !== 'en' && !field.multilang"
+                        [value]="field.multilang ? data.data.otherfield[selected_lang][field.name] : data.data.otherfield['en'][field.name]"
+                        (changed)="field.multilang ? data.data.otherfield[selected_lang][field.name]  = $event : data.data.otherfield['en'][field.name] = $event"
+                    >
+                    </app-type-input>
+                </div>
+            </mat-grid-tile>
+        </ng-container>
+    </mat-grid-list>
+</app-popup-layout>

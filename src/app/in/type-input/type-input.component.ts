@@ -30,11 +30,17 @@ export class TypeInputComponent implements OnInit,OnChanges {
 
   ngOnChanges() {
     this.JsonControl.setValue(JSON.stringify(this.value,null, 2))
+    this.disabled ? this.JsonControl.disable() : this.JsonControl.enable()
   }
 
   public changeDefaultFromJson() {
     if(this.JsonControl.valid) {
-      this.changed.emit(JSON.parse(this.JsonControl.value))
+      if(this.JsonControl.value) {
+        console.log(this.JsonControl.value)
+        this.changed.emit(JSON.parse(this.JsonControl.value))
+      }
+      else 
+        this.changed.emit(undefined)
     }
   }
 
@@ -95,6 +101,9 @@ export class TypeInputComponent implements OnInit,OnChanges {
 
 function json_case(control: AbstractControl): ValidationErrors | null {
   let value: string = control.value
+  if(!value){
+    return null
+  }
   try {
     JSON.parse(value)
     return null

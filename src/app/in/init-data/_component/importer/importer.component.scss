@@ -1,0 +1,66 @@
+.item-table {
+    width: 100%;
+    border : 0;
+    border-collapse : collapse;
+
+    ::ng-deep .mat-sort-header-content {
+        margin : 0 10px;
+    }
+
+}
+
+.table-holder {
+    width: 100%;
+    border: 1px black solid;
+    //padding: 0 10px;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 1.5em;
+}
+
+.pager {
+    background-color: #ddd;
+}
+
+.item-table-header {
+    //border-bottom: 1px rgb(228, 171, 171) solid !important;
+    margin-bottom: 10px;
+    text-align: center;
+    background-color: #ddd;
+
+    th {
+        border : 1px #ddd solid
+    }
+}
+
+tr {
+    border-top: 1px #ddd solid;
+    height: 2.5em;
+}
+
+.table-item {
+    margin: 0 10px;
+}
+
+.pointer {
+    cursor : pointer;
+}
+
+.table-action {
+    background-color: #ddd;
+    display : flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.abs-button-add {
+    position: absolute;
+    top: 12.5px;
+    right: 1em;
+    border-bottom: .5px #E0E0E0 solid;
+    border-radius: 0;
+}
+
+::ng-deep .shrinked-header .mat-tab-header {
+    width: calc(100% - 46px);
+}

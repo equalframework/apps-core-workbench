@@ -1,5 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { error } from 'console';
+import { truncateSync } from 'fs';
 import { isObject } from 'lodash';
 import { ApiService } from 'sb-shared-lib';
 
@@ -141,14 +143,17 @@ export class EmbbedApiService {
         this.api.fetch("?do=core_config_create-model&model="+name+"&package="+pkg+(parent === "equal\\orm\\Model" ? "" : "&extends="+parent))
     }
 
-    public async getSchema(entity: string) {
-        try {
-            return await this.api.fetch('?get=core_model_schema&entity=' + entity);
+    public async getSchema(entity: string):Promise<any> {
+        if (entity) {
+            try {
+                return await this.api.fetch('?get=core_model_schema&entity=' + entity);
+            }
+            catch (response: any) {
+                console.warn('request error', response);
+                return {"fields" : []}
+            }
         }
-        catch (response: any) {
-            console.warn('request error', response);
-            return {}
-        }
+        return {"fields" : []}
     }
 
     public async getRoutesByPackages(pkg:string) {
@@ -281,7 +286,135 @@ export class EmbbedApiService {
         try {
             return await this.api.fetch("?get=core_model_view&view_id="+name+"&entity="+entity)
         } catch (response) {
-            return null
+            return {}
+        }
+    }
+
+    public async getInitData(pkg:string,type:string):Promise<{[id:string]:any}> {
+        try {
+            return (await this.api.fetch(`?get=core_config_init-data&package=${pkg}&type=${type}`))
+        } catch {
+            return {}
+        }
+    }
+
+    public async updateInitData(pkg:string,type:string,payload:string):Promise<boolean> {
+        try {
+            await this.api.post(`?do=core_config_update-init-data&package=${pkg}&type=${type}`,{payload:payload})
+            return true
+        } catch(e) {
+            console.log(e)
+            this.api.errorFeedback(e)
+            return false
+        }
+    }
+
+    public async getWorkflow(pkg:string,model:string):Promise<any> {
+        try {
+            return {exists : true, info : await this.api.get(`?get=core_model_workflow&entity=${pkg}\\${model}`)}
+        } catch(e:any) {
+            const cast:HttpErrorResponse = e
+            if(cast.status === 404) {
+                return {exists : false, info : {}}
+            }
+            else {
+                this.api.errorFeedback(e)
+                return {}
+            }
+        }
+    }
+
+    public async saveWorkflow(pkg:string,model:string,payload:string):Promise<boolean> {
+        try {
+            await this.api.post(`?do=core_config_update-workflow&entity=${pkg}\\${model}`,{payload : payload})
+            return true
+        } catch(e) {
+            console.error(e)
+            this.api.errorFeedback(e)
+            return false
+        }
+    }
+
+    public async createWorkflow(pkg:string,model:string):Promise<boolean> {
+        try {
+            await this.api.post(`?do=core_config_create-workflow&entity=${pkg}\\${model}`)
+            return true
+        } catch(e) {
+            console.error(e)
+            this.api.errorFeedback(e)
+            return false
+        }
+    }
+
+    public async fetchMetaData(code:string,reference:string):Promise<any[]> {
+        try {
+            return await this.api.get(`?get=core_model_collect&entity=core\\Meta&fields=[value]&domain=[[code,=,${code}],[reference,=,${reference}]]`)
+        } catch(e) {
+            console.error(e)
+            this.api.errorFeedback(e)
+            return []
+        }
+    }
+
+    public async createMetaData(code:string,reference:string,payload:string):Promise<boolean> {
+        try {
+            await this.api.post(`?do=core_model_create&entity=core\\Meta`,{"fields" : {"value" : payload, "code" : code, reference : reference}})
+            return true
+        } catch(e) {
+            console.error(e)
+            this.api.errorFeedback(e)
+            return false
+        }
+    }
+
+    public async saveMetaData(id:number,payload:string):Promise<boolean> {
+        try {
+            await this.api.post(`?do=core_model_update&entity=core\\Meta&id=${id}`,{"fields" : {"value" : payload}})
+            return true
+        } catch(e) {
+            console.error(e)
+            this.api.errorFeedback(e)
+            return false
+        }
+    }
+
+    public async getAllInstanceFrom(entity:string,fields:string[] = []):Promise<any[]> {
+        try {
+            return await this.api.get(`?get=core_model_collect&entity=${entity}&fields=${JSON.stringify(fields)}`)
+        } catch(e) {
+            console.error(e)
+            this.api.errorFeedback(e)
+            return []
+        }
+    }
+
+    public async saveUML(pkg:string,type:string,path:string,payload:string):Promise<boolean> {
+        try {
+            await this.api.post(`?do=core_config_update-uml&package=${pkg}&type=${type}&path=${path}`,{"payload":payload})
+            return true
+        } catch(e) {
+            console.error(e)
+            this.api.errorFeedback(e)
+            return false
+        }
+    }
+
+    public async getUMLList(type:string):Promise<{[id:string]:string[]}> {
+        try {
+            return await this.api.get(`?get=core_config_umls&type=${type}`)
+        } catch(e) {
+            this.api.errorFeedback(e)
+            return {}
+        }
+    }
+
+    public async getUMLContent(pkg:string,type:string,path:string):Promise<any[]> {
+        try {
+            return await this.api.get(`?get=core_config_uml&package=${pkg}&type=${type}&path=${path}`)
+        } catch(e) {
+            console.error(e)
+            this.api.errorFeedback(e)
+            return []
         }
     }
 

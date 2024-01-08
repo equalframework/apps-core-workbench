@@ -16,9 +16,9 @@ import { PropertiesEditorComponent } from './_components/properties-editor/prope
 import { MatFormField, MatFormFieldModule } from '@angular/material/form-field';
 import { MatInput, MatInputModule } from '@angular/material/input';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { TypeInputComponent } from '../type-input/type-input.component';
 import { TypeInputModule } from '../type-input/type-input.module';
 import { PropertyDomainModule } from '../property-domain-component/property-domain.module';
+import { MatDividerModule } from '@angular/material/divider';
 
 
 
@@ -45,7 +45,8 @@ import { PropertyDomainModule } from '../property-domain-component/property-doma
     ReactiveFormsModule,
     FormsModule,
     TypeInputModule,
-    PropertyDomainModule
+    PropertyDomainModule,
+    MatDividerModule
   ]
 })
 export class WorkflowsModule { }

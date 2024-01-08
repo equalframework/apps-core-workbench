@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 import { PackageComponent } from './package.component';
+import { InitDataComponent } from '../init-data/init-data.component';
 
 const routes: Routes = [
   {
@@ -33,18 +34,27 @@ const routes: Routes = [
     loadChildren : () => import('src/app/in/model-trad-editor/model-trad-editor.module').then(m => m.ModelTradEditorModule)
   },
   {
-    path: 'test',
+    path: 'workflow/:package/:model',
     loadChildren : () => import('src/app/in/workflows/workflows.module').then(m => m.WorkflowsModule)
   },
   {
     path : 'menu',
     loadChildren : () => import('src/app/in/menu/menu.module').then(m => m.MenuModule)
   },
+  {
+    path : 'initdata/:type/:package',
+    component : InitDataComponent
+  },
+  {
+    path: 'uml',
+    loadChildren: () => import('src/app/in/uml-or/uml-or.module').then(m => m.UMLORModule)
+  },
   // wildcard route (accept root and any sub route that does not match any of the routes above)
   {
       path: '**',
       component: PackageComponent
-  }
+  },
+
 ];
 
 @NgModule({

@@ -1,13 +1,14 @@
 import { Component, Inject, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
-import { View, ViewGroup, ViewItem, ViewOperation, ViewSection } from './_objects/View';
+import { View, ViewGroup, ViewGroupByItem, ViewItem, ViewOperation, ViewSection } from './_objects/View';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { prettyPrintJson } from 'pretty-print-json';
 import { ViewEditorServicesService } from './_services/view-editor-services.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Usage } from '../../controllers/_components/params-editor/_objects/Params';
+import { TypeUsageService } from 'src/app/_services/type-usage.service';
 
 @Component({
   selector: 'app-vieweditor',
@@ -46,6 +47,7 @@ export class VieweditorComponent implements OnInit {
 
   groups:string[] = []
   
+  icontype:{[id:string]:string}
 
   collect_controller:string[] = ["core_model_collect"];
 
@@ -57,7 +59,8 @@ export class VieweditorComponent implements OnInit {
     private activatedroute:ActivatedRoute,
     private api:ViewEditorServicesService,
     private popup:MatDialog,
-    private snackBar:MatSnackBar
+    private snackBar:MatSnackBar,
+    private TypeUsage:TypeUsageService
   ) { }
 
   async ngOnInit() {
@@ -68,6 +71,7 @@ export class VieweditorComponent implements OnInit {
   }
 
   public async init() {
+    this.icontype = this.TypeUsage.typeIcon
     if(this.name) {
       try {
         let tempsplit = this.name.split(":")
@@ -249,6 +253,20 @@ export class VieweditorComponent implements OnInit {
 
   delOp(index:number,jndex:number) {
     this.view_obj.operations[index].ops.splice(jndex,1)
+  }
+
+  addNewGroupBy() {
+    this.view_obj.groupBy.items.push(new ViewGroupByItem())
+  }
+
+  deleteGroupBy(index:number) {
+    this.view_obj.groupBy.items.splice(index,1)
+  }
+
+  ToNameDisp(name:string):string {
+    const a = name.replaceAll("_"," ")
+    let b = a.split(" ").map(item => {return item.charAt(0).toUpperCase() + item.substr(1)});
+    return b.join(" ")
   }
 }
 

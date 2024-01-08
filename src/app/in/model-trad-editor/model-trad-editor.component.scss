@@ -31,6 +31,12 @@ $bordercolor : #939399;
     border-radius : .25em;
 }
 
+.menuname {
+    background-color: mat-color($menu-color,A100);
+    padding : 0 .25em;
+    border-radius : .25em;
+}
+
 .lang-selected {
     height: 4em;
 }

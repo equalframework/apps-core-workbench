@@ -149,6 +149,14 @@ export class PackageComponent implements OnInit {
     public onClickRoute() {
         this.router.navigate(['/routes', this.selected_element.name],{"selected":this.selected_element});
     }
+
+    public onClickInitData() {
+        this.router.navigate(['/initdata/init', this.selected_element.name],{"selected":this.selected_element});
+    }
+
+    public onClickInitDemoData() {
+        this.router.navigate(['/initdata/demo', this.selected_element.name],{"selected":this.selected_element});
+    }
     
     /**
      * Update the name of a package.
@@ -157,13 +165,6 @@ export class PackageComponent implements OnInit {
      */
     public onupdatePackage(event: { old_node: string, new_node: string }) {
         this.api.updatePackage(event.old_node, event.new_node);
-        /* MAY BE USEFUL WHEN LINK TO BACKEND
-        if (this.selected_package == event.old_node) {
-            this.selected_package = event.new_node;
-        }
-        this.eq_class[event.new_node] = this.eq_class[event.old_node];
-        delete this.eq_class[event.old_node];
-        */
     }
 
     /**
@@ -173,14 +174,6 @@ export class PackageComponent implements OnInit {
      */
     public ondeletePackage(eq_package: string) {
         this.api.deletePackage(eq_package);
-        /* MAY BE USEFUL WHEN LINK TO BACKEND
-        if (this.selected_package == eq_package) {
-            this.selected_package = "";
-            this.selected_class = "";
-            this.selected_field = "";
-            this.child_loaded = false;
-        }
-        */
     }
 
     /**
@@ -212,6 +205,9 @@ export class PackageComponent implements OnInit {
         if(event===4 && this.selected_element.package) {
             this.router.navigate(['/translation',"model",this.selected_element.package,this.selected_element.name],{"selected":this.selected_element})
         }
+        if(event===5) {
+            this.router.navigate(['/workflow',this.selected_element.package,this.selected_element.name],{"class":this.selected_element})
+        }
     }
 
     goTo(ev:{name:string,package?:string,type?:string}) {
@@ -223,12 +219,25 @@ export class PackageComponent implements OnInit {
         this.router.navigate(['/views_edit',this.selected_element.name],{"selected":this.selected_element})
     }
 
+    onViewTranslationClick() {
+        this.router.navigate(['/translation', this.selected_element.name.split(":").slice(1)[0].split(".")[0] === 'search' ? 'controller' : 'model',this.selected_element.package,this.selected_element.name.split(":")[0].split("\\").slice(1).join("\\")],{"selected":this.selected_element})
+    }
+
+
     async delElement(node:{package?:string,name:string,type:string,more?:any}) {
         let res
         switch(node.type) {
         case "view":
             let sp = node.name.split(":")
             res = await this.api.deleteView(sp[0],sp[1])
+            if(!res){
+                this.snackBar.open("Deleted")
+                this.selected_element = {name:"",type:""}
+                this.refresh()
+            }
+            break
+        case "menu":
+            res = await this.api.deleteView(node.package+"\\menu",node.name)
             if(!res){
                 this.snackBar.open("Deleted")
                 this.selected_element = {name:"",type:""}
@@ -288,7 +297,14 @@ export class PackageComponent implements OnInit {
             break
         }
     }
-}
 
-// This is the object that should be returned by await this.api.getSchema('equal\orm\model')
-var Model = {"id":{"type":"integer","readonly":true},"creator":{"type":"many2one","foreign_object":"core\\User","default":1},"created":{"type":"datetime","default":"2023-09-05T11:49:53+00:00","readonly":true},"modifier":{"type":"many2one","foreign_object":"core\\User","default":1},"modified":{"type":"datetime","default":"2023-09-05T11:49:53+00:00","readonly":true},"deleted":{"type":"boolean","default":false},"state":{"type":"string","selection":["draft","instance","archive"],"default":"instance"},"name":{"type":"alias","alias":"id"}}
+    menuNav(choice:number) {
+        switch(choice) {
+            case 1: 
+                this.router.navigate(['/menu/edit/',this.selected_element.package,this.selected_element.name]);
+                break;
+            case 2 :
+                this.router.navigate(['translation/menu/',this.selected_element.package,this.selected_element.name])
+        }
+    }
+}

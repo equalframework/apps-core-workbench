@@ -11,6 +11,10 @@ export class MenuElement {
         }
         return result
     }
+
+    id_compliancy(id_list:string[]):{ok:boolean,id_list:string[]} {
+        return {ok : true, id_list : id_list}
+    }   
 }
 
 export class Menu extends MenuElement {
@@ -44,6 +48,11 @@ export class Menu extends MenuElement {
         if(this.layout) result.layout = this.layout.export()
         return result
     }
+
+    override id_compliancy(id_list: string[]): { ok: boolean; id_list: string[]; } {
+        let res = super.id_compliancy([])
+        return this.layout.id_compliancy(res.id_list)
+    }
 }
 
 export class MenuLayout extends MenuElement {
@@ -72,6 +81,18 @@ export class MenuLayout extends MenuElement {
             }
         }
         return result
+    }
+
+    override id_compliancy(id_list: string[]): { ok: boolean; id_list: string[]; } {
+        let res = super.id_compliancy([])
+
+        for(let item of this.items) {
+            res = item.id_compliancy(res.id_list)
+            if(!res.ok) {
+                return res
+            }
+        }
+        return res
     }
 }
 
@@ -124,6 +145,23 @@ export class MenuItem extends MenuElement {
         
 
         return result
+    }
+
+
+    override id_compliancy(id_list: string[]): { ok: boolean; id_list: string[]; } {
+        let res = super.id_compliancy(id_list)
+        if(res.id_list.includes(this.id)) {
+            return {ok : false, id_list : [...res.id_list,this.id]}
+        } else {
+            res.id_list.push(this.id)
+            for(let item of this.children) {
+                res = item.id_compliancy(res.id_list)
+                if(!res.ok) {
+                    return res
+                }
+            }
+        }
+        return res
     }
 }
 

@@ -34,6 +34,8 @@
                 (onControllerClick)="onClickControllers()"
                 (onViewClick)="onClickView()"
                 (onRouteClick)="onClickRoute()"
+                (onIDClick)="onClickInitData()"
+                (onIDDClick)="onClickInitDemoData()"
                 (refresh)="refresh_consitency()"
             >
             </app-package-info>
@@ -55,10 +57,12 @@
             <app-views-info  *ngIf="selected_element.type==='view'"
                 [view_ref]="selected_element.name"
                 (goto)="onViewEditClick()"
+                (translations)="onViewTranslationClick()"
             ></app-views-info>
             <app-menu-info *ngIf="selected_element.type === 'menu'"
                 [menu_name]="selected_element.name"
                 [package]="selected_element.package ? selected_element.package : ''"
+                (navigate)='menuNav($event)'
             ></app-menu-info>
         </div>
     </ng-container>

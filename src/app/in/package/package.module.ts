@@ -33,6 +33,7 @@ import { HeaderModule } from '../header/header.module';
 import { MatChipsModule } from '@angular/material/chips';
 import { ClassicLayoutModule } from '../classic-layout/classic-layout.module';
 import { MenuModule } from '../menu/menu.module';
+import { InitDataModule } from '../init-data/init-data.module';
 
 
 @NgModule({
@@ -61,7 +62,8 @@ import { MenuModule } from '../menu/menu.module';
         HeaderModule,
         MatChipsModule,
         ClassicLayoutModule,
-        MenuModule
+        MenuModule,
+        InitDataModule
     ],
     declarations: [
         PackageComponent,

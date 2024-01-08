@@ -2,8 +2,9 @@
     [style.background-position]="bgPos"
     (mousemove)="trackMouse($event)"
     (mouseup)="grabbed = false"
-    (mousedown)="grabbed = true"
+    (mousedown)="mouseDown()"
     [class.grabbed] = "grabbed"
+    [class.create]="['create-node'].includes(state)"
 >
     <div class="full strings" [style.z-index]="['edit-link'].includes(state) ? 1000 : undefined">
         <svg class="full" xmlns="http://www.w3.org/2000/svg" >
@@ -120,7 +121,7 @@
                 </g>
             </g>
             <g *ngIf="state === 'linking-to' && selectedNode > 0 && selectedAnchor">
-                <g *ngIf="getPathStringBetween(nodes[selectedNode],mouse_pos,selectedAnchor,anchor.Top) as line">
+                <g *ngIf="getPathStringBetween(nodes[selectedNode],mousePosOffsetted,selectedAnchor,anchor.Top) as line">
                     <path 
                         [attr.d]="line.path" 
                         stroke="#424242" fill="none" stroke-width="2px" 
@@ -141,7 +142,7 @@
                 </g>
             </g>
             <g *ngIf="state === 'edit-to'">
-                <g *ngIf="getPathStringBetween(links[selectedLink].from,mouse_pos,links[selectedLink].anchorFrom,anchor.Top) as line">
+                <g *ngIf="getPathStringBetween(links[selectedLink].from,mousePosOffsetted,links[selectedLink].anchorFrom,anchor.Top) as line">
                     <path 
                         [attr.d]="line.path" 
                         stroke="#3F51B5" fill="none" stroke-width="2px" 
@@ -162,7 +163,7 @@
                 </g>
             </g>
             <g *ngIf="state === 'edit-from'">
-                <g *ngIf="getPathStringBetween(mouse_pos,links[selectedLink].to,anchor.Top,links[selectedLink].anchorTo) as line">
+                <g *ngIf="getPathStringBetween(mousePosOffsetted,links[selectedLink].to,anchor.Top,links[selectedLink].anchorTo) as line">
                     <path 
                         [attr.d]="line.path" 
                         stroke="#3F51B5" fill="none" stroke-width="2px" 
@@ -191,8 +192,8 @@
             *ngFor="let node of nodes; index as i" 
             cdkDrag 
             (cdkDragMoved)="mv(node,$event)"
-            [style.top.px]="initialpos[i].position.y - 55 + offset.y "
-            [style.left.px]="initialpos[i].position.x + offset.x"
+            [style.top.px]="node.initialPos.y - 55 + offset.y "
+            [style.left.px]="node.initialPos.x + offset.x"
             [node]="node"
             [state]="state"
             

@@ -1,68 +1,94 @@
-<div *ngIf="tabIndex === 1" class="full">
-    <app-in-header>
-        <label>Workflow </label><label>{{state}} | node : {{selectedNode}} | link : {{selectedLink}}</label>
-    </app-in-header>
-    <div class="modecontainer">
-        <button mat-flat-button 
-            [class.mode-selected]="['normal'].includes(this.state)"
-            (click)="changeState('normal')"
-        >
-            <mat-icon>preview</mat-icon>
-        </button>
-        <button mat-flat-button 
-            [class.mode-selected]="['linking-from','linking-to'].includes(this.state)"
-            (click)="requestLinkFrom()"
-        >
-            <mat-icon>add_link</mat-icon>
-        </button>
-        <button
-            mat-flat-button
-            [class.mode-selected]="['create-node'].includes(this.state)"
-            (click)="changeState('create-node')"
-        >
-            <mat-icon>control_point</mat-icon>
-        </button>
-        <button
-            [class.mode-selected]="['edit-link','edit-to','edit-from'].includes(this.state)"
-            mat-flat-button (click)="changeState('edit-link')"
-        >
-            <mat-icon>link</mat-icon>
-        </button>
-        <button
-            mat-flat-button
-            [class.mode-selected]="['create-node'].includes(this.state)"
-        >
-            <mat-icon>drive_file_rename_outline</mat-icon>
-        </button>
+<app-in-header
+    [buttonBack]="true"
+    (onButtonBack)="goBack()"
+    [buttonSave]="true"
+    (onButtonSave)="save()"
+    [buttonCancel]="true"
+    (onButtonCancel)="reset()"
+    [customButton]="true"
+    [customButtonList]="[{icon:'bug_report', name:'Show JSON', disabled:false},{icon:'bug_report', name:'Show JSON meta data', disabled:false}]"
+    (onCustomButton)="customButtonBehavior($event)"
+>
+    <label>Workflow of </label><label>{{package}}</label><label>\</label><label>{{model}}</label>
+    <div *ngIf="need_save" class="title-holder">
+        <mat-icon class="warn-icon" >error</mat-icon>
+        <label>This workflow is malformed, save it from Workbench to fix it.</label>
     </div>
-    <div class="holder">
-        <mat-grid-list cols="12" rowHeight="100%">
-            <mat-grid-tile [colspan]="sizeViewer" class="sizeanim">
-                <div sidepane class="marginel">
-                    <app-workflow-displayer
-                        [state]="state"
-                        [nodes]="nodes"
-                        [links]="links"
-                        [selectedNode]="selectedNode"
-                        [selectedLink]="selectedLink"
-                        (selectLink)="selectedLink = $event"
-                        (selectNode)="selectedNode = $event; log($event)"
-                        (requestState)="changeState($event)"
-                    >
-                    </app-workflow-displayer>
-                </div>
-            </mat-grid-tile>
-            <mat-grid-tile *ngIf="sizeEditor > 0"  [colspan]="sizeEditor" class="sizeanim">
-                <app-properties-editor
+    <div *ngIf="!exists" class="exists-holder">
+        <mat-icon class="warn-icon" >warning</mat-icon>
+        <label>This model has no workflow. Maybe you are looking for it's <a (click)="navigateToParent()">parent workflow</a> ?</label>
+    </div>
+</app-in-header>
+<div class="modecontainer">
+    <button mat-flat-button 
+        [class.mode-selected]="['normal'].includes(this.state)"
+        (click)="changeState('normal')"
+    >
+        <mat-icon>preview</mat-icon>
+        <label class="spaceleft">view</label>
+    </button>
+    <button mat-flat-button 
+        [class.mode-selected]="['linking-from','linking-to'].includes(this.state)"
+        (click)="requestLinkFrom()"
+    >
+        <mat-icon>add_link</mat-icon>
+        <label class="spaceleft">Add transition</label>
+    </button>
+    <button
+        mat-flat-button
+        [class.mode-selected]="['create-node'].includes(this.state)"
+        (click)="changeState('create-node')"
+    >
+        <mat-icon>control_point</mat-icon>
+        <label class="spaceleft">Add state</label>
+    </button>
+    <button
+        [class.mode-selected]="['edit-link','edit-to','edit-from'].includes(this.state)"
+        mat-flat-button (click)="changeState('edit-link')"
+    >
+        <mat-icon>link</mat-icon>
+        <label class="spaceleft">Edit Transition</label>
+    </button>
+    <button
+        mat-flat-button
+        [class.mode-selected]="['edit-node'].includes(this.state)"
+        (click)="changeState('edit-node')"
+    >
+        <mat-icon>drive_file_rename_outline</mat-icon>
+        <label class="spaceleft">Edit state</label>
+    </button>
+</div>
+<div class="holder">
+    <mat-grid-list cols="12" rowHeight="100%">
+        <mat-grid-tile [colspan]="sizeViewer" class="sizeanim">
+            <div sidepane class="marginel">
+                <app-workflow-displayer
+                    [state]="state"
+                    [nodes]="nodes"
+                    [links]="links"
                     [selectedNode]="selectedNode"
                     [selectedLink]="selectedLink"
-                    [links]="links"
-                    [nodes]="nodes"
-                    [state]="state"
+                    (selectLink)="selectedLink = $event"
+                    (selectNode)="selectedNode = $event; log($event)"
                     (requestState)="changeState($event)"
-                    (requestDeleteLink)="deleteLink()"
-                ></app-properties-editor>
-            </mat-grid-tile>
-        </mat-grid-list>
-    </div>
+                >
+                </app-workflow-displayer>
+            </div>
+        </mat-grid-tile>
+        <mat-grid-tile *ngIf="sizeEditor > 0"  [colspan]="sizeEditor" class="sizeanim">
+            <app-properties-editor
+                [selectedNode]="selectedNode"
+                [selectedLink]="selectedLink"
+                [links]="links"
+                [nodes]="nodes"
+                [state]="state"
+                [modelName]="model"
+                [packageName]="package"
+                [model_schema]="model_scheme"
+                (requestState)="changeState($event)"
+                (requestDeleteLink)="deleteLink()"
+                (requestDeleteNode)="deleteNode()"
+            ></app-properties-editor>
+        </mat-grid-tile>
+    </mat-grid-list>
 </div>

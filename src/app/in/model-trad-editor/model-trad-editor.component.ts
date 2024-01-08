@@ -10,6 +10,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { prettyPrintJson } from 'pretty-print-json';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { Menu } from '../menu/_object/Menu';
 
 @Component({
   selector: 'app-model-trad-editor',
@@ -62,7 +63,46 @@ export class ModelTradEditorComponent implements OnInit {
     }
     this.package = a
     this.model = b
-    await this.init()
+    switch(this.entitype) {
+      case 'menu' :
+        await this.menuInit()
+        break
+      default :
+        await this.init()
+        break
+    }
+  }
+
+  async menuInit() {
+    this.loading = true
+    let langs = await this.api.getTradsLists(this.package,"menu."+this.model)
+    console.log(langs)
+    for(let lang in langs) {
+      if(langs[lang].length === 0) continue
+      let x = await this.api.getTrads(this.package,"menu."+this.model,lang)
+      if(!x) {
+        console.log("x is null")
+        continue
+      }
+      console.log(x)
+
+      let temp = await this.createNewMenuLang()
+
+      if(!temp.ok) {
+        console.log("temp_is_not_ok")
+        continue
+      }
+
+      this.data[lang] = temp
+      console.log(this.data)
+      this.data[lang].fill(x)
+      console.log(this.data)
+      if (this.obk(this.data).length > 0) {
+        this.lang = this.obk(this.data)[0]
+      }
+      console.log(this.lang)
+    }
+    this.loading = false
   }
 
   async init() {
@@ -96,6 +136,15 @@ export class ModelTradEditorComponent implements OnInit {
     }
     console.log(this.lang)
     this.loading = false
+  }
+
+  public async createNewMenuLang() {
+    let scheme = await this.api.getView(this.package+"\\menu",this.model)
+    console.log(scheme)
+    
+    return Translator.MenuConstructor(new Menu(scheme))
+
+    
   }
 
   public async createNewLang() {
@@ -153,7 +202,7 @@ export class ModelTradEditorComponent implements OnInit {
       this.snack.open("This model already have a traduction file for this language.","ERROR")
       return
     }
-    this.data[this.lang_name.value] = await this.createNewLang()
+    this.data[this.lang_name.value] = this.entitype === 'menu' ? await this.createNewMenuLang() : await this.createNewLang()
     this.adding_language = false
     this.lang = this.lang_name.value
     this.lang_name.setValue("")
@@ -198,7 +247,7 @@ export class ModelTradEditorComponent implements OnInit {
   }
 
   saveall() {
-    this.api.saveTrads(this.package,this.model,this.data)
+    this.api.saveTrads(this.package,(this.entitype === "menu" ? "menu." : "") + this.model,this.data)
   }
 
 }

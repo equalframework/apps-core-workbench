@@ -13,6 +13,11 @@
     .anchor {
         cursor: pointer;
         position:absolute;
+        opacity: 0.6;
+    }
+
+    .anchor:hover {
+        opacity: 1;
     }
 
     .bottom-button {
@@ -68,4 +73,12 @@
 
 .selected {
     background-color: mat-color($maincolor,A100);
+}
+
+.editbutton {
+    position : absolute;
+    right : 0;
+    top : 0;
+    transform: scale(0.8) translate(40%,-40%);
+    
 }

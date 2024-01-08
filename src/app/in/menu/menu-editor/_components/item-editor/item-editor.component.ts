@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation } from '@angular/core';
 import { MenuItem } from '../../../_object/Menu';
+import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-item-editor',
@@ -36,6 +37,20 @@ export class ItemEditorComponent implements OnInit {
 
   deleteChild(index:number) {
     this.item.children.splice(index,1)
+  }
+
+
+  drop(event: CdkDragDrop<MenuItem[]>) {
+    if (event.previousContainer === event.container) {
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    } else {
+      transferArrayItem(
+        event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex,
+      );
+    }
   }
 
 }

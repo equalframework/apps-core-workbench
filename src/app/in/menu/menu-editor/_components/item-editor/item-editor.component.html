@@ -4,7 +4,8 @@
         <label class="item-label" [class.reduce]="item.icon" [class.parent]="['parent'].includes(item.type)">{{item.label}}</label>
         <mat-icon *ngIf="['parent'].includes(item.type)">expand_more</mat-icon>
     </div>
-    <div class="separator"></div>
+    <div class="separator">
+    </div>
     <div style="background-color: whitesmoke; height: 100%;">
         <button mat-icon-button color="primary" [mat-menu-trigger-for]="menu"><mat-icon >more_vert</mat-icon></button>
         <mat-menu #menu="matMenu">
@@ -25,8 +26,12 @@
         </mat-menu>
     </div>
 </div>
-<div *ngIf="item.type === 'parent'" class="indent" [class.selected]="selected_item && selected_item === item">
-    <app-item-editor  *ngFor="let child of item.children; index as i"
+<div *ngIf="item.type === 'parent'" class="indent" [class.selected]="selected_item && selected_item === item"
+    cdkDropList
+    [cdkDropListData]="item.children"
+    (cdkDropListDropped)="drop($event)"
+>
+    <app-item-editor cdkDrag  *ngFor="let child of item.children; index as i"
         [item]="child"
         [selected_item]="selected_item"
         (select)="select.emit($event)"

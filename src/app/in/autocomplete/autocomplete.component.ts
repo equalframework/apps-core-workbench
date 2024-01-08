@@ -60,8 +60,8 @@ export class AutocompleteComponent implements OnInit {
   } 
 
   reset() {
-    this.valueControl.setValue(this.value,{emitEvent:false})
-    this.f_values = this.values.filter((item:string) => item.toLowerCase().includes(this.valueControl.value.toLowerCase()))
+      this.valueControl.setValue(this.value,{emitEvent:false})
+      this.f_values = this.values.filter((item:string) => item.toLowerCase().includes(this.valueControl.value.toLowerCase()))
   }
 
 }

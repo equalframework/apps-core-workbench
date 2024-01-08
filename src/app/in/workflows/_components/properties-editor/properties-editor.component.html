@@ -2,7 +2,9 @@
 <div class="context-menu">
     <div *ngIf="state === 'edit-link'" class="full">
         <div *ngIf="selectedLink < 0">
-            <label>Select a link to see its properties</label>
+            <div class="full" style="display:flex; align-items: center; justify-content: center;">
+                <label>Select a link to see its properties</label>
+            </div>
         </div>
         <div *ngIf="selectedLink >= 0" class="full">
             <div class="link-title flexcenter">
@@ -22,24 +24,52 @@
                     [value]="links[selectedLink].description"
                     (changed)="links[selectedLink].description = $event"
                 ></app-type-input>
-                <app-type-input
-                    type="string"
-                    name="help"
-                    [value]="links[selectedLink].help"
-                    (changed)="links[selectedLink].help = $event"
-                ></app-type-input>
-                <app-type-input
-                    type="array"
-                    name="Watch"
-                    [value]="links[selectedLink].watch"
-                    (changed)="links[selectedLink].watch = $event"
-                ></app-type-input>
+                <mat-form-field style="width: 100%;">
+                    <mat-label>help</mat-label>
+                    <textarea rows="5" style="resize: none;"  matInput [(ngModel)]="links[selectedLink].help"></textarea>
+                </mat-form-field>
                 <app-type-input
                     type="string"
                     name="OnAfter"
                     [value]="links[selectedLink].onafter"
                     (changed)="links[selectedLink].onafter = $event"
                 ></app-type-input>
+                <mat-divider></mat-divider>
+                <div>
+                    <label>Watch</label><br>
+                    <app-autocomplete
+                        name="add watcher"
+                        [(value)]="inputwatch"
+                        [values]="ACField"
+                        (keydown.enter)="addWatcher()"
+                    >
+                    </app-autocomplete>
+                    <button mat-icon-button (click)="addWatcher()"><mat-icon>add</mat-icon></button><br>
+                    <div class="chips-holder">
+                        <div class="chips" *ngFor="let watcher of links[selectedLink].watch; index as index">
+                            {{watcher}}
+                            <button class="deletebutton" (click)="deleteWatcher(index)" mat-icon-button><mat-icon>close</mat-icon></button>
+                        </div>
+                    </div>
+                </div>
+                <mat-divider></mat-divider>
+                <div>
+                    <label>Policies</label><br>
+                    <mat-form-field>
+                        <input matInput
+                            [(ngModel)]="inputPolicy"
+                            (keydown.enter)="addWatcher()"
+                        >
+                    </mat-form-field>
+                    <button mat-icon-button (click)="addPolicy()"><mat-icon>add</mat-icon></button><br>
+                    <div class="chips-holder">
+                        <div class="chips" *ngFor="let policy of links[selectedLink].policies; index as index">
+                            {{policy}}
+                            <button class="deletebutton" (click)="deletePolicy(index)" mat-icon-button><mat-icon>close</mat-icon></button>
+                        </div>
+                    </div>
+                </div>
+                <mat-divider></mat-divider>
                 <div style="overflow-x: scroll;">
                     <app-property-domain-component 
                         [class]="'core\\User'"
@@ -47,10 +77,49 @@
                         [can_have_env]="false"
                     ></app-property-domain-component>
                 </div>
+               
             </div>
         </div>
     </div>
     <div *ngIf="state === 'create-node'">
-        CREATE NODE
+        <div class="full" style="display:flex; align-items: center; justify-content: center;">
+            Click on blank spaces to create a new node
+        </div>
+    </div>
+    <div *ngIf="state === 'edit-node'">
+        <div *ngIf="selectedNode < 0">
+            <div class="full" style="display:flex; align-items: center; justify-content: center;">
+                <label>Select a node to see its properties</label>
+            </div>
+        </div>
+        <div *ngIf="selectedNode >= 0" class="full">
+            <div class="link-title flexcenter">
+                <button mat-flat-button color="warn" (click)="requestDeleteNode.emit()">delete node</button>
+            </div>
+            <div class="scroll link-content">
+                <app-type-input
+                    type="string"
+                    name="Name"
+                    [value]="nodes[selectedNode].name"
+                    (changed)="nodes[selectedNode].name = $event"
+                ></app-type-input>
+                <app-type-input
+                    type="string"
+                    name="Icon"
+                    [value]="nodes[selectedNode].icon"
+                    (changed)="nodes[selectedNode].icon = $event"
+                ></app-type-input>
+                <app-type-input
+                    type="string"
+                    name="description"
+                    [value]="nodes[selectedNode].description"
+                    (changed)="nodes[selectedNode].description = $event"
+                ></app-type-input>
+                <mat-form-field style="width: 100%;">
+                    <mat-label>help</mat-label>
+                    <textarea rows="5" style="resize: none;"  matInput [(ngModel)]="nodes[selectedNode].help"></textarea>
+                </mat-form-field>
+            </div>
+        </div>
     </div>
 </div>

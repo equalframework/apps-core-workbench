@@ -248,10 +248,10 @@
 
 
 ::ng-deep .mat-select-panel {
-    max-height: 20em !important;
+    max-height: 25em !important;
 }
 
 
-::ng-deep .mat-list-item-content {
+::ng-deep .mixed-searchbar .mat-list-item-content {
     padding: 0 5px !important;
 }

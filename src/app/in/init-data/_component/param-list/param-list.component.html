@@ -1,0 +1,32 @@
+<div>
+    <mat-form-field class="filterinput">
+        <mat-icon matPrefix>filter_list</mat-icon>
+        <mat-label>Filter</mat-label>
+        <input matInput [formControl]="filterControl">
+    </mat-form-field>
+</div>
+<mat-list class="list">
+    <!--- I am using indexof instead using index as index here because the filtered and sorted list index an the real list index are not the same -->
+    <mat-list-item *ngFor="let item of filteredList" class="item" (click)="onClickItem(list.indexOf(item))" [class.selected]="this.selectedIndex === list.indexOf(item)">
+        <div class="name">
+            <label *ngIf="renamedItem !== list.indexOf(item)">{{item.name}}</label>
+            <mat-form-field style="width: 100%;" *ngIf="renamedItem === list.indexOf(item)">
+                <input matInput [(ngModel)]="renameValue" (keydown.enter)="!renameValue || renameValue === '.json' ? null : rename()">
+            </mat-form-field>
+        </div>
+        <div *ngIf="renamedItem !== list.indexOf(item)" class="button">
+            <button mat-icon-button (click)="renameItem(list.indexOf(item))"><mat-icon>edit</mat-icon></button>
+            <button mat-icon-button (click)="deleteItem(list.indexOf(item))"><mat-icon>delete</mat-icon></button>
+        </div>
+        <div *ngIf="renamedItem === list.indexOf(item)" class="button">
+            <button mat-icon-button [disabled]="!renameValue || renameValue === '.json'" (click)="rename()"><mat-icon>done</mat-icon></button>
+            <button mat-icon-button (click)="cancel()"><mat-icon>close</mat-icon></button>
+        </div>
+    </mat-list-item>
+</mat-list>
+<div class="creator">
+    <mat-form-field class="fieldcreate">
+        <input matInput [formControl]="createControl" (keydown.enter)="createItem()">
+    </mat-form-field>
+    <button class="buttoncreate" (click)="createItem()"><mat-icon>add</mat-icon> Param</button>
+</div>

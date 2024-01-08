@@ -1,0 +1,14 @@
+<app-popup-layout
+    (close)="dialogRef.close('')"
+    [okButton]="true"
+    okButtonText="create"
+    (ok)="dialogRef.close(selectedModel)"
+>
+    <app-autocomplete
+        [value]="selectedModel"
+        (valueChange)="selectedModel = $event"
+        [values]="fmodel"
+        name="Entity"
+    >
+    </app-autocomplete>
+</app-popup-layout>

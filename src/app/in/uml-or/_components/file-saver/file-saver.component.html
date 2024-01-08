@@ -1,0 +1,19 @@
+<app-popup-layout
+    [okButton]="true"
+    okButtonText="save"
+    [okButtonDisabled]="control.invalid"
+    (close)="dialogRef.close(null)"
+    (ok)="dialogRef.close(control.value)"
+>
+    <div class="content">
+        <label>Save as ...</label>
+        <br>
+        <mat-form-field class="long">
+            <input matInput [formControl]="control" [matAutocomplete]="auto">
+            <mat-error *ngIf="control.invalid">file needs to have the form with package_name::file_name</mat-error>
+            <mat-autocomplete #auto >
+                <mat-option *ngFor="let files of filtered_list" [value]="files">{{files}}</mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
+    </div>
+</app-popup-layout>
