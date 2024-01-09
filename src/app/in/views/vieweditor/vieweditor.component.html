@@ -100,7 +100,7 @@
                                         <div class="itemprez">
                                             <mat-icon cdkDragHandle>drag_indicator</mat-icon>
                                             <div class="typeicon">
-                                                <mat-icon>{{icontype[class_scheme.fields[item.value].type]}}</mat-icon>
+                                                <mat-icon>{{class_scheme.fields[item.value] ? icontype[class_scheme.fields[item.value].type] : ""}}</mat-icon>
                                             </div>
                                             {{item.label.trim() !== "" && item.type === "field" ? item.label.trim() : ToNameDisp(item.value)}}
                                         </div>

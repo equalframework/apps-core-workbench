@@ -7,7 +7,7 @@ import { MatPaginatorDefaultOptions, PageEvent } from '@angular/material/paginat
 import { cloneDeep, isObject } from 'lodash';
 import { MatDialog } from '@angular/material/dialog';
 import { InitPopupEditorComponent } from '../init-popup-editor/init-popup-editor.component';
-import { SortValue } from '@material/data-table';
+//import { SortValue } from '@material/data-table';
 import { EntityDialogComponent } from '../entity-dialog/entity-dialog.component';
 import { MatTab, MatTabChangeEvent } from '@angular/material/tabs';
 import { LangPopupComponent } from '../lang-popup/lang-popup.component';
