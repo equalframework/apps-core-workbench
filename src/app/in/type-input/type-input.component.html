@@ -2,7 +2,7 @@
     <mat-label>{{name}}</mat-label>
     <input [disabled]="disabled" matInput type="number" [value]="value" (keydown)="noCancel($event)" (change)="changed.emit($event.target.value)">
 </mat-form-field>
-<mat-form-field class="fullo" *ngIf="type === 'string'">
+<mat-form-field class="fullo" *ngIf="type === 'string' || type === 'text'">
     <mat-label>{{name}}</mat-label>
     <input [disabled]="disabled" matInput [value]="value  ? value : ''" (keydown)="noCancel($event)" (change)="changed.emit($event.target.value)">
 </mat-form-field>

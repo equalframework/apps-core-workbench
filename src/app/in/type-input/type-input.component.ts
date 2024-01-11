@@ -94,7 +94,7 @@ export class TypeInputComponent implements OnInit,OnChanges {
   get cannotBeDisplayed() {
     return this.type !== "string" && this.type !== 'integer' && this.type !== 'float' && this.type !== 'array' && this.type !== 'date'
       && this.type !== 'datetime' && this.type !== 'time' && this.type !== 'boolean' && this.type !== "many2many" &&  this.type !== "one2many"
-      &&  this.type !== "many2one"
+      &&  this.type !== "many2one" && this.type !== 'text'
   }
 
 }

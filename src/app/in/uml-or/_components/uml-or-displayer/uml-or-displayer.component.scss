@@ -1,7 +1,6 @@
 :host {
     width: 100%;
     height : 100%;
-
 }
 
 .strings {
@@ -17,6 +16,7 @@
     top: 0.5em;
     width: calc(100% - 1em);
     height: calc(100% - 1em);
+    overflow: hidden;
 }
 
 .dragelement {
