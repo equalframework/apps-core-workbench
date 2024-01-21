@@ -77,13 +77,22 @@
 }
 
 .content-label {
-    font-size: 1.3em !important; 
+    font-size: 1.3em !important;
 }
 
 .content-desc {
     font-size: 1em;
     border-radius: 5px;
 }
+
+.content-container {
+    position: relative;
+
+    .content-action {
+        position:absolute; right: 11px; top: 1px;
+    }
+}
+
 
 .params-container {
 
@@ -200,12 +209,18 @@ pre {
     background-color: white;
     border: 1px solid silver;
     padding: .5em;
+    margin: 0 !important;
+    width: 100% !important;
 }
 
 .core-prez {
     overflow-y: scroll;
     height: calc(100% - 60px - 4em);
     overflow-x: hidden;
+}
+
+.section-wrapper {
+    margin: 10px 15px;
 }
 
 .title-controller {

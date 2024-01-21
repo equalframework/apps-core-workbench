@@ -44,30 +44,30 @@
                             {{this.class_scheme['fields'][key]['description']}}
                         </mat-panel-description>
                         <div *ngIf="fieldHasProp(key)" class="field-prop-container">
-                            <span 
-                                *ngIf="this.class_scheme['fields'][key]['required']" 
-                                class='material-icons preicon'
+                            <span
+                                *ngIf="this.class_scheme['fields'][key]['required']"
+                                class="field-prop"
                                 title="{{key}} is required"
                             >
-                                priority_high
+                                <span class="material-icons preicon">priority_high</span>
                             </span>
-                            <span 
-                                *ngIf="this.class_scheme['fields'][key]['readonly']" 
-                                class='material-icons preicon'
+                            <span
+                                *ngIf="this.class_scheme['fields'][key]['readonly']"
+                                class="field-prop"
                                 title="{{key}} is readonly"
                             >
-                                do_not_touch
+                                <span class="material-icons preicon">do_not_touch</span>
                             </span>
-                            <span 
-                                *ngIf="this.class_scheme['fields'][key]['multilang']" 
-                                class='material-icons preicon'
+                            <span
+                                *ngIf="this.class_scheme['fields'][key]['multilang']"
+                                class="field-prop"
                                 title="{{key}} is multilang"
                             >
-                                translate
+                                <span class="material-icons preicon">translate</span>
                             </span>
-                            <div 
-                                *ngIf="this.class_scheme['fields'][key]['unique']" 
-                                class='field-unique-prop'
+                            <div
+                                *ngIf="this.class_scheme['fields'][key]['unique']"
+                                class="field-prop unique"
                                 title="{{key}} is unique"
                             >
                                 <label class="pre-label-bold">1</label>

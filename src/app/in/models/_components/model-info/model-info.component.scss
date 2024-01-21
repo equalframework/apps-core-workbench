@@ -112,14 +112,6 @@
     width: 1em;
 }
 
-.field-unique-prop {
-    width: 1.5em;
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    font-size: 1.2em;
-}
-
 .field-class-p1,.field-class-p2 {
     height: 2.5em;
     display: flex;
@@ -128,13 +120,25 @@
 
 .field-prop-container {
     display: flex;
-    border-radius: 10px;
-    min-width: 3em;
-    justify-content: center;
-    padding: 0em .5em;
     margin-left: auto;
     margin-right: 1em;
-    background-color: mat-color($accentcolor,A100);
+    height: 24px;
+    align-items: center;
+
+    .field-prop {
+        display: flex;
+        border-radius: 10px;
+        justify-content: center;
+        padding: 0 3px;
+        width: 40px;
+        height: 100%;
+        margin-left: 4px;
+        background-color: mat-color($accentcolor,A100);
+
+        &.unique {
+            font-size: 100%;
+        }
+    }
 }
 
 a.sub-part-title{

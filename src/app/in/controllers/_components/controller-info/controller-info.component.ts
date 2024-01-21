@@ -313,13 +313,13 @@ export class ControllerInfoComponent implements OnInit {
 
     public successCopyClipboard(success: boolean) {
         if (success) {
-            this.snackBar.open('Successfully copy', '', {
+            this.snackBar.open('Successfully copied to clipboard', '', {
                 duration: 1000,
                 horizontalPosition: 'left',
                 verticalPosition: 'bottom'
             });
         } else {
-            this.snackBar.open('Failed to copy to clipboard', '', {
+            this.snackBar.open('Unable to copy to clipboard', 'ERROR', {
                 duration: 1000,
                 horizontalPosition: 'left',
                 verticalPosition: 'bottom'
