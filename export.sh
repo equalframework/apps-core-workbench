@@ -1,2 +1,2 @@
 #!/bin/bash
-rm ../web.app; rm ../manifest.json; cp web.app ../web.app; cp manifest.json ../manifest.json
+rm ../web.app; rm ../manifest.json; cp web.app ../web.app; cp manifest.json ../manifest.json; cp version ../version
