@@ -12,7 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HeaderModule } from '../_components/header/header.module';
-import { TypeInputModule } from '../type-input/type-input.module';
+import { TypeInputModule } from '../_components/type-input/type-input.module';
 import { AutocompleteModule } from '../_components/autocomplete/autocomplete.module';
 import { PropertyDomainModule } from '../_components/property-domain-component/property-domain.module';
 import { MatCheckboxModule } from '@angular/material/checkbox';

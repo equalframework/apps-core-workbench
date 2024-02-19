@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { AbstractControl, FormControl, ValidationErrors } from '@angular/forms';
 import { emit } from 'process';
-import { FieldClass } from '../models/_object/FieldClass';
+import { FieldClass } from '../../models/_object/FieldClass';
 
 @Component({
   selector: 'app-type-input',

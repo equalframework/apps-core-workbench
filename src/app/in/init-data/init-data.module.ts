@@ -16,7 +16,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { InitSidepaneComponent } from './_component/init-sidepane/init-sidepane.component';
 import { InitPopupEditorComponent } from './_component/init-popup-editor/init-popup-editor.component';
 import { PopupLayoutModule } from '../_components/popup-layout/popup-layout.module';
-import { TypeInputModule } from '../type-input/type-input.module';
+import { TypeInputModule } from '../_components/type-input/type-input.module';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';

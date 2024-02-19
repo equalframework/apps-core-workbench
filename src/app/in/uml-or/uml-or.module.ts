@@ -15,7 +15,7 @@ import { PropertiesEditorComponent } from './_components/properties-editor/prope
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { TypeInputModule } from '../type-input/type-input.module';
+import { TypeInputModule } from '../_components/type-input/type-input.module';
 import { PropertyDomainModule } from '../_components/property-domain-component/property-domain.module';
 import { MatDividerModule } from '@angular/material/divider';
 import { UMLORNodeComponent } from './_components/uml-or-node/uml-or-node.component';

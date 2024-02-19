@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Usage } from '../controllers/_components/params-editor/_objects/Params';
+import { Usage } from '../../controllers/_components/params-editor/_objects/Params';
 import { TypeUsageService } from 'src/app/_services/type-usage.service';
 
 @Component({

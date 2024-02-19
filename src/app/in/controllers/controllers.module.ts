@@ -21,9 +21,9 @@ import { DeleteConfirmationModule } from '../delete-confirmation/delete-confirma
 import { ParamsEditorComponent } from './_components/params-editor/params-editor.component';
 import { ParamListComponent } from './_components/params-editor/_components/param-list/param-list.component';
 import { ParamSidePaneComponent } from './_components/params-editor/_components/param-side-pane/param-side-pane.component';
-import { UsagesModule } from '../usages/usages.module';
+import { UsagesModule } from '../_components/usages/usages.module';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { TypeInputModule } from '../type-input/type-input.module';
+import { TypeInputModule } from '../_components/type-input/type-input.module';
 import { PropertyDomainComponent2 } from './_components/params-editor/_components/param-side-pane/_component/property-domain-component/property-domain.component';
 import { AutoCompleteComponent } from './_components/params-editor/_components/param-side-pane/_component/property-domain-component/_components/auto-complete/auto-complete.component';
 import { ValueComponent } from './_components/params-editor/_components/param-side-pane/_component/property-domain-component/_components/value/value.component';

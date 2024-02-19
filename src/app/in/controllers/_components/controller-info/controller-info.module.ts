@@ -10,7 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { ControllerInfoComponent } from './controller-info.component';
 import { ResponseComponentSubmit } from '../response/response.component';
 import { PropertyDomainModule } from 'src/app/in/_components/property-domain-component/property-domain.module';
-import { TypeInputModule } from 'src/app/in/type-input/type-input.module';
+import { TypeInputModule } from 'src/app/in/_components/type-input/type-input.module';
 import { MatIconModule } from '@angular/material/icon';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { CommonModule } from '@angular/common';

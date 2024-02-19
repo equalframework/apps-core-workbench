@@ -43,7 +43,7 @@ import { RouteEditComponent } from './_components/route-editor/route-edit/route-
 import { AccessEditorComponent } from './_components/access-editor/access-editor.component';
 import { HeaderModule } from '../../_components/header/header.module';
 import { PopupLayoutModule } from '../../_components/popup-layout/popup-layout.module';
-import { UsagesModule } from '../../usages/usages.module';
+import { UsagesModule } from '../../_components/usages/usages.module';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatExpansionModule } from '@angular/material/expansion';
 
