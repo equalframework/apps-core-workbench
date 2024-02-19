@@ -74,17 +74,23 @@ You obviously need an instance of [**equal**](https://equal.run) correctly set u
 
 #### nodeJS
 
-First of all you will need a recent version of **node.js** (LTS version is preferred)
+First of all, you will need to use **node.js** 14.18 :
 
 * For linux of macOS users I recommend checking [this article](https://nodejs.org/en/download/package-manager).
 * For windows user, you can download the [installer](https://nodejs.org/en/download).
+
+If you already have **node.js**, you can use this command to install an other version :
+
+```bash
+nvm install 14.18
+``` 
 
 #### nodeJS dependencies
 
 when **node.js** is ready, just type theses commands :
 ```bash
-npm install -g @angular/cli
-npm install -g @angular/cdk
+npm install -g @angular/cli@13
+npm install -g @angular/cdk@13
 npm install -g @reactivex/rxjs
 ``` 
 
@@ -117,8 +123,8 @@ These are the existing routes to this day :
     * `views/:type/:entity` : `ViewModule`
     * `fields/:selected_package/:selected_class` : `FieldModule`
     * `routes` : `AppInRoutesModule`
-    * `controllers/:selected_package` : `AppInControllerModule`
-    * `models/:selected_package` : `AppInModelModule`
+    * `controllers/:selected_package` : `ControllersModule`
+    * `models/:selected_package` : `ModelsModule`
 
 ### API Calls
 

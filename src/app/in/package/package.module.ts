@@ -17,10 +17,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { PackageComponent } from './package.component';
 import { PackageRoutingModule } from './package-routing.module';
 import { PackageInfoComponent } from './_components/package-info/package-info.component';
-import { AppInModelsModule } from '../models/models.module';
+import { ModelsModule } from '../models/models.module';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { SearchMixedListComponent } from './_components/search-mixed-list/search-mixed-list.component';
-import { ModelsInfoModule } from '../models/_components/model-info/models-info.module';
+import { ModelsInfoModule } from '../_components/model-info/models-info.module';
 import { ControllerInfoModule } from '../controllers/_components/controller-info/controller-info.module';
 import { RouteInfoModule } from '../routes/_components/route-info/route-info.module';
 import { ViewsInfoModule } from '../views/_components/views-info/views-info.module';
@@ -29,11 +29,12 @@ import {  MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MixedCreatorModule } from './_components/mixed-creator/mixed-creator.module';
 import { DeleteConfirmationModule } from '../delete-confirmation/delete-confirmation.module';
 import { InitValidatorComponent } from './_components/package-info/_components/init-validator/init-validator.component';
-import { HeaderModule } from '../header/header.module';
+import { HeaderModule } from '../_components/header/header.module';
 import { MatChipsModule } from '@angular/material/chips';
-import { ClassicLayoutModule } from '../classic-layout/classic-layout.module';
-import { MenuModule } from '../menu/menu.module';
+import { ClassicLayoutModule } from '../_components/classic-layout/classic-layout.module';
+import { MenuEditorModule } from '../menu-editor/menu-editor.module';
 import { InitDataModule } from '../init-data/init-data.module';
+import { MenuInfoComponent } from './_components/menu-info/menu-info.component';
 
 
 @NgModule({
@@ -49,7 +50,7 @@ import { InitDataModule } from '../init-data/init-data.module';
         MatFormFieldModule,
         MatInputModule,
         MatIconModule,
-        AppInModelsModule,
+        ModelsModule,
         MatGridListModule,
         ModelsInfoModule,
         ControllerInfoModule,
@@ -62,7 +63,7 @@ import { InitDataModule } from '../init-data/init-data.module';
         HeaderModule,
         MatChipsModule,
         ClassicLayoutModule,
-        MenuModule,
+        MenuEditorModule,
         InitDataModule
     ],
     declarations: [
@@ -70,6 +71,7 @@ import { InitDataModule } from '../init-data/init-data.module';
         SearchMixedListComponent,
         PackageInfoComponent,
         InitValidatorComponent,
+        MenuInfoComponent
     ],
     providers: [
         DatePipe,

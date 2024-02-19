@@ -28,12 +28,15 @@ cd dep-files
 # Cloning dependencies from github
 git clone https://github.com/yesbabylon/symbiose-ui.git
 cd symbiose-ui
-git clone https://github.com/cedricfrancoys/equal-ui.git
+git checkout dev-2.0
+git pull
+git clone https://github.com/equalframework/equal-ui.git
 
 # Installing nodejs modules needed to compile symbiose-ui
 npm install
 # Compiling symbiose-ui
 cd sb-shared-lib
+npm install
 sh build.sh
 cd ..
 cd equal-ui
@@ -41,9 +44,9 @@ cd equal-ui
 npm install
 # Building equal-ui
 # If this part does not work, you may need to go back to node 14.18 to comply with SSL legacy support
-# sh build.sh
+sh build.sh
 sh export.sh
-npm link sb-shared-lib
+
 # You should good to go ! you can compile apps with the build.sh file in the app directory
 
 # REMINDER : To deploy the app in a Unix environment, you need to change the base-href

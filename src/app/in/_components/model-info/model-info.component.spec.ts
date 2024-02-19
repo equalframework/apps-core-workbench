@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
 import { ModelInfoComponent } from './model-info.component';
-import { WorkbenchService } from '../../_service/models.service';
+import { WorkbenchService } from '../../models/_service/models.service';
 import { of } from 'rxjs';
 
 describe('ModelInfoComponent', () => {

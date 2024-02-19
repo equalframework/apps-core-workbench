@@ -15,12 +15,12 @@ import { SearchListComponent } from './_components/search-list/search-list.compo
 import { SharedLibModule, CustomDateAdapter } from 'sb-shared-lib';
 import { ModelsComponent } from './models.component';
 import { ModelsRoutingModule } from './models-routing.module';
-import { ModelsInfoModule } from './_components/model-info/models-info.module';
-import { PropertyDomainModule } from '../property-domain-component/property-domain.module';
+import { ModelsInfoModule } from '../_components/model-info/models-info.module';
+import { PropertyDomainModule } from '../_components/property-domain-component/property-domain.module';
 import { MixedCreatorModule } from '../package/_components/mixed-creator/mixed-creator.module';
 import { DeleteConfirmationModule } from '../delete-confirmation/delete-confirmation.module';
-import { HeaderModule } from '../header/header.module';
-import { ClassicLayoutModule } from '../classic-layout/classic-layout.module';
+import { HeaderModule } from '../_components/header/header.module';
+import { ClassicLayoutModule } from '../_components/classic-layout/classic-layout.module';
 import { FieldEditorComponent } from './field-editor/field-editor.component';
 
 @NgModule({
@@ -49,4 +49,4 @@ import { FieldEditorComponent } from './field-editor/field-editor.component';
         { provide: DateAdapter, useClass: CustomDateAdapter, deps: [MAT_DATE_LOCALE, Platform] }
     ]
 })
-export class AppInModelsModule { }
+export class ModelsModule { }

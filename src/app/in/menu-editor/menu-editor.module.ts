@@ -1,23 +1,22 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MenuInfoComponent } from './menu-info/menu-info.component';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MenuEditorComponent } from './menu-editor/menu-editor.component';
-import { MenuRoutingModule } from './menu-routing.module';
-import { ItemEditorComponent } from './menu-editor/_components/item-editor/item-editor.component';
+import { MenuEditorComponent } from './menu-editor.component';
+import { MenuEditorRoutingModule } from './menu-editor-routing.module';
+import { ItemEditorComponent } from './_components/item-editor/item-editor.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HeaderModule } from '../header/header.module';
+import { HeaderModule } from '../_components/header/header.module';
 import { TypeInputModule } from '../type-input/type-input.module';
-import { AutocompleteModule } from '../autocomplete/autocomplete.module';
-import { PropertyDomainModule } from '../property-domain-component/property-domain.module';
+import { AutocompleteModule } from '../_components/autocomplete/autocomplete.module';
+import { PropertyDomainModule } from '../_components/property-domain-component/property-domain.module';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MultiAutocompleteModule } from '../multi-autocomplete/multi-autocomplete.module';
+import { MultiAutocompleteModule } from './_components/multi-autocomplete/multi-autocomplete.module';
 import { VieweditorModule } from '../views/vieweditor/vieweditor.module';
 import { MatDividerModule } from '@angular/material/divider';
 import { DragDropModule } from '@angular/cdk/drag-drop';
@@ -25,7 +24,6 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 
 @NgModule({
   declarations: [
-    MenuInfoComponent,
     MenuEditorComponent,
     ItemEditorComponent,
 
@@ -35,7 +33,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     MatGridListModule,
     MatIconModule,
     MatButtonModule,
-    MenuRoutingModule,
+    MenuEditorRoutingModule,
     MatMenuModule,
     MatFormFieldModule,
     MatInputModule,
@@ -53,7 +51,6 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     DragDropModule
   ],
   exports : [
-    MenuInfoComponent
   ]
 })
-export class MenuModule { }
+export class MenuEditorModule { }

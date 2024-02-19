@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FieldEditorRoutingModule } from './field-editor-routing.module';
-import { HeaderModule } from '../../header/header.module';
-import { ClassicLayoutModule } from '../../classic-layout/classic-layout.module';
+import { HeaderModule } from '../../_components/header/header.module';
+import { ClassicLayoutModule } from '../../_components/classic-layout/classic-layout.module';
 import { FieldEditorListComponent } from './_components/field-editor-list/field-editor-list.component';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
@@ -21,9 +21,9 @@ import { MatAutocomplete, MatAutocompleteModule } from '@angular/material/autoco
 import { MatCheckbox, MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { AppInControllersModule } from '../../controllers/controllers.module';
+import { ControllersModule } from '../../controllers/controllers.module';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { PropertyDomainModule } from '../../property-domain-component/property-domain.module';
+import { PropertyDomainModule } from '../../_components/property-domain-component/property-domain.module';
 import { MatProgressSpinnerModule, MatSpinner } from '@angular/material/progress-spinner';
 
 
@@ -55,7 +55,7 @@ import { MatProgressSpinnerModule, MatSpinner } from '@angular/material/progress
     MatCheckboxModule,
     MatTabsModule,
     MatSlideToggleModule,
-    AppInControllersModule,
+    ControllersModule,
     MatExpansionModule,
     PropertyDomainModule,
     MatProgressSpinnerModule

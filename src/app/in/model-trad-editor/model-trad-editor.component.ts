@@ -10,7 +10,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { prettyPrintJson } from 'pretty-print-json';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { Menu } from '../menu/_object/Menu';
+import { Menu } from '../menu-editor/_object/Menu';
 
 @Component({
   selector: 'app-model-trad-editor',

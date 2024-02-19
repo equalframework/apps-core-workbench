@@ -16,8 +16,8 @@ import { MixedCreatorModule } from '../package/_components/mixed-creator/mixed-c
 import { DeleteConfirmationModule } from '../delete-confirmation/delete-confirmation.module';
 import { ViewService } from './_services/view.service';
 import { HttpClientModule } from '@angular/common/http';
-import { HeaderModule } from '../header/header.module';
-import { ClassicLayoutModule } from '../classic-layout/classic-layout.module';
+import { HeaderModule } from '../_components/header/header.module';
+import { ClassicLayoutModule } from '../_components/classic-layout/classic-layout.module';
 
 
 

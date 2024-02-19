@@ -1,4 +1,4 @@
-import { Menu } from "../../menu/_object/Menu"
+import { Menu } from "../../menu-editor/_object/Menu"
 import { View } from "../../views/vieweditor/_objects/View"
 
 export class Translation {

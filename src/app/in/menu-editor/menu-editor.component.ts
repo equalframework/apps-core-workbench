@@ -1,11 +1,11 @@
 import { Component, Inject, OnInit, Optional } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
-import { Menu, MenuContext, MenuItem } from '../_object/Menu';
+import { Menu, MenuContext, MenuItem } from './_object/Menu';
 import { cloneDeep } from 'lodash';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ViewEditorServicesService } from '../../views/vieweditor/_services/view-editor-services.service';
+import { ViewEditorServicesService } from '../views/vieweditor/_services/view-editor-services.service';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { prettyPrintJson } from 'pretty-print-json';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';

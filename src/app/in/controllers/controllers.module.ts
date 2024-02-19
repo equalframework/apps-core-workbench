@@ -29,12 +29,12 @@ import { AutoCompleteComponent } from './_components/params-editor/_components/p
 import { ValueComponent } from './_components/params-editor/_components/param-side-pane/_component/property-domain-component/_components/value/value.component';
 import { ValueSelectionComponent } from './_components/params-editor/_components/param-side-pane/_component/property-domain-component/_components/value-selection/value-selection.component';
 import { MatRadioModule } from '@angular/material/radio';
-import { HeaderModule } from '../header/header.module';
-import { PropertyDomainModule } from '../property-domain-component/property-domain.module';
-import { ClassicLayoutModule } from '../classic-layout/classic-layout.module';
+import { HeaderModule } from '../_components/header/header.module';
+import { PropertyDomainModule } from '../_components/property-domain-component/property-domain.module';
+import { ClassicLayoutModule } from '../_components/classic-layout/classic-layout.module';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { ReturnTypeEditorComponent } from './_components/return-type-editor/return-type-editor.component';
-import { AutocompleteModule } from '../autocomplete/autocomplete.module';
+import { AutocompleteModule } from '../_components/autocomplete/autocomplete.module';
 
 
 @NgModule({
@@ -83,4 +83,4 @@ import { AutocompleteModule } from '../autocomplete/autocomplete.module';
         { provide: DateAdapter, useClass: CustomDateAdapter, deps: [MAT_DATE_LOCALE, Platform] }
     ]
 })
-export class AppInControllersModule { }
+export class ControllersModule { }

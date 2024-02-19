@@ -7,11 +7,11 @@ import { InitDataComponent } from '../init-data/init-data.component';
 const routes: Routes = [
   {
     path: 'models/:selected_package',
-    loadChildren: () => import('../models/models.module').then(m => m.AppInModelsModule)
+    loadChildren: () => import('../models/models.module').then(m => m.ModelsModule)
   },
   {
       path: 'controllers',
-      loadChildren: () => import('../controllers/controllers.module').then(m => m.AppInControllersModule)
+      loadChildren: () => import('../controllers/controllers.module').then(m => m.ControllersModule)
   },
   {
     path : 'fields/:selected_package/:selected_class',
@@ -39,7 +39,7 @@ const routes: Routes = [
   },
   {
     path : 'menu',
-    loadChildren : () => import('src/app/in/menu/menu.module').then(m => m.MenuModule)
+    loadChildren : () => import('src/app/in/menu-editor/menu-editor.module').then(m => m.MenuEditorModule)
   },
   {
     path : 'initdata/:type/:package',
@@ -54,7 +54,6 @@ const routes: Routes = [
       path: '**',
       component: PackageComponent
   },
-
 ];
 
 @NgModule({

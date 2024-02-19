@@ -71,7 +71,7 @@ app-menu-list-item.hidden {
 }
 
 
-.app-body .app-asidemenu {
+.app-body .app-sidemenu {
     display: flex;
     margin-top: 55px;
     flex-direction: column;
@@ -96,12 +96,12 @@ app-menu-list-item.hidden {
 }
 
 
-.app-body .app-asidemenu.show {
+.app-body .app-sidemenu.show {
     margin-right: 0;
 }
 
 
-.app-header, .app-asidemenu, .app-main, .app-sidebar {
+.app-header, .app-sidemenu, .app-main, .app-sidebar {
     transition: margin-left .25s,margin-right .25s,width .25s,flex .25s;
 }
 
