@@ -36,7 +36,7 @@
                 [value]="object.charset"
                 (changed)="changeCharset($event)"
             ></app-type-input>
-            <app-type-input 
+            <app-type-input
                 type="array"
                 name="accept-origin"
                 [value]="object.acceptOrigin"
@@ -46,7 +46,7 @@
     </div>
     <div class="part">
         <div class="part-title">
-            <label >descriptor</label>
+            <label>Schema</label>
         </div>
         <div class="part-content">
             <mat-form-field>
@@ -84,8 +84,8 @@
                 [values]="this.entities"
             ></app-autocomplete>
             <mat-slide-toggle style="margin-left: 1em;"
-                *ngIf="object.type === 'any'" 
-                [checked]="object._has_values" 
+                *ngIf="object.type === 'any'"
+                [checked]="object._has_values"
                 (change)="changeHasFormat($event.checked)"
             >
                 Format

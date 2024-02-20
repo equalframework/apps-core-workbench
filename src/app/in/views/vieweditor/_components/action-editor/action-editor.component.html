@@ -22,9 +22,9 @@
         </a>
     </mat-form-field>
     <mat-form-field class="longfield">
-        <input matInput placeholder="controller" 
-        [(ngModel)]="obj.controller" 
-        (keyup)="tap($event.target.value)" 
+        <input matInput placeholder="controller"
+        [(ngModel)]="obj.controller"
+        (keyup)="tap($event.target.value)"
         [matAutocomplete]="auto">
         <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
             <mat-option *ngFor="let option of filteredOptions" [value]="option">
@@ -39,7 +39,7 @@
     <mat-checkbox [(ngModel)]="obj.confirm">confirm</mat-checkbox>
     <mat-checkbox [(ngModel)]="obj._has_access" (ngModelChange)="changeBigDispBy(obj._has_access)">restrict access</mat-checkbox>
     <mat-checkbox *ngIf="obj._domainable" [(ngModel)]="obj._has_domain">visibility</mat-checkbox>
-    
+
     <button mat-button (click)="show_custom_params()"><mat-icon>settings</mat-icon>params</button>
 
     <button mat-icon-button (click)="deleteme()"><mat-icon>delete</mat-icon></button>

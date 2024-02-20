@@ -20,19 +20,19 @@ import { EnvService } from 'sb-shared-lib';
 /**
  * @description
  * This component is used to display information about controllers on the right of a search list.
- * 
+ *
  * @Input current_controller name of the controller to display
  * @Input controller_type type of the controller to display ('do' or 'get')
  * @Input scheme : announcement of the controller to display
  * @Input selected_package : package of current_controller
  * @Input fetch_error : indicate if the announce has been successfully fetched or not
- * @Input moving : indicate if navigation between type of element is posible (with goto)
- * 
+ * @Input moving : indicate if navigation between type of element is possible (with goto)
+ *
  * @Output goto : return an identifier for displaying a new element (here : a route)
- * 
+ *
  * @attribute paramsValue : dict that hold value of params entered by the user
  * @attribute presentRequiredParams : dict containing boolean indicating if a param is valid
- * @attribute canSubmit : indicate if the user is able to sumbit the action
+ * @attribute canSubmit : indicate if the user is able to submit the action
  * @attibute routes : list of all defined route of the equal instance
  * @attribute filtered_routes : list of all defined route of the equal instance that mention current_controller
  */
@@ -83,7 +83,7 @@ export class ControllerInfoComponent implements OnInit {
 
     /**
      * @description
-     * Init paramValue and presentRequiredParams dict, CanSubmit and retrieve routes 
+     * Init paramValue and presentRequiredParams dict, CanSubmit and retrieve routes
      */
     public initialization() {
         this.paramsValue = {};
@@ -113,7 +113,7 @@ export class ControllerInfoComponent implements OnInit {
     /**
      * @description
      * filter this.route by taking only routes that mention current_controller
-     * 
+     *
      * @returns the filtered array
      */
     public filterRoute():any {
@@ -139,7 +139,7 @@ export class ControllerInfoComponent implements OnInit {
     /**
      * @description
      * Send to parent the name of the new element to display if this.moving is true
-     * 
+     *
      * @param ev identifier of the element to display
      */
     public sendTo(ev:string) {
