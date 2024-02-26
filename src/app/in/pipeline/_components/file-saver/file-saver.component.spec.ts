@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { UMLORComponent } from './pipeline.component';
+import { FileSaverComponent } from './file-saver.component';
 
-describe('UMLORComponent', () => {
-  let component: UMLORComponent;
-  let fixture: ComponentFixture<UMLORComponent>;
+describe('FileSaverComponent', () => {
+  let component: FileSaverComponent;
+  let fixture: ComponentFixture<FileSaverComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [UMLORComponent]
+      declarations: [ FileSaverComponent ]
     })
-      .compileComponents();
+    .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(UMLORComponent);
+    fixture = TestBed.createComponent(FileSaverComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

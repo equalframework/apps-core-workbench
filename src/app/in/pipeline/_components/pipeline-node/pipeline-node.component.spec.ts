@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { UMLORComponent } from './pipeline.component';
+import { PipelineNodeComponent } from './pipeline-node.component';
 
-describe('UMLORComponent', () => {
-  let component: UMLORComponent;
-  let fixture: ComponentFixture<UMLORComponent>;
+describe('PipelineNodeComponent', () => {
+  let component: PipelineNodeComponent;
+  let fixture: ComponentFixture<PipelineNodeComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [UMLORComponent]
+      declarations: [PipelineNodeComponent]
     })
       .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(UMLORComponent);
+    fixture = TestBed.createComponent(PipelineNodeComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
