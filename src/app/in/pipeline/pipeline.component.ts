@@ -25,30 +25,21 @@ import { DialogConfirmComponent } from './_components/dialog-confirm/dialog-conf
 })
 export class PipelineComponent implements OnInit, OnChanges {
 
-  models: string[] = []
+  state: string = 'normal';
 
-  state: string = 'normal'
+  log = console.log;
 
-  log = console.log
+  nodes: UMLORNode[] = [];
 
-  nodes: UMLORNode[] = []
+  links: UMLORLink[] = [];
 
-  links: UMLORLink[] = []
+  selectedLink: number = -1;
 
-  selectedLink: number = -1
+  selectedNode: number = -1;
 
-  selectedNode: number = -1
+  view_offset: { x: number, y: number } = { x: 0, y: 0 };
 
-  package: string = ""
-  model: string = ""
-
-  model_scheme: any = {}
-
-  need_save: boolean = false
-
-  view_offset: { x: number, y: number } = { x: 0, y: 0 }
-
-  current_filename = ""
+  current_filename = "";
 
   changeState(state: string) {
     if (this.state !== state) {
@@ -63,20 +54,6 @@ export class PipelineComponent implements OnInit, OnChanges {
     }
   }
 
-
-
-  selected_class: string = ""
-  tabIndex: number = 1
-
-  color: { type: string, color: string }[] = []
-  w = 10
-  h = 10
-
-  selected_classes: string[] = ["core\\User"]
-
-  suits = [{ "source": "Microsoft", "target": "Amazon", "type": "licensing" }, { "source": "Microsoft", "target": "HTC", "type": "licensing" }, { "source": "Samsung", "target": "Apple", "type": "suit" }, { "source": "Motorola", "target": "Apple", "type": "suit" }, { "source": "Nokia", "target": "Apple", "type": "resolved" }, { "source": "HTC", "target": "Apple", "type": "suit" }, { "source": "Kodak", "target": "Apple", "type": "suit" }, { "source": "Microsoft", "target": "Barnes & Noble", "type": "suit" }, { "source": "Microsoft", "target": "Foxconn", "type": "suit" }, { "source": "Oracle", "target": "Google", "type": "suit" }, { "source": "Apple", "target": "HTC", "type": "suit" }, { "source": "Microsoft", "target": "Inventec", "type": "suit" }, { "source": "Samsung", "target": "Kodak", "type": "resolved" }, { "source": "LG", "target": "Kodak", "type": "resolved" }, { "source": "RIM", "target": "Kodak", "type": "suit" }, { "source": "Sony", "target": "LG", "type": "suit" }, { "source": "Kodak", "target": "LG", "type": "resolved" }, { "source": "Apple", "target": "Nokia", "type": "resolved" }, { "source": "Qualcomm", "target": "Nokia", "type": "resolved" }, { "source": "Apple", "target": "Motorola", "type": "suit" }, { "source": "Microsoft", "target": "Motorola", "type": "suit" }, { "source": "Motorola", "target": "Microsoft", "type": "suit" }, { "source": "Huawei", "target": "ZTE", "type": "suit" }, { "source": "Ericsson", "target": "ZTE", "type": "suit" }, { "source": "Kodak", "target": "Samsung", "type": "resolved" }, { "source": "Apple", "target": "Samsung", "type": "suit" }, { "source": "Kodak", "target": "RIM", "type": "suit" }, { "source": "Nokia", "target": "Qualcomm", "type": "suit" }]
-  test: { source: string, target: string, type: string }[] = []
-
   constructor(
     private api: EmbbedApiService,
     private router: RouterMemory,
@@ -89,10 +66,6 @@ export class PipelineComponent implements OnInit, OnChanges {
     UMLORNode.init(this.api)
     await this.init()
   }
-
-  has_meta_data: number | undefined = undefined
-
-  exists: boolean = false
 
   async init() {
     this.nodes = []
