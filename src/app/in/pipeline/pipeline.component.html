@@ -1,40 +1,28 @@
-<app-in-header [buttonSave]="true" (onButtonSave)="save()" [buttonCancel]="true" (onButtonCancel)="reset()"
-    [buttonLoad]="true" (onButtonLoad)="load()" [buttonNew]="true" (onButtonNew)="newFile()" [customButton]="true"
-    [customButtonList]="[{icon:'bug_report', name:'Show JSON', disabled:false},{icon:'print',name:'Print to PDF', disabled:false}]"
-    (onCustomButton)="customButtonBehavior($event)">
-    <label>Pipeline Controllers editor : {{current_filename ? current_filename : "new file"}}</label>
+<app-in-header [buttonBack]="true" (onButtonBack)="goBack()" [buttonLoad]="true" (onButtonLoad)="load()"
+    [buttonNew]="true" (onButtonNew)="newFile()" [buttonSave]="true" (onButtonSave)="save()" [buttonCancel]="true"
+    (onButtonCancel)="reset()">
+    <label>Pipeline editor</label>
 </app-in-header>
-<div class="modecontainer">
-    <button mat-flat-button [class.mode-selected]="['normal'].includes(this.state)" (click)="changeState('normal')">
+<div class="mode-container">
+    <button mat-flat-button (click)="setState('view')" [class.mode-selected]="['view'].includes(this.state)">
         <mat-icon>preview</mat-icon>
         <label class="spaceleft">View</label>
     </button>
-    <button mat-flat-button [class.mode-selected]="['create-node'].includes(this.state)"
-        (click)="changeState('create-node')">
+    <button mat-flat-button (click)="setState('add-controller')"
+        [class.mode-selected]="['add-controller'].includes(this.state)">
         <mat-icon>control_point</mat-icon>
-        <label class="spaceleft">Add Controller</label>
-    </button>
-    <button mat-flat-button [class.mode-selected]="['edit-node'].includes(this.state)"
-        (click)="changeState('edit-node')">
-        <mat-icon>drive_file_rename_outline</mat-icon>
-        <label class="spaceleft">Edit Controller display</label>
+        <label class="spaceleft">Add controller</label>
     </button>
 </div>
 <div class="holder">
-    <mat-grid-list cols="12" rowHeight="100%">
+    <mat-grid-list cols="12" rowHeight="82%" gutterSize="10px">
         <mat-grid-tile [colspan]="sizeViewer" class="sizeanim">
-            <div sidepane class="marginel">
-                <app-pipeline-displayer [state]="state" [nodes]="nodes" [links]="links" [selectedNode]="selectedNode"
-                    [selectedLink]="selectedLink" (selectLink)="selectedLink = $event"
-                    (selectNode)="selectedNode = $event; log($event)" (requestState)="changeState($event)"
-                    [offset]="view_offset">
-                </app-pipeline-displayer>
-            </div>
+            <app-pipeline-displayer>
+            </app-pipeline-displayer>
         </mat-grid-tile>
         <mat-grid-tile *ngIf="sizeEditor > 0" [colspan]="sizeEditor" class="sizeanim">
-            <app-properties-editor [state]="state" [nodes]="nodes" [selectedNode]="selectedNode"
-                (addNode)="addNode($event)" (deleteNode)="deleteNode($event)"
-                (needRefresh)="refresh()"></app-properties-editor>
+            <app-properties-editor [state]="state" (addNode)="addNode($event)">
+            </app-properties-editor>
         </mat-grid-tile>
     </mat-grid-list>
 </div>

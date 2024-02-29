@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { UMLORDisplayerComponent } from './pipeline-displayer.component';
+import { WorkflowDisplayerComponent } from './pipeline-displayer.component';
 
 describe('WorkflowDisplayerComponent', () => {
-  let component: UMLORDisplayerComponent;
-  let fixture: ComponentFixture<UMLORDisplayerComponent>;
+  let component: WorkflowDisplayerComponent;
+  let fixture: ComponentFixture<WorkflowDisplayerComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [UMLORDisplayerComponent]
+      declarations: [WorkflowDisplayerComponent]
     })
       .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(UMLORDisplayerComponent);
+    fixture = TestBed.createComponent(WorkflowDisplayerComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

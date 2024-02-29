@@ -1,90 +1,118 @@
-import { Component, Input, OnInit, Output, EventEmitter, OnChanges } from '@angular/core';
-import { UMLORNode } from '../pipeline-displayer/_objects/UMLORNode';
-import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
+import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { ApiService } from 'sb-shared-lib';
 
 @Component({
   selector: 'app-properties-editor',
   templateUrl: './properties-editor.component.html',
   styleUrls: ['./properties-editor.component.scss']
 })
-export class PropertiesEditorComponent implements OnInit, OnChanges {
-  @Input() state: string = ""
-  @Input() nodes: UMLORNode[] = []
-  @Input() selectedNode: number = -1
-  @Output() addNode = new EventEmitter<string>()
-  @Output() deleteNode = new EventEmitter<number>()
-  @Output() needRefresh = new EventEmitter<void>()
-  models: string[] = []
-  hiddenvalue: string = ""
-  selectable_models: string[] = []
-  value: string = ""
-  dp: string[] = []
+export class PropertiesEditorComponent implements OnInit {
+  @Input() state: string = "";
+
+  public searchType: string = "All";
+
+  public searchTypes: string[] = ["All", "Package", "Data", "Actions"];
+
+  public iconMapping: { [key: string]: string } = {
+    "All": "category",
+    "Package": "inventory",
+    "Data": "data_array",
+    "Actions": "open_in_browser"
+  };
+
+  public package: string = "";
+
+  public packages: string[] = [];
+
+  public controllers: { type: string, package: string, name: string, url: string }[] = [];
+
+  public searchValue: string = "";
+
+  public filterData: { type: string, package: string, name: string, url: string }[] = [];
+
+  @Output() addNode = new EventEmitter<string>();
 
   constructor(
-    private api: EmbbedApiService
+    private api: ApiService
   ) { }
 
   async ngOnInit() {
-    this.models = await this.api.listAllModels()
-    for (let model of this.models) {
-      if (this.getNodeByName(model) === null) {
-        this.selectable_models.push(model)
+    await this.getControllers();
+  }
+
+  private async getControllers() {
+    try {
+      const results = await this.api.fetch('?get=core_config_controllers');
+      const set = new Set<string>();
+      for (let key in results) {
+        if (key !== "apps") {
+          for (let controller of results[key]) {
+            const index = controller.lastIndexOf("_");
+            const dirs = controller.substring(0, index).replace("_", ":");
+            const file = controller.substring(index + 1);
+            const url = "?" + (key === "actions" ? "do" : "get") + "=" + controller;
+            const x = { type: key, package: dirs, name: file, url: url };
+
+            set.add(dirs);
+            this.controllers.push(x);
+          }
+        }
       }
+      this.packages = Array.from(set);
+      this.filterData = this.controllers;
+    }
+    catch (err: any) {
+      console.warn('fetch class error', err);
     }
   }
 
-  async ngOnChanges() {
-    console.log("CHANGED")
-    this.selectable_models = []
-    for (let model of this.models) {
-      if (this.getNodeByName(model) === null) {
-        this.selectable_models.push(model)
-      }
-    }
-    if (this.selectedNode >= 0 && this.selectedNode < this.nodes.length) {
-      this.dp = this.nodes[this.selectedNode].DisplayFields
+  public onPackageChange(pack: string) {
+    this.package = pack;
+    this.onValueChange();
+  }
+
+  public onValueChange() {
+    this.filterData = [];
+    switch (this.searchType) {
+      case "All":
+        if (this.searchValue !== "") {
+          for (let controller of this.controllers) {
+            if (controller.url.includes(this.searchValue)) {
+              this.filterData.push(controller);
+            }
+          }
+        }
+        else {
+          this.filterData = this.controllers
+        }
+        break;
+      case "Data":
+        for (let controller of this.controllers) {
+          if (controller.type === "data") {
+            if (this.searchValue === "" || controller.url.includes(this.searchValue)) {
+              this.filterData.push(controller);
+            }
+          }
+        }
+        break;
+      case "Actions":
+        for (let controller of this.controllers) {
+          if (controller.type === "actions") {
+            if (this.searchValue === "" || controller.url.includes(this.searchValue)) {
+              this.filterData.push(controller);
+            }
+          }
+        }
+        break;
+      default:
+        for (let controller of this.controllers) {
+          if (controller.package === this.package) {
+            this.filterData.push(controller);
+          }
+        }
     }
   }
 
-  getNodeByName(name: string): UMLORNode | null {
-    for (let item of this.nodes) {
-      if (item.entity === name) return item
-    }
-    return null
-  }
-
-  add() {
-    if (this.value !== "") {
-      this.addNode.emit(this.value)
-      this.value = ""
-    }
-
-  }
-
-  del(index: number) {
-    if (index >= 0 && index < this.nodes.length) {
-      this.deleteNode.emit(index)
-    }
-  }
-
-  addhidden() {
-    if (this.selectedNode < 0 || this.selectedNode >= this.nodes.length) {
-      return
-    }
-    if (this.hiddenvalue !== "" && !this.nodes[this.selectedNode].hidden.includes(this.hiddenvalue)) {
-      this.nodes[this.selectedNode].hidden.push(this.hiddenvalue)
-      this.hiddenvalue = ""
-      this.needRefresh.emit()
-    }
-  }
-
-  deletehidden(index: number) {
-    if (this.selectedNode < 0 || this.selectedNode >= this.nodes.length) {
-      return
-    }
-    if (index >= 0 && index < this.nodes[this.selectedNode].hidden.length) {
-      this.nodes[this.selectedNode].hidden.splice(index, 1)
-      this.needRefresh.emit()
-    }
+  public add() {
   }
 }

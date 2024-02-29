@@ -1,62 +1,30 @@
-
-<div class="context-menu" *ngIf="state === 'create-node'">
-   <app-autocomplete class="huge-autocomplete"
-      name="Add Models"
-      [values]="selectable_models"
-      [(value)]="value"
-      (keydown.enter)="add()"
-      width="100%"
-   ></app-autocomplete>
-   <button mat-icon-button (click)="add()"><mat-icon>add</mat-icon></button>
-   <br>
-   <div style="width: calc(100% - 65px); overflow-y: scroll;">
-      <div style="display: flex; align-items: center;" *ngFor="let node of nodes; index as index">
-         <label class="supressoverflow">{{node.entity}}</label>
-         <button mat-icon-button (click)="del(index)"><mat-icon>close</mat-icon></button>
-      </div>
-   </div>
-</div>
-<div class="context-menu" *ngIf="state === 'edit-node'">
-   <div style="display: flex; align-items: center; justify-content: center; width: 100%;" *ngIf="selectedNode < 0 || selectedNode >= nodes.length ">
-      <label>Select a model to edit its visualization.</label>
-   </div>
-   <div *ngIf="selectedNode >= 0 && selectedNode < nodes.length " style="width: 100%;">
-      <div class="header-node">
-         <label>{{nodes[selectedNode].entity}}</label>
-         <button mat-flat-button color="warn" (click)="del(selectedNode)">delete Model</button>
-      </div>
-      <div>
-         <mat-slide-toggle 
-            [checked]="nodes[selectedNode].showInheritance" 
-            (change)="nodes[selectedNode].showInheritance = $event.checked; needRefresh.emit()"
-         >
-            Show Inheritance
-         </mat-slide-toggle>
-      </div>
-      <div>
-         <mat-slide-toggle 
-            [checked]="nodes[selectedNode].showRelations" 
-            (change)="nodes[selectedNode].showRelations = $event.checked; needRefresh.emit()"
-         >
-            Show showRelations
-         </mat-slide-toggle>
-      </div>
-      <label>Hidden fields</label><br>
-      <label *ngIf="!nodes[selectedNode].showRelations">Toggle show relation to see hidden fields.</label><br>
-      <div *ngIf="nodes[selectedNode].showRelations">
-         <div class="chip" *ngFor="let hidden of nodes[selectedNode].hidden; index as index">
-            <label>{{hidden}}</label>
-            <button mat-icon-button (click)="deletehidden(index)"><mat-icon>close</mat-icon></button>
-         </div>
-         <app-autocomplete class="huge-autocomplete"
-            name="hide fields"
-            width="100%"
-            [values]="dp"
-            [(value)]="hiddenvalue"
-            (keydown.enter)="addhidden()"
-         >
-         </app-autocomplete>
-         <button mat-icon-button (click)="addhidden()"><mat-icon>add</mat-icon></button>
-      </div>
-   </div>
+<div class="context-menu" *ngIf="state === 'add-controller' ">
+    <mat-form-field *ngIf="searchType !== 'Package'">
+        <input matInput placeholder="Filter" [(ngModel)]="searchValue" (ngModelChange)="onValueChange()">
+    </mat-form-field>
+    <app-autocomplete class="autocomplete" *ngIf="searchType === 'Package'" [values]="packages" [(value)]="package"
+        (valueChange)="onPackageChange($event)">
+    </app-autocomplete>
+    <mat-form-field class="search-type">
+        <mat-select [(ngModel)]="searchType" (ngModelChange)="onValueChange()">
+            <mat-select-trigger>
+                <mat-icon class="icon-search-small">{{iconMapping[searchType]}}</mat-icon>{{searchType}}
+            </mat-select-trigger>
+            <mat-option *ngFor="let type of searchTypes" [value]="type">
+                <mat-icon>{{ iconMapping[type] }}</mat-icon>{{type}}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+    <mat-list class="scrollable-list">
+        <mat-list-item *ngFor="let data of filterData">
+            <div class="list-item-content">
+                <span class="left-content">
+                    {{(searchType === "Package") ? data.name : data.package+':'+data.name}}
+                </span>
+                <button mat-icon-button (click)="add()" class="right-content">
+                    <mat-icon>add_circle_outline</mat-icon>
+                </button>
+            </div>
+        </mat-list-item>
+    </mat-list>
 </div>

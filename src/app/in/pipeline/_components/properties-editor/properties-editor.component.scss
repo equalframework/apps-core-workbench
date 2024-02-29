@@ -1,60 +1,49 @@
-@import "src/theme.scss";
-
 :host {
-    height: calc(100% - 1em);
-    width: calc( 100% - 1em);
+    width: 100%;
+    height: 100%;
 }
 
 .context-menu {
+    height: 100%;
+    width: 100%;
     background-color: whitesmoke;
     border-radius: 10px;
-    height: calc(100%);
-    width: 100%;
-    padding: 1em 0em;
+    padding: 10px;
 }
 
-.huge-autocomplete {
+.icon-search-small {
+    transform: translateY(.2em);
+    margin-left : .5em;
+    margin-right : .5em;
+}
+
+.autocomplete {
     display: inline-block;
-    width: calc(100% - 40px);
 }
 
-.header-node {
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
+.search-type {
+    padding-left : 10px;
+}
+
+.scrollable-list {
+  height: 80%;
+  overflow-y: auto;
+}
+
+.list-item-content {
+    height: 100%;
     width: 100%;
-    label {
-        display: inline-block;
-        max-width: calc(90% - 114px);
-        white-space: none;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
+    display: flex; /* Utilisation de flexbox pour aligner les éléments */
+    justify-content: space-between; /* Les éléments seront alignés avec un espace entre eux */
+    align-items: center; /* Les éléments seront centrés verticalement */
 }
 
-.supressoverflow {
-    display: inline-block;
-    max-width: calc(100% - 60px);
-    white-space: none;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.left-content {
+    flex-grow: 1; /* Le span occupe tout l'espace disponible */
+    text-align: left; /* Alignement du texte à gauche */
 }
 
-.chip {
-    display: inline-flex;
-    align-items: center;
-    justify-content: space-between;
-    border-radius: 10px;
-    margin: 5px;
-    padding-left:10px;
-    min-width: 50px;
-    max-width:calc(50% - 10px);
-    background-color: mat-color($maincolor);
-    color : white;
-    label {
-        display: inline-block;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: none;
-    }
+.right-content {
+    margin-left: 10px; /* Marge à gauche pour espacer le bouton du texte */
+    /* Si nécessaire, vous pouvez également ajuster les styles du bouton ici */
 }
