@@ -13,11 +13,15 @@
         <mat-icon>control_point</mat-icon>
         <label class="spaceleft">Add controller</label>
     </button>
+    <button mat-flat-button (click)="setState('delete')" [class.mode-selected]="['delete'].includes(this.state)">
+        <mat-icon>delete</mat-icon>
+        <label class="spaceleft">Delete controller</label>
+    </button>
 </div>
 <div class="holder">
     <mat-grid-list cols="12" rowHeight="82%" gutterSize="10px">
         <mat-grid-tile [colspan]="sizeViewer" class="sizeanim">
-            <app-pipeline-displayer [nodes]="nodes" [view_offset]="view_offset">
+            <app-pipeline-displayer [nodes]="nodes" [view_offset]="view_offset" [state]="state">
             </app-pipeline-displayer>
         </mat-grid-tile>
         <mat-grid-tile *ngIf="sizeEditor > 0" [colspan]="sizeEditor" class="sizeanim">

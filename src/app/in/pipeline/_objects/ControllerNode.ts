@@ -7,15 +7,15 @@ export class ControllerNode {
     public response: any;
     public access: any;
     public providers: any;
-    public initialPos: { x: number, y: number } = { x: 0, y: 0 };
+    public position: { x: number, y: number } = { x: 0, y: 0 };
 
-    constructor(data: ControllerData, description: string, params: any, response: any, access: any, providers: any, initialPos: { x: number, y: number }) {
+    constructor(data: ControllerData, description: string, params: any, response: any, access: any, providers: any, position: { x: number, y: number }) {
         this.data = data;
         this.description = description;
         this.params = params;
         this.response = response;
         this.access = access;
         this.providers = providers;
-        this.initialPos = initialPos;
+        this.position = position;
     }
 }

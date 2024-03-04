@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ControllerNode } from '../../_objects/ControllerNode';
 
 @Component({
@@ -8,4 +8,14 @@ import { ControllerNode } from '../../_objects/ControllerNode';
 })
 export class PipelineNodeComponent {
   @Input() node: ControllerNode;
+
+  @Input() index: number;
+
+  @Input() state: string;
+
+  @Output() deleteNode = new EventEmitter<number>();
+
+  delete() {
+    this.deleteNode.emit(this.index);
+  }
 }

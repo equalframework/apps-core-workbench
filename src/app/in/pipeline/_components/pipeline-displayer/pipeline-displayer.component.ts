@@ -16,6 +16,8 @@ export class PipelineDisplayerComponent {
 
   @Input() nodes: ControllerNode[];
 
+  @Input() state: string;
+
   get backgroundPos() {
     return `top ${this.view_offset.y}px left ${this.view_offset.x}px`;
   }
@@ -28,5 +30,9 @@ export class PipelineDisplayerComponent {
       this.view_offset.x += (this.mouse_pos.x - old_mouse_pos.x);
       this.view_offset.y += (this.mouse_pos.y - old_mouse_pos.y);
     }
+  }
+
+  deleteNode(index: number) {
+    this.nodes.splice(index, 1);
   }
 }

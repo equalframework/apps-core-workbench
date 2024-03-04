@@ -40,19 +40,19 @@ export class PipelineComponent {
 
   get sizeViewer(): number {
     switch (this.state) {
-      case "view":
-        return 12;
-      default:
+      case "add-controller":
         return 8;
+      default:
+        return 12;
     }
   }
 
   get sizeEditor(): number {
     switch (this.state) {
-      case "view":
-        return 0;
-      default:
+      case "add-controller":
         return 4;
+      default:
+        return 0;
     }
   }
 

@@ -1,9 +1,10 @@
 <div class="flowcontainer" [style.background-position]="backgroundPos" (mousemove)="moveBackground($event)"
     (mouseup)="isGrabbed = false" (mousedown)="isGrabbed = true" [class.grabbed]="isGrabbed">
     <div class="boundary">
-        <app-pipeline-node *ngFor="let node of nodes" class="dragelement" cdkDrag (mousedown)="$event.stopPropagation()"
-            [node]="node" [style.top.px]="node.initialPos.y + view_offset.y "
-            [style.left.px]="node.initialPos.x + view_offset.x">
+        <app-pipeline-node *ngFor="let node of nodes ; let i = index" class="dragelement" cdkDrag
+            (mousedown)="$event.stopPropagation()" [node]="node" [index]="i"
+            [style.top.px]="node.position.y + view_offset.y" [style.left.px]="node.position.x + view_offset.x"
+            [state]="state" (deleteNode)="deleteNode($event)">
         </app-pipeline-node>
     </div>
 </div>
