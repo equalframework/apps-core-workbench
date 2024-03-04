@@ -2,8 +2,8 @@
     <mat-form-field *ngIf="searchType !== 'Package'">
         <input matInput placeholder="Filter" [(ngModel)]="searchValue" (ngModelChange)="onValueChange()">
     </mat-form-field>
-    <app-autocomplete class="autocomplete" *ngIf="searchType === 'Package'" [values]="packages" [(value)]="package"
-        (valueChange)="onPackageChange($event)">
+    <app-autocomplete class="autocomplete" *ngIf="searchType === 'Package'" name="Choose a package" [values]="packages"
+        [(value)]="package" (valueChange)="onPackageChange($event)">
     </app-autocomplete>
     <mat-form-field class="search-type">
         <mat-select [(ngModel)]="searchType" (ngModelChange)="onValueChange()">
@@ -21,7 +21,7 @@
                 <span class="left-content">
                     {{(searchType === "Package") ? data.name : data.package+':'+data.name}}
                 </span>
-                <button mat-icon-button (click)="add()" class="right-content">
+                <button mat-icon-button (click)="add(data)" class="right-content">
                     <mat-icon>add_circle_outline</mat-icon>
                 </button>
             </div>

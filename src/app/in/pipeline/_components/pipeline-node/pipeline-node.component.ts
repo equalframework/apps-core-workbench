@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { ControllerNode } from '../../_objects/ControllerNode';
 
 @Component({
   selector: 'app-pipeline-node',
@@ -6,4 +7,5 @@ import { Component } from '@angular/core';
   styleUrls: ['./pipeline-node.component.scss']
 })
 export class PipelineNodeComponent {
+  @Input() node: ControllerNode;
 }

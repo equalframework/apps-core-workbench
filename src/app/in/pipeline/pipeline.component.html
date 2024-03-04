@@ -17,7 +17,7 @@
 <div class="holder">
     <mat-grid-list cols="12" rowHeight="82%" gutterSize="10px">
         <mat-grid-tile [colspan]="sizeViewer" class="sizeanim">
-            <app-pipeline-displayer>
+            <app-pipeline-displayer [nodes]="nodes" [view_offset]="view_offset">
             </app-pipeline-displayer>
         </mat-grid-tile>
         <mat-grid-tile *ngIf="sizeEditor > 0" [colspan]="sizeEditor" class="sizeanim">

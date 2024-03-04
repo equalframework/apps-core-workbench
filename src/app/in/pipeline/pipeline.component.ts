@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { ControllerNode } from './_objects/ControllerNode';
+import { ControllerData } from './_objects/ControllerData';
+import { ApiService } from 'sb-shared-lib';
 
 @Component({
   selector: 'app-pipeline',
@@ -13,8 +15,11 @@ export class PipelineComponent {
 
   public nodes: ControllerNode[] = [];
 
+  public view_offset: { x: number, y: number } = { x: 0, y: 0 };
+
   constructor(
-    private router: RouterMemory
+    private router: RouterMemory,
+    private api: ApiService
   ) { }
 
   public goBack() {
@@ -51,9 +56,9 @@ export class PipelineComponent {
     }
   }
 
-  addNode(value: string) {
-    console.log("je suis dans le parent");
-    console.log(value);
-    this.nodes;
+  async addNode(value: ControllerData) {
+    const info = (await this.api.fetch(value.url + '&announce=true')).announcement;
+    const node: ControllerNode = new ControllerNode(value, info.description, info.params, info.response, info.access, info.providers, { x: -this.view_offset.x + 100, y: -this.view_offset.y + 100 });
+    this.nodes.push(node);
   }
 }

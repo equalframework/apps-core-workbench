@@ -1,5 +1,6 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { ApiService } from 'sb-shared-lib';
+import { ControllerData } from '../../_objects/ControllerData';
 
 @Component({
   selector: 'app-properties-editor',
@@ -24,20 +25,20 @@ export class PropertiesEditorComponent implements OnInit {
 
   public packages: string[] = [];
 
-  public controllers: { type: string, package: string, name: string, url: string }[] = [];
+  public controllers: ControllerData[] = [];
 
   public searchValue: string = "";
 
-  public filterData: { type: string, package: string, name: string, url: string }[] = [];
+  public filterData: ControllerData[] = [];
 
-  @Output() addNode = new EventEmitter<string>();
+  @Output() addNode = new EventEmitter<ControllerData>();
 
   constructor(
     private api: ApiService
   ) { }
 
-  async ngOnInit() {
-    await this.getControllers();
+  ngOnInit() {
+    this.getControllers();
   }
 
   private async getControllers() {
@@ -51,14 +52,14 @@ export class PropertiesEditorComponent implements OnInit {
             const dirs = controller.substring(0, index).replace("_", ":");
             const file = controller.substring(index + 1);
             const url = "?" + (key === "actions" ? "do" : "get") + "=" + controller;
-            const x = { type: key, package: dirs, name: file, url: url };
+            const x = new ControllerData(key, dirs, file, url);
 
             set.add(dirs);
             this.controllers.push(x);
           }
         }
       }
-      this.packages = Array.from(set);
+      this.packages = Array.from(set).sort();
       this.filterData = this.controllers;
     }
     catch (err: any) {
@@ -77,7 +78,7 @@ export class PropertiesEditorComponent implements OnInit {
       case "All":
         if (this.searchValue !== "") {
           for (let controller of this.controllers) {
-            if (controller.url.includes(this.searchValue)) {
+            if (controller.package.includes(this.searchValue) || controller.name.includes(this.searchValue)) {
               this.filterData.push(controller);
             }
           }
@@ -89,7 +90,7 @@ export class PropertiesEditorComponent implements OnInit {
       case "Data":
         for (let controller of this.controllers) {
           if (controller.type === "data") {
-            if (this.searchValue === "" || controller.url.includes(this.searchValue)) {
+            if (this.searchValue === "" || controller.package.includes(this.searchValue) || controller.name.includes(this.searchValue)) {
               this.filterData.push(controller);
             }
           }
@@ -98,7 +99,7 @@ export class PropertiesEditorComponent implements OnInit {
       case "Actions":
         for (let controller of this.controllers) {
           if (controller.type === "actions") {
-            if (this.searchValue === "" || controller.url.includes(this.searchValue)) {
+            if (this.searchValue === "" || controller.package.includes(this.searchValue) || controller.name.includes(this.searchValue)) {
               this.filterData.push(controller);
             }
           }
@@ -113,6 +114,7 @@ export class PropertiesEditorComponent implements OnInit {
     }
   }
 
-  public add() {
+  public add(value: ControllerData) {
+    this.addNode.emit(value);
   }
 }
