@@ -15,7 +15,13 @@ export class PipelineNodeComponent {
 
   @Output() deleteNode = new EventEmitter<number>();
 
+  @Output() editNode = new EventEmitter<number>();
+
   delete() {
     this.deleteNode.emit(this.index);
+  }
+
+  edit() {
+    this.editNode.emit(this.index);
   }
 }

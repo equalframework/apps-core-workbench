@@ -4,7 +4,7 @@
         <app-pipeline-node *ngFor="let node of nodes ; let i = index" class="dragelement" cdkDrag
             (mousedown)="$event.stopPropagation()" [node]="node" [index]="i"
             [style.top.px]="node.position.y + view_offset.y" [style.left.px]="node.position.x + view_offset.x"
-            [state]="state" (deleteNode)="deleteNode($event)">
+            [state]="state" (deleteNode)="deleteN($event)" (editNode)="editN($event)">
         </app-pipeline-node>
     </div>
 </div>

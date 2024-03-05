@@ -13,8 +13,8 @@
 
 .icon-search-small {
     transform: translateY(.2em);
-    margin-left : .5em;
-    margin-right : .5em;
+    margin-left: .5em;
+    margin-right: .5em;
 }
 
 .autocomplete {
@@ -22,28 +22,39 @@
 }
 
 .search-type {
-    padding-left : 10px;
+    padding-left: 10px;
 }
 
 .scrollable-list {
-  height: 80%;
-  overflow-y: auto;
+    height: 80%;
+    overflow-y: auto;
 }
 
 .list-item-content {
     height: 100%;
     width: 100%;
-    display: flex; /* Utilisation de flexbox pour aligner les éléments */
-    justify-content: space-between; /* Les éléments seront alignés avec un espace entre eux */
-    align-items: center; /* Les éléments seront centrés verticalement */
+    display: flex;
+    /* Utilisation de flexbox pour aligner les éléments */
+    justify-content: space-between;
+    /* Les éléments seront alignés avec un espace entre eux */
+    align-items: center;
+    /* Les éléments seront centrés verticalement */
 }
 
 .left-content {
-    flex-grow: 1; /* Le span occupe tout l'espace disponible */
-    text-align: left; /* Alignement du texte à gauche */
+    flex-grow: 1;
+    /* Le span occupe tout l'espace disponible */
+    text-align: left;
+    /* Alignement du texte à gauche */
 }
 
 .right-content {
-    margin-left: 10px; /* Marge à gauche pour espacer le bouton du texte */
+    margin-left: 10px;
+    /* Marge à gauche pour espacer le bouton du texte */
     /* Si nécessaire, vous pouvez également ajuster les styles du bouton ici */
+}
+
+.node-content {
+    display: flex;
+    flex-direction: column;
 }

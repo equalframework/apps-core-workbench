@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ControllerNode } from '../../_objects/ControllerNode';
 import { cloneDeep } from 'lodash';
 
@@ -18,6 +18,10 @@ export class PipelineDisplayerComponent {
 
   @Input() state: string;
 
+  @Output() deleteNode = new EventEmitter<number>();
+
+  @Output() editNode = new EventEmitter<number>();
+
   get backgroundPos() {
     return `top ${this.view_offset.y}px left ${this.view_offset.x}px`;
   }
@@ -32,7 +36,11 @@ export class PipelineDisplayerComponent {
     }
   }
 
-  deleteNode(index: number) {
-    this.nodes.splice(index, 1);
+  deleteN(index: number) {
+    this.deleteNode.emit(index);
+  }
+
+  editN(index: number) {
+    this.editNode.emit(index);
   }
 }

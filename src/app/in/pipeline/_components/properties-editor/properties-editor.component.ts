@@ -1,6 +1,7 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { ApiService } from 'sb-shared-lib';
 import { ControllerData } from '../../_objects/ControllerData';
+import { ControllerNode } from '../../_objects/ControllerNode';
 
 @Component({
   selector: 'app-properties-editor',
@@ -32,6 +33,16 @@ export class PropertiesEditorComponent implements OnInit {
   public filterData: ControllerData[] = [];
 
   @Output() addNode = new EventEmitter<ControllerData>();
+
+  @Input() selectedNode: ControllerNode | undefined;
+
+  public icons: string[] = ["data_array", "open_in_browser", "delete", "home", "search", "star"];
+
+  public chosenIcon: string = "data_array";
+
+  public colors: string[] = ["whitesmoke", "beige", "lightcoral", "lightblue", "lightseagreen"];
+
+  public chosenColor: string = "whitesmoke";
 
   constructor(
     private api: ApiService
@@ -116,5 +127,12 @@ export class PropertiesEditorComponent implements OnInit {
 
   public add(value: ControllerData) {
     this.addNode.emit(value);
+  }
+
+  save() {
+    if (this.selectedNode) {
+      this.selectedNode.color = this.chosenColor;
+      this.selectedNode.icon = this.chosenIcon;
+    }
   }
 }

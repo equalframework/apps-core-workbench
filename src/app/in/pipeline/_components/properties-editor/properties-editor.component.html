@@ -28,3 +28,32 @@
         </mat-list-item>
     </mat-list>
 </div>
+<div class="context-menu" *ngIf="state === 'edit-controller' ">
+    <p *ngIf="!selectedNode">Select a controller</p>
+    <div *ngIf="selectedNode" class="node-content">
+        <p>Description : {{selectedNode.description}}</p>
+        <mat-form-field class="icon-choice">
+            <mat-label>Change the icon</mat-label>
+            <mat-select [(ngModel)]="chosenIcon">
+                <mat-select-trigger>
+                    <mat-icon class="icon-search-small">{{chosenIcon}}</mat-icon>
+                </mat-select-trigger>
+                <mat-option *ngFor="let icon of icons" [value]="icon">
+                    <mat-icon>{{icon}}</mat-icon>
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field class="color-choice">
+            <mat-label>Change the color</mat-label>
+            <mat-select [(ngModel)]="chosenColor">
+                <mat-select-trigger>
+                    <p>{{ chosenColor }}</p>
+                </mat-select-trigger>
+                <mat-option *ngFor="let color of colors" [value]="color">
+                    <p [style.color]="color">{{ color }}</p>
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+        <button mat-flat-button (click)="save()">Change</button>
+    </div>
+</div>
