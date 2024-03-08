@@ -1,10 +1,26 @@
 <div class="flowcontainer" [style.background-position]="backgroundPos" (mousemove)="moveBackground($event)"
     (mouseup)="isGrabbed = false" (mousedown)="isGrabbed = true" [class.grabbed]="isGrabbed">
-    <div class="boundary">
-        <app-pipeline-node *ngFor="let node of nodes ; let i = index" class="dragelement" cdkDrag
-            (mousedown)="$event.stopPropagation()" [node]="node" [index]="i"
-            [style.top.px]="node.position.y + view_offset.y" [style.left.px]="node.position.x + view_offset.x"
-            [state]="state" (deleteNode)="deleteN($event)" (editNode)="editN($event)">
-        </app-pipeline-node>
-    </div>
+    <app-pipeline-node *ngFor="let node of nodes ; let i = index" class="dragelement" cdkDrag
+        (cdkDragEnded)="onDragEnd(node,$event)" (mousedown)="$event.stopPropagation()" [node]="node" [index]="i"
+        [style.top.px]="node.position.y + view_offset.y" [style.left.px]="node.position.x + view_offset.x"
+        [state]="state" (deleteNode)="deleteN($event)" (editNode)="editN($event)" (from)="linkFrom($event)"
+        (to)="linkTo($event)">
+    </app-pipeline-node>
+    <svg class="svg-container">
+        <line *ngFor="let link of links" [attr.x1]="link.from.updatedPosition.x + 35 + view_offset.x"
+            [attr.y1]="link.from.updatedPosition.y + 35 + view_offset.y"
+            [attr.x2]="link.to.updatedPosition.x + 35 + view_offset.x"
+            [attr.y2]="link.to.updatedPosition.y + 35 + view_offset.y" stroke="black" />
+        <defs>
+            <marker id="arrow" markerWidth="20" markerHeight="20" refX="10" refY="5" orient="auto"
+                markerUnits="strokeWidth">
+                <path d="M0,0 L0,10 L18,5 z" fill="black" />
+            </marker>
+        </defs>
+        <line *ngFor="let link of links" [attr.x1]="link.from.updatedPosition.x + 35 + view_offset.x"
+            [attr.y1]="link.from.updatedPosition.y + 35 + view_offset.y"
+            [attr.x2]="(link.from.updatedPosition.x + link.to.updatedPosition.x + 70) / 2 + view_offset.x"
+            [attr.y2]="(link.from.updatedPosition.y + link.to.updatedPosition.y + 70) / 2 + view_offset.y"
+            marker-end="url(#arrow)" />
+    </svg>
 </div>

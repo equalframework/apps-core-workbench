@@ -4,6 +4,8 @@ import { ControllerNode } from './_objects/ControllerNode';
 import { ControllerData } from './_objects/ControllerData';
 import { ApiService } from 'sb-shared-lib';
 import { splitAtColon } from '@angular/compiler/src/util';
+import { ControllerLink } from './_objects/ControllerLink';
+import { forEach } from 'lodash';
 
 @Component({
   selector: 'app-pipeline',
@@ -21,6 +23,8 @@ export class PipelineComponent {
   public selectedNode: ControllerNode | undefined;
 
   public indexNode: number;
+
+  public links: ControllerLink[] = [];
 
   constructor(
     private router: RouterMemory,
@@ -55,19 +59,51 @@ export class PipelineComponent {
 
   async addNode(value: ControllerData) {
     const info = (await this.api.fetch(value.url + '&announce=true')).announcement;
-    const node: ControllerNode = new ControllerNode(value, info.description, info.params, info.response, info.access, info.providers, { x: -this.view_offset.x + 100, y: -this.view_offset.y + 100 });
+    value.description = info.description;
+    value.params = info.params;
+    value.response = info.response;
+    value.access = info.access;
+    value.providers = info.providers;
+    const node: ControllerNode = new ControllerNode(value, { x: -this.view_offset.x + 100, y: -this.view_offset.y + 100 });
     this.nodes.push(node);
   }
 
   deleteNode(index: number) {
+    const deletedNode = this.nodes[index];
+
+    let new_links = [];
+    for (let link of this.links) {
+      if (link.from === deletedNode || link.to === deletedNode) {
+        continue;
+      }
+      new_links.push(link);
+    }
+    this.links = new_links;
+
     this.nodes.splice(index, 1);
+
     if (index === this.indexNode) {
       this.selectedNode = undefined;
     }
+
   }
 
   editNode(index: number) {
     this.indexNode = index;
     this.selectedNode = this.nodes[index];
+  }
+
+  addLink(value: { indexFrom: number, indexTo: number }) {
+    const nodeFrom = this.nodes[value.indexFrom];
+    const nodeTo = this.nodes[value.indexTo];
+
+    for (let link of this.links) {
+      if ((link.from === nodeFrom && link.to === nodeTo) || (link.from === nodeTo && link.to === nodeFrom)) {
+        return;
+      }
+    }
+
+    const link = new ControllerLink(nodeFrom, nodeTo);
+    this.links.push(link);
   }
 }

@@ -1,6 +1,8 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ControllerNode } from '../../_objects/ControllerNode';
 import { cloneDeep } from 'lodash';
+import { CdkDragEnd, CdkDragMove } from '@angular/cdk/drag-drop';
+import { ControllerLink } from '../../_objects/ControllerLink';
 
 @Component({
   selector: 'app-pipeline-displayer',
@@ -22,6 +24,12 @@ export class PipelineDisplayerComponent {
 
   @Output() editNode = new EventEmitter<number>();
 
+  public indexFrom: number = -1;
+
+  @Output() addLink = new EventEmitter<{ indexFrom: number, indexTo: number }>();
+
+  @Input() links: ControllerLink[];
+
   get backgroundPos() {
     return `top ${this.view_offset.y}px left ${this.view_offset.x}px`;
   }
@@ -42,5 +50,21 @@ export class PipelineDisplayerComponent {
 
   editN(index: number) {
     this.editNode.emit(index);
+  }
+
+  linkFrom(index: number) {
+    this.indexFrom = index;
+  }
+
+  linkTo(index: number) {
+    if (this.indexFrom !== -1 && this.indexFrom !== index) {
+      this.addLink.emit({ indexFrom: this.indexFrom, indexTo: index });
+      this.indexFrom = -1;
+    }
+  }
+
+  onDragEnd(node: ControllerNode, event: CdkDragEnd) {
+    node.updatedPosition.x += event.distance.x;
+    node.updatedPosition.y += event.distance.y;
   }
 }

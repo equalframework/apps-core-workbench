@@ -1,12 +1,14 @@
 <div class="node">
-    <div class="icon" [style.background-color]="node.color">
+    <div class="circle" [style.background-color]="node.color">
         <mat-icon>{{node.icon}}</mat-icon>
     </div>
-    <div class="name">
-        <label>{{node.data.name}}</label>
-    </div>
-    <div class="buttons" *ngIf="state.includes('edit')">
+    <label class="node-name">{{node.data.name}}</label>
+    <div *ngIf="state.includes('edit-controller')">
         <button mat-mini-fab class="edit-button" color="primary" (click)="edit()"><mat-icon>edit</mat-icon></button>
         <button mat-mini-fab class="delete-button" (click)="delete()"><mat-icon>delete</mat-icon></button>
     </div>
+    <button mat-mini-fab *ngIf="state.includes('add-link')" class="to-button" color="primary"
+        (click)="linkTo()"><mat-icon>mode_standby</mat-icon></button>
+    <button mat-mini-fab *ngIf="state.includes('add-link')" class="from-button" color="primary"
+        (click)="linkFrom()"><mat-icon>arrow_forward</mat-icon></button>
 </div>

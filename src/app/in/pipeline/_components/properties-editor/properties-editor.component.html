@@ -31,7 +31,7 @@
 <div class="context-menu" *ngIf="state === 'edit-controller' ">
     <p *ngIf="!selectedNode">Select a controller</p>
     <div *ngIf="selectedNode" class="node-content">
-        <p>Description : {{selectedNode.description}}</p>
+        <p>Description : {{selectedNode.data.description}}</p>
         <mat-form-field class="icon-choice">
             <mat-label>Change the icon</mat-label>
             <mat-select [(ngModel)]="chosenIcon">

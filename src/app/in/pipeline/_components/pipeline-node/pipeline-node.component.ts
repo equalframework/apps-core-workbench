@@ -17,11 +17,23 @@ export class PipelineNodeComponent {
 
   @Output() editNode = new EventEmitter<number>();
 
+  @Output() from = new EventEmitter<number>();
+
+  @Output() to = new EventEmitter<number>();
+
   delete() {
     this.deleteNode.emit(this.index);
   }
 
   edit() {
     this.editNode.emit(this.index);
+  }
+
+  linkFrom() {
+    this.from.emit(this.index);
+  }
+
+  linkTo() {
+    this.to.emit(this.index);
   }
 }

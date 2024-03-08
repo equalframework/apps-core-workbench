@@ -5,20 +5,23 @@
     text-align: center;
 }
 
-.icon {
+.circle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
-    padding: 20px;
     border: solid 1px rgba(0, 0, 0, 0.405);
 
-    mat-icon {
+    .mat-icon {
         transform: scale(1.5);
     }
 }
 
-.name {
+.node-name {
     font-weight: bold;
     font-size: 15px;
-    margin-top: 5px;
 }
 
 .edit-button {
@@ -28,4 +31,19 @@
 .delete-button {
     transform: scale(0.5);
     background-color: crimson;
+}
+
+.from-button,
+.to-button {
+    position: absolute;
+    top: 30%;
+    transform: scale(0.5) translateY(-50%);
+}
+
+.from-button {
+    right: -30px;
+}
+
+.to-button {
+    left: -30px;
 }

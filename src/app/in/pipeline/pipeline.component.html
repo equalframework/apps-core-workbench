@@ -18,12 +18,17 @@
         <mat-icon>drive_file_rename_outline</mat-icon>
         <label class="spaceleft">Edit controller</label>
     </button>
+    <button mat-flat-button (click)="state = 'add-link'" [class.mode-selected]="['add-link'].includes(this.state)">
+        <mat-icon>add_link</mat-icon>
+        <label class="spaceleft">Add link</label>
+    </button>
 </div>
 <div class="holder">
     <mat-grid-list cols="12" rowHeight="82%" gutterSize="10px">
         <mat-grid-tile [colspan]="sizeViewer" class="sizeanim">
             <app-pipeline-displayer [nodes]="nodes" [view_offset]="view_offset" [state]="state"
-                (deleteNode)="deleteNode($event)" (editNode)="editNode($event)">
+                (deleteNode)="deleteNode($event)" (editNode)="editNode($event)" (addLink)="addLink($event)"
+                [links]="links">
             </app-pipeline-displayer>
         </mat-grid-tile>
         <mat-grid-tile *ngIf="sizeEditor > 0" [colspan]="sizeEditor" class="sizeanim">
