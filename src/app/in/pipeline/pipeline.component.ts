@@ -64,7 +64,18 @@ export class PipelineComponent {
     value.response = info.response;
     value.access = info.access;
     value.providers = info.providers;
-    const node: ControllerNode = new ControllerNode(value, { x: -this.view_offset.x + 100, y: -this.view_offset.y + 100 });
+    const position = { x: -this.view_offset.x + 100, y: -this.view_offset.y + 100 }
+    for (let i = 0; i < this.nodes.length; i++) {
+      if (this.nodes[i].updatedPosition.x >= position.x - 50
+        && this.nodes[i].updatedPosition.x <= position.x + 50
+        && this.nodes[i].updatedPosition.y >= position.y - 50
+        && this.nodes[i].updatedPosition.y <= position.y + 50) {
+        position.x += 100;
+        position.y += 100;
+        i = -1;
+      }
+    }
+    const node: ControllerNode = new ControllerNode(value, position);
     this.nodes.push(node);
   }
 
