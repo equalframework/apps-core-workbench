@@ -1,3 +1,5 @@
+@import '/src/theme.scss';
+
 :host {
     width: 100%;
     height: 100%;
@@ -9,6 +11,21 @@
     background-color: whitesmoke;
     border-radius: 10px;
     padding: 10px;
+}
+
+.close-button {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    color: grey;
+}
+
+.add-menu {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .icon-search-small {
@@ -26,7 +43,8 @@
 }
 
 .scrollable-list {
-    height: 80%;
+    width: 100%;
+    height: 68%;
     overflow-y: auto;
 }
 
@@ -34,27 +52,71 @@
     height: 100%;
     width: 100%;
     display: flex;
-    /* Utilisation de flexbox pour aligner les éléments */
     justify-content: space-between;
-    /* Les éléments seront alignés avec un espace entre eux */
     align-items: center;
-    /* Les éléments seront centrés verticalement */
+    border-radius: 10px;
+    padding-left: 5px;
+}
+
+.list-item-content:hover {
+    background-color: white;
 }
 
 .left-content {
     flex-grow: 1;
-    /* Le span occupe tout l'espace disponible */
     text-align: left;
-    /* Alignement du texte à gauche */
 }
 
 .right-content {
     margin-left: 10px;
-    /* Marge à gauche pour espacer le bouton du texte */
-    /* Si nécessaire, vous pouvez également ajuster les styles du bouton ici */
 }
 
-.node-content {
+.button-router {
+    width: 92%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.space-left {
+    margin-left: 10px;
+}
+
+.edit-menu {
+    margin-top: 15px;
+}
+
+mat-panel-title {
+    display: flex;
+    align-items: center;
+
+    mat-icon {
+        background-color: mat-color($maincolor, A100);
+        margin-right: 10px;
+        display: flex;
+        align-items: center;
+        border-radius: 10px;
+    }
+}
+
+.ui-content {
+    padding-top: 10px;
     display: flex;
     flex-direction: column;
+}
+
+.params-content {
+    max-height: 55vh;
+    overflow-y: auto;
+}
+
+.required-content {
+    display: flex;
+    align-items: center;
+}
+
+.link-content {
+    max-height: 55vh;
+    overflow-y: auto;
 }

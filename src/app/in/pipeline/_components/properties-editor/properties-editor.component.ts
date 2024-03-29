@@ -1,15 +1,20 @@
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { ApiService } from 'sb-shared-lib';
 import { ControllerData } from '../../_objects/ControllerData';
-import { ControllerNode } from '../../_objects/ControllerNode';
+import { Node } from '../../_objects/Node';
+import { NodeLink } from '../../_objects/NodeLink';
+import { Parameter } from '../../_objects/Parameter';
+import { TypeUsageService } from 'src/app/_services/type-usage.service';
 
 @Component({
   selector: 'app-properties-editor',
   templateUrl: './properties-editor.component.html',
   styleUrls: ['./properties-editor.component.scss']
 })
-export class PropertiesEditorComponent implements OnInit {
+export class PropertiesEditorComponent implements OnInit, OnChanges {
   @Input() state: string = "";
+
+  @Output() changeState = new EventEmitter<string>();
 
   public searchType: string = "All";
 
@@ -34,7 +39,7 @@ export class PropertiesEditorComponent implements OnInit {
 
   @Output() addNode = new EventEmitter<ControllerData>();
 
-  @Input() selectedNode: ControllerNode | undefined;
+  @Input() selectedNode: Node | undefined;
 
   public icons: string[] = ["data_array", "open_in_browser", "delete", "home", "search", "star"];
 
@@ -44,12 +49,47 @@ export class PropertiesEditorComponent implements OnInit {
 
   public chosenColor: string = "whitesmoke";
 
+  @Input() selectedLink: NodeLink | undefined;
+
+  @Input() parameters: Parameter[];
+
+  public typeIcon: { [id: string]: string }
+
+  public inputChoice: string = "";
+
+  public selectedParams: Parameter[] = [];
+
+  public inputValue: string = "";
+
   constructor(
-    private api: ApiService
+    private api: ApiService,
+    private typeUsage: TypeUsageService
   ) { }
 
   ngOnInit() {
+    this.typeIcon = this.typeUsage.typeIcon
     this.getControllers();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if ("selectedLink" in changes && this.selectedLink && !this.selectedLink.from.data) {
+      this.inputChoice = "";
+      this.selectedParams = [];
+      for (let parameter of this.parameters) {
+        if (parameter.link.to === this.selectedLink.from) {
+          this.selectedParams.push(parameter);
+        }
+      }
+    }
+    else if ("selectedLink" in changes && this.selectedLink) {
+      this.inputChoice = "";
+      this.selectedParams = [];
+      for (let parameter of this.parameters) {
+        if (parameter.link === this.selectedLink) {
+          this.selectedParams.push(parameter);
+        }
+      }
+    }
   }
 
   private async getControllers() {
@@ -125,14 +165,34 @@ export class PropertiesEditorComponent implements OnInit {
     }
   }
 
-  public add(value: ControllerData) {
+  add(value?: ControllerData) {
     this.addNode.emit(value);
   }
 
-  save() {
+  changeStyle() {
     if (this.selectedNode) {
       this.selectedNode.color = this.chosenColor;
       this.selectedNode.icon = this.chosenIcon;
+    }
+  }
+
+  close() {
+    this.changeState.emit("");
+  }
+
+  submit(value: string) {
+    if (this.selectedLink && this.inputChoice !== "") {
+      const parameter = new Parameter(value, this.inputChoice);
+      parameter.link = this.selectedLink;
+      this.parameters.push(parameter);
+      this.selectedParams.push(parameter);
+    }
+    else if (this.selectedNode && this.inputValue !== "") {
+      const parameter = new Parameter(this.inputValue, value);
+      parameter.node = this.selectedNode;
+      this.parameters.push(parameter);
+      this.selectedParams.push(parameter);
+      this.inputValue = "";
     }
   }
 }

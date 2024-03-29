@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { ControllerNode } from '../../_objects/ControllerNode';
+import { Node } from '../../_objects/Node';
 import { cloneDeep } from 'lodash';
-import { CdkDragEnd, CdkDragMove } from '@angular/cdk/drag-drop';
-import { ControllerLink } from '../../_objects/ControllerLink';
+import { CdkDragEnd } from '@angular/cdk/drag-drop';
+import { NodeLink } from '../../_objects/NodeLink';
 
 @Component({
   selector: 'app-pipeline-displayer',
@@ -16,19 +16,31 @@ export class PipelineDisplayerComponent {
 
   public mouse_pos: { x: number, y: number } = { x: 0, y: 0 };
 
-  @Input() nodes: ControllerNode[];
+  @Output() changeState = new EventEmitter<string>();
+
+  @Input() nodes: Node[];
 
   @Input() state: string;
 
-  @Output() deleteNode = new EventEmitter<number>();
+  @Output() deleteNode = new EventEmitter<Node>();
 
-  @Output() editNode = new EventEmitter<number>();
+  private isClick: boolean = true;
 
-  public indexFrom: number = -1;
+  @Output() editNode = new EventEmitter<Node>();
 
-  @Output() addLink = new EventEmitter<{ indexFrom: number, indexTo: number }>();
+  public nodeFrom: Node | undefined;
 
-  @Input() links: ControllerLink[];
+  @Output() addLink = new EventEmitter<{ nodeFrom: Node, nodeTo: Node }>();
+
+  @Input() links: NodeLink[];
+
+  @Output() editLink = new EventEmitter<NodeLink>();
+
+  @Output() deleteLink = new EventEmitter<NodeLink>();
+
+  change(state: string) {
+    this.changeState.emit(state);
+  }
 
   get backgroundPos() {
     return `top ${this.view_offset.y}px left ${this.view_offset.x}px`;
@@ -44,27 +56,44 @@ export class PipelineDisplayerComponent {
     }
   }
 
-  deleteN(index: number) {
-    this.deleteNode.emit(index);
+  onDragStart() {
+    this.isClick = false;
   }
 
-  editN(index: number) {
-    this.editNode.emit(index);
+  onDragEnd(node: Node, event: CdkDragEnd) {
+    const deltaX = event.distance.x;
+    const deltaY = event.distance.y;
+    node.updatedPosition.x += deltaX;
+    node.updatedPosition.y += deltaY;
   }
 
-  linkFrom(index: number) {
-    this.indexFrom = index;
+  editN(node: Node) {
+    if (this.isClick) {
+      this.editNode.emit(node);
+    }
+    this.isClick = true;
   }
 
-  linkTo(index: number) {
-    if (this.indexFrom !== -1 && this.indexFrom !== index) {
-      this.addLink.emit({ indexFrom: this.indexFrom, indexTo: index });
-      this.indexFrom = -1;
+  deleteN(node: Node) {
+    this.deleteNode.emit(node);
+  }
+
+  linkFrom(node: Node) {
+    this.nodeFrom = node;
+  }
+
+  linkTo(node: Node) {
+    if (this.nodeFrom !== undefined && this.nodeFrom !== node) {
+      this.addLink.emit({ nodeFrom: this.nodeFrom, nodeTo: node });
+      this.nodeFrom = undefined;
     }
   }
 
-  onDragEnd(node: ControllerNode, event: CdkDragEnd) {
-    node.updatedPosition.x += event.distance.x;
-    node.updatedPosition.y += event.distance.y;
+  editL(link: NodeLink) {
+    this.editLink.emit(link);
+  }
+
+  deleteL(link: NodeLink) {
+    this.deleteLink.emit(link);
   }
 }

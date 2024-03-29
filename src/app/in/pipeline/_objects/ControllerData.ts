@@ -1,3 +1,26 @@
+class Param {
+    description: string;
+    type: string;
+    default?: any;
+    required?: boolean;
+    min?: number;
+    max?: number;
+    foreign_object?: string;
+    visible?: any[];
+}
+
+class Response {
+    'content-type': string;
+    charset: string;
+    'accept-origin': string[];
+    schema: {
+        name: string;
+        description: string;
+        type: string;
+        qty: string;
+    };
+}
+
 export class ControllerData {
     public type: string;
     public package: string;
@@ -5,10 +28,8 @@ export class ControllerData {
     public url: string;
 
     public description: string;
-    public params: any;
-    public response: any;
-    public access: any;
-    public providers: any;
+    public params: { [key: string]: Param };
+    public response: Response;
 
     constructor(type: string, pack: string, name: string, url: string) {
         this.type = type;

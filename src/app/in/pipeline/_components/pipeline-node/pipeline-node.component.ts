@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { ControllerNode } from '../../_objects/ControllerNode';
+import { Node } from '../../_objects/Node';
 
 @Component({
   selector: 'app-pipeline-node',
@@ -7,33 +7,31 @@ import { ControllerNode } from '../../_objects/ControllerNode';
   styleUrls: ['./pipeline-node.component.scss']
 })
 export class PipelineNodeComponent {
-  @Input() node: ControllerNode;
-
-  @Input() index: number;
+  @Input() node: Node;
 
   @Input() state: string;
 
-  @Output() deleteNode = new EventEmitter<number>();
+  @Output() editNode = new EventEmitter<Node>();
 
-  @Output() editNode = new EventEmitter<number>();
+  @Output() deleteNode = new EventEmitter<Node>();
 
-  @Output() from = new EventEmitter<number>();
+  @Output() from = new EventEmitter<Node>();
 
-  @Output() to = new EventEmitter<number>();
-
-  delete() {
-    this.deleteNode.emit(this.index);
-  }
+  @Output() to = new EventEmitter<Node>();
 
   edit() {
-    this.editNode.emit(this.index);
+    this.editNode.emit(this.node);
+  }
+
+  delete() {
+    this.deleteNode.emit(this.node);
   }
 
   linkFrom() {
-    this.from.emit(this.index);
+    this.from.emit(this.node);
   }
 
   linkTo() {
-    this.to.emit(this.index);
+    this.to.emit(this.node);
   }
 }

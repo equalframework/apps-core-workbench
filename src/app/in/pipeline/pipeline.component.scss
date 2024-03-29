@@ -5,31 +5,9 @@
     width: 100%;
 }
 
-.mode-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: whitesmoke;
-    height: 55px;
-    border-radius: 10px;
-    button {
-        margin: 5px;
-    }
-    margin : 10px;
-}
-
-.mode-selected {
-    background-color: mat-color($maincolor);
-    color: white;
-}
-
-.spaceleft {
-    margin-left: 10px;
-}
-
 .holder {
     height: 100%;
-    margin :10px;
+    margin: 10px;
 }
 
 .sizeanim {

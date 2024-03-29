@@ -1,38 +1,21 @@
-<app-in-header [buttonBack]="true" (onButtonBack)="goBack()" [buttonLoad]="true" (onButtonLoad)="load()"
-    [buttonNew]="true" (onButtonNew)="newFile()" [buttonSave]="true" (onButtonSave)="save()" [buttonCancel]="true"
-    (onButtonCancel)="reset()">
-    <label>Pipeline editor</label>
+<app-in-header [buttonBack]="true" (onButtonBack)="goBack()" [buttonNew]="true" (onButtonNew)="newFile()"
+    [buttonLoad]="true" (onButtonLoad)="load()" [buttonSave]="true" (onButtonSave)="save()">
+    <mat-form-field>
+        <input matInput [(ngModel)]="name">
+    </mat-form-field>
 </app-in-header>
-<div class="mode-container">
-    <button mat-flat-button (click)="state = 'view'" [class.mode-selected]="['view'].includes(this.state)">
-        <mat-icon>preview</mat-icon>
-        <label class="spaceleft">View</label>
-    </button>
-    <button mat-flat-button (click)="state = 'add-controller'"
-        [class.mode-selected]="['add-controller'].includes(this.state)">
-        <mat-icon>control_point</mat-icon>
-        <label class="spaceleft">Add controller</label>
-    </button>
-    <button mat-flat-button (click)="state = 'edit-controller'"
-        [class.mode-selected]="['edit-controller'].includes(this.state)">
-        <mat-icon>drive_file_rename_outline</mat-icon>
-        <label class="spaceleft">Edit controller</label>
-    </button>
-    <button mat-flat-button (click)="state = 'add-link'" [class.mode-selected]="['add-link'].includes(this.state)">
-        <mat-icon>add_link</mat-icon>
-        <label class="spaceleft">Add link</label>
-    </button>
-</div>
 <div class="holder">
-    <mat-grid-list cols="12" rowHeight="82%" gutterSize="10px">
+    <mat-grid-list cols="12" rowHeight="89%" gutterSize="10px">
         <mat-grid-tile [colspan]="sizeViewer" class="sizeanim">
-            <app-pipeline-displayer [nodes]="nodes" [view_offset]="view_offset" [state]="state"
-                (deleteNode)="deleteNode($event)" (editNode)="editNode($event)" (addLink)="addLink($event)"
-                [links]="links">
+            <app-pipeline-displayer [state]="state" (changeState)="changeState($event)" [nodes]="nodes"
+                [view_offset]="view_offset" (deleteNode)="deleteNode($event)" (editNode)="editNode($event)"
+                (addLink)="addLink($event)" [links]="links" (deleteLink)="deleteLink($event)"
+                (editLink)="editLink($event)">
             </app-pipeline-displayer>
         </mat-grid-tile>
-        <mat-grid-tile *ngIf="sizeEditor > 0" [colspan]="sizeEditor" class="sizeanim">
-            <app-properties-editor [state]="state" (addNode)="addNode($event)" [selectedNode]="selectedNode">
+        <mat-grid-tile *ngIf="sizeEditor !== 0" [colspan]="sizeEditor" class="sizeanim">
+            <app-properties-editor [state]="state" (changeState)="changeState($event)" (addNode)="addNode($event)"
+                [selectedNode]="selectedNode" [selectedLink]="selectedLink" [parameters]="parameters">
             </app-properties-editor>
         </mat-grid-tile>
     </mat-grid-list>

@@ -1,59 +1,130 @@
-<div class="context-menu" *ngIf="state === 'add-controller' ">
-    <mat-form-field *ngIf="searchType !== 'Package'">
-        <input matInput placeholder="Filter" [(ngModel)]="searchValue" (ngModelChange)="onValueChange()">
-    </mat-form-field>
-    <app-autocomplete class="autocomplete" *ngIf="searchType === 'Package'" name="Choose a package" [values]="packages"
-        [(value)]="package" (valueChange)="onPackageChange($event)">
-    </app-autocomplete>
-    <mat-form-field class="search-type">
-        <mat-select [(ngModel)]="searchType" (ngModelChange)="onValueChange()">
-            <mat-select-trigger>
-                <mat-icon class="icon-search-small">{{iconMapping[searchType]}}</mat-icon>{{searchType}}
-            </mat-select-trigger>
-            <mat-option *ngFor="let type of searchTypes" [value]="type">
-                <mat-icon>{{ iconMapping[type] }}</mat-icon>{{type}}
-            </mat-option>
-        </mat-select>
-    </mat-form-field>
-    <mat-list class="scrollable-list">
-        <mat-list-item *ngFor="let data of filterData">
-            <div class="list-item-content">
-                <span class="left-content">
-                    {{(searchType === "Package") ? data.name : data.package+':'+data.name}}
-                </span>
-                <button mat-icon-button (click)="add(data)" class="right-content">
-                    <mat-icon>add_circle_outline</mat-icon>
-                </button>
+<div class="context-menu">
+
+    <button mat-icon-button class="close-button" (click)="close()">
+        <mat-icon>close</mat-icon>
+    </button>
+
+    <div class="add-menu" *ngIf="state === 'add' ">
+        <div>
+            <mat-form-field *ngIf="searchType !== 'Package'">
+                <input matInput placeholder="Filter" [(ngModel)]="searchValue" (ngModelChange)="onValueChange()">
+            </mat-form-field>
+            <app-autocomplete class="autocomplete" *ngIf="searchType === 'Package'" name="Choose a package"
+                [values]="packages" [(value)]="package" (valueChange)="onPackageChange($event)">
+            </app-autocomplete>
+            <mat-form-field class="search-type">
+                <mat-select [(ngModel)]="searchType" (ngModelChange)="onValueChange()">
+                    <mat-select-trigger>
+                        <mat-icon class="icon-search-small">{{iconMapping[searchType]}}</mat-icon>{{searchType}}
+                    </mat-select-trigger>
+                    <mat-option *ngFor="let type of searchTypes" [value]="type">
+                        <mat-icon>{{ iconMapping[type] }}</mat-icon>{{type}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <mat-list class="scrollable-list">
+            <mat-list-item *ngFor="let data of filterData">
+                <div class="list-item-content">
+                    <span class="left-content">
+                        {{(searchType === "Package") ? data.name : data.package+':'+data.name}}
+                    </span>
+                    <button mat-icon-button (click)="add(data)" class="right-content">
+                        <mat-icon>add_circle_outline</mat-icon>
+                    </button>
+                </div>
+            </mat-list-item>
+        </mat-list>
+        <button mat-flat-button class="button-router" (click)="add()">
+            <mat-icon>filter_tilt_shift</mat-icon>
+            <label class="space-left">Add router</label>
+        </button>
+    </div>
+
+    <div class="edit-menu" *ngIf="state === 'edit' ">
+        <mat-tab-group *ngIf="selectedNode" animationDuration="0ms">
+            <mat-tab label="Logic">
+                <div class="params-content">
+                    <p *ngIf="selectedNode.data">{{selectedNode.data.description}}</p>
+                    <mat-accordion>
+                        <mat-expansion-panel *ngFor="let pair of selectedNode.data.params | keyvalue">
+                            <mat-expansion-panel-header>
+                                <mat-panel-title>
+                                    <mat-icon [title]="pair.value.type">{{typeIcon[pair.value.type]}}</mat-icon>
+                                    <label>{{pair.key}}</label>
+                                </mat-panel-title>
+                                <mat-panel-description>
+                                    <label>{{pair.value.description}}</label>
+                                </mat-panel-description>
+                                <div class="required-content">
+                                    <label *ngIf="pair.value.required"><strong>required</strong></label>
+                                </div>
+                            </mat-expansion-panel-header>
+                            <div>
+                                <mat-form-field>
+                                    <input matInput [(ngModel)]="inputValue">
+                                </mat-form-field>
+                                <button mat-flat-button (click)="submit(pair.key)">Submit</button>
+                            </div>
+                        </mat-expansion-panel>
+                    </mat-accordion>
+                </div>
+            </mat-tab>
+            <mat-tab *ngIf="selectedNode.data" label="UI">
+                <div class="ui-content">
+                    <mat-form-field>
+                        <mat-label>Change the icon</mat-label>
+                        <mat-select [(ngModel)]="chosenIcon">
+                            <mat-select-trigger>
+                                <mat-icon class="icon-search-small">{{chosenIcon}}</mat-icon>
+                            </mat-select-trigger>
+                            <mat-option *ngFor="let icon of icons" [value]="icon">
+                                <mat-icon>{{icon}}</mat-icon>
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field>
+                        <mat-label>Change the color</mat-label>
+                        <mat-select [(ngModel)]="chosenColor">
+                            <mat-select-trigger>
+                                <p>{{ chosenColor }}</p>
+                            </mat-select-trigger>
+                            <mat-option *ngFor="let color of colors" [value]="color">
+                                <p [style.color]="color">{{ color }}</p>
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <button mat-flat-button (click)="changeStyle()">Change</button>
+                </div>
+            </mat-tab>
+        </mat-tab-group>
+        <div *ngIf="selectedLink" class="link-content">
+            <div *ngIf="selectedLink.from.data">
+                <p>Description of the output : {{selectedLink.from.data.response.schema.description}}</p>
+                <p>Type of the output : {{selectedLink.from.data.response.schema.type}}</p>
+                <p>With what input should we link the output ?</p>
+                <mat-form-field>
+                    <mat-select [(ngModel)]="inputChoice">
+                        <mat-option *ngFor="let pair of selectedLink.to.data.params | keyvalue" [value]="pair.key">
+                            {{pair.key}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <button mat-flat-button (click)="submit(selectedLink.from.data.response.schema.name)">Submit</button>
             </div>
-        </mat-list-item>
-    </mat-list>
-</div>
-<div class="context-menu" *ngIf="state === 'edit-controller' ">
-    <p *ngIf="!selectedNode">Select a controller</p>
-    <div *ngIf="selectedNode" class="node-content">
-        <p>Description : {{selectedNode.data.description}}</p>
-        <mat-form-field class="icon-choice">
-            <mat-label>Change the icon</mat-label>
-            <mat-select [(ngModel)]="chosenIcon">
-                <mat-select-trigger>
-                    <mat-icon class="icon-search-small">{{chosenIcon}}</mat-icon>
-                </mat-select-trigger>
-                <mat-option *ngFor="let icon of icons" [value]="icon">
-                    <mat-icon>{{icon}}</mat-icon>
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
-        <mat-form-field class="color-choice">
-            <mat-label>Change the color</mat-label>
-            <mat-select [(ngModel)]="chosenColor">
-                <mat-select-trigger>
-                    <p>{{ chosenColor }}</p>
-                </mat-select-trigger>
-                <mat-option *ngFor="let color of colors" [value]="color">
-                    <p [style.color]="color">{{ color }}</p>
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
-        <button mat-flat-button (click)="save()">Change</button>
+            <div *ngIf="!selectedLink.from.data">
+                <div *ngFor="let parameter of selectedParams">
+                    <p>{{parameter.target}}</p>
+                    <mat-form-field>
+                        <mat-select [(ngModel)]="inputChoice">
+                            <mat-option *ngFor="let pair of selectedLink.to.data.params | keyvalue" [value]="pair.key">
+                                {{pair.key}}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <button mat-flat-button (click)="submit(parameter.target)">Submit</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
