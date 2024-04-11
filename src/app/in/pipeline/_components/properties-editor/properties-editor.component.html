@@ -45,38 +45,47 @@
         <mat-tab-group *ngIf="selectedNode" animationDuration="0ms">
             <mat-tab label="Logic">
                 <div class="params-content">
-                    <p *ngIf="selectedNode.data">{{selectedNode.data.description}}</p>
-                    <mat-accordion>
-                        <mat-expansion-panel *ngFor="let pair of selectedNode.data.params | keyvalue">
-                            <mat-expansion-panel-header>
-                                <mat-panel-title>
-                                    <mat-icon [title]="pair.value.type">{{typeIcon[pair.value.type]}}</mat-icon>
-                                    <label>{{pair.key}}</label>
-                                </mat-panel-title>
-                                <mat-panel-description>
-                                    <label>{{pair.value.description}}</label>
-                                </mat-panel-description>
-                                <div class="required-content">
-                                    <label *ngIf="pair.value.required"><strong>required</strong></label>
+                    <p>{{selectedNode.data.name}}</p>
+                    <p class="description">{{selectedNode.data.description}}</p>
+                    <table>
+                        <tr>
+                            <th class="input-content">Input</th>
+                            <th class="value-content">Value</th>
+                        </tr>
+                        <tr *ngFor="let pair of selectedNode.data.params | keyvalue">
+                            <td>
+                                <div class="input-container">
+                                    <mat-icon class="input-type"
+                                        [title]="pair.value.type">{{typeIcon[pair.value.type]}}</mat-icon>
+                                    <label [title]="pair.value.description">{{pair.key}}</label>
+                                    <mat-icon class=" icon-required" *ngIf="pair.value.required" title="required">
+                                        priority_high
+                                    </mat-icon>
                                 </div>
-                            </mat-expansion-panel-header>
-                            <div>
-                                <mat-form-field>
-                                    <input matInput [(ngModel)]="inputValue">
-                                </mat-form-field>
-                                <button mat-flat-button (click)="submit(pair.key)">Submit</button>
-                            </div>
-                        </mat-expansion-panel>
-                    </mat-accordion>
+                            </td>
+                            <td>
+                                <div class="value-container">
+                                    <span class="value">{{ getParamsValue(pair.key) }}</span>
+                                    <button mat-mini-fab class="edit-button" (click)="openModal(pair)">
+                                        <mat-icon>edit</mat-icon>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
                 </div>
             </mat-tab>
             <mat-tab *ngIf="selectedNode.data" label="UI">
                 <div class="ui-content">
                     <mat-form-field>
+                        <mat-label>Change the name</mat-label>
+                        <input matInput [(ngModel)]="selectedNode.name">
+                    </mat-form-field>
+                    <mat-form-field>
                         <mat-label>Change the icon</mat-label>
-                        <mat-select [(ngModel)]="chosenIcon">
+                        <mat-select [(ngModel)]="selectedNode.icon">
                             <mat-select-trigger>
-                                <mat-icon class="icon-search-small">{{chosenIcon}}</mat-icon>
+                                <mat-icon class="icon-search-small">{{selectedNode.icon}}</mat-icon>
                             </mat-select-trigger>
                             <mat-option *ngFor="let icon of icons" [value]="icon">
                                 <mat-icon>{{icon}}</mat-icon>
@@ -85,16 +94,17 @@
                     </mat-form-field>
                     <mat-form-field>
                         <mat-label>Change the color</mat-label>
-                        <mat-select [(ngModel)]="chosenColor">
+                        <mat-select [(ngModel)]="selectedNode.color">
                             <mat-select-trigger>
-                                <p>{{ chosenColor }}</p>
+                                <label>{{ selectedNode.color }}</label>
+                                <label [style.color]="selectedNode.color"> #</label>
                             </mat-select-trigger>
                             <mat-option *ngFor="let color of colors" [value]="color">
-                                <p [style.color]="color">{{ color }}</p>
+                                <label>{{ color }}</label>
+                                <label [style.color]="color"> #</label>
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
-                    <button mat-flat-button (click)="changeStyle()">Change</button>
                 </div>
             </mat-tab>
         </mat-tab-group>
@@ -104,25 +114,25 @@
                 <p>Type of the output : {{selectedLink.from.data.response.schema.type}}</p>
                 <p>With what input should we link the output ?</p>
                 <mat-form-field>
-                    <mat-select [(ngModel)]="inputChoice">
+                    <mat-select (selectionChange)="onSelectionChange($event)">
                         <mat-option *ngFor="let pair of selectedLink.to.data.params | keyvalue" [value]="pair.key">
                             {{pair.key}}
                         </mat-option>
+                        <mat-option></mat-option>
                     </mat-select>
                 </mat-form-field>
-                <button mat-flat-button (click)="submit(selectedLink.from.data.response.schema.name)">Submit</button>
             </div>
             <div *ngIf="!selectedLink.from.data">
                 <div *ngFor="let parameter of selectedParams">
-                    <p>{{parameter.target}}</p>
+                    <p>Output : {{parameter.source}}</p>
                     <mat-form-field>
-                        <mat-select [(ngModel)]="inputChoice">
+                        <mat-select [(ngModel)]="parameter.target">
                             <mat-option *ngFor="let pair of selectedLink.to.data.params | keyvalue" [value]="pair.key">
                                 {{pair.key}}
                             </mat-option>
+                            <mat-option></mat-option>
                         </mat-select>
                     </mat-form-field>
-                    <button mat-flat-button (click)="submit(parameter.target)">Submit</button>
                 </div>
             </div>
         </div>

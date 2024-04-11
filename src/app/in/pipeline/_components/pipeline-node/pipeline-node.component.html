@@ -9,7 +9,7 @@
         <button mat-mini-fab class="from-button" color="primary"
             (click)="linkFrom()"><mat-icon>arrow_forward</mat-icon></button>
     </div>
-    <label *ngIf="node.data" class="node-name">{{node.data.name}}</label>
+    <label *ngIf="node.data" class="node-name">{{node.name}}</label>
     <button mat-mini-fab *ngIf="node.isSelected" class="delete-button"
         (click)="delete()"><mat-icon>delete</mat-icon></button>
 </div>

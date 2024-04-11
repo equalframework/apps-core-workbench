@@ -87,17 +87,58 @@
     margin-top: 15px;
 }
 
-mat-panel-title {
+.description {
+    font-size: 0.8em;
+}
+
+table {
+    width: 100%;
+}
+
+td {
+    width: 50%;
+}
+
+.input-container {
     display: flex;
     align-items: center;
+    margin-left: 15px;
+}
 
-    mat-icon {
-        background-color: mat-color($maincolor, A100);
-        margin-right: 10px;
-        display: flex;
-        align-items: center;
-        border-radius: 10px;
-    }
+.input-type {
+    background-color: mat-color($maincolor, A100);
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+    border-radius: 10px;
+    transform: scale(0.8);
+}
+
+.icon-required {
+    margin-left: 10px;
+    border: solid 1px black;
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    transform: scale(0.6);
+}
+
+.value-container {
+    display: flex;
+    align-items: center;
+}
+
+.value {
+    margin-left: 40px;
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.edit-button {
+    margin-left: auto;
+    transform: scale(0.5);
 }
 
 .ui-content {
@@ -109,11 +150,6 @@ mat-panel-title {
 .params-content {
     max-height: 55vh;
     overflow-y: auto;
-}
-
-.required-content {
-    display: flex;
-    align-items: center;
 }
 
 .link-content {

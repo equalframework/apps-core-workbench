@@ -1,38 +1,45 @@
 <mat-form-field class="fullo" *ngIf="type === 'float' || type === 'integer' || this.type === 'many2one'">
     <mat-label>{{name}}</mat-label>
-    <input [disabled]="disabled" matInput type="number" [value]="value" (keydown)="noCancel($event)" (change)="changed.emit($event.target.value)">
+    <input [disabled]="disabled" matInput type="number" [value]="value" (keydown)="noCancel($event)"
+        (change)="changed.emit($event.target.value)">
 </mat-form-field>
 <mat-form-field class="fullo" *ngIf="type === 'string' || type === 'text'">
     <mat-label>{{name}}</mat-label>
-    <input [disabled]="disabled" matInput [value]="value  ? value : ''" (keydown)="noCancel($event)" (change)="changed.emit($event.target.value)">
+    <input [disabled]="disabled" matInput [value]="value  ? value : ''" (keydown)="noCancel($event)"
+        (change)="changed.emit($event.target.value)">
 </mat-form-field>
 <ng-container *ngIf="type === 'array' || this.type === 'one2many' || this.type === 'many2many'">
     <mat-form-field class="codeblock bg">
         <mat-label>{{name}}</mat-label>
-        <textarea matInput rows="8" [formControl]="JsonControl" (keydown.Tab)="TabBehavior($event)" (keydown)="noCancel($event)"  (change)="changeDefaultFromJson()"></textarea>
+        <textarea matInput rows="8" [formControl]="JsonControl" (keydown.Tab)="TabBehavior($event)"
+            (keydown)="noCancel($event)" (change)="changeDefaultFromJson()"></textarea>
     </mat-form-field>
 </ng-container>
 <mat-form-field class="fullo" *ngIf="type === 'date'">
     <mat-label>{{name}}</mat-label>
-    <input [disabled]="disabled" matInput [matDatepicker]="picker" [value]="value" (keydown)="noCancel($event)" (change)="changed.emit($event.target.value)">
+    <input [disabled]="disabled" matInput [matDatepicker]="picker" [value]="value" (keydown)="noCancel($event)"
+        (change)="changed.emit($event.target.value)">
     <mat-hint>DD/MM/YYYY</mat-hint>
     <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
     <mat-datepicker #picker></mat-datepicker>
 </mat-form-field>
 <ng-container *ngIf="type === 'datetime'">
-    <mat-form-field class="fullo" >
+    <mat-form-field class="fullo">
         <mat-label>{{name}} value (in local time)</mat-label>
-        <input [disabled]="disabled" matInput type="datetime-local" [value]="defaultAsDateTimeLocal" (keydown)="noCancel($event)" (change)="changeDefaultDate($event.target.value)">
+        <input [disabled]="disabled" matInput type="datetime-local" [value]="defaultAsDateTimeLocal"
+            (keydown)="noCancel($event)" (change)="changeDefaultDate($event.target.value)">
     </mat-form-field>
 </ng-container>
 <ng-container *ngIf="type === 'time'">
     <mat-form-field class="fullo">
         <mat-label>{{name}}</mat-label>
-        <input [disabled]="disabled" matInput type="time" [value]="value" (keydown)="noCancel($event)" (change)="changed.emit($event.target.value)">
+        <input [disabled]="disabled" matInput type="time" [value]="value" (keydown)="noCancel($event)"
+            (change)="changed.emit($event.target.value)">
     </mat-form-field>
 </ng-container>
 <ng-container *ngIf="type==='boolean'">
-    <mat-checkbox [disabled]="disabled" [checked]="value" (change)="changed.emit($event.checked)">{{name}}</mat-checkbox>
+    <mat-checkbox [disabled]="disabled" [checked]="value"
+        (change)="changed.emit($event.checked)">{{name}}</mat-checkbox>
 </ng-container>
 <ng-container *ngIf="cannotBeDisplayed">
     Sorry, this type cannot be displayed or manually entered in Workbench.

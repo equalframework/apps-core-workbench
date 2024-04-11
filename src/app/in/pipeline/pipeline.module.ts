@@ -24,38 +24,42 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatListModule } from '@angular/material/list';
 import { MatTableModule } from '@angular/material/table';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { ModalInputComponent } from './_components/modal-input/modal-input.component';
+import { MatDialogModule } from '@angular/material/dialog';
 
 
 @NgModule({
-  declarations: [
-    PipelineComponent,
-    PipelineDisplayerComponent,
-    PipelineNodeComponent,
-    PropertiesEditorComponent
-  ],
-  imports: [
-    CommonModule,
-    DragDropModule,
-    PipelineRoutingModule,
-    AutocompleteModule,
-    MatTabsModule,
-    MatIconModule,
-    MatButtonModule,
-    ClassicLayoutModule,
-    HeaderModule,
-    MatGridListModule,
-    MatFormFieldModule,
-    MatInputModule,
-    ReactiveFormsModule,
-    FormsModule,
-    TypeInputModule,
-    PropertyDomainModule,
-    MatDividerModule,
-    MatSlideToggleModule,
-    MatSelectModule,
-    MatListModule,
-    MatTableModule,
-    MatExpansionModule
-  ]
+    declarations: [
+        PipelineComponent,
+        PipelineDisplayerComponent,
+        PipelineNodeComponent,
+        PropertiesEditorComponent,
+        ModalInputComponent
+    ],
+    imports: [
+        CommonModule,
+        DragDropModule,
+        PipelineRoutingModule,
+        AutocompleteModule,
+        MatTabsModule,
+        MatIconModule,
+        MatButtonModule,
+        ClassicLayoutModule,
+        HeaderModule,
+        MatGridListModule,
+        MatFormFieldModule,
+        MatInputModule,
+        ReactiveFormsModule,
+        FormsModule,
+        TypeInputModule,
+        PropertyDomainModule,
+        MatDividerModule,
+        MatSlideToggleModule,
+        MatSelectModule,
+        MatListModule,
+        MatTableModule,
+        MatExpansionModule,
+        MatDialogModule
+    ]
 })
 export class PipelineModule { }

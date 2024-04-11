@@ -11,6 +11,7 @@ export class Node {
     public updatedPosition: { x: number, y: number } = { x: 0, y: 0 };
     public icon: string;
     public color: string;
+    public name: string;
 
     constructor(position: { x: number, y: number }) {
         this.position = position;
