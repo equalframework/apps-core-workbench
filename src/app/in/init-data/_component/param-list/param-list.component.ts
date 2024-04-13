@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output} from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { InitDataFile } from '../../_objects/init-data';
-import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
+import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 
 @Component({
   selector: 'app-param-list',
@@ -26,7 +26,7 @@ export class ParamListComponent implements OnInit, OnChanges {
   public createControl = new FormControl("")
 
   constructor(
-    private api:EmbbedApiService
+    private api:EmbeddedApiService
   ) {
 
   }

@@ -8,7 +8,7 @@
 
 .margin-container {
     padding: 2em;
-    border-radius: 10px;
+    border-radius: 8px;
     background-color: whitesmoke;
     height: calc(100% - 4em);
 }
@@ -243,7 +243,7 @@ pre {
         background-color: mat-color($maincolor,A100);
         display: flex;
         align-items: center;
-        border-radius: 10px;
+        border-radius: 8px;
     }
 }
 

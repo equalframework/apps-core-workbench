@@ -1,16 +1,16 @@
 <div class="parent aspectratio" (mouseup)="updateDragged(undefined)">
     <div class="section-selector-container-container flex">
-        <div class="section-selector-container flex" 
-            cdkDropList 
+        <div class="section-selector-container flex"
+            cdkDropList
             cdkDropListOrientation="horizontal"
-            [cdkDropListData]="group_obj" 
+            [cdkDropListData]="group_obj"
             (cdkDropListDropped)="drop_section($event)"
         >
-            <div cdkDrag 
+            <div cdkDrag
                 title="{{section.id}} : {{section.label}}"
-                *ngFor="let section of group_obj" 
-                [class.selected]="selected === section" 
-                class="section-selector" 
+                *ngFor="let section of group_obj"
+                [class.selected]="selected === section"
+                class="section-selector"
                 (click)="selected = section"
             >
                 <mat-icon cdkDragHandle class="grabable">drag_indicator</mat-icon>
@@ -19,7 +19,7 @@
                 </label>
                 <button mat-icon-button [matMenuTriggerFor]="menuSection"><mat-icon>more_vert</mat-icon></button>
                 <mat-menu #menuSection="matMenu">
-                    <button mat-menu-item 
+                    <button mat-menu-item
                         (click)="editSection(section)"
                         title="Edit properties of section {{section.label}}"
                     >
@@ -50,12 +50,12 @@
                 </button>
             </div>
         </div>
-        
+
         <div
             class="drop-zone"
-            cdkDropList 
+            cdkDropList
             cdkDropListOrientation="vertical"
-            [cdkDropListData]="selected.rows" 
+            [cdkDropListData]="selected.rows"
             (cdkDropListDropped)="drop_row($event)"
             cdkDropListGroup
         >
@@ -64,7 +64,7 @@
                     <div class="part-header-right">
                         <mat-icon cdkDragHandle class="grabable">drag_indicator</mat-icon>
                         <label class="category-title">Row : {{row.label === "" ? "UNNAMED" : row.label}}</label>
-                        <mat-icon  *ngIf="row.totalwidth > 100" class="color-warn">warning</mat-icon> 
+                        <mat-icon  *ngIf="row.totalwidth > 100" class="color-warn">warning</mat-icon>
                         <label *ngIf="row.totalwidth > 100" class="color-warn">Column total width exceeds 100%</label>
                     </div>
                     <div class="part-header-left">
@@ -142,7 +142,7 @@
                                         (dragstart)="updateDragged(item)"
                                         ondragend="sendStopDrag()"
                                         [class.track]="dragged === item"
-                                        class="item-visualiser" 
+                                        class="item-visualiser"
                                         draggable="true"
                                         title="Type : {{item.type}}"
                                     >
@@ -162,7 +162,7 @@
                                                 title="this item has its readonly property set to true"
                                             >do_not_touch</mat-icon>
                                         </div>
-                                        
+
                                         <div class="button-holder">
                                             <button mat-icon-button
                                                 (click)="editItem(item)"

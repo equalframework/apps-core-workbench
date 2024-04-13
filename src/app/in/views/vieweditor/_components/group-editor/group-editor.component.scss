@@ -2,8 +2,8 @@
 
 
 .parent {
-    border: solid black 1px;
-    border-radius: 10px;
+    border: solid #b5b5b5 1px;
+    border-radius: 8px;
     overflow: hidden;
 }
 
@@ -37,8 +37,12 @@
 }
 
 .section-selector-container-container {
-    border-bottom: solid black 1px;
     width: 100%;
+
+    button {
+        color : mat-color($maincolor);
+    }
+
 }
 
 .section-selector {
@@ -49,8 +53,8 @@
     align-items: center;
     //min-width: 10em;
     height: 100%;
-    border-right: solid black 1px ;
-    border-bottom: solid black 1px ;
+    border-right: solid #b5b5b5  1px ;
+    border-bottom: solid #b5b5b5  1px ;
     cursor: pointer;
     white-space: nowrap;
 
@@ -69,7 +73,7 @@
 }
 
 .section-selector.selected {
-    background-color: mat-color($maincolor,A100);
+    background-color: mat-color($maincolor, 50);
 }
 
 
@@ -100,13 +104,13 @@
 }
 
 .item-visualiser {
-    border : solid 1px black;
+    border : solid 1px #8f8f8f;
     margin: 1em .25em;
     height: 2.5em;
     width: calc(100% - .5em);
     display: flex;
     align-items: center;
-    border-radius: 10px;
+    border-radius: 8px;
     overflow: hidden;
 
     .valuedisp {
@@ -123,7 +127,7 @@
 .part-header {
     display: flex;
     align-items: center;
-    padding: 0 1em;
+    padding: 0;
     justify-content: space-between;
 
     .part-header-right {
@@ -158,17 +162,17 @@
 
 .row {
     margin: .5em;
-    border : solid 2px mat-color($maincolor,100);
+    border : solid 2px mat-color($maincolor, 100);
     background-color: whitesmoke;
     padding: 1em;
-    border-radius: 10px;
+    border-radius: 8px;
 }
 
 .column {
     margin: .5em;
-    border : solid 2px mat-color($accentcolor,100);
+    border : solid 2px #d1d1d1;
     padding: 1em;
-    border-radius: 10px;
+    border-radius: 8px;
     background-color: white;
 }
 

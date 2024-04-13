@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ViewRoute } from '../../_objects/View';
-import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
+import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 
 @Component({
@@ -16,7 +16,7 @@ export class RouteEditorComponent implements OnInit {
   entity_list:string[]
 
   constructor(
-    private api: EmbbedApiService
+    private api: EmbeddedApiService
   ) { }
 
   async ngOnInit() {

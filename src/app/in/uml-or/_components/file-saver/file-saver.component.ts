@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit, Optional } from '@angular/core';
 import { AbstractControl, FormControl, ValidationErrors } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
+import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 
 @Component({
   selector: 'app-file-saver',
@@ -12,7 +12,7 @@ export class FileSaverComponent implements OnInit {
   constructor(
     @Optional() public dialogRef: MatDialogRef<FileSaverComponent>,
     @Optional() @Inject(MAT_DIALOG_DATA) public data:{path:string},
-    private api:EmbbedApiService
+    private api:EmbeddedApiService
   ) {}
 
   list:{[id:string]:string[]} =  {}
@@ -22,7 +22,7 @@ export class FileSaverComponent implements OnInit {
   control = new FormControl("")
 
   async ngOnInit() {
-    this.list = await this.api.getUMLList("or")
+    this.list = await this.api.getUMLList("erd")
     this._filter(this.data.path)
     this.control.valueChanges.subscribe((data)=>{
       this._filter(data)
@@ -34,9 +34,9 @@ export class FileSaverComponent implements OnInit {
   static casefunc(list:string[]) {
     return (control:AbstractControl):ValidationErrors|null => {
       const data:string = control.value
-    
+
       const split = data.split("::")
-    
+
       if(split.length !== 2) {
         return {case:true}
       }
@@ -44,11 +44,11 @@ export class FileSaverComponent implements OnInit {
       if(split[1].length <= 0 || split[1].startsWith(".")) {
         return {case:true}
       }
-    
+
       if(!list.includes(split[0])) {
         return {case:true}
       }
-    
+
       return null
     }
   }

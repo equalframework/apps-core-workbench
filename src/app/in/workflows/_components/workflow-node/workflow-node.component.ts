@@ -19,7 +19,7 @@ export class WorkflowNodeComponent implements OnInit, AfterViewChecked {
   @Input() selected:boolean = false
 
   @Output() createLink = new EventEmitter<void>()
-  @Output() linkeToMe = new EventEmitter<Anchor>()
+  @Output() linkToMe = new EventEmitter<Anchor>()
 
 
   constructor() { }

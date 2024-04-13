@@ -1,90 +1,109 @@
-import { Component, Input, OnInit, Output, EventEmitter, OnChanges } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, OnChanges, ViewChild } from '@angular/core';
 import { UMLORNode } from '../uml-or-displayer/_objects/UMLORNode';
-import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
+import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
+import { MatSelect } from '@angular/material/select';
+import { MatOption } from '@angular/material/core';
+import { moveItemInArray } from '@angular/cdk/drag-drop';
+import { settings } from 'cluster';
 
 @Component({
-  selector: 'app-properties-editor',
-  templateUrl: './properties-editor.component.html',
-  styleUrls: ['./properties-editor.component.scss']
+    selector: 'app-properties-editor',
+    templateUrl: './properties-editor.component.html',
+    styleUrls: ['./properties-editor.component.scss']
 })
 export class PropertiesEditorComponent implements OnInit, OnChanges {
-  @Input() state:string = ""
-  @Input() nodes:UMLORNode[] = []
-  @Input() selectedNode:number = -1
-  @Output() addNode = new EventEmitter<string>()
-  @Output() deleteNode = new EventEmitter<number>()
-  @Output() needRefresh = new EventEmitter<void>()
-  models:string[] = []
-  hiddenvalue:string = ""
-  selectable_models:string[] = []
-  value:string = ""
-  dp:string[] = []
+    @Input() state:string = "";
+    @Input() nodes:UMLORNode[] = [];
+    @Input() selectedNode:number = -1;
 
-  constructor(
-    private api:EmbbedApiService
-  ) {}
-  
-  async ngOnInit() {
-    this.models = await this.api.listAllModels()
-    for(let model of this.models) {
-      if(this.getNodeByName(model) === null) {
-        this.selectable_models.push(model)
-      }
-    }
-  }
+    @Output() addNode = new EventEmitter<string>();
+    @Output() deleteNode = new EventEmitter<number>();
+    @Output() needRefresh = new EventEmitter<void>();
+    @Output() requestState = new EventEmitter<string>();
 
-  async ngOnChanges() {
-    console.log("CHANGED")
-    this.selectable_models = []
-    for(let model of this.models) {
-      if(this.getNodeByName(model) === null) {
-        this.selectable_models.push(model)
-      }
-    }
-    if(this.selectedNode >= 0 && this.selectedNode < this.nodes.length) {
-      this.dp = this.nodes[this.selectedNode].DisplayFields
-    }
-  }
+    @ViewChild('fieldsSelector') fieldsSelector: MatSelect;
 
-  getNodeByName(name:string):UMLORNode|null {
-    for(let item of this.nodes) {
-      if(item.entity === name) return item
-    }
-    return null
-  }
+    public models:string[] = [];
+    public node: UMLORNode;
+    public selectable_models:string[] = [];
+    public value:string = "";
 
-  add() {
-    if(this.value !== "") {
-      this.addNode.emit(this.value)
-      this.value = ""
-    }
-    
-  }
+    constructor(
+        private api:EmbeddedApiService
+    ) {}
 
-  del(index:number) {
-    if(index >= 0 && index < this.nodes.length) {
-      this.deleteNode.emit(index)
+    public async ngOnInit() {
+        this.models = await this.api.listAllModels();
+        for(let model of this.models) {
+            if(this.getNodeByName(model) === null) {
+                this.selectable_models.push(model);
+            }
+        }
     }
-  }
 
-  addhidden() {
-    if(this.selectedNode < 0 || this.selectedNode >= this.nodes.length) {
-      return
+    public async ngOnChanges() {
+        this.selectable_models = [];
+        for(let model of this.models) {
+            if(this.getNodeByName(model) === null) {
+                this.selectable_models.push(model);
+            }
+        }
+        if(this.selectedNode >= 0 && this.selectedNode < this.nodes.length) {
+            this.node = this.nodes[this.selectedNode];
+        }
     }
-    if(this.hiddenvalue !== "" && !this.nodes[this.selectedNode].hidden.includes(this.hiddenvalue)) {
-      this.nodes[this.selectedNode].hidden.push(this.hiddenvalue)
-      this.hiddenvalue = ""
-      this.needRefresh.emit()
-    }
-  }
 
-  deletehidden(index:number) {
-    if(this.selectedNode < 0 || this.selectedNode >= this.nodes.length) {
-      return
+    public getNodeByName(name:string): UMLORNode|null {
+        for(let node of this.nodes) {
+            if(node.entity === name) {
+                return node;
+            }
+        }
+        return null;
     }
-    if(index >= 0 && index < this.nodes[this.selectedNode].hidden.length) {
-      this.nodes[this.selectedNode].hidden.splice(index, 1)
-      this.needRefresh.emit()
+
+    public createNode() {
+        if(this.value !== "") {
+            this.addNode.emit(this.value);
+            this.value = "";
+        }
+
     }
-  }
+
+    public removeNode(index:number) {
+        if(index >= 0 && index < this.nodes.length) {
+            this.deleteNode.emit(index);
+        }
+    }
+
+    public addFieldsUnselectAll() {
+        this.fieldsSelector.options.forEach((item: MatOption) => item.deselect());
+    }
+
+    public addFieldsSelectAll() {
+        this.fieldsSelector.options.forEach((item: MatOption) => item.select());
+    }
+
+    public fieldDrop(event:any) {
+        moveItemInArray(this.node.fields, event.previousIndex, event.currentIndex);
+        this.needRefresh.emit();
+    }
+
+    public addFields() {
+        const new_fields = this.fieldsSelector.value;
+        for(let field of new_fields) {
+            this.node.addField(field);
+        }
+        // empty selection
+        this.fieldsSelector.value = [];
+        this.needRefresh.emit();
+    }
+
+    public removeField(field: string) {
+        this.node.hideField(field);
+        this.needRefresh.emit();
+        setTimeout(() => {
+            this.node.hidden.splice(0, 0);
+        })
+    }
 }

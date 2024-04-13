@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit, Optional } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
+import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 import { Menu, MenuContext, MenuItem } from '../_object/Menu';
 import { cloneDeep } from 'lodash';
 import { RouterMemory } from 'src/app/_services/routermemory.service';

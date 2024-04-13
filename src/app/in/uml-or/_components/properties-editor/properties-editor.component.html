@@ -1,62 +1,86 @@
 
-<div class="context-menu" *ngIf="state === 'create-node'">
-   <app-autocomplete class="huge-autocomplete"
-      name="Add Models"
-      [values]="selectable_models"
-      [(value)]="value"
-      (keydown.enter)="add()"
-      width="100%"
-   ></app-autocomplete>
-   <button mat-icon-button (click)="add()"><mat-icon>add</mat-icon></button>
-   <br>
-   <div style="width: calc(100% - 65px); overflow-y: scroll;">
-      <div style="display: flex; align-items: center;" *ngFor="let node of nodes; index as index">
-         <label class="supressoverflow">{{node.entity}}</label>
-         <button mat-icon-button (click)="del(index)"><mat-icon>close</mat-icon></button>
-      </div>
-   </div>
+<div style="position: absolute; top: 10px; right: 10px;">
+    <button mat-icon-button (click)="requestState.emit('normal')"><mat-icon>close</mat-icon></button>
 </div>
-<div class="context-menu" *ngIf="state === 'edit-node'">
-   <div style="display: flex; align-items: center; justify-content: center; width: 100%;" *ngIf="selectedNode < 0 || selectedNode >= nodes.length ">
-      <label>Select a model to edit its visualization.</label>
-   </div>
-   <div *ngIf="selectedNode >= 0 && selectedNode < nodes.length " style="width: 100%;">
-      <div class="header-node">
-         <label>{{nodes[selectedNode].entity}}</label>
-         <button mat-flat-button color="warn" (click)="del(selectedNode)">delete Model</button>
-      </div>
-      <div>
-         <mat-slide-toggle 
-            [checked]="nodes[selectedNode].showInheritance" 
-            (change)="nodes[selectedNode].showInheritance = $event.checked; needRefresh.emit()"
-         >
-            Show Inheritance
-         </mat-slide-toggle>
-      </div>
-      <div>
-         <mat-slide-toggle 
-            [checked]="nodes[selectedNode].showRelations" 
-            (change)="nodes[selectedNode].showRelations = $event.checked; needRefresh.emit()"
-         >
-            Show showRelations
-         </mat-slide-toggle>
-      </div>
-      <label>Hidden fields</label><br>
-      <label *ngIf="!nodes[selectedNode].showRelations">Toggle show relation to see hidden fields.</label><br>
-      <div *ngIf="nodes[selectedNode].showRelations">
-         <div class="chip" *ngFor="let hidden of nodes[selectedNode].hidden; index as index">
-            <label>{{hidden}}</label>
-            <button mat-icon-button (click)="deletehidden(index)"><mat-icon>close</mat-icon></button>
-         </div>
-         <app-autocomplete class="huge-autocomplete"
-            name="hide fields"
+<div *ngIf="state == 'create-node'" class="context-menu">
+    <div>
+        <app-autocomplete class="huge-autocomplete"
+            name="Add Models"
+            [values]="selectable_models"
+            [(value)]="value"
+            (keydown.enter)="createNode()"
             width="100%"
-            [values]="dp"
-            [(value)]="hiddenvalue"
-            (keydown.enter)="addhidden()"
-         >
-         </app-autocomplete>
-         <button mat-icon-button (click)="addhidden()"><mat-icon>add</mat-icon></button>
-      </div>
+        ></app-autocomplete>
+        <button mat-icon-button (click)="createNode()"><mat-icon>add</mat-icon></button>
+    </div>
+    <div style="width: calc(100% - 65px); overflow-y: scroll;">
+        <div class="entities" style="display: flex; align-items: center;" *ngFor="let node of nodes; index as index">
+            <label>{{node.entity}}</label>
+            <button mat-icon-button (click)="removeNode(index)"><mat-icon>close</mat-icon></button>
+        </div>
+    </div>
+</div>
+<div *ngIf="state == 'edit-node'" class="context-menu">
+    <div style="width: 100%;" *ngIf="selectedNode < 0 || selectedNode >= nodes.length ">
+        <label>Select an entity to edit.</label>
+    </div>
+    <div *ngIf="selectedNode >= 0 && selectedNode < nodes.length " style="width: 100%; height: 100%; display: flex; flex-direction: column;">
+        <div class="header">
+            <label>{{nodes[selectedNode].entity}}</label>
+        </div>
+        <div class="section options">
+            <div>
+                <mat-slide-toggle
+                    [checked]="node.show_inheritance"
+                    (change)="node.show_inheritance = $event.checked; needRefresh.emit()"
+                >
+                Show Inheritance
+                </mat-slide-toggle>
+            </div>
+            <div>
+                <mat-slide-toggle
+                    [checked]="node.show_relations"
+                    (change)="node.show_relations = $event.checked; needRefresh.emit()"
+                >
+                Show Relations
+                </mat-slide-toggle>
+            </div>
+        </div>
+        <div class="section fields">
+            <div cdkDropList class="list" (cdkDropListDropped)="fieldDrop($event)">
+                <div class="field-box" *ngFor="let field of node.fields" cdkDrag>
+                    <mat-icon>drag_indicator</mat-icon>
+                    <div>{{field}}</div>
+                    <button mat-icon-button (click)="removeField(field)"><mat-icon>visibility_off</mat-icon></button>
+                </div>
+
+            </div>
+        </div>
+        <div class="section add-fields" *ngIf="node.show_relations">
+            <div>Add fields:</div>
+            <div class="fields-selector" style="display: flex;">
+                <mat-form-field style="flex: 1;">
+                    <mat-select
+                        #fieldsSelector
+                        multiple
+                        panelClass="fields-selector"
+                    >
+                        <mat-optgroup [label]="'Select'" class="fields-selector-optgroup">
+
+                                &nbsp;<a style="cursor: pointer;" (click)="addFieldsSelectAll()">All</a>
+                                &nbsp;<a style="cursor: pointer;" (click)="addFieldsUnselectAll()">None</a>
+                                <button style="position: absolute; right: 0; scale: 0.75;" mat-mini-fab color="primary" (click)="addFields(); fieldsSelector.close();"><mat-icon style="margin-right: 0;">add</mat-icon></button>
+
+                        </mat-optgroup>
+                            <ng-container *ngFor="let field of node.hidden">
+                                <mat-option [value]="field" >{{field}}</mat-option>
+                            </ng-container>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+        </div>
+        <div style="margin-top: auto;">
+            <button style="width: 100%;" mat-flat-button color="warn" (click)="removeNode(selectedNode)"><mat-icon>delete</mat-icon><label>Remove from diagram</label></button>
+        </div>
    </div>
 </div>

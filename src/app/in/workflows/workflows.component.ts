@@ -3,7 +3,7 @@ import { Component, Inject, OnChanges, OnInit, Optional } from '@angular/core';
 
 import * as d3 from "d3"
 import { Subject } from 'rxjs';
-import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
+import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 import { WorkflowNode } from './_components/workflow-displayer/_objects/WorkflowNode';
 import { Anchor, WorkflowLink, test } from './_components/workflow-displayer/_objects/WorkflowLink';
 import { cloneDeep } from 'lodash';
@@ -69,7 +69,7 @@ export class WorkflowsComponent implements OnInit, OnChanges {
   test: { source: string, target: string, type: string }[] = []
 
   constructor(
-    private api: EmbbedApiService,
+    private api: EmbeddedApiService,
     private router:RouterMemory,
     private activatedRoute:ActivatedRoute,
     private matDialog:MatDialog,

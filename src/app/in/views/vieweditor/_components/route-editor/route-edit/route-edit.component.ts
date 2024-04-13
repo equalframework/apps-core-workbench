@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ViewRoute } from '../../../_objects/View';
-import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
+import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 
 @Component({
   selector: 'app-route-edit',
@@ -22,7 +22,7 @@ export class RouteEditComponent implements OnInit {
   big_disp = false
 
   constructor(
-    private api:EmbbedApiService
+    private api:EmbeddedApiService
   ) { }
 
   ngOnInit(): void {

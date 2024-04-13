@@ -47,21 +47,21 @@ export class PackageInfoComponent implements OnInit {
     ) { }
 
     async ngOnInit() {
-        this.consistency_loading = true
-        this.current_initialised = this.package_init_list.indexOf(this.current_package) >= 0
-        this.package_consitency = await this.api.getPackageConsistency(this.current_package)
-        //this.error_list = this.package_consitency["result"]
-        //this.countErrors()
-        this.consistency_loading = false
+        this.consistency_loading = true;
+        this.current_initialised = (this.package_init_list??[]).indexOf(this.current_package) >= 0;
+        this.package_consitency = await this.api.getPackageConsistency(this.current_package);
+        //this.error_list = this.package_consitency["result"];
+        //this.countErrors();
+        this.consistency_loading = false;
     }
 
     public async ngOnChanges() {
-        this.consistency_loading = true
-        this.current_initialised = this.package_init_list.indexOf(this.current_package) >= 0
-        this.package_consitency = await this.api.getPackageConsistency(this.current_package)
-        this.error_list = this.package_consitency["result"]
-        this.countErrors()
-        this.consistency_loading = false
+        this.consistency_loading = true;
+        this.current_initialised = (this.package_init_list??[]).indexOf(this.current_package) >= 0;
+        this.package_consitency = await this.api.getPackageConsistency(this.current_package);
+        this.error_list = this.package_consitency["result"];
+        this.countErrors();
+        this.consistency_loading = false;
     }
 
     public countErrors() {

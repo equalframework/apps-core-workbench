@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControl, FormControl, ValidationErrors, Validators } from '@angular/forms';
 import { Field } from '../../_object/Field';
-import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
+import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 
 @Component({
   selector: 'app-field-editor-sp',
@@ -39,7 +39,7 @@ export class FieldEditorSpComponent implements OnInit {
   })
 
   constructor(
-    private api:EmbbedApiService
+    private api:EmbeddedApiService
   ) { }
 
   ngOnInit(): void {

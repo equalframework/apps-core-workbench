@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit, Optional } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
+import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 import { InitDataFile } from './_objects/init-data';
 import { cloneDeep } from 'lodash';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -30,7 +30,7 @@ export class InitDataComponent implements OnInit {
   selected_file_index = 0
 
   constructor(
-    private api:EmbbedApiService,
+    private api:EmbeddedApiService,
     private activatedRoute:ActivatedRoute,
     private dialog:MatDialog,
     private snack:MatSnackBar,

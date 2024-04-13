@@ -1,4 +1,5 @@
-<div class="full flowcontainer " #boundary
+<div class="full flowcontainer"
+    #boundary
     [style.background-position]="bgPos"
     (mousemove)="trackMouse($event)"
     (mouseup)="grabbed = false"
@@ -33,55 +34,59 @@
                   }
             </style>
             <defs>
-                <marker id="arrowhead-one2many" markerWidth="10" markerHeight="10" 
-                refX="5" refY="5" orient="auto">
+                <marker id="arrowhead-one2many"
+                    markerWidth="10" markerHeight="10"
+                    refX="5" refY="5" orient="auto">
                     <polygon points="-5 0, 5 5, -5 10" fill="none" stroke="#FF4081"/>
                     <path d="M 5,2 L 5,8" stroke="#FF4081" fill="none" stroke-width="1px" />
                     <path d="M 0.5,2 L 0.5,8" stroke="#FF4081" fill="none" stroke-width="1px" />
                     <path d="M -5,5 L 5,5" stroke="#FF4081" fill="none" stroke-width="1px" />
                 </marker>
-                <marker id="arrowhead-many2many" markerWidth="10" markerHeight="10" 
-                refX="5" refY="5" orient="auto">
+                <marker id="arrowhead-many2many"
+                    markerWidth="10" markerHeight="10"
+                    refX="5" refY="5" orient="auto">
                     <polygon points="-5 0, 5 5, -5 10" fill="none" stroke="#3F51B5"/>
                     <path d="M 5,2 L 5,8" stroke="#3F51B5" fill="none" stroke-width="1px" />
                     <path d="M 0.5,2 L 0.5,8" stroke="#3F51B5" fill="none" stroke-width="1px" />
                     <path d="M -5,5 L 5,5" stroke="#3F51B5" fill="none" stroke-width="1px" />
                 </marker>
-                <marker id="arrowhead-many2one" markerWidth="10" markerHeight="10" 
-                refX="5" refY="5" orient="auto">
+                <marker id="arrowhead-many2one"
+                    markerWidth="10" markerHeight="10"
+                    refX="5" refY="5" orient="auto">
                     <polygon points="-5 0, 5 5, -5 10" stroke="#999999" fill="none"/>
                     <path d="M 5,2 L 5,8" stroke="#999999" fill="none" stroke-width="1px" />
                     <path d="M 0.5,2 L 0.5,8" stroke="#999999" fill="none" stroke-width="1px" />
                     <path d="M -5,5 L 5,5" stroke="#999999" fill="none" stroke-width="1px" />
                 </marker>
-                <marker id="arrowhead-extends" markerWidth="10" markerHeight="10" 
-                refX="5" refY="5" orient="auto">
+                <marker id="arrowhead-extends"
+                    markerWidth="10" markerHeight="10"
+                    refX="5" refY="5" orient="auto">
                     <polygon points="5 2.5, 10 5, 5 7.5, 0 5" fill="#008080"/>
                 </marker>
             </defs>
             <g *ngFor="let link of links; index as i" (click)="selectForEdition(i)" (mousedown)="$event.stopPropagation()">
                 <g>
-                    <g *ngIf="getPathStringBetween(link.to,link.from,link.attribute_number_to,link.attribute_number_from,link.relType) as line">
+                    <g *ngIf="getPathStringBetween(link.to, link.from, link.attribute_number_to, link.attribute_number_from, link.relType) as line">
                         <path *ngIf="link.relType === 'one2many'"
-                            [attr.d]="line.path" 
-                            stroke="#FF4081" fill="none" stroke-width="2px" 
+                            [attr.d]="line.path"
+                            stroke="#FF4081" fill="none" stroke-width="2px"
                             marker-start="url(#arrowhead-one2many)"
                         />
                         <path *ngIf="link.relType === 'extends'"
-                            [attr.d]="line.path" 
-                            stroke="#008080" fill="none" stroke-width="2px" 
+                            [attr.d]="line.path"
+                            stroke="#008080" fill="none" stroke-width="2px"
                             marker-start="url(#arrowhead-extends)"
                         />
                     </g>
-                    <g *ngIf="getPathStringBetween(link.from,link.to,link.attribute_number_from,link.attribute_number_to,link.relType) as line">
+                    <g *ngIf="getPathStringBetween(link.from, link.to, link.attribute_number_from, link.attribute_number_to, link.relType) as line">
                         <path *ngIf="link.relType === 'many2one'"
-                            [attr.d]="line.path" 
-                            stroke="#999999" fill="none" stroke-width="2px" 
+                            [attr.d]="line.path"
+                            stroke="#999999" fill="none" stroke-width="2px"
                             marker-start="url(#arrowhead-many2one)"
                         />
                         <path *ngIf="link.relType === 'many2many'"
-                            [attr.d]="line.path" 
-                            stroke="#3F51B5" fill="none" stroke-width="2px" 
+                            [attr.d]="line.path"
+                            stroke="#3F51B5" fill="none" stroke-width="2px"
                             marker-start="url(#arrowhead-many2many)"
                         />
                     </g>
@@ -90,17 +95,17 @@
         </svg>
     </div>
     <div class="boundary">
-        <app-uml-or-node 
+        <app-uml-or-node
             class="dragelement"
-            *ngFor="let node of nodes; index as i" 
-            cdkDrag 
+            *ngFor="let node of nodes; index as i"
+            cdkDrag
             (cdkDragMoved)="mv(node,$event)"
             [style.top.px]="node.initialPos.y - 55 + offset.y "
             [style.left.px]="node.initialPos.x + offset.x"
             [node]="node"
             [state]="state"
-            (linkeToMe)="selectForEdition(i)"
-            [selected]="i===selectedNode"
+            (linkToMe)="selectForEdition(i)"
+            [selected]="i === selectedNode"
             (mousedown)="$event.stopPropagation()"
         ></app-uml-or-node>
     </div>
