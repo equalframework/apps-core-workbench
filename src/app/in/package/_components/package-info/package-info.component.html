@@ -38,8 +38,8 @@
     </div>
     <div class="controller-container-top">
         <div *ngIf="package_consitency" class="consistency-info">
-            <mat-icon 
-                class="pointable icon" 
+            <mat-icon
+                class="pointable icon"
                 *ngIf="(error_count !== 0 || warn_count !== 0)"
                 (click)="info_popup = !info_popup"
             >

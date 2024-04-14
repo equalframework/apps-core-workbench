@@ -82,7 +82,7 @@ export class InitDataComponent implements OnInit {
   async save() {
     const r = await this.api.updateInitData(this.package,this.type,JSON.stringify(this.export()))
     if(r) {
-      this.snack.open("Saved successfully !","INFO")
+      this.snack.open("Saved successfully","INFO")
     }
   }
 

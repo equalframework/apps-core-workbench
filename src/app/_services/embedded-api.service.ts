@@ -13,38 +13,40 @@ export class EmbeddedApiService {
     ) {}
 
     public async createView(model:string,view_id:string) {
-        this.api.fetch("?do=core_config_create-view&view_id="+view_id+"&entity="+model)
+        this.api.fetch("?do=core_config_create-view&view_id="+view_id+"&entity="+model);
     }
 
-    public getErrorstring(x:any):string {
-        let res = "{"
+    public getErrorstring(x:any): string {
+        let res = "{";
         for(let key in x) {
-            res += " "+key +" : "+x[key]+" "
+            res += " "+key +" : "+x[key]+" ";
         }
-        return res + "}"
+        return res + "}";
     }
 
-    public async deleteView(entity:string,view_id:string):Promise<any|undefined>{
+    public async deleteView(entity:string,view_id:string): Promise<any|undefined>{
         try {
-            await this.api.fetch("?do=core_config_delete-view&entity="+entity+"&view_id="+view_id)
-            return undefined
-        } catch(response) {
-            this.api.errorFeedback(response)
-            return response
+            await this.api.fetch("?do=core_config_delete-view&entity="+entity+"&view_id="+view_id);
+            return undefined;
+        }
+        catch(response) {
+            this.api.errorFeedback(response);
+            return response;
         }
 
     }
 
-    public async createPackage(packagename:string) {
-        this.api.fetch("?do=core_config_create-package&package="+packagename)
+    public async createPackage(package_name: string) {
+        this.api.fetch("?do=core_config_create-package&package="+package_name);
     }
 
-    public async listPackages():Promise<string[]|undefined> {
+    public async listPackages(): Promise<string[]> {
         try {
-            return await this.api.fetch("?get=core_config_packages")
-        } catch(response) {
-            console.error(response)
-            return undefined
+            return await this.api.fetch("?get=core_config_packages");
+        }
+        catch(response) {
+            console.error(response);
+            return [];
         }
     }
 
