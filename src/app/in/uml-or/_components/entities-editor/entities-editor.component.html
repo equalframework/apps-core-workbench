@@ -2,27 +2,40 @@
 <div style="position: absolute; top: 10px; right: 10px;">
     <button mat-icon-button (click)="requestState.emit('normal')"><mat-icon>close</mat-icon></button>
 </div>
+<!-- entities selector -->
 <div *ngIf="state == 'create-node'" class="context-menu">
-    <div>
-        <app-autocomplete class="huge-autocomplete"
-            name="Add Models"
-            [values]="selectable_models"
-            [(value)]="value"
-            (keydown.enter)="createNode()"
-            width="100%"
-        ></app-autocomplete>
-        <button mat-icon-button (click)="createNode()"><mat-icon>add</mat-icon></button>
-    </div>
-    <div style="width: calc(100% - 65px); overflow-y: scroll;">
-        <div class="entities" style="display: flex; align-items: center;" *ngFor="let node of nodes; index as index">
-            <label>{{node.entity}}</label>
-            <button mat-icon-button (click)="removeNode(index)"><mat-icon>close</mat-icon></button>
+    <div style="width: 100%; height: 100%; display: flex; flex-direction: column;">
+        <div class="header">
+            <label>Current Entities:</label>
+        </div>
+
+        <div class="section entities">
+            <div style="padding-right: 4px;">
+                <div class="entity" *ngFor="let node of nodes; index as index">
+                    <div class="label">{{node.entity}}</div>
+                    <button style="margin-left: auto;" mat-icon-button (click)="removeNode(index)"><mat-icon>close</mat-icon></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section add-entities">
+            <app-autocomplete class="huge-autocomplete"
+                name="Add entity"
+                [values]="selectable_entities"
+                [(value)]="value"
+                (keydown.enter)="createNode()"
+                width="100%"
+            ></app-autocomplete>
+            <button mat-icon-button (click)="createNode()"><mat-icon>add</mat-icon></button>
         </div>
     </div>
 </div>
+<!-- entity editor -->
 <div *ngIf="state == 'edit-node'" class="context-menu">
     <div style="width: 100%;" *ngIf="selectedNode < 0 || selectedNode >= nodes.length ">
-        <label>Select an entity to edit.</label>
+        <div class="header">
+            <label>Select an entity to edit.</label>
+        </div>
     </div>
     <div *ngIf="selectedNode >= 0 && selectedNode < nodes.length " style="width: 100%; height: 100%; display: flex; flex-direction: column;">
         <div class="header">

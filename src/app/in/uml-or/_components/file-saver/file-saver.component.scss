@@ -1,8 +1,10 @@
-.content {
-    margin-top: 25px;
-    margin-bottom: 25px;
-}
+:host{
+    .header {
+        margin-bottom: 16px;
+    }
 
-.long {
-    width: 100%;
+    .body {
+        margin-bottom: 0;
+    }
+
 }

@@ -20,53 +20,30 @@ import { DialogConfirmComponent } from './_components/dialog-confirm/dialog-conf
 })
 export class UMLORComponent implements OnInit, OnChanges {
 
-    models: string[] = [];
+    public models: string[] = [];
+    public state:string = 'normal';
+    public nodes:UMLORNode[] =  [];
+    public links:UMLORLink[] = [];
+    public selectedLink:number = -1;
+    public selectedNode:number = -1;
+    public package:string = "";
+    public model:string = "";
+    public model_scheme:any = {};
+    public need_save:boolean = false;
+    public view_offset:{x:number, y:number} = {x:0, y:0};
+    public current_filename = "";
 
-    state:string = 'normal';
+    public selected_class: string = "";
+    public tabIndex: number = 1
 
-    nodes:UMLORNode[] =  [];
+    public color: { type: string, color: string }[] = [];
+    public w = 10;
+    public h = 10;
 
-    links:UMLORLink[] = [];
+    public selected_classes: string[] = ["core\\User"];
+    public has_meta_data:number|undefined = undefined;
 
-    selectedLink:number = -1;
-
-    selectedNode:number = -1;
-
-    package:string = "";
-    model:string = "";
-
-    model_scheme:any = {};
-
-    need_save:boolean = false;
-
-    view_offset:{x:number, y:number} = {x:0, y:0};
-
-    current_filename = "";
-
-    changeState(state:string) {
-        if(this.state !== state) {
-            this.state = state;
-            if(!["linking-to"].includes(this.state)){
-                this.selectedNode = -1;
-            }
-            if(!["edit-link","edit-from","edit-to"].includes(this.state)){
-                this.selectedLink = -1;
-            }
-        }
-    }
-
-
-
-    selected_class: string = "";
-    tabIndex: number = 1
-
-    color: { type: string, color: string }[] = [];
-    w = 10;
-    h = 10;
-
-    selected_classes: string[] = ["core\\User"];
-
-
+    public exists:boolean = false;
 
     constructor(
         private api: EmbeddedApiService,
@@ -76,16 +53,12 @@ export class UMLORComponent implements OnInit, OnChanges {
         private snackBar:MatSnackBar
     ) { }
 
-    async ngOnInit() {
+    public async ngOnInit() {
         UMLORNode.init(this.api);
         await this.init();
     }
 
-    has_meta_data:number|undefined = undefined
-
-    exists:boolean = false
-
-    async init() {
+    public async init() {
         this.nodes = []
         this.links = []
 
@@ -105,7 +78,19 @@ export class UMLORComponent implements OnInit, OnChanges {
         this.refresh();
     }
 
-    refresh() {
+    public changeState(state:string) {
+        if(this.state !== state) {
+            this.state = state;
+            if(!["linking-to"].includes(this.state)){
+                this.selectedNode = -1;
+            }
+            if(!["edit-link","edit-from","edit-to"].includes(this.state)){
+                this.selectedLink = -1;
+            }
+        }
+    }
+
+    public refresh() {
         this.links = [];
         this.nodes = [...this.nodes];
         for(let node of this.nodes) {
@@ -142,7 +127,6 @@ export class UMLORComponent implements OnInit, OnChanges {
                 if(field.type === 'many2one') {
                     let ok = true;
                     for(let key of node2.fields) {
-                        console.log(node2.schema[key].foreign_object)
                         if(node2.schema[key].type !=="one2many" && (node2.schema[key].type !=="computed" || node2.schema[key].result_type !== "one2many")) {
                             continue;
                         }
@@ -170,9 +154,9 @@ export class UMLORComponent implements OnInit, OnChanges {
         })
     }
 
-    newFile() {
-        const d = this.matDialog.open(DialogConfirmComponent,{data:"Are you sure you want to start a new file ? All changes will be lost."})
-        d.afterClosed().subscribe((data)=> {
+    public newFile() {
+        const d = this.matDialog.open(DialogConfirmComponent, {data:"Are you sure you want to start a new file ? All changes will be lost."})
+        d.afterClosed().subscribe((data) => {
             if(data) {
                 this.current_filename = "";
                 this.init();
@@ -180,7 +164,7 @@ export class UMLORComponent implements OnInit, OnChanges {
         })
     }
 
-    getNodeByName(name:string):UMLORNode|null {
+    public getNodeByName(name:string):UMLORNode|null {
         for(let item of this.nodes) {
             if(item.entity === name) {
                 return item;
@@ -248,56 +232,70 @@ export class UMLORComponent implements OnInit, OnChanges {
         }
     }
 
-    async save() {
-        const d = this.matDialog.open(FileSaverComponent,{data:{path:this.current_filename},width:"60vw",maxWidth:"600px"})
-        d.afterClosed().subscribe(async (data:string|null) => {
+    public async save() {
+        const d = this.matDialog.open(FileSaverComponent, {
+                data: {
+                    path: this.current_filename
+                },
+                width: "60vw",
+                maxWidth: "600px"
+            });
+
+        d.afterClosed().subscribe(async (data:any) => {
             if(data) {
-                const res = await this.api.saveUML(data.split("::")[0], "erd", data.split("::")[1],JSON.stringify(this.export()));
+                const res = await this.api.saveUML(data.package_name, "erd", data.file_name, JSON.stringify(this.export()));
                 if(res) {
-                    this.snackBar.open("Saved successfully !","INFO");
-                    this.current_filename = data;
+                    this.snackBar.open("Saved successfully","INFO");
+                    this.current_filename = data.package_name+'::'+data.file_name+'.erd.json';
                     this.init();
                 }
             }
-        })
+        });
     }
 
-    async load() {
-        const d = this.matDialog.open(FileLoaderComponent,{data:{path:this.current_filename},width:"60vw",maxWidth:"600px"})
+    public async load() {
+        const d = this.matDialog.open(FileLoaderComponent, {
+                data: {
+                    path: this.current_filename
+                },
+                width: "60vw",
+                maxWidth: "600px"
+            });
+
         d.afterClosed().subscribe(async (data:string|null) => {
-        if(data) {
-            this.current_filename = data
-            this.init()
-        }
-        })
+                if(data) {
+                    this.current_filename = data;
+                    console.log('loaded: ', data);
+                    this.init();
+                }
+            });
     }
 
-    export():any[] {
-        let ret:any = []
+    export(): any[] {
+        let ret:any = [];
         for(let node of this.nodes) {
-            ret.push(node.export())
+            ret.push(node.export());
         }
-        return ret
+        return ret;
     }
 
-    customButtonBehavior(evt:string) {
+    customButtonBehavior(evt: string) {
         switch(evt) {
         case "Show JSON" :
-            this.matDialog.open(Jsonator,{data:this.export(),width : "70vw",height : "80vh"})
-            break
+            this.matDialog.open(Jsonator, {data:this.export(), width : "70vw", height : "80vh"});
+            break;
         case "Print to PDF" :
             this.state = "normal"
             setTimeout(() => {
-                window.print()
+                window.print();
             }, 100);
-
-            break
+            break;
         }
 
     }
-    }
+}
 
-    @Component({
+@Component({
     selector: 'jsonator',
     template: "<pre [innerHtml]='datajson'><pre>"
     })

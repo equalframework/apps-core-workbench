@@ -11,7 +11,7 @@
     [customButtonList]="[{icon:'bug_report', name:'Show JSON', disabled:false},{icon:'print',name:'Print to PDF', disabled:false}]"
     (onCustomButton)="customButtonBehavior($event)"
 >
-    <label>UML Entity-Relationship Diagram › {{current_filename ? current_filename.split('.').slice(0, -1).join('.') : "new file"}}</label>
+    <label>UML Entity-Relationship Diagram › {{current_filename ? current_filename.split('.').slice(0, -2) : "new file"}}</label>
 </app-in-header>
 <div class="holder">
     <mat-grid-list cols="12" rowHeight="100%">
@@ -35,7 +35,7 @@
             </div>
         </mat-grid-tile>
         <mat-grid-tile *ngIf="sizeEditor > 0"  [colspan]="sizeEditor" class="sizeanim">
-            <app-properties-editor
+            <app-entities-editor
                 [state]="state"
                 [nodes]="nodes"
                 [selectedNode]="selectedNode"
@@ -43,7 +43,7 @@
                 (deleteNode)="deleteNode($event)"
                 (needRefresh)="refresh()"
                 (requestState)="changeState($event)"
-            ></app-properties-editor>
+            ></app-entities-editor>
         </mat-grid-tile>
     </mat-grid-list>
 </div>

@@ -7,11 +7,11 @@ import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { settings } from 'cluster';
 
 @Component({
-    selector: 'app-properties-editor',
-    templateUrl: './properties-editor.component.html',
-    styleUrls: ['./properties-editor.component.scss']
+    selector: 'app-entities-editor',
+    templateUrl: './entities-editor.component.html',
+    styleUrls: ['./entities-editor.component.scss']
 })
-export class PropertiesEditorComponent implements OnInit, OnChanges {
+export class EntitiesEditorComponent implements OnInit, OnChanges {
     @Input() state:string = "";
     @Input() nodes:UMLORNode[] = [];
     @Input() selectedNode:number = -1;
@@ -25,7 +25,7 @@ export class PropertiesEditorComponent implements OnInit, OnChanges {
 
     public models:string[] = [];
     public node: UMLORNode;
-    public selectable_models:string[] = [];
+    public selectable_entities:string[] = [];
     public value:string = "";
 
     constructor(
@@ -34,26 +34,25 @@ export class PropertiesEditorComponent implements OnInit, OnChanges {
 
     public async ngOnInit() {
         this.models = await this.api.listAllModels();
+        this.updateSelectableEntities();
+    }
+
+    private updateSelectableEntities() {
+        this.selectable_entities = [];
         for(let model of this.models) {
-            if(this.getNodeByName(model) === null) {
-                this.selectable_models.push(model);
+            if(!this.getNodeByName(model)) {
+                this.selectable_entities.push(model);
             }
         }
     }
-
     public async ngOnChanges() {
-        this.selectable_models = [];
-        for(let model of this.models) {
-            if(this.getNodeByName(model) === null) {
-                this.selectable_models.push(model);
-            }
-        }
+        this.updateSelectableEntities();
         if(this.selectedNode >= 0 && this.selectedNode < this.nodes.length) {
             this.node = this.nodes[this.selectedNode];
         }
     }
 
-    public getNodeByName(name:string): UMLORNode|null {
+    private getNodeByName(name:string): UMLORNode|null {
         for(let node of this.nodes) {
             if(node.entity === name) {
                 return node;
@@ -67,7 +66,6 @@ export class PropertiesEditorComponent implements OnInit, OnChanges {
             this.addNode.emit(this.value);
             this.value = "";
         }
-
     }
 
     public removeNode(index:number) {

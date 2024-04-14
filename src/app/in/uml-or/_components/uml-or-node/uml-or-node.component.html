@@ -5,7 +5,7 @@
     </div>
     <div class="field" *ngFor="let field of node.fields; index as index" [class.altbg]="!(index % 2)">
         <div class="info">
-            <mat-icon color="primary">{{typeIcon[node.schema[field].type === 'computed' ? node.schema[field].result_type : node.schema[field].type]}}</mat-icon>
+            <mat-icon color="primary">{{typeIcon[node.schema[field]?.type === 'computed' ? node.schema[field].result_type : node.schema[field].type]}}</mat-icon>
             <label>{{field}}</label>
         </div>
         <div class="tags">

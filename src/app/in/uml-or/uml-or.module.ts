@@ -6,7 +6,7 @@ import { AutocompleteModule } from '../autocomplete/autocomplete.module';
 import { UMLORDisplayerComponent } from './_components/uml-or-displayer/uml-or-displayer.component';
 import { ClassicLayoutModule } from '../classic-layout/classic-layout.module';
 import { HeaderModule } from '../header/header.module';
-import { PropertiesEditorComponent } from './_components/properties-editor/properties-editor.component';
+import { EntitiesEditorComponent } from './_components/entities-editor/entities-editor.component';
 import { TypeInputModule } from '../type-input/type-input.module';
 import { PropertyDomainModule } from '../property-domain-component/property-domain.module';
 import { UMLORNodeComponent } from './_components/uml-or-node/uml-or-node.component';
@@ -22,7 +22,7 @@ import { DialogConfirmComponent } from './_components/dialog-confirm/dialog-conf
     UMLORComponent,
     UMLORDisplayerComponent,
     UMLORNodeComponent,
-    PropertiesEditorComponent,
+    EntitiesEditorComponent,
     FileSaverComponent,
     FileLoaderComponent,
     DialogConfirmComponent
