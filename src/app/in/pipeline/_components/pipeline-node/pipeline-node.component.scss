@@ -47,6 +47,11 @@
     opacity: 0.2;
 }
 
+.from-button:hover,
+.to-button:hover {
+    opacity: 1;
+}
+
 .from-button {
     right: -75px;
 }

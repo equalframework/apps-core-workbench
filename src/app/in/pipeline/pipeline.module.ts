@@ -26,6 +26,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { ModalInputComponent } from './_components/modal-input/modal-input.component';
 import { MatDialogModule } from '@angular/material/dialog';
+import { PipelineLoaderComponent } from './_components/pipeline-loader/pipeline-loader.component';
 
 
 @NgModule({
@@ -34,7 +35,8 @@ import { MatDialogModule } from '@angular/material/dialog';
         PipelineDisplayerComponent,
         PipelineNodeComponent,
         PropertiesEditorComponent,
-        ModalInputComponent
+        ModalInputComponent,
+        PipelineLoaderComponent
     ],
     imports: [
         CommonModule,

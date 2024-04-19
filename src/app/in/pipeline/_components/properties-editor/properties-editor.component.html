@@ -25,13 +25,10 @@
         </div>
         <mat-list class="scrollable-list">
             <mat-list-item *ngFor="let data of filterData">
-                <div class="list-item-content">
+                <div class="list-item-content" (click)="add(data)">
                     <span class="left-content">
                         {{(searchType === "Package") ? data.name : data.package+':'+data.name}}
                     </span>
-                    <button mat-icon-button (click)="add(data)" class="right-content">
-                        <mat-icon>add_circle_outline</mat-icon>
-                    </button>
                 </div>
             </mat-list-item>
         </mat-list>
@@ -43,7 +40,7 @@
 
     <div class="edit-menu" *ngIf="state === 'edit' ">
         <mat-tab-group *ngIf="selectedNode" animationDuration="0ms">
-            <mat-tab label="Logic">
+            <mat-tab label="Mapping">
                 <div class="params-content">
                     <p>{{selectedNode.data.name}}</p>
                     <p class="description">{{selectedNode.data.description}}</p>
@@ -65,17 +62,23 @@
                             </td>
                             <td>
                                 <div class="value-container">
-                                    <span class="value">{{ getParamsValue(pair.key) }}</span>
-                                    <button mat-mini-fab class="edit-button" (click)="openModal(pair)">
-                                        <mat-icon>edit</mat-icon>
-                                    </button>
+                                    <ng-container *ngIf="getSourceLink(pair.key) as sourceLink; else elseBlock">
+                                        <span class="value" [title]="getControllerName(sourceLink,
+                                            pair.key)">{{ sourceLink }}</span>
+                                    </ng-container>
+                                    <ng-template #elseBlock>
+                                        <span class="value">{{ getParamsValue(pair.key) }}</span>
+                                        <button mat-mini-fab class="edit-button" (click)="openModal(pair)">
+                                            <mat-icon>edit</mat-icon>
+                                        </button>
+                                    </ng-template>
                                 </div>
                             </td>
                         </tr>
                     </table>
                 </div>
             </mat-tab>
-            <mat-tab *ngIf="selectedNode.data" label="UI">
+            <mat-tab *ngIf="selectedNode.data" label="Appearance">
                 <div class="ui-content">
                     <mat-form-field>
                         <mat-label>Change the name</mat-label>
@@ -114,23 +117,22 @@
                 <p>Type of the output : {{selectedLink.from.data.response.schema.type}}</p>
                 <p>With what input should we link the output ?</p>
                 <mat-form-field>
-                    <mat-select (selectionChange)="onSelectionChange($event)">
+                    <mat-select [value]="getTargetValue()" (selectionChange)="onSelectionChange($event)">
                         <mat-option *ngFor="let pair of selectedLink.to.data.params | keyvalue" [value]="pair.key">
                             {{pair.key}}
                         </mat-option>
-                        <mat-option></mat-option>
                     </mat-select>
                 </mat-form-field>
             </div>
             <div *ngIf="!selectedLink.from.data">
-                <div *ngFor="let parameter of selectedParams">
-                    <p>Output : {{parameter.source}}</p>
+                <div *ngFor="let parameter of getParamsLink()">
+                    <p>Output : {{parameter.source}} ({{getControllerName(parameter.source)}})</p>
                     <mat-form-field>
-                        <mat-select [(ngModel)]="parameter.target">
+                        <mat-select [value]="parameter.target" (selectionChange)="onSelectionChange($event, parameter)">
+                            <mat-option></mat-option>
                             <mat-option *ngFor="let pair of selectedLink.to.data.params | keyvalue" [value]="pair.key">
                                 {{pair.key}}
                             </mat-option>
-                            <mat-option></mat-option>
                         </mat-select>
                     </mat-form-field>
                 </div>

@@ -15,7 +15,7 @@ import { KeyValue } from '@angular/common';
     templateUrl: './properties-editor.component.html',
     styleUrls: ['./properties-editor.component.scss']
 })
-export class PropertiesEditorComponent implements OnInit, OnChanges {
+export class PropertiesEditorComponent implements OnInit {
     @Input() state: string = "";
 
     @Output() changeState = new EventEmitter<string>();
@@ -68,17 +68,6 @@ export class PropertiesEditorComponent implements OnInit, OnChanges {
         this.getControllers();
     }
 
-    ngOnChanges(changes: SimpleChanges): void {
-        if ("selectedLink" in changes && this.selectedLink && !this.selectedLink.from.data) {
-            this.selectedParams = [];
-            for (let parameter of this.parameters) {
-                if (parameter.link && parameter.link === this.selectedLink) {
-                    this.selectedParams.push(parameter);
-                }
-            }
-        }
-    }
-
     private async getControllers() {
         try {
             const results = await this.api.fetch('?get=core_config_controllers');
@@ -90,7 +79,7 @@ export class PropertiesEditorComponent implements OnInit, OnChanges {
                         const dirs = controller.substring(0, index).replace("_", ":");
                         const file = controller.substring(index + 1);
                         const url = "?" + (key === "actions" ? "do" : "get") + "=" + controller;
-                        const x = new ControllerData(key, dirs, file, url);
+                        const x = new ControllerData(controller, key, dirs, file, url);
 
                         set.add(dirs);
                         this.controllers.push(x);
@@ -184,18 +173,95 @@ export class PropertiesEditorComponent implements OnInit, OnChanges {
     }
 
     updateParamsValue(value: any, param: string) {
+        let isFound: boolean = false;
         for (let parameter of this.parameters) {
             if (parameter.node === this.selectedNode && parameter.target === param) {
                 parameter.source = value;
+                isFound = true;
+            }
+        }
+        if (this.selectedNode && !isFound) {
+            const parameter = new Parameter(value, param);
+            parameter.node = this.selectedNode;
+            this.parameters.push(parameter);
+        }
+    }
+
+    onSelectionChange(event: MatSelectChange, param?: Parameter) {
+        if (param) {
+            param.target = event.value;
+            this.deleteParamNode(event.value);
+        }
+        else {
+            for (let parameter of this.parameters) {
+                if (this.selectedLink && parameter.link && parameter.link === this.selectedLink) {
+                    parameter.target = event.value;
+                    this.deleteParamNode(event.value);
+                }
             }
         }
     }
 
-    onSelectionChange(event: MatSelectChange) {
-        for (let parameter of this.parameters) {
-            if (this.selectedLink && parameter.link && parameter.link === this.selectedLink) {
-                parameter.target = event.value;
+    private deleteParamNode(target: string) {
+        for (let i = 0; i < this.parameters.length; i++) {
+            let parameter = this.parameters[i];
+            if (parameter.node === this.selectedLink?.to && parameter.target === target) {
+                this.parameters.splice(i, 1);
+                break;
             }
         }
+    }
+
+    getTargetValue(): string {
+        for (let parameter of this.parameters) {
+            if (this.selectedLink && parameter.link && parameter.link === this.selectedLink) {
+                return parameter.target;
+            }
+        }
+        return "";
+    }
+
+    getParamsLink() {
+        const res: Parameter[] = [];
+        for (let parameter of this.parameters) {
+            if (parameter.link && parameter.link === this.selectedLink) {
+                res.push(parameter);
+            }
+        }
+        return res;
+    }
+
+    getSourceLink(param: string): string {
+        for (let parameter of this.parameters) {
+            if (parameter.link && parameter.link.to === this.selectedNode && parameter.target === param) {
+                return parameter.source;
+            }
+        }
+        return "";
+    }
+
+    getControllerName(source: string, param?: string): string {
+        if (this.selectedLink && !this.selectedLink.from.data) {
+            for (let parameter of this.parameters) {
+                if (parameter.link && parameter.target === source) {
+                    return parameter.link.from.name;
+                }
+            }
+        } else {
+            for (let parameter of this.parameters) {
+                if (parameter.link && parameter.link.to === this.selectedNode && parameter.target === param) {
+                    if (parameter.link.from.data) {
+                        return parameter.link.from.name;
+                    } else {
+                        for (let parameter of this.parameters) {
+                            if (parameter.link && parameter.target === source) {
+                                return parameter.link.from.name;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return "";
     }
 }

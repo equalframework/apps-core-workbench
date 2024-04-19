@@ -1,6 +1,7 @@
 import { Node } from "./Node"
 
 export class NodeLink {
+    public id: number;
     public from: Node
     public to: Node
     public isSelected: boolean = false;

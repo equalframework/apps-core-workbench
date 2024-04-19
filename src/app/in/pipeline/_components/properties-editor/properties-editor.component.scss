@@ -60,15 +60,12 @@
 
 .list-item-content:hover {
     background-color: white;
+    cursor: pointer;
 }
 
 .left-content {
     flex-grow: 1;
     text-align: left;
-}
-
-.right-content {
-    margin-left: 10px;
 }
 
 .button-router {
@@ -142,7 +139,7 @@ td {
 }
 
 .ui-content {
-    padding-top: 10px;
+    padding-top: 20px;
     display: flex;
     flex-direction: column;
 }

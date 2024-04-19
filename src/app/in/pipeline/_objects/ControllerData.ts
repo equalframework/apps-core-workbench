@@ -1,3 +1,5 @@
+
+
 class Param {
     description: string;
     type: string;
@@ -22,6 +24,7 @@ class Response {
 }
 
 export class ControllerData {
+    public fullName: string;
     public type: string;
     public package: string;
     public name: string;
@@ -31,7 +34,8 @@ export class ControllerData {
     public params: { [key: string]: Param };
     public response: Response;
 
-    constructor(type: string, pack: string, name: string, url: string) {
+    constructor(fullName: string, type: string, pack: string, name: string, url: string) {
+        this.fullName = fullName;
         this.type = type;
         this.package = pack;
         this.name = name;

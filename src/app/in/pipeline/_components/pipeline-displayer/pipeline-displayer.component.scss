@@ -40,6 +40,9 @@
 }
 
 .delete-button {
+    position: absolute;
+    right: -7px;
+    bottom: -6px;
     transform: scale(0.5);
     background-color: crimson;
 }

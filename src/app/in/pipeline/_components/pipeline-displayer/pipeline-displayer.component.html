@@ -35,7 +35,7 @@
         <foreignObject *ngFor="let link of links"
             [attr.x]="(link.from.updatedPosition.x + link.to.updatedPosition.x + 70) / 2 + view_offset.x - 20"
             [attr.y]="(link.from.updatedPosition.y + link.to.updatedPosition.y + 70) / 2 + view_offset.y + 10"
-            width="50" height="50">
+            width="25" height="25">
             <button mat-mini-fab *ngIf="link.isSelected" class="delete-button"
                 (click)="deleteL(link)"><mat-icon>delete</mat-icon></button>
         </foreignObject>
