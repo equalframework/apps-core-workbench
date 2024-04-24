@@ -113,6 +113,7 @@
         </mat-tab-group>
         <div *ngIf="selectedLink" class="link-content">
             <div *ngIf="selectedLink.from.data">
+                <p>Output : {{selectedLink.from.data.response.schema.name}}</p>
                 <p>Description of the output : {{selectedLink.from.data.response.schema.description}}</p>
                 <p>Type of the output : {{selectedLink.from.data.response.schema.type}}</p>
                 <p>With what input should we link the output ?</p>

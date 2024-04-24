@@ -7,6 +7,7 @@ import { NodeLink } from './_objects/NodeLink';
 import { Parameter } from './_objects/Parameter';
 import { MatDialog } from '@angular/material/dialog';
 import { PipelineLoaderComponent } from './_components/pipeline-loader/pipeline-loader.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
     selector: 'app-pipeline',
@@ -41,7 +42,8 @@ export class PipelineComponent {
     constructor(
         private router: RouterMemory,
         private api: ApiService,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private matSnack: MatSnackBar
     ) { }
 
     public goBack() {
@@ -64,173 +66,186 @@ export class PipelineComponent {
     }
 
     async load() {
-        const res: { name: string, id: number, nodes_ids: string[] }[] = await this.api.collect("core\\pipeline\\Pipeline", [], ['name', 'nodes_ids']);
-        const pipelines: string[] = [];
-        const pipelineMap: { [name: string]: { id: number, nodes_ids: string[] } } = {};
+        try {
+            const res: { name: string, id: number, nodes_ids: string[] }[] = await this.api.collect("core\\pipeline\\Pipeline", [], ['name', 'nodes_ids']);
+            const pipelines: string[] = [];
+            const pipelineMap: { [name: string]: { id: number, nodes_ids: string[] } } = {};
 
-        for (let r of res) {
-            pipelines.push(r.name);
-            pipelineMap[r.name] = { id: r.id, nodes_ids: r.nodes_ids };
-        }
-
-        const dialogRef = this.dialog.open(PipelineLoaderComponent, {
-            width: '450px',
-            height: '250px',
-            data: { pipeline: "", pipelines: pipelines },
-        });
-
-        dialogRef.afterClosed().subscribe(async result => {
-            const pipeline = pipelineMap[result];
-            if (pipeline) {
-                this.newFile();
-                this.pipelineId = pipeline.id;
-                this.pipelineName = result;
-                const links_ids: Set<string> = new Set<string>();
-                const params_ids: Set<string> = new Set<string>();
-                for (let nodeId of pipeline.nodes_ids) {
-                    const valueNode: { id: number, name: string, out_links_ids: string[], in_links_ids: string[], node_type: string, controller: string, operation_type: string, params_ids: string[] } = (await this.api.collect("core\\pipeline\\Node", [['id', '=', nodeId]], ['id', 'name', 'out_links_ids', 'in_links_ids', 'node_type', 'controller', 'operation_type', 'params_ids']))[0];
-                    const metaNode: { position: { x: number, y: number }, icon: string, color: string } = JSON.parse((await this.api.collect("core\\Meta", [['reference', '=', 'node.' + nodeId]], ['value']))[0].value);
-
-                    const node: Node = new Node(metaNode.position);
-                    node.id = valueNode.id;
-                    node.color = metaNode.color;
-                    node.icon = metaNode.icon;
-                    node.name = valueNode.name;
-
-                    if (valueNode.node_type === "controller") {
-                        const index = valueNode.controller.lastIndexOf("_");
-                        const dirs = valueNode.controller.substring(0, index).replace("_", ":");
-                        const file = valueNode.controller.substring(index + 1);
-                        const url = "?" + valueNode.operation_type + "=" + valueNode.controller;
-                        const controllerData: ControllerData = new ControllerData(valueNode.controller, (valueNode.operation_type === "get") ? "data" : "actions", dirs, file, url);
-
-                        const info = (await this.api.fetch(url + '&announce=true')).announcement;
-                        controllerData.description = info.description;
-                        controllerData.params = info.params;
-                        controllerData.response = info.response;
-
-                        node.data = controllerData;
-                    }
-
-                    this.nodes.push(node);
-
-                    for (let link_id of valueNode.in_links_ids) {
-                        links_ids.add(link_id);
-                    }
-                    for (let link_id of valueNode.out_links_ids) {
-                        links_ids.add(link_id);
-                    }
-                    // why valueNode.params_ids is undefined ??
-                    /*for (let param_id of valueNode.params_ids) {
-                        params_ids.add(param_id);
-                    }*/
-                }
-
-                for (let link_id of links_ids) {
-                    const valueLink: { id: number, source_node_id: number, target_node_id: number, params_ids: string[] } = (await this.api.collect("core\\pipeline\\NodeLink", [['id', '=', link_id]], ['id', 'source_node_id', 'target_node_id', 'params_ids']))[0];
-                    let nodeSource: Node | undefined = undefined;
-                    let nodeTarget: Node | undefined = undefined;
-                    for (let node of this.nodes) {
-                        if (node.id === valueLink.source_node_id) {
-                            nodeSource = node;
-                        }
-                        if (node.id === valueLink.target_node_id) {
-                            nodeTarget = node;
-                        }
-                    }
-
-                    if (nodeSource && nodeTarget) {
-                        const link: NodeLink = new NodeLink(nodeSource, nodeTarget);
-                        link.id = valueLink.id;
-                        this.links.push(link);
-                    }
-
-                    for (let param_id of valueLink.params_ids) {
-                        params_ids.add(param_id);
-                    }
-                }
-
-                for (let param_id of params_ids) {
-                    const valueParam: { id: number, node_link_id: number, node_id: number, source: string, target: string } = (await this.api.collect("core\\pipeline\\Parameter", [['id', '=', param_id]], ['id', 'node_link_id', 'node_id', 'source', 'target']))[0];
-                    const source: any = JSON.parse(valueParam.source);
-                    const parameter: Parameter = new Parameter(source, valueParam.target);
-                    parameter.id = valueParam.id;
-                    if (valueParam.node_id) {
-                        for (let node of this.nodes) {
-                            if (node.id === valueParam.node_id) {
-                                parameter.node = node;
-                                break;
-                            }
-                        }
-                    }
-                    else {
-                        for (let link of this.links) {
-                            if (link.id === valueParam.node_link_id) {
-                                parameter.link = link;
-                                break;
-                            }
-                        }
-                    }
-                    this.parameters.push(parameter);
-                }
+            for (let r of res) {
+                pipelines.push(r.name);
+                pipelineMap[r.name] = { id: r.id, nodes_ids: r.nodes_ids };
             }
-        });
+
+            const dialogRef = this.dialog.open(PipelineLoaderComponent, {
+                width: '450px',
+                height: '250px',
+                data: { pipeline: "", pipelines: pipelines },
+            });
+
+            dialogRef.afterClosed().subscribe(async result => {
+                const pipeline = pipelineMap[result];
+                if (pipeline) {
+                    this.newFile();
+                    this.pipelineId = pipeline.id;
+                    this.pipelineName = result;
+                    const links_ids: Set<string> = new Set<string>();
+                    const params_ids: Set<string> = new Set<string>();
+                    for (let nodeId of pipeline.nodes_ids) {
+                        const valueNode: { id: number, name: string, out_links_ids: string[], in_links_ids: string[], node_type: string, controller: string, operation_type: string, params_ids: string[] } = (await this.api.collect("core\\pipeline\\Node", [['id', '=', nodeId]], ['id', 'name', 'out_links_ids', 'in_links_ids', 'node_type', 'controller', 'operation_type', 'params_ids']))[0];
+                        const metaNode: { position: { x: number, y: number }, icon: string, color: string } = JSON.parse((await this.api.collect("core\\Meta", [['reference', '=', 'node.' + nodeId]], ['value']))[0].value);
+
+                        const node: Node = new Node(metaNode.position);
+                        node.id = valueNode.id;
+                        node.color = metaNode.color;
+                        node.icon = metaNode.icon;
+                        node.name = valueNode.name;
+
+                        if (valueNode.node_type === "controller") {
+                            const index = valueNode.controller.lastIndexOf("_");
+                            const dirs = valueNode.controller.substring(0, index).replace("_", ":");
+                            const file = valueNode.controller.substring(index + 1);
+                            const url = "?" + valueNode.operation_type + "=" + valueNode.controller;
+                            const controllerData: ControllerData = new ControllerData(valueNode.controller, (valueNode.operation_type === "get") ? "data" : "actions", dirs, file, url);
+
+                            const info = (await this.api.fetch(url + '&announce=true')).announcement;
+                            controllerData.description = info.description;
+                            controllerData.params = info.params;
+                            controllerData.response = info.response;
+
+                            node.data = controllerData;
+                        }
+
+                        this.nodes.push(node);
+
+                        for (let link_id of valueNode.in_links_ids) {
+                            links_ids.add(link_id);
+                        }
+                        for (let link_id of valueNode.out_links_ids) {
+                            links_ids.add(link_id);
+                        }
+                        for (let param_id of valueNode.params_ids) {
+                            params_ids.add(param_id);
+                        }
+                    }
+
+                    for (let link_id of links_ids) {
+                        const valueLink: { id: number, source_node_id: number, target_node_id: number, params_ids: string[] } = (await this.api.collect("core\\pipeline\\NodeLink", [['id', '=', link_id]], ['id', 'source_node_id', 'target_node_id', 'params_ids']))[0];
+                        let nodeSource: Node | undefined = undefined;
+                        let nodeTarget: Node | undefined = undefined;
+                        for (let node of this.nodes) {
+                            if (node.id === valueLink.source_node_id) {
+                                nodeSource = node;
+                            }
+                            if (node.id === valueLink.target_node_id) {
+                                nodeTarget = node;
+                            }
+                        }
+
+                        if (nodeSource && nodeTarget) {
+                            const link: NodeLink = new NodeLink(nodeSource, nodeTarget);
+                            link.id = valueLink.id;
+                            this.links.push(link);
+                        }
+
+                        for (let param_id of valueLink.params_ids) {
+                            params_ids.add(param_id);
+                        }
+                    }
+
+                    for (let param_id of params_ids) {
+                        const valueParam: { id: number, node_link_id: number, node_id: number, source: string, target: string } = (await this.api.collect("core\\pipeline\\Parameter", [['id', '=', param_id]], ['id', 'node_link_id', 'node_id', 'source', 'target']))[0];
+                        const source: any = JSON.parse(valueParam.source);
+                        const parameter: Parameter = new Parameter(source, valueParam.target);
+                        parameter.id = valueParam.id;
+                        if (valueParam.node_id) {
+                            for (let node of this.nodes) {
+                                if (node.id === valueParam.node_id) {
+                                    parameter.node = node;
+                                    break;
+                                }
+                            }
+                        }
+                        else {
+                            for (let link of this.links) {
+                                if (link.id === valueParam.node_link_id) {
+                                    parameter.link = link;
+                                    break;
+                                }
+                            }
+                        }
+                        this.parameters.push(parameter);
+                    }
+
+                    this.matSnack.open("Loaded successfully !", "INFO")
+                }
+            });
+        }
+        catch (e) {
+            this.api.errorFeedback(e);
+        }
     }
 
     async save() {
-        if (this.pipelineId == -1) {
-            this.pipelineId = (await this.api.create("core\\pipeline\\Pipeline", { name: this.pipelineName })).id;
-        } else {
-            await this.api.update("core\\pipeline\\Pipeline", [this.pipelineId], { name: this.pipelineName });
-        }
-        for (let node of this.nodes) {
-            if (node.id) {
-                await this.api.update("core\\pipeline\\Node", [node.id], { name: node.name });
-
-                const value: string = JSON.stringify({ position: node.updatedPosition, icon: node.icon, color: node.color });
-                const metaId = (await this.api.collect("core\\Meta", [['reference', '=', `node.${node.id}`]], ['id']))[0].id;
-                await this.api.update("core\\Meta", [metaId], { value: value });
+        try {
+            if (this.pipelineId == -1) {
+                this.pipelineId = (await this.api.create("core\\pipeline\\Pipeline", { name: this.pipelineName })).id;
             } else {
-                if (node.data) {
-                    node.id = (await this.api.create("core\\pipeline\\Node", { name: node.name, pipeline_id: this.pipelineId, node_type: "controller", controller: node.data.fullName, operation_type: node.data.type === "data" ? "get" : "do" })).id;
+                await this.api.update("core\\pipeline\\Pipeline", [this.pipelineId], { name: this.pipelineName });
+            }
+            for (let node of this.nodes) {
+                if (node.id) {
+                    await this.api.update("core\\pipeline\\Node", [node.id], { name: node.name });
+
+                    const value: string = JSON.stringify({ position: node.updatedPosition, icon: node.icon, color: node.color });
+                    const metaId = (await this.api.collect("core\\Meta", [['reference', '=', `node.${node.id}`]], ['id']))[0].id;
+                    await this.api.update("core\\Meta", [metaId], { value: value });
                 } else {
-                    node.id = (await this.api.create("core\\pipeline\\Node", { name: "router", pipeline_id: this.pipelineId, node_type: "router" })).id;
+                    if (node.data) {
+                        node.id = (await this.api.create("core\\pipeline\\Node", { name: node.name, pipeline_id: this.pipelineId, node_type: "controller", controller: node.data.fullName, operation_type: node.data.type === "data" ? "get" : "do" })).id;
+                    } else {
+                        node.id = (await this.api.create("core\\pipeline\\Node", { name: "router", pipeline_id: this.pipelineId, node_type: "router" })).id;
+                    }
+                    const value: string = JSON.stringify({ position: node.updatedPosition, icon: node.icon, color: node.color });
+                    await this.api.create("core\\Meta", { code: "pipeline", reference: `node.${node.id}`, value: value });
                 }
-                const value: string = JSON.stringify({ position: node.updatedPosition, icon: node.icon, color: node.color });
-                await this.api.create("core\\Meta", { code: "pipeline", reference: `node.${node.id}`, value: value });
             }
-        }
-        for (let link of this.links) {
-            if (!link.id) {
-                link.id = (await this.api.create("core\\pipeline\\NodeLink", { source_node_id: link.from.id, target_node_id: link.to.id })).id;
+            for (let link of this.links) {
+                if (!link.id) {
+                    link.id = (await this.api.create("core\\pipeline\\NodeLink", { source_node_id: link.from.id, target_node_id: link.to.id })).id;
+                }
             }
-        }
-        for (let parameter of this.parameters) {
-            const sourceJson = JSON.stringify(parameter.source);
-            if (!parameter.id) {
-                if (parameter.node) {
-                    parameter.id = (await this.api.create("core\\pipeline\\Parameter", { node_id: parameter.node.id, source: sourceJson, target: parameter.target })).id;
+            for (let parameter of this.parameters) {
+                const sourceJson = JSON.stringify(parameter.source);
+                if (!parameter.id) {
+                    if (parameter.node) {
+                        parameter.id = (await this.api.create("core\\pipeline\\Parameter", { node_id: parameter.node.id, source: sourceJson, target: parameter.target })).id;
+                    }
+                    else {
+                        parameter.id = (await this.api.create("core\\pipeline\\Parameter", { node_link_id: parameter.link.id, source: sourceJson, target: parameter.target })).id;
+                    }
                 }
                 else {
-                    parameter.id = (await this.api.create("core\\pipeline\\Parameter", { node_link_id: parameter.link.id, source: sourceJson, target: parameter.target })).id;
+                    await this.api.update("core\\pipeline\\Parameter", [parameter.id], { source: sourceJson, target: parameter.target });
                 }
             }
-            else {
-                await this.api.update("core\\pipeline\\Parameter", [parameter.id], { source: sourceJson, target: parameter.target });
-            }
-        }
 
-        if (this.deletedNodeIds.length !== 0) {
-            await this.api.remove("core\\pipeline\\Node", this.deletedNodeIds, true);
-            this.deletedNodeIds = [];
+            if (this.deletedNodeIds.length !== 0) {
+                await this.api.remove("core\\pipeline\\Node", this.deletedNodeIds, true);
+                this.deletedNodeIds = [];
+            }
+            if (this.deletedLinkIds.length !== 0) {
+                await this.api.remove("core\\pipeline\\NodeLink", this.deletedLinkIds, true);
+                this.deletedLinkIds = [];
+            }
+            if (this.deletedParamIds.length !== 0) {
+                await this.api.remove("core\\pipeline\\Parameter", this.deletedParamIds, true);
+                this.deletedParamIds = [];
+            }
+
+            this.matSnack.open("Saved successfully !", "INFO");
         }
-        if (this.deletedLinkIds.length !== 0) {
-            await this.api.remove("core\\pipeline\\NodeLink", this.deletedLinkIds, true);
-            this.deletedLinkIds = [];
-        }
-        if (this.deletedParamIds.length !== 0) {
-            await this.api.remove("core\\pipeline\\Parameter", this.deletedParamIds, true);
-            this.deletedParamIds = [];
+        catch (e) {
+            this.api.errorFeedback(e);
         }
     }
 
