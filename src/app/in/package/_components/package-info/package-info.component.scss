@@ -7,7 +7,7 @@
 
 .margin-container {
     padding: 2em;
-    border-radius: 10px;
+    border-radius: 8px;
     background-color: whitesmoke;
     height: 100%
 }
@@ -111,33 +111,38 @@
     border-radius: 2em;
     padding: 1em;
     min-height: 3em;
+
+    .toggle-chip {
+        color: white;
+        display: inline-block;
+        padding: .25em .5em;
+        border-radius: .2em;
+        margin: 0 .2em;
+        background-color: #dddddd;
+
+        &.checked.chip-warning {
+            background-color: mat-color($editedcolor);
+        }
+
+        &.checked.chip-error {
+            background-color: mat-color($warncolor);
+        }
+    }
+
+    .icon{
+       transform: scale(1.2) translateY(-.1em);
+        float: right;
+        margin-right: 1em;
+    }
 }
 
-.consistency-info .icon{
-    transform: scale(1.2) translateY(-.1em);
-    float: right;
-    margin-right: 1em;
-}
 
 .ml5px {
     margin-left: 5px;
 }
 
-.toggle-chip {
-    display: inline-block;
-    padding: .25em .5em;
-    border-radius: .2em;
-    margin: 0 .2em;
-    background-color: #dddddd;
-}
 
-.toggle-chip.checked.chip-warning {
-    background-color: mat-color($editedcolor,A100);
-}
 
-.toggle-chip.checked.chip-error {
-    background-color: mat-color($warncolor,A100);
-}
 
 .bold {
     font-weight: bold;

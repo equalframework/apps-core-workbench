@@ -3,17 +3,17 @@
     <mat-icon>{{node.icon}}</mat-icon>
     {{node.name}}
     <ng-container *ngIf="!selected">
-        <button *ngIf="['linking-to','linking-from','edit-from','edit-to'].includes(state)" class="anchor top-left-button" mat-mini-fab (click)="linkeToMe.emit(anchor.TopLeft)"><mat-icon>anchor</mat-icon></button>
-        <button *ngIf="['linking-to','linking-from','edit-from','edit-to'].includes(state)" class="anchor top-button" mat-mini-fab (click)="linkeToMe.emit(anchor.Top)"><mat-icon>anchor</mat-icon></button>
-        <button *ngIf="['linking-to','linking-from','edit-from','edit-to'].includes(state)" class="anchor top-right-button" mat-mini-fab (click)="linkeToMe.emit(anchor.TopRight)"><mat-icon>anchor</mat-icon></button>
-        <button *ngIf="['linking-to','linking-from','edit-from','edit-to'].includes(state)" class="anchor middle-left-button" mat-mini-fab (click)="linkeToMe.emit(anchor.MiddleLeft)"><mat-icon>anchor</mat-icon></button>
-        <button *ngIf="['linking-to','linking-from','edit-from','edit-to'].includes(state)" class="anchor middle-right-button" mat-mini-fab (click)="linkeToMe.emit(anchor.MiddleRight)"><mat-icon>anchor</mat-icon></button>
-        <button *ngIf="['linking-to','linking-from','edit-from','edit-to'].includes(state)" class="anchor bottom-left-button" mat-mini-fab (click)="linkeToMe.emit(anchor.BottomLeft)"><mat-icon>anchor</mat-icon></button>
-        <button *ngIf="['linking-to','linking-from','edit-from','edit-to'].includes(state)" class="anchor bottom-button" mat-mini-fab (click)="linkeToMe.emit(anchor.Bottom)"><mat-icon>anchor</mat-icon></button>
-        <button *ngIf="['linking-to','linking-from','edit-from','edit-to'].includes(state)" class="anchor bottom-right-button" mat-mini-fab (click)="linkeToMe.emit(anchor.BottomRight)"><mat-icon>anchor</mat-icon></button>
+        <button *ngIf="['linking-to','linking-from','edit-from','edit-to'].includes(state)" class="anchor top-left-button" mat-mini-fab (click)="linkToMe.emit(anchor.TopLeft)"><mat-icon>anchor</mat-icon></button>
+        <button *ngIf="['linking-to','linking-from','edit-from','edit-to'].includes(state)" class="anchor top-button" mat-mini-fab (click)="linkToMe.emit(anchor.Top)"><mat-icon>anchor</mat-icon></button>
+        <button *ngIf="['linking-to','linking-from','edit-from','edit-to'].includes(state)" class="anchor top-right-button" mat-mini-fab (click)="linkToMe.emit(anchor.TopRight)"><mat-icon>anchor</mat-icon></button>
+        <button *ngIf="['linking-to','linking-from','edit-from','edit-to'].includes(state)" class="anchor middle-left-button" mat-mini-fab (click)="linkToMe.emit(anchor.MiddleLeft)"><mat-icon>anchor</mat-icon></button>
+        <button *ngIf="['linking-to','linking-from','edit-from','edit-to'].includes(state)" class="anchor middle-right-button" mat-mini-fab (click)="linkToMe.emit(anchor.MiddleRight)"><mat-icon>anchor</mat-icon></button>
+        <button *ngIf="['linking-to','linking-from','edit-from','edit-to'].includes(state)" class="anchor bottom-left-button" mat-mini-fab (click)="linkToMe.emit(anchor.BottomLeft)"><mat-icon>anchor</mat-icon></button>
+        <button *ngIf="['linking-to','linking-from','edit-from','edit-to'].includes(state)" class="anchor bottom-button" mat-mini-fab (click)="linkToMe.emit(anchor.Bottom)"><mat-icon>anchor</mat-icon></button>
+        <button *ngIf="['linking-to','linking-from','edit-from','edit-to'].includes(state)" class="anchor bottom-right-button" mat-mini-fab (click)="linkToMe.emit(anchor.BottomRight)"><mat-icon>anchor</mat-icon></button>
     </ng-container>
     <ng-container *ngIf="['edit-node'].includes(state) && !selected">
-        <button class="editbutton" color="primary" mat-mini-fab (click)="linkeToMe.emit()"><mat-icon>edit</mat-icon></button>
+        <button class="editbutton" color="primary" mat-mini-fab (click)="linkToMe.emit()"><mat-icon>edit</mat-icon></button>
     </ng-container>
     <!-- dx : {{node.initialPos.x - node.position.x}} |  dy : {{node.initialPos.y - node.position.y}} -->
 </div>

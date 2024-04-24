@@ -6,7 +6,7 @@
     justify-content: space-between;
     width: 100%;
     height: 100%;
-    border-radius: 10px;
+    border-radius: 8px;
     .icons {
         display: flex;
     }
@@ -34,7 +34,7 @@
     height: calc(10% - 30px);
     background-color: mat-color($maincolor);
     color : white;
-    border-radius: 10px;
+    border-radius: 8px;
     cursor: pointer;
 }
 
@@ -46,7 +46,7 @@
 
     background: rgb(245, 245, 245);
     padding: 10px;
-    border-radius: 10px;
+    border-radius: 8px;
 
     .node-text {
         height: 100%;
@@ -86,7 +86,7 @@
 
 ::-webkit-scrollbar-thumb {
     background: var(--mdc-theme-primary, #6200ee);
-    border-radius: 10px;
+    border-radius: 8px;
 }
 
 .pointable {

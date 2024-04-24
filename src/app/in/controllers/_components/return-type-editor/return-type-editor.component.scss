@@ -9,7 +9,7 @@
     display: inline-flex;
     align-items: center;
     padding: 0 .5em;
-    border-radius: 10px;
+    border-radius: 8px;
     background-color: mat-color($maincolor,A100);
     margin-right: .5em;
 }
@@ -47,7 +47,7 @@
     width: calc(100% - 2em);
     //border: solid #ddd 1px;
     background-color: whitesmoke;
-    border-radius: 10px;
+    border-radius: 8px;
 
     .part-title {
         font-size: 1.3em;
@@ -64,7 +64,7 @@
     .subpart {
         padding: 1em;
         border: solid #ddd 1px;
-        border-radius: 10px;
+        border-radius: 8px;
 
         .subpart-title {
             font-size: 1.1em;

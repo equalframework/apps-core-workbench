@@ -1,19 +1,32 @@
 <app-popup-layout
     [okButton]="true"
-    okButtonText="save"
-    [okButtonDisabled]="control.invalid"
+    okButtonText="Save"
+    [okButtonDisabled]="filenameControl.invalid"
     (close)="dialogRef.close(null)"
-    (ok)="dialogRef.close(control.value)"
+    (ok)="dialogRef.close({package_name: selected_package, file_name: selected_filename})"
 >
-    <div class="content">
-        <label>Save as ...</label>
-        <br>
-        <mat-form-field class="long">
-            <input matInput [formControl]="control" [matAutocomplete]="auto">
-            <mat-error *ngIf="control.invalid">file needs to have the form with package_name::file_name</mat-error>
-            <mat-autocomplete #auto >
-                <mat-option *ngFor="let files of filtered_list" [value]="files">{{files}}</mat-option>
-            </mat-autocomplete>
-        </mat-form-field>
+    <div class="header"><h3>Save as ...</h3></div>
+    <div class="body">
+        <div style="display: flex; width: 100%;">
+            <div style="flex: 0 1 30%">
+                <mat-form-field>
+                    <mat-label>Package</mat-label>
+                    <mat-select [(value)]="selected_package">
+                        <mat-option *ngFor="let package_name of packages" [value]="package_name">
+                            {{package_name}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div style="flex: 1 0 60%; margin-left: 16px;">
+                <mat-form-field style="width: 100%;">
+                    <input matInput [formControl]="filenameControl" [matAutocomplete]="auto" (ngModelChange)="onchangeFilename($event)">
+                    <mat-error *ngIf="filenameControl.invalid">filname cannot be empty</mat-error>
+                    <mat-autocomplete #auto >
+                        <mat-option *ngFor="let files of filtered_list" [value]="files">{{files}}</mat-option>
+                    </mat-autocomplete>
+                </mat-form-field>
+            </div>
+        </div>
     </div>
 </app-popup-layout>

@@ -21,8 +21,8 @@
 }
 
 .package-info-button {
-    color : mat-color($maincolor) !important;
-    background-color:  #e4e4e4 !important;
+    color: mat-color($maincolor) !important;
+    background-color: #e4e4e4 !important;
     min-width: 80%;
     height: 80%;
 }
@@ -97,13 +97,13 @@
 
     .field-prop {
         display: flex;
-        border-radius: 10px;
+        border-radius: 8px;
         justify-content: center;
         padding: 0 3px;
         width: 40px;
         height: 100%;
         margin-left: 4px;
-        background-color: mat-color($accentcolor,A100);
+        background-color: mat-color($accentcolor, A100);
 
         &.unique {
             font-size: 100%;
@@ -111,7 +111,7 @@
     }
 }
 
-a.sub-part-title{
+a.sub-part-title {
     cursor: help;
 }
 
@@ -127,9 +127,9 @@ a.sub-part-title{
 
     .typeicon {
         padding: .1em .5em;
-        background-color: mat-color($maincolor,A100);
+        background-color: mat-color($maincolor, A100);
         display: flex;
         align-items: center;
-        border-radius: 10px;
+        border-radius: 8px;
     }
 }

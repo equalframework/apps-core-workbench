@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, Input, OnChanges, OnInit } from '@angular/core';
 import { InitDataEntityInstance, InitDataEntitySection, InitDataFile } from '../../_objects/init-data';
 import { Sort } from '@angular/material/sort';
-import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
+import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 import compareAsc from 'date-fns/compareAsc';
 import { MatPaginatorDefaultOptions, PageEvent } from '@angular/material/paginator';
 import { cloneDeep, isObject } from 'lodash';
@@ -33,7 +33,7 @@ export class InitSidepaneComponent implements OnInit,OnChanges {
   modelList:string[] = []
 
   constructor(
-    private api:EmbbedApiService,
+    private api:EmbeddedApiService,
     private dialog:MatDialog,
   ) { }
 

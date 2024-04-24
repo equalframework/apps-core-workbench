@@ -33,11 +33,11 @@
                   }
             </style>
             <defs>
-                <marker id="arrowhead" markerWidth="10" markerHeight="10" 
+                <marker id="arrowhead" markerWidth="10" markerHeight="10"
                 refX="0" refY="5" orient="auto">
                     <polygon points="-5 0, 5 5, -5 10" fill="#424242"/>
                 </marker>
-                <marker id="arrowhead-selected" markerWidth="10" markerHeight="10" 
+                <marker id="arrowhead-selected" markerWidth="10" markerHeight="10"
                 refX="0" refY="5" orient="auto">
                     <polygon points="-5 0, 5 5, -5 10" fill="#3F51B5"/>
                 </marker>
@@ -45,18 +45,18 @@
             <g *ngFor="let link of links; index as i" (click)="selectForEdition(i)" (mousedown)="$event.stopPropagation()">
                 <g *ngIf="i!==selectedLink">
                     <g *ngIf="getPathStringBetween(link.from,link.to,link.anchorFrom,link.anchorTo) as line">
-                        <path 
-                            [attr.d]="line.path" 
-                            stroke="#424242" fill="none" stroke-width="2px" 
+                        <path
+                            [attr.d]="line.path"
+                            stroke="#424242" fill="none" stroke-width="2px"
                             marker-end='url(#arrowhead)'
-                            
+
                         />
-                        <g 
+                        <g
                             *ngIf="['edit-link'].includes(state)"
                         >
                             <g>
-                                <circle  
-                                    r="17.5" 
+                                <circle
+                                    r="17.5"
                                     fill='#424242' [attr.cx]="line.center.x" [attr.cy]="line.center.y"
                                 />
                                 <text [attr.x]="line.center.x-12.5" [attr.y]="line.center.y+12.5">
@@ -72,18 +72,18 @@
             <g *ngIf="!(['edit-from','edit-to'].includes(state))">
                 <g *ngIf="links[selectedLink] as link">
                     <g *ngIf="getPathStringBetween(link.from,link.to,link.anchorFrom,link.anchorTo) as line">
-                        <path 
-                            [attr.d]="line.path" 
-                            stroke="#3F51B5" fill="none" stroke-width="2px" 
+                        <path
+                            [attr.d]="line.path"
+                            stroke="#3F51B5" fill="none" stroke-width="2px"
                             marker-end='url(#arrowhead-selected)'
-                            
+
                         />
-                        <g 
+                        <g
                             *ngIf="['edit-link'].includes(state)"
                         >
                             <g>
-                                <circle  
-                                    r="17.5" 
+                                <circle
+                                    r="17.5"
                                     fill="#3F51B5" [attr.cx]="line.center.x" [attr.cy]="line.center.y"
                                 />
                                 <text [attr.x]="line.center.x-12.5" [attr.y]="line.center.y+12.5">
@@ -94,8 +94,8 @@
                             </g>
                             <g>
                                 <g (click)="requestState.emit('edit-from')">
-                                    <circle  
-                                        r="10" 
+                                    <circle
+                                        r="10"
                                         fill="#FF4081" [attr.cx]="line.start.x" [attr.cy]="line.start.y"
                                     />
                                     <text [attr.x]="line.start.x-5" [attr.y]="line.start.y+5">
@@ -105,8 +105,8 @@
                                     </text>
                                 </g>
                                 <g (click)="requestState.emit('edit-to')">
-                                    <circle  
-                                        r="10" 
+                                    <circle
+                                        r="10"
                                         fill="#FF4081" [attr.cx]="line.end.x" [attr.cy]="line.end.y"
                                     />
                                     <text [attr.x]="line.end.x-5" [attr.y]="line.end.y+5">
@@ -122,15 +122,15 @@
             </g>
             <g *ngIf="state === 'linking-to' && selectedNode > 0 && selectedAnchor">
                 <g *ngIf="getPathStringBetween(nodes[selectedNode],mousePosOffsetted,selectedAnchor,anchor.Top) as line">
-                    <path 
-                        [attr.d]="line.path" 
-                        stroke="#424242" fill="none" stroke-width="2px" 
+                    <path
+                        [attr.d]="line.path"
+                        stroke="#424242" fill="none" stroke-width="2px"
                     />
-                    <g 
+                    <g
                         *ngIf="['edit-link'].includes(state)"
                     >
-                        <circle  
-                            r="17.5" 
+                        <circle
+                            r="17.5"
                             fill="#424242" [attr.cx]="line.center.x" [attr.cy]="line.center.y"
                         />
                         <text [attr.x]="line.center.x-12.5" [attr.y]="line.center.y+12.5">
@@ -143,15 +143,15 @@
             </g>
             <g *ngIf="state === 'edit-to'">
                 <g *ngIf="getPathStringBetween(links[selectedLink].from,mousePosOffsetted,links[selectedLink].anchorFrom,anchor.Top) as line">
-                    <path 
-                        [attr.d]="line.path" 
-                        stroke="#3F51B5" fill="none" stroke-width="2px" 
+                    <path
+                        [attr.d]="line.path"
+                        stroke="#3F51B5" fill="none" stroke-width="2px"
                     />
-                    <g 
+                    <g
                         *ngIf="['edit-link'].includes(state)"
                     >
-                        <circle  
-                            r="17.5" 
+                        <circle
+                            r="17.5"
                             fill="#3F51B5" [attr.cx]="line.center.x" [attr.cy]="line.center.y"
                         />
                         <text [attr.x]="line.center.x-12.5" [attr.y]="line.center.y+12.5">
@@ -164,16 +164,16 @@
             </g>
             <g *ngIf="state === 'edit-from'">
                 <g *ngIf="getPathStringBetween(mousePosOffsetted,links[selectedLink].to,anchor.Top,links[selectedLink].anchorTo) as line">
-                    <path 
-                        [attr.d]="line.path" 
-                        stroke="#3F51B5" fill="none" stroke-width="2px" 
+                    <path
+                        [attr.d]="line.path"
+                        stroke="#3F51B5" fill="none" stroke-width="2px"
                         marker-end="url('#arrowhead-selected')"
                     />
-                    <g 
+                    <g
                         *ngIf="['edit-link'].includes(state)"
                     >
-                        <circle  
-                            r="17.5" 
+                        <circle
+                            r="17.5"
                             fill="#3F51B5" [attr.cx]="line.center.x" [attr.cy]="line.center.y"
                         />
                         <text [attr.x]="line.center.x-12.5" [attr.y]="line.center.y+12.5">
@@ -187,19 +187,19 @@
         </svg>
     </div>
     <div class="full boundary">
-        <app-workflow-node 
+        <app-workflow-node
             class="dragelement"
-            *ngFor="let node of nodes; index as i" 
-            cdkDrag 
+            *ngFor="let node of nodes; index as i"
+            cdkDrag
             (cdkDragMoved)="mv(node,$event)"
             [style.top.px]="node.initialPos.y - 55 + offset.y "
             [style.left.px]="node.initialPos.x + offset.x"
             [node]="node"
             [state]="state"
-            
+
             [selected]="i===selectedNode"
             (mousedown)="$event.stopPropagation()"
-            (linkeToMe)="finishCreateLink(i,$event)"
+            (linkToMe)="finishCreateLink(i,$event)"
         ></app-workflow-node>
     </div>
 </div>

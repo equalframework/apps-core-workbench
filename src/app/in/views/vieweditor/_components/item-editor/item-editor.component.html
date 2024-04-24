@@ -14,7 +14,7 @@
                         <mat-option *ngFor="let item_type of types" value="{{item_type}}">{{item_type}}</mat-option>
                     </mat-select>
                 </mat-form-field>
-                <mat-form-field 
+                <mat-form-field
                     *ngIf="item.valueIsSelect"
                     title="{{item.type === 'field' ? 'field' : 'string'}} to display"
                 >
@@ -30,23 +30,23 @@
                     <input matInput placeholder="item width" type="number" [value]="item.width" (input)="item.width = $event.target.value">
                     <label matSuffix>%</label>
                 </mat-form-field>
-                
+
                 <mat-form-field class="ml1em">
                     <input [disabled]="item.type !== 'field'" matInput placeholder="custom label" [value]="item.label" (input)="item.label = $event.target.value">
                 </mat-form-field>
             </div>
             <div  class="flex">
                 <mat-checkbox [checked]="item.readonly" (change)="item.readonly = $event.checked">readonly</mat-checkbox>
-                <mat-checkbox 
+                <mat-checkbox
                     title="Add a boolean or a domain that tell if this item is displayed or not"
-                    [checked]="item.has_domain" 
+                    [checked]="item.has_domain"
                     (change)="item.has_domain= $event.checked"
                 >
                     visibility
                 </mat-checkbox>
-                <mat-checkbox 
-                    title="Does this item has special properties &#010;(create a widget for this item)" 
-                    [checked]="item.has_widget" 
+                <mat-checkbox
+                    title="Does this item has special properties &#010;(create a widget for this item)"
+                    [checked]="item.has_widget"
                     (change)="item.has_widget= $event.checked"
                 >
                     widget
@@ -62,17 +62,17 @@
         <!-- LIST WIDGET -->
         <div *ngIf="item.viewtype === 0">
             <label class="sup-prop-title">
-                Widget : 
+                Widget :
             </label>
-            <mat-checkbox 
+            <mat-checkbox
                 [checked]="item.widgetList.sortable"
                 (change)="item.widgetList.sortable = $event.checked"
                 title="[LIST ONLY] &#010;if checked, the end user will be able to sort the view by this item"
             >
                 sortable
             </mat-checkbox>
-            <mat-checkbox 
-                [checked]="item.widgetList.link" 
+            <mat-checkbox
+                [checked]="item.widgetList.link"
                 (change)="item.widgetList.link = $event.checked"
                 title="if checked the item will have a link (behavior change with the type of field)"
             >
@@ -96,33 +96,33 @@
         <!-- FORM WIDGET -->
         <div *ngIf="item.viewtype === 1">
             <label class="sup-prop-title">
-                Widget : 
+                Widget :
             </label>
-            <mat-checkbox 
-                [checked]="item.widgetForm.link" 
+            <mat-checkbox
+                [checked]="item.widgetForm.link"
                 (change)="item.widgetForm.link = $event.checked"
                 title="if checked the item will have a link (behavior change with the type of field)"
             >
                 link
             </mat-checkbox>
-            <mat-checkbox 
-                [checked]="item.widgetForm.heading" 
+            <mat-checkbox
+                [checked]="item.widgetForm.heading"
                 (change)="item.widgetForm.heading = $event.checked"
                 title="if checked the item will appear bigger"
             >
                 heading
             </mat-checkbox>
-            <mat-checkbox 
+            <mat-checkbox
                 [disabled]="!_has_viewEnabled"
-                [checked]="item.widgetForm._has_header" 
+                [checked]="item.widgetForm._has_header"
                 (change)="set_has_header($event.checked)"
                 title="[ASSOCIATIVE ONLY] &#010;this will override the header of the default list view for display in the form"
             >
                 header
             </mat-checkbox>
-            <mat-checkbox 
+            <mat-checkbox
                 [disabled]="!_has_viewEnabled"
-                [checked]="item.widgetForm._has_view" 
+                [checked]="item.widgetForm._has_view"
                 (change)="set_has_view($event.checked)"
                 title="[ASSOCIATIVE ONLY] &#010;this will override the default view to display in the form"
             >
@@ -153,7 +153,7 @@
         </div>
         <div *ngIf="item.widgetForm._has_view">
             <label class="sup-prop-title">
-                View : 
+                View :
             </label>
             <mat-form-field class="list-selector">
                 <mat-select [(value)]="item.widgetForm.view" (valueChange)="set_has_view(item.widgetForm._has_view)">

@@ -6,7 +6,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MixedCreatorComponent } from '../package/_components/mixed-creator/mixed-creator.component';
-import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
+import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 
 @Component({
   selector: 'app-routes',
@@ -29,7 +29,7 @@ export class RoutesComponent implements OnInit {
     loading = true
 
     constructor(
-        private api: EmbbedApiService,
+        private api: EmbeddedApiService,
         private route:RouterMemory,
         private activateRoute:ActivatedRoute,
         public matDialog:MatDialog,

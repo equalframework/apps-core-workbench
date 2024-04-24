@@ -1,66 +1,69 @@
 import { Component, Inject, OnInit, Optional } from '@angular/core';
-import { AbstractControl, FormControl, ValidationErrors } from '@angular/forms';
+import { AbstractControl, FormControl, ValidationErrors, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
+import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 
 @Component({
-  selector: 'app-file-saver',
-  templateUrl: './file-saver.component.html',
-  styleUrls: ['./file-saver.component.scss']
+    selector: 'app-file-saver',
+    templateUrl: './file-saver.component.html',
+    styleUrls: ['./file-saver.component.scss']
 })
 export class FileSaverComponent implements OnInit {
-  constructor(
-    @Optional() public dialogRef: MatDialogRef<FileSaverComponent>,
-    @Optional() @Inject(MAT_DIALOG_DATA) public data:{path:string},
-    private api:EmbbedApiService
-  ) {}
+    // array mapping all packages names with related ERD files
+    public list:any =  {};
+    public filtered_list:string[] = [];
+    public filenameControl: FormControl;
+    public packages: string[];
+    public selected_package: string = 'core';
+    public selected_filename: string = '';
 
-  list:{[id:string]:string[]} =  {}
-
-  filtered_list:string[] = []
-
-  control = new FormControl("")
-
-  async ngOnInit() {
-    this.list = await this.api.getUMLList("or")
-    this._filter(this.data.path)
-    this.control.valueChanges.subscribe((data)=>{
-      this._filter(data)
-    })
-    this.control.addValidators(FileSaverComponent.casefunc(Object.keys(this.list)))
-    this.control.setValue(this.data.path)
-  }
-
-  static casefunc(list:string[]) {
-    return (control:AbstractControl):ValidationErrors|null => {
-      const data:string = control.value
-    
-      const split = data.split("::")
-    
-      if(split.length !== 2) {
-        return {case:true}
-      }
-
-      if(split[1].length <= 0 || split[1].startsWith(".")) {
-        return {case:true}
-      }
-    
-      if(!list.includes(split[0])) {
-        return {case:true}
-      }
-    
-      return null
+    constructor(
+        @Optional() public dialogRef: MatDialogRef<FileSaverComponent>,
+        @Optional() @Inject(MAT_DIALOG_DATA) public data:{path:string},
+        private api:EmbeddedApiService
+    ) {
+        this.filenameControl = new FormControl('', Validators.required);
     }
-  }
 
-  private _filter(value:string) {
-    let temp = []
-    for(let pkg in this.list) {
-      for(let item of this.list[pkg]) {
-        temp.push(pkg+"::"+item)
-      }
+
+    async ngOnInit() {
+        this.list = await this.api.getUMLList("erd");
+
+        // we received a filename : extract parts
+        if(this.data.path.length) {
+            const parts = this.data.path.split("::");
+            let filename: string = '';
+            if(parts.length) {
+                this.selected_package = parts[0];
+            }
+            if(parts.length > 1) {
+                const file_parts = parts[1].split('.');
+                if(file_parts.length > 1) {
+                    filename = file_parts[0];
+                }
+            }
+            this.onchangeFilename(filename);
+        }
+
+        this.packages = Object.keys(this.list);
+        this.filenameControl.setValue(this.selected_filename);
     }
-    this.filtered_list = temp.filter((item) => item.toLowerCase().includes(value.toLowerCase()))
-  }
+
+    public onchangeFilename(filename: string) {
+        this.selected_filename = filename;
+        this.filtered_list = [];
+        // filter list to remove files extension
+        if(this.list[this.selected_package] && this.list[this.selected_package].length) {
+            for(let file of this.list[this.selected_package]) {
+                const file_parts = file.split('.');
+                if(file_parts.length > 1) {
+                    file = file_parts[0];
+                }
+                if(!filename.length || file.includes(filename)) {
+                    this.filtered_list.push(file);
+                }
+            }
+        }
+    }
+
 }
-

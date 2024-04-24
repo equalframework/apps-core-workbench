@@ -20,16 +20,16 @@ export class UMLORLink {
         return this.to.entity
     }
 
-    
+
 
     constructor(from:UMLORNode,to:UMLORNode,field:string,f_field:string,reltype:"many2many"|"one2many"|"many2one"|"extends") {
-        this.from = from
-        this.to = to
-        this.attribute_number_from = this.from.getFieldIndex(field)
-        this.attribute_number_to = this.to.getFieldIndex(f_field)
-        this.relType = reltype
+        this.from = from;
+        this.to = to;
+        this.attribute_number_from = this.from.getFieldIndex(field);
+        this.attribute_number_to = this.to.getFieldIndex(f_field);
+        this.relType = reltype;
     }
-    
+
     export() {
     }
 
