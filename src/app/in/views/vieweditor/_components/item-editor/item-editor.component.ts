@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, EventEmitter, Output } from '@angular/core';
 import { ViewItem } from '../../_objects/View';
 import { Router } from '@angular/router';
-import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
+import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 import { ViewEditorServicesService } from '../../_services/view-editor-services.service';
 
 @Component({

@@ -13,6 +13,7 @@
 .flexcol {
     display: flex;
 }
+
 #test {
     width: calc(100% - 20em);
     height: 100%;
@@ -49,7 +50,7 @@
     width: 100% ;
     background-color: whitesmoke;
     height: 55px;
-    border-radius: 10px;
+    border-radius: 8px;
     button {
         margin: 0 .25em;
     }
@@ -69,7 +70,7 @@
 
     .warn-icon {
         margin-left: 1em;
-        
+
     }
 
     label {
@@ -90,7 +91,7 @@
 
     .warn-icon {
         margin-left: 1em;
-        
+
     }
     a {
         color: mat-color($editedcolor);
@@ -104,10 +105,6 @@
     }
 
 
-}
-
-.holder {
-    height: calc(100% - 80px - 55px);
 }
 
 @media print {
@@ -130,7 +127,7 @@
         .cdk-overlay-container {
             display: none;
         }
-    } 
+    }
     .modecontainer {
         display: none;
         visibility: hidden;

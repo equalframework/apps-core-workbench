@@ -3,17 +3,25 @@
 
 .node {
     background-color: whitesmoke;
-    border-radius: 10px;
+    border-radius: 8px;
     padding: 10px 0;
     border: solid 1px #ddd;
 }
 
 
-.selected {
-    background-color: mat-color($maincolor,A100);
-    .field.altbg {
-        background-color:  mat-color($maincolor,A200);
-    }
+.selected::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: mat-color($maincolor, A100, .1);
+    z-index: 0;
+    border-radius: 8px;
+    -webkit-box-shadow: 0px 0px 4px mat-color($maincolor, A100);
+    -moz-box-shadow: 0px 0px 4px mat-color($maincolor, A100);
+    box-shadow: 0px 0px 4px mat-color($maincolor, A100);
 }
 
 .editbutton {
@@ -21,27 +29,43 @@
     right : 0;
     top : 0;
     transform: scale(0.8) translate(40%,-40%);
-    
+
 }
 
 .field {
     height: 15px;
     display: flex;
     align-items: center;
-    padding-right : 15px;
-    padding-left: 5px;
+    padding : 0 5px;
+
     mat-icon {
         transform: scale(0.5);
     }
-    label {
-        font-size: 13px;
+
+    .info {
+        display: flex;
+        flex: 1 0;
     }
+
+    .tags {
+        flex: 0 1;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+
+        mat-icon {
+            width: 14px;
+        }
+
+    }
+
 }
 
 
 .field.altbg {
     background-color: #ddd;
 }
+
 
 .name {
     text-align: center;

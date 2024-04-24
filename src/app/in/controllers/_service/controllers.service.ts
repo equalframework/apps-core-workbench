@@ -2,12 +2,12 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { isArray } from 'lodash';
 import { ApiService } from 'sb-shared-lib';
-import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
+import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 
 @Injectable({
     providedIn: 'root'
 })
-export class ControllersService extends EmbbedApiService {
+export class ControllersService extends EmbeddedApiService {
 
     
 

@@ -2,7 +2,7 @@ import { Component, Inject, OnInit, Optional } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { InitPopupEditorComponent } from '../init-popup-editor/init-popup-editor.component';
 import { InitDataEntityInstance } from '../../_objects/init-data';
-import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
+import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 import { Sort } from '@angular/material/sort';
 import { PageEvent } from '@angular/material/paginator';
 
@@ -23,7 +23,7 @@ export class ImporterComponent implements OnInit {
   constructor(
     @Optional() public ref: MatDialogRef<InitPopupEditorComponent>,
     @Optional() @Inject(MAT_DIALOG_DATA) public data: { entity: string, vf:any[] },
-    private api: EmbbedApiService
+    private api: EmbeddedApiService
   ) { }
 
   async ngOnInit() {

@@ -2,13 +2,13 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { promise } from 'protractor';
 import { ApiService } from 'sb-shared-lib';
-import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
+import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 
 
 @Injectable({
     providedIn: 'root'
 })
-export class WorkbenchService extends EmbbedApiService {
+export class WorkbenchService extends EmbeddedApiService {
     public cached_schema:any
 
     constructor(

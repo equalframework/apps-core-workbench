@@ -44,7 +44,7 @@
             <button mat-button (click)="stopAddingLanguage()"><mat-icon>close</mat-icon>Cancel</button>
             <button mat-button [disabled]="lang_name.invalid" (click)="createLanguage()"><mat-icon>done</mat-icon>Create</button>
         </div>
-        <mat-tab-group *ngIf="obk(data).length > 0" class="partcontent" animationDuration="0ms" [lang]="lang" mat-align-tabs="center">
+        <mat-tab-group *ngIf="obk(data).length > 0" class="partcontent" animationDuration="0ms" [lang]="lang" >
             <mat-tab label="Model" class="modeltradholder tabpadding">
                 <div class="tabpadding">
                     <br>

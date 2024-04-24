@@ -1,28 +1,17 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { SharedLibModule, CustomDateAdapter } from 'sb-shared-lib';
 import { UMLORComponent } from './uml-or.component';
-import { DragDropModule } from '@angular/cdk/drag-drop';
 import { UMLORRoutingModule } from './uml-or-routing.module';
 import { AutocompleteModule } from '../autocomplete/autocomplete.module';
-import { MatTabsModule } from '@angular/material/tabs';
 import { UMLORDisplayerComponent } from './_components/uml-or-displayer/uml-or-displayer.component';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
 import { ClassicLayoutModule } from '../classic-layout/classic-layout.module';
 import { HeaderModule } from '../header/header.module';
-import { MatGridListModule } from '@angular/material/grid-list';
-import { PropertiesEditorComponent } from './_components/properties-editor/properties-editor.component';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { EntitiesEditorComponent } from './_components/entities-editor/entities-editor.component';
 import { TypeInputModule } from '../type-input/type-input.module';
 import { PropertyDomainModule } from '../property-domain-component/property-domain.module';
-import { MatDividerModule } from '@angular/material/divider';
 import { UMLORNodeComponent } from './_components/uml-or-node/uml-or-node.component';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FileSaverComponent } from './_components/file-saver/file-saver.component';
 import { PopupLayoutModule } from '../popup-layout/popup-layout.module';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { FileLoaderComponent } from './_components/file-loader/file-loader.component';
 import { DialogConfirmComponent } from './_components/dialog-confirm/dialog-confirm.component';
 
@@ -33,32 +22,20 @@ import { DialogConfirmComponent } from './_components/dialog-confirm/dialog-conf
     UMLORComponent,
     UMLORDisplayerComponent,
     UMLORNodeComponent,
-    PropertiesEditorComponent,
+    EntitiesEditorComponent,
     FileSaverComponent,
     FileLoaderComponent,
     DialogConfirmComponent
   ],
   imports: [
-    CommonModule,
-    DragDropModule,
+    SharedLibModule,
     UMLORRoutingModule,
     AutocompleteModule,
-    MatTabsModule,
-    MatIconModule,
-    MatButtonModule,
     ClassicLayoutModule,
     HeaderModule,
-    MatGridListModule,
-    MatFormFieldModule,
-    MatInputModule,
-    ReactiveFormsModule,
-    FormsModule,
     TypeInputModule,
     PropertyDomainModule,
-    MatDividerModule,
-    MatSlideToggleModule,
-    PopupLayoutModule,
-    MatAutocompleteModule
+    PopupLayoutModule
   ]
 })
 export class UMLORModule { }

@@ -11,35 +11,13 @@
     [customButtonList]="[{icon:'bug_report', name:'Show JSON', disabled:false},{icon:'print',name:'Print to PDF', disabled:false}]"
     (onCustomButton)="customButtonBehavior($event)"
 >
-    <label>UML Object-relational editor : {{current_filename ? current_filename : "new file"}}</label>
+    <label>UML Entity-Relationship Diagram › {{current_filename ? current_filename.split('.').slice(0, -2) : "new file"}}</label>
 </app-in-header>
-<div class="modecontainer">
-    <button mat-flat-button 
-        [class.mode-selected]="['normal'].includes(this.state)"
-        (click)="changeState('normal')"
-    >
-        <mat-icon>preview</mat-icon>
-        <label class="spaceleft">view</label>
-    </button>
-    <button
-        mat-flat-button
-        [class.mode-selected]="['create-node'].includes(this.state)"
-        (click)="changeState('create-node')"
-    >
-        <mat-icon>control_point</mat-icon>
-        <label class="spaceleft">Add Model</label>
-    </button>
-    <button
-        mat-flat-button
-        [class.mode-selected]="['edit-node'].includes(this.state)"
-        (click)="changeState('edit-node')"
-    >
-        <mat-icon>drive_file_rename_outline</mat-icon>
-        <label class="spaceleft">Edit Model display</label>
-    </button>
-</div>
 <div class="holder">
     <mat-grid-list cols="12" rowHeight="100%">
+        <div *ngIf="!sizeEditor" style="position: absolute; top: 10px; right: 10px; z-index: 1;">
+            <button mat-mini-fab color="primary" style="scale: 0.8" (click)="changeState('create-node')"><mat-icon>add</mat-icon></button>
+        </div>
         <mat-grid-tile [colspan]="sizeViewer" class="sizeanim">
             <div sidepane class="marginel">
                 <app-uml-or-displayer
@@ -49,7 +27,7 @@
                     [selectedNode]="selectedNode"
                     [selectedLink]="selectedLink"
                     (selectLink)="selectedLink = $event"
-                    (selectNode)="selectedNode = $event; log($event)"
+                    (selectNode)="selectedNode = $event;"
                     (requestState)="changeState($event)"
                     [offset]="view_offset"
                 >
@@ -57,14 +35,15 @@
             </div>
         </mat-grid-tile>
         <mat-grid-tile *ngIf="sizeEditor > 0"  [colspan]="sizeEditor" class="sizeanim">
-            <app-properties-editor
+            <app-entities-editor
                 [state]="state"
                 [nodes]="nodes"
                 [selectedNode]="selectedNode"
                 (addNode)="addNode($event)"
                 (deleteNode)="deleteNode($event)"
                 (needRefresh)="refresh()"
-            ></app-properties-editor>
+                (requestState)="changeState($event)"
+            ></app-entities-editor>
         </mat-grid-tile>
     </mat-grid-list>
 </div>

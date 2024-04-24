@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit, Optional } from '@angular/core';
 import { Form, FormControl } from '@angular/forms';
 import { ReturnFormatItem, ReturnValue } from './_objects/ReturnValue';
-import { EmbbedApiService } from 'src/app/_services/embbedapi.service';
+import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 import { TypeUsageService } from 'src/app/_services/type-usage.service';
 import { cloneDeep } from 'lodash';
 import { MatSnackBar } from '@angular/material/snack-bar';

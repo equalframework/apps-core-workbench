@@ -1,6 +1,6 @@
 <div *ngIf="error" class="loader">
     <div>
-        <label>This view is currently not supported for edition</label> 
+        <label>This view is currently not supported for edition</label>
     </div>
     <div>
         <button mat-flat-button color="primary" (click)="goBack()">Go back</button>
@@ -47,7 +47,7 @@
                 </mat-select>
             </mat-form-field>
         </div>
-        <mat-tab-group class="tabgrp">
+        <mat-tab-group class="tab-group">
             <mat-tab>
                 <ng-template mat-tab-label>
                     <mat-icon class="tab-label-icon">dashboard</mat-icon>
@@ -57,40 +57,37 @@
                     <div *ngIf="view_obj.type === 'form' || view_obj.type === 'search'">
                         <div class="">
                             <label class="category-title maincolor">Groups</label>
-                            <button mat-fab color="primary" class="addItem" (click)="addGroup()"><mat-icon>add</mat-icon></button>
+                            <button mat-mini-fab color="primary" class="addItem" (click)="addGroup()"><mat-icon>add</mat-icon></button>
                         </div>
-                        <br>
-                        <div class="indent">
-                            <div *ngFor="let group of view_obj.layout.groups">
-                                <div>
-                                    <mat-form-field>
-                                        <input matInput placeholder="Group name" [value]="group.label==='' ? 'UNNAMED' : group.label" (change)="group.label = $event.target.value==='UNNAMED' ? '' : $event.target.value">
-                                    </mat-form-field>
-                                    <mat-form-field>
-                                        <input matInput placeholder="Group.id" [value]="group.id" (input)="group.id = $event.target.value">
-                                    </mat-form-field>
-                                    <button mat-fab color="primary" class="section-add-btn" (click)="deleteGroup(view_obj.layout.groups.indexOf(group))"><mat-icon>delete</mat-icon></button>
-                                </div>
-                                <div class="indent">
-                                    <app-group-editor
-                                        [group_obj]="group.sections"
-                                        [entity]="entity"
-                                        [fields]="fields"
-                                        (onChange)="group.sections= $event"
-                                        [groups]="groups"
-                                        [action_controllers]="action_controllers"
-                                    ></app-group-editor>
-                                </div>
-                                <br>
-                                <br>
+
+                        <div *ngFor="let group of view_obj.layout.groups" style="margin-bottom: 24px;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <mat-form-field>
+                                    <input matInput placeholder="Group name" [value]="group.label==='' ? 'UNNAMED' : group.label" (change)="group.label = $event.target.value==='UNNAMED' ? '' : $event.target.value">
+                                </mat-form-field>
+                                <mat-form-field>
+                                    <input matInput placeholder="Group.id" [value]="group.id" (input)="group.id = $event.target.value">
+                                </mat-form-field>
+                                <button mat-mini-fab color="primary" class="section-add-btn" (click)="deleteGroup(view_obj.layout.groups.indexOf(group))"><mat-icon>delete</mat-icon></button>
                             </div>
+
+                            <app-group-editor
+                                [group_obj]="group.sections"
+                                [entity]="entity"
+                                [fields]="fields"
+                                (onChange)="group.sections= $event"
+                                [groups]="groups"
+                                [action_controllers]="action_controllers"
+                            ></app-group-editor>
+
+
                         </div>
                     </div>
                     <div *ngIf="view_obj.type === 'list'">
                         <label class="category-title maincolor">Items</label>
-                        <button mat-fab color="primary" class="addItem" (click)="addItemLayout()"><mat-icon>add</mat-icon></button>
-                        <mat-accordion class="indent" 
-                            cdkDropList 
+                        <button mat-mini-fab color="primary" class="addItem" (click)="addItemLayout()"><mat-icon>add</mat-icon></button>
+                        <mat-accordion class="indent"
+                            cdkDropList
                             [cdkDropListData]="view_obj.layout.items"
                             (cdkDropListDropped)="drop_item($event)"
                         >
@@ -125,7 +122,7 @@
                                     (delete)="deleteItemLayout(view_obj.layout.items.indexOf(item))"
                                 ></app-item-editor>
                             </mat-expansion-panel>
-                                
+
                         </mat-accordion>
                     </div>
                 </div>
@@ -154,7 +151,7 @@
                         <!--------->
                         <label [style.opacity]="view_obj._has_filter ? 1 : 0.6" class="category-title maincolor">Filters </label>
                         <mat-slide-toggle [(ngModel)]="view_obj._has_filter"></mat-slide-toggle>
-                        <button *ngIf="view_obj._has_filter" mat-fab color="primary" class="addItem" (click)="addFilter()"><mat-icon>add</mat-icon></button>
+                        <button *ngIf="view_obj._has_filter" mat-mini-fab color="primary" class="addItem" (click)="addFilter()"><mat-icon>add</mat-icon></button>
                         <br>
                         <div *ngIf="filter_visible && view_obj._has_filter" class="indent">
                             <div class="indent" *ngFor="let filter of view_obj.filters">
@@ -179,7 +176,7 @@
                                         ></app-clause-domain-component>
                                     </div>
                                     <div class="delete-button-container">
-                                        <button mat-fab color="primary" (click)="deleteFilter(view_obj.filters.indexOf(filter))"><mat-icon>delete</mat-icon></button>
+                                        <button mat-mini-fab color="primary" (click)="deleteFilter(view_obj.filters.indexOf(filter))"><mat-icon>delete</mat-icon></button>
                                     </div>
                                 </div>
                             </div>
@@ -260,9 +257,9 @@
                                     <mat-panel-description>
                                         Sets the limit of object queried by the view
                                     </mat-panel-description>
-                                    <mat-icon 
-                                        class="toggleicon" 
-                                        [class.on]="view_obj._has_limit" 
+                                    <mat-icon
+                                        class="toggleicon"
+                                        [class.on]="view_obj._has_limit"
                                         (click)="$event.stopPropagation(); view_obj._has_limit = !view_obj._has_limit"
                                     >
                                         {{view_obj._has_limit?"toggle_on":"toggle_off"}}
@@ -312,9 +309,9 @@
                                     <mat-panel-description>
                                         Groups item by attribute
                                     </mat-panel-description>
-                                    <mat-icon 
-                                        class="toggleicon" 
-                                        [class.on]="view_obj._has_group_by" 
+                                    <mat-icon
+                                        class="toggleicon"
+                                        [class.on]="view_obj._has_group_by"
                                         (click)="$event.stopPropagation(); view_obj._has_group_by = !view_obj._has_group_by"
                                     >
                                         {{view_obj._has_group_by?"toggle_on":"toggle_off"}}
@@ -350,7 +347,7 @@
                                             </mat-form-field>
                                         </div>
                                         <div>
-                                            <button mat-icon-button color="primary" (click)="deleteGroupBy(index)"><mat-icon>delete</mat-icon></button>
+                                            <button mat-mini-fab color="primary" (click)="deleteGroupBy(index)"><mat-icon>delete</mat-icon></button>
                                         </div>
                                     </div>
                                 </div>
@@ -391,7 +388,7 @@
                                                     <mat-option value="AVG">AVG</mat-option>
                                                 </mat-select>
                                             </mat-form-field>
-                                        
+
                                             <mat-form-field>
                                                 <mat-label>Prefix</mat-label>
                                                 <input matInput [(ngModel)]="op.prefix">
@@ -420,9 +417,9 @@
                                     <mat-panel-description>
                                         Domain applied on to select item to show in the view
                                     </mat-panel-description>
-                                    <mat-icon 
-                                        class="toggleicon" 
-                                        [class.on]="view_obj._has_domain" 
+                                    <mat-icon
+                                        class="toggleicon"
+                                        [class.on]="view_obj._has_domain"
                                         (click)="$event.stopPropagation(); view_obj._has_domain = !view_obj._has_domain"
                                     >
                                         {{view_obj._has_domain?"toggle_on":"toggle_off"}}

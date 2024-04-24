@@ -9,15 +9,15 @@
     <div style="background-color: whitesmoke; height: 100%;">
         <button mat-icon-button color="primary" [mat-menu-trigger-for]="menu"><mat-icon >more_vert</mat-icon></button>
         <mat-menu #menu="matMenu">
-            <button mat-menu-item 
-                [style.opacity]="item.type !== 'parent' ? 0.6 : 1"  
-                [disabled]="item.type !== 'parent'" 
-                class="menu-editor-mat-menu-item" 
+            <button mat-mini-fab
+                [style.opacity]="item.type !== 'parent' ? 0.6 : 1"
+                [disabled]="item.type !== 'parent'"
+                class="menu-editor-mat-menu-item"
                 (click)="addChild()"
             >
                 <mat-icon>add</mat-icon> Add child
             </button>
-            <button mat-menu-item 
+            <button mat-mini-fab
                 class="menu-editor-mat-menu-item"
                 (click)="ondelete()"
             >

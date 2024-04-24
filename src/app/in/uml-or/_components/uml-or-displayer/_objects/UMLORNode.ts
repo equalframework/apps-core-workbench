@@ -1,85 +1,87 @@
-import { cloneDeep } from "lodash"
-import { EmbbedApiService } from "src/app/_services/embbedapi.service"
+import { EmbeddedApiService } from "src/app/_services/embedded-api.service"
 
 export class UMLORNode {
-    public entity:string = ""
-    public fields:any
-    public parent:string = "equal\\orm\\Model"
-    public hidden:string[]
-    public position:{x:number,y:number} = {x : 0 , y : 0}
-    public width:number
-    public height:number
-    public initialPos:{x:number,y:number}
-    public showInheritance:boolean = true
-    public showRelations:boolean = true
+    public entity: string;
+    public schema: any;
+    public parent: string;
+    public hidden: string[];
+    public fields: string[];
+    public position: {x:number,y:number};
+    public width: number;
+    public height: number;
+    public initialPos: {x:number, y:number};
+    public show_inheritance: boolean;
+    public show_relations: boolean;
 
-    static api:EmbbedApiService
+    static api:EmbeddedApiService;
 
-    constructor(entity:string,x?:number,y?:number,hidden?:string[],parent?:string,showInheritance?:boolean,showRelations?:boolean) {
+    constructor(entity:string = "", x:number = 0, y:number = 0, hidden:string[] = [], fields:string[] = [], parent:string = "equal\\orm\\Model", show_inheritance:boolean = true, show_relations:boolean = true) {
         this.entity = entity;
-        if(x)
-            this.position.x = x;
-        if(y)
-            this.position.y = y;
-        this.initialPos = cloneDeep(this.position)
-        if(hidden)
-            this.hidden = hidden
-        if(parent)
-            this.parent = parent
-        if(showInheritance)
-            this.showInheritance = showInheritance
-        if(showRelations)
-            this.showRelations = showRelations
+        this.hidden = hidden;
+        this.fields = fields;
+        this.parent = parent;
+        this.show_inheritance = show_inheritance;
+        this.show_relations = show_relations;
+        this.position = {x: x, y: y};
+        this.initialPos = {x: x, y: y};
     }
 
-    get DisplayFields():string[] {
-        let ret:string[] = []
-        for(let key in this.fields) {
-            if(this.hidden.includes(key)) {
-                continue
-            }
-            ret.push(key)
+    public getFieldIndex(field:string):number {
+        return this.fields.indexOf(field);
+    }
+
+    public addField(field:string) {
+        if(!this.fields.includes(field)) {
+            this.fields.push(field);
         }
-        return ret
-    }
-
-    getFieldIndex(name:string):number {
-        let count = 0
-        for(let key in this.fields) {
-            if(key === name) {
-                return this.hidden.includes(key) ? -1 : count
-            }
-            if(this.hidden.includes(key)) {
-                continue
-            }
-            count ++
+        if(this.hidden.includes(field)) {
+            this.hidden.splice(this.hidden.indexOf(field), 1);
         }
-        return -1
     }
 
+    public hideField(field:string) {
+        if(!this.hidden.includes(field)) {
+            this.hidden.push(field);
+        }
+        if(this.fields.includes(field)) {
+            this.fields.splice(this.fields.indexOf(field), 1);
+        }
+    }
 
-    public static init(api:EmbbedApiService) {
-        UMLORNode.api = api
+    public static init(api:EmbeddedApiService) {
+        UMLORNode.api = api;
     }
 
     get fieldNames() {
-        return Object.keys(this.fields)
+        return Object.keys(this.schema);
     }
 
-    public static async AsyncConstructor(entity:string,hidden:string[] = [],x:number = 0, y:number = 0, showInheritance?:boolean):Promise<UMLORNode> {
-        const schema = await this.api.getSchema(entity)
-        let ret = new UMLORNode(entity,x,y,hidden,schema.parent,showInheritance)
-        ret.fields = schema.fields ? schema.fields : {}
-        return ret
+    public static async AsyncConstructor(entity: string = '', hidden: string[] = [], fields: string[] = [], x: number = 0, y: number = 0, show_inheritance: boolean = true, show_relations: boolean = true): Promise<UMLORNode> {
+        const schema = await this.api.getSchema(entity);
+        let result = new UMLORNode(entity, x, y, hidden, fields, schema.parent, show_inheritance, show_relations);
+        result.schema = schema.fields ?? {};
+        if(fields.length == 0) {
+            for(let field of Object.keys(schema.fields)) {
+                if(hidden.includes(field)) {
+                    continue;
+                }
+                result.fields.push(field);
+            }
+        }
+        return result;
     }
 
     public export() {
         return {
-            "entity" : cloneDeep(this.entity),
-            "hidden" : cloneDeep(this.hidden),
-            "position" : cloneDeep(this.position),
-            "showInheritance" : cloneDeep(this.showInheritance),
-            "showRelations" : cloneDeep(this.showRelations)
+            entity : this.entity,
+            hidden : [...this.hidden],
+            fields : [...this.fields],
+            position : {
+                x: this.position.x,
+                y: this.position.y
+            },
+            show_inheritance : this.show_inheritance,
+            show_relations : this.show_relations
         }
     }
 }

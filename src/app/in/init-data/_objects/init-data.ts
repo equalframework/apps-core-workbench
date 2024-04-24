@@ -1,6 +1,6 @@
 import { strict } from "assert";
 import { cloneDeep } from "lodash";
-import { EmbbedApiService } from "src/app/_services/embbedapi.service";
+import { EmbeddedApiService } from "src/app/_services/embedded-api.service";
 
 export class UnparsableError extends Error {
 
@@ -10,7 +10,7 @@ export class InitDataFile {
     public name:string = "new_file.json"
     public entities:{[entity:string]:InitDataEntitySection} = {}
 
-    constructor(private api:EmbbedApiService,name?:string, schema:any = [] ) {
+    constructor(private api:EmbeddedApiService,name?:string, schema:any = [] ) {
         if(name) {
             this.name = name
         }
@@ -74,7 +74,7 @@ export class InitDataEntitySection {
     }
 
     constructor(
-        private api:EmbbedApiService,
+        private api:EmbeddedApiService,
         scheme:any
     ) {
         if(!scheme.name) {
