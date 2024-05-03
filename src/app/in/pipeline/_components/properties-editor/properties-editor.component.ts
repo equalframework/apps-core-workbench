@@ -5,10 +5,8 @@ import { Node } from '../../_objects/Node';
 import { NodeLink } from '../../_objects/NodeLink';
 import { Parameter } from '../../_objects/Parameter';
 import { TypeUsageService } from 'src/app/_services/type-usage.service';
-import { MatSelectChange } from '@angular/material/select';
 import { MatDialog } from '@angular/material/dialog';
 import { ModalInputComponent } from '../modal-input/modal-input.component';
-import { KeyValue } from '@angular/common';
 
 @Component({
     selector: 'app-properties-editor',
@@ -51,11 +49,11 @@ export class PropertiesEditorComponent implements OnInit {
 
     @Input() selectedLink: NodeLink | undefined;
 
+    @Input() links: NodeLink[];
+
     @Input() parameters: Parameter[];
 
-    public typeIcon: { [id: string]: string }
-
-    public selectedParams: Parameter[] = [];
+    public typeIcon: { [id: string]: string } = {};
 
     constructor(
         private api: ApiService,
@@ -70,7 +68,7 @@ export class PropertiesEditorComponent implements OnInit {
 
     private async getControllers() {
         try {
-            const results = await this.api.fetch('?get=core_config_controllers');
+            const results = await this.api.get('?get=core_config_controllers');
             const set = new Set<string>();
             for (let key in results) {
                 if (key !== "apps") {
@@ -153,115 +151,88 @@ export class PropertiesEditorComponent implements OnInit {
         const dialogRef = this.dialog.open(ModalInputComponent, {
             width: '450px',
             height: '300px',
-            data: { pair: pair, value: this.getParamsValue(pair.key) },
+            data: { pair: pair, value: this.getParamValue(pair.key) },
         });
 
         dialogRef.afterClosed().subscribe(result => {
             if (result) {
-                this.updateParamsValue(result, pair.key)
+                this.updateParamValue(pair.key, result)
             }
         });
     }
 
-    getParamsValue(param: string): any {
+    getParamValue(param: string): any {
         for (let parameter of this.parameters) {
-            if (parameter.node === this.selectedNode && parameter.target === param) {
-                return parameter.source;
+            if (parameter.node === this.selectedNode && parameter.param === param) {
+                return parameter.value;
             }
         }
         return undefined;
     }
 
-    updateParamsValue(value: any, param: string) {
+    updateParamValue(param: string, value: any) {
         let isFound: boolean = false;
         for (let parameter of this.parameters) {
-            if (parameter.node === this.selectedNode && parameter.target === param) {
-                parameter.source = value;
+            if (parameter.node === this.selectedNode && parameter.param === param) {
+                parameter.value = value;
                 isFound = true;
             }
         }
         if (this.selectedNode && !isFound) {
-            const parameter = new Parameter(value, param);
+            const parameter = new Parameter(param, value);
             parameter.node = this.selectedNode;
             this.parameters.push(parameter);
         }
     }
 
-    onSelectionChange(event: MatSelectChange, param?: Parameter) {
-        if (param) {
-            param.target = event.value;
-            this.deleteParamNode(event.value);
-        }
-        else {
-            for (let parameter of this.parameters) {
-                if (this.selectedLink && parameter.link && parameter.link === this.selectedLink) {
-                    parameter.target = event.value;
-                    this.deleteParamNode(event.value);
-                }
-            }
-        }
-    }
-
-    private deleteParamNode(target: string) {
+    deleteParam(param: string) {
         for (let i = 0; i < this.parameters.length; i++) {
-            let parameter = this.parameters[i];
-            if (parameter.node === this.selectedLink?.to && parameter.target === target) {
+            const parameter = this.parameters[i];
+            if (parameter.node === this.selectedNode && parameter.param === param) {
                 this.parameters.splice(i, 1);
                 break;
             }
         }
     }
 
-    getTargetValue(): string {
-        for (let parameter of this.parameters) {
-            if (this.selectedLink && parameter.link && parameter.link === this.selectedLink) {
-                return parameter.target;
+    getValueLink(param: string): string {
+        for (let link of this.links) {
+            if (link.target === this.selectedNode && param === link.target_param) {
+                return link.reference.name;
             }
         }
         return "";
     }
 
-    getParamsLink() {
-        const res: Parameter[] = [];
-        for (let parameter of this.parameters) {
-            if (parameter.link && parameter.link === this.selectedLink) {
-                res.push(parameter);
+    getNodesSourceRouter(): Node[] {
+        const res: Node[] = [];
+        for (let link of this.links) {
+            if (link.target === this.selectedNode) {
+                res.push(link.reference);
             }
         }
         return res;
     }
 
-    getSourceLink(param: string): string {
-        for (let parameter of this.parameters) {
-            if (parameter.link && parameter.link.to === this.selectedNode && parameter.target === param) {
-                return parameter.source;
+    getLinks(): NodeLink[] {
+        const res: NodeLink[] = [];
+        for (let link of this.links) {
+            if (this.selectedLink && link.source === this.selectedLink.source && link.target === this.selectedLink.target) {
+                res.push(link);
             }
         }
-        return "";
+        return res;
     }
 
-    getControllerName(source: string, param?: string): string {
-        if (this.selectedLink && !this.selectedLink.from.data) {
-            for (let parameter of this.parameters) {
-                if (parameter.link && parameter.target === source) {
-                    return parameter.link.from.name;
-                }
-            }
-        } else {
-            for (let parameter of this.parameters) {
-                if (parameter.link && parameter.link.to === this.selectedNode && parameter.target === param) {
-                    if (parameter.link.from.data) {
-                        return parameter.link.from.name;
-                    } else {
-                        for (let parameter of this.parameters) {
-                            if (parameter.link && parameter.target === source) {
-                                return parameter.link.from.name;
-                            }
-                        }
-                    }
+    deleteParamAfterMapping(node: Node, param: string) {
+        if (param !== "") {
+            for (let i = 0; i < this.parameters.length; i++) {
+                const parameter = this.parameters[i];
+                if (parameter.node === node && parameter.param === param) {
+                    this.parameters.splice(i, 1);
+                    break;
                 }
             }
         }
-        return "";
     }
 }

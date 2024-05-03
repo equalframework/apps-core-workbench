@@ -1,5 +1,5 @@
-<app-in-header [buttonBack]="true" (onButtonBack)="goBack()" [buttonNew]="true" (onButtonNew)="newFile()"
-    [buttonLoad]="true" (onButtonLoad)="load()" [buttonSave]="true" (onButtonSave)="save()">
+<app-in-header [buttonNew]="true" (onButtonNew)="newFile()" [buttonLoad]="true" (onButtonLoad)="load()"
+    [buttonSave]="true" (onButtonSave)="save()">
     <mat-form-field>
         <input matInput [(ngModel)]="pipelineName">
     </mat-form-field>
@@ -15,7 +15,7 @@
         </mat-grid-tile>
         <mat-grid-tile *ngIf="sizeEditor !== 0" [colspan]="sizeEditor" class="sizeanim">
             <app-properties-editor [state]="state" (changeState)="changeState($event)" (addNode)="addNode($event)"
-                [selectedNode]="selectedNode" [selectedLink]="selectedLink" [parameters]="parameters">
+                [selectedNode]="selectedNode" [selectedLink]="selectedLink" [links]="links" [parameters]="parameters">
             </app-properties-editor>
         </mat-grid-tile>
     </mat-grid-list>

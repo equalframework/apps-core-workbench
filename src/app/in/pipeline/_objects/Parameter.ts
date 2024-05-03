@@ -4,12 +4,11 @@ import { NodeLink } from "./NodeLink";
 export class Parameter {
     public id: number;
     public node: Node;
-    public link: NodeLink;
-    public source: any;
-    public target: string;
+    public param: string;
+    public value: any;
 
-    constructor(source: any, target: string) {
-        this.source = source;
-        this.target = target;
+    constructor(param: string, value: any) {
+        this.param = param;
+        this.value = value;
     }
 }

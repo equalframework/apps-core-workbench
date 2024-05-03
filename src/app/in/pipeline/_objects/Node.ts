@@ -6,7 +6,6 @@ export class Node {
     public data: ControllerData;
     public isSelected: boolean = false;
 
-    //meta-data
     public position: { x: number, y: number } = { x: 0, y: 0 };
     public updatedPosition: { x: number, y: number } = { x: 0, y: 0 };
     public icon: string;

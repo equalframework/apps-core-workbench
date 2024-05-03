@@ -10,10 +10,10 @@
         (to)="linkTo($event)">
     </app-pipeline-node>
     <svg class="svg-container">
-        <line *ngFor="let link of links" [attr.x1]="link.from.updatedPosition.x + 35 + view_offset.x"
-            [attr.y1]="link.from.updatedPosition.y + 35 + view_offset.y"
-            [attr.x2]="link.to.updatedPosition.x + 35 + view_offset.x"
-            [attr.y2]="link.to.updatedPosition.y + 35 + view_offset.y" stroke="black"
+        <line *ngFor="let link of links" [attr.x1]="link.source.updatedPosition.x + 35 + view_offset.x"
+            [attr.y1]="link.source.updatedPosition.y + 35 + view_offset.y"
+            [attr.x2]="link.target.updatedPosition.x + 35 + view_offset.x"
+            [attr.y2]="link.target.updatedPosition.y + 35 + view_offset.y" stroke="black"
             [ngClass]="{'selected-link': link.isSelected}" />
         <defs>
             <marker id="arrow" markerWidth="20" markerHeight="20" refX="10" refY="5" orient="auto"
@@ -21,20 +21,20 @@
                 <path d="M0,0 L0,10 L18,5 z" fill="black" />
             </marker>
         </defs>
-        <line *ngFor="let link of links" [attr.x1]="link.from.updatedPosition.x + 35 + view_offset.x"
-            [attr.y1]="link.from.updatedPosition.y + 35 + view_offset.y"
-            [attr.x2]="(link.from.updatedPosition.x + link.to.updatedPosition.x + 70) / 2 + view_offset.x"
-            [attr.y2]="(link.from.updatedPosition.y + link.to.updatedPosition.y + 70) / 2 + view_offset.y"
+        <line *ngFor="let link of links" [attr.x1]="link.source.updatedPosition.x + 35 + view_offset.x"
+            [attr.y1]="link.source.updatedPosition.y + 35 + view_offset.y"
+            [attr.x2]="(link.source.updatedPosition.x + link.target.updatedPosition.x + 70) / 2 + view_offset.x"
+            [attr.y2]="(link.source.updatedPosition.y + link.target.updatedPosition.y + 70) / 2 + view_offset.y"
             marker-end="url(#arrow)">
         </line>
         <foreignObject *ngFor="let link of links"
-            [attr.x]="(link.from.updatedPosition.x + link.to.updatedPosition.x + 70) / 2 + view_offset.x - 15"
-            [attr.y]="(link.from.updatedPosition.y + link.to.updatedPosition.y + 70) / 2 + view_offset.y - 15"
+            [attr.x]="(link.source.updatedPosition.x + link.target.updatedPosition.x + 70) / 2 + view_offset.x - 15"
+            [attr.y]="(link.source.updatedPosition.y + link.target.updatedPosition.y + 70) / 2 + view_offset.y - 15"
             width="30" height="30" (click)="editL(link)">
         </foreignObject>
         <foreignObject *ngFor="let link of links"
-            [attr.x]="(link.from.updatedPosition.x + link.to.updatedPosition.x + 70) / 2 + view_offset.x - 20"
-            [attr.y]="(link.from.updatedPosition.y + link.to.updatedPosition.y + 70) / 2 + view_offset.y + 10"
+            [attr.x]="(link.source.updatedPosition.x + link.target.updatedPosition.x + 70) / 2 + view_offset.x - 20"
+            [attr.y]="(link.source.updatedPosition.y + link.target.updatedPosition.y + 70) / 2 + view_offset.y + 10"
             width="25" height="25">
             <button mat-mini-fab *ngIf="link.isSelected" class="delete-button"
                 (click)="deleteL(link)"><mat-icon>delete</mat-icon></button>

@@ -39,104 +39,133 @@
     </div>
 
     <div class="edit-menu" *ngIf="state === 'edit' ">
-        <mat-tab-group *ngIf="selectedNode" animationDuration="0ms">
-            <mat-tab label="Mapping">
-                <div class="params-content">
-                    <p>{{selectedNode.data.name}}</p>
-                    <p class="description">{{selectedNode.data.description}}</p>
-                    <table>
-                        <tr>
-                            <th class="input-content">Input</th>
-                            <th class="value-content">Value</th>
-                        </tr>
-                        <tr *ngFor="let pair of selectedNode.data.params | keyvalue">
-                            <td>
-                                <div class="input-container">
-                                    <mat-icon class="input-type"
-                                        [title]="pair.value.type">{{typeIcon[pair.value.type]}}</mat-icon>
-                                    <label [title]="pair.value.description">{{pair.key}}</label>
-                                    <mat-icon class=" icon-required" *ngIf="pair.value.required" title="required">
-                                        priority_high
-                                    </mat-icon>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="value-container">
-                                    <ng-container *ngIf="getSourceLink(pair.key) as sourceLink; else elseBlock">
-                                        <span class="value" [title]="getControllerName(sourceLink,
-                                            pair.key)">{{ sourceLink }}</span>
-                                    </ng-container>
-                                    <ng-template #elseBlock>
-                                        <span class="value">{{ getParamsValue(pair.key) }}</span>
-                                        <button mat-mini-fab class="edit-button" (click)="openModal(pair)">
-                                            <mat-icon>edit</mat-icon>
-                                        </button>
-                                    </ng-template>
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </mat-tab>
-            <mat-tab *ngIf="selectedNode.data" label="Appearance">
-                <div class="ui-content">
-                    <mat-form-field>
-                        <mat-label>Change the name</mat-label>
-                        <input matInput [(ngModel)]="selectedNode.name">
-                    </mat-form-field>
-                    <mat-form-field>
-                        <mat-label>Change the icon</mat-label>
-                        <mat-select [(ngModel)]="selectedNode.icon">
-                            <mat-select-trigger>
-                                <mat-icon class="icon-search-small">{{selectedNode.icon}}</mat-icon>
-                            </mat-select-trigger>
-                            <mat-option *ngFor="let icon of icons" [value]="icon">
-                                <mat-icon>{{icon}}</mat-icon>
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <mat-form-field>
-                        <mat-label>Change the color</mat-label>
-                        <mat-select [(ngModel)]="selectedNode.color">
-                            <mat-select-trigger>
-                                <label>{{ selectedNode.color }}</label>
-                                <label [style.color]="selectedNode.color"> #</label>
-                            </mat-select-trigger>
-                            <mat-option *ngFor="let color of colors" [value]="color">
-                                <label>{{ color }}</label>
-                                <label [style.color]="color"> #</label>
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </div>
-            </mat-tab>
-        </mat-tab-group>
-        <div *ngIf="selectedLink" class="link-content">
-            <div *ngIf="selectedLink.from.data">
-                <p>Output : {{selectedLink.from.data.response.schema.name}}</p>
-                <p>Description of the output : {{selectedLink.from.data.response.schema.description}}</p>
-                <p>Type of the output : {{selectedLink.from.data.response.schema.type}}</p>
-                <p>With what input should we link the output ?</p>
-                <mat-form-field>
-                    <mat-select [value]="getTargetValue()" (selectionChange)="onSelectionChange($event)">
-                        <mat-option *ngFor="let pair of selectedLink.to.data.params | keyvalue" [value]="pair.key">
-                            {{pair.key}}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
+        <div *ngIf="selectedNode">
+            <div *ngIf="selectedNode.data">
+                <h4>{{selectedNode.data.name}}</h4>
+                <mat-tab-group animationDuration="0ms">
+                    <mat-tab label="Data">
+                        <div class="params-container">
+                            <p class="description">{{selectedNode.data.description}}</p>
+                            <table>
+                                <tr>
+                                    <th class="input-content">Input</th>
+                                    <th class="value-content">Value</th>
+                                </tr>
+                                <tr *ngFor="let pair of selectedNode.data.params | keyvalue">
+                                    <td>
+                                        <div class="input-container">
+                                            <mat-icon class="type"
+                                                [title]="pair.value.type">{{typeIcon[pair.value.type]}}</mat-icon>
+                                            <label [title]="pair.value.description">{{pair.key}}</label>
+                                            <mat-icon class=" icon-required" *ngIf="pair.value.required"
+                                                title="required">
+                                                priority_high
+                                            </mat-icon>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="value-container">
+                                            <ng-container *ngIf="getValueLink(pair.key) as value; else elseBlock">
+                                                <span class="value">{{ value }}</span>
+                                            </ng-container>
+                                            <ng-template #elseBlock>
+                                                <span class="value">{{ getParamValue(pair.key) }}</span>
+                                                <div class="button-container">
+                                                    <button mat-mini-fab class="edit-button" (click)="openModal(pair)">
+                                                        <mat-icon>edit</mat-icon>
+                                                    </button>
+                                                    <button mat-mini-fab class="delete-button"
+                                                        *ngIf="!pair.value.required && getParamValue(pair.key)"
+                                                        (click)="deleteParam(pair.key)">
+                                                        <mat-icon>close</mat-icon>
+                                                    </button>
+                                                </div>
+                                            </ng-template>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </mat-tab>
+                    <mat-tab label="Appearance">
+                        <div class="ui-content">
+                            <mat-form-field>
+                                <mat-label>Change the name</mat-label>
+                                <input matInput [(ngModel)]="selectedNode.name">
+                            </mat-form-field>
+                            <mat-form-field>
+                                <mat-label>Change the icon</mat-label>
+                                <mat-select [(ngModel)]="selectedNode.icon">
+                                    <mat-select-trigger>
+                                        <mat-icon class="icon-search-small">{{selectedNode.icon}}</mat-icon>
+                                    </mat-select-trigger>
+                                    <mat-option *ngFor="let icon of icons" [value]="icon">
+                                        <mat-icon>{{icon}}</mat-icon>
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                            <mat-form-field>
+                                <mat-label>Change the color</mat-label>
+                                <mat-select [(ngModel)]="selectedNode.color">
+                                    <mat-select-trigger>
+                                        <label>{{ selectedNode.color }}</label>
+                                        <label [style.color]="selectedNode.color"> #</label>
+                                    </mat-select-trigger>
+                                    <mat-option *ngFor="let color of colors" [value]="color">
+                                        <label>{{ color }}</label>
+                                        <label [style.color]="color"> #</label>
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                    </mat-tab>
+                </mat-tab-group>
             </div>
-            <div *ngIf="!selectedLink.from.data">
-                <div *ngFor="let parameter of getParamsLink()">
-                    <p>Output : {{parameter.source}} ({{getControllerName(parameter.source)}})</p>
-                    <mat-form-field>
-                        <mat-select [value]="parameter.target" (selectionChange)="onSelectionChange($event, parameter)">
-                            <mat-option></mat-option>
-                            <mat-option *ngFor="let pair of selectedLink.to.data.params | keyvalue" [value]="pair.key">
-                                {{pair.key}}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
+            <div *ngIf="!selectedNode.data">
+                <p>This router receives these nodes as input :</p>
+                <div class="nodes-router-container">
+                    <ul>
+                        <li *ngFor="let node of getNodesSourceRouter()">{{node.name}}</li>
+                    </ul>
                 </div>
+            </div>
+        </div>
+        <div *ngIf="selectedLink">
+            <h4 style="margin-bottom: 15px;">Mapping :</h4>
+            <div class="link-container">
+                <table>
+                    <tr>
+                        <th>Output</th>
+                        <th>Input</th>
+                    </tr>
+                    <tr *ngFor="let link of getLinks()">
+                        <td>
+                            <div class="output-container">
+                                <mat-icon class="type"
+                                    [title]="link.reference.data.response.schema.type">{{typeIcon[link.reference.data.response.schema.type]}}</mat-icon>
+                                <label>{{link.reference.name}}</label>
+                            </div>
+                        </td>
+                        <td>
+                            <mat-form-field *ngIf="link.target.data">
+                                <mat-select [(ngModel)]="link.target_param"
+                                    (ngModelChange)="deleteParamAfterMapping(link.target, link.target_param)">
+                                    <mat-select-trigger>
+                                        <label>{{ link.target_param }}</label>
+                                    </mat-select-trigger>
+                                    <mat-option></mat-option>
+                                    <mat-option *ngFor="let pair of link.target.data.params | keyvalue"
+                                        [value]="pair.key">
+                                        <mat-icon [title]="pair.value.type">
+                                            {{typeIcon[pair.value.type]}}
+                                        </mat-icon>
+                                        {{pair.key}}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </td>
+                    </tr>
+                </table>
             </div>
         </div>
     </div>
