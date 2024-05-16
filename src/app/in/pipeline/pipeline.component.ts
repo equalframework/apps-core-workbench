@@ -81,13 +81,15 @@ export class PipelineComponent {
             });
 
             dialogRef.afterClosed().subscribe(async result => {
-                const pipeline = pipelineMap[result];
+                const pipeline: { id: number, nodes_ids: string[] } = pipelineMap[result];
                 if (pipeline) {
                     this.newFile();
                     this.pipelineId = pipeline.id;
                     this.pipelineName = result;
+
                     const links_ids: Set<string> = new Set<string>();
                     const params_ids: Set<string> = new Set<string>();
+
                     for (let nodeId of pipeline.nodes_ids) {
                         const valueNode: { id: number, name: string, description: string, out_links_ids: string[], in_links_ids: string[], operation_controller: string, operation_type: string, params_ids: string[] } = (await this.api.collect("core\\pipeline\\Node", [['id', '=', nodeId]], ['id', 'name', 'description', 'out_links_ids', 'in_links_ids', 'operation_controller', 'operation_type', 'params_ids']))[0];
                         const metaNode: { position: { x: number, y: number }, icon: string, color: string } = JSON.parse((await this.api.collect("core\\Meta", [['reference', '=', 'node.' + nodeId]], ['value']))[0].value);
@@ -184,10 +186,10 @@ export class PipelineComponent {
                 await this.api.update("core\\pipeline\\Pipeline", [this.pipelineId], { name: this.pipelineName });
             }
             for (let node of this.nodes) {
-                const value: string = JSON.stringify({ position: node.updatedPosition, icon: node.icon, color: node.color });
+                const metaValue: string = JSON.stringify({ position: node.updatedPosition, icon: node.icon, color: node.color });
                 if (node.id) {
                     const metaId = (await this.api.collect("core\\Meta", [['reference', '=', `node.${node.id}`]], ['id']))[0].id;
-                    await this.api.update("core\\Meta", [metaId], { value: value });
+                    await this.api.update("core\\Meta", [metaId], { value: metaValue });
                     await this.api.update("core\\pipeline\\Node", [node.id], { name: node.name, description: node.description })
                 } else {
                     if (node.data) {
@@ -195,7 +197,7 @@ export class PipelineComponent {
                     } else {
                         node.id = (await this.api.create("core\\pipeline\\Node", { name: node.name, pipeline_id: this.pipelineId })).id;
                     }
-                    await this.api.create("core\\Meta", { code: "pipeline", reference: `node.${node.id}`, value: value });
+                    await this.api.create("core\\Meta", { code: "pipeline", reference: `node.${node.id}`, value: metaValue });
                 }
             }
             for (let link of this.links) {
