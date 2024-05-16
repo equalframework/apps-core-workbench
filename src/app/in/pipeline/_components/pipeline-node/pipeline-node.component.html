@@ -1,0 +1,17 @@
+<div class="node">
+    <div class="circle" [style.background-color]="node.color" (click)="edit()"
+        [ngClass]="{'selected-node': node.isSelected}">
+        <mat-icon>{{node.icon}}</mat-icon>
+    </div>
+    <div class="button-container">
+        <button mat-mini-fab class="to-button" color="primary"
+            (click)="linkTo()"><mat-icon>mode_standby</mat-icon></button>
+        <button mat-mini-fab class="from-button" color="primary"
+            (click)="linkFrom()"><mat-icon>arrow_forward</mat-icon></button>
+    </div>
+    <label *ngIf="node.data" class="node-name">{{node.name}}</label>
+    <button mat-mini-fab *ngIf="node.isSelected" class="delete-button"
+        (click)="delete()"><mat-icon>delete</mat-icon></button>
+    <label *ngIf="node.isSelected && node.data" class="description-label"
+        [title]="node.description">{{node.description}}</label>
+</div>
