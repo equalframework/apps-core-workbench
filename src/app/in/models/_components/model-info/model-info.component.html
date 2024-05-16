@@ -1,29 +1,35 @@
-<div class="margin-container"*ngIf="selected_class !== ''">
+<div class="margin-container" *ngIf="selected_class !=='' ">
     <div class="class-container-title">
-        <div class="class-disp-title">
-            <div>
-                <label>Class : </label><label class="accent">{{selected_package}}\{{ selected_class }}</label>
+        <div class="class-container-title-left">
+            <div class="class-disp-title">
+                <div>
+                    <label>Class : </label><label class="accent">{{selected_package}}\{{ selected_class }}</label>
+                </div>
             </div>
             <div>
-                <label class="sub-part-title">Extends : </label>
-                <label class="accent-color sub-part-title" *ngIf="class_scheme['parent'] === 'equal\\orm\\Model'">
+                <label>{{this.class_scheme['description']}}</label>
+            </div>
+        </div>
+        <div class="class-container-title-right">
+            <div>
+                <label>Extends : </label>
+                <label class="accent-color" *ngIf="class_scheme['parent'] === 'equal\\orm\\Model'">
                     Model
                 </label>
-                <a class="accent-color sub-part-title" *ngIf="class_scheme['parent'] !== 'equal\\orm\\Model'" (click)="getref(class_scheme['parent'])">
+                <a class="accent-color sub-part-title" *ngIf="class_scheme['parent'] !== 'equal\\orm\\Model'"
+                    (click)="getref(class_scheme['parent'])">
                     {{class_scheme['parent']}}
                 </a>
             </div>
             <br>
             <div>
-                <label class="sub-part-title">DB Table : </label>
-                <label class="accent-color sub-part-title">{{class_scheme['table']}}</label>
+                <label>DB Table : </label>
+                <label class="accent-color">{{class_scheme['table']}}</label>
             </div>
             <div>
-                <label class="sub-part-title accent">{{fieldNumber}} </label><label class="sub-part-title">Fields</label>
+                <label>Fields : </label>
+                <label class="accent-color">{{fieldNumber}}</label>
             </div>
-        </div>
-        <div>
-            <label>{{this.class_scheme['description']}}</label>
         </div>
     </div>
     <div class="class-container-top">
@@ -35,7 +41,7 @@
                         <mat-panel-title>
                             <div class="paneltitle">
                                 <div class="typeicon">
-                                    <mat-icon>{{iconList[this.class_scheme['fields'][key]['type']]}}</mat-icon>
+                                    <mat-icon title="{{this.class_scheme['fields'][key]['type']}}">{{iconList[this.class_scheme['fields'][key]['type']]}}</mat-icon>
                                 </div>
                                 <label>{{key}}</label>
                             </div>
@@ -44,32 +50,20 @@
                             {{this.class_scheme['fields'][key]['description']}}
                         </mat-panel-description>
                         <div *ngIf="fieldHasProp(key)" class="field-prop-container">
-                            <span
-                                *ngIf="this.class_scheme['fields'][key]['required']"
-                                class="field-prop"
-                                title="{{key}} is required"
-                            >
+                            <span *ngIf="this.class_scheme['fields'][key]['required']" class="field-prop"
+                                title="{{key}} is required">
                                 <span class="material-icons preicon">priority_high</span>
                             </span>
-                            <span
-                                *ngIf="this.class_scheme['fields'][key]['readonly']"
-                                class="field-prop"
-                                title="{{key}} is readonly"
-                            >
+                            <span *ngIf="this.class_scheme['fields'][key]['readonly']" class="field-prop"
+                                title="{{key}} is readonly">
                                 <span class="material-icons preicon">do_not_touch</span>
                             </span>
-                            <span
-                                *ngIf="this.class_scheme['fields'][key]['multilang']"
-                                class="field-prop"
-                                title="{{key}} is multilang"
-                            >
+                            <span *ngIf="this.class_scheme['fields'][key]['multilang']" class="field-prop"
+                                title="{{key}} is multilang">
                                 <span class="material-icons preicon">translate</span>
                             </span>
-                            <div
-                                *ngIf="this.class_scheme['fields'][key]['unique']"
-                                class="field-prop unique"
-                                title="{{key}} is unique"
-                            >
+                            <div *ngIf="this.class_scheme['fields'][key]['unique']" class="field-prop unique"
+                                title="{{key}} is unique">
                                 <label class="pre-label-bold">1</label>
                             </div>
                         </div>
@@ -81,7 +75,8 @@
                         Result type : {{ this.class_scheme["fields"][key]["result_type"] }}
                     </p>
                     <p>
-                        usage : {{ this.class_scheme["fields"][key]["usage"] ? this.class_scheme["fields"][key]["usage"] : "none" }}
+                        usage : {{ this.class_scheme["fields"][key]["usage"] ? this.class_scheme["fields"][key]["usage"]
+                        : "none" }}
                     </p>
                     <p *ngIf="['many2one','one2one','one2many'].includes(this.class_scheme['fields'][key]['type'])">
                         Foreign object : {{ this.class_scheme["fields"][key]["foreign_object"] }}
@@ -94,31 +89,38 @@
     <div class="class-container-bottom">
         <mat-grid-list [cols]="4" rowHeight="50%" class="max-width button-pkg-container">
             <mat-grid-tile>
-                <button mat-button class="package-info-button" (click)="fieldOnClick()"><mat-icon>text_format</mat-icon><label>Fields</label></button>
+                <button mat-button class="package-info-button"
+                    (click)="fieldOnClick()"><mat-icon>text_format</mat-icon><label>Fields</label></button>
             </mat-grid-tile>
             <mat-grid-tile>
-                <button mat-button class="package-info-button" (click)="viewOnClick()"><mat-icon>view_quilt</mat-icon><label>Views</label></button>
+                <button mat-button class="package-info-button"
+                    (click)="viewOnClick()"><mat-icon>view_quilt</mat-icon><label>Views</label></button>
             </mat-grid-tile>
             <mat-grid-tile>
-                <button mat-button class="package-info-button" (click)="tradOnClick()"><mat-icon>translate</mat-icon><label>Translations</label></button>
+                <button mat-button class="package-info-button"
+                    (click)="tradOnClick()"><mat-icon>translate</mat-icon><label>Translations</label></button>
             </mat-grid-tile>
             <mat-grid-tile>
-                <button mat-button class="package-info-button" (click)="workflowOnClick()"><mat-icon>call_split</mat-icon><label>Workflows</label></button>
+                <button mat-button class="package-info-button"
+                    (click)="workflowOnClick()"><mat-icon>call_split</mat-icon><label>Workflows</label></button>
             </mat-grid-tile>
             <mat-grid-tile>
-                <button mat-button class="package-info-button" ><mat-icon>question_mark</mat-icon><label>Roles</label></button>
+                <button mat-button
+                    class="package-info-button"><mat-icon>question_mark</mat-icon><label>Roles</label></button>
             </mat-grid-tile>
             <mat-grid-tile>
-                <button mat-button class="package-info-button" ><mat-icon>policy</mat-icon><label>Policies</label></button>
+                <button mat-button
+                    class="package-info-button"><mat-icon>policy</mat-icon><label>Policies</label></button>
             </mat-grid-tile>
             <mat-grid-tile>
-                <button mat-button class="package-info-button" ><mat-icon>shortcut</mat-icon><label>Actions</label></button>
+                <button mat-button
+                    class="package-info-button"><mat-icon>shortcut</mat-icon><label>Actions</label></button>
             </mat-grid-tile>
         </mat-grid-list>
     </div>
 </div>
 <div class="margin-container" *ngIf="selected_class === ''">
-    <div class="class-disp-title" >
+    <div class="class-disp-title">
         <label>Select a class to see its information.</label>
     </div>
 </div>

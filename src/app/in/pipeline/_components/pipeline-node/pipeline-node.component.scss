@@ -1,0 +1,74 @@
+.node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 70px;
+    white-space: nowrap;
+}
+
+.circle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    border: solid 1px rgba(0, 0, 0, 0.405);
+
+    .mat-icon {
+        transform: scale(1.5);
+    }
+}
+
+.button-container {
+    position: relative;
+}
+
+.node-name {
+    font-weight: bold;
+}
+
+.selected-node {
+    box-shadow: 0 0 10px 5px cornflowerblue;
+}
+
+.delete-button {
+    position: absolute;
+    top: -25px;
+    right: -25px;
+    transform: scale(0.5);
+    background-color: crimson;
+}
+
+.from-button,
+.to-button {
+    position: absolute;
+    top: -50px;
+    transform: scale(0.5);
+    opacity: 0.2;
+}
+
+.from-button:hover,
+.to-button:hover {
+    opacity: 1;
+}
+
+.from-button {
+    right: -75px;
+}
+
+.to-button {
+    left: -75px;
+}
+
+
+
+.description-label {
+    width: 130px;
+    height: 40px;
+    font-size: 0.8rem;
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

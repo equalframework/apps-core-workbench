@@ -1,0 +1,21 @@
+.modal-container {
+    position: relative !important;
+}
+
+.close-button {
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    scale: 0.7;
+}
+
+.body {
+    max-height: 100px;
+    overflow-y: auto;
+}
+
+.footer {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+}

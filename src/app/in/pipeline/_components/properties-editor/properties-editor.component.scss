@@ -1,0 +1,179 @@
+@import '/src/theme.scss';
+
+:host {
+    width: 100%;
+    height: 100%;
+}
+
+.context-menu {
+    height: 100%;
+    width: 100%;
+    background-color: whitesmoke;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.close-button {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    color: grey;
+}
+
+.add-menu {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.icon-search-small {
+    transform: translateY(.2em);
+    margin-left: .5em;
+    margin-right: .5em;
+}
+
+.autocomplete {
+    display: inline-block;
+}
+
+.search-type {
+    padding-left: 10px;
+}
+
+.scrollable-list {
+    width: 100%;
+    height: 68%;
+    overflow-y: auto;
+}
+
+.list-item-content {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 10px;
+    padding-left: 5px;
+}
+
+.list-item-content:hover {
+    background-color: white;
+    cursor: pointer;
+}
+
+.left-content {
+    flex-grow: 1;
+    text-align: left;
+}
+
+.title-container {
+    display: flex;
+    align-items: center;
+}
+
+.edit-button {
+    transform: scale(0.5);
+}
+
+.button-router {
+    width: 92%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.space-left {
+    margin-left: 10px;
+}
+
+.edit-menu {
+    margin-top: 15px;
+}
+
+.description {
+    font-size: 0.8em;
+}
+
+table {
+    width: 100%;
+    background-color: white;
+}
+
+td {
+    width: 50%;
+}
+
+.input-container,
+.output-container {
+    display: flex;
+    align-items: center;
+    margin-left: 15px;
+}
+
+.type {
+    background-color: mat-color($maincolor, A100);
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+    border-radius: 10px;
+    transform: scale(0.8);
+}
+
+.icon-required {
+    margin-left: 10px;
+    border: solid 1px black;
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    transform: scale(0.6);
+}
+
+.value-container {
+    display: flex;
+    align-items: center;
+}
+
+.value {
+    margin-left: 40px;
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.button-container {
+    margin-left: auto;
+
+    button {
+        transform: scale(0.5);
+        margin: -5px;
+    }
+}
+
+.delete-button {
+    background-color: rgb(234, 78, 97) !important;
+}
+
+.ui-content {
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.params-container {
+    max-height: 50vh;
+    overflow-y: auto;
+}
+
+.link-container {
+    max-height: 55vh;
+    overflow-y: auto;
+}
+
+.nodes-router-container {
+    max-height: 65vh;
+    overflow-y: auto;
+}

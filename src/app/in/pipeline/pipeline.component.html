@@ -1,0 +1,24 @@
+<app-in-header [buttonNew]="true" (onButtonNew)="newFile()" [buttonLoad]="true" (onButtonLoad)="load()"
+    [buttonSave]="true" (onButtonSave)="save()" [buttonRun]="true" (onButtonRun)="run()"
+    [buttonRunDisabled]="!isRunnable">
+    <mat-form-field>
+        <input matInput [(ngModel)]="pipelineName">
+    </mat-form-field>
+</app-in-header>
+<div class="holder">
+    <mat-grid-list cols="12" rowHeight="89%" gutterSize="10px">
+        <mat-grid-tile [colspan]="sizeViewer" class="sizeanim">
+            <app-pipeline-displayer [state]="state" (changeState)="changeState($event)" [nodes]="nodes"
+                [view_offset]="view_offset" (deleteNode)="deleteNode($event)" (editNode)="editNode($event)"
+                (addLink)="addLink($event)" [links]="links" (deleteLink)="deleteLink($event)"
+                (editLink)="editLink($event)">
+            </app-pipeline-displayer>
+        </mat-grid-tile>
+        <mat-grid-tile *ngIf="sizeEditor !== 0" [colspan]="sizeEditor" class="sizeanim">
+            <app-properties-editor [state]="state" (changeState)="changeState($event)" (addNode)="addNode($event)"
+                [selectedNode]="selectedNode" [selectedLink]="selectedLink" [nodes]="nodes" [links]="links"
+                [parameters]="parameters" (changePipeline)="isRunnable = false">
+            </app-properties-editor>
+        </mat-grid-tile>
+    </mat-grid-list>
+</div>

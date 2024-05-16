@@ -1,10 +1,7 @@
 <div class="nameholder">
     <div class="left">
-        <button mat-icon-button color="primary"
-            *ngIf="buttonBack"
-            [disabled]="buttonBackDisabled"
-            (click)="onButtonBack.emit()"
-        >
+        <button mat-icon-button color="primary" *ngIf="buttonBack" [disabled]="buttonBackDisabled"
+            (click)="onButtonBack.emit()">
             <mat-icon>arrow_back_ios_new</mat-icon>
         </button>
         <div [class.marginname]="buttonBack" class="name">
@@ -12,62 +9,39 @@
         </div>
     </div>
     <div class="right">
-        <button mat-icon-button
-            *ngIf="buttonCancelOne"
-            [disabled]="buttonCancelOneDisabled"
-            (click)="onButtonCancelOne.emit()"
-        >
+        <button mat-icon-button *ngIf="buttonCancelOne" [disabled]="buttonCancelOneDisabled"
+            (click)="onButtonCancelOne.emit()">
             <mat-icon>undo</mat-icon>
         </button>
-        <button mat-icon-button
-            *ngIf="buttonRevertOne"
-            [disabled]="buttonRevertOneDisabled"
-            (click)="onButtonRevertOne.emit()"
-        >
+        <button mat-icon-button *ngIf="buttonRevertOne" [disabled]="buttonRevertOneDisabled"
+            (click)="onButtonRevertOne.emit()">
             <mat-icon>redo</mat-icon>
         </button>
-        <button mat-stroked-button
-            *ngIf="buttonNew"
-            [disabled]="buttonNewDisabled"
-            (click)="onButtonNew.emit()"
-        >
+        <button mat-stroked-button *ngIf="buttonNew" [disabled]="buttonNewDisabled" (click)="onButtonNew.emit()">
             <mat-icon>note_add</mat-icon> New
         </button>
-        <button mat-stroked-button
-            *ngIf="buttonLoad"
-            [disabled]="buttonLoadDisabled"
-            (click)="onButtonLoad.emit()"
-        >
+        <button mat-stroked-button *ngIf="buttonLoad" [disabled]="buttonLoadDisabled" (click)="onButtonLoad.emit()">
             <mat-icon>upload_file</mat-icon> Load
         </button>
-        <button mat-stroked-button
-            *ngIf="buttonSave"
-            [disabled]="buttonSaveDisabled"
-            (click)="onButtonSave.emit()"
-        >
+        <button mat-stroked-button *ngIf="buttonSave" [disabled]="buttonSaveDisabled" (click)="onButtonSave.emit()">
             <mat-icon>save</mat-icon> Save
         </button>
-        <button mat-stroked-button
-            *ngIf="buttonCancel"
-            [disabled]="buttonCancelDisabled"
-            (click)="onButtonCancel.emit()"
-        >
+        <button mat-stroked-button *ngIf="buttonRun" [disabled]="buttonRunDisabled" (click)="onButtonRun.emit()">
+            <mat-icon>play_circle</mat-icon> Run
+        </button>
+        <button mat-stroked-button *ngIf="buttonCancel" [disabled]="buttonCancelDisabled"
+            (click)="onButtonCancel.emit()">
             <mat-icon>cancel</mat-icon> Cancel all
         </button>
-        <button mat-stroked-button *ngFor="let butn of contextualButton" (click)="onContextualButton.emit(butn.name)" [disabled]="butn.disabled"><mat-icon>{{butn.icon}}</mat-icon>{{butn.name}}</button>
-        <button mat-icon-button
-            *ngIf="customButton"
-            [matMenuTriggerFor]="customButtons"
-            [disabled]="!customButtonList || customButtonList.length < 1"
-        >
+        <button mat-stroked-button *ngFor="let butn of contextualButton" (click)="onContextualButton.emit(butn.name)"
+            [disabled]="butn.disabled"><mat-icon>{{butn.icon}}</mat-icon>{{butn.name}}</button>
+        <button mat-icon-button *ngIf="customButton" [matMenuTriggerFor]="customButtons"
+            [disabled]="!customButtonList || customButtonList.length < 1">
             <mat-icon>more_vert</mat-icon>
         </button>
-        <mat-menu #customButtons >
-            <button mat-menu-item class="primary"
-                *ngFor="let button of customButtonList; index as index"
-                [disabled]="button.disabled"
-                (click)="onCustomButton.emit(button.name)"
-            >
+        <mat-menu #customButtons>
+            <button mat-menu-item class="primary" *ngFor="let button of customButtonList; index as index"
+                [disabled]="button.disabled" (click)="onCustomButton.emit(button.name)">
                 <mat-icon class="primary">{{button.icon}}</mat-icon> {{button.name}}
             </button>
         </mat-menu>
