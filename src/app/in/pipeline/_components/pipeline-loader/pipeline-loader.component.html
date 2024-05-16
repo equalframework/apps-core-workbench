@@ -1,0 +1,15 @@
+<div class="modal-container">
+    <div class="header">
+        <button mat-icon-button class="close-button" (click)="onClose()">
+            <mat-icon>close</mat-icon>
+        </button>
+        <h3>Select the pipeline to load :</h3>
+    </div>
+    <div class="body">
+        <app-autocomplete [values]="data.pipelines" [(value)]="data.pipeline" width="100%"></app-autocomplete>
+    </div>
+    <div class="footer">
+        <button mat-button (click)="onClose()">Cancel</button>
+        <button mat-button [mat-dialog-close]="data.pipeline">Validate</button>
+    </div>
+</div>

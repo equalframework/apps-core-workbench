@@ -1,0 +1,48 @@
+:host {
+    width: 100%;
+    height: 100%;
+}
+
+.flowcontainer {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border: solid #C8CED3 1px;
+    border-radius: 10px;
+    background-size: 40px 40px !important;
+    background-image: radial-gradient(circle, #C8CED3 1px, rgba(0, 0, 0, 0) 2px) !important;
+    cursor: grab
+}
+
+.grabbed {
+    cursor: grabbing;
+}
+
+.dragelement {
+    position: absolute;
+}
+
+.add-button {
+    position: absolute;
+    top: 0px;
+    right: 5px;
+    color: darkgrey;
+    transform: scale(1.2);
+}
+
+.svg-container {
+    width: 100%;
+    height: 100%;
+}
+
+.selected-link {
+    filter: drop-shadow(0 0 5px #0014ef);
+}
+
+.delete-button {
+    position: absolute;
+    right: -7px;
+    bottom: -6px;
+    transform: scale(0.5);
+    background-color: crimson;
+}
