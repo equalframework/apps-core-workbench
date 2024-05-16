@@ -27,7 +27,6 @@
 
 .node-name {
     font-weight: bold;
-    font-size: 15px;
 }
 
 .selected-node {
@@ -35,6 +34,9 @@
 }
 
 .delete-button {
+    position: absolute;
+    top: -25px;
+    right: -25px;
     transform: scale(0.5);
     background-color: crimson;
 }
@@ -58,4 +60,15 @@
 
 .to-button {
     left: -75px;
+}
+
+
+
+.description-label {
+    width: 130px;
+    height: 40px;
+    font-size: 0.8rem;
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

@@ -12,4 +12,6 @@
     <label *ngIf="node.data" class="node-name">{{node.name}}</label>
     <button mat-mini-fab *ngIf="node.isSelected" class="delete-button"
         (click)="delete()"><mat-icon>delete</mat-icon></button>
+    <label *ngIf="node.isSelected && node.data" class="description-label"
+        [title]="node.description">{{node.description}}</label>
 </div>

@@ -68,6 +68,15 @@
     text-align: left;
 }
 
+.title-container {
+    display: flex;
+    align-items: center;
+}
+
+.edit-button {
+    transform: scale(0.5);
+}
+
 .button-router {
     width: 92%;
     display: flex;

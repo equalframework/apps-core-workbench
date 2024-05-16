@@ -11,6 +11,7 @@ export class Node {
     public icon: string;
     public color: string;
     public name: string;
+    public description: string = "";
 
     constructor(position: { x: number, y: number }) {
         this.position = position;

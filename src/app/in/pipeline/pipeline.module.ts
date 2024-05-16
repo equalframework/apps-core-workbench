@@ -27,6 +27,8 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { ModalInputComponent } from './_components/modal-input/modal-input.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { PipelineLoaderComponent } from './_components/pipeline-loader/pipeline-loader.component';
+import { ModalNameDescriptionComponent } from './_components/modal-name-description/modal-name-description.component';
+import { ModalExecutionPipelineComponent } from './_components/modal-execution-pipeline/modal-execution-pipeline.component';
 
 
 @NgModule({
@@ -36,7 +38,9 @@ import { PipelineLoaderComponent } from './_components/pipeline-loader/pipeline-
         PipelineNodeComponent,
         PropertiesEditorComponent,
         ModalInputComponent,
-        PipelineLoaderComponent
+        PipelineLoaderComponent,
+        ModalNameDescriptionComponent,
+        ModalExecutionPipelineComponent
     ],
     imports: [
         CommonModule,

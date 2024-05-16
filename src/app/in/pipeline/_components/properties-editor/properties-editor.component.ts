@@ -7,6 +7,7 @@ import { Parameter } from '../../_objects/Parameter';
 import { TypeUsageService } from 'src/app/_services/type-usage.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ModalInputComponent } from '../modal-input/modal-input.component';
+import { ModalNameDescriptionComponent } from '../modal-name-description/modal-name-description.component';
 
 @Component({
     selector: 'app-properties-editor',
@@ -49,11 +50,15 @@ export class PropertiesEditorComponent implements OnInit {
 
     @Input() selectedLink: NodeLink | undefined;
 
+    @Input() nodes: Node[];
+
     @Input() links: NodeLink[];
 
     @Input() parameters: Parameter[];
 
     public typeIcon: { [id: string]: string } = {};
+
+    @Output() changePipeline = new EventEmitter<undefined>();
 
     constructor(
         private api: ApiService,
@@ -69,26 +74,26 @@ export class PropertiesEditorComponent implements OnInit {
     private async getControllers() {
         try {
             const results = await this.api.get('?get=core_config_controllers');
-            const set = new Set<string>();
+            const setPackages = new Set<string>();
             for (let key in results) {
                 if (key !== "apps") {
                     for (let controller of results[key]) {
                         const index = controller.lastIndexOf("_");
-                        const dirs = controller.substring(0, index).replace("_", ":");
-                        const file = controller.substring(index + 1);
-                        const url = "?" + (key === "actions" ? "do" : "get") + "=" + controller;
-                        const x = new ControllerData(controller, key, dirs, file, url);
+                        const pack = controller.substring(0, index).replace("_", ":");
+                        const name = controller.substring(index + 1);
+                        const apiUrl = "?" + (key === "actions" ? "do" : "get") + "=" + controller;
+                        const controllerData = new ControllerData(controller, key, pack, name, apiUrl);
 
-                        set.add(dirs);
-                        this.controllers.push(x);
+                        setPackages.add(pack);
+                        this.controllers.push(controllerData);
                     }
                 }
             }
-            this.packages = Array.from(set).sort();
+            this.packages = Array.from(setPackages).sort();
             this.filterData = this.controllers;
         }
         catch (err: any) {
-            console.warn('fetch class error', err);
+            console.warn('fetch controllers error', err);
         }
     }
 
@@ -103,7 +108,7 @@ export class PropertiesEditorComponent implements OnInit {
             case "All":
                 if (this.searchValue !== "") {
                     for (let controller of this.controllers) {
-                        if (controller.package.includes(this.searchValue) || controller.name.includes(this.searchValue)) {
+                        if (controller.pack.includes(this.searchValue) || controller.name.includes(this.searchValue)) {
                             this.filterData.push(controller);
                         }
                     }
@@ -115,7 +120,7 @@ export class PropertiesEditorComponent implements OnInit {
             case "Data":
                 for (let controller of this.controllers) {
                     if (controller.type === "data") {
-                        if (this.searchValue === "" || controller.package.includes(this.searchValue) || controller.name.includes(this.searchValue)) {
+                        if (this.searchValue === "" || controller.pack.includes(this.searchValue) || controller.name.includes(this.searchValue)) {
                             this.filterData.push(controller);
                         }
                     }
@@ -124,7 +129,7 @@ export class PropertiesEditorComponent implements OnInit {
             case "Actions":
                 for (let controller of this.controllers) {
                     if (controller.type === "actions") {
-                        if (this.searchValue === "" || controller.package.includes(this.searchValue) || controller.name.includes(this.searchValue)) {
+                        if (this.searchValue === "" || controller.pack.includes(this.searchValue) || controller.name.includes(this.searchValue)) {
                             this.filterData.push(controller);
                         }
                     }
@@ -132,7 +137,7 @@ export class PropertiesEditorComponent implements OnInit {
                 break;
             default:
                 for (let controller of this.controllers) {
-                    if (controller.package === this.package) {
+                    if (controller.pack === this.package) {
                         this.filterData.push(controller);
                     }
                 }
@@ -147,7 +152,23 @@ export class PropertiesEditorComponent implements OnInit {
         this.changeState.emit("");
     }
 
-    openModal(pair: any) {
+    openModalNameDescritpion() {
+        const dialogRef = this.dialog.open(ModalNameDescriptionComponent, {
+            width: '450px',
+            height: '300px',
+            data: { nodes: this.nodes, oldName: this.selectedNode?.name, name: this.selectedNode?.name, description: this.selectedNode?.description },
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+            if (result && this.selectedNode) {
+                this.selectedNode.name = result.name;
+                this.selectedNode.description = result.description;
+                this.changePipeline.emit();
+            }
+        });
+    }
+
+    openModalInput(pair: any) {
         const dialogRef = this.dialog.open(ModalInputComponent, {
             width: '450px',
             height: '300px',
@@ -156,7 +177,8 @@ export class PropertiesEditorComponent implements OnInit {
 
         dialogRef.afterClosed().subscribe(result => {
             if (result) {
-                this.updateParamValue(pair.key, result)
+                this.updateParamValue(pair.key, result);
+                this.changePipeline.emit();
             }
         });
     }
@@ -179,8 +201,7 @@ export class PropertiesEditorComponent implements OnInit {
             }
         }
         if (this.selectedNode && !isFound) {
-            const parameter = new Parameter(param, value);
-            parameter.node = this.selectedNode;
+            const parameter = new Parameter(this.selectedNode, param, value);
             this.parameters.push(parameter);
         }
     }
@@ -190,6 +211,7 @@ export class PropertiesEditorComponent implements OnInit {
             const parameter = this.parameters[i];
             if (parameter.node === this.selectedNode && parameter.param === param) {
                 this.parameters.splice(i, 1);
+                this.changePipeline.emit();
                 break;
             }
         }
@@ -234,5 +256,6 @@ export class PropertiesEditorComponent implements OnInit {
                 }
             }
         }
+        this.changePipeline.emit();
     }
 }

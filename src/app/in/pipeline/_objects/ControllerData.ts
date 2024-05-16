@@ -1,16 +1,16 @@
 export class ControllerData {
     public fullName: string;
     public type: string;
-    public package: string;
+    public pack: string;
     public name: string;
-    public url: string;
+    public apiUrl: string;
 
-    constructor(fullName: string, type: string, pack: string, name: string, url: string) {
+    constructor(fullName: string, type: string, pack: string, name: string, apiUrl: string) {
         this.fullName = fullName;
         this.type = type;
-        this.package = pack;
+        this.pack = pack;
         this.name = name;
-        this.url = url;
+        this.apiUrl = apiUrl;
     }
 
     public description: string;

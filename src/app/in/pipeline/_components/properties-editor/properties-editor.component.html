@@ -7,7 +7,7 @@
     <div class="add-menu" *ngIf="state === 'add' ">
         <div>
             <mat-form-field *ngIf="searchType !== 'Package'">
-                <input matInput placeholder="Filter" [(ngModel)]="searchValue" (ngModelChange)="onValueChange()">
+                <input matInput placeholder="Search" [(ngModel)]="searchValue" (ngModelChange)="onValueChange()">
             </mat-form-field>
             <app-autocomplete class="autocomplete" *ngIf="searchType === 'Package'" name="Choose a package"
                 [values]="packages" [(value)]="package" (valueChange)="onPackageChange($event)">
@@ -27,7 +27,7 @@
             <mat-list-item *ngFor="let data of filterData">
                 <div class="list-item-content" (click)="add(data)">
                     <span class="left-content">
-                        {{(searchType === "Package") ? data.name : data.package+':'+data.name}}
+                        {{(searchType === "Package") ? data.name : data.pack+':'+data.name}}
                     </span>
                 </div>
             </mat-list-item>
@@ -41,7 +41,12 @@
     <div class="edit-menu" *ngIf="state === 'edit' ">
         <div *ngIf="selectedNode">
             <div *ngIf="selectedNode.data">
-                <h4>{{selectedNode.data.name}}</h4>
+                <div class="title-container">
+                    <h4>{{selectedNode.data.name}}</h4>
+                    <button mat-mini-fab class="edit-button" (click)="openModalNameDescritpion()">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                </div>
                 <mat-tab-group animationDuration="0ms">
                     <mat-tab label="Data">
                         <div class="params-container">
@@ -71,7 +76,7 @@
                                             <ng-template #elseBlock>
                                                 <span class="value">{{ getParamValue(pair.key) }}</span>
                                                 <div class="button-container">
-                                                    <button mat-mini-fab class="edit-button" (click)="openModal(pair)">
+                                                    <button mat-mini-fab (click)="openModalInput(pair)">
                                                         <mat-icon>edit</mat-icon>
                                                     </button>
                                                     <button mat-mini-fab class="delete-button"
@@ -89,10 +94,6 @@
                     </mat-tab>
                     <mat-tab label="Appearance">
                         <div class="ui-content">
-                            <mat-form-field>
-                                <mat-label>Change the name</mat-label>
-                                <input matInput [(ngModel)]="selectedNode.name">
-                            </mat-form-field>
                             <mat-form-field>
                                 <mat-label>Change the icon</mat-label>
                                 <mat-select [(ngModel)]="selectedNode.icon">

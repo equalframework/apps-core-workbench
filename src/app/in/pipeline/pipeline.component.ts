@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { Node } from './_objects/Node';
 import { ControllerData } from './_objects/ControllerData';
 import { ApiService } from 'sb-shared-lib';
@@ -8,6 +7,7 @@ import { Parameter } from './_objects/Parameter';
 import { MatDialog } from '@angular/material/dialog';
 import { PipelineLoaderComponent } from './_components/pipeline-loader/pipeline-loader.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ModalExecutionPipelineComponent } from './_components/modal-execution-pipeline/modal-execution-pipeline.component';
 
 @Component({
     selector: 'app-pipeline',
@@ -39,14 +39,15 @@ export class PipelineComponent {
 
     public deletedParamIds: number[] = [];
 
+    public isRunnable: boolean = false;
+
     constructor(
-        private router: RouterMemory,
         private api: ApiService,
         private dialog: MatDialog,
         private matSnack: MatSnackBar
     ) { }
 
-    public newFile() {
+    newFile() {
         this.pipelineId = -1;
         this.pipelineName = 'New Pipeline';
         this.state = "view";
@@ -59,6 +60,7 @@ export class PipelineComponent {
         this.deletedNodeIds = [];
         this.deletedLinkIds = [];
         this.deletedParamIds = [];
+        this.isRunnable = false;
     }
 
     async load() {
@@ -74,7 +76,7 @@ export class PipelineComponent {
 
             const dialogRef = this.dialog.open(PipelineLoaderComponent, {
                 width: '450px',
-                height: '250px',
+                height: '200px',
                 data: { pipeline: "", pipelines: pipelines },
             });
 
@@ -87,23 +89,24 @@ export class PipelineComponent {
                     const links_ids: Set<string> = new Set<string>();
                     const params_ids: Set<string> = new Set<string>();
                     for (let nodeId of pipeline.nodes_ids) {
-                        const valueNode: { id: number, name: string, out_links_ids: string[], in_links_ids: string[], operation_type: string, params_ids: string[] } = (await this.api.collect("core\\pipeline\\Node", [['id', '=', nodeId]], ['id', 'name', 'out_links_ids', 'in_links_ids', 'operation_type', 'params_ids']))[0];
-                        const metaNode: { name: string, position: { x: number, y: number }, icon: string, color: string } = JSON.parse((await this.api.collect("core\\Meta", [['reference', '=', 'node.' + nodeId]], ['value']))[0].value);
+                        const valueNode: { id: number, name: string, description: string, out_links_ids: string[], in_links_ids: string[], operation_controller: string, operation_type: string, params_ids: string[] } = (await this.api.collect("core\\pipeline\\Node", [['id', '=', nodeId]], ['id', 'name', 'description', 'out_links_ids', 'in_links_ids', 'operation_controller', 'operation_type', 'params_ids']))[0];
+                        const metaNode: { position: { x: number, y: number }, icon: string, color: string } = JSON.parse((await this.api.collect("core\\Meta", [['reference', '=', 'node.' + nodeId]], ['value']))[0].value);
 
                         const node: Node = new Node(metaNode.position);
+                        node.name = valueNode.name;
+                        node.description = valueNode.description;
                         node.id = valueNode.id;
                         node.color = metaNode.color;
                         node.icon = metaNode.icon;
-                        node.name = metaNode.name;
 
-                        if (valueNode.name !== "router") {
-                            const index = valueNode.name.lastIndexOf("_");
-                            const dirs = valueNode.name.substring(0, index).replace("_", ":");
-                            const file = valueNode.name.substring(index + 1);
-                            const url = "?" + valueNode.operation_type + "=" + valueNode.name;
-                            const controllerData: ControllerData = new ControllerData(valueNode.name, (valueNode.operation_type === "get") ? "data" : "actions", dirs, file, url);
+                        if (valueNode.operation_controller) {
+                            const index = valueNode.operation_controller.lastIndexOf("_");
+                            const pack = valueNode.operation_controller.substring(0, index).replace("_", ":");
+                            const name = valueNode.operation_controller.substring(index + 1);
+                            const apiUrl = "?" + valueNode.operation_type + "=" + valueNode.operation_controller;
+                            const controllerData: ControllerData = new ControllerData(valueNode.operation_controller, (valueNode.operation_type === "get") ? "data" : "actions", pack, name, apiUrl);
 
-                            const info = (await this.api.fetch(url + '&announce=true')).announcement;
+                            const info = (await this.api.fetch(apiUrl + '&announce=true')).announcement;
                             controllerData.description = info.description;
                             controllerData.params = info.params;
                             controllerData.response = info.response;
@@ -152,16 +155,17 @@ export class PipelineComponent {
                     for (let param_id of params_ids) {
                         const valueParameter: { id: number, node_id: number, value: string, param: string } = (await this.api.collect("core\\pipeline\\Parameter", [['id', '=', param_id]], ['id', 'node_id', 'value', 'param']))[0];
                         const value: any = JSON.parse(valueParameter.value);
-                        const parameter: Parameter = new Parameter(valueParameter.param, value);
-                        parameter.id = valueParameter.id;
                         for (let node of this.nodes) {
                             if (node.id === valueParameter.node_id) {
-                                parameter.node = node;
+                                const parameter: Parameter = new Parameter(node, valueParameter.param, value);
+                                parameter.id = valueParameter.id;
+                                this.parameters.push(parameter);
                                 break;
                             }
                         }
-                        this.parameters.push(parameter);
                     }
+
+                    this.isRunnable = true;
 
                     this.matSnack.open("Loaded successfully !", "INFO")
                 }
@@ -180,15 +184,16 @@ export class PipelineComponent {
                 await this.api.update("core\\pipeline\\Pipeline", [this.pipelineId], { name: this.pipelineName });
             }
             for (let node of this.nodes) {
-                const value: string = JSON.stringify({ name: node.name, position: node.updatedPosition, icon: node.icon, color: node.color });
+                const value: string = JSON.stringify({ position: node.updatedPosition, icon: node.icon, color: node.color });
                 if (node.id) {
                     const metaId = (await this.api.collect("core\\Meta", [['reference', '=', `node.${node.id}`]], ['id']))[0].id;
                     await this.api.update("core\\Meta", [metaId], { value: value });
+                    await this.api.update("core\\pipeline\\Node", [node.id], { name: node.name, description: node.description })
                 } else {
                     if (node.data) {
-                        node.id = (await this.api.create("core\\pipeline\\Node", { name: node.data.fullName, pipeline_id: this.pipelineId, operation_type: node.data.type === "data" ? "get" : "do" })).id;
+                        node.id = (await this.api.create("core\\pipeline\\Node", { name: node.name, description: node.description, pipeline_id: this.pipelineId, operation_controller: node.data.fullName, operation_type: node.data.type === "data" ? "get" : "do" })).id;
                     } else {
-                        node.id = (await this.api.create("core\\pipeline\\Node", { name: "router", pipeline_id: this.pipelineId })).id;
+                        node.id = (await this.api.create("core\\pipeline\\Node", { name: node.name, pipeline_id: this.pipelineId })).id;
                     }
                     await this.api.create("core\\Meta", { code: "pipeline", reference: `node.${node.id}`, value: value });
                 }
@@ -212,6 +217,12 @@ export class PipelineComponent {
             }
 
             if (this.deletedNodeIds.length !== 0) {
+                const deletedMetaIds: number[] = [];
+                for (let nodeId of this.deletedNodeIds) {
+                    const metaId = (await this.api.collect("core\\Meta", [['reference', '=', 'node.' + nodeId]], ['id']))[0].id;
+                    deletedMetaIds.push(metaId);
+                }
+                await this.api.remove("core\\Meta", deletedMetaIds, true);
                 await this.api.remove("core\\pipeline\\Node", this.deletedNodeIds, true);
                 this.deletedNodeIds = [];
             }
@@ -224,11 +235,21 @@ export class PipelineComponent {
                 this.deletedParamIds = [];
             }
 
+            this.isRunnable = true;
+
             this.matSnack.open("Saved successfully !", "INFO");
         }
         catch (e) {
             this.api.errorFeedback(e);
         }
+    }
+
+    async run() {
+        const dialogRef = this.dialog.open(ModalExecutionPipelineComponent, {
+            width: '450px',
+            height: '350px',
+            data: { pipelineName: this.pipelineName, pipelineId: this.pipelineId },
+        });
     }
 
     get sizeViewer(): number {
@@ -253,7 +274,7 @@ export class PipelineComponent {
         this.state = state;
     }
 
-    async addNode(data?: ControllerData) {
+    async addNode(controllerData?: ControllerData) {
         const position = { x: -this.view_offset.x + 100, y: -this.view_offset.y + 100 }
         for (let i = 0; i < this.nodes.length; i++) {
             if (this.nodes[i].updatedPosition.x >= position.x - 50
@@ -266,30 +287,42 @@ export class PipelineComponent {
             }
         }
         const node: Node = new Node(position);
-        if (data) {
-            const info = (await this.api.fetch(data.url + '&announce=true')).announcement;
-            data.description = info.description;
-            data.params = info.params;
-            data.response = info.response;
+        if (controllerData) {
+            try {
+                const info = (await this.api.fetch(controllerData.apiUrl + '&announce=true')).announcement;
+                controllerData.description = info.description;
+                controllerData.params = info.params;
+                controllerData.response = info.response;
 
-            node.data = data;
-            node.name = data.name;
-            if (data.type === "actions") {
-                node.icon = "open_in_browser";
-                node.color = "lightcoral";
+                node.data = controllerData;
+                node.name = this.checkName(controllerData.name);
+                node.icon = controllerData.type === "actions" ? "open_in_browser" : "data_array";
+                node.color = controllerData.type === "actions" ? "lightcoral" : "beige";
+
+                this.nodes.push(node);
+                this.isRunnable = false;
             }
-            else {
-                node.icon = "data_array";
-                node.color = "beige";
+            catch (e) {
+                this.api.errorFeedback(e);
             }
         }
         else {
-            node.name = "router"
+            node.name = this.checkName("router");
             node.icon = "filter_tilt_shift";
             node.color = "whitesmoke";
+            this.nodes.push(node);
+            this.isRunnable = false;
         }
+    }
 
-        this.nodes.push(node);
+    private checkName(name: string): string {
+        let newName: string = name;
+        let suffix: number = 1;
+        while (this.nodes.some(node => node.name === newName)) {
+            newName = name + suffix;
+            suffix++;
+        }
+        return newName;
     }
 
     deleteNode(node: Node) {
@@ -317,6 +350,8 @@ export class PipelineComponent {
         }
 
         this.deletedNodeIds.push(node.id);
+
+        this.isRunnable = false;
     }
 
     editNode(node: Node) {
@@ -354,12 +389,14 @@ export class PipelineComponent {
                 if (link.target === source) {
                     const newLink = new NodeLink(link.source, source, target);
                     this.links.push(newLink);
+                    this.isRunnable = false;
                 }
             }
         }
         else {
             const link = new NodeLink(source, source, target);
             this.links.push(link);
+            this.isRunnable = false;
 
             if (!target.data) {
                 for (let i = this.links.length - 1; i >= 0; i--) {
@@ -392,6 +429,7 @@ export class PipelineComponent {
 
         this.selectedLink = undefined;
         this.state = "";
+        this.isRunnable = false;
     }
 
     editLink(link: NodeLink) {
