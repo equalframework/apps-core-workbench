@@ -4,8 +4,9 @@
         <label>{{node.entity}}</label>
     </div>
     <div class="field" *ngFor="let field of node.fields; index as index" [class.altbg]="!(index % 2)">
+        <ng-container *ngIf="node.schema[field]">
         <div class="info">
-            <mat-icon color="primary">{{typeIcon[node.schema[field]?.type === 'computed' ? node.schema[field].result_type : node.schema[field].type]}}</mat-icon>
+            <mat-icon color="primary">{{typeIcon[node.schema[field].type === 'computed' ? node.schema[field].result_type : node.schema[field].type]}}</mat-icon>
             <label>{{field}}</label>
         </div>
         <div class="tags">
@@ -14,6 +15,7 @@
             <mat-icon *ngIf="node.schema[field].unique" color="accent">looks_one</mat-icon>
             <mat-icon *ngIf="node.schema[field].type === 'computed'" color="accent">{{typeIcon['computed']}}</mat-icon>
         </div>
+        </ng-container>
     </div>
     <!-- dx : {{node.initialPos.x - node.position.x}} |  dy : {{node.initialPos.y - node.position.y}} -->
 </div>

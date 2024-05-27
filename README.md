@@ -183,3 +183,13 @@ TestBed.initTestEnvironment(
 ##### this.currentLoader.getTranslation is not a function
 
 This is due to providing HttpClient or importing HttpClientModule into your test file. it can also happen when you are using TranslationLoader instead of TranslationFakeLoader.
+
+
+## Worflows
+
+This part is inspire by several graph workflow projects such as :
+* https://github.com/d3/d3
+* https://github.com/tgdwyer/WebCola
+* https://github.com/google/workflow-graph
+* https://github.com/swimlane/ngx-graph
+* https://github.com/ultrasonicsoft/ng-application-builder

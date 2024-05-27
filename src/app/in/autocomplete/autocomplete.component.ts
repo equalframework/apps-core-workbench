@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, OnChanges, Output } from '@angular/core';
 import { FormControl } from '@angular/forms';
 
 @Component({
@@ -6,19 +6,19 @@ import { FormControl } from '@angular/forms';
   templateUrl: './autocomplete.component.html',
   styleUrls: ['./autocomplete.component.scss']
 })
-export class AutocompleteComponent implements OnInit {
+export class AutocompleteComponent implements OnInit, OnChanges {
 
-    @Input() name:string = ""
-    @Input() values:string[] = []
-    @Input() value:string = ""
-    @Input() width:string = "auto"
-    @Input() disabled:boolean = false
+    @Input() name:string = "";
+    @Input() values:string[] = [];
+    @Input() value:string = "";
+    @Input() width:string = "auto";
+    @Input() disabled:boolean = false;
 
     @Output() valueChange = new EventEmitter<string>()
 
-    public f_values:string[]
+    public f_values:string[];
 
-    public valueControl = new FormControl("")
+    public valueControl = new FormControl("");
 
     constructor() { }
 
@@ -31,7 +31,7 @@ export class AutocompleteComponent implements OnInit {
     }
 
     ngOnChanges() {
-        this.reset()
+        this.reset();
         if(this.disabled) {
             this.valueControl.disable({emitEvent:false});
         }
@@ -59,7 +59,7 @@ export class AutocompleteComponent implements OnInit {
     }
 
     public reset() {
-        this.valueControl.setValue(this.value,{emitEvent:false});
+        this.valueControl.setValue(this.value, {emitEvent:false});
         this.f_values = this.values.filter((item:string) => item.toLowerCase().includes(this.valueControl.value.toLowerCase()));
     }
 

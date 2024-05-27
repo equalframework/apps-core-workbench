@@ -47,6 +47,9 @@
         >
             <mat-icon>save</mat-icon> Save
         </button>
+        <button mat-stroked-button *ngIf="buttonRun" [disabled]="buttonRunDisabled" (click)="onButtonRun.emit()">
+            <mat-icon>play_circle</mat-icon> Run
+        </button>
         <button mat-stroked-button
             *ngIf="buttonCancel"
             [disabled]="buttonCancelDisabled"

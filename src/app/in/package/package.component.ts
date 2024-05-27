@@ -21,14 +21,14 @@ export class PackageComponent implements OnInit {
     public elements: {package?:string,name:string,type:string,more?:any}[] = [];
     // http://equal.local/index.php?get=core_config_classes
 
-    public initialised_packages:string[]
-    public schema:any
-    public selected_type_controller:string = ''
-    public fetch_error:boolean = false
-    public isloading:boolean = true
-    public routelist:any = {}
+    public initialised_packages:string[];
+    public schema:any;
+    public selected_type_controller:string = '';
+    public fetch_error:boolean = false;
+    public isloading:boolean = true;
+    public routelist:any = {};
 
-    sideload = false
+    public sideload: boolean = false;
 
     constructor(
         private context: ContextService,
@@ -49,28 +49,31 @@ export class PackageComponent implements OnInit {
         this.init()
     }
 
+    // #todo - made the loading progressive
+    // load components from a package when package is selected
+    // or load in background
     async init() {
         this.isloading=true
         this.elements = []
         let classes = await this.api.getClasses();
         this.api.getPackages().then((packarr) => {
             packarr.forEach(pack => {
-                this.elements.push({name:pack,type:"package"})
+                this.elements.push({name:pack, type:"package"})
                 classes[pack].forEach(classe => {
-                    this.elements.push({package:pack ,name:classe,type:"class"})
+                    this.elements.push({package:pack, name: classe, type:"class"})
                 });
                 this.api.getControllers(pack).then((x) => {
                     x.data.forEach(cont => {
-                        this.elements.push({package:pack,name:cont,type:"get"})
+                        this.elements.push({package:pack, name:cont, type:"get"})
                     });
                     x.actions.forEach(cont => {
-                        this.elements.push({package:pack,name:cont,type:"do"})
+                        this.elements.push({package:pack, name:cont, type:"do"})
                     });
                     this.api.getRoutesByPackages(pack).then((y) => {
                         for(let file in y) {
                             for(let route in y[file]) {
                                 this.elements.push({package:pack, name:route, type:"route",more:file})
-                                this.routelist[pack+file+route] = {"info":{"file":file,"package":pack},"methods":y[file][route]}
+                                this.routelist[pack+file+route] = {"info":{"file": file,"package": pack},"methods": y[file][route]}
                             }
                         }
                     }).then( () => {
@@ -82,17 +85,17 @@ export class PackageComponent implements OnInit {
                                 y.forEach(view =>{
                                     this.elements.push({name:view,type:"menu",package:pack})
                                 })
-                                this.elements.sort((a,b) => 
-                                    (a.type === "route" ? a.package+a.more+a.name : ( (a.type === "class" || a.type === "menu") ? a.package+a.name : a.name)).replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase() < (b.type === "class" ? b.package+b.name : b.name).replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase() ? -1 : 1 
+                                this.elements.sort((a,b) =>
+                                    (a.type === "route" ? a.package+a.more+a.name : ( (a.type === "class" || a.type === "menu") ? a.package+a.name : a.name)).replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase() < (b.type === "class" ? b.package+b.name : b.name).replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase() ? -1 : 1
                                 )
-                                
+
                                 this.isloading = false
                             });
-                            
+
                         });
-                        
+
                     })
-                })  
+                })
             })
         })
     }
@@ -157,7 +160,7 @@ export class PackageComponent implements OnInit {
     public onClickInitDemoData() {
         this.router.navigate(['/initdata/demo', this.selected_element.name],{"selected":this.selected_element});
     }
-    
+
     /**
      * Update the name of a package.
      *
@@ -300,7 +303,7 @@ export class PackageComponent implements OnInit {
 
     menuNav(choice:number) {
         switch(choice) {
-            case 1: 
+            case 1:
                 this.router.navigate(['/menu/edit/',this.selected_element.package,this.selected_element.name]);
                 break;
             case 2 :

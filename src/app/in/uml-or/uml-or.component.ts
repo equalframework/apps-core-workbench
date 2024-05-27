@@ -59,15 +59,15 @@ export class UMLORComponent implements OnInit, OnChanges {
     }
 
     public async init() {
-        this.nodes = []
-        this.links = []
+        this.nodes = [];
+        this.links = [];
 
         if(this.current_filename) {
             try {
                 const parts = this.current_filename.split("::");
                 const schema = await this.api.getUMLContent(parts[0], "erd", parts[1]);
                 for(let item of schema) {
-                    this.nodes.push(await UMLORNode.AsyncConstructor(item.entity, item.hidden, item?.fields ?? [], item.position.x, item.position.y, item.show_inheritance))
+                    this.nodes.push(await UMLORNode.AsyncConstructor(item.entity, item.hidden, item?.fields ?? [], item.position.x, item.position.y, item.show_inheritance, item.show_relations));
                 }
             }
             catch(e) {
@@ -111,6 +111,9 @@ export class UMLORComponent implements OnInit, OnChanges {
                 if(node.hidden.includes(key)) {
                     continue;
                 }
+                if(!node.schema.hasOwnProperty(key)) {
+                    continue;
+                }
                 const field = node.schema[key]
                 if(!['many2many','one2many','computed','many2one'].includes(field.type)) {
                     continue;
@@ -127,6 +130,9 @@ export class UMLORComponent implements OnInit, OnChanges {
                 if(field.type === 'many2one') {
                     let ok = true;
                     for(let key of node2.fields) {
+                        if(!node2.schema.hasOwnProperty(key)) {
+                            continue;
+                        }
                         if(node2.schema[key].type !=="one2many" && (node2.schema[key].type !=="computed" || node2.schema[key].result_type !== "one2many")) {
                             continue;
                         }
@@ -145,7 +151,7 @@ export class UMLORComponent implements OnInit, OnChanges {
         }
     }
 
-    reset() {
+    public reset() {
         const d = this.matDialog.open(DialogConfirmComponent,{data:"Are you sure you want to cancel all your changes ?"})
             d.afterClosed().subscribe((data)=> {
             if(data) {
@@ -173,16 +179,16 @@ export class UMLORComponent implements OnInit, OnChanges {
         return null;
     }
 
-    ngOnChanges() {
+    public ngOnChanges() {
         console.log("CALLED");
     }
 
-    async addNode(value:string){
+    public async addNode(value:string){
         this.nodes.push(await UMLORNode.AsyncConstructor(value, ["deleted","created","creator","modified","modifier"], [], -this.view_offset.x+100, -this.view_offset.y+100));
         this.refresh();
     }
 
-    deleteNode(index:number) {
+    public deleteNode(index:number) {
         if(index >= 0) {
             const deleted = this.nodes.splice(index,1);
 
@@ -200,11 +206,11 @@ export class UMLORComponent implements OnInit, OnChanges {
         }
     }
 
-    dragoff(event: CdkDragEnd) {
+    public dragoff(event: CdkDragEnd) {
         console.log(event)
     }
 
-    requestLinkFrom() {
+    public requestLinkFrom() {
         if(this.state !== 'linking-from' && this.state !== 'linking-to') {
             this.changeState('linking-from');
         }

@@ -19,18 +19,17 @@
 
     .header {
         width: 100%;
-
-        label {
-            display: block;
-            width: 100%;
-            white-space: none;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-size: 18px;
-            font-weight: 500;
-        }
     }
 
+    label.section-title {
+        display: block;
+        width: 100%;
+        white-space: none;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 18px;
+        font-weight: 500;
+    }
 
     .section {
         margin-top: 30px;
@@ -72,7 +71,7 @@
         &.entities {
             width: 100%;
             overflow-y: scroll;
-            height: calc(100% - 150px);
+            height: calc(100% - 250px);
 
             .entity {
                 display: flex;

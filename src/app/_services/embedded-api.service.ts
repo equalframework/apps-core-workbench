@@ -407,11 +407,11 @@ export class EmbeddedApiService {
         }
     }
 
-    public async saveUML(pkg:string,type:string,path:string,payload:string):Promise<boolean> {
+    public async saveUML(pkg: string, type: string, path: string, payload: string): Promise<boolean> {
         try {
-            await this.api.post(`?do=core_config_update-uml&package=${pkg}&type=${type}&path=${path}`,{"payload":payload});
+            await this.api.post(`?do=core_config_update-uml&package=${pkg}&type=${type}&filename=${path}`,{"payload":payload});
             return true;
-        } 
+        }
         catch(e) {
             console.error(e);
             this.api.errorFeedback(e);

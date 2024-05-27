@@ -1,10 +1,11 @@
-import { Component, Input, OnInit, Output, EventEmitter, OnChanges, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, OnChanges, ViewChild, ElementRef } from '@angular/core';
 import { UMLORNode } from '../uml-or-displayer/_objects/UMLORNode';
 import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 import { MatSelect } from '@angular/material/select';
 import { MatOption } from '@angular/material/core';
 import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { settings } from 'cluster';
+import { MatButton } from '@angular/material/button';
 
 @Component({
     selector: 'app-entities-editor',
@@ -22,29 +23,38 @@ export class EntitiesEditorComponent implements OnInit, OnChanges {
     @Output() requestState = new EventEmitter<string>();
 
     @ViewChild('fieldsSelector') fieldsSelector: MatSelect;
+    @ViewChild('buttonAddEntity', { read: ElementRef }) buttonAddEntity: ElementRef;
 
+    public packages:string[] = [];
     public models:string[] = [];
     public node: UMLORNode;
     public selectable_entities:string[] = [];
     public value:string = "";
+    public selected_package: string = 'core';
 
     constructor(
         private api:EmbeddedApiService
     ) {}
 
     public async ngOnInit() {
+        this.packages = await this.api.listPackages();
         this.models = await this.api.listAllModels();
+        this.updateSelectableEntities();
+    }
+    public onchangePackage() {
         this.updateSelectableEntities();
     }
 
     private updateSelectableEntities() {
         this.selectable_entities = [];
         for(let model of this.models) {
-            if(!this.getNodeByName(model)) {
+            let package_name: string = model.split('\\')[0];
+            if(package_name == this.selected_package && !this.getNodeByName(model)) {
                 this.selectable_entities.push(model);
             }
         }
     }
+
     public async ngOnChanges() {
         this.updateSelectableEntities();
         if(this.selectedNode >= 0 && this.selectedNode < this.nodes.length) {
@@ -62,9 +72,13 @@ export class EntitiesEditorComponent implements OnInit, OnChanges {
     }
 
     public createNode() {
-        if(this.value !== "") {
+        if(this.value != "") {
             this.addNode.emit(this.value);
             this.value = "";
+            setTimeout( () => {
+                this.buttonAddEntity.nativeElement.focus();
+            });
+            
         }
     }
 

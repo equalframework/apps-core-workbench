@@ -35,7 +35,7 @@
 }
 
 .sizeanim {
-    transition: all .2s ease-in-out;
+    /* transition: all .2s ease-in-out;*/
 }
 
 .mode-selected {
@@ -70,7 +70,6 @@
 
     .warn-icon {
         margin-left: 1em;
-
     }
 
     label {
@@ -91,8 +90,8 @@
 
     .warn-icon {
         margin-left: 1em;
-
     }
+
     a {
         color: mat-color($editedcolor);
         cursor : pointer;
@@ -127,7 +126,7 @@
         .cdk-overlay-container {
             display: none;
         }
-    }
+    } 
     .modecontainer {
         display: none;
         visibility: hidden;
