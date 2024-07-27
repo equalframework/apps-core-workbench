@@ -1,79 +1,166 @@
 
-<div *ngIf="current_package ===''" class="max-height max-width margin-container">
-    <label class="packagename">Select an eQual component to see its information</label>
+<div *ngIf="!current_package.length" class="max-height max-width margin-container">
+    <label class="action-notice">Select an eQual component to see its information</label>
 </div>
 
-<div *ngIf="current_package !==''" class="max-width margin-container">
-    <div class="controller-container-title">
-        <div class="divtitle">
+<ng-container *ngIf="current_package.length">
+
+    <div class="title">
+
+        <div class="package">
             <div class="flex-labels">
                 <label class="packagename">Package :</label>
                 <label class="packagename accent">{{ current_package }}</label>
             </div>
             <div>
-                <button mat-button color="primary" (click)="initPackage()"><mat-icon>not_started</mat-icon><label>Init package</label></button>
+                <button mat-button color="primary" (click)="initPackage()">
+                    <mat-icon>not_started</mat-icon>
+                    <label>Init package</label>
+                </button>
             </div>
-        </div> 
-        <div class="lineflex" *ngIf="consistency_loading">
-            <mat-spinner [diameter]="24"></mat-spinner>
-            <label class="ml5px">Testing consistency...</label>
         </div>
-        <div *ngIf="package_consitency && (error_count !== 0 || warn_count !== 0)" class="lineflex warncolor">
-            <mat-icon>error</mat-icon>
-            <label  class="warncolor">{{error_count}} errors and {{warn_count}} warnings</label>
-        </div>
-        <div *ngIf="package_consitency && (error_count === 0 && warn_count === 0)" class="lineflex newcolor">
-            <mat-icon>check_circle</mat-icon>
-            <label>No error or warning on this package</label>
-        </div>
-        <div *ngIf="!current_initialised" class="lineflex">
-            <mat-icon>error</mat-icon>
-            <label>This package has not been initialised</label>
-        </div>
-        <div *ngIf="current_initialised" class="lineflex newcolor">
-            <mat-icon>check_circle</mat-icon>
-            <label>This package has been initialised</label>
-        </div>
-        <br>
-    </div>
-    <div class="controller-container-top">
-        <div *ngIf="package_consitency" class="consistency-info">
-            <mat-icon
-                class="pointable icon"
-                *ngIf="(error_count !== 0 || warn_count !== 0)"
-                (click)="info_popup = !info_popup"
-            >
-                {{ info_popup ? "expand_less" : "expand_more" }}
-            </mat-icon>
-            <label *ngIf="info_popup" class="toggle-chip chip-warning" [class.checked]="want_warning" (click)="want_warning = !want_warning">Warnings</label>
-            <label *ngIf="info_popup" class="toggle-chip chip-error" [class.checked]="want_errors" (click)="want_errors = !want_errors">Errors</label>
-            <pre *ngIf="info_popup && (error_count !== 0 || warn_count !== 0)" class="limited_size"><label *ngFor="let item of filtered_error_list" [class.color-red]="item.type==2" [class.color-orange]="item.type==1" [class.bold]="item.type==2" class="err_warnitem">{{item.text}}</label></pre>
+
+        <div class="reporting">
+            <div class="lineflex" *ngIf="consistency_loading">
+                <mat-spinner [diameter]="24"></mat-spinner>
+                <label>Testing consistency...</label>
+            </div>
+
+            <div class="lineflex warncolor" *ngIf="package_consistency && (error_count !== 0 || warn_count !== 0)">
+                <mat-icon>error</mat-icon>
+                <label class="warncolor">{{error_count}} errors and {{warn_count}} warnings</label>
+            </div>
+
+            <div class="lineflex newcolor" *ngIf="package_consistency && (error_count === 0 && warn_count === 0)">
+                <mat-icon>check_circle</mat-icon>
+                <label>No error or warning on this package</label>
+            </div>
+
+            <div class="lineflex" *ngIf="!current_initialized">
+                <mat-icon>error</mat-icon>
+                <label>This package has not been initialized</label>
+            </div>
+
+            <div class="lineflex newcolor" *ngIf="current_initialized">
+                <mat-icon>check_circle</mat-icon>
+                <label>This package has been initialized</label>
+            </div>
         </div>
     </div>
-    <div class="controller-container-bottom">
-        <br>
-        <mat-grid-list [cols]="4" rowHeight="50%" class="max-width button-pkg-container">
+
+    <div class="body">
+
+        <div class="logs" *ngIf="!consistency_loading && package_consistency">
+
+            <div class="header">
+
+                <div class="filters">
+                    <label class="toggle-chip chip-warning"
+                            *ngIf="warn_count > 0"
+                            [class.checked]="want_warning"
+                            (click)="want_warning = !want_warning">
+                        Warnings
+                    </label>
+
+                    <label class="toggle-chip chip-error"
+                            *ngIf="error_count > 0"
+                            [class.checked]="want_errors"
+                            (click)="want_errors = !want_errors">
+                        Errors
+                    </label>
+                </div>
+
+                <button class="collapse" mat-icon-button
+                        *ngIf="error_count > 0 || warn_count > 0"
+                        (click)="info_popup = !info_popup">
+                    <mat-icon>{{ info_popup ? "expand_less" : "expand_more" }}</mat-icon>
+                </button>
+            </div>
+
+            <div class="items" *ngIf="info_popup && (error_count !== 0 || warn_count !== 0)">
+
+                <label *ngFor="let item of filtered_error_list"
+                        class="item"
+                        [class.color-red]="item.type==2"
+                        [class.color-orange]="item.type==1"
+                        [class.bold]="item.type==2">
+                        {{item.text}}
+                </label>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="bottom">
+        <mat-grid-list
+                [cols]="4"
+                rowHeight="50%">
             <mat-grid-tile>
-                <button mat-button class="package-info-button" (click)="modelOnClick()"><mat-icon>data_object</mat-icon><label>Models</label></button>
+                <button mat-button
+                        class="package-info-button"
+                        (click)="modelOnClick()">
+                    <mat-icon>data_object</mat-icon>
+                    <label>Models</label>
+                </button>
             </mat-grid-tile>
+
             <mat-grid-tile>
-                <button mat-button class="package-info-button" (click)="controllerOnClick()"><mat-icon>code</mat-icon><label>Controllers</label></button>
+                <button mat-button
+                        class="package-info-button"
+                        (click)="controllerOnClick()">
+                    <mat-icon>code</mat-icon>
+                    <label>Controllers</label>
+                </button>
             </mat-grid-tile>
+
             <mat-grid-tile>
-                <button mat-button class="package-info-button" (click)="viewOnClick()" ><mat-icon>view_quilt</mat-icon><label>Views</label></button>
+                <button mat-button
+                        class="package-info-button"
+                        (click)="viewOnClick()">
+                    <mat-icon>view_quilt</mat-icon>
+                    <label>Views</label>
+                </button>
             </mat-grid-tile>
+
             <mat-grid-tile>
-                <button mat-button class="package-info-button" (click)="routeOnClick()"><mat-icon>route</mat-icon><label>Routes</label></button>
+                <button mat-button
+                        class="package-info-button"
+                        (click)="routeOnClick()">
+                    <mat-icon>route</mat-icon>
+                    <label>Routes</label>
+                </button>
             </mat-grid-tile>
+
             <mat-grid-tile>
-                <button mat-button class="package-info-button" (click)="initdataOnClick()"><mat-icon>file_present</mat-icon><label>Initial data</label></button>
+                <button mat-button
+                        class="package-info-button"
+                        (click)="initdataOnClick()">
+                    <mat-icon>file_present</mat-icon>
+                    <label>Initial data</label>
+                </button>
             </mat-grid-tile>
+
             <mat-grid-tile>
-                <button mat-button class="package-info-button" (click)="initdemodataOnClick()"><mat-icon>file_present</mat-icon><label>Demo data</label></button>
+                <button mat-button
+                        class="package-info-button"
+                        (click)="initdemodataOnClick()">
+                        <mat-icon>file_present</mat-icon>
+                        <label>Demo data</label>
+                </button>
             </mat-grid-tile>
+
             <mat-grid-tile>
-                <button mat-button class="package-info-button" style="opacity: 0.6;" disabled><mat-icon>apps</mat-icon><label>Applications</label></button>
+                <button mat-button
+                        class="package-info-button"
+                        style="opacity: 0.6;"
+                        disabled>
+                    <mat-icon>apps</mat-icon>
+                    <label>Applications</label>
+                </button>
             </mat-grid-tile>
+
         </mat-grid-list>
     </div>
-</div>
+
+</ng-container>

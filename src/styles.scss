@@ -90,3 +90,42 @@ ngx-material-timepicker-toggle {
   width: 100% !important;
   height: 100% !important;
 }
+
+
+/* global classes for components in workbench (can be used in overlay) */
+
+.component-icon {
+    border-radius: 5px;
+}
+
+.component-color-package {
+    background-color: mat-color($package-color,A100) ;
+}
+
+.component-color-class {
+    background-color: mat-color($class-color,A100) ;
+}
+
+.component-color-do {
+    background-color: mat-color($do-color,A100) ;
+}
+
+.component-color-get {
+    background-color: mat-color($get-color,A100) ;
+}
+
+.component-color-controller {
+    background-color: mat-color($get-color,A100) ;
+}
+
+.component-color-menu {
+    background-color: mat-color($menu-color,A100) ;
+}
+
+.component-color-route {
+    background-color: mat-color($route-color,A100) ;
+}
+
+.component-color-view {
+    background-color: mat-color($view-color,A100) ;
+}

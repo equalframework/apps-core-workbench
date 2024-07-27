@@ -44,7 +44,7 @@ export class RoutesComponent implements OnInit {
         const a = this.activateRoute.snapshot.paramMap.get('selected_package')
         this.selected_package =  a ? a : ""
         this.routes_for_selected_package = []
-        let y = (await this.api.getRoutesByPackages(this.selected_package))
+        let y = (await this.api.getRoutesByPackage(this.selected_package))
         for(let file in y) {
             for(let route in y[file]) {
                 this.real_name[file.split("-")[0]+"-"+route] = route

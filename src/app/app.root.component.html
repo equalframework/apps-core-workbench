@@ -1,14 +1,14 @@
 <div class="container">
     <div class="app-header">
         <app-header
-        [section]="'Workbench'"
-        (toggleMenu)="toggleSideMenu()"
-        (toggleBar)="toggleSideBar()">
+            [section]="'Workbench'"
+            (toggleMenu)="toggleSideMenu()"
+            (toggleBar)="toggleSideBar()">
         </app-header>
     </div>
     <div class="app-body">
 
-        <div class="app-sidebar"  [class.show]="show_side_bar">
+        <div class="app-sidebar" [class.show]="show_side_bar">
             <!-- app-sidebar -->
             <div class="side-inner">
                 <mat-nav-list>

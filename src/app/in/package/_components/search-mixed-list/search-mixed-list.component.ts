@@ -7,11 +7,10 @@ import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { ItemTypes } from '../../_constants/ItemTypes';
 import { MixedCreatorComponent } from '../mixed-creator/mixed-creator.component';
 import { DeleteConfirmationComponent } from 'src/app/in/delete-confirmation/delete-confirmation.component';
-import { contains } from 'jquery';
 
-/** 
+/**
  * This component is used to display the list of all object you recover in package.component.ts
- * 
+ *
  * If you need to add a new type, you just have to add it in type_dict and create the css rules for the icon in search-mixed-list.component.scss
  * You can also describe the spelling rule of the name in search-mixed-list.component.html
 */
@@ -42,7 +41,7 @@ export class SearchMixedListComponent implements OnInit {
      */
     public type_dict: { [id: string]: { icon: string, disp: string } } = ItemTypes.typeDict
 
-    public inputcontrol = new FormControl('') // formcontrol for search input field
+    public inputControl = new FormControl('') // formcontrol for search input field
 
     constructor(
         private dialog: MatDialog, // could be useful later
@@ -56,9 +55,9 @@ export class SearchMixedListComponent implements OnInit {
         this.current_root = (await this.env.getEnv())['backend_url']
         let arg = this.router.retrieveArgs()
         if (arg && arg['searchvalue']) {
-            this.inputcontrol.setValue(arg['searchvalue'])
+            this.inputControl.setValue(arg['searchvalue'])
         } else {
-            this.inputcontrol.setValue("package:")
+            this.inputControl.setValue("package:")
         }
         this.onSearch();
     }
@@ -72,9 +71,9 @@ export class SearchMixedListComponent implements OnInit {
      */
     public onSelectChange() {
         if (this.search_scope !== "")
-            this.inputcontrol.setValue(this.search_scope + ":" + this.search_value)
+            this.inputControl.setValue(this.search_scope + ":" + this.search_value)
         else
-            this.inputcontrol.setValue(this.search_value)
+            this.inputControl.setValue(this.search_value)
         this.onSearch()
     }
 
@@ -84,8 +83,8 @@ export class SearchMixedListComponent implements OnInit {
      * @param value value of the filter
      */
     public onSearch(updaterouter: boolean = true) {
-        if (updaterouter) this.router.updateArg('searchvalue', this.inputcontrol.value)
-        let splitted = this.inputcontrol.value.split(":")
+        if (updaterouter) this.router.updateArg('searchvalue', this.inputControl.value)
+        let splitted = this.inputControl.value.split(":")
         if (splitted.length > 1) {
             this.search_scope = splitted[0]
             this.search_value = splitted.slice(1).join(":")
@@ -143,7 +142,7 @@ export class SearchMixedListComponent implements OnInit {
     }
 
     clearSearch() {
-        this.inputcontrol.setValue('')
+        this.inputControl.setValue('')
         this.onSearch()
     }
 

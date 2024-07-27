@@ -1,6 +1,5 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { promise } from 'protractor';
 import { ApiService } from 'sb-shared-lib';
 import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 
@@ -9,13 +8,14 @@ import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
     providedIn: 'root'
 })
 export class WorkbenchService extends EmbeddedApiService {
-    public cached_schema:any
+    private cache:any = {};
 
     constructor(
         private http: HttpClient,
-        api: ApiService,
-    ) { super(api) }
-    
+        api: ApiService) {
+        super(api);
+    }
+
     /**
      * // TODO
      *
@@ -30,10 +30,10 @@ export class WorkbenchService extends EmbeddedApiService {
     /**
      * // TODO
      *
-     * @param eq_package - The name of package for the new class.
+     * @param package_name - The name of package for the new class.
      * @param new_class - The name of the new class.
      */
-    public createClass(eq_package: string, new_class: string) {
+    public createClass(package_name: string, new_class: string) {
         // TODO
         console.warn("New class name: ", new_class);
     }
@@ -41,11 +41,11 @@ export class WorkbenchService extends EmbeddedApiService {
     /**
      * // TODO
      *
-     * @param eq_package - The name of the package of the class.
+     * @param package_name - The name of the package of the class.
      * @param old_node - The name of the old class.
      * @param new_node - The name of the new class.
      */
-    public updateClass(eq_package: string, old_node: string, new_node: string) {
+    public updateClass(package_name: string, old_node: string, new_node: string) {
         // TODO
         console.warn("Update name package, old name: ", old_node, ", new name: ", new_node);
     }
@@ -53,22 +53,22 @@ export class WorkbenchService extends EmbeddedApiService {
     /**
      * // TODO
      *
-     * @param eq_package - The name of the package for eq_class.
-     * @param eq_class - The name of the class.
+     * @param package_name - The name of the package for class_name.
+     * @param class_name - The name of the class.
      */
-    public deleteClass(eq_package: string, eq_class: string) {
+    public deleteClass(package_name: string, class_name: string) {
         // TODO
-        console.warn("Package deleted: ", eq_class);
+        console.warn("Package deleted: ", class_name);
     }
 
     /**
      * // TODO
      *
-     * @param eq_package - The name of the package for eq_class.
-     * @param eq_class - The name of the class for new_field.
+     * @param package_name - The name of the package for class_name.
+     * @param class_name - The name of the class for new_field.
      * @param new_field - The new name of the field.
      */
-    public createField(eq_package: string, eq_class: string, new_field: string) {
+    public createField(package_name: string, class_name: string, new_field: string) {
         // TODO
         console.warn("New field name: ", new_field);
     }
@@ -76,12 +76,12 @@ export class WorkbenchService extends EmbeddedApiService {
     /**
      * // TODO
      *
-     * @param eq_package - The name of the package for eq_class.
-     * @param eq_class - The name of the class for new_field.
+     * @param package_name - The name of the package for class_name.
+     * @param class_name - The name of the class for new_field.
      * @param old_node - The old name of the field.
      * @param new_node - The new name of the field.
      */
-    public updateField(eq_package: string, eq_class: string, old_node: string, new_node: string) {
+    public updateField(package_name: string, class_name: string, old_node: string, new_node: string) {
         // TODO
         console.warn("Update name field, old name: ", old_node, ", new name: ", new_node);
     }
@@ -89,13 +89,36 @@ export class WorkbenchService extends EmbeddedApiService {
     /**
      * // TODO
      *
-     * @param eq_package - The name of the package for eq_class.
-     * @param eq_class - The name of the class for new_field.
+     * @param package_name - The name of the package for class_name.
+     * @param class_name - The name of the class for new_field.
      * @param field - The name of the field.
      */
-    public deleteField(eq_package: string, eq_class: string, field: string) {
+    public deleteField(package_name: string, class_name: string, field: string) {
         // TODO
         console.warn("Field deleted: ", field);
+    }
+
+    /**
+     * @param new_schema - The new schema
+     */
+    public async updateSchema(new_schema: {}, package_name: string, class_name: string) {
+        try {
+            return await this.api.fetch('?do=config_update-model&part=class&entity=' + package_name + "\\" + class_name + '&payload=' + JSON.stringify(new_schema));
+        }
+        catch (response: any) {
+            console.warn('request error', response);
+        }
+        console.log('#### schema updated', new_schema);
+    }
+
+    public async InitPackage(package_name:string, do_import: boolean, do_cascade:boolean, do_import_cascade:boolean): Promise<boolean> {
+        try {
+            await this.api.fetch("?do=core_init_package&package="+package_name+(do_import ? "&import=true":"")+"&cascade="+(do_cascade ? "true" : "false")+"&import_cascade="+(do_import_cascade ? "true" : "false"))
+            return true;
+        }
+        catch {
+            return false;
+        }
     }
 
     /**
@@ -103,36 +126,58 @@ export class WorkbenchService extends EmbeddedApiService {
      *
      * @returns A array with all packages
      */
-    public async getPackages():Promise<string[]> {
-        try {
-            return await this.api.fetch('?get=config_packages');
+    public async getPackages(): Promise<string[]> {
+        let result = [];
+        if(this.cache.hasOwnProperty('packages')) {
+            result = this.cache.packages;
         }
-        catch (response: any) {
-            console.warn('fetch package error', response);
+        else {
+            try {
+                result = await this.api.fetch('?get=config_packages');
+                this.cache.packages = result;
+            }
+            catch (response: any) {
+                console.warn('fetch package error', response);
+            }
         }
-        return []
+        return result;
     }
 
-    public async getInitialisedPackages():Promise<string[]> {
-        var ret = []
-        try {
-            ret = await this.api.fetch('?get=core_config_live_packages');
+    public async getInitializedPackages(): Promise<string[]> {
+        let result = [];
+        if(this.cache.hasOwnProperty('initialized_packages')) {
+            result = this.cache.initialized_packages;
         }
-        catch (response: any) {
-            console.warn('fetch package error', response);
+        else {
+            try {
+                result = await this.api.fetch('?get=core_config_live_packages');
+                this.cache.initialized_packages = result;
+            }
+            catch (response: any) {
+                console.warn('fetch package error', response);
+            }
         }
-        return ret;
+        return result;
     }
 
-    public async getPackageConsistency(pkg:string ):Promise<any> {
-        var ret = []
-        try {
-            ret = await this.api.fetch('?do=test_package-consistency&package='+pkg);
+    public async getPackageConsistency(package_name: string ): Promise<any> {
+        var result = [];
+        if(this.cache.hasOwnProperty('packages_consistency') && this.cache.packages_consistency.hasOwnProperty(package_name)) {
+            result = this.cache.packages_consistency[package_name];
         }
-        catch (response: any) {
-            console.warn('fetch package error', response);
+        else {
+            try {
+                result = await this.api.fetch('?do=test_package-consistency&package='+package_name);
+                if(!this.cache.hasOwnProperty('packages_consistency')) {
+                    this.cache.packages_consistency = {};
+                }
+                this.cache.packages_consistency[package_name] = result;
+            }
+            catch (response: any) {
+                console.warn('fetch package error', response);
+            }
         }
-        return ret;
+        return result;
     }
 
     /**
@@ -140,24 +185,38 @@ export class WorkbenchService extends EmbeddedApiService {
      *
      * @returns A JSON with package as key and classes as value.
      */
-    public async getClasses():Promise<{[id:string]:string[]}> {
-        try {
-            return await this.api.fetch('?get=core_config_classes');
+    public async getClasses(): Promise<{[id: string]: string[]}> {
+        let result = {};
+        if(this.cache.hasOwnProperty('classes')) {
+            result = this.cache.classes;
         }
-        catch (response: any) {
-            console.warn('fetch class error', response);
+        else {
+            try {
+                result = await this.api.fetch('?get=core_config_classes');
+                this.cache.classes = result;
+            }
+            catch (response: any) {
+                console.warn('fetch class error', response);
+            }
         }
-        return {}
+        return result;
     }
 
-    public async getControllers(eq_package: string):Promise<{data:string[],actions:string[]}> {
-        try {
-            return await this.api.fetch('?get=core_config_controllers&package=' + eq_package);
+    public async getControllers(eq_package: string): Promise<{data: string[], actions: string[]}> {
+        let result = {data:[], actions:[]};
+        if(this.cache.hasOwnProperty('controllers')) {
+            result = this.cache.controllers;
         }
-        catch (response: any) {
-            console.warn('request error', response);
+        else {
+            try {
+                result = await this.api.fetch('?get=core_config_controllers&package=' + eq_package);
+                this.cache.controllers = result;
+            }
+            catch (response: any) {
+                console.warn('request error', response);
+            }
         }
-        return {data:[],actions:[]}
+        return result;
     }
 
 
@@ -167,25 +226,20 @@ export class WorkbenchService extends EmbeddedApiService {
      * @returns A JSON of each type with key-values.
      */
     public async getTypes() {
-        try {
-            return await this.api.fetch('?get=config_types');
+        let result = {};
+        if(this.cache.hasOwnProperty('types')) {
+            result = this.cache.types;
         }
-        catch (response: any) {
-            console.warn('fetch types error', response);
+        else {
+            try {
+                result = await this.api.fetch('?get=config_types');
+                this.cache.types = result;
+            }
+            catch (response: any) {
+                console.warn('fetch types error', response);
+            }
         }
-    }
-
-    /**
-     * @param new_schema - The new schema
-     */
-    public async updateSchema(new_schema: {}, eq_package: string, eq_class: string) {
-        try {
-            return await this.api.fetch('?do=config_update-model&part=class&entity=' + eq_package + "\\" + eq_class + '&payload=' + JSON.stringify(new_schema));
-        }
-        catch (response: any) {
-            console.warn('request error', response);
-        }
-        console.log('#### schema updated', new_schema);
+        return result;
     }
 
     /**
@@ -194,11 +248,20 @@ export class WorkbenchService extends EmbeddedApiService {
      * @returns An object with key-values.
      */
     public async getValidOperators() {
-        try {
-            return await this.api.fetch('?get=core_config_domain-operators');
-        } catch (response: any) {
-            console.warn('request error', response);
+        let result = {};
+        if(this.cache.hasOwnProperty('operators')) {
+            result = this.cache.operators;
         }
+        else {
+            try {
+                result = await this.api.fetch('?get=core_config_domain-operators');
+                this.cache.operators = result;
+            }
+            catch (response: any) {
+                console.warn('request error', response);
+            }
+        }
+        return result;
     }
 
     /**
@@ -207,61 +270,104 @@ export class WorkbenchService extends EmbeddedApiService {
      * @returns a JSON with all the usages
      */
     public async getUsages() {
-        try {
-            return await this.api.fetch('?get=config_usage');
-        } catch (response: any) {
-            console.warn('request error', response);
+        let result = {};
+        if(this.cache.hasOwnProperty('usages')) {
+            result = this.cache.usages;
         }
+        else {
+            try {
+                result = await this.api.fetch('?get=config_usage');
+                this.cache.usages = result;
+            }
+            catch (response: any) {
+                console.warn('request error', response);
+            }
+        }
+        return result;
     }
 
         /**
      * Return the announcement of a controller
      *
-     * @param string type_controller the action of the controller(do or get)
-     * @param string eq_package name of the package
-     * @param string name of the controller
+     * @param string controller_type the action of the controller(do or get)
+     * @param string controller_name of the controller
      * @returns array with the announcement of a controller
      */
-    public async getAnnounceController(type_controller: string, name: string) {
-        try {
-            return await this.api.fetch('?' + type_controller + '=' + name + '&announce=true');
+    public async getAnnounceController(controller_type: string, controller_name: string) {
+        let result = {};
+        if(this.cache.hasOwnProperty('announcements') && this.cache.announcements.hasOwnProperty(controller_type+'::'+controller_name)) {
+            result = this.cache.announcements[controller_type+'::'+controller_name];
         }
-        catch (response: any) {
-            return null;
+        else {
+            try {
+                result = await this.api.fetch('?' + controller_type + '=' + controller_name + '&announce=true');
+                if(!this.cache.hasOwnProperty('announcements')) {
+                    this.cache.announcements = {};
+                }
+                this.cache.announcements[controller_type+'::'+controller_name] = result;
+            }
+            catch (response: any) {
+                return null;
+            }
         }
+        return result;
     }
 
     public async getRoutes() {
-        try {
-            return await this.api.fetch('?get=config_live_routes');
+        let result = {};
+        if(this.cache.hasOwnProperty('routes')) {
+            result = this.cache.routes;
         }
-        catch (response: any) {
-            console.warn('fetch package error', response);
+        else {
+            try {
+                result = await this.api.fetch('?get=config_live_routes');
+                this.cache.routes = result;
+            }
+            catch (response: any) {
+                console.warn('fetch package error', response);
+            }
         }
+        return result;
     }
 
-    public async getViewByPackage(pkg:string):Promise<string[]> {
-        try {
-            return await this.api.fetch("?get=core_config_views&package="+pkg)
-        } catch(response) {
-            return []
+    public async getViewsByPackage(package_name: string): Promise<string[]> {
+        let result = [];
+        if(this.cache.hasOwnProperty('views') && this.cache.views.hasOwnProperty(package_name)) {
+            result = this.cache.views[package_name];
         }
+        else {
+            try {
+                result = await this.api.fetch("?get=core_config_views&package="+package_name)
+                if(!this.cache.hasOwnProperty('views')) {
+                    this.cache.views = {};
+                }
+                this.cache.views[package_name] = result;
+            }
+            catch(response) {
+                console.warn('fetch views by package error', response);
+            }
+        }
+        return result;
     }
 
-    public async getMenuByPackage(pkg:string):Promise<string[]> {
-        try {
-            return await this.api.fetch("?get=core_config_menus&package="+pkg)
-        } catch(response) {
-            return []
+    public async getMenusByPackage(package_name:string): Promise<string[]> {
+        let result = [];
+        if(this.cache.hasOwnProperty('menus') && this.cache.menus.hasOwnProperty(package_name)) {
+            result = this.cache.menus[package_name];
         }
+        else {
+            try {
+                result = await this.api.fetch("?get=core_config_menus&package="+package_name)
+                if(!this.cache.hasOwnProperty('menus')) {
+                    this.cache.menus = {};
+                }
+                this.cache.menus[package_name] = result;
+            }
+            catch(response) {
+                console.warn('fetch menus by package error', response);
+            }
+        }
+        return result;
     }
 
-    public async InitPackage(pkg:string,imprt:boolean,csd:boolean,impcsd:boolean):Promise<boolean> {
-        try {
-            await this.api.fetch("?do=core_init_package&package="+pkg+(imprt ? "&import=true":"")+"&cascade="+(csd ? "true" : "false")+"&import_cascade="+(impcsd ? "true" : "false"))
-            return true
-        } catch {
-            return false
-        }
-    }
 }

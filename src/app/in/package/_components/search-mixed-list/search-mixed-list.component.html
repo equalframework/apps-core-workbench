@@ -1,48 +1,45 @@
-<div class="mixed-searchbar">
-    <mat-form-field class="input search-bar">
-        <mat-icon matPrefix class="icon">filter_list</mat-icon>
-        <input matInput placeholder="Filter" [formControl]="inputcontrol" (keyup)="onSearch()">
+<div *ngIf="loading" class="loader"><mat-spinner></mat-spinner></div>
+
+<div class="searchbar">
+
+    <mat-form-field class="input-query">
+        <mat-icon matPrefix>filter_list</mat-icon>
+        <input matInput placeholder="Filter" [formControl]="inputControl" (keyup)="onSearch()">
         <!--(keyup)="onSearch()"--->
-        <button *ngIf="inputcontrol.value && inputcontrol.value !== ''" matSuffix mat-icon-button aria-label="Clear" (click)="clearSearch()">
+        <button *ngIf="inputControl.value && inputControl.value !== ''" matSuffix mat-icon-button aria-label="Clear" (click)="clearSearch()">
             <mat-icon>close</mat-icon>
         </button>
     </mat-form-field>
-    <mat-form-field class="mixed-search-select">
-        <mat-select [(value)]="search_scope" class="" (valueChange)="onSelectChange()" >
-            <mat-select-trigger> <mat-icon class="icon-search-small mixed-select-sel-{{search_scope}}">{{type_dict[search_scope].icon}}</mat-icon> {{type_dict[actual_scope].disp}}</mat-select-trigger>
+
+    <mat-form-field class="select-package">
+        <mat-select [(value)]="search_scope" (valueChange)="onSelectChange()" >
+            <mat-select-trigger><mat-icon class="select-icon component-icon component-color-{{search_scope}}">{{type_dict[search_scope].icon}}</mat-icon> {{type_dict[actual_scope].disp}}</mat-select-trigger>
             <mat-option *ngFor="let key of obk(type_dict)" [value]="key">
-                <mat-icon class="mixed-select-sel-{{key}}">{{type_dict[key].icon}}</mat-icon> {{type_dict[key].disp}}
+                <mat-icon class="component-icon component-color-{{key}}">{{type_dict[key].icon}}</mat-icon> {{type_dict[key].disp}}
             </mat-option>
         </mat-select>
     </mat-form-field>
 </div>
-<div *ngIf="loading">
-    <mat-spinner></mat-spinner>
-</div>
 
-<mat-list *ngIf="!loading" class="list">
-    <cdk-virtual-scroll-viewport [itemSize]="48" class="virtual">
-        <mat-list-item 
-            *cdkVirtualFor="let node of filteredData" 
-            class=""
-        >
-            <div 
-                class="node_container mixed-sel-{{node.type}}" 
-                [class.node-hover]="selected_node != node" 
-                [class.node-selected]="selected_node === node"
-                [title]="get_node_title(node)"
-            >
-                <div class="pointable node-text" (click)="onclickNodeSelect(node)">
-                    <label class="type-info-mixed-sel type-mixed-sel-{{node.type}}"><mat-icon>{{type_dict[node.type].icon}}</mat-icon></label>
-                    <label class="name-mixed-sel" *ngIf="node.type !== 'route'">{{ node.package ? (node.type === "do" || node.type === "get" || node.type === "view" ? "" : node.package+"\\") : ""}}{{node.name}}</label>
-                    <label class="name-mixed-sel" *ngIf="node.type === 'route'">{{ node.package }}-{{node.more.split("-",1)[0]}}-{{node.name}}</label>
-                    <button mat-icon-button (click)="clickDelete(node)" class="del-mixed-sel"><mat-icon>delete</mat-icon></button>
-                </div>
+
+<mat-list class="list">
+
+    <mat-list-item *ngFor="let node of filteredData" >
+        <div class="node"
+                [class.hover]="selected_node != node"
+                [class.selected]="selected_node === node"
+                [title]="get_node_title(node)">
+            <div class="inner" (click)="onclickNodeSelect(node)">
+                <label class="icon component-icon component-color-{{node.type}}"><mat-icon>{{type_dict[node.type].icon}}</mat-icon></label>
+                <label class="prefix" *ngIf="node.type !== 'route'">{{ node.package ? (node.type === "do" || node.type === "get" || node.type === "view" ? "" : node.package+"\\") : ""}}{{node.name}}</label>
+                <label class="name" *ngIf="node.type === 'route'">{{ node.package }}-{{node.more.split("-",1)[0]}}-{{node.name}}</label>
+                <button mat-icon-button (click)="clickDelete(node)" class="delete"><mat-icon>delete</mat-icon></button>
             </div>
-        </mat-list-item>
-    </cdk-virtual-scroll-viewport>
+        </div>
+    </mat-list-item>
+
 </mat-list>
 
-<div *ngIf="!loading" class="adder" (click)="openCreator()">
+<div class="adder" (click)="openCreator()">
     <mat-icon style="margin-right: 1em;">add</mat-icon> Create new component
 </div>

@@ -86,8 +86,10 @@ export class AppRootComponent implements OnInit {
      * @param item
      */
     public onSelectItem(item:any) {
-        console.log('SettingsAppRoot::onSelectItem', item);
-        this.router.navigateByUrl(item.id);
+        console.log('WorkbenchAppRoot::onSelectItem', item);
+        if(item && item.hasOwnProperty('route') && item.route.length) {
+            this.router.navigateByUrl(item.route);
+        }
     }
 
     public toggleSideMenu() {

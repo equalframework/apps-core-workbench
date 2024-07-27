@@ -50,7 +50,7 @@ const routes: Routes = [
         loadChildren: () => import('src/app/in/uml-or/uml-or.module').then(m => m.UMLORModule)
     },
     {
-        path: 'pipeline',
+        path: 'pipelines',
         loadChildren: () => import('src/app/in/pipeline/pipeline.module').then(m => m.PipelineModule)
     },
     // wildcard route (accept root and any sub route that does not match any of the routes above)

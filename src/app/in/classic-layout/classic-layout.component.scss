@@ -1,9 +1,22 @@
-.package-grid-list {
+:host {
     height: calc(100% - 80px);
-}
+    display: flex;
+    flex-direction: row;
 
-.marginpaddin {
-    margin: .5em;
-    height: calc( 100% - 1em );
-    width: calc( 100% - 1em );
+    div {
+        padding: 8px;
+        height: 100%;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .left_pane {
+        flex: 0 1 400px;
+        max-width: 400px;
+    }
+
+    .right_pane {
+        flex: 1;
+    }
+
 }

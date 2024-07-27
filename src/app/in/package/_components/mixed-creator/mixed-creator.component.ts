@@ -49,7 +49,7 @@ export class MixedCreatorComponent implements OnInit {
       this.subtypename = "View Type"
       this.cachelist = []
       if(this.selected_package !== ""){
-        let x = await this.api.getMenuByPackage(this.selected_package)
+        let x = await this.api.getMenusByPackage(this.selected_package)
         x.forEach(item => {
           return this.cachelist?.push(item.split(".")[0])
         })
@@ -90,7 +90,7 @@ export class MixedCreatorComponent implements OnInit {
         this.subtypename = "File"
         this.name_title = "URL"
         if(this.selected_package) {
-          let x = await this.api.getRoutesByPackages(this.selected_package)
+          let x = await this.api.getRoutesByPackage(this.selected_package)
           this.subtypelist = Object.keys(x)
           this.cachelist = []
           if(x[this.subtype] && !this.addingState){

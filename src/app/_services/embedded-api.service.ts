@@ -57,7 +57,7 @@ export class EmbeddedApiService {
         catch (response: any) {
             console.warn('fetch class error', response);
         }
-        return []
+        return [];
     }
 
     public async listAllModels():Promise<string[]> {
@@ -70,7 +70,7 @@ export class EmbeddedApiService {
                     ret.push(key+"\\"+item);
                 }
             }
-            return ret
+            return ret;
         }
         catch (response: any) {
             console.warn('fetch class error', response);
@@ -87,7 +87,7 @@ export class EmbeddedApiService {
                 console.warn('fetch class error', response);
             }
             return [];
-        } 
+        }
         else {
             try {
                 return (await this.api.fetch('?get=core_config_views&entity='+pkg+'\\'+entity));
@@ -95,7 +95,7 @@ export class EmbeddedApiService {
             catch (response: any) {
                 console.warn('fetch class error', response);
             }
-            return []
+            return [];
         }
 
     }
@@ -158,12 +158,12 @@ export class EmbeddedApiService {
         return {"fields" : []};
     }
 
-    public async getRoutesByPackages(pkg:string) {
+    public async getRoutesByPackage(pkg:string) {
         try {
             return await this.api.fetch('?get=core_config_routes&package=' + pkg);
         }
         catch (response: any) {
-            return []
+            return [];
         }
     }
 
@@ -181,7 +181,7 @@ export class EmbeddedApiService {
             let files:{[file:string]:any}
             try {
                 files = (await this.api.fetch('?get=core_config_routes&package=' + pkg));
-            } 
+            }
             catch {
                 files = {};
             }
@@ -197,7 +197,7 @@ export class EmbeddedApiService {
         try {
             await this.api.fetch("?do=core_config_create-route&package="+pkg+"&file="+file+"&url="+url);
             return true;
-        } 
+        }
         catch {
             return false;
         }
@@ -232,7 +232,7 @@ export class EmbeddedApiService {
                 }
                 return a.length - b.length;
             })
-        } 
+        }
         catch {
             return [];
         }
@@ -253,7 +253,7 @@ export class EmbeddedApiService {
         try {
             await this.api.fetch("?do=core_config_delete-package&package="+pkg);
             return undefined;
-        } 
+        }
         catch(response) {
             this.api.errorFeedback(response);
             return response;
@@ -264,7 +264,7 @@ export class EmbeddedApiService {
         try {
             await this.api.fetch("?do=core_config_delete-model&package="+pkg+"&model="+model);
             return undefined;
-        } 
+        }
         catch(response) {
             this.api.errorFeedback(response);
             return response;
@@ -275,7 +275,7 @@ export class EmbeddedApiService {
         try {
             await this.api.fetch("?do=core_config_delete-controller&package="+pkg+"&controller_name="+name+"&controller_type="+type);
             return undefined;
-        } 
+        }
         catch(response) {
             this.api.errorFeedback(response);
             return response;
@@ -285,7 +285,7 @@ export class EmbeddedApiService {
     public async getViews(type:string, entity:string): Promise<string[]> {
         try {
             return await this.api.fetch("?get=core_config_views&"+type+"="+entity);
-        } 
+        }
         catch(response) {
             return [];
         }
@@ -294,7 +294,7 @@ export class EmbeddedApiService {
     public async getView(entity:string,name:string):Promise<any> {
         try {
             return await this.api.fetch("?get=core_model_view&view_id="+name+"&entity="+entity);
-        } 
+        }
         catch (response) {
             return {};
         }
@@ -303,7 +303,7 @@ export class EmbeddedApiService {
     public async getInitData(pkg:string,type:string):Promise<{[id:string]:any}> {
         try {
             return (await this.api.fetch(`?get=core_config_init-data&package=${pkg}&type=${type}`));
-        } 
+        }
         catch {
             return {};
         }
@@ -313,7 +313,7 @@ export class EmbeddedApiService {
         try {
             await this.api.post(`?do=core_config_update-init-data&package=${pkg}&type=${type}`,{payload:payload});
             return true;
-        } 
+        }
         catch(e) {
             console.log(e);
             this.api.errorFeedback(e);
@@ -324,7 +324,7 @@ export class EmbeddedApiService {
     public async getWorkflow(pkg:string,model:string):Promise<any> {
         try {
             return {exists : true, info : await this.api.get(`?get=core_model_workflow&entity=${pkg}\\${model}`)};
-        } 
+        }
         catch(e:any) {
             const cast:HttpErrorResponse = e;
             if(cast.status === 404) {
@@ -341,7 +341,7 @@ export class EmbeddedApiService {
         try {
             await this.api.post(`?do=core_config_update-workflow&entity=${pkg}\\${model}`,{payload : payload});
             return true;
-        } 
+        }
         catch(e) {
             console.error(e);
             this.api.errorFeedback(e);
@@ -353,7 +353,7 @@ export class EmbeddedApiService {
         try {
             await this.api.post(`?do=core_config_create-workflow&entity=${pkg}\\${model}`);
             return true;
-        } 
+        }
         catch(e) {
             console.error(e);
             this.api.errorFeedback(e);
@@ -364,7 +364,7 @@ export class EmbeddedApiService {
     public async fetchMetaData(code:string,reference:string): Promise<any[]> {
         try {
             return await this.api.get(`?get=core_model_collect&entity=core\\Meta&fields=[value]&domain=[[code,=,${code}],[reference,=,${reference}]]`);
-        } 
+        }
         catch(e) {
             console.error(e);
             this.api.errorFeedback(e);
@@ -376,7 +376,7 @@ export class EmbeddedApiService {
         try {
             await this.api.post(`?do=core_model_create&entity=core\\Meta`,{"fields" : {"value" : payload, "code" : code, reference : reference}});
             return true;
-        } 
+        }
         catch(e) {
             console.error(e);
             this.api.errorFeedback(e);
@@ -388,7 +388,7 @@ export class EmbeddedApiService {
         try {
             await this.api.post(`?do=core_model_update&entity=core\\Meta&id=${id}`,{"fields" : {"value" : payload}});
             return true;
-        } 
+        }
         catch(e) {
             console.error(e)
             this.api.errorFeedback(e)
@@ -399,7 +399,7 @@ export class EmbeddedApiService {
     public async getAllInstanceFrom(entity:string,fields:string[] = []):Promise<any[]> {
         try {
             return await this.api.get(`?get=core_model_collect&entity=${entity}&fields=${JSON.stringify(fields)}`);
-        } 
+        }
         catch(e) {
             console.error(e);
             this.api.errorFeedback(e);

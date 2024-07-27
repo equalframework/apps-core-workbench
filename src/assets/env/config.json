@@ -1,8 +1,8 @@
 {
     "production": true,
-    "parent_domain":  "equal.local",
-    "backend_url":  "http://equal.local/",
-    "rest_api_url": "http://equal.local/",
+    "parent_domain":  "symbiose.local",
+    "backend_url":  "http://symbiose.local/",
+    "rest_api_url": "http://symbiose.local/",
     "lang":           "fr",
     "locale":         "fr"
 }
