@@ -129,3 +129,19 @@ ngx-material-timepicker-toggle {
 .component-color-view {
     background-color: mat-color($view-color,A100) ;
 }
+
+label.http-method-GET  {
+    background-color: $http-get-color;
+}
+
+label.http-method-POST {
+    background-color: $http-post-color;
+}
+
+label.http-method-DELETE {
+    background-color: $http-delete-color;
+}
+
+label.http-method-PUT {
+    background-color: $http-put-color;
+}
