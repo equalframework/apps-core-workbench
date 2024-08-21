@@ -1,0 +1,67 @@
+@import '/src/theme.scss';
+
+:host {
+    width: 100%;
+    height: 100%;
+
+
+    .margin-container {
+        padding: 2em;
+        border-radius: 8px;
+        background-color: whitesmoke;
+        height: calc(100% - 2em);
+    }
+
+    .flex-labels label {
+        margin-right: 0.5em;
+    }
+
+    .viewname {
+        font-size: 1.5em;
+    }
+
+    .accent {
+        color: mat-color($maincolor);
+    }
+
+    .view-info-button {
+        color : mat-color($maincolor) !important;
+        background-color:  #e4e4e4 !important;
+        min-width: 20em;
+        height: 4em;
+        cursor: pointer;
+
+        ::ng-deep .mat-button-wrapper {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        mat-icon {
+            margin-left: 4px;
+            transform: scale(1.2);
+        }
+
+        label {
+            flex: 1;
+            font-size: 1.1em;
+            cursor: pointer;
+        }
+
+    }
+
+
+    .subpart-title {
+        font-size: 1.3em;
+    }
+
+    .controller-container-top {
+        height: 87.5%;
+        overflow-y: scroll;
+    }
+
+    .controller-container-bottom {
+        height: 12.5%;
+    }
+
+}

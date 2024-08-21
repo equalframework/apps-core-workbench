@@ -7,8 +7,8 @@
         <p>Type : {{data.pair.value.type}}</p>
     </div>
     <div class="body">
-        <app-type-input [type]="data.pair.value.type" [value]="data.value" (changed)="store($event)">
-        </app-type-input>
+        <type-input [type]="data.pair.value.type" [value]="data.value" (changed)="store($event)">
+        </type-input>
     </div>
     <div class="footer">
         <button mat-button (click)="onClose()">Cancel</button>

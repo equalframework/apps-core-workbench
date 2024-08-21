@@ -1,0 +1,222 @@
+@import '/src/theme.scss';
+
+:host {
+    display: block;
+    width: 100%;
+    height: 100%;
+
+    padding: 20px 20px 0 20px;
+    border-radius: 8px;
+    background-color: #f5f5f5;
+
+    .loader {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        z-index: 2;
+        background-color: white;
+
+        .mat-spinner {
+            margin: auto;
+            margin-top: 33%;
+        }
+    }
+
+    .header {
+        height: 110px;
+        width: 100%;
+
+        .main {
+            display : flex;
+            align-items: center;
+            justify-content: space-between;
+
+            .title {
+                flex: 1;
+                max-width: 80%;
+                overflow: hidden;
+                white-space: nowrap;
+
+                label {
+                    margin-right: 0.5em;
+                    font-size: 24px;
+
+                    &.accent {
+                        color: mat-color($accentcolor);
+                    }
+                }
+            }
+
+            .actions {
+                margin-left: auto;
+
+            }
+        }
+
+        .status {
+            font-size: 16px;
+
+            div {
+                display: flex;
+                align-content: center;
+                align-items: center;
+
+                mat-icon {
+                    margin-right: 5px;
+                }
+            }
+
+            .edited {
+                color : mat-color($editedcolor)
+            }
+
+            .warn {
+                color: mat-color($warncolor)
+            }
+
+            .new {
+                color: mat-color($newcolor)
+            }
+        }
+
+        .meta {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            font-size: 18px;
+
+            .primary {
+                color: mat-color($maincolor)
+            }
+
+            div {
+                display: inline-block;
+                white-space: nowrap;
+                margin-right: 20px;
+            }
+
+        }
+    }
+
+    .body {
+        position: relative;
+        width: 100%;
+        height: calc(75% - 110px);
+
+        .header {
+            position: absolute;
+            top: 0;
+            z-index: 1;
+            height: 64px;
+            width: 100%;;
+            background-color: white;
+            border-top-right-radius: 20px;
+            border-top-left-radius: 20px;
+            padding: 16px;
+
+            label {
+                font-weight: bold;
+            }
+        }
+
+        .items {
+            position: absolute;
+            overflow-y: scroll;
+            height: calc(100% - 50px);
+            top: 50px;
+            z-index: 1;
+            width: 100%;
+
+            background-color: white;
+            border-radius: 20px;
+            padding: 16px;
+
+            ::-webkit-scrollbar {
+                width: 8px;
+                background: transparent;
+            }
+
+            ::-webkit-scrollbar-track:hover {
+                background: #eaeaea;
+            }
+
+            ::-webkit-scrollbar-thumb {
+                background: var(--mdc-theme-primary, #6200ee);
+                border-radius: 8px;
+            }
+
+            .item {
+                padding: 1em;
+                border-radius: .75em;
+                margin-bottom: 1em;
+                display: flex;
+
+                &.container-method-GET {
+                    background-color: $getdiluted;
+                }
+
+                &.container-method-POST {
+                    background-color: $postdiluted;
+                }
+
+                &.container-method-DELETE {
+                    background-color: $deletediluted;
+                }
+
+                &.container-method-PUT {
+                    background-color: $putdiluted;
+                }
+
+                .title {
+                    width: 110px;
+                    margin-bottom: 15px;
+
+                    label {
+                        padding: .25em .75em;
+                        width: auto;
+                        font-size: 1.3em;
+                        border-radius: .5em;
+                    }
+                }
+
+                .indent {
+                    margin-left: 2em;
+                    .desc-method {
+                        font-size: 1.1em;
+
+                        a {
+                            cursor: help;
+                        }
+
+                    }
+                    .spacer {
+                        height: 1em;
+                    }
+                }
+            }
+        }
+
+
+    }
+
+    .footer {
+        height: 25%;
+
+        .package-info-button {
+            color : mat-color($maincolor) !important;
+            background-color:  #e4e4e4 !important;
+            width: 80%;
+            height: 56px;
+
+            label {
+                font-size: 1.1em;
+            }
+
+            mat-icon {
+                margin-right: 1em;
+                transform: scale(1.2);
+            }
+        }
+
+    }
+}

@@ -1,0 +1,185 @@
+<div *ngIf="loading" class="loader"><mat-spinner></mat-spinner></div>
+
+<ng-container *ngIf="!loading && !controller">
+    Select a controller amongst the list to see methods and details.
+</ng-container>
+
+<ng-container *ngIf="!loading && controller">
+    <div class="header">
+        <div class="main">
+            <div class="title">
+                <label>Controller :</label>
+                <label class="accent">{{ controller.name }}</label>
+                <label class="accent">[{{ controller.type.toUpperCase() }}]</label>
+            </div>
+            <div class="actions">
+                <!--
+                <button mat-button color="primary" (click)="initPackage()">
+                    <mat-icon>not_started</mat-icon>
+                    <label>Init package</label>
+                </button>
+                -->
+            </div>
+        </div>
+        <div class="description">
+            <label>{{ announcement.description }}</label>
+        </div>
+        <div class="status">
+            <div *ngIf="announcement?.deprecated" class="warn">
+                <mat-icon class="warnicon">info</mat-icon>
+                <label>This controller is marked as deprecated, and shouldn't be used anymore.</label>
+            </div>
+
+            <div *ngIf="announcement?.access?.visibility == 'private'" class="new">
+                <mat-icon class="warnicon">info</mat-icon>
+                <label>This controller has its visibility set to "private" or you don't have the rights to invoke it.</label>
+            </div>
+        </div>
+
+        <div class="meta">
+        </div>
+    </div>
+
+    <div class="body">
+
+        <div class="header">
+            <div>
+                <label>Announcement</label>
+            </div>
+        </div>
+
+        <div class="items">
+            <div class="section" *ngIf="getAccessString().length">
+                <label class="content-label">Access</label>
+                <pre class="content-desc" [innerHTML]="getAccessString()"></pre>
+            </div>
+
+            <div class="section">
+                <label class="content-label">Response header</label>
+                <pre class="content-desc" [innerHTML]="getRequestString()"></pre>
+            </div>
+
+            <div class="section params" *ngIf="obk(announcement.params).length">
+                <label class="content-label">Params</label>
+
+                <mat-accordion>
+                    <mat-expansion-panel *ngFor="let param of obk(announcement.params)" class="params-mat-card">
+                        <mat-expansion-panel-header>
+                            <mat-panel-title>
+                                <div class="flextitlepannel">
+                                    <div class="typeicon">
+                                        <mat-icon >{{iconType[getType(param)]}}</mat-icon>
+                                    </div>
+                                    <label class="controller-param-title">{{param}} <strong *ngIf="isRequired(param)">(required)</strong></label>
+                                </div>
+                            </mat-panel-title>
+                            <mat-panel-description>
+                                <label>{{getDescription(param)}}</label>
+                            </mat-panel-description>
+                            <div class="valuewrapper">
+                                <label class="valuedisplayer" [style.opacity]="getParamsValue(param) ? 1 : 0.6">
+                                    {{getParamsValue(param) ? "value :" : "(no value)"}} {{ getType(param) !== "array" ? getParamsValue(param) : tojsonstring(getParamsValue(param))}}
+                                </label>
+                            </div>
+                        </mat-expansion-panel-header>
+
+                        <div class="card-content2">
+                            <type-input *ngIf="!getUsage(param).startsWith('array/domain') || !getEntity()"
+                                [type]="getType(param)"
+                                [name]="getParamName(param)"
+                                [value]="getParamsValue(param)"
+                                (changed)="updateParamsValue($event, param)">
+                            </type-input>
+                            <ng-container *ngIf="getUsage(param).startsWith('array/domain') && getEntity()">
+                                <app-property-domain-component
+                                    [value]="getParamsValue(param)"
+                                    [class]="getEntity()"
+                                    (valueChange)="updateParamsValue($event, param)">
+                                </app-property-domain-component>
+                            </ng-container>
+                        </div>
+
+                    </mat-expansion-panel>
+                </mat-accordion>
+
+                <button mat-button class="submit-button" (click)="submit()" [disabled]="!canSubmit">
+                    <mat-icon class="icon">upload</mat-icon>Submit action
+                </button>
+            </div>
+
+            <div class="section">
+                <label class="content-label">CLI command</label>
+                <div class="content-container">
+                    <pre class="content-desc" [innerHTML]="cliCommand" style="padding-right: 40px;"></pre>
+                    <div class="content-action">
+                        <button mat-icon-button aria-label="Copy cli" title="Copy cli" (click)="cpyCLI()">
+                            <mat-icon>content_copy</mat-icon>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <label class="content-label">Backend URL</label>
+                <div class="content-container">
+                    <pre class="content-desc" [innerHTML]="getBaseRoute()"></pre>
+                    <div class="content-action">
+                        <a mat-icon-button [href]="getBaseRoute()" target="_blank" title="Open in new tab">
+                            <mat-icon>open_in_new</mat-icon>
+                        </a>
+                        <button mat-icon-button aria-label="Copy HTTP request" title="Copy HTTP request" (click)="cpyRequest()">
+                            <mat-icon>content_copy</mat-icon>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-wrapper" *ngIf="obk(filtered_routes).length">
+                <label class="content-label">Live routes</label>
+                <div *ngFor="let item of obk(filtered_routes)">
+                    <a class="cr-click" [class.clickable]="moving" (click)="sendTo(item)">
+                        <div *ngFor="let method of obk(filtered_routes[item]['methods'])" class="controller_cr {{method}}">
+                            <div class="controller_cr_el controller_cr_method {{method}}">
+                                {{method}}
+                            </div>
+                            <div class="controller_cr_el controller_cr_path">
+                                {{item}}
+                            </div>
+                            <div class="controller_cr_el controller_cr_desc">
+                                {{filtered_routes[item]['methods'][method]['description']}}
+                            </div>
+                        </div>
+                    </a>
+                    <br>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="footer">
+        <mat-grid-list
+                [cols]="4"
+                rowHeight="100%">
+            <mat-grid-tile>
+                <button mat-button class="package-info-button" (click)="onclickRequestParams()">
+                    <mat-icon>text_format</mat-icon>
+                    <label>Request Params</label>
+                </button>
+            </mat-grid-tile>
+            <mat-grid-tile>
+                <button mat-button class="package-info-button" (click)="onclickResponseValues()">
+                    <mat-icon>reply</mat-icon>
+                    <label>Response values</label>
+                </button>
+            </mat-grid-tile>
+            <mat-grid-tile>
+                <button mat-button class="package-info-button" (click)="onclickTranslations()">
+                    <mat-icon>translate</mat-icon>
+                    <label>Translations</label>
+                </button>
+            </mat-grid-tile>
+        </mat-grid-list>
+    </div>
+
+</ng-container>

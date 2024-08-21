@@ -1,0 +1,127 @@
+<div *ngIf="loading" class="loader"><mat-spinner></mat-spinner></div>
+
+<ng-container *ngIf="!loading && !model">
+    Select a class amongst the list to see methods and details.
+</ng-container>
+
+<ng-container *ngIf="!loading && model">
+    <div class="header">
+        <div class="main">
+            <div class="title">
+                <label>Class :</label>
+                <label class="accent">{{model.package_name}}\{{ model.name }}</label>
+            </div>
+            <div class="actions">
+            </div>
+        </div>
+        <div class="description">
+            <label>{{schema['description']}}</label>
+        </div>
+        <div class="status">
+        </div>
+        <div class="meta">
+            <div><label>Declared in </label><label class="primary filename">{{model.file}}</label></div>
+            <div><label>Extends </label><label class="primary">{{schema['parent']}}</label></div>
+            <div><label>DB Table </label><label class="primary">{{schema['table']}}</label></div>
+        </div>
+    </div>
+
+    <div class="body">
+
+        <ng-container>
+
+            <div class="header">
+                <div>
+                    <label class="primary">{{fieldNumber}} </label><label>Fields</label>
+                </div>
+            </div>
+
+            <div class="items" >
+                <mat-accordion>
+                    <mat-expansion-panel *ngFor="let field of fields">
+                        <mat-expansion-panel-header>
+                            <mat-panel-title>
+                                <div class="paneltitle">
+                                    <div class="typeicon">
+                                        <mat-icon>{{iconList[schema['fields'][field]['type']]}}</mat-icon>
+                                    </div>
+                                    <label>{{field}}</label>
+                                </div>
+                            </mat-panel-title>
+                            <mat-panel-description>
+                                {{schema['fields'][field]['description']}}
+                            </mat-panel-description>
+                            <div *ngIf="fieldHasProp(field)" class="field-prop-container">
+                                <span
+                                        *ngIf="schema['fields'][field]['required']"
+                                        class="field-prop"
+                                        title="{{field}} is required">
+                                    <span class="material-icons">priority_high</span>
+                                </span>
+                                <span
+                                        *ngIf="schema['fields'][field]['readonly']"
+                                        class="field-prop"
+                                        title="{{field}} is readonly">
+                                    <span class="material-icons">do_not_touch</span>
+                                </span>
+                                <span
+                                        *ngIf="schema['fields'][field]['multilang']"
+                                        class="field-prop"
+                                        title="{{field}} is multilang">
+                                    <span class="material-icons">translate</span>
+                                </span>
+                                <div
+                                        *ngIf="schema['fields'][field]['unique']"
+                                        class="field-prop unique"
+                                        title="{{field}} is unique">
+                                    <label class="pre-label-bold">1</label>
+                                </div>
+                            </div>
+                        </mat-expansion-panel-header>
+                        <p>
+                            Type : {{ schema["fields"][field]["type"] }}
+                        </p>
+                        <p *ngIf="['computed'].includes(schema['fields'][field]['type'])">
+                            Result type : {{ schema["fields"][field]["result_type"] }}
+                        </p>
+                        <p>
+                            usage : {{ schema["fields"][field]["usage"] ? schema["fields"][field]["usage"] : "none" }}
+                        </p>
+                        <p *ngIf="['many2one','one2one','one2many'].includes(schema['fields'][field]['type'])">
+                            Foreign object : {{ schema["fields"][field]["foreign_object"] }}
+                        </p>
+                    </mat-expansion-panel>
+                </mat-accordion>
+            </div>
+        </ng-container>
+    </div>
+
+    <div class="footer">
+        <mat-grid-list
+                [cols]="4"
+                rowHeight="50%">
+            <mat-grid-tile>
+                <button mat-button class="package-info-button" (click)="onclickFields()"><mat-icon>text_format</mat-icon><label>Fields</label></button>
+            </mat-grid-tile>
+            <mat-grid-tile>
+                <button mat-button class="package-info-button" (click)="onclickViews()"><mat-icon>view_quilt</mat-icon><label>Views</label></button>
+            </mat-grid-tile>
+            <mat-grid-tile>
+                <button mat-button class="package-info-button" (click)="onclickTranslations()"><mat-icon>translate</mat-icon><label>Translations</label></button>
+            </mat-grid-tile>
+            <mat-grid-tile>
+                <button mat-button class="package-info-button" (click)="onclickWorkflow()"><mat-icon>call_split</mat-icon><label>Workflows</label></button>
+            </mat-grid-tile>
+            <mat-grid-tile>
+                <button mat-button class="package-info-button" ><!-- #todo --><mat-icon>question_mark</mat-icon><label>Roles</label></button>
+            </mat-grid-tile>
+            <mat-grid-tile>
+                <button mat-button class="package-info-button" ><!-- #todo --><mat-icon>policy</mat-icon><label>Policies</label></button>
+            </mat-grid-tile>
+            <mat-grid-tile>
+                <button mat-button class="package-info-button" ><!-- #todo --><mat-icon>shortcut</mat-icon><label>Actions</label></button>
+            </mat-grid-tile>
+        </mat-grid-list>
+    </div>
+
+</ng-container>

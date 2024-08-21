@@ -1,10 +1,10 @@
-<app-in-header [buttonNew]="true" (onButtonNew)="newFile()" [buttonLoad]="true" (onButtonLoad)="load()"
+<app-inner-header [buttonNew]="true" (onButtonNew)="newFile()" [buttonLoad]="true" (onButtonLoad)="load()"
     [buttonSave]="true" (onButtonSave)="save()" [buttonRun]="true" (onButtonRun)="run()"
     [buttonRunDisabled]="!isRunnable">
     <mat-form-field>
         <input matInput [(ngModel)]="pipelineName">
     </mat-form-field>
-</app-in-header>
+</app-inner-header>
 <div class="holder">
     <mat-grid-list cols="12" rowHeight="89%" gutterSize="10px">
         <mat-grid-tile [colspan]="sizeViewer" class="sizeanim">

@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { InitDataComponent } from './init-data.component';
-import { HeaderModule } from '../header/header.module';
 import { ClassicLayoutModule } from '../classic-layout/classic-layout.module';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,17 +15,16 @@ import { MatSortModule } from '@angular/material/sort';
 import { InitSidepaneComponent } from './_component/init-sidepane/init-sidepane.component';
 import { InitPopupEditorComponent } from './_component/init-popup-editor/init-popup-editor.component';
 import { PopupLayoutModule } from '../popup-layout/popup-layout.module';
-import { TypeInputModule } from '../type-input/type-input.module';
+import { TypeInputModule } from '../../_components/type-input/type-input.module';
 import { MatGridList, MatGridListModule } from '@angular/material/grid-list';
 import { MatCheckbox, MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelect, MatSelectModule } from '@angular/material/select';
 import { EntityDialogComponent } from './_component/entity-dialog/entity-dialog.component';
-import { AutocompleteModule } from '../autocomplete/autocomplete.module';
+import { AutocompleteModule } from 'src/app/_components/autocomplete/autocomplete.module';
 import { MatMenuModule } from '@angular/material/menu';
 import { LangPopupComponent } from './_component/lang-popup/lang-popup.component';
 import { MatProgressSpinner, MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ImporterComponent } from './_component/importer/importer.component';
-
 
 
 @NgModule({
@@ -41,7 +39,6 @@ import { ImporterComponent } from './_component/importer/importer.component';
   ],
   imports: [
     CommonModule,
-    HeaderModule,
     ClassicLayoutModule,
     MatTabsModule,
     MatIconModule,

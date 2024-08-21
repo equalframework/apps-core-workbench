@@ -1,0 +1,62 @@
+@import "src/theme.scss";
+
+:host {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.title-container {
+    display: flex;
+    align-items: center;
+    font-size : 1.5em;
+}
+
+.title-container button,mat-label {
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+}
+
+.title-container .info-menu {
+    display: flex;
+    align-items: center;
+}
+
+.title-container .info-menu .info-menu-icon {
+    transform : scale(1.2);
+}
+
+.title-container .info-menu mat-label {
+    margin: 0 !important;
+}
+
+.title-container .solo {
+    margin-left: 2.5em;
+}
+
+.view-label {
+    background-color: mat-color($view-color,A100);
+    margin-left: 0;
+    padding: 0 .3em;
+    border-radius: .2em;
+}
+
+.view-label mat-icon {
+    margin-right: .1em;
+    transform: scale(1.1) translateY(.15em);
+}
+
+.model-label {
+    background-color: mat-color($class-color,A100);
+    margin-left: 0;
+    padding: 0 .3em;
+    border-radius: .2em;
+}
+
+.package-label {
+    background-color: mat-color($package-color,A100);
+    margin-left: 0;
+    padding: 0 .3em;
+    border-radius: .2em;
+}

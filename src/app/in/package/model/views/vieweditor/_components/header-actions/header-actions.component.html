@@ -1,0 +1,15 @@
+<div *ngFor="let key of obk(h_scheme.actions)">
+    <label [class.disabled]="!h_scheme.actions[key].enabled" class="key-header-actions">{{key}}</label>
+    <mat-checkbox  class="marginright1em" [checked]="!h_scheme.actions[key].enabled" (change)="h_scheme.actions[key].enabled = !$event.checked">Force disable</mat-checkbox>
+    <mat-checkbox [disabled]="!h_scheme.actions[key].enabled" class="marginright1em"[checked]="h_scheme.actions[key].default" (change)="h_scheme.actions[key].default = $event.checked">default behavior</mat-checkbox>
+    <div class="indent" *ngIf="h_scheme.actions[key].enabled && !h_scheme.actions[key].default">
+        <app-predef-actions-container
+            [label]="'Custom action behavior'"
+            [acts]="h_scheme.actions[key].acts"
+            [controllers]="controllers"
+            [groups]="groups"
+            [ids]="h_scheme.actions[key].possible_ids"
+            [entity]="entity"
+        ></app-predef-actions-container>
+    </div>
+</div>

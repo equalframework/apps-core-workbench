@@ -1,0 +1,21 @@
+<app-popup-layout
+    (close)="dialogRef.close()"
+>
+    <p>Edit row informations</p>
+    <mat-form-field>
+        <input matInput placeholder="row.id" [value]="data.row.id" (input)="data.row.id = $event.target.value">
+    </mat-form-field>
+    <mat-form-field>
+        <input matInput placeholder="row name" [value]="data.row.label" (input)="data.row.label = $event.target.value">
+    </mat-form-field>
+    <mat-checkbox [(ngModel)]="data.row._has_domain">visible domain</mat-checkbox>
+    <div *ngIf="data.row._has_domain">
+        <app-property-domain-component
+            [value]="data.row.visible.dom"
+            [name]="'oui'"
+            [class]="data.entity"
+            (valueChange)="data.row.visible.dom = $event"
+        >
+        </app-property-domain-component>
+    </div>
+</app-popup-layout>

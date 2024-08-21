@@ -1,0 +1,52 @@
+@import "src/theme.scss";
+
+.holder {
+    border-radius: .5em;
+    padding-top: .5em;
+    padding-left: 1em;
+    padding-right: 1em;
+    background-color: whitesmoke;
+}
+
+.icon-preview {
+    display: inline-block;
+    //padding-left: .2em;
+    //padding-right: .1em;
+    border-bottom: solid 1px gray;
+    //transform: translateY(calc(.5em - 1px));
+    //padding-bottom: .5em;
+    width: 2em;
+    height: 35px;
+}
+
+.icon-preview mat-icon {
+    transform: translateY(.2em);
+}
+
+.halp {
+    transform: scale(.8) translateY(.3em);
+}
+
+.smolfield {
+    width: 8em;
+}
+
+.longfield {
+    width: 20em;
+}
+
+.icon-preview.disabled {
+    border-bottom : none;
+}
+
+.inline {
+    display: inline-block;
+}
+
+mat-form-field {
+    margin-right: .75em;
+}
+
+mat-checkbox {
+    margin-right: .75em;
+}

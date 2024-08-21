@@ -13,6 +13,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppRootComponent } from './app.root.component';
 import { AppComponent } from './in/app.component';
 
+import { WorkbenchModule } from 'src/app/_modules/workbench.module';
+
 /* HTTP requests interception dependencies */
 import { HTTP_INTERCEPTORS, HttpClient, HttpClientModule } from '@angular/common/http';
 
@@ -20,32 +22,57 @@ import { registerLocaleData } from '@angular/common';
 import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar';
 import { MAT_TABS_CONFIG } from '@angular/material/tabs';
 
-// specific locale setting
-import localeFr from '@angular/common/locales/fr';
-import { PackageModule } from './in/package/package.module';
+// import { PackageModule } from './in/package/package.module';
+
 import { TranslateModule } from '@ngx-translate/core';
 import { RouterModule } from '@angular/router';
 
 
+/*
+
+import { ModelTradEditorComponent } from 'src/app/in/model-trad-editor/model-trad-editor.component';
+
+import { AutocompleteComponent } from 'src/app/_components/autocomplete/autocomplete.component';
+import { PropertyClauseComponent } from 'src/app/_components/property-clause-component/property-clause.component';
+import { PropertyDomainComponent } from 'src/app/_components/property-domain-component/property-domain.component';
+*/
+
+
+
+// specific locale setting
+import localeFr from '@angular/common/locales/fr';
+
 registerLocaleData(localeFr);
 
 
+const sharedComponents = [
+
+/*
+    AutocompleteComponent,
+    PropertyClauseComponent,
+    PropertyDomainComponent,
+    ModelTradEditorComponent,
+        InnerHeaderComponent,
+*/
+
+];
 @NgModule({
     declarations: [
         AppRootComponent,
-        AppComponent,
+        AppComponent
     ],
     imports: [
-        PackageModule,
+        SharedLibModule,
+        WorkbenchModule,
         AppRoutingModule,
+        // PackageModule,
         BrowserModule,
         BrowserAnimationsModule,
-        SharedLibModule,
         MatNativeDateModule,
         PlatformModule,
         NgxMaterialTimepickerModule.setLocale('fr-BE'),
         TranslateModule.forRoot(),
-        HttpClientModule,
+        HttpClientModule
     ],
     exports: [
         RouterModule

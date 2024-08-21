@@ -282,21 +282,20 @@ export class EmbeddedApiService {
         }
     }
 
+    public async getView(entity:string,name:string):Promise<any> {
+        try {
+            return await this.api.fetch("?get=core_model_view&view_id="+name+"&entity="+entity)
+        } catch (response) {
+            return {}
+        }
+    }
+
     public async getViews(type:string, entity:string): Promise<string[]> {
         try {
             return await this.api.fetch("?get=core_config_views&"+type+"="+entity);
         }
         catch(response) {
             return [];
-        }
-    }
-
-    public async getView(entity:string,name:string):Promise<any> {
-        try {
-            return await this.api.fetch("?get=core_model_view&view_id="+name+"&entity="+entity);
-        }
-        catch (response) {
-            return {};
         }
     }
 
@@ -439,5 +438,331 @@ export class EmbeddedApiService {
             return [];
         }
     }
+
+    /**
+     * Get all the domain's operators for each type.
+     *
+     * @returns An object with key-values.
+     */
+    public async getValidOperators() {
+        try {
+            return await this.api.fetch('?get=core_config_domain-operators');
+        } catch (response: any) {
+            console.warn('request error', response);
+        }
+    }
+
+    /**
+     * Return all the usages
+     *
+     * @returns a JSON with all the usages
+     */
+    public async getUsages() {
+        try {
+            return await this.api.fetch('?get=config_usage');
+        } catch (response: any) {
+            console.warn('request error', response);
+        }
+    }
+
+
+    /**
+     * Return all the packages available.
+     *
+     * @returns A array with all packages
+     */
+    public async getPackages() {
+        try {
+            return await this.api.fetch('?get=config_packages');
+        }
+        catch (response: any) {
+            console.warn('fetch package error', response);
+        }
+    }
+
+    public async getControllers(eq_package: string) {
+        try {
+            return await this.api.fetch('?get=core_config_controllers&package=' + eq_package);
+        }
+        catch (response: any) {
+            console.warn('request error', response);
+        }
+    }
+
+    /**
+     * Return the announcement of a controller
+     *
+     * @param string type_controller the action of the controller(do or get)
+     * @param string eq_package name of the package
+     * @param string name of the controller
+     * @returns array with the announcement of a controller
+     */
+    public async getAnnounceController(type_controller?: string, name?: string) {
+        try {
+            if(!type_controller || !name) {
+                throw 'missing param';
+            }
+            return await this.api.fetch('?' + type_controller + '='+ name + '&announce=true');
+        }
+        catch (response: any) {
+            console.log('unable to fetch controller announcement', response);
+        }
+        return null;
+    }
+
+    /**
+     * Return the respond of a controller after execution
+     *
+     * @param string type_controller the act
+     * @param string eq_package name of the
+     * @param string name of the controller
+     * @param array all the parameters for the controller
+     * @returns array with the respond of a controller's execution
+     */
+    public async submitController(type_controller: string, controller_name: string, params: []):Promise<{err:boolean,resp:any}> {
+        let stringParams = '';
+        for(let key in params) {
+            if(Array.isArray(params[key])) {
+                stringParams += '&' + key + '=' + JSON.stringify(params[key])
+            } else {
+                stringParams += '&' + key + '=' + params[key];
+            }
+        }
+        try {
+            return {err : false, resp: (await this.api.fetch('?' + type_controller + '=' + controller_name + stringParams))};
+        }
+        catch (response) {
+            return {err : true, resp:response}
+        }
+    }
+
+
+
+
+
+    /**
+     * Return all the routes available.
+     *
+     * @return A array with all routes
+     */
+    public async getRoutes() {
+        try {
+            return await this.api.fetch('?get=config_live_routes');
+        }
+        catch (response: any) {
+            console.warn('fetch package error', response);
+        }
+    }
+
+    public async updateController(name:string,type:string,payload:any):Promise<boolean> {
+        try {
+            await this.api.fetch(`?do=core_config_update-controller&controller=${name}&operation=${type}&payload=${JSON.stringify(payload)}`)
+            return true
+        } catch(resp) {
+            //@ts-expect-error
+            if(resp.status >= 300) {
+                this.api.errorFeedback(resp)
+                return false
+            }
+            return true
+        }
+    }
+
+    public async getDataControllerList(pkg:string):Promise<string[]> {
+        try {
+        return (await this.api.fetch("?get=core_config_controllers&package="+pkg))['data']
+        } catch {
+        return []
+        }
+    }
+
+    /**
+     * Return the announcement of a controller
+     *
+     * @param string type_controller the action of the controller(do or get)
+     * @param string eq_package name of the package
+     * @param string name of the controller
+     * @returns array with the announcement of a controller
+     */
+        public async doAnnounceController(name: string) {
+        try {
+            return await this.api.fetch('?do=' + name + '&announce=true');
+        }
+        catch (response: any) {
+            return null;
+        }
+        }
+
+    public async getAllActionControllers():Promise<string[]> {
+        try {
+        let packs:string[] = await this.api.fetch('?get=core_config_packages')
+        let contrs = []
+        for(let pkg of packs) {
+            let temp:{[type:string]:string[]} = await this.api.fetch('?get=core_config_controllers&package='+pkg)
+            for(let cont of temp["actions"]) {
+            contrs.push(cont)
+            }
+        }
+        return contrs
+        } catch {
+        return []
+        }
+    }
+
+    public async getCoreGroups():Promise<any> {
+        try {
+            return await this.api.fetch('?get=core_model_collect&fields=[name]&lang=en&domain=[]&order=id&sort=asc&entity=core\\Group');
+        }
+        catch (response: any) {
+            return  [];
+        }
+    }
+
+    public async saveView(payload:any,entity:string,viewid:string):Promise<boolean> {
+        try {
+        await this.api.fetch("?do=core_config_update-view&entity="+entity+"&view_id="+viewid+"&payload="+JSON.stringify(payload))
+        }
+        catch {
+        return false
+        }
+        return true
+    }
+
+    public async getWidgetTypes():Promise<{[id:string]:string[]}> {
+        try {
+        return await this.api.fetch("?get=core_config_widget-types")
+        }
+        catch {
+        return {}
+        }
+    }
+
+
+
+    /**
+     * // TODO
+     *
+     * @param old_node - The name of the old package.
+     * @param new_node - The name of the new package.
+     */
+    public updatePackage(old_node: string, new_node: string) {
+        // TODO
+        console.warn("Update name package, old name: ", old_node, ", new name: ", new_node);
+    }
+
+    /**
+     * // TODO
+     *
+     * @param eq_package - The name of package for the new class.
+     * @param new_class - The name of the new class.
+     */
+    public createClass(eq_package: string, new_class: string) {
+        // TODO
+        console.warn("New class name: ", new_class);
+    }
+
+    /**
+     * // TODO
+     *
+     * @param eq_package - The name of the package of the class.
+     * @param old_node - The name of the old class.
+     * @param new_node - The name of the new class.
+     */
+    public updateClass(eq_package: string, old_node: string, new_node: string) {
+        // TODO
+        console.warn("Update name package, old name: ", old_node, ", new name: ", new_node);
+    }
+
+    /**
+     * // TODO
+     *
+     * @param eq_package - The name of the package for eq_class.
+     * @param eq_class - The name of the class.
+     */
+    public deleteClass(eq_package: string, eq_class: string) {
+        // TODO
+        console.warn("Package deleted: ", eq_class);
+    }
+
+    /**
+     * // TODO
+     *
+     * @param eq_package - The name of the package for eq_class.
+     * @param eq_class - The name of the class for new_field.
+     * @param new_field - The new name of the field.
+     */
+    public createField(eq_package: string, eq_class: string, new_field: string) {
+        // TODO
+        console.warn("New field name: ", new_field);
+    }
+
+    /**
+     * // TODO
+     *
+     * @param eq_package - The name of the package for eq_class.
+     * @param eq_class - The name of the class for new_field.
+     * @param old_node - The old name of the field.
+     * @param new_node - The new name of the field.
+     */
+    public updateField(eq_package: string, eq_class: string, old_node: string, new_node: string) {
+        // TODO
+        console.warn("Update name field, old name: ", old_node, ", new name: ", new_node);
+    }
+
+    /**
+     * // TODO
+     *
+     * @param eq_package - The name of the package for eq_class.
+     * @param eq_class - The name of the class for new_field.
+     * @param field - The name of the field.
+     */
+    public deleteField(eq_package: string, eq_class: string, field: string) {
+        // TODO
+        console.warn("Field deleted: ", field);
+    }
+
+    /**
+     * Return all the classes foreach package
+     *
+     * @returns A JSON with package as key and classes as value.
+     */
+    public async getClasses() {
+        try {
+            return await this.api.fetch('?get=core_config_classes');
+        }
+        catch (response: any) {
+            console.warn('fetch class error', response);
+        }
+    }
+
+    /**
+     * Return all the available types and foreach type, the properties and foreach property, the type.
+     *
+     * @returns A JSON of each type with key-values.
+     */
+    public async getTypes() {
+        try {
+            return await this.api.fetch('?get=config_types');
+        }
+        catch (response: any) {
+            console.warn('fetch types error', response);
+        }
+    }
+
+
+    /**
+     * @param new_schema - The new schema
+     */
+    public async updateSchema(new_schema: {}, eq_package: string, eq_class: string) {
+        try {
+            return await this.api.fetch('?do=config_update-model&part=class&entity=' + eq_package + "\\" + eq_class + '&payload=' + JSON.stringify(new_schema));
+        }
+        catch (response: any) {
+            console.warn('request error', response);
+        }
+        console.log('#### schema updated', new_schema);
+    }
+
+
 
 }

@@ -6,7 +6,7 @@
         <h3>Select the pipeline to load :</h3>
     </div>
     <div class="body">
-        <app-autocomplete [values]="data.pipelines" [(value)]="data.pipeline" width="100%"></app-autocomplete>
+        <autocomplete [values]="data.pipelines" [(value)]="data.pipeline" width="100%"></autocomplete>
     </div>
     <div class="footer">
         <button mat-button (click)="onClose()">Cancel</button>

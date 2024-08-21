@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Usage } from '../controllers/_components/params-editor/_objects/Params';
+import { Usage } from 'src/app/in/_models/Params';
 import { TypeUsageService } from 'src/app/_services/type-usage.service';
 
 @Component({
@@ -9,20 +9,20 @@ import { TypeUsageService } from 'src/app/_services/type-usage.service';
 })
 export class UsagesComponent implements OnInit {
 
-  @Input() usage:Usage
-  @Input() name:string
-  @Input() type:string
-  @Input() disabled:boolean = false
-  @Input() show_inset:boolean = true
+  @Input() usage: Usage;
+  @Input() name: string;
+  @Input() type: string;
+  @Input() disabled: boolean = false;
+  @Input() show_inset: boolean = true;
   @Output() CRUD = new EventEmitter<string>()
 
-  constructor(
-    private typeUsage: TypeUsageService
-  ) { }
+    constructor(
+            private typeUsage: TypeUsageService
+        ) { }
 
-  ngOnInit(): void {
-    console.log(this.typeUsage.usages)
-  }
+    ngOnInit(): void {
+        console.log(this.typeUsage.usages)
+    }
 
   public changeUsage(value: string) {
     console.log("USAGE CHANGED")

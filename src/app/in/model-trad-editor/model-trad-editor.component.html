@@ -3,7 +3,7 @@
     <mat-spinner></mat-spinner>
 </div>
 <div *ngIf="!loading" class="appholder">
-    <app-in-header
+    <app-inner-header
         [buttonBack]="true"
         (onButtonBack)="goBack()"
         [buttonSave]="true"
@@ -18,7 +18,7 @@
         <label class="packagename">{{package}}</label>
         <label class="inbetween">{{ entitype === "model" ? "\\" : (entitype === "controller" ? "_" : " ") }}</label>
         <label class="{{entitype}}name">{{entitype !== "controller" ? model : model.replaceAll("\\","_")}}</label>
-    </app-in-header>
+    </app-inner-header>
     <div *ngIf="obk(data).length === 0">
         No traduction on this model.
     </div>

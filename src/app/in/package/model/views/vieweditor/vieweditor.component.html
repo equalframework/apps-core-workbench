@@ -1,0 +1,446 @@
+<div *ngIf="error" class="loader">
+    <div>
+        <label>This view is currently not supported for edition</label>
+    </div>
+    <div>
+        <button mat-flat-button color="primary" (click)="goBack()">Go back</button>
+    </div>
+</div>
+<div *ngIf="!error && loading" class="loader">
+    <mat-spinner></mat-spinner>
+</div>
+<div *ngIf="!error && !loading" class="full">
+    <app-inner-header
+        [buttonBack]="true"
+        (onButtonBack)="goBack()"
+        [buttonSave]="true"
+        [buttonSaveDisabled]="!idCompliancy.ok"
+        (onButtonSave)="save()"
+        [buttonCancel]="true"
+        (onButtonCancel)="cancel()"
+        [customButton]="true"
+        [customButtonList]="[{name:'Show JSON', icon:'bug_report', disabled: false}]"
+        (onCustomButton)="handleCustomButton($event)"
+    >
+        <label>Edition of </label>
+        <label class="packagename names">{{name.split('\\')[0]}}</label>
+        <label>{{view_obj.type === 'search' ? "_" : "\\"}}</label>
+        <label [class.controllername]="view_obj.type === 'search'" [class.classname]="view_obj.type !== 'search'" class="names">{{name.split(':')[0].split('\\').slice(1).join(view_obj.type === 'search' ? "_" : "\\")}}</label>
+        <label>:</label>
+        <label class="viewname names">{{name.split(':').slice(1).join(':')}}</label>
+    </app-inner-header>
+    <div class="feature-container">
+        <label *ngIf="!idCompliancy.ok" [style.color]="'red'">ERREUR : {{ (idDoublons.length > 0) ? "DES IDS SONT IDENTIQUES ("+idDoublons+")" : "CERTAINS ÉLÉMENTS N'ONT PAS D'ID"}}</label>
+        <div class="name">
+            <mat-form-field class="inputlong">
+                <input matInput placeholder="view name" [value]="view_obj.name"  (input)="view_obj.name = $event.target.value">
+            </mat-form-field>
+            <mat-form-field class="inputlonglong">
+                <input matInput placeholder="view description" [value]="view_obj.description"  (input)="view_obj.description = $event.target.value">
+            </mat-form-field>
+            <mat-form-field>
+                <mat-label>View type</mat-label>
+                <mat-select [disabled]="true" [(value)]="view_obj.type">
+                    <mat-option value="list">List</mat-option>
+                    <mat-option value="form">Form</mat-option>
+                    <mat-option value="search">Search</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <mat-tab-group class="tab-group">
+            <mat-tab>
+                <ng-template mat-tab-label>
+                    <mat-icon class="tab-label-icon">dashboard</mat-icon>
+                    <label>Layout</label>
+                </ng-template>
+                <div class="tab-item indent">
+                    <div *ngIf="view_obj.type === 'form' || view_obj.type === 'search'">
+                        <div class="">
+                            <label class="category-title maincolor">Groups</label>
+                            <button mat-mini-fab color="primary" class="addItem" (click)="addGroup()"><mat-icon>add</mat-icon></button>
+                        </div>
+
+                        <div *ngFor="let group of view_obj.layout.groups" style="margin-bottom: 24px;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <mat-form-field>
+                                    <input matInput placeholder="Group name" [value]="group.label==='' ? 'UNNAMED' : group.label" (change)="group.label = $event.target.value==='UNNAMED' ? '' : $event.target.value">
+                                </mat-form-field>
+                                <mat-form-field>
+                                    <input matInput placeholder="Group.id" [value]="group.id" (input)="group.id = $event.target.value">
+                                </mat-form-field>
+                                <button mat-mini-fab color="primary" class="section-add-btn" (click)="deleteGroup(view_obj.layout.groups.indexOf(group))"><mat-icon>delete</mat-icon></button>
+                            </div>
+
+                            <app-group-editor
+                                [group_obj]="group.sections"
+                                [entity]="entity"
+                                [fields]="fields"
+                                (onChange)="group.sections= $event"
+                                [groups]="groups"
+                                [action_controllers]="action_controllers"
+                            ></app-group-editor>
+
+
+                        </div>
+                    </div>
+                    <div *ngIf="view_obj.type === 'list'">
+                        <label class="category-title maincolor">Items</label>
+                        <button mat-mini-fab color="primary" class="addItem" (click)="addItemLayout()"><mat-icon>add</mat-icon></button>
+                        <mat-accordion class="indent"
+                            cdkDropList
+                            [cdkDropListData]="view_obj.layout.items"
+                            (cdkDropListDropped)="drop_item($event)"
+                        >
+                            <mat-expansion-panel cdkDrag *ngFor="let item of view_obj.layout.items; index as index">
+                                <mat-expansion-panel-header>
+                                    <mat-panel-title>
+                                        <div class="itemprez">
+                                            <mat-icon cdkDragHandle>drag_indicator</mat-icon>
+                                            <div class="typeicon">
+                                                <mat-icon>{{class_scheme.fields[item.value] ? icontype[class_scheme.fields[item.value].type] : ""}}</mat-icon>
+                                            </div>
+                                            {{item.label.trim() !== "" && item.type === "field" ? item.label.trim() : ToNameDisp(item.value)}}
+                                        </div>
+                                    </mat-panel-title>
+                                    <mat-panel-description>
+                                       {{item.type==="field" ? "field : "+item.value : ""}}
+                                    </mat-panel-description>
+                                    <div class="property-icon-holder">
+                                        <mat-icon class="property-icon" *ngIf="item.hasRestrainedVisibility">visibility_off</mat-icon>
+                                        <mat-icon class="property-icon" *ngIf="item.readonly">do_not_touch</mat-icon>
+                                        <mat-icon class="property-icon" *ngIf="item.has_widget && item.widgetList.sortable">swap_vert</mat-icon>
+                                        <mat-icon class="property-icon" *ngIf="item.has_widget && item.widgetList.link">link</mat-icon>
+                                        <mat-icon class="property-icon"*ngIf="item.has_widget && item.widgetList.usage.export() !== ''">auto_fix_high</mat-icon>
+                                    </div>
+                                </mat-expansion-panel-header>
+                                <app-item-editor
+                                    [item]="item"
+                                    [entity]="entity"
+                                    [fields]="fields"
+                                    [types]="types"
+                                    [displayDelete]="true"
+                                    (delete)="deleteItemLayout(view_obj.layout.items.indexOf(item))"
+                                ></app-item-editor>
+                            </mat-expansion-panel>
+
+                        </mat-accordion>
+                    </div>
+                </div>
+            </mat-tab>
+            <ng-container *ngIf="view_obj.type !== 'search'">
+                <mat-tab>
+                    <ng-template mat-tab-label>
+                        <mat-icon class="tab-label-icon">web</mat-icon>
+                        <label>Header</label>
+                    </ng-template>
+                    <div class="tab-item indent">
+                        <mat-slide-toggle [(ngModel)]="view_obj._has_header"></mat-slide-toggle>
+                        <label [style.opacity]="view_obj._has_header ? 1 : 0.6" class="category-title maincolor">Header </label>
+
+                        <!--HEADER-->
+                        <div *ngIf="view_obj._has_header" class="indent">
+                            <app-header-editor
+                                [obj]="view_obj.header"
+                                [type]="view_obj.type"
+                                [groups]="groups"
+                                [action_controllers]="action_controllers"
+                                [entity]="entity"
+                            >
+                            </app-header-editor>
+                        </div>
+                        <!--------->
+                        <mat-slide-toggle [(ngModel)]="view_obj._has_filter"></mat-slide-toggle>
+                        <label [style.opacity]="view_obj._has_filter ? 1 : 0.6" class="category-title maincolor">Filters </label>
+
+                        <button *ngIf="view_obj._has_filter" mat-mini-fab color="primary" class="addItem" (click)="addFilter()"><mat-icon>add</mat-icon></button>
+
+                        <div *ngIf="filter_visible && view_obj._has_filter" class="indent">
+                            <div class="indent" *ngFor="let filter of view_obj.filters">
+                                <div class="flex">
+                                    <div>
+                                        <div>
+                                            <mat-form-field>
+                                                <input matInput placeholder="filter id" [value]="filter.id" (input)="filter.id = $event.target.value">
+                                            </mat-form-field>
+                                            <mat-form-field>
+                                                <input matInput placeholder="filter label" [value]="filter.label" (input)="filter.label = $event.target.value">
+                                            </mat-form-field>
+                                            <mat-form-field class="inputlong">
+                                                <input matInput placeholder="filter description" [value]="filter.description" (input)="filter.description = $event.target.value">
+                                            </mat-form-field>
+                                        </div>
+                                        <app-clause-domain-component
+                                            [value]="filter.clause.arr"
+                                            [name]="'oui'"
+                                            [class]="entity"
+                                            (valueChange)="filter.clause.arr = $event"
+                                        ></app-clause-domain-component>
+                                    </div>
+                                    <div class="delete-button-container">
+                                        <button mat-mini-fab color="primary" (click)="deleteFilter(view_obj.filters.indexOf(filter))"><mat-icon>delete</mat-icon></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </mat-tab>
+                <mat-tab>
+                    <ng-template mat-tab-label>
+                        <mat-icon class="tab-label-icon">open_in_browser</mat-icon>
+                        <label>Action</label>
+                    </ng-template>
+                    <div class="tab-item indent">
+                        <mat-slide-toggle [(ngModel)]="view_obj._has_actions"></mat-slide-toggle>
+                        <label [style.opacity]="view_obj._has_actions ? 1 : 0.6" class="category-title maincolor">Actions </label>
+
+                        <div *ngIf="view_obj._has_actions" class="indent">
+                            <app-actions-container
+                                [label]="'Edit actions'"
+                                [acts]="view_obj.actions"
+                                [controllers]="action_controllers"
+                                [groups]="groups"
+                                [entity]="entity"
+                                [domainables]="true"
+                            ></app-actions-container>
+                        </div>
+                    </div>
+                </mat-tab>
+                <mat-tab>
+                    <ng-template mat-tab-label>
+                        <mat-icon class="tab-label-icon">directions</mat-icon>
+                        <label>Routes</label>
+                    </ng-template>
+                    <div class="tab-item indent">
+                        <mat-slide-toggle [(ngModel)]="view_obj._has_routes"></mat-slide-toggle>
+                        <label [style.opacity]="view_obj._has_routes ? 1 : 0.6" 
+                            class="category-title maincolor">Routes </label>
+
+                        <div *ngIf="view_obj._has_routes" class="indent">
+                            <app-route-editor
+                                [obj]="view_obj.routes"
+                                [entity]="entity">
+                            </app-route-editor>
+                        </div>
+                    </div>
+                </mat-tab>
+                <mat-tab>
+                    <ng-template mat-tab-label>
+                        <mat-icon class="tab-label-icon">build</mat-icon>
+                        <label>Advanced</label>
+                    </ng-template>
+                    <div class="tab-item indent">
+                        <div>
+                            <mat-form-field class="inputlong">
+                                <mat-label>controller</mat-label>
+                                <mat-select [(value)]="view_obj.controller">
+                                    <mat-option *ngFor="let item of collect_controller" value="{{item}}">{{item === "core_model_collect" ? "core_model_collect (default)":item}}</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                        <mat-slide-toggle [(ngModel)]="view_obj._has_access"></mat-slide-toggle>
+                        <label [style.opacity]="view_obj._has_access ? 1 : 0.6" class="category-title maincolor">Access </label>
+
+                        <div class="indent" *ngIf="view_obj._has_access">
+                            <editor-access
+                                [obj]="view_obj.access"
+                                [groups]="groups">
+                            </editor-access>
+                        </div>
+                        <mat-divider style="margin: 1em -1em;"></mat-divider>
+                        <mat-accordion>
+                            <mat-expansion-panel *ngIf="['list'].includes(view_obj.type)">
+                                <mat-expansion-panel-header>
+                                    <mat-panel-title>
+                                        <mat-icon>format_list_numbered</mat-icon>
+                                        <label>Limit</label>
+                                    </mat-panel-title>
+                                    <mat-panel-description>
+                                        Sets the limit of object queried by the view
+                                    </mat-panel-description>
+                                    <mat-icon
+                                        class="toggleicon"
+                                        [class.on]="view_obj._has_limit"
+                                        (click)="$event.stopPropagation(); view_obj._has_limit = !view_obj._has_limit"
+                                    >
+                                        {{view_obj._has_limit?"toggle_on":"toggle_off"}}
+                                    </mat-icon>
+                                </mat-expansion-panel-header>
+                                <div>
+                                    <mat-form-field *ngIf="view_obj._has_limit">
+                                        <mat-label>Limit</mat-label>
+                                        <input matInput type="number" [(ngModel)]="view_obj.limit">
+                                    </mat-form-field>
+                                </div>
+                            </mat-expansion-panel>
+                            <mat-expansion-panel *ngIf="['list'].includes(view_obj.type)">
+                                <mat-expansion-panel-header>
+                                    <mat-panel-title>
+                                        <mat-icon>sort</mat-icon>
+                                        <label>Sorting</label>
+                                    </mat-panel-title>
+                                    <mat-panel-description>
+                                        Sets the default sorting mode of the view
+                                    </mat-panel-description>
+                                </mat-expansion-panel-header>
+                                <div>
+                                    <mat-form-field style="margin-left: 10px;">
+                                        <mat-label>Order</mat-label>
+                                        <mat-select [(value)]="view_obj.order">
+                                            <mat-option value=''></mat-option>
+                                            <mat-option value='asc'>asc</mat-option>
+                                            <mat-option value='desc'>desc</mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+                                    <mat-form-field style="margin-left: 10px;" *ngIf="view_obj">
+                                        <mat-label>sort</mat-label>
+                                        <mat-select [(value)]="view_obj.sort">
+                                            <mat-option value=''></mat-option>
+                                            <mat-option *ngFor="let field of fields" [value]="field">{{field}}</mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+                                </div>
+                            </mat-expansion-panel>
+                            <mat-expansion-panel *ngIf="['list'].includes(view_obj.type)">
+                                <mat-expansion-panel-header>
+                                    <mat-panel-title>
+                                        <mat-icon>group_work</mat-icon>
+                                        <label>Group By</label>
+                                    </mat-panel-title>
+                                    <mat-panel-description>
+                                        Groups item by attribute
+                                    </mat-panel-description>
+                                    <mat-icon
+                                        class="toggleicon"
+                                        [class.on]="view_obj._has_group_by"
+                                        (click)="$event.stopPropagation(); view_obj._has_group_by = !view_obj._has_group_by"
+                                    >
+                                        {{view_obj._has_group_by?"toggle_on":"toggle_off"}}
+                                    </mat-icon>
+                                </mat-expansion-panel-header>
+                                <div>
+                                    <button mat-button color="primary" (click)="addNewGroupBy()"><mat-icon>add</mat-icon> Group</button>
+                                    <div [class.tree]="index !== 0" [style.margin-left]="index*2+'em'"  [style.width]="'calc(100% - '+index*2+'em)'" style="display: flex; align-items: center; justify-content: space-between;" *ngFor="let item of view_obj.groupBy.items; index as index">
+                                        <div>
+                                            <mat-form-field>
+                                                <mat-label>field</mat-label>
+                                                <mat-select [(value)]="item.field">
+                                                    <mat-option *ngFor="let field of fields" [value]="field">{{field}}</mat-option>
+                                                </mat-select>
+                                            </mat-form-field>
+                                            <mat-form-field style="margin-left: .5em;">
+                                                <mat-label>Field</mat-label>
+                                                <mat-select [(value)]="item.operation.operator">
+                                                    <mat-option value=""></mat-option>
+                                                    <mat-option value="SUM">SUM</mat-option>
+                                                    <mat-option value="COUNT">COUNT</mat-option>
+                                                    <mat-option value="MIN">MIN</mat-option>
+                                                    <mat-option value="MAX">MAX</mat-option>
+                                                    <mat-option value="AVG">AVG</mat-option>
+                                                </mat-select>
+                                            </mat-form-field>
+                                            <mat-form-field>
+                                                <mat-label>Operand</mat-label>
+                                                <mat-select [value]="item.operation.operand.split('.').pop()" (valueChange)="item.operation.operand = 'object.'+$event">
+                                                    <mat-option *ngFor="let field of fields" [value]="field">{{field}}</mat-option>
+                                                </mat-select>
+                                                <label matPrefix>object.</label>
+                                            </mat-form-field>
+                                        </div>
+                                        <div>
+                                            <button mat-mini-fab color="primary" (click)="deleteGroupBy(index)"><mat-icon>delete</mat-icon></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </mat-expansion-panel>
+                            <mat-expansion-panel *ngIf="['list'].includes(view_obj.type)">
+                                <mat-expansion-panel-header>
+                                    <mat-panel-title>
+                                        <mat-icon>calculate</mat-icon>
+                                        <label>Operations</label>
+                                    </mat-panel-title>
+                                    <mat-panel-description>
+                                        Add operation on fetched item
+                                    </mat-panel-description>
+                                </mat-expansion-panel-header>
+                                <div>
+                                    <button mat-button color="primary" (click)="addOperation()"><mat-icon>add</mat-icon> Operation</button>
+                                    <div class="indent" *ngFor="let operation of view_obj.operations ; index as i">
+                                        <mat-form-field>
+                                            <mat-label>Operation name</mat-label>
+                                            <input matInput [(ngModel)]="operation.name">
+                                        </mat-form-field>
+                                        <button mat-mini-fab color="primary" (click)="addOp(i)"><mat-icon>add</mat-icon></button>
+                                        <button mat-mini-fab (click)="delOperation(i)"><mat-icon>delete</mat-icon></button>
+                                        <div class="indent" *ngFor="let op of operation.ops ; index as j">
+                                            <mat-form-field>
+                                                <mat-label>Field</mat-label>
+                                                <mat-select [(value)]="op.name">
+                                                    <mat-option *ngFor="let item of fieldList(operation,op.name)" [value]="item">{{item}}</mat-option>
+                                                </mat-select>
+                                            </mat-form-field>
+                                            <mat-form-field>
+                                                <mat-label>Operations</mat-label>
+                                                <mat-select [(value)]="op.operation">
+                                                    <mat-option value="SUM">SUM</mat-option>
+                                                    <mat-option value="COUNT">COUNT</mat-option>
+                                                    <mat-option value="MIN">MIN</mat-option>
+                                                    <mat-option value="MAX">MAX</mat-option>
+                                                    <mat-option value="AVG">AVG</mat-option>
+                                                </mat-select>
+                                            </mat-form-field>
+
+                                            <mat-form-field>
+                                                <mat-label>Prefix</mat-label>
+                                                <input matInput [(ngModel)]="op.prefix">
+                                            </mat-form-field>
+                                            <mat-form-field>
+                                                <mat-label>Suffix</mat-label>
+                                                <input matInput [(ngModel)]="op.suffix">
+                                            </mat-form-field>
+                                            <button mat-mini-fab (click)="delOp(i,j)"><mat-icon>delete</mat-icon></button>
+                                            <br>
+                                            <app-usages
+                                                [type]="op.operation==='COUNT' ? 'integer' : 'float'"
+                                                [usage]="op.usage"
+                                            >
+                                            </app-usages>
+                                        </div>
+                                    </div>
+                                </div>
+                            </mat-expansion-panel>
+                            <mat-expansion-panel *ngIf="['list'].includes(view_obj.type)">
+                                <mat-expansion-panel-header>
+                                    <mat-panel-title>
+                                        <mat-icon>filter_alt</mat-icon>
+                                        <label>Domain</label>
+                                    </mat-panel-title>
+                                    <mat-panel-description>
+                                        Domain applied on to select item to show in the view
+                                    </mat-panel-description>
+                                    <mat-icon
+                                        class="toggleicon"
+                                        [class.on]="view_obj._has_domain"
+                                        (click)="$event.stopPropagation(); view_obj._has_domain = !view_obj._has_domain"
+                                    >
+                                        {{view_obj._has_domain?"toggle_on":"toggle_off"}}
+                                    </mat-icon>
+                                </mat-expansion-panel-header>
+                                <div *ngIf="view_obj._has_domain" class="indent">
+                                    <app-property-domain-component
+                                        [value]="view_obj.domain.dom"
+                                        [name]="'oui'"
+                                        [class]="entity"
+                                        (valueChange)="view_obj.domain.dom = $event"
+                                    >
+                                    </app-property-domain-component>
+                                </div>
+                            </mat-expansion-panel>
+                        </mat-accordion>
+                        <div style="height : 1em">
+
+                        </div>
+                    </div>
+                </mat-tab>
+            </ng-container>
+        </mat-tab-group>
+</div>

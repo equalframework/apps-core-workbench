@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ModelTradEditorComponent } from './model-trad-editor.component';
+
 import { ModelTradEditorRoutingModule } from './model-trad-editor-routing.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -13,13 +13,11 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { HeaderModule } from '../header/header.module';
-
 
 
 @NgModule({
   declarations: [
-    ModelTradEditorComponent
+
   ],
   imports: [
     CommonModule,
@@ -37,8 +35,7 @@ import { HeaderModule } from '../header/header.module';
     MatButtonModule,
     FormsModule,
     ReactiveFormsModule,
-    MatIconModule,
-    HeaderModule
+    MatIconModule
   ],
 })
 export class ModelTradEditorModule { }

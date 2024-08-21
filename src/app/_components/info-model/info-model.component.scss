@@ -1,0 +1,292 @@
+@import '/src/theme.scss';
+
+:host {
+    display: block;
+    width: 100%;
+    height: 100%;
+
+    padding: 20px 20px 0 20px;
+    border-radius: 8px;
+    background-color: #f5f5f5;
+
+    .loader {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        z-index: 2;
+        background-color: white;
+
+        .mat-spinner {
+            margin: auto;
+            margin-top: 33%;
+        }
+    }
+
+    .header {
+        height: 110px;
+        width: 100%;
+
+        .main {
+            display : flex;
+            align-items: center;
+            justify-content: space-between;
+
+            .title {
+                flex: 1;
+                max-width: 80%;
+                overflow: hidden;
+                white-space: nowrap;
+
+                label {
+                    margin-right: 0.5em;
+                    font-size: 24px;
+
+                    &.accent {
+                        color: mat-color($accentcolor);
+                    }
+                }
+            }
+
+            .actions {
+                margin-left: auto;
+            }
+        }
+
+        .status {
+            font-size: 16px;
+
+            div {
+                display: flex;
+                align-content: center;
+                align-items: center;
+
+                mat-icon {
+                    margin-right: .25em;
+                }
+            }
+
+            .warn {
+                color: mat-color($warncolor)
+            }
+
+            .new {
+                color: mat-color($newcolor)
+            }
+        }
+
+        .meta {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            font-size: 18px;
+
+            .primary {
+                color: mat-color($maincolor)
+            }
+
+            .filename {
+                font-family: monospace;
+                letter-spacing: -1px;
+                background-color: #e3e3e3;
+                font-size: 16px;
+                padding: 0 5px;
+            }
+
+            div {
+                display: inline-block;
+                white-space: nowrap;
+                margin-right: 20px;
+            }
+
+        }
+
+    }
+
+    .body {
+        position: relative;
+        width: 100%;
+        height: calc(75% - 110px);
+
+
+        .header {
+            position: absolute;
+            top: 0;
+            z-index: 1;
+            height: 64px;
+            width: 100%;;
+            background-color: white;
+            border-radius: 20px;
+            padding: 16px;
+
+            label {
+                font-weight: bold;
+            }
+
+            .filters {
+                .toggle-chip {
+                    color: white;
+                    display: inline-block;
+                    padding: .25em .5em;
+                    border-radius: .2em;
+                    margin: 0 .2em;
+                    background-color: #dddddd;
+                    user-select: none;
+
+                    &.checked.chip-warning {
+                        background-color: mat-color($editedcolor);
+                    }
+
+                    &.checked.chip-error {
+                        background-color: mat-color($warncolor);
+                    }
+                }
+
+            }
+
+            .collapse {
+                position: absolute;
+                right: 10px;
+                top: 10px;
+            }
+        }
+
+        .items {
+            position: absolute;
+            overflow-y: scroll;
+            height: calc(100% - 50px);
+            top: 50px;
+            z-index: 1;
+            width: 100%;
+            background-color: white;
+            border-bottom-left-radius : 20px;
+            border-bottom-right-radius : 20px;
+            padding: 0 16px 16px 16px;
+
+
+            ::-webkit-scrollbar {
+                width: 8px;
+                background: transparent;
+            }
+
+            ::-webkit-scrollbar-track:hover {
+                background: #eaeaea;
+            }
+
+            ::-webkit-scrollbar-thumb {
+                background: var(--mdc-theme-primary, #6200ee);
+                border-radius: 8px;
+            }
+
+            .item {
+                display: block;
+                width: 100%;
+                white-space: nowrap;
+                overflow: hidden;
+                margin: 0;
+                padding: 0;
+                text-overflow: ellipsis;
+                font-family: monospace;
+
+                &.color-red {
+                    color : mat-color($warncolor)
+                }
+
+                &.color-orange {
+                    color : mat-color($editedcolor)
+                }
+
+                &.bold {
+                    font-weight: bold;
+                }
+
+            }
+
+            .mat-expansion-panel-header span {
+                display: flex;
+                align-items: center;
+                justify-content: flex-start;
+            }
+
+            .mat-expansion-panel-header-title {
+                flex: 0 1 25%;
+                margin-right: 20px;
+                max-width: 300px;
+            }
+
+            .paneltitle {
+                display: inline-flex;
+                align-items: center;
+                width: 20%;
+
+                label {
+                    margin-left: .5em;
+                    font-size: 1.1em;
+                }
+
+                .typeicon {
+                    padding: .1em .5em;
+                    background-color: mat-color($maincolor,A100);
+                    display: flex;
+                    align-items: center;
+                    border-radius: 8px;
+                }
+            }
+
+            .field-prop-container {
+                display: flex;
+                margin-left: auto;
+                margin-right: 1em;
+                height: 24px;
+                align-items: center;
+
+                .field-prop {
+                    display: flex;
+                    border-radius: 8px;
+                    justify-content: center;
+                    padding: 0 3px;
+                    width: 40px;
+                    height: 100%;
+                    margin-left: 4px;
+                    background-color: mat-color($accentcolor,A100);
+
+                    &.unique {
+                        font-size: 100%;
+
+                        label {
+                            font-weight: 800;
+                        }
+                    }
+
+                    .material-icons {
+                        transform: scale(.8);
+                    }
+
+                }
+            }
+
+        }
+
+    }
+
+    .footer {
+        height: 25%;
+
+        .package-info-button {
+            color : mat-color($maincolor) !important;
+            background-color:  #e4e4e4 !important;
+            width: 80%;
+            height: 56px;
+
+            label {
+                font-size: 1.1em;
+            }
+
+            mat-icon {
+                margin-right: 1em;
+                transform: scale(1.2);
+            }
+        }
+
+    }
+
+}

@@ -1,0 +1,16 @@
+<label>{{label}}</label>
+<button mat-icon-button (click)="create()"><mat-icon>add</mat-icon></button>
+<div class="indent">
+    <label *ngIf="acts.length === 0">No custom actions binded.</label>
+    <div *ngFor="let action of acts">
+        <app-predef-action-editor 
+            [obj]="action"
+            [controllers]="controllers"
+            (delete)="del(action)"
+            [groups]="groups"
+            [entity]="entity"
+            [ids]="ids"
+        ></app-predef-action-editor>
+        <div class="spacepls"></div>
+    </div>
+</div>

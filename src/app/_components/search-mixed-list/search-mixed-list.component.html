@@ -1,0 +1,90 @@
+<div *ngIf="loading" class="loader"><mat-spinner></mat-spinner></div>
+
+<div class="searchbar">
+
+    <mat-form-field class="input-query">
+        <mat-icon matPrefix>filter_list</mat-icon>
+        <input matInput placeholder="Filter" [formControl]="inputControl" (keyup)="onSearch()">
+        <button *ngIf="inputControl.value && inputControl.value !== ''"
+                matSuffix
+                mat-icon-button
+                aria-label="Clear"
+                (click)="clearSearch()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </mat-form-field>
+
+    <mat-form-field class="select-component">
+        <mat-select [(value)]="search_scope" (valueChange)="selectSearchScope()" disableOptionCentering="true">
+            <mat-select-trigger><mat-icon class="select-icon component-icon component-color-{{search_scope}}">{{type_dict[search_scope].icon}}</mat-icon> {{type_dict[search_scope].disp}}</mat-select-trigger>
+            <mat-option *ngFor="let component_type of getComponentsTypes()" [value]="component_type">
+                <mat-icon class="component-icon component-color-{{component_type}}">{{type_dict[component_type].icon}}</mat-icon> {{type_dict[component_type].disp}}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+
+</div>
+
+<mat-list class="list">
+
+    <mat-list-item *ngFor="let node of filteredData" >
+        <ng-container *ngIf="areNodesEqual(node, editingNode); else displayMode">
+            <div class="node_edit">
+                <mat-form-field class="node-edited">
+                    <div style="display: flex;">
+                        <input matInput [(ngModel)]="editedNode.name">
+                        <button *ngIf="!areNodesEqual(editedNode, editingNode)" mat-icon-button aria-label="Approve editing node">
+                            <mat-icon matSuffix (click)="onclickUpdate(node)">check_circle</mat-icon>
+                        </button>
+                    </div>
+                </mat-form-field>
+                <button mat-icon-button aria-label="Cancel editing node">
+                    <mat-icon (click)="onclickCancelEdit()">cancel</mat-icon>
+                </button>
+            </div>
+        </ng-container>
+
+<!--
+        <div class="node"
+                [class.hover]="node_selected != node"
+                [class.selected]="node_selected === node"
+                [title]="getTitle(node)">
+            <div class="inner" (click)="onclickSelect(node)">
+                <label class="icon component-icon component-color-{{node.type}}"><mat-icon>{{type_dict[node.type].icon}}</mat-icon></label>
+                <label class="prefix" *ngIf="node.type !== 'route'">{{ node.package_name ? (node.type === "do" || node.type === "get" || node.type === "view" ? "" : node.package_name+"\\") : ""}}{{node.name}}</label>
+                <label class="name" *ngIf="node.type === 'route'">{{node.name}}</label>
+                <button mat-icon-button (click)="clickDelete(node)" class="delete"><mat-icon>delete</mat-icon></button>
+            </div>
+        </div>
+-->
+        <ng-template #displayMode>
+            <div class="node_display"
+                    [class.hover]="node_selected != node"
+                    [class.selected]="node_selected === node"
+                    [title]="getTitle(node)">
+                <div class="inner" (click)="onclickSelect(node)">
+                    <div class="node-text" (click)="onclickSelect(node)">
+                        <label class="node-icon component-icon component-color-{{node.type}}"><mat-icon>{{type_dict[node.type].icon}}</mat-icon></label>
+                        <label class="node-name" *ngIf="node.type === 'route'">{{node.name}}</label>
+                        <label class="node-name" *ngIf="node.type === 'package'">{{node.name}}</label>
+                        <label class="node-name" *ngIf="node.type !== 'route' && node.type !== 'package'">{{ node.package_name ? (node.type === "do" || node.type === "get" || node.type === "view" ? "" : node.package_name+"\\") : ""}}{{node.name}}</label>
+                    </div>
+                    <div class="node-actions">
+                        <button mat-icon-button aria-label="Edit node button">
+                            <mat-icon (click)="onEditNode(node)">edit</mat-icon>
+                        </button>
+                        <button mat-icon-button (click)="clickDelete(node)" aria-label="Delete node button">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </ng-template>
+
+    </mat-list-item>
+
+</mat-list>
+
+<div class="adder" (click)="openCreator()">
+    <mat-icon style="margin-right: 1em;">add</mat-icon> Create new component
+</div>

@@ -5,9 +5,6 @@ import { Router } from '@angular/router';
 
 import { ContextService, ApiService, AuthService, EnvService } from 'sb-shared-lib';
 
-import * as $ from 'jquery';
-import { type } from 'jquery';
-
 
 /*
 This is the component that is bootstrapped by app.module.ts
@@ -53,7 +50,7 @@ export class AppRootComponent implements OnInit {
             await this.auth.authenticate();
         }
         catch(err) {
-            window.location.href = '/auth';
+            // window.location.href = '/auth';
             return;
         }
 

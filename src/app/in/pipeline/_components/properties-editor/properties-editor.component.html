@@ -9,9 +9,14 @@
             <mat-form-field *ngIf="searchType !== 'Package'">
                 <input matInput placeholder="Search" [(ngModel)]="searchValue" (ngModelChange)="onValueChange()">
             </mat-form-field>
-            <app-autocomplete class="autocomplete" *ngIf="searchType === 'Package'" name="Choose a package"
-                [values]="packages" [(value)]="package" (valueChange)="onPackageChange($event)">
-            </app-autocomplete>
+            <autocomplete
+                    class="autocomplete"
+                    *ngIf="searchType === 'Package'"
+                    name="Choose a package"
+                    [values]="packages"
+                    [(value)]="package"
+                    (valueChange)="onPackageChange($event)">
+            </autocomplete>
             <mat-form-field class="search-type">
                 <mat-select [(ngModel)]="searchType" (ngModelChange)="onValueChange()">
                     <mat-select-trigger>

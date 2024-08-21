@@ -1,0 +1,26 @@
+<div class="app-inner-header">
+    <app-inner-header
+            [customButton]="true"
+            [buttonBack]="true"
+            (onButtonBack)="getBack()">
+        <label class="package-label">{{ package_name }}</label>_<label class="model-label"><mat-icon>route</mat-icon>Routes</label>
+    </app-inner-header>
+</div>
+
+<div class="app-inner-body">
+
+    <div class="left_pane">
+        <search-mixed-list
+                [node_type]="'route'"
+                [package_name]="package_name"
+                (selectNode)="onSelectNode($event)"
+                (updateNode)="onupdateNode($event)"
+                (deleteNode)="ondeleteNode($event)">
+        </search-mixed-list>
+    </div>
+
+    <div class="right_pane">
+        <info-route [route]="selected_route">
+        </info-route>
+    </div>
+</div>

@@ -1,5 +1,5 @@
 import { Menu } from "../../menu/_object/Menu"
-import { View } from "../../views/vieweditor/_objects/View"
+import { View } from "../../package/model/views/vieweditor/_objects/View"
 
 export class Translation {
     public value:string=""

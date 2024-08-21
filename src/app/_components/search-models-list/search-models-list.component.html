@@ -1,0 +1,48 @@
+<!--
+<div>
+    <mat-form-field class="input search-bar">
+        <button matPrefix mat-icon-button><mat-icon class="icon">filter_list</mat-icon></button>
+        <input matInput placeholder="Filter" (keyup)="onSearch($event.target.value)">
+    </mat-form-field>
+</div>
+
+<mat-list class="list scrollable">
+    <mat-list-item *ngFor="let node of filteredData">
+        
+        <ng-container *ngIf="editingNode === node; else displayMode" class="node_container">
+            <div class="node_container">
+                <mat-form-field class="editedNode">
+                    <div style="display: flex;">
+                        <input matInput [(ngModel)]="editedNode" name="editedNode">
+                        <button *ngIf="editedNode != editingNode" mat-icon-button aria-label="Approve editing node">
+                            <mat-icon matSuffix (click)="onclickNodeUpdate(node)">check_circle</mat-icon>
+                        </button>
+                    </div>
+                </mat-form-field>
+                <button mat-icon-button aria-label="Cancel editing node">
+                    <mat-icon (click)="onCancelEdit()">cancel</mat-icon>
+                </button>
+            </div>
+        </ng-container>
+
+        <ng-template #displayMode class="node_container node_hover">
+            <div class="node_container" [class.node-hover]="node_selected != node" [class.node-selected]="node_selected == node">
+                <div class="pointable node-text" (click)="onclickNodeSelect(node)">{{ node }}</div>
+                <div class="icons">
+                    <button disabled mat-icon-button aria-label="Edit node button">
+                        <mat-icon (click)="onEditNode(node)">edit</mat-icon>
+                    </button>
+                    <button mat-icon-button aria-label="Delete node button">
+                        <mat-icon (click)="openDeleteConfirmationDialog(node)">delete</mat-icon>
+                    </button>
+                </div>
+            </div>
+        </ng-template>
+
+    </mat-list-item>
+</mat-list>
+
+<div class="createbutton" (click)="onclickCreate()">
+    <mat-icon style="margin-right: 1em;">add</mat-icon> Create model
+</div>
+-->

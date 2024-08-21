@@ -1,220 +1,111 @@
-import { Component, OnInit, ViewEncapsulation, ViewChild } from '@angular/core';
-import { ContextService } from 'sb-shared-lib';
-import { WorkbenchService } from './_service/package.service'
+import { Component, OnInit, ViewEncapsulation, Output, OnDestroy } from '@angular/core';
+
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { prettyPrintJson } from 'pretty-print-json';
-import { RouterMemory } from 'src/app/_services/routermemory.service';
-
+import { ActivatedRoute, Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-package',
-  templateUrl: './package.component.html',
-  styleUrls: ['./package.component.scss'],
-  encapsulation : ViewEncapsulation.Emulated,
+    selector: 'app-package',
+    templateUrl: './package.component.html',
+    styleUrls: ['./package.component.scss'],
+    encapsulation: ViewEncapsulation.None
 })
-export class PackageComponent implements OnInit {
+/**
+ * Component used to display the component of a package (using /controllers/:package route)
+ */
+export class PackageComponent implements OnInit, OnDestroy {
 
-    public child_loaded = false;
-    public selected_element:{package?:string,name:string,type:string,more?:any} = {name:"",type:""};
-    public classes_for_selected_package: string[] = [];
-    // http://equal.local/index.php?get=config_packages
-    public elements: {package?:string,name:string,type:string,more?:any}[] = [];
-    // http://equal.local/index.php?get=core_config_classes
+    // rx subject for unsubscribing subscriptions on destroy
+    private ngUnsubscribe = new Subject<void>();
 
-    public initialized_packages:string[];
-    public schema:any;
-    public selected_type_controller:string = '';
-    public fetch_error:boolean = false;
-    public routelist:any = {};
+    public ready: boolean = false;
 
-    public loading: boolean = false;
+    public package_name: string;
 
-// temp
- wait(milliseconds: number): void {
-  const start = Date.now();
-  while (Date.now() - start < milliseconds) {
-    // Boucle vide
-  }
-}
+    public packages: any;
+    public controllers: any;
+    public selected_package = '';
+    public selected_controller = '';
+    public selected_property = '';
+    public selected_type_controller = '';
+    public schema: any;
+    public controller_access_restrained: boolean;
+    public selected_desc = '';
+    public fetch_error = false
+
+    public step = 1;
 
     constructor(
-        private context: ContextService,
-        private api: WorkbenchService,
-        private snackBar: MatSnackBar,
-        private router:RouterMemory
-    ) { }
+            private snackBar: MatSnackBar,
+            private route: ActivatedRoute,
+            private matDialog: MatDialog
+        ) { }
 
     public async ngOnInit() {
-        let args = this.router.retrieveArgs()
-        if(args && args['selected']){
-            this.onclickElementSelect(args['selected'])
-        }
-        await this.init()
+        this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
+            this.package_name = params['package_name'];
+            this.ready = true;
+        });
     }
 
-    async refresh() {
-        this.init()
+    public ngOnDestroy() {
+        console.debug('PackageComponent::ngOnDestroy');
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
     }
 
-    // load all components
-    async init() {
-        console.debug("@@@init()");
-        this.loading = true;
-        this.elements = [];
 
-        this.initialized_packages = await this.api.getInitializedPackages();
+    /**
+     * Select a property when user click on it.
+     *
+     * @param property the property that the user has selected
+     */
+    public async onclickPropertySelect(property: string) {
+        this.selected_property = property;
+    }
 
-        // pass-1 - load packages and classes
-        const classes = await this.api.getClasses();
-        const packages = await this.api.getPackages();
-
-        for(const package_name of packages) {
-            this.elements.push({name: package_name, type: "package"})
-            if(classes.hasOwnProperty(package_name)) {
-                for(const class_name of classes[package_name]) {
-                    this.elements.push({
-                            package: package_name,
-                            name: class_name,
-                            type: "class"
-                        });
-                }
-            }
-        }
-
-        this.loading = false;
-
-        // pass-2 - load other components for each package
-        for(const package_name of packages) {
-            this.api.getControllers(package_name)
-                .then((x) => {
-                    x.data.forEach(cont => {
-                        this.elements.push({package: package_name, name: cont, type:"get"})
-                    });
-                    x.actions.forEach(cont => {
-                        this.elements.push({package: package_name, name: cont, type:"do"})
-                    });
-                })
-                .then( () => {
-
-                    this.api.getRoutesByPackage(package_name).then((y) => {
-                        for(let file in y) {
-                            for(let route in y[file]) {
-                                this.elements.push({package: package_name, name: route, type: "route", more: file})
-                                this.routelist[package_name+file+route] = {
-                                        "info": {"file": file, "package": package_name},
-                                        "methods": y[file][route]
-                                    };
-                            }
-                        }
-                    });
-                })
-                .then( () => {
-
-                    this.api.getViewsByPackage(package_name).then((y) => {
-                        y.forEach(view =>{
-                            this.elements.push({name:view, type: "view", package: package_name})
-                        });
-                    });
-                })
-                .then( () => {
-
-                    this.api.getMenusByPackage(package_name).then((y) => {
-                        y.forEach(view =>{
-                            this.elements.push({name: view, type: "menu",package: package_name})
-                        })
-                        this.elements.sort((a,b) =>
-                            (a.type === "route" ? a.package+a.more+a.name : ( (a.type === "class" || a.type === "menu") ? a.package+a.name : a.name)).replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase() < (b.type === "class" ? b.package+b.name : b.name).replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase() ? -1 : 1
-                        )
-                    });
-                });
-        }
+    /**
+     * Update the name of a controller.
+     *
+     * @param event contains the old and new name of the controller
+     */
+    public onupdateController(event: { type: string, old_node: string, new_node: string }) {
 
     }
 
     /**
-     * Select a package when user clicks on it.
+     * Delete a controller.
      *
-     * @param eq_package the package that the user has selected
+     * @param controller the name of the controller which will be deleted
      */
-    public async onclickElementSelect(eq_element: {package?: string, name:string, type: string, more?: any}) {
-        this.selected_element = eq_element;
-        this.loading = true;
-        if(eq_element.type === "class") {
-            this.schema = await this.api.getSchema(eq_element.package + '\\' + eq_element.name);
+    public async ondeleteController(event: { type: string, name: string }) {
+    }
+
+    /**
+     * Call the api to create a controller.
+     *
+     * @param new_package the name of the new controller
+     */
+    public oncreateController(event: { type: string, name: string }) {
+
+    }
+
+    /**
+     *
+     * @returns a pretty HTML string of a schema in JSON.
+     */
+    public getJSONSchema() {
+        if(this.schema) {
+            return this.prettyPrint(this.schema);
         }
-        if(eq_element.package && (eq_element.type === "do" || eq_element.type === "get")) {
-
-            const response: any = await this.api.getAnnounceController(eq_element.type, eq_element.name);
-
-            if (!response) {
-                this.fetch_error = true;
-                this.snackBar.open('Not allowed', 'Close', {
-                    duration: 1500,
-                    horizontalPosition: 'left',
-                    verticalPosition: 'bottom'
-                });
-            }
-            else {
-                this.fetch_error = false;
-                this.schema = response.announcement;
-            }
-        }
-        this.loading = false;
+        return null;
     }
 
-    async refreshConsistency() {
-        this.initialized_packages = await this.api.getInitializedPackages();
-    }
-
-    public onClickModels() {
-        this.router.navigate(['/models', this.selected_element.name], {"selected":this.selected_element});
-    }
-
-    public onClickControllers() {
-        this.router.navigate(['/controllers', this.selected_element.name], {"selected":this.selected_element});
-    }
-
-    public onClickView() {
-        this.router.navigate(['/views', "package", this.selected_element.name], {"selected":this.selected_element});
-    }
-
-    public onClickRoute() {
-        this.router.navigate(['/routes', this.selected_element.name], {"selected":this.selected_element});
-    }
-
-    public onClickInitData() {
-        this.router.navigate(['/initdata/init', this.selected_element.name], {"selected":this.selected_element});
-    }
-
-    public onClickInitDemoData() {
-        this.router.navigate(['/initdata/demo', this.selected_element.name], {"selected":this.selected_element});
-    }
-
-    /**
-     * Update the name of a package.
-     *
-     * @param event contains the old and new name of the package
-     */
-    public onupdatePackage(event: { old_node: string, new_node: string }) {
-        this.api.updatePackage(event.old_node, event.new_node);
-    }
-
-    /**
-     * Delete a package.
-     *
-     * @param eq_package the name of the package which will be deleted
-     */
-    public ondeletePackage(eq_package: string) {
-        this.api.deletePackage(eq_package);
-    }
-
-    /**
-     * Call the api to create a package.
-     *
-     * @param new_package the name of the new package
-     */
-    public oncreatePackage(new_package: any) {
-        this.api.createPackage(new_package);
+    public getProperties() {
+        return Object.keys(this.schema);
     }
 
     /**
@@ -227,117 +118,9 @@ export class PackageComponent implements OnInit {
         return prettyPrintJson.toHtml(input);
     }
 
-    public onChangeStepModel(event:number) {
-        if(event == 2) {
-            this.router.navigate(['/fields', this.selected_element.package ? this.selected_element.package : "", this.selected_element.name], {"selected":this.selected_element})
-        }
-        if(event == 3 && this.selected_element.package) {
-            this.router.navigate(['/views', "entity", this.selected_element.package+'\\'+this.selected_element.name], {"selected":this.selected_element})
-        }
-        if(event == 4 && this.selected_element.package) {
-            this.router.navigate(['/translation', "model", this.selected_element.package, this.selected_element.name], {"selected":this.selected_element})
-        }
-        if(event == 5) {
-            this.router.navigate(['/workflow', this.selected_element.package, this.selected_element.name], {"class":this.selected_element})
-        }
+    public getBack() {
+        // this.route.goBack()
+
     }
 
-    public goTo(ev:{name:string,package?:string,type?:string}) {
-        let els = this.elements.filter(el => (el.name === ev.name && (!ev.package || ev.package === el.package)));
-        this.onclickElementSelect(els[0]);
-    }
-
-    public onViewEditClick() {
-        this.router.navigate(['/views_edit',this.selected_element.name],{"selected":this.selected_element});
-    }
-
-    public onViewTranslationClick() {
-        this.router.navigate(['/translation', this.selected_element.name.split(":").slice(1)[0].split(".")[0] === 'search' ? 'controller' : 'model',this.selected_element.package,this.selected_element.name.split(":")[0].split("\\").slice(1).join("\\")],{"selected":this.selected_element})
-    }
-
-
-    public async delElement(node: {package?: string, name: string, type: string, more?: any}) {
-        let res;
-        switch(node.type) {
-            case "view":
-                let sp = node.name.split(":")
-                res = await this.api.deleteView(sp[0],sp[1])
-                if(!res){
-                    this.snackBar.open("Deleted")
-                    this.selected_element = {name:"",type:""}
-                    this.refresh()
-                }
-                break
-            case "menu":
-                res = await this.api.deleteView(node.package+"\\menu",node.name)
-                if(!res){
-                    this.snackBar.open("Deleted")
-                    this.selected_element = {name:"",type:""}
-                    this.refresh()
-                }
-                break
-            case "package":
-                res = await this.api.deletePackage(node.name)
-                if(!res){
-                    this.snackBar.open("Deleted")
-                    this.selected_element = {name:"",type:""}
-                    this.refresh()
-                }
-                break
-            case "class":
-                if(node.package) {
-                    res = await this.api.deleteModel(node.package,node.name)
-                    if(!res){
-                        this.snackBar.open("Deleted")
-                        this.selected_element = {name:"",type:""}
-                        this.refresh()
-                    }
-                }else {
-                    this.snackBar.open("Error : unknown model")
-                }
-                break
-            case "do":
-            case "get":
-                if(node.package) {
-                    let nom = node.name.split("_").slice(1).join("_")
-                    res = await this.api.deleteController(node.package,node.type,nom)
-                    if(!res){
-                        this.snackBar.open("Deleted")
-                        this.selected_element = {name:"",type:""}
-                        this.refresh()
-                    }
-                }
-                else {
-                    this.snackBar.open("Error : unknown controller")
-                }
-                break
-            default:
-                this.snackBar.open("WIP")
-                break;
-        }
-    }
-
-    public controllerNav(choice:number) {
-        switch(choice) {
-        case 1:
-            this.router.navigate(['/controllers/params',this.selected_element.type,this.selected_element.name],{"selected":this.selected_element})
-            break
-        case 2:
-            this.router.navigate(['/translation',"controller",this.selected_element.package,this.selected_element.name.split("_").slice(1).join("\\")],{"selected":this.selected_element})
-            break
-        case 3:
-            this.router.navigate(["/controllers","return",this.selected_element.type,this.selected_element.name],{"selected":this.selected_element})
-            break
-        }
-    }
-
-    public menuNav(choice:number) {
-        switch(choice) {
-            case 1:
-                this.router.navigate(['/menu/edit/',this.selected_element.package,this.selected_element.name]);
-                break;
-            case 2 :
-                this.router.navigate(['translation/menu/',this.selected_element.package,this.selected_element.name])
-        }
-    }
 }

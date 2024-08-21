@@ -1,27 +1,36 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { AppComponent } from './in/app.component';
-import { PackageModule } from './in/package/package.module';
 
 const routes: Routes = [
-
-    /**
     {
-        path: 'views',
-        loadChildren: () => import('./in/app.component').then(m => m.AppComponent)
+        path: 'package/:package_name',
+        loadChildren: () => import('./in/package/package.module').then(m => m.PackageModule)
     },
-    /* routes specific to current app */
+    {
+        path: 'uml',
+        loadChildren: () => import('src/app/in/uml-erd/uml-erd.module').then(m => m.UmlErdModule)
+    },
+    {
+        path: 'pipelines',
+        loadChildren: () => import('src/app/in/pipeline/pipeline.module').then(m => m.PipelineModule)
+    },
+    /*
+    {
+        path: 'routes',
+        loadChildren: () => import('src/app/in/pipeline/pipeline.module').then(m => m.PipelineModule)
+    },
+    */
     {
         /*
          default route, for bootstrapping the App
-            1) display a loader and try to authentify
+            1) display a loader and try to authenticate
             2) store user details (roles and permissions)
             3) redirect to applicable page (/apps or /auth)
          */
-        path: '',
-        loadChildren: () => import('./in/package/package.module').then(m => m.PackageModule)
-
-    },
+        path: '**',
+        component: AppComponent
+    }
 ];
 
 @NgModule({

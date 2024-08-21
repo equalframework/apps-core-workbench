@@ -1,0 +1,29 @@
+<ng-container *ngIf="!loading">
+    <div class="full">
+        <app-inner-header
+            [buttonBack]="true"
+            (onButtonBack)="getBack()">
+            <label class="package-label">{{entity.replaceAll("%5C","\\").split("\\",1)}}</label>
+            <ng-container *ngIf="entity.replaceAll('%5C','\\').split('\\').length > 1">
+                <label>\</label>
+                <label class="model-label">{{entity.replaceAll("%5C","\\").split("\\").slice(1).join("\\")}}</label>
+            </ng-container>
+            <label>:</label>
+            <label class="view-label"><mat-icon>view_quilt</mat-icon>View</label>
+        </app-inner-header>
+        <div>
+            <search-views-list list class="full"
+                [data]="views_for_selected_package"
+                [selected_node]="selected_view"
+                (nodeSelect)="onclickViewSelect($event)"
+                (nodeUpdate)="onupdateView($event)"
+                (nodeDelete)="ondeleteView($event)"
+                (nodeCreate)="oncreateView()">
+            </search-views-list>
+            <info-view sidepane class="full"
+                [view_ref]="selected_view"
+                (goto)="goto()">
+            </info-view>
+        </div>
+    </div>
+</ng-container>

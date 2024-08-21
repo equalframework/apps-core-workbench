@@ -1,0 +1,62 @@
+<div *ngIf="loading" class="loader"><mat-spinner></mat-spinner></div>
+
+<ng-container *ngIf="!loading && !route">
+    Select a route amongst the list to see methods and details.
+</ng-container>
+
+<ng-container *ngIf="!loading && route">
+    <div class="header">
+        <div class="main">
+            <div class="title">
+                <label>Route :</label>
+                <label class="accent">{{ route.name }}</label>
+            </div>
+            <div class="actions">
+            </div>
+        </div>
+        <div class="description">
+            <label></label>
+        </div>
+        <div class="status">
+            <div *ngIf="isRouteLive()" class="new">
+                <mat-icon>check_circle</mat-icon>
+                <label>This route is live.</label>
+            </div>
+            <div *ngIf="!isRouteLive()" class="edited">
+                <mat-icon>error</mat-icon>
+                <label>This route is not active.</label>
+            </div>
+        </div>
+        <div class="meta">
+            <div><label>Declared in </label><label class="primary">{{route.file}}</label></div>
+        </div>
+    </div>
+
+    <div class="body">
+        <div class="header">
+            <div>
+                <label class="primary">{{methods.length}} </label><label>Method(s)</label>
+            </div>
+        </div>
+        <div class="items">
+            <div *ngFor="let method of methods" class="item container-method-{{method}}">
+                <div class="title">
+                    <label class="http-method-{{method}}">{{method}}</label>
+                </div>
+                <div class="indent">
+                    <div class="desc-method">
+                        <label><strong>description : </strong>{{route.item[method]['description']}}</label>
+                    </div>
+                    <div class="spacer"></div>
+                    <div class="desc-method">
+                        <label><strong>Uses : </strong><a (click)="sendTo(route.item[method]['operation'])">{{route.item[method]['operation']}}</a></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+    </div>
+
+</ng-container>

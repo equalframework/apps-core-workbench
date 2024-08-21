@@ -1,0 +1,54 @@
+<div *ngIf="error">
+    Something went wrong...
+</div>
+
+<div class="app-inner-header">
+    <app-inner-header
+            [buttonBack]="true"
+            (onButtonBack)="goBack()"
+            [buttonCancelOne]="true"
+            [buttonCancelOneDisabled]="paramListHistory.length < 2"
+            (onButtonCancelOne)="cancelOneChange()"
+            [buttonRevertOne]="true"
+            [buttonRevertOneDisabled]="paramFutureHistory.length === 0"
+            (onButtonRevertOne)="revertOneChange()"
+            [buttonSave]="true"
+            (onButtonSave)="save()"
+            [customButton]="true"
+            [customButtonList]="[{name:'show JSON', icon:'bug_report', disabled:false}]"
+            (onCustomButton)="handleCustomButton($event)">
+        <label>Parameters of </label>
+        <div class="packagename borders">
+            <label>{{controller_name.split("_")[0]}}</label>
+        </div>
+        <label>_</label>
+        <div class="controllername borders">
+            <label>{{ controller_name.split("_").slice(1).join('_') }}</label>
+        </div>
+    </app-inner-header>
+</div>
+
+<div class="app-inner-body">
+
+    <div class="left_pane">
+        <app-param-list
+                [list]="paramList"
+                [selectedIndex]="selectedIndex"
+                (select)="onSelection($event)"
+                (CRUD)="onChange($event)">
+        </app-param-list>
+    </div>
+
+    <div class="right_pane">
+        <app-param-side-pane sidepane
+                [param]="paramList[selectedIndex]"
+                [types]="types"
+                [usages]="usages"
+                [scheme]="sch"
+                [modelList]="modelList"
+                (CRUD)="onChange($event)">
+        </app-param-side-pane>
+    </div>
+</div>
+
+

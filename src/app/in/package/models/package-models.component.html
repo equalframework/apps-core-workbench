@@ -1,0 +1,58 @@
+<div class="app-inner-header">
+    <app-inner-header
+            [customButton]="true"
+            [buttonBack]="true"
+            (onButtonBack)="getBack()">
+        <label class="package-label">{{ package_name }}</label>\<label class="model-label"><mat-icon>data_object</mat-icon>Models</label>
+    </app-inner-header>
+</div>
+
+<div class="app-inner-body">
+
+    <div class="left_pane">
+        <search-mixed-list
+                [node_type]="'class'"
+                [package_name]="package_name"
+                (selectNode)="onSelectNode($event)"
+                (updateNode)="onupdateNode($event)"
+                (deleteNode)="ondeleteNode($event)">
+        </search-mixed-list>
+    </div>
+
+    <div class="right_pane">
+        <info-model [model]="selected_class">
+        </info-model>
+    </div>
+</div>
+
+
+<!-- 
+<div *ngIf="loading" style="display: flex; justify-content: center; align-items: center; height: 100%;">
+    <mat-spinner></mat-spinner>
+</div>
+
+<ng-container *ngIf="step === 1 && !loading">
+    <div class="full">
+        <app-inner-header
+            [buttonBack]="true"
+            (onButtonBack)="getBack()">
+            <label class="package-label">{{ package_name }}</label>\<label class="model-label"><mat-icon>data_object</mat-icon>Models</label>
+        </app-inner-header>
+        <app-classic-layout>
+            <search-models-list list class="full"
+                    [data]="classes_for_selected_package"
+                    [selected_node]="class_name"
+                    (nodeSelect)="onclickClassSelect($event)"
+                    (nodeUpdate)="onupdateClass($event)"
+                    (nodeDelete)="ondeleteClass($event)"
+                    (nodeCreate)="oncreateClass()">
+            </search-models-list>
+            <info-model sidepane
+                    class="full"
+                    [model]="class_name"
+                    (changeStep)="onChangeStep($event)">
+            </info-model>
+        </app-classic-layout>
+    </div>
+</ng-container>
+ -->

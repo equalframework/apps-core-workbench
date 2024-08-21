@@ -2,7 +2,7 @@ import { Component, ElementRef, Inject, OnInit, Optional, ViewChild } from '@ang
 import { ActivatedRoute } from '@angular/router';
 import { TranslationService } from './_services/translation.service';
 import { ErrorItemTranslator, Translator } from './_object/Translation';
-import { View } from '../views/vieweditor/_objects/View';
+import { View } from '../package/model/views/vieweditor/_objects/View';
 import { MatTabGroup } from '@angular/material/tabs';
 import { AbstractControl, FormControl, ValidationErrors, Validators } from '@angular/forms';
 import { snakeCase } from 'lodash';

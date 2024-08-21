@@ -1,4 +1,4 @@
-<app-in-header
+<app-inner-header
     [buttonBack]="true"
     (onButtonBack)="goBack()"
     [customButtonList]="[{icon:'bug_report',name:'show JSON',disabled:false}]"
@@ -10,7 +10,7 @@
     <label *ngIf="type === 'init'">Initial data of </label>
     <label *ngIf="type === 'demo'">Demo data of </label>
     <label class="packagename">{{package}}</label>
-</app-in-header>
+</app-inner-header>
 
 <ng-container *ngIf="this.loading">
     <div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">

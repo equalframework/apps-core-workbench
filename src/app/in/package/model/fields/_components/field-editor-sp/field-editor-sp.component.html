@@ -1,0 +1,308 @@
+<div *ngIf="!field" class="sidepane">
+
+</div>
+<div *ngIf="field" class="sidepane">
+    <div class="name-container">
+        <div>
+            <label>Field </label>
+            <ng-container *ngIf="!nameBeingEdited">
+                <label class="maincolor">{{field.name}}</label>
+                <button *ngIf="!inherited && !field.isUneditable" mat-icon-button color="primary" (click)="setNameBeingEdited(true)"><mat-icon>edit</mat-icon></button>
+            </ng-container>
+            <ng-container *ngIf="nameBeingEdited">
+                <mat-form-field class="editname">
+                    <input class="maincolor" matInput [formControl]="nameControl">
+                </mat-form-field>
+                <button mat-icon-button color="primary" (click)="setNameBeingEdited(false)"><mat-icon>cancel</mat-icon></button>
+                <button mat-icon-button color="primary" [disabled]="nameControl.invalid" (click)="changeName()"><mat-icon>save</mat-icon></button>
+            </ng-container>
+        </div>
+    </div>
+    <div class="bannerholder">
+        <div *ngIf="field.isUneditable" class="infoBanner">
+            <label>This field is not overridable from workbench because it is used by the database logic of eQual</label>
+        </div>
+        <div *ngIf="!field.isUneditable && inherited" class="infoBanner">
+            <label>This field is inherited from the parent class. Its name cannot be changed here. </label><a style="cursor :pointer;" (click)="navigateToParent()">see the parent model</a>
+        </div>
+    </div>
+    <mat-tab-group class="full">
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon style="margin-right: 1em;">bolt</mat-icon> Basic
+            </ng-template>
+            <div class="scrollable content">
+                <div>
+                    <mat-form-field *ngIf="typeDirective['type']">
+                        <mat-label>Type</mat-label>
+                        <mat-select [disabled]="field.isUneditable" [value]="field.type" (valueChange)="changeTypeValue($event)">
+                            <mat-option *ngFor="let type of types" [value]="type">{{type}}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <ng-container *ngIf="typeDirective['function']">
+                        <mat-icon style="transform: translateY(.3em);">arrow_right</mat-icon>
+                        <mat-form-field>
+                            <mat-label>Function</mat-label>
+                            <input matInput [disabled]="field.isUneditable" [value]="field.function" (keydown)="noCancel($event)" (change)="changeFunction($event.target.value)">
+                        </mat-form-field>
+                    </ng-container>
+                    <ng-container *ngIf="typeDirective['result_type']">
+                        <br>
+                        <mat-form-field *ngIf="typeDirective['type']">
+                            <mat-label>Result type</mat-label>
+                            <mat-select [disabled]="field.isUneditable" [value]="field.result_type" (valueChange)="changeResultType($event)">
+                                <mat-option *ngFor="let type of types" [value]="type">{{type}}</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </ng-container>
+                    <app-usages *ngIf="finalTypeDirective['usage']"
+                        (CRUD)="CRUD.emit($event)"
+                        [usage]="field.usage"
+                        [type]="field.finalType"
+                        [name]="field.name"
+                        [disabled]="field.isUneditable"
+                    >
+                    </app-usages>
+                    <ng-container *ngIf="finalTypeDirective['foreign_object']">
+                        <mat-icon style="transform: translateY(.3em);">arrow_right</mat-icon>
+                        <app-field-autocomplete
+                            name="Foreign object"
+                            [value]="field.foreign_object"
+                            [values]="models"
+                            (valueChange)="changeForeignObject($event)"
+                            [disabled]="field.isUneditable"
+                            width="15em"
+                        >
+                        </app-field-autocomplete>
+                    </ng-container>
+                    <ng-container *ngIf="finalTypeDirective['foreign_field']">
+                        <mat-icon style="transform: translateY(.3em);">arrow_right</mat-icon>
+                        <app-field-autocomplete
+                            name="Foreign field"
+                            [value]="field.foreign_field"
+                            [values]="ffields"
+                            (valueChange)="changeForeignField($event)"
+                            [disabled]="field.isUneditable"
+                            width="15em"
+                        >
+                        </app-field-autocomplete>
+                    </ng-container>
+                    <ng-container *ngIf="finalTypeDirective['alias']">
+                        <mat-icon style="transform: translateY(.3em);">arrow_right</mat-icon>
+                        <app-field-autocomplete 
+                            name="Alias"
+                            [value]="field.alias"
+                            [values]="fields"
+                            (valueChange)="changeAlias($event)"
+                            [disabled]="field.isUneditable"
+                        >
+                        </app-field-autocomplete>
+                    </ng-container>
+                </div>
+                <div>
+                    <mat-form-field *ngIf="finalTypeDirective['rel_table']" class="thirdfield">
+                        <mat-label>rel_table</mat-label>
+                        <input matInput [disabled]="field.isUneditable" [value]="field.rel_table" (keydown)="noCancel($event)" (change)="changeRelTable($event.target.value)">
+                    </mat-form-field>
+                    <mat-form-field *ngIf="finalTypeDirective['rel_local_key']" class="thirdfield">
+                        <mat-label>rel_local_key</mat-label>
+                        <input matInput [disabled]="field.isUneditable" [value]="field.rel_local_key" (keydown)="noCancel($event)" (change)="changeRelLocalKey($event.target.value)">
+                    </mat-form-field>
+                    <mat-form-field *ngIf="finalTypeDirective['rel_foreign_key']" class="thirdfield">
+                        <mat-label>rel_foreign_key</mat-label>
+                        <input matInput [disabled]="field.isUneditable" [value]="field.rel_foreign_key" (keydown)="noCancel($event)" (change)="changeRelForeignKey($event.target.value)">
+                    </mat-form-field>
+                </div>
+                <div *ngIf="finalTypeDirective['description']">
+                    <mat-form-field class="fieldarea">
+                        <mat-label>Description</mat-label>
+                        <textarea matInput [disabled]="field.isUneditable" [value]="field.description" (keydown)="noCancel($event)" (change)="changeDesc($event.target.value)"></textarea>
+                    </mat-form-field>
+                </div> 
+                <mat-grid-list rowHeight="3em" cols="4">
+                    <mat-grid-tile *ngIf="typeDirective['readonly']">
+                        <div class="full checkboxcontainer">
+                            <mat-checkbox [disabled]="field.isUneditable" [checked]="field.readonly" (change)="changeReadonly($event.checked)">readonly</mat-checkbox>
+                        </div>
+                    </mat-grid-tile>
+                    <mat-grid-tile *ngIf="typeDirective['required']">
+                        <div class="full checkboxcontainer">
+                            <mat-checkbox [disabled]="field.isUneditable" [checked]="field.required" (change)="changeRequired($event.checked)">required</mat-checkbox>
+                        </div>
+                    </mat-grid-tile>
+                    <mat-grid-tile *ngIf="typeDirective['multilang']">
+                        <div class="full checkboxcontainer">
+                            <mat-checkbox [disabled]="field.isUneditable" [checked]="field.multilang" (change)="changeMultilang($event.checked)">multilang</mat-checkbox>
+                        </div>
+                    </mat-grid-tile>
+                    <mat-grid-tile *ngIf="typeDirective['unique']">
+                        <div class="full checkboxcontainer">
+                            <mat-checkbox [disabled]="field.isUneditable" [checked]="field.unique" (change)="changeUnique($event.checked)">unique</mat-checkbox>
+                        </div>
+                    </mat-grid-tile>
+                    <mat-grid-tile *ngIf="typeDirective['store']">
+                        <div class="full checkboxcontainer">
+                            <mat-checkbox [disabled]="field.isUneditable" [checked]="field.store" (change)="changeStore($event.checked)">store</mat-checkbox>
+                        </div>
+                    </mat-grid-tile>
+                    <mat-grid-tile *ngIf="typeDirective['instant']">
+                        <div class="full checkboxcontainer">
+                            <mat-checkbox [disabled]="field.isUneditable" [checked]="field.instant" (change)="changeInstant($event.checked)">instant</mat-checkbox>
+                        </div>
+                    </mat-grid-tile>
+                    <mat-grid-tile *ngIf="typeDirective['default']">
+                        <div class="full checkboxcontainer">
+                            <mat-checkbox [disabled]="field.isUneditable" [checked]="field._has_default" (change)="changeHasDefault($event.checked)">default value</mat-checkbox>
+                        </div>
+                    </mat-grid-tile>
+                    <mat-grid-tile *ngIf="typeDirective['selection']">
+                        <div class="full checkboxcontainer">
+                            <mat-checkbox [disabled]="field.isUneditable" [checked]="field._has_selection" (change)="changeHasSelection($event.checked)">selection</mat-checkbox>
+                        </div>
+                    </mat-grid-tile>
+                </mat-grid-list>
+                <div *ngIf="field._has_default && finalTypeDirective['default']" class="conditionalcontainer">
+                    <div class="title">
+                        <label>Default</label>
+                    </div>
+                    <type-input
+                        [value]="field.default"
+                        [type]="field.finalType"
+                        name="default"
+                        (changed)="changeDefault($event)"
+                        [disabled]="field.isUneditable"
+                    ></type-input>
+                </div>
+                <div *ngIf="field._has_selection && finalTypeDirective['selection']" class="conditionalcontainer">
+                    <div class="title">
+                        <label>Selection</label>
+                        <button mat-button (click)="addToSelection()"><mat-icon>add</mat-icon> Add item</button>
+                    </div>
+                    <div *ngFor="let item of field.selection; index as index" class="selection-el">
+                        <div class="t-input-holder">
+                            <type-input
+                                [value]="item"
+                                [type]="field.finalType"
+                                name="option {{index+1}}"
+                                (changed)="changeSelection(index,$event)"
+                            ></type-input>
+                            <button mat-icon-button (click)="deleteSelection(index)"><mat-icon>delete</mat-icon></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </mat-tab>
+        <mat-tab *ngIf="!field.isUneditable">
+            <ng-template mat-tab-label>
+                <mat-icon style="margin-right: 1em;">tune</mat-icon> Advanced
+            </ng-template>
+            <div class="scrollable content">
+                <mat-accordion>
+                    <mat-expansion-panel *ngIf="typeDirective['onupdate'] || typeDirective['ondelete'] || typeDirective['ondetach']">
+                        <mat-expansion-panel-header>
+                            <mat-panel-title>Triggers</mat-panel-title>
+                            <mat-panel-description>
+                                <label>Handle trigger on modification of this field</label>
+                            </mat-panel-description>
+                        </mat-expansion-panel-header>
+                        <ng-container *ngIf="typeDirective['onupdate']">
+                            <mat-form-field class="thirdfield">
+                                <mat-label>onupdate</mat-label>
+                                <input matInput [value]="field.onupdate" (keydown)="noCancel($event)" (change)="changeOnUpdate($event.target.value)">
+                            </mat-form-field>
+                        </ng-container>
+                        <ng-container *ngIf="typeDirective['ondelete']">
+                            <mat-form-field class="thirdfield">
+                                <mat-label>ondelete</mat-label>
+                                <input matInput [value]="field.ondelete" (keydown)="noCancel($event)" (change)="changeOnDelete($event.target.value)">
+                            </mat-form-field>
+                        </ng-container>
+                        <ng-container *ngIf="typeDirective['ondetach']">
+                            <mat-form-field class="thirdfield">
+                                <mat-label>ondetach</mat-label>
+                                <input matInput [value]="field.ondetach" (keydown)="noCancel($event)" (change)="changeOnDetach($event.target.value)">
+                            </mat-form-field>
+                        </ng-container>
+                        <ng-container *ngIf="typeDirective['onrevert']">
+                            <mat-form-field class="thirdfield">
+                                <mat-label>onrevert</mat-label>
+                                <input matInput [value]="field.onrevert" (keydown)="noCancel($event)" (change)="changeOnRevert($event.target.value)">
+                            </mat-form-field>
+                        </ng-container>
+                    </mat-expansion-panel>
+                    <mat-expansion-panel *ngIf="typeDirective['sort']">
+                        <mat-expansion-panel-header>
+                            <mat-panel-title>
+                                Sort
+                            </mat-panel-title>
+                            <mat-panel-description>
+                                Edit sorting parameter of this field
+                            </mat-panel-description>
+                        </mat-expansion-panel-header>
+                        <mat-form-field>
+                            <mat-label>Order</mat-label>
+                            <mat-select [value]="field.sort">
+                                <mat-option value="asc">asc</mat-option>
+                                <mat-option value="desc">desc</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </mat-expansion-panel>
+                    <mat-expansion-panel *ngIf="typeDirective['dependencies']">
+                        <mat-expansion-panel-header>
+                            <mat-panel-title>
+                                Dependencies
+                            </mat-panel-title>
+                            <mat-panel-description>
+                                Select the computed field that need to be refreshed when this field is edited
+                            </mat-panel-description>
+                            <mat-icon class="toggleicon" [class.on]="field._has_dependencies" (click)="$event.stopPropagation();changeHasDependencies(!field._has_dependencies)">{{field._has_dependencies?"toggle_on":"toggle_off"}}</mat-icon>
+                        </mat-expansion-panel-header>
+                        <div *ngIf="field._has_dependencies">
+                            <app-field-autocomplete
+                                name="Add a dependency"
+                                [value]="dependencyInput"
+                                [values]="computeds"
+                                (valueChange)="dependencyInput = $event"
+                                (keydown.enter)="addToDependencies()"
+                            >
+                            </app-field-autocomplete>
+                            <button mat-icon-button (click)="addToDependencies()"><mat-icon>add</mat-icon></button>
+                            <div class="deps-holder">
+                                <div *ngFor="let dep of field.dependencies; index as index" class="dependency-chip">
+                                    <label>{{dep}}</label>
+                                    <mat-icon class="pseudo-button" (click)="DeleteDependency(index)">close</mat-icon>
+                                </div>
+                            </div>
+                        </div>
+                    </mat-expansion-panel>
+                    <mat-expansion-panel *ngIf="typeDirective['visible']">
+                        <mat-expansion-panel-header>
+                            <mat-panel-title>Visibility</mat-panel-title>
+                            <mat-panel-description>Edit the visibility of the field as a domain</mat-panel-description>
+                            <mat-icon class="toggleicon" [class.on]="field._has_visible" (click)="$event.stopPropagation();changeHasVisible(!field._has_visible)">{{field._has_visible?"toggle_on":"toggle_off"}}</mat-icon>
+                        </mat-expansion-panel-header>
+                        <app-property-domain-component *ngIf="field._has_visible"
+                            [class]="dummyscheme"
+                            [value]="field.visible"
+                            (valueChange)="changeVisible($event)">
+                        </app-property-domain-component>
+                    </mat-expansion-panel>
+                    <mat-expansion-panel *ngIf="typeDirective['domain']">
+                        <mat-expansion-panel-header>
+                            <mat-panel-title>Domain</mat-panel-title>
+                            <mat-panel-description>Edit the domain of the relation O2M</mat-panel-description>
+                            <mat-icon class="toggleicon" [class.on]="field._has_domain" (click)="$event.stopPropagation();changeHasDomain(!field._has_domain)">{{field._has_domain?"toggle_on":"toggle_off"}}</mat-icon>
+                        </mat-expansion-panel-header>
+                        {{field.foreign_object}}
+                        <app-property-domain-component *ngIf="field._has_domain"
+                            [class]="field.foreign_object"
+                            [value]="field.domain"
+                            (valueChange)="changeDomain($event)"
+                        >
+                        </app-property-domain-component>
+                    </mat-expansion-panel>
+                </mat-accordion>
+            </div>
+        </mat-tab>
+    </mat-tab-group>
+</div>
