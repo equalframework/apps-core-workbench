@@ -1,18 +1,18 @@
 <app-inner-header
-    [buttonBack]="true"
-    (onButtonBack)="goBack()"
-    [buttonCancelOne]="!loading"
-    [buttonCancelOneDisabled]="this.fieldListHistory.length <= 1"
-    (onButtonCancelOne)="cancelOneChange()"
-    [buttonRevertOne]="!loading"
-    [buttonRevertOneDisabled]="this.fieldFutureHistory.length < 1"
-    (onButtonRevertOne)="revertOneChange()"
-    [buttonSave]="!loading"
-    (onButtonSave)="savedata()"
-    [customButton]="!loading"
-    [customButtonList]="[{name:'Show JSON',icon:'bug_report',disabled:false}]"
-    (onCustomButton)="showJSON()">
-    <label>Fields of </label><label>{{selected_package}}</label><label>\</label><label>{{selected_class}}</label>
+        [buttonBack]="true"
+        (onButtonBack)="goBack()"
+        [buttonCancelOne]="!loading"
+        [buttonCancelOneDisabled]="this.fieldListHistory.length <= 1"
+        (onButtonCancelOne)="cancelOneChange()"
+        [buttonRevertOne]="!loading"
+        [buttonRevertOneDisabled]="this.fieldFutureHistory.length < 1"
+        (onButtonRevertOne)="revertOneChange()"
+        [buttonSave]="!loading"
+        (onButtonSave)="savedata()"
+        [customButton]="!loading"
+        [customButtonList]="[{name:'Show JSON', icon:'bug_report', disabled:false}]"
+        (onCustomButton)="showJSON()">
+    <label>Fields of </label><label>{{package_name}}</label><label>\</label><label>{{class_name}}</label>
 </app-inner-header>
 <div *ngIf="loading" style="display: flex; align-items: center; justify-content: center; flex-direction: column;" class="full">
     <mat-spinner></mat-spinner>
@@ -20,21 +20,21 @@
 </div>
 <app-classic-layout *ngIf="!loading">
     <app-field-editor-list
-        [list]="fieldList"
-        [parentList]="parentFieldList"
-        [selectedIndex]="selected_index"
-        (CRUD)="onChange($event)"
-        (select)="selected_index = $event"
-    ></app-field-editor-list>
+            [list]="fieldList"
+            [parentList]="parentFieldList"
+            [selectedIndex]="selected_index"
+            (CRUD)="onChange($event)"
+            (select)="selected_index = $event">
+    </app-field-editor-list>
     <app-field-editor-sp sidepane
-        [inherited]="isInherited(fieldList[selected_index])"
-        [field]="fieldList[selected_index]"
-        [types]="types"
-        [models]="models"
-        [fields]="fieldName"
-        [computeds]="computeds"
-        [dummyscheme]="DummyScheme"
-        (CRUD)="onChange($event)"
-        (navToParent)="navigateToParent()"
-    ></app-field-editor-sp>
+            [inherited]="isInherited(fieldList[selected_index])"
+            [field]="fieldList[selected_index]"
+            [types]="types"
+            [models]="models"
+            [fields]="fieldName"
+            [computeds]="computeds"
+            [dummyscheme]="dummySchema"
+            (CRUD)="onChange($event)"
+            (navToParent)="navigateToParent()">
+    </app-field-editor-sp>
 </app-classic-layout>

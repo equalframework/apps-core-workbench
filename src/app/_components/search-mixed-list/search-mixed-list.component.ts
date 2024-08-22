@@ -50,14 +50,13 @@ export class SearchMixedListComponent implements OnInit {
     @Output() selectNode = new EventEmitter<EqualComponentDescriptor>();
     @Output() updateNode = new EventEmitter<{old_node: EqualComponentDescriptor, new_node: EqualComponentDescriptor}>();
     @Output() deleteNode = new EventEmitter<EqualComponentDescriptor>();
-    @Output() loaded = new EventEmitter<boolean>();
 
     // Array of all components fetched from server
     public elements: EqualComponentDescriptor[] = [];
 
     public loading: boolean = false;
 
-    // filtered derivative of data with purpose to be displayed
+    // filtered derivative of `elements` with purpose to be displayed
     public filteredData: EqualComponentDescriptor[];
     // value part of the search bar field (parsed in onSearch() method)
     public search_value: string = '';
@@ -86,7 +85,7 @@ export class SearchMixedListComponent implements OnInit {
 
         this.loading = true;
 
-        await this.loadComponents();
+        await this.loadNodes();
 
         // refresh filtering
         this.selectSearchScope();
@@ -107,7 +106,7 @@ export class SearchMixedListComponent implements OnInit {
      * but then other components, if requested, are loaded in background
      * except when node_type is set to a specific value (distinct from '')
      */
-    private async loadComponents() {
+    private async loadNodes() {
 
         // pass-1 - load packages and classes
         const classes = await this.api.getClasses();

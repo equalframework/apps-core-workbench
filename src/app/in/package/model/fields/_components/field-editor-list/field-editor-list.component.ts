@@ -13,17 +13,17 @@ export class FieldEditorListComponent implements OnInit {
   @Input() parentList: Field[]
   @Input() selectedIndex: number
 
-  @Output() select = new EventEmitter<number>()
-  @Output() CRUD = new EventEmitter<string>()
+  @Output() select = new EventEmitter<number>();
+  @Output() CRUD = new EventEmitter<string>();
 
-  public filteredList: Field[]
+  public filteredList: Field[];
 
-  public searchInput: string
+  public searchInput: string;
 
-  public filterControl = new FormControl("")
-  public incremeter = 0
+  public filterControl = new FormControl("");
+  public incremeter = 0;
 
-  public createControl = new FormControl("")
+  public createControl = new FormControl("");
 
   public iconList: { [id: string]: string } = {
     "string": "format_quote",

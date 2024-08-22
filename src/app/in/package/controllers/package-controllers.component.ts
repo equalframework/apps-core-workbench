@@ -67,7 +67,7 @@ export class PackageControllersComponent implements OnInit {
     }
 
     private async loadControllers() {
-        this.loading = false;
+        this.loading = true;
         this.controllers = await this.api.getControllers(this.package_name);
         this.loading = false;
     }

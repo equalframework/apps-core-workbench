@@ -60,7 +60,7 @@ export class EmbeddedApiService {
         return [];
     }
 
-    public async listAllModels():Promise<string[]> {
+    public async listAllModels(): Promise<string[]> {
         try {
             let x = (await this.api.fetch('?get=core_config_classes'));
             let ret:string[] = [];

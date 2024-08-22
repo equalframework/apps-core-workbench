@@ -6,32 +6,36 @@
 <mat-list class="list scrollable">
     <mat-list-item *ngFor="let node of filteredData" class="scrollable">
         <ng-container *ngIf="!node.deleted">
-            <ng-container *ngIf="editingNode === node; else displayMode" class="node_container">
+            <ng-container *ngIf="areNodesEqual(node, editingNode); else displayMode" class="node_container">
                 <div class="node_container">
                     <mat-form-field class="editedNode">
                         <div style="display: flex;">
-                            <input matInput [(ngModel)]="node.name" name="editedNode" (keyup)="reformatTextRename(node)">
-                            <button *ngIf="editedNode !== editingNode" mat-icon-button aria-label="Approve editing node">
+                            <input matInput [(ngModel)]="node.name" (keyup)="reformatTextRename(node)">
+                            <button *ngIf="!areNodesEqual(editedNode, editingNode)" mat-icon-button aria-label="Approve editing node">
                                 <mat-icon matSuffix>check_circle</mat-icon>
                             </button>
                         </div>
                     </mat-form-field>
                     <button mat-icon-button aria-label="Cancel editing node">
-                        <mat-icon (click)="onCancelEdit()">cancel</mat-icon>
+                        <mat-icon (click)="onclickCancelEdit()">cancel</mat-icon>
                     </button>
                 </div>
             </ng-container>
             <ng-template #displayMode class="node_container node_hover">
                 <ng-container *ngIf="!node.inherited; else uneditablemod">
                 <ng-container>
-                    <div class="node_container" [class.node-hover]="selected_node != node" [class.node-selected]="selected_node == node" [class.node-edited]="!node.synchronised" [class.node-created]="node.isNew">
-                        <div class="pointable node-text" (click)="onclickNodeSelect(node)">{{ node.name }}</div>
+                    <div class="node_container"
+                            [class.node-hover]="!areNodesEqual(node, node_selected)"
+                            [class.node-selected]="areNodesEqual(node, node_selected)"
+                            [class.node-edited]="!node.synchronised"
+                            [class.node-created]="node.isNew">
+                        <div class="pointable node-text" (click)="onclickSelect(node)">{{ node.name }}</div>
                         <div class="icons">
                             <button mat-icon-button aria-label="Edit node button">
                                 <mat-icon (click)="onEditNode(node)">edit</mat-icon>
                             </button>
                             <button mat-icon-button aria-label="Delete node button">
-                                <mat-icon (click)="openDeleteConfirmationDialog(node)">delete</mat-icon>
+                                <mat-icon (click)="onclickDelete(node)">delete</mat-icon>
                             </button>
                         </div>
                     </div>
@@ -39,8 +43,8 @@
             </ng-container>
             </ng-template>
             <ng-template #uneditablemod class="node_container node_hover node_uneditable">
-                <div class="node_container node_uneditable" [class.node-selected]="selected_node == node">
-                    <div class="pointable node-text" (click)="onclickNodeSelect(node)">{{ node.name }}</div>
+                <div class="node_container node_uneditable" [class.node-selected]="areNodesEqual(node, node_selected)">
+                    <div class="pointable node-text" (click)="onclickSelect(node)">{{ node.name }}</div>
                 </div>
             </ng-template>
         </ng-container>
@@ -49,7 +53,7 @@
 
 <div class="add_container">
     <mat-form-field class="input search-bar" title="name of the new field">
-        <input matInput [(ngModel)]="inputValue" placeholder="new field name" (keyup)="reformatTextCreate()">
+        <input matInput [(ngModel)]="input_value" placeholder="new field name" (keyup)="reformatTextCreate()">
     </mat-form-field>
     <button mat-icon-button class="add_button" title="create a new field">
         <mat-icon class="icon pointable" (click)="onclickCreate()">add</mat-icon>

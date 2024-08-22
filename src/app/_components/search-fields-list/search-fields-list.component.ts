@@ -4,6 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { FieldClassArray } from '../../in/package/models/_object/FieldClassArray';
 import { FieldClass } from '../../in/package/models/_object/FieldClass';
 import { DeleteConfirmationDialogComponent } from 'src/app/_dialogs/delete-confirmation-dialog/delete-confirmation-dialog.component';
+import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 @Component({
     selector: 'search-fields-list',
@@ -13,44 +14,88 @@ import { DeleteConfirmationDialogComponent } from 'src/app/_dialogs/delete-confi
 })
 
 /**
+ * #memo - This component does not make a distinction between inherited fields and native ones
+ * Route `package/:package_name/model/:class_name/` uses its own field-editor-list
+ */
+
+/**
  * @see SearchListComponent
  * @see FieldClass
  * Supercharged version of SearchListComponent to display FieldClass element
  */
 export class SearchFieldsListComponent implements OnInit {
 
-    @Input() data: FieldClass[];
-    @Input() selected_node: FieldClass|undefined;
-    @Output() nodeSelect = new EventEmitter<FieldClass>();
-    @Output() nodeDelete = new EventEmitter<FieldClass>();
-    @Output() nodeCreate = new EventEmitter<string>();
+    // Selected node of the list (consistent with node_type, if provided): parent might force the selection of a node (goto)
+    @Input() node_selected?: FieldClass;
 
-    public inheritdict:{[id:string]:boolean}
-    public inputValue: string = '';
-    public searchvalue:string = '';
+    @Input() package_name: string = '';
+
+    // name of the Entity with full namespace for which fields are displayed
+    @Input() class_name: string = '';
+
+    @Output() selectNode = new EventEmitter<FieldClass>();
+    @Output() deleteNode = new EventEmitter<FieldClass>();
+    @Output() updateNode = new EventEmitter<string>();
+    @Output() createNode = new EventEmitter<string>();
+
+    // Array of fields fetched from server (schema)
+    public elements: FieldClass[] = [];
+
+    public loading: boolean = false;
+
+    // filtered derivative of `elements` with purpose to be displayed
     public filteredData: FieldClass[];
 
-    public editingNode: FieldClass|undefined = undefined;
-    public editedNode: FieldClass|undefined = undefined;
+    // input value for new field creation
+    public input_value: string = '';
+
+    // value part of the search bar field (parsed in onSearch() method)
+    public search_value: string = '';
+
+    // used to render info about components present in filteredData (or data)
+    public fields_dict: {[id:string]:boolean};
+
+    public editingNode: FieldClass;
+    public editedNode: FieldClass;
 
     constructor(
+            private api: WorkbenchService,
             private dialog: MatDialog,
             private snackBar: MatSnackBar
         ) { }
 
-    public ngOnInit(): void {
+    public async ngOnInit() {
+        this.loading = true;
+
+        await this.loadNodes();
+
+        this.loading = false;
     }
 
     public ngOnChanges() {
         try {
-            this.inheritdict = {};
-            this.data.forEach((field) => { this.inheritdict[field.name] = field.inherited; });
+            this.fields_dict = {};
+            this.elements.forEach((field) => { this.fields_dict[field.name] = field.inherited; });
         }
         catch {
-            this.inheritdict = {};
+            this.fields_dict = {};
         }
-        if (Array.isArray(this.data)) {
-            this.filteredData = [...this.data];
+        if(Array.isArray(this.elements)) {
+            this.filteredData = [...this.elements];
+        }
+    }
+
+    private async loadNodes() {
+        try {
+            const schema = await this.api.getSchema(this.class_name);
+            console.log();
+            for(let item in schema['fields']) {
+                const field = schema['fields'][item];
+                this.elements.push(new FieldClass(field.name));
+            }
+        }
+        catch(response) {
+
         }
     }
 
@@ -60,8 +105,8 @@ export class SearchFieldsListComponent implements OnInit {
      * @param value value of the filter
      */
     public onSearch(value: string) {
-        this.searchvalue = value
-        this.filteredData = this.data.filter(node => node.name.toLowerCase().includes(value.toLowerCase()));
+        this.search_value = value
+        this.filteredData = this.elements.filter(node => node.name.toLowerCase().includes(value.toLowerCase()));
     }
 
     /**
@@ -69,8 +114,7 @@ export class SearchFieldsListComponent implements OnInit {
      *
      * @param node value of the node which is clicked on
      */
-    public onclickNodeSelect(node:FieldClass){
-        // TODO
+    public onclickSelect(node:FieldClass){
         if (node.inherited) {
             this.snackBar.open('This field is inherited.', '', {
                 duration: 1000,
@@ -78,7 +122,7 @@ export class SearchFieldsListComponent implements OnInit {
                 verticalPosition: 'bottom'
             });
         }
-        this.nodeSelect.emit(node);
+        this.selectNode.emit(node);
     }
 
     /**
@@ -86,34 +130,26 @@ export class SearchFieldsListComponent implements OnInit {
      *
      * @param node value of the node which is deleted
      */
-    public deleteNode(node:FieldClass){
-        const index = this.data.indexOf(node);
-        const index_filtered_data = this.filteredData.indexOf(node);
-        if (index >= 0 && index_filtered_data >= 0) {
-            let timerId: any;
-            timerId = setTimeout(() => {
-                this.nodeDelete.emit(node);
-                this.filteredData.splice(index_filtered_data,1)
-            }, 1000);
-            this.snack('Deleted', timerId);
-            return
-        }
-    }
+    public onclickDelete(node: FieldClass) {
+        var name = node.name;
 
-    /**
-     * Open a pop-up if delete icon is clicked.
-     *
-     * @param node name of node that the user want to delete
-     */
-    public openDeleteConfirmationDialog(node:FieldClass) {
-        var name = node.name
         const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent, {
             data: { name },
         });
 
         dialogRef.afterClosed().subscribe((result) => {
-            if (result) {
-                this.deleteNode(node);
+            if(result) {
+                const index = this.elements.indexOf(node);
+                const index_filtered_data = this.filteredData.indexOf(node);
+                if (index >= 0 && index_filtered_data >= 0) {
+                    let timerId: any;
+                    timerId = setTimeout(() => {
+                        this.deleteNode.emit(node);
+                        this.filteredData.splice(index_filtered_data,1)
+                    }, 1000);
+                    this.snack('Deleted', timerId);
+                    return;
+                }
             }
         });
     }
@@ -128,26 +164,21 @@ export class SearchFieldsListComponent implements OnInit {
         this.editedNode = node;
     }
 
-    public onCancelEdit() {
-        this.cancelEdit();
-    }
-
-    private cancelEdit() {
-        this.editingNode = undefined;
-        this.editedNode = undefined;
+    public onclickCancelEdit() {
+        this.editingNode.name = '__invalidated';
     }
 
     public onclickCreate() {
-        if(!this.inputValue.replaceAll(' ', '').length) {
+        if(!this.input_value.replaceAll(' ', '').length) {
             this.snackBar.open("You can't make a field with an empty name.")
             return;
         }
 
-        this.nodeCreate.emit(this.inputValue);
-        this.inputValue = '';
+        this.createNode.emit(this.input_value);
+        this.input_value = '';
 
         setTimeout(() => {
-                this.filteredData = this.data.filter(node => node.name.toLowerCase().includes(this.searchvalue.toLowerCase()));
+                this.filteredData = this.elements.filter(node => node.name.toLowerCase().includes(this.search_value.toLowerCase()));
             }, 1000);
 
     }
@@ -164,11 +195,26 @@ export class SearchFieldsListComponent implements OnInit {
     }
 
     public reformatTextCreate() {
-        this.inputValue = this.inputValue.replace(' ','-');
+        this.input_value = this.input_value.replace(' ','-');
     }
 
     public reformatTextRename(node:FieldClass) {
         node.name = node.name.replace(' ', '-');
         node.checkSync();
     }
+
+    public areNodesEqual(node1: FieldClass, node2: FieldClass | undefined) {
+        // console.log('comparing', node1, node2);
+        return (node1?.name === node2?.name);
+    }
+
+    public cloneNode(node: FieldClass): FieldClass {
+        return new FieldClass(
+                node.name,
+                node.inherited,
+                node.synchronised,
+                JSON.parse(JSON.stringify(node.current_scheme ?? {}))
+            );
+    }
+
 }

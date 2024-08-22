@@ -377,7 +377,7 @@ export class WorkbenchService extends EmbeddedApiService {
 
 
     /**
-     * // TODO
+     * Fetch the schema of a given entity.
      *
      * @param entity
      * @returns

@@ -15,7 +15,6 @@
         </div>
         <div class="button" *ngIf="!item.isUneditable && !isInherited(item)">
             <button mat-icon-button (click)="deleteItem(list.indexOf(item))"><mat-icon>delete</mat-icon></button>
-            
         </div>
         <div class="button" *ngIf="isOverrided(item) && !item.isUneditable">
             <button mat-icon-button (click)="resetFieldToParent(list.indexOf(item))"><mat-icon>close</mat-icon></button>
