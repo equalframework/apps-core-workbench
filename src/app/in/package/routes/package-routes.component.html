@@ -20,7 +20,7 @@
     </div>
 
     <div class="right_pane">
-        <info-route [route]="selected_route">
+        <info-route *ngIf="selected_route" [route]="selected_route">
         </info-route>
     </div>
 </div>

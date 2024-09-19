@@ -12,9 +12,9 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 @Component({
-  selector: 'package-menu',
-  templateUrl: './package-menu.component.html',
-  styleUrls: ['./package-menu.component.scss'],
+    selector: 'package-menu',
+    templateUrl: './package-menu.component.html',
+    styleUrls: ['./package-menu.component.scss'],
 })
 export class PackageMenuComponent implements OnInit, OnDestroy {
 

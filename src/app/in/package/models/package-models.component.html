@@ -14,13 +14,13 @@
                 [node_type]="'class'"
                 [package_name]="package_name"
                 (selectNode)="onSelectNode($event)"
-                (updateNode)="onupdateNode($event)"
-                (deleteNode)="ondeleteNode($event)">
+                (updateNode)="onUpdateNode($event)"
+                (deleteNode)="onDeleteNode($event)">
         </search-mixed-list>
     </div>
 
     <div class="right_pane">
-        <info-model [model]="selected_class">
+        <info-model *ngIf="selected_class" [model]="selected_class">
         </info-model>
     </div>
 </div>

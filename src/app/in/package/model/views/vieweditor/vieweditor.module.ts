@@ -34,8 +34,8 @@ import { WorkbenchModule } from 'src/app/_modules/workbench.module';
 
 import { RouteEditorComponent } from './_components/route-editor/route-editor.component';
 import { RouteEditComponent } from './_components/route-editor/route-edit/route-edit.component';
-import { PopupLayoutModule } from '../../../../popup-layout/popup-layout.module';
-import { UsagesModule } from '../../../../usages/usages.module';
+import { PopupLayoutModule } from 'src/app/in/popup-layout/popup-layout.module';
+import { UsagesModule } from 'src/app/in/usages/usages.module';
 
 
 @NgModule({

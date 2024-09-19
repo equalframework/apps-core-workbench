@@ -9,7 +9,7 @@ import { PackageControllersComponent } from './package-controllers.component';
 import { ControllersRoutingModule } from './controllers-routing.module';
 
 
-import { UsagesModule } from '../../usages/usages.module';
+import { UsagesModule } from 'src/app/in/usages/usages.module';
 
 import { WorkbenchModule } from 'src/app/_modules/workbench.module';
 

@@ -5,6 +5,9 @@ import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MixedCreatorDialogComponent } from 'src/app/_modules/workbench.module';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
     selector: 'package-model-views',
@@ -14,9 +17,16 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 })
 export class PackageModelViewsComponent implements OnInit {
 
+    // rx subject for unsubscribing subscriptions on destroy
+    private ngUnsubscribe = new Subject<void>();
+
     public selected_package: string = '';
     public views_for_selected_package: string[] = [];
-    public selected_view: string = '';
+
+    public package_name: string = '';
+    public view_name: string = '';
+
+    public selected_view: EqualComponentDescriptor;
 
     public type: string|null;
     public entity: string;
@@ -25,7 +35,7 @@ export class PackageModelViewsComponent implements OnInit {
 
   constructor(
             private api: EmbeddedApiService,
-            private activatedRoute: ActivatedRoute,
+            private route: ActivatedRoute,
             private router: RouterMemory,
             private matDialog: MatDialog,
             private snackBar: MatSnackBar
@@ -38,12 +48,12 @@ export class PackageModelViewsComponent implements OnInit {
 
     async init() {
         this.loading = true;
-        this.type = this.activatedRoute.snapshot.paramMap.get('type');
-        let a = this.activatedRoute.snapshot.paramMap.get('entity');
-        this.entity = a ? a : "";
-        this.views_for_selected_package = await this.getViewForSelectedPackage();
-        let args = this.router.retrieveArgs()
-        if(args && args["view"]) this.onclickViewSelect(args["view"]);
+        this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
+            this.package_name = params['package_name'];
+            this.view_name = params['view_name'];
+            // this.loadViews();
+        });
+
         this.loading = false;
     }
 
@@ -62,50 +72,67 @@ export class PackageModelViewsComponent implements OnInit {
         else return []
     }
 
-  public getBack() {
-    this.router.goBack()
-  }
+    public getBack() {
+        this.router.goBack()
+    }
 
-  public onclickViewSelect(event:string) {
-    this.selected_view = event
-  }
+    public onclickViewSelect(eq_view: EqualComponentDescriptor) {
+        this.selected_view = eq_view;
+    }
 
-  public onupdateView(event:any) {}
+    public onupdatedList() {
+        
+    }
 
-  public async ondeleteView(event:string) {
-    let sp = event.split(":")
-    let res = await this.api.deleteView(sp[0],sp[1])
-    this.init()
-    if(!res) this.snackBar.open("Deleted")
-    else this.snackBar.open(res)
-  }
+    /**
+     * Select a node.
+     *
+     * @param eq_route the route that the user has selected
+     */
+    public async onSelectNode(eq_view: EqualComponentDescriptor) {
+        this.selected_view = eq_view;
+    }
 
-  public oncreateView() {
-    console.log(this.entity)
-    let d = this.matDialog.open(MixedCreatorDialogComponent,{
-      data : this.type === "package" ?
-        {
-          type:"view",
-          package: this.entity,
-          lock_type : true,
-          lock_package: true
-        }
-        :
-        {
-          type:"view",
-          package: this.entity?.split('\\')[0],
-          model : this.entity?.split("\\").slice(1).join("\\"),
-          lock_type : true,
-          lock_package: true,
-          lock_model : true
-        },width : "40em",height: "26em"
-    })
-    d.afterClosed().subscribe(() => {
-      this.init()
-    });
-  }
+    public onUpdateNode(event: any) {
 
-  goto() {
-    this.router.navigate(["/views_edit",this.selected_view],{"view":this.selected_view})
-  }
+    }
+
+    public async onDeleteNode(eq_view: EqualComponentDescriptor) {
+        /*
+        let sp = event.split(":")
+        let res = await this.api.deleteView(sp[0],sp[1])
+        this.init()
+        if(!res) this.snackBar.open("Deleted")
+        else this.snackBar.open(res)
+        */
+    }
+
+    public onCreateView() {
+        console.log(this.entity)
+        let d = this.matDialog.open(MixedCreatorDialogComponent,{
+        data : this.type === "package" ?
+            {
+                type:"view",
+                package: this.entity,
+                lock_type : true,
+                lock_package: true
+            }
+            :
+            {
+                type:"view",
+                package: this.entity?.split('\\')[0],
+                model : this.entity?.split("\\").slice(1).join("\\"),
+                lock_type : true,
+                lock_package: true,
+                lock_model : true
+            },width : "40em",height: "26em"
+        })
+        d.afterClosed().subscribe(() => {
+        this.init()
+        });
+    }
+
+    goto() {
+        // this.router.navigate(["/views_edit",this.selected_view],{"view":this.selected_view})
+    }
 }

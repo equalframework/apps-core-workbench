@@ -6,7 +6,7 @@ import { cloneDeep, update } from 'lodash';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MixedCreatorDialogComponent, DeleteConfirmationDialogComponent} from 'src/app/_modules/workbench.module';
-import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
+import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
@@ -30,17 +30,17 @@ export class PackageRoutesComponent implements OnInit {
     public selected_route: EqualComponentDescriptor;
 
     public routes_for_selected_package: string[] = [];
+    public real_name:{[id:string]:string} = {};
 
     public schema: any;
     public types: any;
 
-    public real_name:{[id:string]:string} = {};
 
     public ready = false;
     public loading = true;
 
     constructor(
-            private api: EmbeddedApiService,
+            private api: WorkbenchService,
             private route: ActivatedRoute,
             private location: Location,
             public matDialog:MatDialog,

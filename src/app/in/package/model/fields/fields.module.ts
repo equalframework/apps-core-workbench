@@ -5,7 +5,7 @@ import { ClassicLayoutModule } from '../../../classic-layout/classic-layout.modu
 import { FieldEditorListComponent } from './_components/field-editor-list/field-editor-list.component';
 import { PackageModelFieldsComponent } from './package-model-fields.component';
 import { FieldEditorSpComponent } from './_components/field-editor-sp/field-editor-sp.component';
-import { UsagesModule } from '../../../usages/usages.module';
+import { UsagesModule } from 'src/app/in/usages/usages.module';
 
 import { FieldAutocompleteComponent } from './_components/field-autocomplete/field-autocomplete.component';
 import { PropertyDomainModule } from 'src/app/_components/property-domain-component/property-domain.module';

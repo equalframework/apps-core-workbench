@@ -46,10 +46,12 @@ export class SearchMixedListComponent implements OnInit {
         }
     */
 
-    // Used to send selected object reference to parent
+    // event for notifying parent that selected object has changed
     @Output() selectNode = new EventEmitter<EqualComponentDescriptor>();
     @Output() updateNode = new EventEmitter<{old_node: EqualComponentDescriptor, new_node: EqualComponentDescriptor}>();
     @Output() deleteNode = new EventEmitter<EqualComponentDescriptor>();
+    // event for notifying parent that the list has been updated and needs to be refreshed
+    @Output() updated = new EventEmitter();
 
     // Array of all components fetched from server
     public elements: EqualComponentDescriptor[] = [];
@@ -362,7 +364,7 @@ export class SearchMixedListComponent implements OnInit {
 
         d.afterClosed().subscribe(() => {
             // Do stuff after the dialog has closed
-            this.updateNode.emit();
+            this.updated.emit();
             this.onSearch();
         });
 

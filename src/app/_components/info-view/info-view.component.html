@@ -1,40 +1,61 @@
-<div *ngIf="view_ref ===''" class="full margin-container">
-    <label class="packagename">Select package to show properties.</label>
-</div>
+<div *ngIf="loading" class="loader"><mat-spinner></mat-spinner></div>
 
-<div *ngIf="view_ref !=='' && !view_scheme" class="full">
-    This view seems to be malformed
-</div>
+<ng-container *ngIf="!loading && !view">
+    Select a view amongst the list to see its details.
+</ng-container>
 
-<div *ngIf="view_ref !=='' && view_scheme" class="full margin-container">
-    <div class="controller-container-top">
-        <div class="flex-labels">
-            <label class="viewname">View : </label>
-            <label class="viewname accent">{{ view_scheme["name"] }}</label>
+<ng-container *ngIf="!loading && view">
+    <div class="header">
+        <div class="main">
+            <div class="title">
+                <label>View :</label>
+                <label class="accent">{{view?.package_name}}\{{ view?.name }}</label>
+            </div>
+            <div class="actions">
+            </div>
         </div>
-        <div>
-            <label class="subpart-title">{{view_scheme['description']}}</label>
+        <div class="description">
+            <label>{{view_schema?.description}}</label>
         </div>
-
-        <!-- #todo - add view summary -->
-
-
+        <div class="status">
+        </div>
+        <div class="meta">
+            <!--
+            <div><label>Declared in </label><label class="primary filename">{{model.file}}</label></div>
+            <div><label>Extends </label><label class="primary">{{schema['parent']}}</label></div>
+            <div><label>DB Table </label><label class="primary">{{schema['table']}}</label></div>
+            -->
+        </div>
     </div>
-    <div class="controller-container-bottom">
-        <br>
-        <mat-grid-list [cols]="4" rowHeight="5.5em" class="max-width button-pkg-container">
+
+    <div class="body">
+
+        <ng-container>
+
+            <div class="header">
+                <div>
+                    <label class="primary">{{getFieldsCount()}} </label><label>Fields</label>
+                </div>
+            </div>
+
+            <div class="items" >
+
+            </div>
+        </ng-container>
+    </div>
+
+    <div class="footer">
+        <mat-grid-list
+                [cols]="4"
+                rowHeight="100%">
             <mat-grid-tile>
-                <button mat-button class="view-info-button" (click)="onEditClick()">
-                    <mat-icon>edit</mat-icon>
-                    <label>edit view</label>
-                </button>
+                <button mat-button class="node-info-button" (click)="onclickEdit()"><mat-icon>edit</mat-icon><label>Edit view</label></button>
             </mat-grid-tile>
             <mat-grid-tile>
-                <button mat-button class="view-info-button" (click)="onTranslationClick()">
-                    <mat-icon>translate</mat-icon>
-                    <label>Translations</label>
-                </button>
+                <button mat-button class="node-info-button" (click)="onclickTranslations()"><mat-icon>translate</mat-icon><label>Translations</label></button>
             </mat-grid-tile>
         </mat-grid-list>
     </div>
-</div>
+
+</ng-container>
+

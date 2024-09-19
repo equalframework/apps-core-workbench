@@ -34,8 +34,6 @@ export class PackageModelsComponent implements OnInit, OnDestroy {
 
     public selected_field: FieldClass|undefined = undefined;
 
-    public classes_for_selected_package: string[] = [];
-
     // http://equal.local/index.php?get=config_packages
     public packages: string[];
 
@@ -78,7 +76,6 @@ export class PackageModelsComponent implements OnInit, OnDestroy {
 
         this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
                 this.package_name = params['package_name'];
-                this.classes_for_selected_package = this.eq_class[this.package_name];
                 this.ready = true;
                 this.loading = false;
             });
@@ -116,7 +113,7 @@ export class PackageModelsComponent implements OnInit, OnDestroy {
      *
      * @param event contains the old and new name of the class
      */
-    public onupdateNode(change: {old_node: EqualComponentDescriptor, new_node: EqualComponentDescriptor}) {
+    public onUpdateNode(change: {old_node: EqualComponentDescriptor, new_node: EqualComponentDescriptor}) {
     }
 
     /**
@@ -124,7 +121,7 @@ export class PackageModelsComponent implements OnInit, OnDestroy {
      *
      * @param eq_class the name of the class which will be deleted
      */
-    public async ondeleteNode(eq_class: EqualComponentDescriptor) {
+    public async onDeleteNode(eq_class: EqualComponentDescriptor) {
         let res = await this.api.deleteModel(this.package_name, eq_class.name)
         if(!res){
             this.snackBar.open('Deleted');

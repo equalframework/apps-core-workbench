@@ -11,7 +11,7 @@ import { EntitiesEditorComponent } from './_components/entities-editor/entities-
 import { PropertyDomainModule } from 'src/app/_components/property-domain-component/property-domain.module';
 import { UmlErdNodeComponent } from './_components/uml-erd-node/uml-erd-node.component';
 import { FileSaverComponent } from './_components/file-saver/file-saver.component';
-import { PopupLayoutModule } from '../popup-layout/popup-layout.module';
+import { PopupLayoutModule } from 'src/app/in/popup-layout/popup-layout.module';
 import { FileLoaderComponent } from './_components/file-loader/file-loader.component';
 import { DialogConfirmComponent } from './_components/dialog-confirm/dialog-confirm.component';
 

@@ -12,7 +12,7 @@ import { ControllersRoutingModule } from './controller-routing.module';
 import { PackageControllerParamsComponent } from './params/package-controller-params.component';
 import { ParamListComponent } from './params/_components/param-list/param-list.component';
 import { ParamSidePaneComponent } from './params/_components/param-side-pane/param-side-pane.component';
-import { UsagesModule } from '../../usages/usages.module';
+import { UsagesModule } from 'src/app/in/usages/usages.module';
 
 import { AutoCompleteComponent } from './params/_components/param-side-pane/_component/property-domain-component_deprecated/_components/auto-complete/auto-complete.component';
 import { ValueComponent } from './params/_components/param-side-pane/_component/property-domain-component_deprecated/_components/value/value.component';

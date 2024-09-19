@@ -28,6 +28,12 @@ const routes: Routes = [
         component: InitDataComponent
     },
     */
+   /*
+    {
+        path: 'view/:view_name',
+        loadChildren: () => import('./model/view.module').then(m => m.PackageViewModule)
+    },
+    */
     {
         path: 'views',
         loadChildren: () => import('./views/views.module').then(m => m.PackageViewsModule)
@@ -57,8 +63,8 @@ const routes: Routes = [
         component: PackageRoutesComponent
     },
     {
-        path: ':package_name',
-        component: PackageRoutesComponent
+        path: 'view/:view_name',
+        loadChildren: () => import('./view/view.module').then(m => m.PackageViewModule)
     },
     // wildcard route (accept root and any sub route that does not match any of the routes above)
     {

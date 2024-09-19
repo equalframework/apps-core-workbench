@@ -1,29 +1,44 @@
-<ng-container *ngIf="!loading">
-    <div class="full">
-        <app-inner-header
+<div class="app-inner-header">
+    <app-inner-header
             [buttonBack]="true"
             (onButtonBack)="getBack()">
-            <label class="package-label">{{entity.replaceAll("%5C","\\").split("\\",1)}}</label>
-            <ng-container *ngIf="entity.replaceAll('%5C','\\').split('\\').length > 1">
-                <label>\</label>
-                <label class="model-label">{{entity.replaceAll("%5C","\\").split("\\").slice(1).join("\\")}}</label>
-            </ng-container>
-            <label>:</label>
-            <label class="view-label"><mat-icon>view_quilt</mat-icon>View</label>
-        </app-inner-header>
+        <label class="package-label">{{ package_name }}</label>\<label class="node-label"><mat-icon>view_quilt</mat-icon>Views</label>
+    </app-inner-header>
+</div>
+
+<div class="app-inner-body">
+    <div class="left_pane">
+        <search-mixed-list
+                [node_type]="'view'"
+                [package_name]="package_name"
+                [node_selected]="selected_view"
+                (selectNode)="onSelectNode($event)"
+                (updateNode)="onUpdateNode($event)"
+                (deleteNode)="onDeleteNode($event)"
+                (updated)="onupdatedList()">
+        </search-mixed-list>
+    </div>
+
+    <div class="right_pane">
+        <info-view *ngIf="selected_view" [view]="selected_view">
+        </info-view>
+    </div>
+</div>
+
+<!--
+<ng-container *ngIf="!loading">
+
         <div>
-            <search-views-list list class="full"
+            <search-views-list class="full"
                 [data]="views_for_selected_package"
                 [selected_node]="selected_view"
                 (nodeSelect)="onclickViewSelect($event)"
                 (nodeUpdate)="onupdateView($event)"
                 (nodeDelete)="ondeleteView($event)"
-                (nodeCreate)="oncreateView()">
+                (updated)="oncreateView()">
             </search-views-list>
-            <info-view sidepane class="full"
-                [view_ref]="selected_view"
-                (goto)="goto()">
-            </info-view>
+
         </div>
-    </div>
+
 </ng-container>
+-->

@@ -40,151 +40,152 @@ export class MixedCreatorDialogComponent implements OnInit {
                     });
                 }
                 break;
-        case "menu":
-            this.need_package = true;
-            //this.need_model = true;
-            this.need_subtype = true;
-            this.implemented = true;
-            this.subtypelist = ["left","top"];
-            this.subtypename = "View Type";
-            this.cachelist = [];
-            if(this.selected_package !== "") {
-                let x = await this.api.getMenusByPackage(this.selected_package);
-                x.forEach(item => {
-                    return this.cachelist?.push(item.split(".")[0])
-                });
-            }
-            break;
-        case "class":
-            this.need_package = true;
-            this.implemented = true;
-            this.need_subtype = true;
-            this.subtypename = "Extends from";
-            if(this.selected_package !== "") {
-                let x:string[] = (await this.api.listAllModels());
-                this.subtypelist = ["equal\\orm\\Model",...x];
-                this.cachelist = this.cachemodellist;
-            }
-            break;
-      case "do":
-        this.need_package = true
-        this.implemented = true
-        this.need_subtype = false
-        if(this.selected_package) {
-          this.cachelist = (await this.api.listControlerFromPackageAndByType(this.selected_package,"actions"))
-        }
-        break
-        case "get":
-            this.need_package = true;
-            this.implemented = true;
-            this.need_subtype = false;
-            if(this.selected_package) {
-                this.cachelist = (await this.api.listControlerFromPackageAndByType(this.selected_package,"data"));
-            }
-            break;
-        case "route":
-            this.implemented = true;
-            this.need_package = true;
-            this.need_subtype = true;
-            this.can_add_subtypes = true;
-            this.subtypename = "File";
-            this.name_title = "URL";
-            if(this.selected_package) {
-                let x = await this.api.getRoutesByPackage(this.selected_package);
-                this.subtypelist = Object.keys(x);
+            case "menu":
+                this.need_package = true;
+                //this.need_model = true;
+                this.need_subtype = true;
+                this.implemented = true;
+                this.subtypelist = ["left","top"];
+                this.subtypename = "View Type";
                 this.cachelist = [];
-                if(x[this.subtype] && !this.addingState){
-                    for(let key in x[this.subtype]) {
-                    this.cachelist.push(key);
+                if(this.selected_package !== "") {
+                    let x = await this.api.getMenusByPackage(this.selected_package);
+                    x.forEach(item => {
+                        return this.cachelist?.push(item.split(".")[0])
+                    });
+                }
+                break;
+            case "class":
+                this.need_package = true;
+                this.implemented = true;
+                this.need_subtype = true;
+                this.subtypename = "Extends from";
+                if(this.selected_package !== "") {
+                    let x:string[] = (await this.api.listAllModels());
+                    this.subtypelist = ["equal\\orm\\Model",...x];
+                    this.cachelist = this.cachemodellist;
+                }
+                break;
+            case "do":
+                this.need_package = true;
+                this.implemented = true;
+                this.need_subtype = false;
+                if(this.selected_package) {
+                    this.cachelist = (await this.api.listControlerFromPackageAndByType(this.selected_package,"actions"))
+                }
+                break;
+            case "get":
+                this.need_package = true;
+                this.implemented = true;
+                this.need_subtype = false;
+                if(this.selected_package) {
+                    this.cachelist = (await this.api.listControlerFromPackageAndByType(this.selected_package,"data"));
+                }
+                break;
+            case "route":
+                this.implemented = true;
+                this.need_package = true;
+                this.need_subtype = true;
+                this.can_add_subtypes = true;
+                this.subtypename = "File";
+                this.name_title = "URL";
+                if(this.selected_package) {
+                    let x = await this.api.getRoutesByPackage(this.selected_package);
+                    this.subtypelist = Object.keys(x);
+                    this.cachelist = [];
+                    if(x[this.subtype] && !this.addingState){
+                        for(let key in x[this.subtype]) {
+                        this.cachelist.push(key);
+                        }
+                    }
+                    else if(this.addingState) {
+                        this.custom_st_list = await this.api.getAllRouteFiles();
                     }
                 }
-                else if(this.addingState) {
-                    this.custom_st_list = await this.api.getAllRouteFiles();
-                }
-            }
-            break;
-      default:
-        this.implemented = false;
-    }
+                break;
+        default:
+            this.implemented = false;
+        }
     }
 
     protected namecasing() {
-    switch(this.type){
-        case "package":
-        this.nameControl.addValidators(MixedCreatorDialogComponent.snake_case)
-        break;
-        case "view":
-        this.nameControl.addValidators(MixedCreatorDialogComponent.snake_case)
-        break;
-        case "menu" :
-        this.nameControl.addValidators(MixedCreatorDialogComponent.snake_case)
-        break;
-        case "class":
-        this.nameControl.addValidators(MixedCreatorDialogComponent.camelCase)
-        break;
-        case "do":
-        case "get":
-        this.nameControl.addValidators(MixedCreatorDialogComponent.snake_case_controller)
-        break
-        case "route":
-        this.nameControl.addValidators(MixedCreatorDialogComponent.url_case_controller)
-        this.customSTControl.addValidators(MixedCreatorDialogComponent.route_file_controller)
-        this.customSTControl.addValidators(MixedCreatorDialogComponent.already_taken(this.custom_st_list))
+        switch(this.type) {
+            case "package":
+                this.nameControl.addValidators(MixedCreatorDialogComponent.snake_case);
+                break;
+            case "view":
+                this.nameControl.addValidators(MixedCreatorDialogComponent.snake_case);
+                break;
+            case "menu" :
+                this.nameControl.addValidators(MixedCreatorDialogComponent.snake_case);
+                break;
+            case "class":
+                this.nameControl.addValidators(MixedCreatorDialogComponent.camelCase);
+                break;
+            case "do":
+            case "get":
+                this.nameControl.addValidators(MixedCreatorDialogComponent.snake_case_controller);
+                break;
+            case "route":
+                this.nameControl.addValidators(MixedCreatorDialogComponent.url_case_controller);
+                this.customSTControl.addValidators(MixedCreatorDialogComponent.route_file_controller);
+                this.customSTControl.addValidators(MixedCreatorDialogComponent.already_taken(this.custom_st_list));
+                break;
         }
     }
 
-  async create() {
-    switch (this.type) {
-      case "package":
-        await this.api.createPackage(this.nameControl.value)
-        this.dialogRef.close()
-        break
-      case "view" :
-        await this.api.createView(this.selected_package+"\\"+this.selected_model,this.subtype+"."+this.nameControl.value)
-        this.dialogRef.close()
-        break
-      case "menu" :
-        await this.api.createView(this.selected_package+"\\menu",this.nameControl.value+"."+this.subtype)
-        this.dialogRef.close()
-        break
-      case "class" :
-        await this.api.createModel(this.selected_package,this.nameControl.value,this.subtype)
-        this.dialogRef.close()
-        break;
-      case "do" :
-        await this.api.createController(this.selected_package,this.nameControl.value,"do")
-        this.dialogRef.close()
-        break;
-      case "get" :
-        await this.api.createController(this.selected_package,this.nameControl.value,"get")
-        this.dialogRef.close()
-        break;
-      case "route" :
-        await this.api.createroute(
-          this.selected_package,
-          this.addingState ? this.customSTControl.value : this.subtype,
-          this.nameControl.value
-        )
-        this.dialogRef.close()
-        break;
-      default:
-        this.dialogRef.close()
+    async create() {
+        switch (this.type) {
+            case "package":
+                await this.api.createPackage(this.nameControl.value);
+                this.dialogRef.close();
+                break
+            case "view" :
+                await this.api.createView(this.selected_package + "\\"+this.selected_model, this.subtype + "." + this.nameControl.value)
+                this.dialogRef.close();
+                break
+            case "menu" :
+                await this.api.createView(this.selected_package + "\\menu", this.nameControl.value + "." + this.subtype)
+                this.dialogRef.close();
+                break
+            case "class" :
+                await this.api.createModel(this.selected_package, this.nameControl.value, this.subtype)
+                this.dialogRef.close();
+                break;
+            case "do" :
+                await this.api.createController(this.selected_package,this.nameControl.value,"do")
+                this.dialogRef.close();
+                break;
+            case "get" :
+                await this.api.createController(this.selected_package,this.nameControl.value,"get")
+                this.dialogRef.close();
+                break;
+            case "route" :
+                await this.api.createroute(
+                    this.selected_package,
+                    this.addingState ? this.customSTControl.value : this.subtype,
+                    this.nameControl.value
+                );
+                this.dialogRef.close();
+                break;
+            default:
+                this.dialogRef.close();
+        }
     }
-  }
 
   // ---------------------------------------------------------------------------------------------------------
 
-    public t_dict = ItemTypes.trueTypeDict
-    public type: string = ""
-    public obk: Function = Object.keys
-    public cachelist: string[] | undefined = undefined
-    public cachepkglist: string[] | undefined = undefined
-    public cachemodellist: string[] | undefined = undefined
-    public selected_package:string = ""
-    public selected_model:string = ""
-    public implemented:boolean = true
+    public t_dict = ItemTypes.trueTypeDict;
+    public type: string = "";
+    public obk: Function = Object.keys;
+    public cachelist: string[] | undefined = undefined;
+    public cachepkglist: string[] | undefined = undefined;
+    public cachemodellist: string[] | undefined = undefined;
+    public selected_package:string = "";
+    public selected_model:string = "";
+    public implemented:boolean = true;
 
-    public name_title = "Name"
+    public name_title = "Name";
 
     public lockType:boolean;
     public lockPackage:boolean;
@@ -235,10 +236,12 @@ export class MixedCreatorDialogComponent implements OnInit {
                 private api: WorkbenchService,
                 @Optional() @Inject(MAT_DIALOG_DATA) public data: { node_type: string, package?:string, model?:string, sub_type?:string, lock_type ?:boolean, lock_package?: boolean, lock_model?:boolean, lock_subtype?: boolean },
             ) {
+
         if(!data) {
             this.type = "package";
             return;
         }
+
         this.type = this.obk(this.t_dict).includes(data.node_type) ? data.node_type : (data.node_type === "controller" ? "do" : "package");
 
         this.selected_model = data.model ? data.model : '';

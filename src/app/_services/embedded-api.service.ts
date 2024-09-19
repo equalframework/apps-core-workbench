@@ -282,7 +282,7 @@ export class EmbeddedApiService {
         }
     }
 
-    public async getView(entity:string,name:string):Promise<any> {
+    public async getView(entity:string, name:string):Promise<any> {
         try {
             return await this.api.fetch("?get=core_model_view&view_id="+name+"&entity="+entity)
         } catch (response) {
@@ -290,16 +290,16 @@ export class EmbeddedApiService {
         }
     }
 
-    public async getViews(type:string, entity:string): Promise<string[]> {
+    public async getViews(package_name:string, entity:string): Promise<string[]> {
         try {
-            return await this.api.fetch("?get=core_config_views&"+type+"="+entity);
+            return await this.api.fetch("?get=core_config_views&package="+package_name+"&entity="+entity);
         }
         catch(response) {
             return [];
         }
     }
 
-    public async getInitData(pkg:string,type:string):Promise<{[id:string]:any}> {
+    public async getInitData(pkg:string, type:string):Promise<{[id:string]:any}> {
         try {
             return (await this.api.fetch(`?get=core_config_init-data&package=${pkg}&type=${type}`));
         }

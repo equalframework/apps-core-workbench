@@ -68,7 +68,7 @@
 
         <ng-container *ngIf="selectedComponent.type === 'view'">
             <info-view
-                    [view_ref]="selectedComponent.name"
+                    [view]="selectedComponent"
                     (goto)="onViewEditClick()"
                     (translations)="onViewTranslationClick()">
             </info-view>
