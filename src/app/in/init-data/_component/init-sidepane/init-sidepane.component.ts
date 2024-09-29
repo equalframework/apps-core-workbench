@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, Input, OnChanges, OnInit } from '@angular/core';
-import { InitDataEntityInstance, InitDataEntitySection, InitDataFile } from '../../_objects/init-data';
+import { InitDataEntityInstance, InitDataEntitySection, InitDataFile } from '../../_models/init-data';
 import { Sort } from '@angular/material/sort';
 import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 import compareAsc from 'date-fns/compareAsc';

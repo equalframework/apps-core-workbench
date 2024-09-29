@@ -1,0 +1,22 @@
+@import "src/theme.scss";
+
+.lang {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    border-radius: 1em;
+    background-color: mat-color($maincolor,A100);
+    margin-right: 10px;
+
+    .lang-name {
+        display: inline-block;
+        width: 3em;
+        font-size: 1em;
+    }
+
+    .lang-button {
+        display: flex;
+        align-items: center;
+    }
+}

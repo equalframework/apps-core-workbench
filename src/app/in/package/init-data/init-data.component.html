@@ -1,0 +1,83 @@
+<div *ngIf="error">
+    Something went wrong...
+</div>
+
+<div class="app-inner-header">
+    <app-inner-header
+            [buttonBack]="true"
+            (onButtonBack)="goBack()">
+        <label class="package-label">{{ package_name }}</label> › <label class="model-label">Init ({{ this.type }})</label>
+    </app-inner-header>
+</div>
+
+<div class="app-inner-body">
+
+    <div class="left_pane">
+        <app-param-list
+                [list]="file_list"
+                [selectedIndex]="selected_file_index"
+                (select)="selected_file_index = $event">
+        </app-param-list>
+    </div>
+
+    <div class="right_pane">
+        <app-init-sidepane sidepane
+                [file]="file_list[selected_file_index]">
+        </app-init-sidepane>
+    </div>
+</div>
+
+
+
+<!--
+
+
+<app-inner-header
+        [buttonBack]="true"
+        (onButtonBack)="goBack()"
+        [customButtonList]="[{icon:'bug_report',name:'show JSON',disabled:false}]"
+        [customButton]="true"
+        (onCustomButton)="showJSON()"
+        [buttonSave]="true"
+        (onButtonSave)="save()">
+    <label *ngIf="type === 'init'">Initial data of </label>
+    <label *ngIf="type === 'demo'">Demo data of </label>
+    <label class="packagename">{{package}}</label>
+</app-inner-header>
+-->
+
+<!--
+<ng-container *ngIf="this.loading">
+    <div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <mat-spinner></mat-spinner>
+        <label>Loading...</label>
+    </div>
+</ng-container>
+<ng-container *ngIf="this.error">
+    <div>
+        <label>Something went wrong...</label>
+    </div>
+</ng-container>
+
+-->
+
+<!--
+<ng-container *ngIf="!this.error && !this.loading">
+<app-classic-layout class="full">
+    <app-param-list
+        [list]="file_list"
+        (select)="selected_file_index = $event"
+        [selectedIndex]="selected_file_index"
+    >
+    </app-param-list>
+    <app-init-sidepane sidepane
+        [file]="file_list[selected_file_index]"
+    >
+    </app-init-sidepane>
+
+</app-classic-layout>
+
+</ng-container>
+-->
+
+

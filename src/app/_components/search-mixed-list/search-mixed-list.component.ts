@@ -35,6 +35,10 @@ export class SearchMixedListComponent implements OnInit {
     // optional package ref for limiting creation of components to that specific package
     @Input() package_name?: string = '';
 
+    @Input() allow_create?: boolean = true;
+    @Input() allow_update?: boolean = true;
+    @Input() allow_delete?: boolean = true;
+
     /*
         EqualComponentDescriptor Structure is as follow:
 

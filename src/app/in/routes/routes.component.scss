@@ -1,0 +1,57 @@
+@import "/src/theme.scss";
+
+:host {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+
+    .app-inner-header {
+        height: 80px;
+
+        .model-label {
+            background-color: mat-color($route-color,A100);
+            margin-left: 0;
+            padding: 0 .3em;
+            border-radius: .2em;
+
+            mat-icon {
+                margin-right: .1em;
+                transform: scale(1.1) translateY(.15em);
+            }
+
+        }
+
+        .package-label {
+            background-color: mat-color($package-color,A100);
+            margin-left: 0;
+            padding: 0 .3em;
+            border-radius: .2em;
+        }
+
+    }
+
+    .app-inner-body {
+        height: calc(100% - 80px);
+        display: flex;
+        flex-direction: row;
+
+        .left_pane, .right_pane {
+            padding: 8px;
+            height: 100%;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .left_pane {
+            flex: 0 1 400px;
+            max-width: 400px;
+        }
+
+        .right_pane {
+            flex: 1;
+        }
+
+    }
+
+}

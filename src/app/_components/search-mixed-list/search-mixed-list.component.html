@@ -33,7 +33,9 @@
                 <mat-form-field class="node-edited">
                     <div style="display: flex;">
                         <input matInput [(ngModel)]="editedNode.name">
-                        <button *ngIf="!areNodesEqual(editedNode, editingNode)" mat-icon-button aria-label="Approve editing node">
+                        <button *ngIf="!areNodesEqual(editedNode, editingNode)"
+                                mat-icon-button
+                                aria-label="Approve editing node">
                             <mat-icon matSuffix (click)="onclickUpdate(node)">check_circle</mat-icon>
                         </button>
                     </div>
@@ -70,10 +72,10 @@
                         <label class="node-name" *ngIf="node.type !== 'route' && node.type !== 'package'">{{ node.package_name ? (node.type === "do" || node.type === "get" || node.type === "view" ? "" : node.package_name+"\\") : ""}}{{node.name}}</label>
                     </div>
                     <div class="node-actions">
-                        <button mat-icon-button aria-label="Edit node button">
+                        <button *ngIf="allow_update" mat-icon-button aria-label="Edit node button">
                             <mat-icon (click)="onEditNode(node)">edit</mat-icon>
                         </button>
-                        <button mat-icon-button (click)="clickDelete(node)" aria-label="Delete node button">
+                        <button *ngIf="allow_delete" mat-icon-button (click)="clickDelete(node)" aria-label="Delete node button">
                             <mat-icon>delete</mat-icon>
                         </button>
                     </div>
@@ -85,6 +87,6 @@
 
 </mat-list>
 
-<div class="adder" (click)="openCreator()">
+<div *ngIf="allow_create" class="adder" (click)="openCreator()">
     <mat-icon style="margin-right: 1em;">add</mat-icon> Create new component
 </div>

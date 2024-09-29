@@ -98,7 +98,12 @@ you can run it with angular using the `serve.sh` script
 
 ### Build the project
 
-to build the project you can use the `build.sh` script.
+For building the project, use the `build.sh` script.
+
+Debug with:
+```
+./build.sh > angular.log 2>&1
+```
 
 ## Explications for dev of this tool
 

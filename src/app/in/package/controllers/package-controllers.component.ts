@@ -45,7 +45,6 @@ export class PackageControllersComponent implements OnInit {
             private api: EmbeddedApiService,
             private snackBar: MatSnackBar,
             private route: ActivatedRoute,
-            private router: Router,
             private location: Location,
             private matDialog:MatDialog
         ) { }
@@ -54,7 +53,7 @@ export class PackageControllersComponent implements OnInit {
         this.init()
     }
 
-    async init() {
+    public async init() {
 
         // this.selected_controller = '';
         this.selected_property = '';

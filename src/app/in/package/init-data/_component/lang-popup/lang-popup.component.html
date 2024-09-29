@@ -1,0 +1,25 @@
+<app-popup-layout
+    (close)="ref.close()"
+>
+    <mat-form-field>
+        <input matInput [formControl]="langControl" (keydown.enter)="addLang()">
+        <button [disabled]="langControl.invalid" mat-icon-button matSuffix (click)="addLang()"><mat-icon>add</mat-icon></button>    
+    </mat-form-field>
+    
+    <div class="lang" *ngFor="let lang of data.allUsedLangs">
+        <ng-container *ngIf="!state[lang]">
+            <label class="lang-name">{{lang}}</label>
+            <div class="lang-button">
+                <button mat-icon-button (click)="state[lang]=true; editLangControl.setValue(lang)"><mat-icon>edit</mat-icon></button>
+                <button mat-icon-button (click)="del(lang)"><mat-icon>delete</mat-icon></button>
+            </div>  
+        </ng-container>
+        <ng-container *ngIf="state[lang]">
+            <input matInput class="lang-name" [formControl]="editLangControl">
+            <div class="lang-button">
+                <button mat-icon-button [disabled]="editLangControl.invalid" (click)="rename(lang)"><mat-icon>done</mat-icon></button>
+                <button mat-icon-button (click)="state[lang]=false"><mat-icon>close</mat-icon></button>
+            </div> 
+        </ng-container>    
+    </div>
+</app-popup-layout>

@@ -1,0 +1,64 @@
+<div sidepane class="full">
+    <ng-container *ngIf="!file">
+        Select or create a file to see its content
+    </ng-container>
+    <ng-container *ngIf="file && obk(file.entities).length <= 0">
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+            <label>This file is empty.</label>
+            <br>
+            <button mat-raised-button color="primary" (click)="openCreateSection()">Create an entity record</button>
+        </div>
+    </ng-container>
+    <ng-container *ngIf="file && obk(file.entities).length > 0">
+        <button mat-icon-button class="abs-button-add" color="primary" (click)="openCreateSection()"><mat-icon>add</mat-icon></button>
+        <mat-tab-group class="full tabgrp shrinked-header" [(selectedIndex)]="entity_index" (selectedTabChange)="onTabChange($event)" animationDuration="0ms">
+            <mat-tab *ngFor="let entity of obk(file.entities)" class="full ">
+                <ng-template mat-tab-label>
+                    <label>{{file.entities[entity].name}}</label>
+                    <button mat-icon-button [mat-menu-trigger-for]="menu"><mat-icon>more_vert</mat-icon></button>
+                    <mat-menu #menu>
+                        <button mat-menu-item (click)="deleteSection(entity)"><mat-icon color="primary">delete</mat-icon> delete</button>
+                        <button mat-menu-item (click)="openLangEditor()"><mat-icon color="primary">translate</mat-icon> edit languages</button>
+                    </mat-menu>
+                </ng-template>
+                <div class="table-holder">
+                    <div class="table-action">
+                        <div>
+                            <button [disabled]="selected.length <= 0" mat-icon-button (click)="deleteSelection()"><mat-icon>delete</mat-icon></button>
+                            <button [disabled]="selected.length <= 0" mat-button (click)="toggleIdSelection()"><mat-icon>verified</mat-icon><label> Toggle id</label></button>
+                        </div>
+                        <div>
+                            <button mat-button (click)="ImportFromDB()"><mat-icon>save_alt</mat-icon> Import from DB</button>
+                            <button mat-button (click)="createItem()"><mat-icon>add_circle</mat-icon> Create item</button>
+                        </div>
+                    </div>
+                    <mat-paginator class="pager"
+                        [length]="file.entities[entity].items.length"
+                        [pageSize]="10"
+                        [pageSizeOptions]="[5, 10, 25, 100]"
+                        (page)="page = $event"
+                        aria-label="Select page"
+                    >
+                    </mat-paginator>
+                    <table matSort (matSortChange)="sortData($event,file.entities[entity].items)" class="item-table">
+                        <tr class="item-table-header">
+                            <th [style.width]="'40px'"><mat-checkbox class="table-item" (click)="$event.stopPropagation()" (change)="selectAll($event.checked)"></mat-checkbox></th>
+                            <th mat-sort-header="id" [style.width]="'10%'">id</th>
+                            <th *ngFor="let field of viewField" [style.width]="(field.width/fullWidth)*90 - 40" [mat-sort-header]="field.value">{{field.value}}</th>
+                        </tr> 
+                        <tr *ngFor="let item of pageContent; index as index" (click)="editItem(file.entities[entity],index)" class="pointer">
+                            <td (click)="$event.stopPropagation()">
+                                <mat-checkbox class="table-item" 
+                                    [checked]="item.selected" 
+                                    (change)="item.selected = $event.checked" 
+                                ></mat-checkbox>
+                            </td>
+                            <td><label [style.opacity]="item.id_strict ? 1 : 0.4" class="table-item">{{item.id}}</label></td>
+                            <td *ngFor="let field of viewField"><label class="table-item pointer">{{item.otherfield['en'][field.value]}}</label></td>
+                        </tr>
+                    </table>
+                </div>
+            </mat-tab>
+        </mat-tab-group>
+    </ng-container>
+</div>

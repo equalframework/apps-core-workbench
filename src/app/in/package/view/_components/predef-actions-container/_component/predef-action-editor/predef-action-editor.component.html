@@ -1,0 +1,72 @@
+<div class="holder">
+    <app-toggling-button
+        [enabledIcon]="'expand_less'"
+        [disabledIcon]="'expand_more'"
+        [baseState]="big_disp"
+        (toggle)="big_disp = $event"
+        [disabled]="false"
+    ></app-toggling-button>
+    <mat-form-field>
+        <mat-label>id</mat-label>
+        <mat-select [(value)]="obj.id">
+            <mat-option *ngFor="let item of ids" [value]="item">{{item}}</mat-option>
+        </mat-select>
+    </mat-form-field>
+    <mat-form-field class="longfield">
+        <input matInput placeholder="controller" 
+        [(ngModel)]="obj.controller" 
+        (keyup)="tap($event.target.value)" 
+        [matAutocomplete]="auto">
+        <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+            <mat-option *ngFor="let option of filteredOptions" [value]="option">
+            {{option}}
+            </mat-option>
+        </mat-autocomplete>
+    </mat-form-field>
+    <mat-form-field class="longfield">
+        <input matInput placeholder="description" [value]="obj.description" (keyup)="obj.description = $event.target.value">
+    </mat-form-field>
+
+    <mat-checkbox [(ngModel)]="obj._has_access" (ngModelChange)="changeBigDispBy(obj._has_access)">restrict access</mat-checkbox>
+    <mat-checkbox [(ngModel)]="obj._has_view" (ngModelChange)="changeBigDispBy(obj._has_view)">view</mat-checkbox>
+    <mat-checkbox [(ngModel)]="obj._has_domain" (ngModelChange)="changeBigDispBy(obj._has_domain)">domain</mat-checkbox>
+
+
+    <button mat-icon-button (click)="deleteme()"><mat-icon>delete</mat-icon></button>
+
+    <!-- CONDITIONAL DISP PART --->
+    <div *ngIf="big_disp">
+        <div *ngIf="obj._has_access">
+            <mat-form-field >
+                <input [value]="input" (keyup.enter)="addgroup()" (keyup)="tap2($event.target.value)"  matInput placeholder="groups" [matAutocomplete]="auto2">
+                <button matSuffix mat-icon-button (click)="addgroup()"><mat-icon class="grpsufix"  >add</mat-icon></button>
+                <mat-autocomplete autoActiveFirstOption #auto2="matAutocomplete">
+                    <mat-option *ngFor="let option of filteredGroups" [value]="option">
+                        {{option}}
+                    </mat-option>
+                </mat-autocomplete>
+            </mat-form-field>
+            <div class="inline group-item-holder">
+                <div class="inline group-item" *ngFor="let item of obj.access['groups']">
+                    <label>{{item}}</label>
+                    <button mat-icon-button (click)="delete_element(item)"><mat-icon>close</mat-icon></button>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="obj._has_view">
+            <mat-form-field>
+                <input matInput placeholder="view" [(ngModel)]="obj.view">
+            </mat-form-field>
+        </div>
+        <div *ngIf="obj._has_domain">
+            <app-property-domain-component
+                [value]="obj.domain.dom"
+                [name]="'oui'"
+                [class]="entity"
+                (valueChange)="obj.domain.dom = $event"
+            >
+            </app-property-domain-component>
+        </div>
+    </div>
+    
+</div>

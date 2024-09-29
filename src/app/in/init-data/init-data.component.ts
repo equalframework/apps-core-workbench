@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit, Optional } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
-import { InitDataFile } from './_objects/init-data';
+import { InitDataFile } from './_models/init-data';
 import { cloneDeep } from 'lodash';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { prettyPrintJson } from 'pretty-print-json';

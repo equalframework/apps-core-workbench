@@ -14,24 +14,25 @@ import { ImporterComponent } from './_component/importer/importer.component';
 import { WorkbenchModule } from 'src/app/_modules/workbench.module';
 import { SharedLibModule } from 'sb-shared-lib';
 @NgModule({
-  declarations: [
-    InitDataComponent,
-    ParamListComponent,
-    InitSidepaneComponent,
-    InitPopupEditorComponent,
-    EntityDialogComponent,
-    LangPopupComponent,
-    ImporterComponent
-  ],
-  imports: [
-    CommonModule,
-    SharedLibModule,
-    WorkbenchModule,
-    ClassicLayoutModule,
-    AutocompleteModule
-  ],
-  exports : [
-    InitDataComponent
-  ]
+    declarations: [
+        InitDataComponent,
+        ParamListComponent,
+        InitSidepaneComponent,
+        InitPopupEditorComponent,
+        EntityDialogComponent,
+        LangPopupComponent,
+        ImporterComponent
+    ],
+    imports: [
+        CommonModule,
+        SharedLibModule,
+        WorkbenchModule,
+        ClassicLayoutModule,
+        PopupLayoutModule,
+        AutocompleteModule
+    ],
+    exports : [
+        InitDataComponent
+    ]
 })
 export class InitDataModule { }

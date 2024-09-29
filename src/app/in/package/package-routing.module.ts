@@ -23,10 +23,6 @@ const routes: Routes = [
         path: 'workflow/:package/:model',
         loadChildren: () => import('src/app/in/workflows/workflows.module').then(m => m.WorkflowsModule)
     },
-    {
-        path: 'initdata/:type/:package',
-        component: InitDataComponent
-    },
     */
    /*
     {
@@ -34,6 +30,10 @@ const routes: Routes = [
         loadChildren: () => import('./model/view.module').then(m => m.PackageViewModule)
     },
     */
+    {
+        path: 'init-data/:type',
+        loadChildren: () => import('./init-data/init-data.module').then(m => m.InitDataModule)
+    },
     {
         path: 'views',
         loadChildren: () => import('./views/views.module').then(m => m.PackageViewsModule)

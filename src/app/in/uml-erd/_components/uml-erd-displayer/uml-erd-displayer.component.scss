@@ -19,8 +19,13 @@
     overflow: hidden;
 }
 
-.dragelement {
+.draggable-element {
     position: absolute;
+    z-index: 1;
+}
+
+.draggable-element.dragging {
+    z-index: 2;
 }
 
 .flowcontainer {
@@ -28,7 +33,7 @@
     border-radius : 10px;
     background-size: 40px 40px !important;
     background-image: radial-gradient(circle, #C8CED3 1px, rgba(0, 0, 0, 0) 2px);
-    cursor: grab
+    cursor: grab;
 }
 
 .grabbed {
@@ -36,5 +41,5 @@
 }
 
 .create {
-    cursor: default ;
+    cursor: default;
 }

@@ -1,0 +1,25 @@
+<div class="app-inner-header">
+    <app-inner-header
+            [customButton]="true"
+            [buttonBack]="true"
+            (onButtonBack)="getBack()">
+        <label>Live </label><label class="model-label"><mat-icon>route</mat-icon>Routes</label>
+    </app-inner-header>
+</div>
+
+<div class="app-inner-body">
+
+    <div class="left_pane">
+        <search-mixed-list
+                [node_type]="'route'"
+                [allow_create]="false"
+                [allow_update]="false"
+                [allow_delete]="false"
+                (selectNode)="onSelectNode($event)">
+        </search-mixed-list>
+    </div>
+
+    <div class="right_pane">
+        <info-route *ngIf="selected_route" [route]="selected_route"></info-route>
+    </div>
+</div>

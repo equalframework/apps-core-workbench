@@ -109,15 +109,14 @@ export class Field {
         return Field.uneditable_name.includes(this.name)
     }
 
-    areSimilar(other:Field): boolean {
-        console.log("--- "+this.name+" ----");
+    public areSimilar(other:Field): boolean {
         return compareDictRecursif(this.JSON,other.JSON) === 0;
     }
 }
 
 /**
  * @description
- * Compare dict1 and dict2 recusrively (could have better optimisation)
+ * Compare dict1 and dict2 recursively (could have better optimization)
  * @param dict1 if(!Field.type_directives[this.type][key]) continue
  * @param dict2 
  * @returns dict1 === dict2

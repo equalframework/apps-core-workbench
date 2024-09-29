@@ -87,28 +87,25 @@ export class InfoPackageComponent implements OnInit {
     }
 
     public onclickModels() {
-        this.router.navigate(['/package/'+this.package.name+'/models']);
+        this.router.navigate(['/package/' + this.package.name+'/models']);
     }
 
     public onclickControllers() {
-        this.router.navigate(['/package/'+this.package.name+'/controllers']);
+        this.router.navigate(['/package/' + this.package.name+'/controllers']);
     }
 
     public onclickViews() {
-        this.router.navigate(['/package/'+this.package.name+'/views']);
+        this.router.navigate(['/package/' + this.package.name+'/views']);
     }
 
     public onclickRoutes() {
-        this.router.navigate(['/package/'+this.package.name+'/routes']);
+        this.router.navigate(['/package/' + this.package.name+'/routes']);
     }
 
-    public onclickInitData() {
-        this.router.navigate(['/package/'+this.package.name+'/init-data']);
+    public onclickInitData(type: string) {
+        this.router.navigate(['/package/' + this.package.name + '/init-data/'+ type]);
     }
 
-    public onclickDemoData() {
-
-    }
     public consitencyPrint():any {
         prettyPrintJson.toHtml(this.package_consistency);
     }

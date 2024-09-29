@@ -1,20 +1,22 @@
 
-<div #bdy class="node" [class.selected]="selected" (mousedown)="linkToMe.emit();">
+<div #bdy class="node" [class.selected]="selected">
     <div class="name">
         <label>{{node.entity}}</label>
     </div>
-    <div class="field" *ngFor="let field of node.fields; index as index" [class.altbg]="!(index % 2)">
+    <div *ngFor="let field of node.fields; index as index"
+            [class.altbg]="!(index % 2)"
+            class="field">
         <ng-container *ngIf="node.schema[field]">
-        <div class="info">
-            <mat-icon color="primary">{{typeIcon[node.schema[field].type === 'computed' ? node.schema[field].result_type : node.schema[field].type]}}</mat-icon>
-            <label>{{field}}</label>
-        </div>
-        <div class="tags">
-            <mat-icon *ngIf="node.schema[field].readonly" color="accent">do_not_touch</mat-icon>
-            <mat-icon *ngIf="node.schema[field].required" color="accent">priority_high</mat-icon>
-            <mat-icon *ngIf="node.schema[field].unique" color="accent">looks_one</mat-icon>
-            <mat-icon *ngIf="node.schema[field].type === 'computed'" color="accent">{{typeIcon['computed']}}</mat-icon>
-        </div>
+            <div class="info">
+                <mat-icon color="primary">{{typeIcon[node.schema[field].type === 'computed' ? node.schema[field].result_type : node.schema[field].type]}}</mat-icon>
+                <label>{{field}}</label>
+            </div>
+            <div class="tags">
+                <mat-icon *ngIf="node.schema[field].readonly" color="accent">do_not_touch</mat-icon>
+                <mat-icon *ngIf="node.schema[field].required" color="accent">priority_high</mat-icon>
+                <mat-icon *ngIf="node.schema[field].unique" color="accent">looks_one</mat-icon>
+                <mat-icon *ngIf="node.schema[field].type === 'computed'" color="accent">{{typeIcon['computed']}}</mat-icon>
+            </div>
         </ng-container>
     </div>
     <!-- dx : {{node.initialPos.x - node.position.x}} |  dy : {{node.initialPos.y - node.position.y}} -->

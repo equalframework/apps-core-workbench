@@ -21,16 +21,16 @@ import { DialogConfirmComponent } from './_components/dialog-confirm/dialog-conf
 export class UmlErdComponent implements OnInit, OnChanges {
 
     public models: string[] = [];
-    public state:string = 'normal';
-    public nodes:UmlErdNode[] =  [];
-    public links:UmlErdLink[] = [];
-    public selectedLink:number = -1;
-    public selectedNode:number = -1;
-    public package:string = "";
-    public model:string = "";
-    public model_scheme:any = {};
-    public need_save:boolean = false;
-    public view_offset:{x:number, y:number} = {x:0, y:0};
+    public state: string = 'normal';
+    public nodes: UmlErdNode[] =  [];
+    public links: UmlErdLink[] = [];
+    public selectedLink: number = -1;
+    public selectedNode: number = -1;
+    public package: string = "";
+    public model: string = "";
+    public model_scheme: any = {};
+    public need_save: boolean = false;
+//    public view_offset:{x:number, y:number} = {x:0, y:0};
     public current_filename = "";
 
     public selected_class: string = "";
@@ -99,13 +99,13 @@ export class UmlErdComponent implements OnInit, OnChanges {
             if(node.show_inheritance && node.parent !== 'equal\\orm\\Model') {
                 const node2 = this.getNodeByName(node.parent);
                 if(node2) {
-                    this.links.push(new UmlErdLink(node,node2,"","","extends"));
+                    this.links.push(new UmlErdLink(node, node2, "", "", "extends"));
                 }
             }
 
             // Checking relations
             if(!node.show_relations) {
-                continue
+                continue;
             }
             for(let key of node.fields) {
                 if(node.hidden.includes(key)) {
@@ -152,7 +152,7 @@ export class UmlErdComponent implements OnInit, OnChanges {
     }
 
     public reset() {
-        const d = this.matDialog.open(DialogConfirmComponent,{data:"Are you sure you want to cancel all your changes ?"})
+        const d = this.matDialog.open(DialogConfirmComponent, {data:"Are you sure you want to cancel all your changes ?"})
             d.afterClosed().subscribe((data)=> {
             if(data) {
                 this.init();
@@ -184,7 +184,8 @@ export class UmlErdComponent implements OnInit, OnChanges {
     }
 
     public async addNode(value:string){
-        this.nodes.push(await UmlErdNode.AsyncConstructor(value, ["deleted","created","creator","modified","modifier"], [], -this.view_offset.x+100, -this.view_offset.y+100));
+        // this.nodes.push(await UmlErdNode.AsyncConstructor(value, ["deleted","created","creator","modified","modifier"], [], -this.view_offset.x+100, -this.view_offset.y+100));
+        this.nodes.push(await UmlErdNode.AsyncConstructor(value, ["deleted","created","creator","modified","modifier"], [], 100, 100));
         this.refresh();
     }
 
@@ -206,35 +207,31 @@ export class UmlErdComponent implements OnInit, OnChanges {
         }
     }
 
-    public dragoff(event: CdkDragEnd) {
-        console.log(event)
-    }
-
     public requestLinkFrom() {
         if(this.state !== 'linking-from' && this.state !== 'linking-to') {
             this.changeState('linking-from');
         }
     }
 
-    get sizeViewer():number {
+    public get sizeViewer():number {
         switch(this.state) {
-        case "normal" :
-            return 12;
-        default :
-            return 9;
+            case "normal" :
+                return 12;
+            default :
+                return 9;
         }
     }
 
-    get sizeEditor():number {
+    public get sizeEditor():number {
         switch(this.state) {
-        case "normal" :
-        case "link-to" :
-        case "link-from" :
-            return 0;
-        case "edit-link" :
-            return 4;
-        default :
-            return 3;
+            case "normal" :
+            case "link-to" :
+            case "link-from" :
+                return 0;
+            case "edit-link" :
+                return 4;
+            default :
+                return 3;
         }
     }
 
@@ -277,7 +274,7 @@ export class UmlErdComponent implements OnInit, OnChanges {
             });
     }
 
-    export(): any[] {
+    public export(): any[] {
         let ret:any = [];
         for(let node of this.nodes) {
             ret.push(node.export());
@@ -285,7 +282,7 @@ export class UmlErdComponent implements OnInit, OnChanges {
         return ret;
     }
 
-    customButtonBehavior(evt: string) {
+    public customButtonBehavior(evt: string) {
         switch(evt) {
         case "Show JSON" :
             this.matDialog.open(Jsonator, {data:this.export(), width : "70vw", height : "80vh"});

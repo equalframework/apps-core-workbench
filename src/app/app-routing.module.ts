@@ -15,12 +15,10 @@ const routes: Routes = [
         path: 'pipelines',
         loadChildren: () => import('src/app/in/pipeline/pipeline.module').then(m => m.PipelineModule)
     },
-    /*
     {
         path: 'routes',
-        loadChildren: () => import('src/app/in/pipeline/pipeline.module').then(m => m.PipelineModule)
+        loadChildren: () => import('src/app/in/routes/routes.module').then(m => m.RoutesModule)
     },
-    */
     {
         /*
          default route, for bootstrapping the App

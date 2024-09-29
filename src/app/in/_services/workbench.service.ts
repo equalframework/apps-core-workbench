@@ -298,7 +298,7 @@ export class WorkbenchService extends EmbeddedApiService {
         return result;
     }
 
-    public async getLiveRoutes() {
+    public async getRoutesLive() {
         let result = {};
         if(this.cache.hasOwnProperty('routes')) {
             result = this.cache.routes;

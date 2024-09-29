@@ -6,15 +6,15 @@ import { MatButtonModule } from '@angular/material/button';
 
 
 @NgModule({
-  declarations: [
-    PopupLayoutComponent
-  ],
-  imports: [
-    CommonModule,
-    MatButtonModule
-  ],
-  exports : [
-    PopupLayoutComponent
-  ]
+    declarations: [
+        PopupLayoutComponent
+    ],
+    imports: [
+        CommonModule,
+        MatButtonModule
+    ],
+    exports : [
+        PopupLayoutComponent
+    ]
 })
 export class PopupLayoutModule { }

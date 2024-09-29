@@ -1,4 +1,4 @@
-import { AfterViewChecked, AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, OnChanges, Output, ViewChild, SimpleChanges } from '@angular/core';
 
 import { cloneDeep, max } from 'lodash';
 import { UmlErdNode } from './_objects/UmlErdNode';
@@ -10,102 +10,148 @@ import { Anchor, UmlErdLink } from './_objects/UmlErdLink';
   styleUrls: ['./uml-erd-displayer.component.scss'],
   host: {
     "(body:keydown.escape)": "onKeydown($event)",
-    //"(body:mousemove)" : "trackMouse($event)",
+    "(body:mousemove)" : "onMouseMove($event)",
   }
 })
-export class UmlErdDisplayerComponent implements OnInit, AfterViewChecked, AfterViewInit {
+export class UmlErdDisplayerComponent implements OnInit, OnChanges, AfterViewChecked, AfterViewInit {
 
-    @Input() state:string = "normal";
-    @Input() nodes:UmlErdNode[];
+    @ViewChild("boundary") boundary: ElementRef;
+
+    @Input() state: string = "normal";
+    @Input() nodes: UmlErdNode[];
     @Input() links: UmlErdLink[];
-    @Input() selectedLink:number = -1;
-    @Input() selectedNode:number = -1;
+    @Input() selectedLink: number = -1;
+    
+    public selectedNode: UmlErdNode;
+
+    // offset viewport (initially set at loading)
+    public offset = {x : 0, y :0};
 
     @Output() requestState = new EventEmitter<string>();
     @Output() selectNode = new EventEmitter<number>();
 
-    mouse_pos:UmlErdNode = new UmlErdNode("mouse");
-    anchor = Anchor;
+    public initialMousePos: {x: number, y: number} = {x: 0, y: 0};
+    public currentMousePos: {x: number, y: number} = {x: 0, y: 0};
 
-    @Input() offset = {x : 0, y :0};
+    public anchor = Anchor;
+    public is_mousedown: boolean = false;
+    public is_node_captured: boolean = false;
 
-    @ViewChild("boundary") boundary: ElementRef;
-
-    onKeydown($event: KeyboardEvent) {
-        this.requestState.emit("normal");
-    }
-
-    get mousePosOffsetted():UmlErdNode {
-        return new UmlErdNode("mouseoffset");
-    }
-
-    trackMouse(event:MouseEvent) {
-        let boxp = this.boundary.nativeElement.getBoundingClientRect();
-        let old = cloneDeep(this.mouse_pos.position);
-        this.mouse_pos.position.x = event.clientX - boxp.x - 100;
-        this.mouse_pos.position.y = event.clientY - boxp.y + 55;
-        if(this.grabbed) {
-            this.offset.x += (this.mouse_pos.position.x - old.x);
-            this.offset.y += (this.mouse_pos.position.y - old.y);
-        }
-    }
-
-    mouseDown(evt:MouseEvent) {
-        if(evt.which && evt.which === 3) {  // Gecko (Firefox), WebKit (Safari/Chrome) & Opera
-            return;
-        }
-        else if(evt.button && evt.button === 2) { // IE, Opera
-            return;
-        }
-        this.grabbed = true;
-    }
-
-    get bgPos() {
-        return `top ${this.offset.y}px left ${this.offset.x}px`
-    }
 
     constructor() {
     }
 
-    initialpos:UmlErdNode[];
+    public ngOnInit(): void {
 
-    grabbed = false;
-
-    ngOnInit(): void {
-        this.initialpos = cloneDeep(this.nodes);
     }
 
-    get boxp() {
+    public ngOnChanges(changes: SimpleChanges): void {
+        console.log(changes);
+    }
+
+    public ngAfterViewInit(): void {
+
+    }
+
+    private fetchMousePos(event: MouseEvent) {
+        const boxp = this.boundary.nativeElement.getBoundingClientRect();
+
+        return {
+            x: event.clientX - boxp.x - 100,
+            y: event.clientY - boxp.y + 55
+        };
+    }
+
+    public onKeydown($event: KeyboardEvent) {
+        this.requestState.emit("normal");
+    }
+
+    public onMouseMove(event: MouseEvent) {
+        // update current mouse position
+        const currentPos = this.fetchMousePos(event);
+        // move viewport if mouse button is pressed
+        if(this.is_mousedown) {
+            this.offset.x += (currentPos.x - this.currentMousePos.x);
+            this.offset.y += (currentPos.y - this.currentMousePos.y);
+        }
+        this.currentMousePos = currentPos;
+
+        // #memo - node only receive mousemove event when hovered
+        if(this.is_node_captured) {
+            this.onMoveNode(this.selectedNode, event);
+        }
+    }
+
+    public onMouseDown(event: MouseEvent) {
+        console.log('mouse down', event);
+        this.initialMousePos = this.fetchMousePos(event);
+        this.currentMousePos = this.fetchMousePos(event);
+        this.is_mousedown = true;
+        this.is_node_captured = false;
+    }
+
+    public onMouseUp(event: MouseEvent) {
+        console.log('mouse up');
+        this.is_mousedown = false;
+        this.is_node_captured = false;
+    }
+
+    public get bgPos() {
+        return `top ${this.offset.y}px left ${this.offset.x}px`
+    }
+
+    public get boxp() {
         return this.boundary.nativeElement.getBoundingClientRect();
     }
 
-    ngAfterViewInit(): void {
-
-    }
-
-    get globalNodeTranslation() {
+    public get globalNodeTranslation() {
         return `translate(${this.offset.x}px,${this.offset.y}px)`;
     }
 
-    ngAfterViewChecked(): void {
+    public ngAfterViewChecked(): void {
         document.querySelectorAll("app-uml-or-node").forEach((node, index) => {
             let box = node.getBoundingClientRect();
             this.nodes[index].position.x = box.x - this.boxp.x - this.offset.x;
             this.nodes[index].position.y = box.y - this.boxp.y + 56 - this.offset.y;
-        })
+        });
     }
 
-    ngOnChange() {
+    public ngOnChange() {
     }
 
-    mv(node: UmlErdNode, event: any) {
-        // Dummy function to trigger a check of the view
+    public onMoveNode(node: UmlErdNode, event: any) {
+        // event.stopPropagation();
+        if(node === this.selectedNode && this.is_node_captured) {
+            let offset_x = this.initialMousePos.x - this.currentMousePos.x;
+            let offset_y = this.initialMousePos.y - this.currentMousePos.y;
+            node.position.x = node.initialPos.x - offset_x;
+            node.position.y = node.initialPos.y - offset_y;
+            console.log(node);
+        }
     }
 
-    getPathStringBetween(node1: UmlErdNode, node2: UmlErdNode, anchor1: number, anchor2: number,type:string): {path:string,center:{x:number,y:number},start:{x:number,y:number},end:{x:number,y:number}} {
+    public onCaptureNode(node: UmlErdNode, event: MouseEvent) {
+        event.stopPropagation();
+        this.initialMousePos = this.fetchMousePos(event);
+        this.currentMousePos = this.fetchMousePos(event);
+        this.selectedNode = node;
+        this.is_node_captured = true;
+        this.requestState.emit('edit-node');
+        const index = this.nodes.findIndex(elem => elem === node);
+        this.selectNode.emit(index);
+    }
+
+    public onReleaseNode(node: UmlErdNode, event: MouseEvent) {
+        event.stopPropagation();
+        this.is_node_captured = false;
+        node.initialPos.x = node.position.x;
+        node.initialPos.y = node.position.y;
+    }
+
+    public getPathStringBetween(node1: UmlErdNode, node2: UmlErdNode, anchor1: number, anchor2: number,type:string): {path:string,center:{x:number,y:number},start:{x:number,y:number},end:{x:number,y:number}} {
         let alt: boolean;
         try {
-            alt = type === "many2many" && anchor2 >= 0 && node2.schema[node2.fields[anchor2]].foreign_object === node1.entity;
+            alt = (type === "many2many" && anchor2 >= 0) && (node2.schema[node2.fields[anchor2]].foreign_object === node1.entity);
         }
         catch {
             alt = true;
@@ -113,8 +159,8 @@ export class UmlErdDisplayerComponent implements OnInit, AfterViewChecked, After
         let p1 = cloneDeep(node1.position);
         let p2 = cloneDeep(node2.position);
 
-        p1.y += this.offset.y + 15*anchor1 - 10.5;
-        p2.y += this.offset.y + 15*anchor2 - 10.5;
+        p1.y += this.offset.y + (15 * anchor1) - 10.5;
+        p2.y += this.offset.y + (15 * anchor2) - 10.5;
 
         let p1_1 = cloneDeep(p1);
         let p2_1 = cloneDeep(p2);
@@ -149,12 +195,4 @@ export class UmlErdDisplayerComponent implements OnInit, AfterViewChecked, After
             end : p2
         };
     }
-
-    selectForEdition(index:number) {
-        this.requestState.emit('edit-node');
-        setTimeout( () =>
-            this.selectNode.emit(index)
-        );
-    }
-
 }
