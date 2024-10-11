@@ -5,23 +5,21 @@ export enum Anchor {
 }
 
 export class UmlErdLink {
-    public from:UmlErdNode
-    public to:UmlErdNode
+    public from:UmlErdNode;
+    public to:UmlErdNode;
 
-    attribute_number_from:number = -1
-    attribute_number_to:number  = -1
+    public attribute_number_from:number = -1;
+    public attribute_number_to:number  = -1;
 
-    relType:"many2many"|"one2many"|"many2one"|"extends" = "many2many"
+    public relType:"many2many"|"one2many"|"many2one"|"extends" = "many2many"
 
-    leftover:any = {}
+    public leftover:any = {};
 
-    get status():string {
+    public get status(): string {
         return this.to.entity
     }
 
-
-
-    constructor(from:UmlErdNode,to:UmlErdNode,field:string,f_field:string,reltype:"many2many"|"one2many"|"many2one"|"extends") {
+    constructor(from:UmlErdNode, to:UmlErdNode, field:string, f_field:string, reltype:"many2many"|"one2many"|"many2one"|"extends") {
         this.from = from;
         this.to = to;
         this.attribute_number_from = this.from.getFieldIndex(field);
@@ -29,10 +27,10 @@ export class UmlErdLink {
         this.relType = reltype;
     }
 
-    export() {
+    public export() {
     }
 
-    generateMetaData() {
+    public generateMetaData() {
     }
 }
 

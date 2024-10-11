@@ -11,6 +11,7 @@ import { Anchor, UmlErdLink } from './_objects/UmlErdLink';
   host: {
     "(body:keydown.escape)": "onKeydown($event)",
     "(body:mousemove)" : "onMouseMove($event)",
+    "(mouseleave)": "onMouseLeave($event)"
   }
 })
 export class UmlErdDisplayerComponent implements OnInit, OnChanges, AfterViewChecked, AfterViewInit {
@@ -21,8 +22,9 @@ export class UmlErdDisplayerComponent implements OnInit, OnChanges, AfterViewChe
     @Input() nodes: UmlErdNode[];
     @Input() links: UmlErdLink[];
     @Input() selectedLink: number = -1;
-    
-    public selectedNode: UmlErdNode;
+
+    public zoom: number = 1.0;
+    public selectedNode: UmlErdNode | null = null;
 
     // offset viewport (initially set at loading)
     public offset = {x : 0, y :0};
@@ -62,6 +64,14 @@ export class UmlErdDisplayerComponent implements OnInit, OnChanges, AfterViewChe
         };
     }
 
+    public zoomIn() {
+        this.zoom += 0.15;
+    }
+
+    public zoomOut() {
+        this.zoom -= 0.15;
+    }
+
     public onKeydown($event: KeyboardEvent) {
         this.requestState.emit("normal");
     }
@@ -77,7 +87,7 @@ export class UmlErdDisplayerComponent implements OnInit, OnChanges, AfterViewChe
         this.currentMousePos = currentPos;
 
         // #memo - node only receive mousemove event when hovered
-        if(this.is_node_captured) {
+        if(this.is_node_captured && this.selectedNode) {
             this.onMoveNode(this.selectedNode, event);
         }
     }
@@ -94,6 +104,12 @@ export class UmlErdDisplayerComponent implements OnInit, OnChanges, AfterViewChe
         console.log('mouse up');
         this.is_mousedown = false;
         this.is_node_captured = false;
+    }
+
+    public onMouseLeave() {
+        this.selectedNode = null;
+        this.is_node_captured = false;
+        this.is_mousedown = false;
     }
 
     public get bgPos() {
@@ -148,7 +164,7 @@ export class UmlErdDisplayerComponent implements OnInit, OnChanges, AfterViewChe
         node.initialPos.y = node.position.y;
     }
 
-    public getPathStringBetween(node1: UmlErdNode, node2: UmlErdNode, anchor1: number, anchor2: number,type:string): {path:string,center:{x:number,y:number},start:{x:number,y:number},end:{x:number,y:number}} {
+    public getPathStringBetween(node1: UmlErdNode, node2: UmlErdNode, anchor1: number, anchor2: number, type:string): {path:string,center:{x:number,y:number},start:{x:number,y:number},end:{x:number,y:number}} {
         let alt: boolean;
         try {
             alt = (type === "many2many" && anchor2 >= 0) && (node2.schema[node2.fields[anchor2]].foreign_object === node1.entity);
@@ -159,6 +175,7 @@ export class UmlErdDisplayerComponent implements OnInit, OnChanges, AfterViewChe
         let p1 = cloneDeep(node1.position);
         let p2 = cloneDeep(node2.position);
 
+        // use offset and add space between links
         p1.y += this.offset.y + (15 * anchor1) - 10.5;
         p2.y += this.offset.y + (15 * anchor2) - 10.5;
 
@@ -167,21 +184,26 @@ export class UmlErdDisplayerComponent implements OnInit, OnChanges, AfterViewChe
 
         p1.x += this.offset.x - 10;
         p2.x += this.offset.x;
+
         if(alt) {
             p2.x -= 10;
         }
-        const amount = (!(p1.x + node1.width < p2.x) && !(p2.x + node2.width < p1.x)) ? Math.abs(p1.y -p2.y) * 0.2 + 20 : Math.min(Math.abs(p1.x - p2.x)/4 + 10, 50);
-        p1_1.x += this.offset.x - amount - 10;
-        p2_1.x += this.offset.x - amount - 10;
 
-        if(p1.x + node1.width < p2.x) {
-            p1.x += node1.width + 20;
-            p1_1.x += node1.width + amount*2 + 20;
+        const node1_width = node1.width * (1/this.zoom);
+        const node2_width = node2.width * (1/this.zoom);
+
+        const amount = (!(p1.x + node1_width < p2.x) && !(p2.x + node2_width < p1.x)) ? Math.abs(p1.y -p2.y) * 0.2 + 20 : Math.min(Math.abs(p1.x - p2.x)/4 + 10, 50);
+        p1_1.x += (this.offset.x - amount - 10);
+        p2_1.x += (this.offset.x - amount - 10);
+
+        if(p1.x + node1_width < p2.x) {
+            p1.x += node1_width + 20;
+            p1_1.x += node1_width + amount*2 + 20;
         }
 
-        if(p2.x + node2.width < p1.x) {
-            p2.x += node2.width;
-            p2_1.x += node2.width+ amount*2;
+        if(p2.x + node2_width < p1.x) {
+            p2.x += node2_width;
+            p2_1.x += node2_width + amount*2;
             if(alt) {
                 p2.x += 20;
                 p2_1.x += 20;
@@ -190,7 +212,7 @@ export class UmlErdDisplayerComponent implements OnInit, OnChanges, AfterViewChe
 
         return {
             path : `M ${p1.x},${p1.y} C ${p1_1.x},${p1_1.y} ${p2_1.x},${p2_1.y} ${p2.x},${p2.y} `,
-            center : {x : (p1.x+p2.x)/2, y : (p1.y+p2.y)/2},
+            center : {x : (p1.x + p2.x) / 2, y : (p1.y + p2.y) / 2},
             start : p1,
             end : p2
         };

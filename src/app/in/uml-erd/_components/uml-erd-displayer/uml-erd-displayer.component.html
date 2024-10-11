@@ -1,12 +1,20 @@
+<div class="zoom-controls">
+    <div class="zoom-control in" (click)="zoomIn()"><mat-icon>add</mat-icon></div>
+    <div class="zoom-control out" (click)="zoomOut()"><mat-icon>remove</mat-icon></div>
+</div>
+
 <div #boundary
-        class="full flowcontainer"
+        class="flowcontainer"
         [style.background-position]="bgPos"
+        [style.width]="'calc(100% *' + (1/zoom) + ')'"
+        [style.height]="'calc(100% *' + (1/zoom) + ')'"
+        [style.transform]="'scale(' + zoom + ')'"
         (mousemove)="onMouseMove($event)"
         (mouseup)="onMouseUp($event)"
         (mousedown)="onMouseDown($event)"
         [class.grabbed] = "is_mousedown"
         [class.create]="['create-node'].includes(state)">
-    <div class="full strings"
+    <div class="strings"
             [style.z-index]="['edit-link'].includes(state) ? 999 : undefined">
         <svg class="full" xmlns="http://www.w3.org/2000/svg" >
             <style>

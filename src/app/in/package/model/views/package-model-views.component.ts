@@ -33,7 +33,7 @@ export class PackageModelViewsComponent implements OnInit {
 
     public loading = true;
 
-  constructor(
+    constructor(
             private api: EmbeddedApiService,
             private route: ActivatedRoute,
             private router: RouterMemory,
@@ -43,17 +43,19 @@ export class PackageModelViewsComponent implements OnInit {
 
 
     public async ngOnInit() {
-        await this.init();
+        this.init();
     }
 
-    async init() {
+    private async init() {
         this.loading = true;
         this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
             this.package_name = params['package_name'];
             this.view_name = params['view_name'];
-            // this.loadViews();
+            this.loadViews();
         });
+    }
 
+    private async loadViews() {
         this.loading = false;
     }
 

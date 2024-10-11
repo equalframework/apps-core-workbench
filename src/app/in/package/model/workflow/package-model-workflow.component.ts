@@ -10,6 +10,8 @@ import { ActivatedRoute } from '@angular/router';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { prettyPrintJson } from 'pretty-print-json';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'package-model-workflow',
@@ -18,10 +20,13 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 })
 export class PackageModelWorkflowComponent implements OnInit, OnChanges {
 
+    // rx subject for unsubscribing subscriptions on destroy
+    private ngUnsubscribe = new Subject<void>();
+
     public models: string[] = [];
     public state:string = 'normal';
 
-    log = console.log
+    public log = console.log;
 
     public nodes:WorkflowNode[] =  [];
     public links:WorkflowLink[] = [];
@@ -40,33 +45,34 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
 
     public selected_classes: string[] = ["core\\User"];
 
-    public suits = [{ "source": "Microsoft", "target": "Amazon", "type": "licensing" }, { "source": "Microsoft", "target": "HTC", "type": "licensing" }, { "source": "Samsung", "target": "Apple", "type": "suit" }, { "source": "Motorola", "target": "Apple", "type": "suit" }, { "source": "Nokia", "target": "Apple", "type": "resolved" }, { "source": "HTC", "target": "Apple", "type": "suit" }, { "source": "Kodak", "target": "Apple", "type": "suit" }, { "source": "Microsoft", "target": "Barnes & Noble", "type": "suit" }, { "source": "Microsoft", "target": "Foxconn", "type": "suit" }, { "source": "Oracle", "target": "Google", "type": "suit" }, { "source": "Apple", "target": "HTC", "type": "suit" }, { "source": "Microsoft", "target": "Inventec", "type": "suit" }, { "source": "Samsung", "target": "Kodak", "type": "resolved" }, { "source": "LG", "target": "Kodak", "type": "resolved" }, { "source": "RIM", "target": "Kodak", "type": "suit" }, { "source": "Sony", "target": "LG", "type": "suit" }, { "source": "Kodak", "target": "LG", "type": "resolved" }, { "source": "Apple", "target": "Nokia", "type": "resolved" }, { "source": "Qualcomm", "target": "Nokia", "type": "resolved" }, { "source": "Apple", "target": "Motorola", "type": "suit" }, { "source": "Microsoft", "target": "Motorola", "type": "suit" }, { "source": "Motorola", "target": "Microsoft", "type": "suit" }, { "source": "Huawei", "target": "ZTE", "type": "suit" }, { "source": "Ericsson", "target": "ZTE", "type": "suit" }, { "source": "Kodak", "target": "Samsung", "type": "resolved" }, { "source": "Apple", "target": "Samsung", "type": "suit" }, { "source": "Kodak", "target": "RIM", "type": "suit" }, { "source": "Nokia", "target": "Qualcomm", "type": "suit" }]
-    public test: { source: string, target: string, type: string }[] = []
+    public test: { source: string, target: string, type: string }[] = [];
     public has_meta_data:number;
     public exists:boolean = false;
 
-    constructor(
-        private api: EmbeddedApiService,
-        private router:RouterMemory,
-        private activatedRoute:ActivatedRoute,
-        private matDialog:MatDialog,
-        private snackBar:MatSnackBar
-    ) { }
+    public loading = true;
 
-    async ngOnInit() {
-        await this.init();
+    constructor(
+            private api: EmbeddedApiService,
+            private router: RouterMemory,
+            private route: ActivatedRoute,
+            private matDialog: MatDialog,
+            private snackBar: MatSnackBar
+        ) { }
+
+    public async ngOnInit() {
+        this.init();
     }
 
-    async init() {
-        const map = this.activatedRoute.snapshot.paramMap;
-        const a = map.get("package");
-        const b = map.get("model");
-        if(a) {
-            this.package = a;
-        }
-        if(b) {
-            this.model = b;
-        }
+    private async init() {
+        this.loading = true;
+        this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
+            this.package = params['package_name'];
+            this.model = params['class_name'];
+            this.loadWorkflow();
+        });
+    }
+
+    private async loadWorkflow() {
         this.nodes = [];
         this.links = [];
         const r = await this.api.getWorkflow(this.package, this.model)
@@ -132,20 +138,21 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
                 }
             }
         }
+        this.loading = false;
     }
 
     public reset() {
-        this.init()
+        this.init();
     }
 
     public changeState(state:string) {
         if(this.state !== state) {
-            this.state = state
+            this.state = state;
             if(!["linking-to"].includes(this.state)){
-                this.selectedNode = -1
+                this.selectedNode = -1;
             }
-            if(!["edit-link","edit-from","edit-to"].includes(this.state)){
-                this.selectedLink = -1
+            if(!["edit-link","edit-from","edit-to"].includes(this.state)) {
+                this.selectedLink = -1;
             }
         }
     }
@@ -288,7 +295,9 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
 
     public navigateToParent() {
         if(this.model_scheme.parent !== "model") {
-            this.router.navigate(["workflow",this.model_scheme.parent.split("\\")[0],this.model_scheme.parent.split("\\").slice(1).join("\\")])
+            const parent_package = this.model_scheme.parent.split("\\")[0]
+            const parent_model = this.model_scheme.parent.split("\\").slice(1).join("\\");
+            this.router.navigate(['/package/' + parent_package+'/model/' + parent_model + '/workflow']);
         }
     }
 

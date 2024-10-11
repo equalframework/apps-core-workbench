@@ -23,11 +23,12 @@
 }
 
 .flowcontainer {
+    position: relative;
     border : solid #C8CED3 1px;
     border-radius : 10px;
     background-size: 40px 40px !important;
     background-image: radial-gradient(circle, #C8CED3 1px, rgba(0, 0, 0, 0) 2px) !important;
-    cursor: grab
+    cursor: grab;
 }
 
 .grabbed {

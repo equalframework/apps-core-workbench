@@ -1,11 +1,11 @@
-<div class="full flowcontainer " #boundary
-    [style.background-position]="bgPos"
-    (mousemove)="trackMouse($event)"
-    (mouseup)="grabbed = false"
-    (mousedown)="mouseDown()"
-    [class.grabbed] = "grabbed"
-    [class.create]="['create-node'].includes(state)"
->
+<div #boundary
+        class="full flowcontainer "
+        [style.background-position]="bgPos"
+        [class.grabbed]="grabbed"
+        [class.create]="['create-node'].includes(state)"
+        (mousemove)="trackMouse($event)"
+        (mouseup)="grabbed = false"
+        (mousedown)="mouseDown()">
     <div class="full strings" [style.z-index]="['edit-link'].includes(state) ? 1000 : undefined">
         <svg class="full" xmlns="http://www.w3.org/2000/svg" >
             <style>
