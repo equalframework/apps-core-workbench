@@ -417,14 +417,13 @@ export class SearchMixedListComponent implements OnInit {
         const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent, {
             data: node.name,
         });
-    
         dialogRef.afterClosed().subscribe((result) => {
             if (result) {
                 this.deleteNode.emit(node);
             }
         });
     }
-    
+
 
 
 

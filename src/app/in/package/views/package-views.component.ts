@@ -119,19 +119,16 @@ export class PackageViewsComponent implements OnInit {
     }
 
     this.api.deleteView(sp[0], sp[1])
-    .then(() => {
-        this.snackBar.open("Deleted view: " + eq_view.name, "Close", { duration: 1000 });
+        .then(() => {
+            this.snackBar.open("Deleted view: " + eq_view.name, "Close", { duration: 3000 });
 
-        // Attendre la fin de l'affichage du snackBar avant de recharger
-        // Solution temporaire
-        setTimeout(() => {
-            window.location.reload();
-        }, 2000);
-    })
-    .catch((error) => {
-        console.error("Deletion error:", error);
-        this.snackBar.open("Error: " + error, "Close", { duration: 3000 });
-    });
+            // Forcer la mise à jour Angular
+
+        })
+        .catch((error) => {
+            console.error("Deletion error:", error);
+            this.snackBar.open("Error: " + error, "Close", { duration: 3000 });
+        });
 }
 
 
