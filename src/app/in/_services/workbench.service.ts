@@ -121,6 +121,59 @@ export class WorkbenchService extends EmbeddedApiService {
         }
     }
 
+
+    /**
+     * Deletes a specified node based on its type.
+     *
+     * @param node - The node to delete, which contains:
+     *  - `package` (optional): The package name associated with the node.
+     *  - `name` (required): The name of the node.
+     *  - `type` (required): The type of the node (e.g., "view", "menu", "package", "class", "controller").
+     *  - `item` (optional): Additional data related to the node.
+
+     * @returns A promise that resolves with a success message (`Deleted <type>: <name>`)
+     * if the deletion is successful, or rejects with an error response.
+     * 
+     * @throws An error if the node type is unknown or if the deletion fails.
+     */
+    public async deleteNode(node: { package?: string; name: string; type: string; item?: any }): Promise<any> {
+        let res = null;
+        switch (node.type) {
+            case "view": {
+                let [entity, viewId] = node.name.split(":");
+                 // Vérifier si la vue est une vue par défaut
+                if (viewId.endsWith(".default")) {
+                return Promise.reject("Cannot delete a default view.");
+                }
+                res = await this.deleteView(entity, viewId);
+                break;
+            }
+            case "menu":
+                res = await this.deleteMenu(node.package!, node.name);
+                break;
+            case "package":
+                res = await this.deletePackage(node.name);
+                break;
+            case "class":
+                res = await this.deleteClass(node.package!, node.name);
+                break;
+            case "do":
+            case "controller":
+                res = await this.deleteController(node.package!, node.type, node.name);
+                break;
+            default:
+                return Promise.reject("Unknown type");
+        }
+        return res ? Promise.reject(res) : Promise.resolve(`Deleted ${node.type}: ${node.name}`);
+    }
+
+    /**
+     * TODO
+     */
+    deleteMenu(arg0: string, name: string): any {
+        throw new Error('Method not implemented.');
+    }
+    
     /**
      * Return all the packages available.
      *
@@ -390,6 +443,7 @@ export class WorkbenchService extends EmbeddedApiService {
             console.warn('request error', response);
         }
     }
+
 
 
 

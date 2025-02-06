@@ -164,8 +164,23 @@ export class AppComponent implements OnInit {
     }
 
 
-    public async deleteNode(node: {package?: string, name: string, type: string, item?: any}) {
-        let res;
+
+    public async deleteNode(node: { package?: string; name: string; type: string; item?: any }) {
+        this.api.deleteNode(node)
+            .then((message) => {
+                this.snackBar.open(message);
+                this.selectedComponent = undefined;
+                this.refresh();
+            })
+            .catch((error) => {
+                console.error("Deletion error:", error.ok);
+                this.snackBar.open("Error: " + error);
+            });
+    
+    
+
+        
+        /*let res;
         switch(node.type) {
             case "view":
                 let sp = node.name.split(":");
@@ -223,9 +238,11 @@ export class AppComponent implements OnInit {
             default:
                 this.snackBar.open("WIP");
                 break;
-        }
+        }*/
     }
 
+
+    
     public controllerNav(choice:number) {
         if(this.selectedComponent) {
             /*

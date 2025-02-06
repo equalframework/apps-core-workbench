@@ -111,14 +111,31 @@ export class PackageViewsComponent implements OnInit {
     }
 
     public async onDeleteNode(eq_view: EqualComponentDescriptor) {
-        /*
-        let sp = event.split(":")
-        let res = await this.api.deleteView(sp[0],sp[1])
-        this.init()
-        if(!res) this.snackBar.open("Deleted")
-        else this.snackBar.open(res)
-        */
+        let sp = eq_view.name.split(":");
+    
+        if (sp[1].endsWith(".default")) {
+            this.snackBar.open("Cannot delete a default view.", "Close", { duration: 3000 });
+            return;
+        }
+    
+        try {
+            await this.api.deleteView(sp[0], sp[1]);
+    
+            // 🔥 Test : Vérifie si la suppression a bien été faite
+            console.log("Avant suppression:", this.views_for_selected_package);
+    
+            this.views_for_selected_package = this.views_for_selected_package.filter(view => view !== eq_view.name);
+    
+            console.log("Après suppression:", this.views_for_selected_package);
+    
+            this.snackBar.open("Deleted view: " + eq_view.name, "Close", { duration: 3000 });
+        } catch (error) {
+            console.error("Deletion error:", error);
+            this.snackBar.open("Error: " + error, "Close", { duration: 3000 });
+        }
     }
+    
+
 
     public onupdatedList() {
         
