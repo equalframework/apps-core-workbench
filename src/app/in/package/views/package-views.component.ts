@@ -110,31 +110,29 @@ export class PackageViewsComponent implements OnInit {
 
     }
 
-    public async onDeleteNode(eq_view: EqualComponentDescriptor) {
-        let sp = eq_view.name.split(":");
-    
-        if (sp[1].endsWith(".default")) {
-            this.snackBar.open("Cannot delete a default view.", "Close", { duration: 3000 });
-            return;
-        }
-    
-        try {
-            await this.api.deleteView(sp[0], sp[1]);
-    
-            // 🔥 Test : Vérifie si la suppression a bien été faite
-            console.log("Avant suppression:", this.views_for_selected_package);
-    
-            this.views_for_selected_package = this.views_for_selected_package.filter(view => view !== eq_view.name);
-    
-            console.log("Après suppression:", this.views_for_selected_package);
-    
-            this.snackBar.open("Deleted view: " + eq_view.name, "Close", { duration: 3000 });
-        } catch (error) {
-            console.error("Deletion error:", error);
-            this.snackBar.open("Error: " + error, "Close", { duration: 3000 });
-        }
+   public async onDeleteNode(eq_view: EqualComponentDescriptor) {
+    let sp = eq_view.name.split(":");
+
+    if (sp[1].endsWith(".default")) {
+        this.snackBar.open("Cannot delete a default view.", "Close", { duration: 3000 });
+        return;
     }
-    
+
+    this.api.deleteView(sp[0], sp[1])
+    .then(() => {
+        this.snackBar.open("Deleted view: " + eq_view.name, "Close", { duration: 1000 });
+
+        // Attendre la fin de l'affichage du snackBar avant de recharger
+        // Solution temporaire
+        setTimeout(() => {
+            window.location.reload();
+        }, 2000);
+    })
+    .catch((error) => {
+        console.error("Deletion error:", error);
+        this.snackBar.open("Error: " + error, "Close", { duration: 3000 });
+    });
+}
 
 
     public onupdatedList() {
