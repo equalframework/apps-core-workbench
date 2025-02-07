@@ -73,7 +73,6 @@ export class PackageModelsComponent implements OnInit, OnDestroy {
         this.loading = true;
         this.selected_field = undefined;
         this.child_loaded = false;
-
         this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
                 this.package_name = params['package_name'];
                 this.ready = true;

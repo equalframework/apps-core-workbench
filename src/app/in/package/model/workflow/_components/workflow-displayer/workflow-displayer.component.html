@@ -187,19 +187,20 @@
         </svg>
     </div>
     <div class="full boundary">
-        <app-workflow-node
-            class="dragelement"
-            *ngFor="let node of nodes; index as i"
-            cdkDrag
-            (cdkDragMoved)="mv(node,$event)"
-            [style.top.px]="node.initialPos.y - 55 + offset.y "
-            [style.left.px]="node.initialPos.x + offset.x"
-            [node]="node"
-            [state]="state"
-
-            [selected]="i===selectedNode"
-            (mousedown)="$event.stopPropagation()"
-            (linkToMe)="finishCreateLink(i,$event)"
-        ></app-workflow-node>
+        <ng-container *ngFor="let node of nodes; index as i">
+            <app-workflow-node *ngIf="node"
+                class="dragelement"
+                cdkDrag
+                (cdkDragMoved)="mv(node,$event)"
+                [style.top.px]="node.initialPos.y - 55 + offset.y"
+                [style.left.px]="node.initialPos.x + offset.x"
+                [node]="node"
+                [state]="state"
+                [selected]="i === selectedNode"
+                (mousedown)="$event.stopPropagation()"
+                (linkToMe)="finishCreateLink(i, $event)">
+            </app-workflow-node>
+        </ng-container>
+        
     </div>
 </div>

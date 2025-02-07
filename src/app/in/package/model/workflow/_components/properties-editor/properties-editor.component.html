@@ -6,32 +6,37 @@
                 <label>Select a link to see its properties</label>
             </div>
         </div>
-        <div *ngIf="selectedLink >= 0" class="full">
+        <div *ngIf="links && selectedLink >= 0 && selectedLink < links.length" class="full">
             <div class="link-title flexcenter">
-                <label>From {{links[selectedLink].from.name}} to {{links[selectedLink].to.name}}</label><br>
+                <label *ngIf="links && links[selectedLink] && links[selectedLink].from && links[selectedLink].to">
+                    From {{ links[selectedLink].from.name }} to {{ links[selectedLink].to.name }}
+                </label>
+                
                 <button mat-flat-button color="warn" (click)="requestDeleteLink.emit()">delete link</button>
             </div>
             <div class="scroll link-content">
                 <type-input
                     type="string"
                     name="Name"
-                    [value]="links[selectedLink].name"
-                    (changed)="links[selectedLink].name = $event"
-                ></type-input>
+                    *ngIf="nodes && selectedNode >= 0 && selectedNode < nodes.length"
+                    [value]="nodes[selectedNode]?.name"
+                    (changed)="nodes[selectedNode].name = $event">
+                </type-input>
                 <type-input
                     type="string"
                     name="description"
-                    [value]="links[selectedLink].description"
+                    [value]="links[selectedLink]?.description"
                     (changed)="links[selectedLink].description = $event"
                 ></type-input>
-                <mat-form-field style="width: 100%;">
+                <mat-form-field *ngIf="nodes && selectedNode >= 0 && selectedNode < nodes.length">
                     <mat-label>help</mat-label>
-                    <textarea rows="5" style="resize: none;"  matInput [(ngModel)]="links[selectedLink].help"></textarea>
+                    <textarea rows="5" style="resize: none;" matInput [(ngModel)]="nodes[selectedNode].help"></textarea>
                 </mat-form-field>
+                
                 <type-input
                     type="string"
                     name="OnAfter"
-                    [value]="links[selectedLink].onafter"
+                    [value]="links[selectedLink]?.onafter"
                     (changed)="links[selectedLink].onafter = $event"
                 ></type-input>
                 <mat-divider></mat-divider>
@@ -100,22 +105,23 @@
                 <type-input
                     type="string"
                     name="Name"
-                    [value]="nodes[selectedNode].name"
+                    *ngIf="nodes && selectedNode >= 0 && selectedNode < nodes.length"
+                    [value]="nodes[selectedNode]?.name"
                     (changed)="nodes[selectedNode].name = $event"
                 ></type-input>
                 <type-input
                     type="string"
                     name="Icon"
-                    [value]="nodes[selectedNode].icon"
+                    [value]="nodes[selectedNode]?.icon"
                     (changed)="nodes[selectedNode].icon = $event">
                 </type-input>
                 <type-input
                     type="string"
                     name="description"
-                    [value]="nodes[selectedNode].description"
+                    [value]="nodes[selectedNode]?.description"
                     (changed)="nodes[selectedNode].description = $event">
                 </type-input>
-                <mat-form-field style="width: 100%;">
+                <mat-form-field style="width: 100%;" *ngIf="nodes && selectedNode >= 0 && selectedNode < nodes.length">
                     <mat-label>help</mat-label>
                     <textarea rows="5" style="resize: none;"  matInput [(ngModel)]="nodes[selectedNode].help"></textarea>
                 </mat-form-field>

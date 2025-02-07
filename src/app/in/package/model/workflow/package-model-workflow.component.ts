@@ -73,6 +73,7 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
     }
 
     private async loadWorkflow() {
+        this.loading = true;  // Désactive le bouton Save
         this.nodes = [];
         this.links = [];
         const r = await this.api.getWorkflow(this.package, this.model)
@@ -92,8 +93,10 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
             let offset_y: number = 0;
             let is_first: boolean = true;
             for(let node in res) {
-                let pos = (!this.has_meta_data || !mdt || !mdt[node] || !mdt[node].position)  ? cloneDeep(orig) : mdt[node].position;
-                if(is_first && pos.x < 200) {
+                let pos = cloneDeep(orig); // Valeur par défaut
+                if (this.has_meta_data && mdt?.[node]?.position) {
+                    pos = mdt[node].position;
+                }                                if(is_first && pos.x < 200) {
                     offset_x = -pos.x + 200;
                 }
                 if(is_first && pos.y < 200) {
@@ -145,6 +148,7 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
         this.init();
     }
 
+    
     public changeState(state:string) {
         if(this.state !== state) {
             this.state = state;
@@ -233,18 +237,45 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
     }
 
     public export() {
-        let result:{[id:string]:any} = {};
-        for(let node of this.nodes) {
+        let result: { [id: string]: any } = {};
+        let nodeNames = new Set<string>(); // Using a Set to detect duplicates
+        let duplicates: string[] = []; // Store duplicate node names
+    
+        for (let node of this.nodes) {
+            console.log("Node: ", node);
+    
+            if (nodeNames.has(node.name)) {
+                duplicates.push(node.name); // Add duplicate node name to the list
+            } else {
+                nodeNames.add(node.name); // Add the node name to the Set if unique
+            }
+    
             result[node.name] = node.export();
-            result[node.name].transitions = {};
-            for(let link of this.links) {
-                if(link.from === node){
+            result[node.name].transitions = {}; // Ensure the node is exported even if it has no transitions
+    
+            for (let link of this.links) {
+                if (link.from === node) {
                     result[node.name].transitions[link.name] = link.export();
                 }
             }
         }
+    
+        // Check for duplicates and prevent saving
+        if (duplicates.length > 0) {
+            this.snackBar.open(
+                "Error: Duplicate nodes detected → " + duplicates.join(", "), 
+                "Close", 
+                { duration: 5000, panelClass: ['error-snackbar'] }
+            );
+            return null; // Return null to block saving
+        }
+    
+        console.log("Exported Workflow:", result); // Check if the node appears here
         return result;
     }
+    
+    
+    
 
     public exportMetaData() {
         let result:{[id:string]:any} = {};
@@ -261,29 +292,55 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
     }
 
     public async save() {
-        if(!this.exists) {
-            const create = await this.api.createWorkflow(this.package,this.model)
-            if(!create){
-                return;
+        // Check if the workflow already exists
+        if (!this.exists) {
+            const create = await this.api.createWorkflow(this.package, this.model);
+            if (!create) {
+                return; // Stop the function if creation fails
             }
         }
-        const ret = await this.api.saveWorkflow(this.package,this.model,JSON.stringify(this.export()))
-        if(!ret){
-            return;
+    
+        // Retrieve the exported workflow data
+        const exportedData = this.export(); 
+    
+        // Check if the export failed (e.g., duplicate node names)
+        if (!exportedData) { 
+            this.snackBar.open("Error: Unable to save. Please check the nodes.", "Close", {
+                duration: 5000,
+                panelClass: ['error-snackbar'] 
+            });
+            return; // Stop the save process if the workflow is invalid
         }
-        let rmd = false;
-        if(this.has_meta_data) {
-            rmd = await this.api.saveMetaData(this.has_meta_data,JSON.stringify(this.exportMetaData()));
+    
+        // Send the request to save the workflow
+        const ret = await this.api.saveWorkflow(this.package, this.model, JSON.stringify(exportedData));
+        if (!ret) {
+            return; // Stop the function if the save fails
         }
-        else {
-            rmd = await this.api.createMetaData("workflow",this.package+"."+this.model,JSON.stringify(this.exportMetaData()));
+    
+        let rmd = false; // Variable to track metadata save status
+        const exportedMetaData = this.exportMetaData(); // Retrieve exported metadata
+    
+        if (this.has_meta_data) {
+            // If metadata already exists, update it
+            rmd = await this.api.saveMetaData(this.has_meta_data, JSON.stringify(exportedMetaData));
+        } else {
+            // Otherwise, create new metadata
+            rmd = await this.api.createMetaData("workflow", this.package + "." + this.model, JSON.stringify(exportedMetaData));
         }
-        if(!rmd) {
-            return;
+    
+        if (!rmd) {
+            return; // Stop the function if metadata save fails
         }
-        this.snackBar.open("Saved successfully","INFO");
+    
+        // Show a success notification with a 3-second duration
+        this.snackBar.open("Successfully saved", "INFO", { duration: 3000 });
+    
+        // Reload the workflow after saving to reflect changes
         this.init();
     }
+    
+    
 
     public showJSON() {
         this.matDialog.open(Jsonator,{data:this.export(), width:"70vw", height:"85vh"});

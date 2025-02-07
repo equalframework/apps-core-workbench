@@ -56,9 +56,16 @@ export class WorkbenchService extends EmbeddedApiService {
      * @param package_name - The name of the package for class_name.
      * @param class_name - The name of the class.
      */
-    public deleteClass(package_name: string, class_name: string) {
+    public async deleteClass(package_name: string, class_name: string) {
         // TODO
-        console.warn("Package deleted: ", class_name);
+        try {
+            await this.api.fetch("?do=core_config_delete-model&package="+package_name+"&model="+class_name);
+            return undefined;
+        }
+        catch(response) {
+            this.api.errorFeedback(response);
+            return response;
+        }
     }
 
     /**
@@ -155,6 +162,7 @@ export class WorkbenchService extends EmbeddedApiService {
                 res = await this.deletePackage(node.name);
                 break;
             case "class":
+                console.log("Nom =" + node.name);
                 res = await this.deleteClass(node.package!, node.name);
                 break;
             case "do":
@@ -173,7 +181,7 @@ export class WorkbenchService extends EmbeddedApiService {
     deleteMenu(arg0: string, name: string): any {
         throw new Error('Method not implemented.');
     }
-    
+
     /**
      * Return all the packages available.
      *

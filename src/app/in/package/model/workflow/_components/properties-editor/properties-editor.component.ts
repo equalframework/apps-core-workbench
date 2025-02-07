@@ -41,13 +41,13 @@ export class PropertiesEditorComponent implements OnChanges {
   }
 
   updateACField() {
-    if(this.selectedLink > 0) {
-      this.ACField =  this.fields.filter(value => !this.links[this.selectedLink].watch.includes(value))
+    if (this.links && this.selectedLink >= 0 && this.selectedLink < this.links.length) {
+        this.ACField = this.fields.filter(value => !this.links[this.selectedLink].watch?.includes(value));
     } else {
-      this.ACField = []
+        this.ACField = [];
     }
-    
-  }
+}
+
 
   deleteWatcher(index:number) {
     if(this.selectedLink > 0) {

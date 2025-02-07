@@ -16,8 +16,8 @@ import { Anchor, WorkflowLink } from './_objects/WorkflowLink';
 export class WorkflowDisplayerComponent implements OnInit,AfterViewChecked,AfterViewInit {
 
   @Input() state: string = "normal";
-  @Input() nodes: WorkflowNode[];
-  @Input() links: WorkflowLink[];
+  @Input() nodes: WorkflowNode[] = [];
+  @Input() links: WorkflowLink[] = [];
   @Input() selectedLink: number = -1;
   @Input() selectedNode: number = -1;
 
@@ -97,8 +97,10 @@ export class WorkflowDisplayerComponent implements OnInit,AfterViewChecked,After
      let res = document.querySelectorAll("app-workflow-node")
      res.forEach((node,index) => {
       let box = node.getBoundingClientRect()
-      this.nodes[index].position.x = box.x - this.boxp.x - this.offset.x
-      this.nodes[index].position.y = box.y - this.boxp.y + 56 - this.offset.y
+      if (this.nodes[index] && this.nodes[index].position) {
+        this.nodes[index].position.x = box.x - this.boxp.x - this.offset.x;
+        this.nodes[index].position.y = box.y - this.boxp.y + 56 - this.offset.y;
+    }
      })
   }
 

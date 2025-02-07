@@ -5,6 +5,8 @@
         (onButtonSave)="save()"
         [buttonCancel]="true"
         (onButtonCancel)="reset()"
+        [buttonSaveDisabled]="loading"
+
         [customButton]="true"
         [customButtonList]="[{icon:'bug_report', name:'Show JSON', disabled:false},{icon:'bug_report', name:'Show JSON meta data', disabled:false}]"
         (onCustomButton)="customButtonBehavior($event)">
