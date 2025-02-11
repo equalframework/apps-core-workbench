@@ -71,7 +71,7 @@ export class SearchControllersListComponent implements OnInit, OnChanges {
    * 
    * @returns void
    */
-  filterNodes(): void {
+  private filterNodes(): void {
     const searchLower = this.search_value.toLowerCase();
     if (this.data_selected) {
       // Filter nodes of type 'get' (Data)
