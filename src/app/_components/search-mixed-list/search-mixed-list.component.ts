@@ -90,17 +90,13 @@ export class SearchMixedListComponent implements OnInit {
             
         ) {}
 
-    public async ngOnInit() {
-
-        this.loading = true;
-        this.provider.equalComponents$.subscribe(
-        components => {
-            this.elements = [...components]; // Copie superficielle du tableau
-            this.filteredData = this.elements;
-            this.onSearch()
-            this.loading = false;
-        }
-    );
+        public ngOnInit() {
+            this.loading = true;
+            this.loadNodesV2();
+        
+        
+       
+       
 /*
          // Appeler loadPackages pour charger les packages via WorkbenchV1Service
          this.loading = true;
@@ -134,6 +130,37 @@ export class SearchMixedListComponent implements OnInit {
         this.onSearch();
     }
 
+
+    private loadNodesV2() {
+        if (this.package_name) {
+            // Si package_name est défini, appelez getComponents
+            if(this.node_type){
+                this.provider.getComponents(this.package_name, this.node_type).subscribe(
+                    components => this.handleComponents(components),
+                    error => this.handleError(error)
+                );
+            }
+            
+        } else {
+            // Si package_name n'est pas défini, utilisez equalComponents$
+            this.provider.equalComponents$.subscribe(
+                components => this.handleComponents(components),
+                error => this.handleError(error)
+            );
+        }
+    }
+    
+    private handleComponents(components: any[]) {
+        this.elements = [...components]; // Copie superficielle du tableau
+        this.filteredData = this.elements;
+        this.onSearch();
+        this.loading = false;
+    }
+    
+    private handleError(error: any) {
+        console.error('Erreur lors du chargement des composants:', error);
+        this.loading = false;
+    }
     /**
      * the behavior depends ont the member 'node_type'
      * classes and packages are always loaded synchronously
@@ -142,6 +169,8 @@ export class SearchMixedListComponent implements OnInit {
      */
     private async loadNodes() {
 
+        
+        
        /* // pass-1 - load packages and classes
         const classes = await this.api.getClasses();
         let packages = [];

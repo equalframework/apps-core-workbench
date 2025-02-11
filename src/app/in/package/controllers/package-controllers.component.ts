@@ -9,6 +9,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { EqualComponentDescriptor } from '../../_models/equal-component-descriptor.class';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { EqualComponentsProviderService } from '../../_services/equal-components-provider.service';
 
 @Component({
     selector: 'package-controllers',
@@ -46,7 +47,8 @@ export class PackageControllersComponent implements OnInit {
             private snackBar: MatSnackBar,
             private route: ActivatedRoute,
             private location: Location,
-            private matDialog:MatDialog
+            private matDialog:MatDialog,
+            private provider: EqualComponentsProviderService
         ) { }
 
     public async ngOnInit() {
@@ -67,7 +69,7 @@ export class PackageControllersComponent implements OnInit {
 
     private async loadControllers() {
         this.loading = true;
-        this.controllers = await this.api.getControllers(this.package_name);
+        this.controllers = this.provider.getComponents(this.package_name,'controller');
         this.loading = false;
     }
 

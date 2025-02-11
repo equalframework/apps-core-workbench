@@ -18,7 +18,7 @@ export class EqualComponentsProviderService {
 
     public getComponents(
         packageName: string,
-        componentType: 'class' | 'controller' | 'view' | 'menu', 
+        componentType: string,
         className?: string
         ){
             const currentData = this.equalComponentsSubject.value;

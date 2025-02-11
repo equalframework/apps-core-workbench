@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { DeleteConfirmationDialogComponent } from 'src/app/_modules/workbench.module';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
+import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
 
 @Component({
     selector: 'search-controllers-list',
@@ -12,7 +13,8 @@ import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-des
 })
 export class SearchControllersListComponent implements OnInit {
 
-    @Input() data: any;
+    data: any;
+    @Input() package_name:string;
     @Input() selected_node?: EqualComponentDescriptor;
 
     @Output() selectNode = new EventEmitter<EqualComponentDescriptor>();
@@ -31,15 +33,22 @@ export class SearchControllersListComponent implements OnInit {
 
     constructor(
         private dialog: MatDialog,
-        private snackBar: MatSnackBar
+        private snackBar: MatSnackBar,
+        private provider: EqualComponentsProviderService
         ) { }
 
     public ngOnInit(): void {
-        this.onSearch('');
+        this.provider.getComponents(this.package_name, 'controller').subscribe(
+            components => {
+                this.data=[...components];
+            }
+        )
+        console.log(this.package_name);
+        //this.onSearch('');
     }
 
     public ngOnChanges() {
-        this.onSearch(this.search_value);
+        //this.onSearch(this.search_value);
     }
 
     /**

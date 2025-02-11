@@ -10,7 +10,6 @@
 
     <div class="left_pane">
         <search-controllers-list list class="full" *ngIf="controllers"
-                [data]="controllers"
                 [selected_node]="selected_controller"
                 (selectNode)="onSelectNode($event)"
                 (nodeUpdate)="onupdateController($event)"
