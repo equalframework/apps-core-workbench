@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewEncapsulation } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, SimpleChanges, ViewEncapsulation } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { EnvService } from 'sb-shared-lib';
@@ -12,6 +12,8 @@ import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-des
 import { WorkbenchV1Service } from 'src/app/in/_services/workbench-v1.service';
 import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 /**
  * This component is used to display the list of all object you recover in package.component.ts
@@ -26,7 +28,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     styleUrls: ['./search-mixed-list.component.scss'],
     encapsulation: ViewEncapsulation.Emulated
 })
-export class SearchMixedListComponent implements OnInit {
+export class SearchMixedListComponent implements OnInit, OnDestroy {
+    private destroy$: Subject<boolean> = new Subject<boolean>();
 
     // Selected node of the list (consistent with node_type, if provided): parent might force the selection of a node (goto)
     @Input() node_selected?: EqualComponentDescriptor;
@@ -89,6 +92,10 @@ export class SearchMixedListComponent implements OnInit {
             private snackBar: MatSnackBar,
             
         ) {}
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
 
         public ngOnInit() {
             this.loading = true;
@@ -134,19 +141,22 @@ export class SearchMixedListComponent implements OnInit {
     private loadNodesV2() {
         if (this.package_name) {
             // Si package_name est défini, appelez getComponents
-            if(this.node_type){
-                this.provider.getComponents(this.package_name, this.node_type).subscribe(
+            if (this.node_type) {
+                this.provider.getComponents(this.package_name, this.node_type)
+                    .pipe(takeUntil(this.destroy$)) // Ajout de takeUntil
+                    .subscribe(
+                        components => this.handleComponents(components),
+                        error => this.handleError(error)
+                    );
+            }
+        } else {
+            // Si package_name n'est pas défini, utilisez equalComponents$
+            this.provider.equalComponents$
+                .pipe(takeUntil(this.destroy$)) // Ajout de takeUntil
+                .subscribe(
                     components => this.handleComponents(components),
                     error => this.handleError(error)
                 );
-            }
-            
-        } else {
-            // Si package_name n'est pas défini, utilisez equalComponents$
-            this.provider.equalComponents$.subscribe(
-                components => this.handleComponents(components),
-                error => this.handleError(error)
-            );
         }
     }
     
@@ -457,11 +467,20 @@ export class SearchMixedListComponent implements OnInit {
             item: 'package',
         });
         // Si vous devez appeler un service pour créer le package, vous pouvez le faire ici
-        this.workbenchService.createPackage(package_name).subscribe(response => {
-          if (response) {
-            console.log('Package créé avec succès:', response);
-          }
-        });
+        this.workbenchService.createPackage(package_name)
+        .pipe(takeUntil(this.destroy$)) // Ajout de takeUntil
+        .subscribe({
+            next: () =>{
+                
+                this.provider.refreshComponents();
+            },
+            error: (err) => {
+                console.error('Error deleting node:', err);
+                this.removePackageFromList(package_name);
+              }
+        }
+    
+        );
       }
     
       // Méthode pour retirer le package de la liste
@@ -525,9 +544,12 @@ public clickDelete(node: EqualComponentDescriptor): void {
         // Also update the filteredData if necessary.
         this.filteredData = this.filteredData.filter(n => n !== node);
   
-        this.workbenchService.deleteNode(node).subscribe({
+        this.workbenchService.deleteNode(node)
+        .pipe(takeUntil(this.destroy$)) // Ajout de takeUntil
+        .subscribe({
           next: () => {
             console.log('Node successfully deleted');
+            this.provider.refreshComponents();
           },
           error: (err) => {
             console.error('Error deleting node:', err);

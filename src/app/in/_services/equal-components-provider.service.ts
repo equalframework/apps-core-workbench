@@ -81,6 +81,11 @@ public getComponents(
   }
   
 
+  public refreshComponents(): void {
+    this.loadComponents(); // loadComponents() effectue l'appel API et met à jour equalComponentsSubject
+  }
+  
+
 
 
 
