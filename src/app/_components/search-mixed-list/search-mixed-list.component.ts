@@ -9,6 +9,9 @@ import { DeleteConfirmationDialogComponent } from 'src/app/_dialogs/delete-confi
 
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
+import { WorkbenchV1Service } from 'src/app/in/_services/workbench-v1.service';
+import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 /**
  * This component is used to display the list of all object you recover in package.component.ts
@@ -67,24 +70,48 @@ export class SearchMixedListComponent implements OnInit {
     // value part of the search bar field (parsed in onSearch() method)
     public search_value: string = '';
     // type part of the search bar field (is parsed in onSearch() method)
-    public search_scope: string = 'package';
+    public search_scope: string = "package";
 
     // used to render info about components present in filteredData (or data)
     public type_dict: { [id: string]: { icon: string, disp: string } } = ItemTypes.typeDict;
 
     // formControl for search input field
-    public inputControl = new FormControl('');
+    public inputControl = new FormControl('package:');
 
     public editingNode: EqualComponentDescriptor;
     public editedNode: EqualComponentDescriptor;
 
     constructor(
             private dialog: MatDialog,
-            private api: WorkbenchService
+            private api: WorkbenchService,
+            private provider: EqualComponentsProviderService,
+            private workbenchService: WorkbenchV1Service,
+            private snackBar: MatSnackBar,
+            
         ) {}
 
     public async ngOnInit() {
 
+        this.loading = true;
+        this.provider.equalComponents$.subscribe(
+        components => {
+            this.elements = [...components]; // Copie superficielle du tableau
+            this.filteredData = this.elements;
+            this.onSearch()
+            this.loading = false;
+        }
+    );
+/*
+         // Appeler loadPackages pour charger les packages via WorkbenchV1Service
+         this.loading = true;
+         this.workbenchService.loadPackages(); // Appeler la méthode loadPackages du service
+         // S'abonner aux packages récupérés
+         this.workbenchService.packages$.subscribe(packages => {
+             this.elements = packages; // Mettre à jour les éléments avec les données récupérées
+             this.filteredData = this.elements; // Appliquer tout filtrage si nécessaire
+             this.loading = false; // Désactiver le chargement une fois les données récupérées
+         });
+/*
         // let arg = this.router.retrieveArgs();
 
         this.search_scope = this.node_type ?? 'package';
@@ -96,7 +123,8 @@ export class SearchMixedListComponent implements OnInit {
         // refresh filtering
         this.selectSearchScope();
 
-        this.loading = false;
+        this.loading = false;*/
+
     }
 
     public async ngOnChanges(changes: SimpleChanges) {
@@ -114,7 +142,7 @@ export class SearchMixedListComponent implements OnInit {
      */
     private async loadNodes() {
 
-        // pass-1 - load packages and classes
+       /* // pass-1 - load packages and classes
         const classes = await this.api.getClasses();
         let packages = [];
 
@@ -229,7 +257,7 @@ export class SearchMixedListComponent implements OnInit {
                     }
                     this.sortComponents();
                 });
-        }
+        }*/
 
     }
 
@@ -366,14 +394,51 @@ export class SearchMixedListComponent implements OnInit {
                 height: "26em"
             });
 
-        d.afterClosed().subscribe(() => {
-            // Do stuff after the dialog has closed
-            this.updated.emit();
-            this.onSearch();
-        });
+            d.afterClosed().subscribe((result) => {
+                if (result && result.success) {
+                  console.log('Opération réussie:', result.message);
+                  console.log('Nom du package:', result.package_name);
+              
+                  // Ajouter le package à la liste
+                  this.addPackageToList(result.package_name);
+              
+                  // Afficher un message Snackbar avec le nom du package
+                  this.snackBar.open(`Package "${result.package_name}" ajouté avec succès!`, 'OK', { duration: 3000 });
+                } else {
+                  console.error('Opération échouée:', result ? result.message : 'Erreur inconnue');
+                  
+                  // Afficher un message d'erreur avec le nom du package
+                  this.snackBar.open(`Erreur lors de l'ajout du package: ${result ? result.package_name : ''}`, 'OK', { duration: 3000 });
+                }
+              
+                // Appeler la méthode de mise à jour ou de recherche si nécessaire
+                this.updated.emit();
+                this.onSearch();
+              });
+              
 
     }
 
+    private addPackageToList(package_name: string): void {
+        this.elements.push({
+            package_name: package_name,
+            name: package_name,
+            type: 'package',
+            file: package_name,
+            item: 'package',
+        });
+        // Si vous devez appeler un service pour créer le package, vous pouvez le faire ici
+        this.workbenchService.createPackage(package_name).subscribe(response => {
+          if (response) {
+            console.log('Package créé avec succès:', response);
+          }
+        });
+      }
+    
+      // Méthode pour retirer le package de la liste
+      private removePackageFromList(package_name: string): void {
+        this.elements = this.elements.filter(item => item.name !== package_name);
+      }
     /**
      * Update the editingNode and editedNode value to match the node.
      *

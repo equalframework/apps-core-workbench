@@ -16,13 +16,21 @@
 
     <mat-form-field class="select-component">
         <mat-select [(value)]="search_scope" (valueChange)="selectSearchScope()" disableOptionCentering="true">
-            <mat-select-trigger><mat-icon class="select-icon component-icon component-color-{{search_scope}}">{{type_dict[search_scope].icon}}</mat-icon> {{type_dict[search_scope].disp}}</mat-select-trigger>
+            <mat-select-trigger>
+                <mat-icon class="select-icon component-icon component-color-{{search_scope}}">
+                    {{type_dict[search_scope]?.icon}}
+                </mat-icon>
+                {{type_dict[search_scope]?.disp}}
+            </mat-select-trigger>
             <mat-option *ngFor="let component_type of getComponentsTypes()" [value]="component_type">
-                <mat-icon class="component-icon component-color-{{component_type}}">{{type_dict[component_type].icon}}</mat-icon> {{type_dict[component_type].disp}}
+                <mat-icon class="component-icon component-color-{{component_type}}">
+                    {{type_dict[component_type]?.icon}}
+                </mat-icon>
+                {{type_dict[component_type]?.disp}}
             </mat-option>
         </mat-select>
     </mat-form-field>
-
+    
 </div>
 
 <mat-list class="list">

@@ -4,6 +4,7 @@ import { WorkbenchService } from './_services/workbench.service'
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { prettyPrintJson } from 'pretty-print-json';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
+import { WorkbenchV1Service } from './_services/workbench-v1.service';
 
 
 @Component({
@@ -32,7 +33,8 @@ export class AppComponent implements OnInit {
     constructor(
             private context: ContextService,
             private api: WorkbenchService,
-            private snackBar: MatSnackBar
+            private snackBar: MatSnackBar,
+            private workbenchService:WorkbenchV1Service
         ) { }
 
     public async ngOnInit() {
@@ -164,18 +166,54 @@ export class AppComponent implements OnInit {
     }
 
 
+    public controllerNav(choice:number) {
+        if(this.selectedComponent) {
+            /*
+            switch(choice) {
+                case 1:
+                    this.router.navigate(['/controllers/params',this.selectedComponent.type,this.selectedComponent.name],{"selected":this.selectedComponent})
+                    break
+                case 2:
+                    this.router.navigate(['/translation',"controller",this.selectedComponent.package,this.selectedComponent.name.split("_").slice(1).join("\\")],{"selected":this.selectedComponent})
+                    break
+                case 3:
+                    this.router.navigate(["/controllers","return",this.selectedComponent.type,this.selectedComponent.name],{"selected":this.selectedComponent})
+                    break
+            }
+            */
+        }
+    }
 
-    public async deleteNode(node: { package?: string; name: string; type: string; item?: any }) {
-        this.api.deleteNode(node)
-            .then((message) => {
-                this.snackBar.open(message);
-                this.selectedComponent = undefined;
-                this.refresh();
-            })
-            .catch((error) => {
-                console.error("Deletion error:", error.ok);
-                this.snackBar.open("Error: " + error);
-            });
+
+    public deleteNode(node: EqualComponentDescriptor): void {
+        const adaptedNode = {
+          package: node.package_name,  // Adaptation ici
+          name: node.name,
+          type: node.type,
+          item: node.item
+        };
+      
+        this.workbenchService.deleteNode(adaptedNode).subscribe({
+          next: (response) => {
+            // Si la suppression a réussi, on affiche un message via le snackBar
+            this.snackBar.open(response.message);
+            
+            // Réinitialiser la sélection du composant après suppression
+            this.selectedComponent = undefined;
+      
+            // Rafraîchir la vue en récupérant les packages à nouveau
+            this.refresh();
+          },
+          error: (error) => {
+            // Gérer l'erreur si la suppression échoue
+            console.error("Deletion error:", error);
+            this.snackBar.open("Error: " + error);
+          }
+        });
+      }
+      
+
+
     
     
 
@@ -243,22 +281,6 @@ export class AppComponent implements OnInit {
 
 
     
-    public controllerNav(choice:number) {
-        if(this.selectedComponent) {
-            /*
-            switch(choice) {
-                case 1:
-                    this.router.navigate(['/controllers/params',this.selectedComponent.type,this.selectedComponent.name],{"selected":this.selectedComponent})
-                    break
-                case 2:
-                    this.router.navigate(['/translation',"controller",this.selectedComponent.package,this.selectedComponent.name.split("_").slice(1).join("\\")],{"selected":this.selectedComponent})
-                    break
-                case 3:
-                    this.router.navigate(["/controllers","return",this.selectedComponent.type,this.selectedComponent.name],{"selected":this.selectedComponent})
-                    break
-            }
-            */
-        }
-    }
 
-}
+
+

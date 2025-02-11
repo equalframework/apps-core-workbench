@@ -4,6 +4,7 @@ import { ItemTypes } from 'src/app/in/_models/item-types.class';
 import { AbstractControl, AsyncValidatorFn, FormControl, MaxLengthValidator, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
+import { WorkbenchV1Service } from 'src/app/in/_services/workbench-v1.service';
 
 @Component({
     selector: 'mixed-creator-dialog',
@@ -137,9 +138,28 @@ export class MixedCreatorDialogComponent implements OnInit {
     async create() {
         switch (this.type) {
             case "package":
-                await this.api.createPackage(this.nameControl.value);
-                this.dialogRef.close();
-                break
+                this.workbenchService.createPackage(this.nameControl.value).subscribe({
+                    next: (response) => {
+                      console.log('Package créé avec succès:', response);
+                      // Ici tu peux fermer la boîte de dialogue après la création
+                     // Si la création est réussie, on retourne le statut, le message et le nom du package
+                    this.dialogRef.close({
+                    success: true,
+                    message: 'Création réussie',
+                    package_name: this.nameControl.value // Inclure le nom du package
+                        });                    
+                    },
+                    error: (error) => {
+                      console.error('Erreur lors de la création du package:', error);
+                        // Si la création échoue, on retourne le statut d'échec, le message d'erreur et le nom du package
+                            this.dialogRef.close({
+                            success: false,
+                            message: 'Échec de la création',
+                            package_name: this.nameControl.value // Inclure le nom du package
+                            });                    
+                        }
+                  });
+                  break;
             case "view" :
                 await this.api.createView(this.selected_package + "\\"+this.selected_model, this.subtype + "." + this.nameControl.value)
                 this.dialogRef.close();
@@ -234,6 +254,7 @@ export class MixedCreatorDialogComponent implements OnInit {
     constructor(
                 @Optional() public dialogRef: MatDialogRef<MixedCreatorDialogComponent>,
                 private api: WorkbenchService,
+                private workbenchService : WorkbenchV1Service,
                 @Optional() @Inject(MAT_DIALOG_DATA) public data: { node_type: string, package?:string, model?:string, sub_type?:string, lock_type ?:boolean, lock_package?: boolean, lock_model?:boolean, lock_subtype?: boolean },
             ) {
 
