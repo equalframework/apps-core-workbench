@@ -185,7 +185,7 @@ export class AppComponent implements OnInit {
     }
 
 
-    public deleteNode(node: EqualComponentDescriptor): void {
+    /*public deleteNode(node: EqualComponentDescriptor): void {
         const adaptedNode = {
           package: node.package_name,  // Adaptation ici
           name: node.name,
@@ -210,7 +210,7 @@ export class AppComponent implements OnInit {
             this.snackBar.open("Error: " + error);
           }
         });
-      }
+      }*/
       
 
 

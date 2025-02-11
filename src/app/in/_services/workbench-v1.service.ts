@@ -15,21 +15,21 @@ export class WorkbenchV1Service {
   constructor(private api: ApiService) { }
 
 
-  public deleteNode(node: { package: string; name: string; type: string; item?: any }): Observable<any> {
+  public deleteNode(node: EqualComponentDescriptor): Observable<any> {
     switch (node.type) {
         case 'package':
             // Si c'est un package, on appelle la méthode deletePackage
-            return this.deletePackage(node.package).pipe(
+            return this.deletePackage(node.name).pipe(
               tap(() => {
-                console.log(`Package ${node.package} supprimé avec succès`);
+                console.log(`Package ${node.name} supprimé avec succès`);
               }),
               map(() => {
-                return { message: `Package ${node.package} supprimé avec succès` };  // Renvoi d'un message
+                return { message: `Package ${node.name} supprimé avec succès` };  // Renvoi d'un message
               }),
               catchError(error => {
-                console.error(`Erreur lors de la suppression du package ${node.package}:`, error);
+                console.error(`Erreur lors de la suppression du package ${node.name}:`, error);
                 // Retourner un Observable avec un message d'erreur
-                return of({ message: `Erreur lors de la suppression du package ${node.package}: ${error}` });
+                return of({ message: `Erreur lors de la suppression du package ${node.name}: ${error}` });
               })
             );
   

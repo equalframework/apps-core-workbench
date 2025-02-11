@@ -503,20 +503,43 @@ export class SearchMixedListComponent implements OnInit {
     }
 
     /**
-     * Open a pop-up if delete icon is clicked and emit delete event if confirmed.
-     *
-     * @param node name of node that the user want to delete
-     */
-    public clickDelete(node: EqualComponentDescriptor) {
-        const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent, {
-            data: node.name,
+ * Handles the deletion of a node after user confirmation.
+ * If the deletion is successful, the node is permanently removed.
+ * If an error occurs, the node is restored to the list.
+ *
+ * @param {EqualComponentDescriptor} node - The node to be deleted.
+ * @returns {void}
+ */
+public clickDelete(node: EqualComponentDescriptor): void {
+    const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent, {
+      data: node.name,
+    });
+  
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // Backup the current data for potential restoration.
+        const originalData = [...this.elements];
+  
+        // Optimistically remove the node from the list.
+        this.elements = this.elements.filter(n => n !== node);
+        // Also update the filteredData if necessary.
+        this.filteredData = this.filteredData.filter(n => n !== node);
+  
+        this.workbenchService.deleteNode(node).subscribe({
+          next: () => {
+            console.log('Node successfully deleted');
+          },
+          error: (err) => {
+            console.error('Error deleting node:', err);
+            // Restore the original data in case of error.
+            this.elements = originalData;
+            // Reapply filtering if needed.
+          }
         });
-        dialogRef.afterClosed().subscribe((result) => {
-            if (result) {
-                this.deleteNode.emit(node);
-            }
-        });
-    }
+      }
+    });
+  }
+  
 
 
 
