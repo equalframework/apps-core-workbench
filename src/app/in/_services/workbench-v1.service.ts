@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, from, Observable, of } from 'rxjs';
+import { BehaviorSubject, from, Observable, of, pipe } from 'rxjs';
 import { EqualComponentDescriptor } from '../_models/equal-component-descriptor.class';
 import { catchError, map, tap } from 'rxjs/operators';
 import { ApiService } from 'sb-shared-lib';
@@ -15,40 +15,49 @@ export class WorkbenchV1Service {
   constructor(private api: ApiService) { }
 
 
-  public deleteNode(node: EqualComponentDescriptor): Observable<any> {
-    switch (node.type) {
-        case 'package':
-            // Si c'est un package, on appelle la méthode deletePackage
-            return this.deletePackage(node.name).pipe(
-              tap(() => {
-                console.log(`Package ${node.name} supprimé avec succès`);
-              }),
-              map(() => {
-                return { message: `Package ${node.name} supprimé avec succès` };  // Renvoi d'un message
-              }),
-              catchError(error => {
-                console.error(`Erreur lors de la suppression du package ${node.name}:`, error);
-                // Retourner un Observable avec un message d'erreur
-                return of({ message: `Erreur lors de la suppression du package ${node.name}: ${error}` });
-              })
-            );
-  
-      // Cas pour d'autres types de node à supprimer
-      case 'class':
-        console.log(`Suppression de la classe ${node.name} non implémentée`);
-        return from([null]); // Gère ou retourne un Observable vide pour d'autres types
-  
-      case 'get':
-        console.log(`Suppression du GET ${node.name} non implémentée`);
-        return from([null]); // Retourne un Observable vide ou un comportement personnalisé pour ce type
-  
-      // Cas où le type n'est pas reconnu ou pris en charge
-      default:
-        console.error(`Suppression d'un node de type inconnu ou non pris en charge: ${node.type}`);
-        return from([null]); // Retourne un Observable vide pour les types non pris en charge
+  public createNode(node: EqualComponentDescriptor): Observable<any>{
+    const createActions: Record<string, () => Observable<any>> ={
+        package: () => this.createPackage(node.name).pipe(
+            this.handleSuccess(`Package ${node.name} ajouté avec succès`),
+            this.handleError(`Erreur lors de l'ajout du package ${node.name}`)
+        ),
+        class: () => this.notImplemented(`Ajout de la classe ${node.name} non implémentée`),
+        get: () => this.notImplemented(`Ajout du controller ${node.name} non implémentée`),
     }
+    return createActions[node.type]?.() || of("erreur");
   }
 
+  public deleteNode(node: EqualComponentDescriptor): Observable<any> {
+    const deleteActions: Record<string, () => Observable<any>> ={
+        package: () => this.deletePackage(node.name).pipe(
+            this.handleSuccess(`Package ${node.name} supprimé avec succès`),
+            this.handleError(`Erreur lors de la suppression du package ${node.name}`)
+        ),
+        class: () => this.notImplemented(`Suppression de la classe ${node.name} non implémentée`),
+        get: () => this.notImplemented(`Suppression du controller ${node.name} non implémentée`),
+    }
+    return deleteActions[node.type]?.() || of("erreur");
+  }
+
+
+  private handleError(errorMessage: string) {
+    return catchError(error => {
+        console.error(`${errorMessage}:`, error);
+        return of({ message: `${errorMessage}: ${error}` });
+    });
+}
+
+  private handleSuccess(message: string) {
+    return pipe(
+        tap(() => console.log(message)),
+        map(() => ({ message }))
+    );
+}
+
+  private notImplemented(message: string): Observable<any> {
+    console.warn(message);
+    return of({ message });
+}
 
 
   public createPackage(package_name: string): Observable<any> {

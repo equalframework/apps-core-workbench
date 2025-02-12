@@ -435,27 +435,15 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
 
             d.afterClosed().subscribe((result) => {
                 if (result && result.success) {
-                  console.log('Opération réussie:', result.message);
-                  console.log('Nom du package:', result.package_name);
-              
-                  // Ajouter le package à la liste
-                  this.addPackageToList(result.package_name);
-              
-                  // Afficher un message Snackbar avec le nom du package
-                  this.snackBar.open(`Package "${result.package_name}" ajouté avec succès!`, 'OK', { duration: 3000 });
+                    console.log("result :", result);
                 } else {
+                    console.log(result);
                   console.error('Opération échouée:', result ? result.message : 'Erreur inconnue');
-                  
                   // Afficher un message d'erreur avec le nom du package
                   this.snackBar.open(`Erreur lors de l'ajout du package: ${result ? result.package_name : ''}`, 'OK', { duration: 3000 });
                 }
-              
-                // Appeler la méthode de mise à jour ou de recherche si nécessaire
-                this.updated.emit();
                 this.onSearch();
               });
-              
-
     }
 
     private addPackageToList(package_name: string): void {
