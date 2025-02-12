@@ -10,6 +10,7 @@ import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
+import { EqualComponentsProviderService } from '../../_services/equal-components-provider.service';
 
 @Component({
     selector: 'package-routes',
@@ -44,20 +45,20 @@ export class PackageRoutesComponent implements OnInit {
             private route: ActivatedRoute,
             private location: Location,
             public matDialog:MatDialog,
-            public env:EnvService
+            public env:EnvService,
+            public provider:EqualComponentsProviderService
         ) { }
 
     public async ngOnInit() {
         this.routes_for_selected_package = [];
         this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
             this.package_name = params['package_name'];
-            this.loadRoutes();
+            this.ready = true;
+            this.loading = false;
         });
-
-        this.ready = true;
     }
 
-    private async loadRoutes() {
+    /*private async loadRoutes() {
         this.loading = false;
         let y = await this.api.getRoutesByPackage(this.package_name);
         for(let file in y) {
@@ -68,7 +69,7 @@ export class PackageRoutesComponent implements OnInit {
             }
         }
         this.loading = false;
-    }
+    }*/
 
     /**
      * Select a node.
@@ -112,7 +113,7 @@ export class PackageRoutesComponent implements OnInit {
 
         d.afterClosed().subscribe(() => {
             // Do stuff after the dialog has closed
-            this.loadRoutes()
+            //this.loadRoutes()
         });
     }
 

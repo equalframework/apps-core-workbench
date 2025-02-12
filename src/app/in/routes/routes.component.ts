@@ -46,7 +46,7 @@ export class RoutesComponent implements OnInit {
 
     public async ngOnInit() {
         this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
-            this.loadRoutes();
+            //this.loadRoutes();
         });
 
         this.ready = true;

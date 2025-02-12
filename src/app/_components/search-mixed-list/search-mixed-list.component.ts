@@ -40,7 +40,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     @Input() node_type?: string;
 
     // optional package ref for limiting creation of components to that specific package
-    @Input() package_name?: string = '';
+    @Input() package_name: string = "";
 
     @Input() allow_create?: boolean = true;
     @Input() allow_update?: boolean = true;
@@ -74,7 +74,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     // value part of the search bar field (parsed in onSearch() method)
     public search_value: string = '';
     // type part of the search bar field (is parsed in onSearch() method)
-    public search_scope: string = "package";
+    public search_scope: string = "";
 
     // used to render info about components present in filteredData (or data)
     public type_dict: { [id: string]: { icon: string, disp: string } } = ItemTypes.typeDict;
@@ -139,6 +139,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
 
 
     private loadNodesV2() {
+
         if (this.package_name) {
             // Si package_name est défini, appelez getComponents
             if (this.node_type) {
@@ -150,13 +151,26 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
                     );
             }
         } else {
-            // Si package_name n'est pas défini, utilisez equalComponents$
+
+            if(this.node_type){
+                this.provider.getComponents(this.package_name,this.node_type)
+                    .pipe(takeUntil(this.destroy$))
+                    .subscribe(
+                        components => this.handleComponents(components),
+                        error => this.handleError(error)
+                    );
+            }
+
+            else{
+                // Si package_name n'est pas défini et qu'il n'y a pas de note_type, utilisez equalComponents$
             this.provider.equalComponents$
                 .pipe(takeUntil(this.destroy$)) // Ajout de takeUntil
                 .subscribe(
                     components => this.handleComponents(components),
                     error => this.handleError(error)
                 );
+            }
+            
         }
     }
 

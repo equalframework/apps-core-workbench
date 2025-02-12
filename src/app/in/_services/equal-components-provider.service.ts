@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Component } from '@angular/core';
 import { BehaviorSubject, forkJoin, from, Observable, of } from 'rxjs';
 import { EqualComponentDescriptor } from '../_models/equal-component-descriptor.class';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { ApiService } from 'sb-shared-lib';
 
 @Injectable({
@@ -49,19 +49,25 @@ public getComponents(
       case 'class':
         componentObservable = this.handleClasses(packageName, className);
         break;
-  
       case 'controller':
         componentObservable = this.handleControllers(packageName);
         break;
-  
       case 'view':
         componentObservable = this.handleViews(packageName, className);
         break;
-  
+
       case 'menu':
         componentObservable = this.handleMenus(packageName);
         break;
-  
+     case 'route':
+        console.log("je suis rentreé dans route");
+
+        if(packageName != ""){
+        componentObservable = this.handleRoutes(packageName);
+        }else{
+            componentObservable = this.handleRoutesLives();
+        }
+        break;
       default:
         return of([]);
     }
@@ -79,6 +85,7 @@ public getComponents(
       })
     );
   }
+
   
 
   public refreshComponents(): void {
@@ -88,6 +95,82 @@ public getComponents(
 
 
 
+
+  private handleRoutesLives(): Observable<EqualComponentDescriptor[]>{
+    return this.fetchRoutesLives().pipe(
+        map((routesData) => {
+
+
+            const components: EqualComponentDescriptor[] = [];
+
+            for (const routePath of Object.keys(routesData)) {
+                const item: { [method: string]: { description: string, operation: string } } = {};
+                let packageName;
+                for (const method of Object.keys(routesData[routePath]["methods"])) {
+                    const operation = routesData[routePath]["methods"][method]["operation"];
+                     // Extraction du package après "?quelquechose="
+                    const packageMatch = operation.match(/\?[^=]+=([^\\&]+)/);
+                    packageName = packageMatch ? packageMatch[1].split("\\").shift() : undefined;
+                    packageName = packageName.split("_")[0];
+
+                    item[method] = {
+                        description: routesData[routePath]["methods"][method]["description"],
+                        operation: routesData[routePath]["methods"][method]["operation"]
+                    };
+                }
+            
+                const file =`${packageName}/init/routes/${routesData[routePath]["info"]["file"]}`
+                const component = new EqualComponentDescriptor(
+                    packageName,      // Remplace par le vrai package
+                    routePath,
+                    "route",
+                    file,
+                    item
+                );
+            
+                components.push(component);
+            }
+            return components;
+        })
+    )
+  }
+
+
+  private handleRoutes(packageName: string): Observable<EqualComponentDescriptor[]> {
+    return this.fetchRoutesByPackage(packageName).pipe(
+        tap((result)=>{
+            console.log(result);
+        }),
+        map((routesData) => {
+
+            const components: EqualComponentDescriptor[] = [];
+            //fichier contenant les routes
+            for(const file in routesData){
+                const routePath = `${packageName}/init/routes/${file}`;
+                //Le nom des route
+                for(const route_name in routesData[file] ){
+                    let item: any = {};
+                    //Les infos de chaque route (les méthods put,get,post)
+                    for( const method in routesData[file][route_name]){
+                        const routeInfo = routesData[file][route_name][method];
+                        item[method] = {
+                            description: routeInfo.description,
+                            operation: routeInfo.operation
+                        }
+                    }
+                    const component = new EqualComponentDescriptor
+                    (packageName, 
+                        route_name, 
+                        "route",
+                        routePath, 
+                        item);
+                    components.push(component);
+                }
+            }
+            return components;
+        })
+    )
+    }
 
 
   /**
@@ -224,7 +307,8 @@ public getComponents(
         const apiCalls: Observable<EqualComponentDescriptor[]>[] = [
             ...this.loadControllers(packages),
             ...this.loadViews(packages),
-            ...this.loadMenus(packages)
+            ...this.loadMenus(packages),
+            //...this.loadRoutes(packages)
         ];
 
         if (apiCalls.length === 0) {
@@ -247,6 +331,27 @@ public getComponents(
                 console.error('Error loading additional components:', error);
             }
         });
+    }
+
+
+    private loadRoutes(packages: EqualComponentDescriptor[]) {
+        return packages.map((package_component) =>
+            this.fetchRoutesByPackage(package_component.name).pipe(
+                map((routes: string[]) => {
+                    return routes.map(route_name => ({
+                        package_name: package_component.name,
+                        name: route_name,
+                        type: 'route',
+                        file: `${package_component.name}/route/${route_name}.php`,
+                        item: "route"
+                    }));
+                }),
+                catchError((error) => {
+                    console.error(`Error loading routes for ${package_component.name}:`, error);
+                    return of([]);
+                })
+            )
+        );
     }
 
 
@@ -359,6 +464,8 @@ public getComponents(
     }
 
 
+     
+
 
 
     /**
@@ -403,11 +510,26 @@ public getComponents(
     private fetchRoutesByPackage(package_name: string): Observable<any> {
         const url = `?get=core_config_routes&package=${package_name}`;
         return from(this.api.fetch(url)).pipe(
+            tap((response)=>{
+                console.log(response);
+            }),
             catchError((error) => {
                 console.warn(`Error fetching routes for ${package_name}:`, error);
                 return of([]); // Returns an empty array in case of an error
             })
         );
+    }
+
+
+    private fetchRoutesLives(): Observable<any>{
+        const url = "?get=config_live_routes";
+        return from(this.api.fetch(url)).pipe(
+            catchError( (error) => {
+                console.warn(`Error fetching routes lives`, error);
+                return of([]);
+            })
+        )
+
     }
 
     /**
