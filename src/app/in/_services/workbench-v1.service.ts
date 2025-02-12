@@ -22,11 +22,15 @@ export class WorkbenchV1Service {
      * @param node The component descriptor containing details of the component to create.
      * @returns An observable that emits a success or error message.
      */
-    public createNode(node: EqualComponentDescriptor): Observable<any> {
+    public createNode(node: EqualComponentDescriptor, class_parent:string="equal\\orm\\Model"): Observable<any> {
         const createActions: Record<string, () => Observable<any>> = {
             package: () => this.createPackage(node.name),
-            class: () => this.notImplemented(`Adding class ${node.name} not implemented`),
-            get: () => this.notImplemented(`Adding controller ${node.name} not implemented`)
+            class: () => this.createClass(node.package_name, node.name, class_parent),
+            get: () => this.notImplemented(`Adding controller ${node.name} not implemented`),
+            do: () => this.notImplemented(`Adding controller ${node.name} not implemented`),
+            view: () => this.notImplemented(`Adding view ${node.name} not implemented`),
+            menu: () => this.notImplemented(`Adding menu ${node.name} not implemented`),
+            route:() =>this.notImplemented(`Adding route ${node.name} not implemented`)
         };
 
         // Return the appropriate observable based on the node type, or a default message for unknown types.
@@ -44,7 +48,11 @@ export class WorkbenchV1Service {
         const deleteActions: Record<string, () => Observable<any>> = {
             package: () => this.deletePackage(node.name),
             class: () => this.notImplemented(`Deleting class ${node.name} not implemented`),
-            get: () => this.notImplemented(`Deleting controller ${node.name} not implemented`)
+            get: () => this.notImplemented(`Deleting controller ${node.name} not implemented`),
+            do: () => this.notImplemented(`Deleting controller ${node.name} not implemented`),
+            view: () => this.notImplemented(`Deleting view ${node.name} not implemented`),
+            menu: () => this.notImplemented(`Deleting menu ${node.name} not implemented`),
+            route:() =>this.notImplemented(`Deleting route ${node.name} not implemented`)
         };
 
         // Return the appropriate observable based on the node type, or a default message for unknown types.
@@ -110,4 +118,58 @@ export class WorkbenchV1Service {
             )
         );
     }
+
+
+    /**
+    * Creates a new class within the specified package, potentially inheriting from a parent class.
+    * 
+    * @param {string} package_name - The name of the package where the new class will be created.
+    * @param {string} class_name - The name of the new class to be created.
+    * @param {string} parent - The name of the parent class that the new class will extend. Defaults to "equal\\orm\\Model".
+    * 
+    * @returns {Observable<{ success: boolean, message: string, response?: string, error?: any }>} 
+    * An observable that emits an object containing the success status, a message, and optionally, 
+    * the response or error details if the class creation fails.
+    * 
+    * @example
+    * // Usage example
+    * createClass('myPackage', 'MyNewClass', 'equal\\orm\\Model')
+    *   .subscribe(result => {
+    *     if (result.success) {
+    *       console.log(result.message); // Class MyNewClass created successfully!
+    *     } else {
+    *       console.error(result.message); // Error during class creation
+    *     }
+    *   });
+    */
+private createClass(package_name: string, class_name: string, parent: string) {
+    const url = `?do=core_config_create-model&model=${class_name}&package=${package_name}${parent === "equal\\orm\\Model" ? "" : `&extends=${parent.replace(/\\/g, '\\\\')}`}`;
+    
+    return from(this.api.fetch(url, { responseType: 'text' })).pipe(
+        map(() => ({
+            success: true,
+            message: `Class ${class_name} created successfully!`,
+        })),
+        catchError(error => {
+            // Log complete error for debugging
+            console.error("Error details:", error);
+            let errorMessage = `Error during class creation: `;
+            if (error.error && error.error.errors) {
+                let errorDetails = error.error.errors;
+                // Concatenate each error in the 'errors' object to the error message
+                for (const [key, value] of Object.entries(errorDetails)) {
+                    errorMessage += `\n${key}: ${value}`;
+                }
+            }
+            return of({
+                success: false,
+                message: errorMessage,
+                error: error
+            });
+        })
+    );
+}
+
+    
+    
 }

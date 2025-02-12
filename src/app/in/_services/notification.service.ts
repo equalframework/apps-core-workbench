@@ -15,7 +15,7 @@ export class NotificationService {
   }
 
   // Méthode pour afficher une notification d'erreur
-  showError(message: string, action: string = 'Close', duration: number = 3000): void {
+  showError(message: string, action: string = 'Close', duration: number = 5000): void {
     this.showMessage(message, action, 'error', duration);
   }
 

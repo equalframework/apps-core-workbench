@@ -448,11 +448,13 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         });
 
         d.afterClosed().subscribe((result) => {
+            console.log(result);
             if (result) {
                 if (result.success) {
                     this.addToComponents(result.node);
                     this.notificationService.showSuccess(result.message);
                     this.onSearch();
+                    this.provider.refreshComponents();
                 }
                 else {
                     this.removeFromComponents(result.node);

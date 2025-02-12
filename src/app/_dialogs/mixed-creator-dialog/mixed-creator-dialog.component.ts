@@ -145,7 +145,9 @@ export class MixedCreatorDialogComponent implements OnInit {
             item: this.type
         };
     
-        this.workbenchService.createNode(node).subscribe(result => {
+        this.workbenchService.createNode(node, this.subtype).subscribe(result => {
+            console.log(this.subtype);
+
         // Ajouter le node à la réponse du service avant de la renvoyer
         const resultWithNode = {
             ...result,  // Étend le résultat existant
