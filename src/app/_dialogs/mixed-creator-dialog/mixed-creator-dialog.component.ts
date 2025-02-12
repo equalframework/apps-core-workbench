@@ -5,6 +5,7 @@ import { AbstractControl, AsyncValidatorFn, FormControl, MaxLengthValidator, Val
 import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { WorkbenchV1Service } from 'src/app/in/_services/workbench-v1.service';
+import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
 
 @Component({
     selector: 'mixed-creator-dialog',
@@ -135,63 +136,26 @@ export class MixedCreatorDialogComponent implements OnInit {
         }
     }
 
-    async create() {
-        switch (this.type) {
-            case "package":
-                this.workbenchService.createPackage(this.nameControl.value).subscribe({
-                    next: (response) => {
-                      console.log('Package créé avec succès:', response);
-                      // Ici tu peux fermer la boîte de dialogue après la création
-                     // Si la création est réussie, on retourne le statut, le message et le nom du package
-                    this.dialogRef.close({
-                    success: true,
-                    message: 'Création réussie',
-                    package_name: this.nameControl.value // Inclure le nom du package
-                        });                    
-                    },
-                    error: (error) => {
-                      console.error('Erreur lors de la création du package:', error);
-                        // Si la création échoue, on retourne le statut d'échec, le message d'erreur et le nom du package
-                            this.dialogRef.close({
-                            success: false,
-                            message: 'Échec de la création',
-                            package_name: this.nameControl.value // Inclure le nom du package
-                            });                    
-                        }
-                  });
-                  break;
-            case "view" :
-                await this.api.createView(this.selected_package + "\\"+this.selected_model, this.subtype + "." + this.nameControl.value)
-                this.dialogRef.close();
-                break
-            case "menu" :
-                await this.api.createView(this.selected_package + "\\menu", this.nameControl.value + "." + this.subtype)
-                this.dialogRef.close();
-                break
-            case "class" :
-                await this.api.createModel(this.selected_package, this.nameControl.value, this.subtype)
-                this.dialogRef.close();
-                break;
-            case "do" :
-                await this.api.createController(this.selected_package,this.nameControl.value,"do")
-                this.dialogRef.close();
-                break;
-            case "get" :
-                await this.api.createController(this.selected_package,this.nameControl.value,"get")
-                this.dialogRef.close();
-                break;
-            case "route" :
-                await this.api.createroute(
-                    this.selected_package,
-                    this.addingState ? this.customSTControl.value : this.subtype,
-                    this.nameControl.value
-                );
-                this.dialogRef.close();
-                break;
-            default:
-                this.dialogRef.close();
-        }
+    createComponent() {
+        const node: EqualComponentDescriptor = {
+            type: this.type,
+            name: this.nameControl.value,
+            package_name: this.selected_package,
+            file:this.nameControl.value,
+            item: this.type
+        };
+    
+        this.workbenchService.createNode(node).subscribe(result => {
+        // Ajouter le node à la réponse du service avant de la renvoyer
+        const resultWithNode = {
+            ...result,  // Étend le résultat existant
+            node: node  // Ajoute l'objet node au résultat
+        };
+
+        this.dialogRef.close(resultWithNode);
+        });
     }
+    
 
   // ---------------------------------------------------------------------------------------------------------
 

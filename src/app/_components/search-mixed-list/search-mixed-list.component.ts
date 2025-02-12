@@ -14,6 +14,7 @@ import { EqualComponentsProviderService } from 'src/app/in/_services/equal-compo
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { NotificationService } from 'src/app/in/_services/notification.service';
 
 /**
  * This component is used to display the list of all object you recover in package.component.ts
@@ -89,8 +90,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
             private api: WorkbenchService,
             private provider: EqualComponentsProviderService,
             private workbenchService: WorkbenchV1Service,
-            private snackBar: MatSnackBar,
-            
+            private notificationService : NotificationService
         ) {}
     ngOnDestroy(): void {
         this.destroy$.next();
@@ -434,19 +434,25 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
             });
 
             d.afterClosed().subscribe((result) => {
-                if (result && result.success) {
-                    console.log("result :", result);
-                } else {
-                    console.log(result);
-                  console.error('Opération échouée:', result ? result.message : 'Erreur inconnue');
-                  // Afficher un message d'erreur avec le nom du package
-                  this.snackBar.open(`Erreur lors de l'ajout du package: ${result ? result.package_name : ''}`, 'OK', { duration: 3000 });
+                if(result.success){
+                    this.addToComponents(result.node);
+                    this.notificationService.showSuccess(result.message);
+                }
+                else{
+                    this.removeFromComponents(result.node);
+                    this.notificationService.showError(result.message);
                 }
                 this.onSearch();
               });
     }
 
-    private addPackageToList(package_name: string): void {
+    private addToComponents(node: EqualComponentDescriptor){
+        this.elements.push(node);
+    }
+
+
+
+    /*private addPackageToList(package_name: string): void {
         this.elements.push({
             package_name: package_name,
             name: package_name,
@@ -469,11 +475,11 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         }
     
         );
-      }
+      }*/
     
       // Méthode pour retirer le package de la liste
-      private removePackageFromList(package_name: string): void {
-        this.elements = this.elements.filter(item => item.name !== package_name);
+      private removeFromComponents(node: EqualComponentDescriptor): void {
+        this.elements = this.elements.filter(item => item.name !== node.name);
       }
     /**
      * Update the editingNode and editedNode value to match the node.
