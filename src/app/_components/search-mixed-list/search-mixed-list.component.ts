@@ -59,7 +59,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
 
     // event for notifying parent that selected object has changed
     @Output() selectNode = new EventEmitter<EqualComponentDescriptor>();
-    @Output() updateNode = new EventEmitter<{old_node: EqualComponentDescriptor, new_node: EqualComponentDescriptor}>();
+    @Output() updateNode = new EventEmitter<{ old_node: EqualComponentDescriptor, new_node: EqualComponentDescriptor }>();
     @Output() deleteNode = new EventEmitter<EqualComponentDescriptor>();
     // event for notifying parent that the list has been updated and needs to be refreshed
     @Output() updated = new EventEmitter();
@@ -86,52 +86,52 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     public editedNode: EqualComponentDescriptor;
 
     constructor(
-            private dialog: MatDialog,
-            private api: WorkbenchService,
-            private provider: EqualComponentsProviderService,
-            private workbenchService: WorkbenchV1Service,
-            private notificationService : NotificationService
-        ) {}
+        private dialog: MatDialog,
+        private api: WorkbenchService,
+        private provider: EqualComponentsProviderService,
+        private workbenchService: WorkbenchV1Service,
+        private notificationService: NotificationService
+    ) { }
     ngOnDestroy(): void {
         this.destroy$.next();
         this.destroy$.complete();
     }
 
-        public ngOnInit() {
-            this.loading = true;
-            this.loadNodesV2();
-        
-        
-       
-       
-/*
-         // Appeler loadPackages pour charger les packages via WorkbenchV1Service
-         this.loading = true;
-         this.workbenchService.loadPackages(); // Appeler la méthode loadPackages du service
-         // S'abonner aux packages récupérés
-         this.workbenchService.packages$.subscribe(packages => {
-             this.elements = packages; // Mettre à jour les éléments avec les données récupérées
-             this.filteredData = this.elements; // Appliquer tout filtrage si nécessaire
-             this.loading = false; // Désactiver le chargement une fois les données récupérées
-         });
-/*
-        // let arg = this.router.retrieveArgs();
-
-        this.search_scope = this.node_type ?? 'package';
-
+    public ngOnInit() {
         this.loading = true;
+        this.loadNodesV2();
 
-        await this.loadNodes();
 
-        // refresh filtering
-        this.selectSearchScope();
 
-        this.loading = false;*/
+
+        /*
+                 // Appeler loadPackages pour charger les packages via WorkbenchV1Service
+                 this.loading = true;
+                 this.workbenchService.loadPackages(); // Appeler la méthode loadPackages du service
+                 // S'abonner aux packages récupérés
+                 this.workbenchService.packages$.subscribe(packages => {
+                     this.elements = packages; // Mettre à jour les éléments avec les données récupérées
+                     this.filteredData = this.elements; // Appliquer tout filtrage si nécessaire
+                     this.loading = false; // Désactiver le chargement une fois les données récupérées
+                 });
+        /*
+                // let arg = this.router.retrieveArgs();
+        
+                this.search_scope = this.node_type ?? 'package';
+        
+                this.loading = true;
+        
+                await this.loadNodes();
+        
+                // refresh filtering
+                this.selectSearchScope();
+        
+                this.loading = false;*/
 
     }
 
     public async ngOnChanges(changes: SimpleChanges) {
-        if(changes.node_type && this.node_type) {
+        if (changes.node_type && this.node_type) {
             this.selectSearchScope();
         }
         this.onSearch();
@@ -159,14 +159,14 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
                 );
         }
     }
-    
+
     private handleComponents(components: any[]) {
         this.elements = [...components]; // Copie superficielle du tableau
         this.filteredData = this.elements;
         this.onSearch();
         this.loading = false;
     }
-    
+
     private handleError(error: any) {
         console.error('Erreur lors du chargement des composants:', error);
         this.loading = false;
@@ -177,11 +177,11 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
      * but then other components, if requested, are loaded in background
      * except when node_type is set to a specific value (distinct from '')
      */
-    private async loadNodes() {
+    /*private async loadNodes() {
 
         
         
-       /* // pass-1 - load packages and classes
+       // pass-1 - load packages and classes
         const classes = await this.api.getClasses();
         let packages = [];
 
@@ -296,37 +296,37 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
                     }
                     this.sortComponents();
                 });
-        }*/
+        }
 
-    }
+    }*/
 
     private sortComponents() {
-        this.elements.sort( (a, b) => {
-                let result = 1;
-                let x = ( a.type === "route" ?
-                        a.package_name+a.more+a.name :
-                        ( (a.type === "class" || a.type === "menu") ? a.package_name+a.name : a.name )
-                    )
-                    .replace(/[^a-zA-Z0-9 ]/g, '')
-                    .toLowerCase();
+        this.elements.sort((a, b) => {
+            let result = 1;
+            let x = (a.type === "route" ?
+                a.package_name + a.more + a.name :
+                ((a.type === "class" || a.type === "menu") ? a.package_name + a.name : a.name)
+            )
+                .replace(/[^a-zA-Z0-9 ]/g, '')
+                .toLowerCase();
 
-                let y = (b.type === "class" ? b.package_name+b.name : b.name)
-                    .replace(/[^a-zA-Z0-9 ]/g, '')
-                    .toLowerCase();
+            let y = (b.type === "class" ? b.package_name + b.name : b.name)
+                .replace(/[^a-zA-Z0-9 ]/g, '')
+                .toLowerCase();
 
-                if(x < y) {
-                    result = -1;
-                }
+            if (x < y) {
+                result = -1;
+            }
 
-                return result;
-            });
+            return result;
+        });
     }
 
     public getComponentsTypes() {
-        if(!this.node_type || this.node_type == '') {
+        if (!this.node_type || this.node_type == '') {
             return Object.keys(this.type_dict);
         }
-        return [ this.node_type ];
+        return [this.node_type];
     }
 
     /**
@@ -334,7 +334,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
      */
     public selectSearchScope() {
         console.log('selectSearchScope', this.search_scope);
-        if(this.search_scope !== '' && !this.node_type) {
+        if (this.search_scope !== '' && !this.node_type) {
             this.inputControl.setValue(this.search_scope + ":" + this.search_value);
         }
         else {
@@ -349,7 +349,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
      */
     public onSearch() {
         let splitted = this.inputControl.value.split(":");
-        if(splitted.length > 1) {
+        if (splitted.length > 1) {
             this.search_scope = splitted[0];
             this.search_value = splitted.slice(1).join(":");
         }
@@ -366,36 +366,36 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
             (node: EqualComponentDescriptor) => {
                 let contains = true;
                 let clue: string = "";
-                if(node.type === "route") {
+                if (node.type === "route") {
                     clue = (node.package_name ? node.package_name : "") + "-" + (node.more ? node.more : "") + "-" + node.name;
                 }
-                else if(node.type === "class") {
+                else if (node.type === "class") {
                     clue = (node.package_name ? node.package_name : "") + "\\" + node.name;
                 }
                 else {
                     clue = node.name;
                 }
-                for(let arg of search_args) {
-                    if(search_package && (((node.package_name && node.package_name !== search_package)) || (!node.package_name && node.name !==search_package))){
+                for (let arg of search_args) {
+                    if (search_package && (((node.package_name && node.package_name !== search_package)) || (!node.package_name && node.name !== search_package))) {
                         contains = false;
                         break;
                     }
-                    if (!clue.toLowerCase().includes(arg.toLowerCase()))  {
+                    if (!clue.toLowerCase().includes(arg.toLowerCase())) {
                         contains = false;
                         break;
                     }
                 }
 
-                return ( contains &&
-                        (
-                            this.search_scope === ''
-                            || (node.type === '')
-                            || (node.type === this.node_type)
-                            || (node.type === this.search_scope)
-                            || ('controller' === this.search_scope && (node.type === 'get' || node.type === 'do'))
-                            || ('view' === this.search_scope && (node.type === 'list' || node.type === 'form'))
-                        )
-                    );
+                return (contains &&
+                    (
+                        this.search_scope === ''
+                        || (node.type === '')
+                        || (node.type === this.node_type)
+                        || (node.type === this.search_scope)
+                        || ('controller' === this.search_scope && (node.type === 'get' || node.type === 'do'))
+                        || ('view' === this.search_scope && (node.type === 'list' || node.type === 'form'))
+                    )
+                );
             });
     }
 
@@ -407,80 +407,57 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     public areNodesEqual(node1: EqualComponentDescriptor, node2: EqualComponentDescriptor) {
         // console.log('comparing', node1, node2);
         return (node1?.package_name === node2?.package_name &&
-               node1?.name === node2?.name &&
-               node1?.type === node2?.type);
+            node1?.name === node2?.name &&
+            node1?.type === node2?.type);
     }
 
     public cloneNode(node: EqualComponentDescriptor): EqualComponentDescriptor {
         return new EqualComponentDescriptor(
-                node.package_name,
-                node.name,
-                node.type,
-                node.file,
-                JSON.parse(JSON.stringify(node.item ?? {}))
-            );
+            node.package_name,
+            node.name,
+            node.type,
+            node.file,
+            JSON.parse(JSON.stringify(node.item ?? {}))
+        );
     }
 
     public openCreator() {
         let d = this.dialog.open(MixedCreatorDialogComponent, {
-                data: {
-                    node_type: this.search_scope,
-                    lock_type: (this.node_type != ''),
-                    package: this.package_name,
-                    lock_package: (this.package_name != '')
-                },
-                width: "40em",
-                height: "26em"
-            });
+            data: {
+                node_type: this.search_scope,
+                lock_type: (this.node_type != ''),
+                package: this.package_name,
+                lock_package: (this.package_name != '')
+            },
+            width: "40em",
+            height: "26em"
+        });
 
-            d.afterClosed().subscribe((result) => {
-                if(result.success){
+        d.afterClosed().subscribe((result) => {
+            if (result) {
+                if (result.success) {
                     this.addToComponents(result.node);
                     this.notificationService.showSuccess(result.message);
                 }
-                else{
+                else {
                     this.removeFromComponents(result.node);
                     this.notificationService.showError(result.message);
                 }
-                this.onSearch();
-              });
+            }
+            this.onSearch();
+        });
     }
 
-    private addToComponents(node: EqualComponentDescriptor){
+    private addToComponents(node: EqualComponentDescriptor) {
         this.elements.push(node);
     }
 
+    private removeFromComponents(node: EqualComponentDescriptor): void {
 
-
-    /*private addPackageToList(package_name: string): void {
-        this.elements.push({
-            package_name: package_name,
-            name: package_name,
-            type: 'package',
-            file: package_name,
-            item: 'package',
-        });
-        // Si vous devez appeler un service pour créer le package, vous pouvez le faire ici
-        this.workbenchService.createPackage(package_name)
-        .pipe(takeUntil(this.destroy$)) // Ajout de takeUntil
-        .subscribe({
-            next: () =>{
-                
-                this.provider.refreshComponents();
-            },
-            error: (err) => {
-                console.error('Error deleting node:', err);
-                this.removePackageFromList(package_name);
-              }
-        }
-    
-        );
-      }*/
-    
-      // Méthode pour retirer le package de la liste
-      private removeFromComponents(node: EqualComponentDescriptor): void {
         this.elements = this.elements.filter(item => item.name !== node.name);
-      }
+
+    }
+
     /**
      * Update the editingNode and editedNode value to match the node.
      *
@@ -511,51 +488,40 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
      *
      * @param node value of the node which is updating
      */
-    public onclickUpdate(node: EqualComponentDescriptor){
-        this.updateNode.emit({old_node: node, new_node: <EqualComponentDescriptor> this.editedNode});
+    public onclickUpdate(node: EqualComponentDescriptor) {
+        this.updateNode.emit({ old_node: node, new_node: <EqualComponentDescriptor>this.editedNode });
     }
 
     /**
- * Handles the deletion of a node after user confirmation.
- * If the deletion is successful, the node is permanently removed.
- * If an error occurs, the node is restored to the list.
- *
- * @param {EqualComponentDescriptor} node - The node to be deleted.
- * @returns {void}
- */
-public clickDelete(node: EqualComponentDescriptor): void {
-    const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent, {
-      data: node.name,
-    });
-  
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        // Backup the current data for potential restoration.
-        const originalData = [...this.elements];
-  
-        // Optimistically remove the node from the list.
-        this.elements = this.elements.filter(n => n !== node);
-        // Also update the filteredData if necessary.
-        this.filteredData = this.filteredData.filter(n => n !== node);
-  
-        this.workbenchService.deleteNode(node)
-        .pipe(takeUntil(this.destroy$)) // Ajout de takeUntil
-        .subscribe({
-          next: () => {
-            console.log('Node successfully deleted');
-            this.provider.refreshComponents();
-          },
-          error: (err) => {
-            console.error('Error deleting node:', err);
-            // Restore the original data in case of error.
-            this.elements = originalData;
-            // Reapply filtering if needed.
-          }
+    * Handles the deletion of a node after user confirmation.
+    * If the deletion is successful, the node is permanently removed.
+    * If an error occurs, the node is restored to the list.
+    *
+    * @param {EqualComponentDescriptor} node - The node to be deleted.
+    * @returns {void}
+    */
+    public clickDelete(node: EqualComponentDescriptor): void {
+        const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent, {
+            data: node,
         });
-      }
-    });
-  }
-  
+
+        dialogRef.afterClosed().subscribe(result => {
+            if (result) {
+                if (result.success) {
+                    this.removeFromComponents(result.node);
+                    this.provider.refreshComponents();
+                    this.notificationService.showSuccess(result.message);
+                }
+                else {
+                    this.addToComponents(result.node);
+                    this.notificationService.showError(result.message);
+                }
+            }
+            this.onSearch();
+
+        });
+    }
+
 
 
 
