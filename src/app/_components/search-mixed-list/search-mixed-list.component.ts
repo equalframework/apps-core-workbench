@@ -452,13 +452,13 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
                 if (result.success) {
                     this.addToComponents(result.node);
                     this.notificationService.showSuccess(result.message);
+                    this.onSearch();
                 }
                 else {
                     this.removeFromComponents(result.node);
                     this.notificationService.showError(result.message);
                 }
             }
-            this.onSearch();
         });
     }
 
@@ -525,13 +525,14 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
                     this.removeFromComponents(result.node);
                     this.provider.refreshComponents();
                     this.notificationService.showSuccess(result.message);
+                    this.onSearch();
+
                 }
                 else {
                     this.addToComponents(result.node);
                     this.notificationService.showError(result.message);
                 }
             }
-            this.onSearch();
 
         });
     }

@@ -308,7 +308,7 @@ public getComponents(
             ...this.loadControllers(packages),
             ...this.loadViews(packages),
             ...this.loadMenus(packages),
-            //...this.loadRoutes(packages)
+            ...this.loadRoutes(packages)
         ];
 
         if (apiCalls.length === 0) {
@@ -337,14 +337,32 @@ public getComponents(
     private loadRoutes(packages: EqualComponentDescriptor[]) {
         return packages.map((package_component) =>
             this.fetchRoutesByPackage(package_component.name).pipe(
-                map((routes: string[]) => {
-                    return routes.map(route_name => ({
-                        package_name: package_component.name,
-                        name: route_name,
-                        type: 'route',
-                        file: `${package_component.name}/route/${route_name}.php`,
-                        item: "route"
-                    }));
+                map((routesData) => {
+                    const components: EqualComponentDescriptor[] = [];
+                    //fichier contenant les routes
+                    for(const file in routesData){
+                        const routePath = `${package_component.name}/init/routes/${file}`;
+                        //Le nom des route
+                        for(const route_name in routesData[file] ){
+                            let item: any = {};
+                            //Les infos de chaque route (les méthods put,get,post)
+                            for( const method in routesData[file][route_name]){
+                                const routeInfo = routesData[file][route_name][method];
+                                item[method] = {
+                                    description: routeInfo.description,
+                                    operation: routeInfo.operation
+                                }
+                            }
+                            const component = new EqualComponentDescriptor
+                            (package_component.name, 
+                                route_name, 
+                                "route",
+                                routePath, 
+                                item);
+                            components.push(component);
+                        }
+                    }
+                    return components;
                 }),
                 catchError((error) => {
                     console.error(`Error loading routes for ${package_component.name}:`, error);
