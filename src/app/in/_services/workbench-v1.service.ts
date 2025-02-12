@@ -47,7 +47,7 @@ export class WorkbenchV1Service {
     public deleteNode(node: EqualComponentDescriptor): Observable<any> {
         const deleteActions: Record<string, () => Observable<any>> = {
             package: () => this.deletePackage(node.name),
-            class: () => this.notImplemented(`Deleting class ${node.name} not implemented`),
+            class: () => this.deleteClass(node.package_name,node.name),
             get: () => this.notImplemented(`Deleting controller ${node.name} not implemented`),
             do: () => this.notImplemented(`Deleting controller ${node.name} not implemented`),
             view: () => this.notImplemented(`Deleting view ${node.name} not implemented`),
@@ -170,6 +170,24 @@ private createClass(package_name: string, class_name: string, parent: string) {
     );
 }
 
+
+    private deleteClass(package_name:string,class_name:string){
+        const url = `?do=core_config_delete-model&package=${package_name}&model=${class_name}`
+        return from(this.api.fetch(url)).pipe(
+            map(response => ({
+                success: true,
+                message: `Class :  ${class_name} deleted successfully!`,
+                response: response || null
+            })),
+            catchError(error =>
+                of({
+                    success: false,
+                    message: `Error during class deletion: ${error.message}`,
+                    error
+                })
+            )
+        );
+    }
     
     
 }
