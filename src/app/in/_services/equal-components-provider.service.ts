@@ -97,7 +97,7 @@ public getComponents(
 
 
   private handleRoutesLives(): Observable<EqualComponentDescriptor[]>{
-    return this.fetchRoutesLives().pipe(
+    return this.collectRoutesLives().pipe(
         map((routesData) => {
 
 
@@ -137,7 +137,7 @@ public getComponents(
 
 
   private handleRoutes(packageName: string): Observable<EqualComponentDescriptor[]> {
-    return this.fetchRoutesByPackage(packageName).pipe(
+    return this.collectRoutesByPackage(packageName).pipe(
         tap((result)=>{
             console.log(result);
         }),
@@ -181,7 +181,7 @@ public getComponents(
    * @returns {Observable<EqualComponentDescriptor[]>} An observable of an array of EqualComponentDescriptor.
    */
   private handleClasses(packageName: string, className?: string): Observable<EqualComponentDescriptor[]> {
-    return this.fetchClasses().pipe(
+    return this.collectClasses().pipe(
       map((classes: any) =>
         this.mapClassesToDescriptors(
           { name: packageName } as EqualComponentDescriptor,
@@ -198,7 +198,7 @@ public getComponents(
    * @returns {Observable<EqualComponentDescriptor[]>} An observable of an array of EqualComponentDescriptor.
    */
   private handleControllers(packageName: string): Observable<EqualComponentDescriptor[]> {
-    return this.fetchControllersByPackage(packageName).pipe(
+    return this.collectControllersByPackage(packageName).pipe(
       map(response => {
         const dataDescriptors = response.data.map((controllerName: string) =>
           this.buildComponentDescriptor(packageName, controllerName, 'get', 'data', 'controller')
@@ -212,14 +212,14 @@ public getComponents(
   }
   
   /**
-   * Handles fetching and mapping for views.
+   * Handles collecting and mapping for views.
    *
    * @param {string} packageName - The name of the package.
    * @param {string} [className] - Optional filter for view names.
    * @returns {Observable<EqualComponentDescriptor[]>} An observable of an array of EqualComponentDescriptor.
    */
   private handleViews(packageName: string, className?: string): Observable<EqualComponentDescriptor[]> {
-    return this.fetchViewsByPackage(packageName).pipe(
+    return this.collectViewsByPackage(packageName).pipe(
       map((views: string[]) =>
         views
           .filter(view => (className ? view.startsWith(className) : true))
@@ -231,13 +231,13 @@ public getComponents(
   }
   
   /**
-   * Handles fetching and mapping for menus.
+   * Handles collecting and mapping for menus.
    *
    * @param {string} packageName - The name of the package.
    * @returns {Observable<EqualComponentDescriptor[]>} An observable of an array of EqualComponentDescriptor.
    */
   private handleMenus(packageName: string): Observable<EqualComponentDescriptor[]> {
-    return this.fetchMenusByPackage(packageName).pipe(
+    return this.collectMenusByPackage(packageName).pipe(
       map((menus: string[]) =>
         menus.map((menuName: string) =>
           this.buildComponentDescriptor(packageName, menuName, 'menu', 'menus', 'menu')
@@ -277,7 +277,7 @@ public getComponents(
     * Loads all available components.
     */
     private loadComponents(): void {
-        this.fetchPackages().pipe(
+        this.collectPackages().pipe(
             switchMap((packages: EqualComponentDescriptor[]) => {
                 this.equalComponentsSubject.next(packages);
                 return of(packages);
@@ -336,7 +336,7 @@ public getComponents(
 
     private loadRoutes(packages: EqualComponentDescriptor[]) {
         return packages.map((package_component) =>
-            this.fetchRoutesByPackage(package_component.name).pipe(
+            this.collectRoutesByPackage(package_component.name).pipe(
                 map((routesData) => {
                     const components: EqualComponentDescriptor[] = [];
                     //fichier contenant les routes
@@ -378,7 +378,7 @@ public getComponents(
  * @param {EqualComponentDescriptor[]} packages - The list of packages.
  */
     private loadClasses(packages: EqualComponentDescriptor[]): void {
-        this.fetchClasses().pipe(
+        this.collectClasses().pipe(
             map((classes: any) => this.associateClassesToPackages(packages, classes))
         ).subscribe({
             next: (components: EqualComponentDescriptor[]) => {
@@ -397,7 +397,7 @@ public getComponents(
     */
     private loadViews(packages: EqualComponentDescriptor[]): Observable<EqualComponentDescriptor[]>[] {
         return packages.map((package_component) =>
-            this.fetchViewsByPackage(package_component.name).pipe(
+            this.collectViewsByPackage(package_component.name).pipe(
                 map((views: string[]) => {
                     return views.map(view_name => ({
                         package_name: package_component.name,
@@ -422,7 +422,7 @@ public getComponents(
      */
     private loadMenus(packages: EqualComponentDescriptor[]): Observable<EqualComponentDescriptor[]>[] {
         return packages.map((package_component) =>
-            this.fetchMenusByPackage(package_component.name).pipe(
+            this.collectMenusByPackage(package_component.name).pipe(
                 map((menus: string[]) => {
                     return menus.map(menu_name => ({
                         package_name: package_component.name,
@@ -447,7 +447,7 @@ public getComponents(
      */
     private loadControllers(packages: EqualComponentDescriptor[]): Observable<EqualComponentDescriptor[]>[] {
         return packages.map((package_component) =>
-            this.fetchControllersByPackage(package_component.name).pipe(
+            this.collectControllersByPackage(package_component.name).pipe(
                 map((response: any) => {
                     const controllers: EqualComponentDescriptor[] = [];
 
@@ -490,7 +490,7 @@ public getComponents(
     * Fetches all available classes.
     * @returns {Observable<any>} An observable containing the list of classes.
     */
-    private fetchClasses(): Observable<any> {
+    private collectClasses(): Observable<any> {
         return from(this.api.fetch('?get=core_config_classes')).pipe(
             catchError(error => {
                 console.error('Error fetching classes:', error);
@@ -503,7 +503,7 @@ public getComponents(
      * Fetches all available packages.
      * @returns {Observable<EqualComponentDescriptor[]>} An observable containing the list of packages.
      */
-    private fetchPackages(): Observable<EqualComponentDescriptor[]> {
+    private collectPackages(): Observable<EqualComponentDescriptor[]> {
         return from(this.api.fetch('?get=config_packages')).pipe(
             map((packages: any) =>
                 packages.map((package_name: any) => ({
@@ -525,7 +525,7 @@ public getComponents(
      * @param {string} package_name - The package name.
      * @returns {Observable<any>} An observable containing the routes.
      */
-    private fetchRoutesByPackage(package_name: string): Observable<any> {
+    private collectRoutesByPackage(package_name: string): Observable<any> {
         const url = `?get=core_config_routes&package=${package_name}`;
         return from(this.api.fetch(url)).pipe(
             tap((response)=>{
@@ -539,7 +539,7 @@ public getComponents(
     }
 
 
-    private fetchRoutesLives(): Observable<any>{
+    private collectRoutesLives(): Observable<any>{
         const url = "?get=config_live_routes";
         return from(this.api.fetch(url)).pipe(
             catchError( (error) => {
@@ -555,7 +555,7 @@ public getComponents(
      * @param {string} package_name - The package name.
      * @returns {Observable<{ data: string[], actions: string[] }>} An observable containing the controllers and actions.
      */
-    private fetchControllersByPackage(package_name: string): Observable<{ data: string[], actions: string[] }> {
+    private collectControllersByPackage(package_name: string): Observable<{ data: string[], actions: string[] }> {
         const url = `?get=core_config_controllers&package=${package_name}`;
         return from(this.api.fetch(url)).pipe(
             catchError((error) => {
@@ -570,7 +570,7 @@ public getComponents(
      * @param {string} package_name - The package name.
      * @returns {Observable<string[]>} An observable containing the views.
      */
-    private fetchViewsByPackage(package_name: string): Observable<string[]> {
+    private collectViewsByPackage(package_name: string): Observable<string[]> {
         const url = `?get=core_config_views&package=${package_name}`;
         return from(this.api.fetch(url)).pipe(
             catchError((error) => {
@@ -585,7 +585,7 @@ public getComponents(
      * @param {string} package_name - The package name.
      * @returns {Observable<string[]>} An observable containing the menus.
      */
-    private fetchMenusByPackage(package_name: string): Observable<string[]> {
+    private collectMenusByPackage(package_name: string): Observable<string[]> {
         const url = `?get=core_config_menus&package=${package_name}`;
         return from(this.api.fetch(url)).pipe(
             catchError((error) => {
