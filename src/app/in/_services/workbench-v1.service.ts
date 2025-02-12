@@ -13,12 +13,6 @@ import { ApiService } from 'sb-shared-lib';
     providedIn: 'root'
 })
 export class WorkbenchV1Service {
-    /** Subject to store the list of packages */
-    private packagesSubject = new BehaviorSubject<EqualComponentDescriptor[]>([]);
-    
-    /** Observable to expose the list of packages */
-    public packages$ = this.packagesSubject.asObservable();
-
     constructor(private api: ApiService) { }
 
     /**
