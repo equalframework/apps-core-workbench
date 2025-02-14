@@ -202,10 +202,10 @@ public getComponents(
     return this.collectControllersByPackage(packageName).pipe(
       map(response => {
         const dataDescriptors = response.data.map((controllerName: string) =>
-          this.buildComponentDescriptor(packageName, controllerName, 'get', 'data', 'controller')
+          this.buildComponentDescriptor(packageName, controllerName.replace(/\s+/g, ''), 'get', 'data', 'controller')
         );
         const actionDescriptors = response.actions.map((actionName: string) =>
-          this.buildComponentDescriptor(packageName, actionName, 'do', 'actions', 'controller')
+          this.buildComponentDescriptor(packageName, actionName.replace(/\s+/g, ''), 'do', 'actions', 'controller')
         );
         return [...dataDescriptors, ...actionDescriptors];
       })
@@ -494,7 +494,7 @@ public getComponents(
                     response.data.forEach((controller_name: string) => {
                         controllers.push({
                             package_name: package_component.name,
-                            name: controller_name,
+                            name: controller_name.replace(/\s+/g, ''), // there is a space in the data given by the api
                             type: 'get',
                             file: `${package_component.name}/data/${controller_name}.php`,
                             item: 'controller'
@@ -504,7 +504,7 @@ public getComponents(
                     response.actions.forEach((action_name: string) => {
                         controllers.push({
                             package_name: package_component.name,
-                            name: action_name,
+                            name: action_name.replace(/\s+/g, ''), // there is a space in the data given by the api
                             type: 'do',
                             file: `${package_component.name}/actions/${action_name}.php`,
                             item: 'controller'

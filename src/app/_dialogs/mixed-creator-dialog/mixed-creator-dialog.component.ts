@@ -147,11 +147,19 @@ export class MixedCreatorDialogComponent implements OnInit {
                 model: this.selected_model,
             }
         };
+
+        //To be coherent with data in the back end
         if(node.type =='view'){
             node.name = `${node.item.model}:${this.subtypename}.${node.name}`;
         }
+    
         this.workbenchService.createNode(node).subscribe(result => {
 
+            //To be coherent with data in the back end
+
+            if(node.type =='get' || node.type =='do'){
+                node.name = `${node.package_name}_${node.name}`;
+            }
         // Ajouter le node à la réponse du service avant de la renvoyer
         const resultWithNode = {
             ...result,  // Étend le résultat existant

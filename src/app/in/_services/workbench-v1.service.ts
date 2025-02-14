@@ -30,8 +30,8 @@ export class WorkbenchV1Service {
         const createActions: Record<string, () => Observable<any>> = {
             package: () => this.createPackage(node.name),
             class: () => this.createClass(node.package_name, node.name, node.item.class_parent),
-            get: () => this.notImplemented(`Adding controller ${node.name} not implemented`),
-            do: () => this.notImplemented(`Adding controller ${node.name} not implemented`),
+            get: () => this.createController(node.package_name, node.name, node.type),
+            do: () => this.createController(node.package_name, node.name, node.type),
             view: () =>{
                     const view_name = node.name.split(":")[1];
                     return this.createView(`${node.package_name}\\${node.item.model}`, view_name)
@@ -43,6 +43,10 @@ export class WorkbenchV1Service {
         // Return the appropriate observable based on the node type, or a default message for unknown types.
         return createActions[node.type]?.() || of({ message: "Unknown type" });
     }
+
+
+
+
 
     /**
      * Deletes a component based on the type specified in the node.
@@ -56,8 +60,8 @@ export class WorkbenchV1Service {
         const deleteActions: Record<string, () => Observable<any>> = {
             package: () => this.deletePackage(node.name),
             class: () => this.deleteClass(node.package_name,node.name),
-            get: () => this.notImplemented(`Deleting controller ${node.name} not implemented`),
-            do: () => this.notImplemented(`Deleting controller ${node.name} not implemented`),
+            get: () => this.deleteController(node.package_name, node.name.split("_")[1], node.type),
+            do: () => this.deleteController(node.package_name, node.name.split("_")[1], node.type),
             view: () => {
                 const model_name =`${node.package_name}\\${node.item.model}`;
                 const view_name = node.name.split(":")[1];
@@ -70,6 +74,7 @@ export class WorkbenchV1Service {
         // Return the appropriate observable based on the node type, or a default message for unknown types.
         return deleteActions[node.type]?.() || of({ message: "Unknown type" });
     }
+    
 
 
     public updateFieldsFromClass(new_schema: {}, package_name: string, class_name: string){
@@ -173,6 +178,20 @@ export class WorkbenchV1Service {
         return this.callApi(url,successfullyMessage);
     }
 
+
+    private createController(package_name: string, name: string, type: string): Observable<any> {
+        const url = `?do=core_config_create-controller&controller_name=${name}&controller_type=${type}&package=${package_name}`
+        const successfullyMessage = `Controller ${name} of type ${type} created successfully!`
+        return this.callApi(url,successfullyMessage);
+    }
+
+    private deleteController(package_name: string, name: string, type: string): Observable<any> {
+        console.log("name dans delete controller ", name);
+        const url = `?do=core_config_delete-controller&package=${package_name}&controller_name=${name}&controller_type=${type}`
+        const successfullyMessage = `Controller ${name} of type ${type} deleted successfully!`
+        return this.callApi(url, successfullyMessage);
+    }
+    
 
     private callApi(url: string, successMessage: string) {
         return from(this.api.fetch(url)).pipe(

@@ -1,9 +1,11 @@
+import { Node } from './../../in/pipeline/_objects/Node';
 import { Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation, OnChanges, SimpleChanges } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
 import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
-import { DeleteConfirmationDialogComponent } from 'src/app/_modules/workbench.module';
+import { DeleteConfirmationDialogComponent, MixedCreatorDialogComponent } from 'src/app/_modules/workbench.module';
+import { NotificationService } from 'src/app/in/_services/notification.service';
 
 @Component({
   selector: 'search-controllers-list',
@@ -42,13 +44,13 @@ export class SearchControllersListComponent implements OnInit, OnChanges {
   constructor(
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
-    private provider: EqualComponentsProviderService
+    private provider: EqualComponentsProviderService,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
     this.provider.getComponents(this.package_name, 'controller')
       .subscribe(components => {
-        // Assuming components is an array of EqualComponentDescriptor
         this.data = components;
         this.filterNodes();
       });
@@ -184,12 +186,21 @@ export class SearchControllersListComponent implements OnInit, OnChanges {
    */
   openDeleteConfirmationDialog(node: EqualComponentDescriptor): void {
     const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent, {
-      data: { node }
+      data:node 
     });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.deleteNode(node);
-      }
+                if (result.success) {
+                    this.notificationService.showSuccess(result.message);
+                    this.removeFromComponents(result.node);
+                    this.provider.refreshComponents();
+                    this.filterNodes();
+                    this.selectNode.emit(undefined);
+                }
+                else {
+                    this.notificationService.showError(result.message);
+                }
+        }
     });
   }
 
@@ -199,14 +210,45 @@ export class SearchControllersListComponent implements OnInit, OnChanges {
    * @returns void
    */
   onclickCreate(): void {
-    if (this.inputValue.trim() === '') return;
     const newType = this.data_selected ? 'get' : 'do';
-    this.nodeCreate.emit({
-      type: newType,
-      name: this.inputValue
-    });
-    this.inputValue = '';
+     let d = this.dialog.open(MixedCreatorDialogComponent, {
+                data: {
+                    node_type: newType,
+                    lock_type: newType,
+                    package: this.package_name,
+                    lock_package: (this.package_name != '')
+                },
+                width: "40em",
+                height: "26em"
+            });
+            d.afterClosed().subscribe((result) => {
+                if (result) {
+                    if (result.success) {
+                        this.notificationService.showSuccess(result.message);
+                        
+                        this.addToComponents(result.node);
+                        setTimeout(() => {
+                            this.provider.refreshComponents();
+                        }, 10);
+                    }
+                    else {
+                        this.notificationService.showError(result.message);
+                        this.removeFromComponents(result.Node);
+                    }
+                }
+                    this.inputValue = '';})
   }
+
+  private addToComponents(node: EqualComponentDescriptor) {
+    this.data.push(node);
+    this.filterNodes()
+}
+
+private removeFromComponents(node: EqualComponentDescriptor): void {
+    this.data = this.data.filter(item => item.name !== node.name);
+    this.filterNodes();
+}
+
 
   /**
    * Displays a notification with the option to undo the operation.
