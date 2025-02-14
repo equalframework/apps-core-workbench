@@ -53,6 +53,7 @@ public getComponents(
         componentObservable = this.handleControllers(packageName);
         break;
       case 'view':
+        console.log("className : ", className);
         componentObservable = this.handleViews(packageName, className);
         break;
 
@@ -222,22 +223,25 @@ public getComponents(
     return this.collectViewsByPackage(packageName).pipe(
         map((views: string[]) =>
             views
-                .filter(view => (className ? view.startsWith(className) : true))
+                .filter(view => view.startsWith(`${packageName}\\${className}`))
                 .map(viewName => {
+                    
                   // Extraction du nom du package et du nom de la vue
                 const matches = viewName.match(/^([^\\/:]+\\[^\\/:]+):([^:]+)$/);
 
                 // Vérification si la correspondance a réussi
                 if (matches) {
-            const packageName = matches[1];    // "test\Test"
+            const matching = matches[1]; 
+            let viewNameCleaned = viewName.split('\\').slice(1).join('\\');
 
+               // "test\Test
             return {
-            package_name: packageName.split("\\")[0],       // "test"
+            package_name: packageName,       // "test"
             name: viewName.split(`\\`)[1],                   // "list.zaze", "list.tar", etc.
             type: 'view',
-            file: `${packageName}/views/${viewName}`,  // Utilisation du chemin sans extension
+            file: `${packageName}/views/${viewNameCleaned}`,  // Utilisation du chemin sans extension
             item: {
-                model: packageName.split("\\")[1]  // "Test" extrait du "test\Test"
+                model: matching.split("\\")[1]  // "Test" extrait du "test\Test"
             }
         };
     } else {

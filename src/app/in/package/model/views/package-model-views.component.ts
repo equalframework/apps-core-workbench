@@ -25,7 +25,7 @@ export class PackageModelViewsComponent implements OnInit {
 
     public package_name: string = '';
     public view_name: string = '';
-
+    public model_name: string='';
     public selected_view: EqualComponentDescriptor;
 
     public type: string|null;
@@ -50,8 +50,9 @@ export class PackageModelViewsComponent implements OnInit {
         this.loading = true;
         this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
             this.package_name = params['package_name'];
+            this.model_name = params['class_name'];
             this.view_name = params['view_name'];
-            this.loadViews();
+            this.loading=false;
         });
     }
 
@@ -78,7 +79,7 @@ export class PackageModelViewsComponent implements OnInit {
         this.router.goBack()
     }
 
-    public onclickViewSelect(eq_view: EqualComponentDescriptor) {
+    public selectNode(eq_view: EqualComponentDescriptor) {
         this.selected_view = eq_view;
     }
 
