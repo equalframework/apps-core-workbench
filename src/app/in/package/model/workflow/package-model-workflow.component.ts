@@ -12,6 +12,7 @@ import { prettyPrintJson } from 'pretty-print-json';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { WorkbenchV1Service } from 'src/app/in/_services/workbench-v1.service';
 
 @Component({
   selector: 'package-model-workflow',
@@ -56,7 +57,8 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
             private router: RouterMemory,
             private route: ActivatedRoute,
             private matDialog: MatDialog,
-            private snackBar: MatSnackBar
+            private snackBar: MatSnackBar,
+            private workbenchService: WorkbenchV1Service
         ) { }
 
     public async ngOnInit() {
@@ -73,7 +75,16 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
     }
 
     private async loadWorkflow() {
-        this.nodes = [];
+        const packageName = this.route.snapshot.paramMap.get('package_name')!;
+        const model = this.route.snapshot.paramMap.get('class_name')!;
+        this.workbenchService.getWorkflowData(packageName, model).subscribe(data => {
+            this.nodes = data.nodes;
+            this.links = data.links;
+            this.exists = data.exists;
+            this.model_scheme = data.modelScheme;
+            this.loading=false;
+        })
+        /*this.nodes = [];
         this.links = [];
         const r = await this.api.getWorkflow(this.package, this.model)
         if(r.exists !== null && r.exists !== undefined) {
@@ -138,7 +149,7 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
                 }
             }
         }
-        this.loading = false;
+        this.loading = false;*/
     }
 
     public reset() {
@@ -260,30 +271,50 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
         return result;
     }
 
-    public async save() {
-        if(!this.exists) {
-            const create = await this.api.createWorkflow(this.package,this.model)
-            if(!create){
-                return;
-            }
+    public save() {
+        if (!this.exists) {
+            this.workbenchService.createWorkflow(this.package, this.model).subscribe((create) => {
+                if (!create) {
+                    return;
+                }
+                this.saveWorkflowWithMetaData();
+            });
+        } else {
+            this.saveWorkflowWithMetaData();
         }
-        const ret = await this.api.saveWorkflow(this.package,this.model,JSON.stringify(this.export()))
-        if(!ret){
-            return;
-        }
-        let rmd = false;
-        if(this.has_meta_data) {
-            rmd = await this.api.saveMetaData(this.has_meta_data,JSON.stringify(this.exportMetaData()));
-        }
-        else {
-            rmd = await this.api.createMetaData("workflow",this.package+"."+this.model,JSON.stringify(this.exportMetaData()));
-        }
-        if(!rmd) {
-            return;
-        }
-        this.snackBar.open("Saved successfully","INFO");
-        this.init();
     }
+    
+    private saveWorkflowWithMetaData() {
+        this.workbenchService.saveWorkflow(this.package, this.model, JSON.stringify(this.export()))
+            .subscribe((ret) => {
+                if (!ret) {
+                    return;
+                }
+                let rmd = false;
+                if (this.has_meta_data) {
+                    this.workbenchService.saveMetaData(this.has_meta_data, JSON.stringify(this.exportMetaData()))
+                        .subscribe((result) => {
+                            rmd = result;
+                            if (!rmd) {
+                                return;
+                            }
+                            this.snackBar.open("Saved successfully", "INFO");
+                            this.init();
+                        });
+                } else {
+                    this.workbenchService.createMetaData("workflow", `${this.package}.${this.model}`, JSON.stringify(this.exportMetaData()))
+                        .subscribe((result) => {
+                            rmd = result;
+                            if (!rmd) {
+                                return;
+                            }
+                            this.snackBar.open("Saved successfully", "INFO");
+                            this.init();
+                        });
+                }
+            });
+    }
+    
 
     public showJSON() {
         this.matDialog.open(Jsonator,{data:this.export(), width:"70vw", height:"85vh"});

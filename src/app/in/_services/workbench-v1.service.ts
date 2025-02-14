@@ -1,8 +1,12 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, from, Observable, of } from 'rxjs';
 import { EqualComponentDescriptor } from '../_models/equal-component-descriptor.class';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { ApiService } from 'sb-shared-lib';
+import { WorkflowNode } from '../package/model/workflow/_components/workflow-displayer/_objects/WorkflowNode';
+import { Anchor, WorkflowLink } from '../package/model/workflow/_components/workflow-displayer/_objects/WorkflowLink';
+import { cloneDeep } from 'lodash';
+import { HttpErrorResponse } from '@angular/common/http';
 
 /**
  * WorkbenchV1Service is responsible for managing the creation and deletion of various components 
@@ -196,4 +200,261 @@ export class WorkbenchV1Service {
             })
         );
     }
-}
+ /**
+   * Fetches workflow data and prepares it in an Observable pattern.
+   * @param packageName The package name.
+   * @param model The class name (model).
+   * @returns An Observable containing nodes, links, metadata, and other data.
+   */
+ public getWorkflowData(packageName: string, model: string): Observable<{
+    nodes: WorkflowNode[],
+    links: WorkflowLink[],
+    exists: boolean,
+    hasMetaData: number | undefined,
+    modelScheme: any
+  }> {
+    return this.getWorkflow(packageName, model).pipe(
+      switchMap((r: any) => {
+        if (!r.exists) {
+          // If workflow does not exist, return an observable with default empty values
+          return of({
+            nodes: [],
+            links: [],
+            exists: false,
+            hasMetaData: undefined,
+            modelScheme: {}
+          });
+        }
+
+        // Fetch metadata and schema if workflow exists
+        return this.fetchMetaData('workflow', `${packageName}.${model}`).pipe(
+          switchMap(metadata => {
+            const hasMetaData = metadata && Object.keys(metadata).length > 0 ? metadata[0].id : undefined;
+            return this.getSchema(`${packageName}\\${model}`).pipe(
+              map(modelScheme => {
+                return this.prepareWorkflowData(r.info, metadata, hasMetaData, modelScheme);
+              })
+            );
+          })
+        );
+      }),
+      catchError((error) => {
+        console.error('Error loading workflow data:', error);
+        // In case of error, return default values for nodes, links, etc.
+        return of({
+          nodes: [],
+          links: [],
+          exists: false,
+          hasMetaData: undefined,
+          modelScheme: {}
+        });
+      })
+    );
+  }
+  
+
+  /**
+   * Prepares the workflow data from the API response and metadata.
+   * @param workflowData The workflow data (nodes).
+   * @param metadata The metadata.
+   * @param hasMetaData Whether metadata exists.
+   * @param modelScheme The model schema.
+   * @returns An object containing nodes, links, metadata, etc.
+   */
+  private prepareWorkflowData(workflowData: any, metadata: any[], hasMetaData: number, modelScheme: any) {
+    const result = {
+      nodes: [] as WorkflowNode[],
+      links: [] as WorkflowLink[],
+      exists: true,
+      hasMetaData: hasMetaData,
+      modelScheme: modelScheme
+    };
+
+    let orig = { x: 200, y: 200 };
+    let mdt: any = {};
+    if (hasMetaData) {
+      mdt = JSON.parse(metadata[0].value);
+    }
+    // For positioning nodes
+    let offset_x = 0;
+    let offset_y = 0;
+    let is_first = true;
+    for (let node in workflowData) {
+      let pos = (!hasMetaData || !mdt[node] || !mdt[node].position)
+        ? cloneDeep(orig)
+        : mdt[node].position;
+
+      if (is_first && pos.x < 200) {
+        offset_x = -pos.x + 200;
+      }
+      if (is_first && pos.y < 200) {
+        offset_y = -pos.y + 200;
+      }
+      pos.x += offset_x;
+      pos.y += offset_y;
+      result.nodes.push(new WorkflowNode(node, {
+        description: workflowData[node].description,
+        position: pos,
+        help: workflowData[node].help,
+        icon: workflowData[node].icon
+      }));
+      orig.y += 100;
+      orig.x += 100;
+      is_first = false;
+    }
+    // Creating links (transitions)
+    for (let node in workflowData) {
+      for (let link in workflowData[node].transitions) {
+        let a = this.getNodeByName(result.nodes, node);
+        let b = this.getNodeByName(result.nodes, workflowData[node].transitions[link].status);
+        if (!b) {
+          b = new WorkflowNode(workflowData[node].transitions[link].status, { position: cloneDeep(orig) });
+          result.nodes.push(b);
+          orig.y += 100;
+          orig.x += 100;
+        }
+        if (a && b) {
+          const anch1 = (!mdt[a.name] || !mdt[a.name].transitions || !mdt[a.name].transitions[link] || !mdt[a.name].transitions[link].anchorFrom)
+            ? Anchor.MiddleRight
+            : mdt[a.name].transitions[link].anchorFrom;
+          const anch2 = (!mdt[a.name] || !mdt[a.name].transitions || !mdt[a.name].transitions[link] || !mdt[a.name].transitions[link].anchorTo)
+            ? Anchor.MiddleLeft
+            : mdt[a.name].transitions[link].anchorTo;
+          result.links.push(new WorkflowLink(a, b, anch1, anch2, Object.assign(workflowData[node].transitions[link], { name: link })));
+        }
+      }
+    }
+    return result;
+  }
+
+  private getNodeByName(nodes: WorkflowNode[], name: string): WorkflowNode | null {
+    return nodes.find(node => node.name === name) || null;
+  }
+
+    /**
+   * Fetches the workflow data.
+   * @param pkg The package name.
+   * @param model The model name.
+   * @returns An Observable containing the workflow data.
+   */
+    public getWorkflow(pkg: string, model: string): Observable<any> {
+        return from(this.api.get(`?get=core_model_workflow&entity=${pkg}\\${model}`)).pipe(
+          switchMap(info => of({ exists: true, info })),
+          catchError((e: any) => {
+            const cast: HttpErrorResponse = e;
+            if (cast.status === 404) {
+              return of({ exists: false, info: {} });
+            } else {
+              this.api.errorFeedback(e);
+              return of({});
+            }
+          })
+        );
+      }
+    
+      /**
+       * Saves the workflow data.
+       * @param pkg The package name.
+       * @param model The model name.
+       * @param payload The payload to save.
+       * @returns An Observable that resolves to a boolean indicating success.
+       */
+      public saveWorkflow(pkg: string, model: string, payload: string): Observable<boolean> {
+        return from(this.api.post(`?do=core_config_update-workflow&entity=${pkg}\\${model}`, { payload })).pipe(
+          switchMap(() => of(true)),
+          catchError(e => {
+            console.error(e);
+            this.api.errorFeedback(e);
+            return of(false);
+          })
+        );
+      }
+    
+      /**
+       * Creates a new workflow.
+       * @param pkg The package name.
+       * @param model The model name.
+       * @returns An Observable that resolves to a boolean indicating success.
+       */
+      public createWorkflow(pkg: string, model: string): Observable<boolean> {
+        return from(this.api.post(`?do=core_config_create-workflow&entity=${pkg}\\${model}`)).pipe(
+          switchMap(() => of(true)),
+          catchError(e => {
+            console.error(e);
+            this.api.errorFeedback(e);
+            return of(false);
+          })
+        );
+      }
+    
+      /**
+       * Fetches metadata for a given code and reference.
+       * @param code The code for the metadata.
+       * @param reference The reference for the metadata.
+       * @returns An Observable containing the metadata.
+       */
+      public fetchMetaData(code: string, reference: string): Observable<any[]> {
+        return from(this.api.get(`?get=core_model_collect&entity=core\\Meta&fields=[value]&domain=[[code,=,${code}],[reference,=,${reference}]]`)).pipe(
+          switchMap((data: any[]) => of(data)),
+          catchError(e => {
+            console.error(e);
+            this.api.errorFeedback(e);
+            return of([]);
+          })
+        );
+      }
+    
+      /**
+       * Creates metadata for a given code and reference.
+       * @param code The code for the metadata.
+       * @param reference The reference for the metadata.
+       * @param payload The payload for the metadata.
+       * @returns An Observable that resolves to a boolean indicating success.
+       */
+      public createMetaData(code: string, reference: string, payload: string): Observable<boolean> {
+        return from(this.api.post(`?do=core_model_create&entity=core\\Meta`, { fields: { value: payload, code: code, reference: reference } })).pipe(
+          switchMap(() => of(true)),
+          catchError(e => {
+            console.error(e);
+            this.api.errorFeedback(e);
+            return of(false);
+          })
+        );
+      }
+    
+      /**
+       * Saves the metadata.
+       * @param id The ID of the metadata.
+       * @param payload The payload for the metadata.
+       * @returns An Observable that resolves to a boolean indicating success.
+       */
+      public saveMetaData(id: number, payload: string): Observable<boolean> {
+        return from(this.api.post(`?do=core_model_update&entity=core\\Meta&id=${id}`, { fields: { value: payload } })).pipe(
+          switchMap(() => of(true)),
+          catchError(e => {
+            console.error(e);
+            this.api.errorFeedback(e);
+            return of(false);
+          })
+        );
+      }
+
+      /**
+   * Fetches the schema for a given entity.
+   * @param entity The entity name.
+   * @returns An Observable containing the schema or an empty object in case of error.
+   */
+  public getSchema(entity: string): Observable<any> {
+    if (entity) {
+      return from(this.api.fetch('?get=core_model_schema&entity=' + entity)).pipe(
+        switchMap(schema => of(schema)),
+        catchError((response: any) => {
+          console.warn('Request error:', response);
+          return of({ fields: [] });
+        })
+      );
+    }
+    return of({ fields: [] }); // Return an observable with default schema if no entity is provided
+  }
+    }
+
