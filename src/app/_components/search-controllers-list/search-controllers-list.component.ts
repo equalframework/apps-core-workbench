@@ -6,6 +6,7 @@ import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-des
 import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
 import { DeleteConfirmationDialogComponent, MixedCreatorDialogComponent } from 'src/app/_modules/workbench.module';
 import { NotificationService } from 'src/app/in/_services/notification.service';
+import { ItemTypes } from 'src/app/in/_models/item-types.class';
 
 @Component({
   selector: 'search-controllers-list',
@@ -19,6 +20,8 @@ export class SearchControllersListComponent implements OnInit, OnChanges {
   @Input() package_name: string = '';
   @Input() selected_node?: EqualComponentDescriptor;
 
+public type_dict: { [id: string]: { icon: string, disp: string } } = ItemTypes.typeDict;
+  
   // Outputs
   @Output() selectNode = new EventEmitter<EqualComponentDescriptor>();
   @Output() nodeUpdate = new EventEmitter<{ type: string, old_node: string, new_node: string }>();

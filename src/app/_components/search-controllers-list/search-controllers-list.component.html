@@ -43,6 +43,9 @@
              [class.node-hover]="selected_node?.name !== node.name"
              [class.node-selected]="selected_node?.name === node.name">
           <div class="pointable node-text" (click)="onclickNodeSelect(node)">
+            <mat-icon class="component-icon component-color-{{node.type}}">
+                    {{type_dict[node.type]?.icon}}
+                </mat-icon>
             {{ node.name }}
           </div>
           <div class="icons">
