@@ -8,6 +8,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { Location } from '@angular/common';
 
 @Component({
     selector: 'package-model-views',
@@ -38,7 +39,7 @@ export class PackageModelViewsComponent implements OnInit {
             private route: ActivatedRoute,
             private router: RouterMemory,
             private matDialog: MatDialog,
-            private snackBar: MatSnackBar
+            private location: Location,
         ) { }
 
 
@@ -76,7 +77,7 @@ export class PackageModelViewsComponent implements OnInit {
     }
 
     public getBack() {
-        this.router.goBack()
+        this.location.back();
     }
 
     public selectNode(eq_view: EqualComponentDescriptor) {

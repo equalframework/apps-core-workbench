@@ -13,6 +13,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { WorkbenchV1Service } from 'src/app/in/_services/workbench-v1.service';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'package-model-workflow',
@@ -53,12 +54,12 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
     public loading = true;
 
     constructor(
-            private api: EmbeddedApiService,
             private router: RouterMemory,
             private route: ActivatedRoute,
             private matDialog: MatDialog,
             private snackBar: MatSnackBar,
-            private workbenchService: WorkbenchV1Service
+            private workbenchService: WorkbenchV1Service,
+            private location:Location
         ) { }
 
     public async ngOnInit() {
@@ -240,7 +241,7 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
     }
 
     public goBack() {
-        this.router.goBack();
+        this.location.back();
     }
 
     public export() {
