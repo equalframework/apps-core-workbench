@@ -170,7 +170,7 @@ export class MixedCreatorDialogComponent implements OnInit {
         this.needSubtype = true;
         this.implemented = true;
         this.subTypeList = ['list', 'form', 'search'];
-        this.subtypeName = "View Type"
+        this.subtypeName = this.subtype;
         this.cacheList = [];
         if (this.selectedPackage && this.selectedModel) {
           const views = await this.api.listViewFrom(this.selectedPackage, this.selectedModel);
