@@ -57,8 +57,13 @@ export class ParamSidePaneComponent implements OnInit, OnChanges {
 
   ngOnChanges() {
     this.foreignControl.clearValidators()
-    this.foreignControl.addValidators((control: AbstractControl) => this.modelList.includes(control.value) ? null : {"case" : true})
-    this.foreignControl.setValue(this.param?.foreign_object,{emitEvent : false})
+    this.foreignControl.addValidators((control: AbstractControl) => {
+        if (this.modelList && Array.isArray(this.modelList) && this.modelList.includes(control.value)) {
+          return null;
+        } else {
+          return { "case": true };
+        }
+      });    this.foreignControl.setValue(this.param?.foreign_object,{emitEvent : false})
   }
 
   public setNameBeingEdited(value: boolean) {
@@ -211,12 +216,17 @@ export class ParamSidePaneComponent implements OnInit, OnChanges {
 
 }
 
-
 function snake_case(control: AbstractControl): ValidationErrors | null {
-  let value: string = control.value
-  let valid_chars = "abcdefghijkmlnopqrstuvwxyz_"
-  for (let char of value) {
-    if (!valid_chars.includes(char)) return { "case": true }
+    let value: string = control.value;
+    
+    if (!value) {
+      return { "case": true }; // ou return null pour autoriser les valeurs vides
+    }
+  
+    let valid_chars = "abcdefghijklmnopqrstuvwxyz_";
+    for (let char of value) {
+      if (!valid_chars.includes(char)) return { "case": true };
+    }
+    return null;
   }
-  return null
-}
+  

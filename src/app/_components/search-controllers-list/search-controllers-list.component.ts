@@ -225,7 +225,6 @@ export class SearchControllersListComponent implements OnInit, OnChanges {
                 if (result) {
                     if (result.success) {
                         this.notificationService.showSuccess(result.message);
-                        
                         this.addToComponents(result.node);
                         setTimeout(() => {
                             this.provider.refreshComponents();

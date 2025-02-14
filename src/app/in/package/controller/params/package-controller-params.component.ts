@@ -8,6 +8,8 @@ import { cloneDeep } from 'lodash';
 import { ItemTypes } from 'src/app/in/_models/item-types.class';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { prettyPrintJson } from 'pretty-print-json';
+import { WorkbenchV1Service } from 'src/app/in/_services/workbench-v1.service';
+import { NotificationService } from 'src/app/in/_services/notification.service';
 
 
 /**
@@ -60,7 +62,9 @@ export class PackageControllerParamsComponent implements OnInit {
             private activatedRoute: ActivatedRoute,
             private matSnack:MatSnackBar,
             private dialog: MatDialog,
-            private snack: MatSnackBar
+            private snack: MatSnackBar,
+            private workbenchService: WorkbenchV1Service,
+            private notificationService: NotificationService
         ) { }
 
     public onKeydown(event: KeyboardEvent) {
@@ -179,12 +183,16 @@ export class PackageControllerParamsComponent implements OnInit {
     this.router.goBack()
   }
 
-  async save() {
+save() {
     this.snack.open("Saving...","INFO")
-    let result = await this.api.updateController(this.controller_name, this.controller_type, this.export())
-    if(result) {
-      this.snack.open("Saved !","INFO")
-    }
+    this.workbenchService.updateController(this.controller_name, this.controller_type, this.export()).subscribe((result) => {
+            if(result.success){
+                    this.notificationService.showSuccess(result.message)
+            } else{
+                this.notificationService.showError(result.message);
+            }
+    })
+    
   }
 
 }

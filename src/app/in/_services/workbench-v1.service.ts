@@ -83,6 +83,12 @@ export class WorkbenchV1Service {
         return this.callApi(url,successfullyMessage);
     }
 
+    public updateController(controller_name: string, controller_type: string, payload : {[id:string]:any}){
+        const url = `?do=core_config_update-controller&controller=${controller_name}&operation=${controller_type}&payload=${JSON.stringify(payload)}`
+        const successfullyMessage = `${controller_name} has been updated`;
+        return this.callApi(url, successfullyMessage);
+    }
+
     /**
      * Handles cases where a feature has not been implemented.
      * Logs a warning and returns an observable with the given message.
