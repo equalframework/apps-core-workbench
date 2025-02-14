@@ -28,7 +28,10 @@ export class WorkbenchV1Service {
             class: () => this.createClass(node.package_name, node.name, node.item.class_parent),
             get: () => this.notImplemented(`Adding controller ${node.name} not implemented`),
             do: () => this.notImplemented(`Adding controller ${node.name} not implemented`),
-            view: () => this.createView(`${node.package_name}\\${node.item.model}`, `${node.item.class_parent}.${node.name}`),
+            view: () =>{
+                    const view_name = node.name.split(":")[1];
+                    return this.createView(`${node.package_name}\\${node.item.model}`, view_name)
+            },
             menu: () => this.notImplemented(`Adding menu ${node.name} not implemented`),
             route:() =>this.notImplemented(`Adding route ${node.name} not implemented`)
         };
@@ -53,7 +56,11 @@ export class WorkbenchV1Service {
             class: () => this.deleteClass(node.package_name,node.name),
             get: () => this.notImplemented(`Deleting controller ${node.name} not implemented`),
             do: () => this.notImplemented(`Deleting controller ${node.name} not implemented`),
-            view: () => this.deleteView(`${node.package_name}\\${node.item.model}`, node.name),
+            view: () => {
+                const model_name =`${node.package_name}\\${node.item.model}`;
+                const view_name = node.name.split(":")[1];
+                return this.deleteView(model_name, view_name);
+            },
             menu: () => this.notImplemented(`Deleting menu ${node.name} not implemented`),
             route:() =>this.notImplemented(`Deleting route ${node.name} not implemented`)
         };
@@ -142,7 +149,7 @@ export class WorkbenchV1Service {
 
     private deleteView(model_name:string,view_name:string){
         const url = `?do=core_config_delete-view&entity=${model_name}&view_id=${view_name}`
-        const successfullyMessage = `View ${view_name} deleted successfully!`;
+        const successfullyMessage = `View ${model_name}:${view_name} deleted successfully!`;
         return this.callApi(url,successfullyMessage);
     }
 

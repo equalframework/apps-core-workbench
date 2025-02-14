@@ -230,11 +230,10 @@ public getComponents(
                 // Vérification si la correspondance a réussi
                 if (matches) {
             const packageName = matches[1];    // "test\Test"
-                const viewName = matches[2];       // "list.zaze" ou autre format comme "list.tar"
 
             return {
             package_name: packageName.split("\\")[0],       // "test"
-            name: viewName,                   // "list.zaze", "list.tar", etc.
+            name: viewName.split(`\\`)[1],                   // "list.zaze", "list.tar", etc.
             type: 'view',
             file: `${packageName}/views/${viewName}`,  // Utilisation du chemin sans extension
             item: {
