@@ -441,7 +441,9 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
                 node_type: this.search_scope,
                 lock_type: (this.node_type != ''),
                 package: this.package_name,
-                lock_package: (this.package_name != '')
+                lock_package: (this.package_name != ''),
+                model: this.model_name,
+                lock_model: (this.model_name != "")
             },
             width: "40em",
             height: "26em"
