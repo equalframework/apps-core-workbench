@@ -22,13 +22,13 @@ export class WorkbenchV1Service {
      * @param node The component descriptor containing details of the component to create.
      * @returns An observable that emits a success or error message.
      */
-    public createNode(node: EqualComponentDescriptor, class_parent:string="equal\\orm\\Model"): Observable<any> {
+    public createNode(node: EqualComponentDescriptor): Observable<any> {
         const createActions: Record<string, () => Observable<any>> = {
             package: () => this.createPackage(node.name),
-            class: () => this.createClass(node.package_name, node.name, class_parent),
+            class: () => this.createClass(node.package_name, node.name, node.item.class_parent),
             get: () => this.notImplemented(`Adding controller ${node.name} not implemented`),
             do: () => this.notImplemented(`Adding controller ${node.name} not implemented`),
-            view: () => this.notImplemented(`Adding view ${node.name} not implemented`),
+            view: () => this.createView(`${node.package_name}\\${node.item.model}`, `${node.item.class_parent}.${node.name}`),
             menu: () => this.notImplemented(`Adding menu ${node.name} not implemented`),
             route:() =>this.notImplemented(`Adding route ${node.name} not implemented`)
         };
@@ -36,6 +36,8 @@ export class WorkbenchV1Service {
         // Return the appropriate observable based on the node type, or a default message for unknown types.
         return createActions[node.type]?.() || of({ message: "Unknown type" });
     }
+
+    
 
     /**
      * Deletes a component based on the type specified in the node.
@@ -45,12 +47,13 @@ export class WorkbenchV1Service {
      * @returns An observable that emits a success or error message.
      */
     public deleteNode(node: EqualComponentDescriptor): Observable<any> {
+        console.log("node : ", node);
         const deleteActions: Record<string, () => Observable<any>> = {
             package: () => this.deletePackage(node.name),
             class: () => this.deleteClass(node.package_name,node.name),
             get: () => this.notImplemented(`Deleting controller ${node.name} not implemented`),
             do: () => this.notImplemented(`Deleting controller ${node.name} not implemented`),
-            view: () => this.notImplemented(`Deleting view ${node.name} not implemented`),
+            view: () => this.deleteView(`${node.package_name}\\${node.item.model}`, node.name),
             menu: () => this.notImplemented(`Deleting menu ${node.name} not implemented`),
             route:() =>this.notImplemented(`Deleting route ${node.name} not implemented`)
         };
@@ -79,20 +82,8 @@ export class WorkbenchV1Service {
      */
     private createPackage(package_name: string): Observable<any> {
         const url = `?do=core_config_create-package&package=${package_name}`;
-        return from(this.api.call(url)).pipe(
-            // Transform the raw response into a business object with success status and message.
-            map(() => ({
-                success: true,
-                message: `Package ${package_name} created successfully!`,
-            })),
-            catchError(error =>
-                of({
-                    success: false,
-                    message: `Error during package creation: ${error.message}`,
-                    error
-                })
-            )
-        );
+        const successfullyMessage=`Package ${package_name} created successfully!`
+       return this.callApi(url, successfullyMessage);
     }
 
     /**
@@ -103,20 +94,8 @@ export class WorkbenchV1Service {
      */
     private deletePackage(package_name: string): Observable<any> {
         const url = `?do=core_config_delete-package&package=${package_name}`;
-        return from(this.api.fetch(url)).pipe(
-            map(response => ({
-                success: true,
-                message: `Package ${package_name} deleted successfully!`,
-                response: response || null
-            })),
-            catchError(error =>
-                of({
-                    success: false,
-                    message: `Error during package deletion: ${error.message}`,
-                    error
-                })
-            )
-        );
+        const successfullyMessage=`Package ${package_name} deleted successfully!`
+       return this.callApi(url,successfullyMessage)
     }
 
 
@@ -142,52 +121,56 @@ export class WorkbenchV1Service {
     *     }
     *   });
     */
-private createClass(package_name: string, class_name: string, parent: string) {
+    private createClass(package_name: string, class_name: string, parent: string) {
     const url = `?do=core_config_create-model&model=${class_name}&package=${package_name}${parent === "equal\\orm\\Model" ? "" : `&extends=${parent.replace(/\\/g, '\\\\')}`}`;
-    
-    return from(this.api.fetch(url, { responseType: 'text' })).pipe(
-        map(() => ({
-            success: true,
-            message: `Class ${class_name} created successfully!`,
-        })),
-        catchError(error => {
-            // Log complete error for debugging
-            console.error("Error details:", error);
-            let errorMessage = `Error during class creation: `;
-            if (error.error && error.error.errors) {
-                let errorDetails = error.error.errors;
-                // Concatenate each error in the 'errors' object to the error message
-                for (const [key, value] of Object.entries(errorDetails)) {
-                    errorMessage += `\n${key}: ${value}`;
-                }
-            }
-            return of({
-                success: false,
-                message: errorMessage,
-                error: error
-            });
-        })
-    );
+    const successfullyMessage = `Class ${class_name} created successfully!`
+    return this.callApi(url,successfullyMessage)
 }
 
-
     private deleteClass(package_name:string,class_name:string){
-        const url = `?do=core_config_delete-model&package=${package_name}&model=${class_name}`
+        const url = `?do=core_config_delete-model&package=${package_name}&model=${class_name}`;
+        const successfullyMessage = `Class ${class_name} deleted successfully!`
+        return this.callApi(url, successfullyMessage);    
+    }
+
+
+    private createView(model_name: string, view_name: string): Observable<any> {
+        const url = `?do=core_config_create-view&view_id=${view_name}&entity=${model_name}`;
+        const successfullyMessage = `View ${view_name} created successfully!`;
+        return this.callApi(url, successfullyMessage);
+    }
+
+    private deleteView(model_name:string,view_name:string){
+        const url = `?do=core_config_delete-view&entity=${model_name}&view_id=${view_name}`
+        const successfullyMessage = `View ${view_name} deleted successfully!`;
+        return this.callApi(url,successfullyMessage);
+    }
+
+
+    private callApi(url: string, successMessage: string) {
         return from(this.api.fetch(url)).pipe(
             map(response => ({
                 success: true,
-                message: `Class :  ${class_name} deleted successfully!`,
+                message: successMessage,
                 response: response || null
             })),
-            catchError(error =>
-                of({
+            catchError(error => {
+                console.error("Error details:", error);
+                let errorMessage = `Error: `;
+                if (error.error && error.error.errors) {
+                    let errorDetails = error.error.errors;
+                    for (const [key, value] of Object.entries(errorDetails)) {
+                        errorMessage += `\n${key}: ${value}`;
+                    }
+                } else {
+                    errorMessage += error.message;
+                }
+                return of({
                     success: false,
-                    message: `Error during class deletion: ${error.message}`,
+                    message: errorMessage,
                     error
-                })
-            )
+                });
+            })
         );
     }
-    
-    
 }

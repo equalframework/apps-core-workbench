@@ -29,7 +29,7 @@ export class MixedCreatorDialogComponent implements OnInit {
                 this.need_subtype = true;
                 this.implemented = true;
                 this.subtypelist = ["list","form","search"];
-                this.subtypename = "View Type"
+                this.subtypename = this.subtype;  // Assigner `subtypename` à `subtype`
                 this.cachelist = [];
                 if(this.selected_package !== "" && this.selected_model !== "") {
                     let x = await this.api.listViewFrom(this.selected_package, this.selected_model)
@@ -141,13 +141,19 @@ export class MixedCreatorDialogComponent implements OnInit {
             type: this.type,
             name: this.nameControl.value,
             package_name: this.selected_package,
-            file:this.nameControl.value,
-            item: this.type
+            file: this.nameControl.value,
+            item: {
+                class_parent: this.subtype,
+                model: this.selected_model,
+            }
         };
-    
-        this.workbenchService.createNode(node, this.subtype).subscribe(result => {
-            console.log(this.subtype);
 
+    
+        this.workbenchService.createNode(node).subscribe(result => {
+            
+            if(node.type =='view'){
+                node.name = `${this.subtypename}.${node.name}`;
+            }
         // Ajouter le node à la réponse du service avant de la renvoyer
         const resultWithNode = {
             ...result,  // Étend le résultat existant

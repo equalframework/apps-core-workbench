@@ -451,14 +451,15 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
             console.log(result);
             if (result) {
                 if (result.success) {
-                    this.addToComponents(result.node);
                     this.notificationService.showSuccess(result.message);
-                    this.onSearch();
-                    this.provider.refreshComponents();
+                    this.addToComponents(result.node);
+                    setTimeout(() => {
+                        this.provider.refreshComponents();
+                    }, 10);
                 }
                 else {
-                    this.removeFromComponents(result.node);
                     this.notificationService.showError(result.message);
+                    this.removeFromComponents(result.node);
                 }
             }
         });
@@ -466,13 +467,16 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
 
     private addToComponents(node: EqualComponentDescriptor) {
         this.elements.push(node);
+        this.sortComponents();
+        this.onSearch();
     }
 
     private removeFromComponents(node: EqualComponentDescriptor): void {
-
         this.elements = this.elements.filter(item => item.name !== node.name);
-
+        this.sortComponents();
+        this.onSearch();
     }
+    
 
     /**
      * Update the editingNode and editedNode value to match the node.
@@ -528,10 +532,9 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
                     this.provider.refreshComponents();
                     this.notificationService.showSuccess(result.message);
                     this.onSearch();
-
+                    this.selectNode.emit(undefined);
                 }
                 else {
-                    this.addToComponents(result.node);
                     this.notificationService.showError(result.message);
                 }
             }

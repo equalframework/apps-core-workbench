@@ -220,15 +220,44 @@ public getComponents(
    */
   private handleViews(packageName: string, className?: string): Observable<EqualComponentDescriptor[]> {
     return this.collectViewsByPackage(packageName).pipe(
-      map((views: string[]) =>
-        views
-          .filter(view => (className ? view.startsWith(className) : true))
-          .map((viewName: string) =>
-            this.buildComponentDescriptor(packageName, viewName, 'view', 'views', 'view')
-          )
-      )
+        map((views: string[]) =>
+            views
+                .filter(view => (className ? view.startsWith(className) : true))
+                .map(viewName => {
+                  // Extraction du nom du package et du nom de la vue
+                const matches = viewName.match(/^([^\\/:]+\\[^\\/:]+):([^:]+)$/);
+
+                // Vérification si la correspondance a réussi
+                if (matches) {
+            const packageName = matches[1];    // "test\Test"
+                const viewName = matches[2];       // "list.zaze" ou autre format comme "list.tar"
+
+            return {
+            package_name: packageName.split("\\")[0],       // "test"
+            name: viewName,                   // "list.zaze", "list.tar", etc.
+            type: 'view',
+            file: `${packageName}/views/${viewName}`,  // Utilisation du chemin sans extension
+            item: {
+                model: packageName.split("\\")[1]  // "Test" extrait du "test\Test"
+            }
+        };
+    } else {
+        // Si la correspondance échoue, gérer l'erreur ou retourner des valeurs par défaut
+        return {
+            package_name: '',
+            name: viewName,
+            type: 'view',
+            file: `${viewName}`, 
+            item: {
+            model: viewName
+            }
+        };
+}
+
+                })
+        )
     );
-  }
+}
   
   /**
    * Handles collecting and mapping for menus.
@@ -399,13 +428,21 @@ public getComponents(
         return packages.map((package_component) =>
             this.collectViewsByPackage(package_component.name).pipe(
                 map((views: string[]) => {
-                    return views.map(view_name => ({
-                        package_name: package_component.name,
-                        name: view_name,
-                        type: 'view',
-                        file: `${package_component.name}/views/${view_name}.php`,
-                        item: 'view'
-                    }));
+                    return views.map(view_name => {
+                        // Extraction du nom du modèle à partir du chemin du fichier
+                        const matches = package_component.file.match(/([^\\/:]+):[^:]+\.php$/);
+                        const modelName = matches ? matches[1] : view_name;
+                
+                        return {
+                            package_name: package_component.name,
+                            name: view_name,
+                            type: 'view',
+                            file: `${package_component.name}/views/${view_name}.php`,
+                            item: {
+                                model: modelName
+                            }
+                        };
+                    });
                 }),
                 catchError((error) => {
                     console.error(`Error loading views for ${package_component.name}:`, error);
