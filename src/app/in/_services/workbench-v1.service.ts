@@ -40,8 +40,6 @@ export class WorkbenchV1Service {
         return createActions[node.type]?.() || of({ message: "Unknown type" });
     }
 
-    
-
     /**
      * Deletes a component based on the type specified in the node.
      * It supports deleting packages (other types are not implemented).
@@ -67,6 +65,13 @@ export class WorkbenchV1Service {
 
         // Return the appropriate observable based on the node type, or a default message for unknown types.
         return deleteActions[node.type]?.() || of({ message: "Unknown type" });
+    }
+
+
+    public updateFieldsFromClass(new_schema: {}, package_name: string, class_name: string){
+        const url = `?do=config_update-model&part=class&entity=${package_name}\\${class_name}&payload=${JSON.stringify(new_schema)}`
+        const successfullyMessage = `Fields from ${package_name}//${class_name} has been updated`
+        return this.callApi(url,successfullyMessage);
     }
 
     /**
@@ -141,6 +146,17 @@ export class WorkbenchV1Service {
     }
 
 
+
+
+    public async updateSchema(new_schema: {}, package_name: string, class_name: string) {
+        try {
+            return await this.api.fetch('?do=config_update-model&part=class&entity=' + package_name + "\\" + class_name + '&payload=' + JSON.stringify(new_schema));
+        }
+        catch (response: any) {
+            console.warn('request error', response);
+        }
+        console.log('#### schema updated', new_schema);
+    }
     private createView(model_name: string, view_name: string): Observable<any> {
         const url = `?do=core_config_create-view&view_id=${view_name}&entity=${model_name}`;
         const successfullyMessage = `View ${view_name} created successfully!`;

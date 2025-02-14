@@ -1,3 +1,4 @@
+import { result } from 'lodash';
 import { Component, Inject, OnInit, Optional } from '@angular/core';
 import { Location } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -10,6 +11,8 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dial
 import { prettyPrintJson } from 'pretty-print-json';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { WorkbenchV1Service } from 'src/app/in/_services/workbench-v1.service';
+import { NotificationService } from 'src/app/in/_services/notification.service';
 
 @Component({
     selector: 'package-model-fields',
@@ -61,7 +64,9 @@ export class PackageModelFieldsComponent implements OnInit {
         private router: RouterMemory,
         private api: WorkbenchService,
         private dialog: MatDialog,
-        private location: Location
+        private location: Location,
+        private workbenchService:WorkbenchV1Service,
+        private notificationService:NotificationService
     ) { }
 
     public onKeydown(event: KeyboardEvent) {
@@ -195,9 +200,14 @@ export class PackageModelFieldsComponent implements OnInit {
     }
 
     public async savedata() {
-        this.matSnack.open("Saving...","INFO");
-        await this.api.updateSchema(this.export2JSON(),this.package_name,this.class_name);
-        this.matSnack.open("Saved","INFO");
+        this.notificationService.showInfo("Saving....");        
+        this.workbenchService.updateFieldsFromClass(this.export2JSON(),this.package_name,this.class_name).subscribe((result) => {
+                if(result.success){
+                    this.notificationService.showSuccess(result.message);
+                }else{
+                    this.notificationService.showError(result.message);
+                }
+        });
     }
 
     public navigateToParent() {
