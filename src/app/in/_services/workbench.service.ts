@@ -1,5 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 import { ApiService } from 'sb-shared-lib';
 import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 
@@ -411,6 +412,7 @@ export class WorkbenchService extends EmbeddedApiService {
         return result;
     }
 
+    
     public async getMenusByPackage(package_name:string): Promise<string[]> {
         let result = [];
         if(this.cache.hasOwnProperty('menus') && this.cache.menus.hasOwnProperty(package_name)) {
@@ -446,7 +448,6 @@ export class WorkbenchService extends EmbeddedApiService {
             console.warn('request error', response);
         }
     }
-
 
 
 

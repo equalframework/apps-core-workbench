@@ -61,7 +61,7 @@ export class PackageModelViewsComponent implements OnInit {
         this.loading = false;
     }
 
-    public async getViewForSelectedPackage():Promise<string[]> {
+    /*public async getViewForSelectedPackage():Promise<string[]> {
         let x:string[];
         if (this.type && this.entity) {
             x = await this.api.getViews(this.type,this.entity);
@@ -74,7 +74,7 @@ export class PackageModelViewsComponent implements OnInit {
             return res;
         }
         else return []
-    }
+    }*/
 
     public getBack() {
         this.location.back();
@@ -112,28 +112,8 @@ export class PackageModelViewsComponent implements OnInit {
     }
 
     public onCreateView() {
-        console.log(this.entity)
-        let d = this.matDialog.open(MixedCreatorDialogComponent,{
-        data : this.type === "package" ?
-            {
-                type:"view",
-                package: this.entity,
-                lock_type : true,
-                lock_package: true
-            }
-            :
-            {
-                type:"view",
-                package: this.entity?.split('\\')[0],
-                model : this.entity?.split("\\").slice(1).join("\\"),
-                lock_type : true,
-                lock_package: true,
-                lock_model : true
-            },width : "40em",height: "26em"
-        })
-        d.afterClosed().subscribe(() => {
-        this.init()
-        });
+        console.log("j'ai cliqué sur createView", this.entity)
+       
     }
 
     goto() {

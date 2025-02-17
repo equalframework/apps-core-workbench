@@ -1,3 +1,4 @@
+import { Location } from '@angular/common';
 import { Component, Inject, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
@@ -9,6 +10,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Usage } from 'src/app/in/_models/Params';
 import { TypeUsageService } from 'src/app/_services/type-usage.service';
+import { EqualComponentDescriptor } from '../../_models/equal-component-descriptor.class';
+import { EqualComponentsProviderService } from '../../_services/equal-components-provider.service';
+import { WorkbenchV1Service } from '../../_services/workbench-v1.service';
+import { NotificationService } from '../../_services/notification.service';
 
 @Component({
     selector: 'package-view',
@@ -16,13 +21,14 @@ import { TypeUsageService } from 'src/app/_services/type-usage.service';
     styleUrls: ['./package-view.component.scss']
 })
 export class PackageViewComponent implements OnInit {
-
   view_id:string;
   entity:string;
+
   view_scheme:any;
   obk = Object.keys;
   view_obj:View
   name:string
+  node:EqualComponentDescriptor
 
   types = ViewItem.typeList
   loading = true
@@ -60,24 +66,50 @@ export class PackageViewComponent implements OnInit {
     private api: EmbeddedApiService,
     private popup: MatDialog,
     private snackBar: MatSnackBar,
-    private TypeUsage: TypeUsageService
+    private TypeUsage: TypeUsageService,
+    private location: Location,
+    private provider:EqualComponentsProviderService,
+    private workbenchService: WorkbenchV1Service,
+    private notificationService: NotificationService
+
   ) { }
 
   async ngOnInit() {
+ // Extraire le package_name à partir de l'URL complète
+ const currentUrl = window.location.href; // Cela vous donnera l'URL complète
+ const packageNameMatch = currentUrl.match(/\/package\/([^/]+)\//); // Expression régulière pour capturer le package_name
+
+ if (packageNameMatch) {
+   const packageName = packageNameMatch[1]; 
     let a = this.route.snapshot.paramMap.get("view_name")
     this.name = a ? a : ""
+    if(this.name) {
+          let tempsplit = this.name.split(":")
+          this.entity = tempsplit[0]
+          this.view_id = tempsplit[1]
+    }
+    this.provider.getComponent(packageName, 'view', this.entity, this.name).subscribe((compo) => {
+        if (compo) {
+            this.node = compo; // Assign the retrieved component if found
+        } else {
+            console.warn('Component not found.');
+        }
+    });
+}
     await this.init();
     this.loading = false
   }
 
   public async init() {
+    console.log("je suis ici");
     this.icontype = this.TypeUsage.typeIcon
     if(this.name) {
       try {
+
         let tempsplit = this.name.split(":")
         this.entity = tempsplit[0]
         this.view_id = tempsplit[1]
-        this.class_scheme = await this.api.getSchema(this.entity)
+        this.class_scheme = await this.api.getSchema(`${this.entity}`)
         this.fields = this.obk(this.class_scheme['fields'])
         this.view_scheme = await this.api.getView(this.entity,this.view_id)
         console.log(this.view_scheme)
@@ -148,7 +180,7 @@ export class PackageViewComponent implements OnInit {
   }
 
   goBack() {
-    this.router.goBack()
+    this.location.back()
   }
 
   deleteGroup(index:number){
@@ -160,8 +192,15 @@ export class PackageViewComponent implements OnInit {
   }
 
   save() {
+    this.workbenchService.saveView(this.view_obj.export(),this.node.package_name, this.entity,this.view_id).subscribe((result )=>{
+        if(result.success){
+            this.notificationService.showSuccess(result.message);
+        }else{
+            this.notificationService.showError(result.message);
+        }
+    })
     
-    var timerId = setTimeout(async () => {
+    /*var timerId = setTimeout(async () => {
       let success = await this.api.saveView(this.view_obj.export(),this.entity,this.view_id);
       if(success) {
         this.snackBar.open("Saved ! Change can take time to be ", '', {
@@ -184,7 +223,7 @@ export class PackageViewComponent implements OnInit {
         verticalPosition: 'bottom'
     }).onAction().subscribe(() => {
         clearTimeout(timerId);
-    })
+    })*/
   }
 
   cancel() {

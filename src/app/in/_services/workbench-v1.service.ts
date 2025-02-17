@@ -481,5 +481,15 @@ export class WorkbenchV1Service {
     }
     return of({ fields: [] }); // Return an observable with default schema if no entity is provided
   }
+
+
+  
+  public saveView(payload:any, package_name: string, entity:string,viewid:string):Observable<any>{
+    console.log("save view : ", entity);
+    console.log("save view: ", viewid);
+    const url = `?do=core_config_update-view&entity=${package_name}\\${entity}&view_id=${viewid}&payload=${JSON.stringify(payload)}`;
+    const successfullyMessage = `${viewid} has been updated`
+    return this.callApi(url, successfullyMessage);
+}
     }
 

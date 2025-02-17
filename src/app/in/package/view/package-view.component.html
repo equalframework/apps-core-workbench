@@ -21,11 +21,11 @@
             [customButton]="true"
             [customButtonList]="[{name:'Show JSON', icon:'bug_report', disabled: false}]"
             (onCustomButton)="handleCustomButton($event)">
-        <label class="packagename names">{{name.split('\\')[0]}}</label>
+        <label class="packagename names">{{node.package_name}}</label>
         <label>›</label>
-        <label [class.controllername]="view_obj.type === 'search'" [class.classname]="view_obj.type !== 'search'" class="names">{{name.split(':')[0].split('\\').slice(1).join(view_obj.type === 'search' ? "_" : "\\")}}</label>
+        <label [class.controllername]="view_obj.type === 'search'" [class.classname]="view_obj.type !== 'search'" class="names">{{node.item.model}}</label>
         <label>›</label>
-        <label class="viewname names">{{name.split(':').slice(1).join(':')}}</label>
+        <label class="viewname names">{{node.name.split(":")[1]}}</label>
     </app-inner-header>
     <div class="feature-container">
         <label *ngIf="!idCompliancy.ok" [style.color]="'red'">ERROR : {{ (idDoublons.length > 0) ? "Some IDs are duplicated ("+idDoublons+")" : "Some items don't have an ID"}}</label>

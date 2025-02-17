@@ -9,6 +9,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Usage } from 'src/app/in/_models/Params';
 import { TypeUsageService } from 'src/app/_services/type-usage.service';
+import { WorkbenchV1Service } from 'src/app/in/_services/workbench-v1.service';
+import { NotificationService } from 'src/app/in/_services/notification.service';
 
 @Component({
   selector: 'app-vieweditor',
@@ -60,7 +62,9 @@ export class VieweditorComponent implements OnInit {
     private api: EmbeddedApiService,
     private popup: MatDialog,
     private snackBar: MatSnackBar,
-    private TypeUsage: TypeUsageService
+    private TypeUsage: TypeUsageService,
+    private workbenchService : WorkbenchV1Service,
+    private notificationService: NotificationService
   ) { }
 
   async ngOnInit() {
@@ -160,6 +164,7 @@ export class VieweditorComponent implements OnInit {
   }
 
   save() {
+
     
     var timerId = setTimeout(async () => {
       let success = await this.api.saveView(this.view_obj.export(),this.entity,this.view_id);

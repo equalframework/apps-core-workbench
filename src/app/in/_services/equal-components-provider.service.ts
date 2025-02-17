@@ -15,6 +15,80 @@ export class EqualComponentsProviderService {
         this.loadComponents();
     }
 
+    /**
+ * Retrieves a specific component based on the given criteria.
+ *
+ * @param {string} packageName - The name of the package.
+ * @param {string} componentType - The type of component (e.g., 'class', 'controller', 'view', 'menu', 'route').
+ * @param {string} className - The class name filter (used for some types like 'view').
+ * @param {string} componentName - The exact name of the component being searched for.
+ * @returns {Observable<EqualComponentDescriptor | null>} An observable containing the EqualComponentDescriptor of the specific component, or null if not found.
+ */
+public getComponent(
+    packageName: string,
+    componentType: string,
+    className: string,
+    componentName: string
+  ): Observable<EqualComponentDescriptor | null> {
+    const currentData = this.equalComponentsSubject.value;
+    
+    // Search the cache for the specific component
+    const cachedComponent = currentData.find(comp =>
+      comp.package_name === packageName &&
+      comp.type === componentType &&
+      (className ? comp.item.model.startsWith(className) : true) &&
+      comp.name === componentName
+    );
+    
+    if (cachedComponent) {
+      console.log("Specific component retrieved from cache:", cachedComponent);
+      return of(cachedComponent);
+    }
+    
+    // Call the API to fetch all components of this type and filter out the specific component
+    let componentObservable: Observable<EqualComponentDescriptor[]>;
+    
+    switch (componentType) {
+      case 'class':
+        componentObservable = this.handleClasses(packageName, className);
+        break;
+      case 'controller':
+        componentObservable = this.handleControllers(packageName);
+        break;
+      case 'view':
+        console.log("package Name dans getComponent : ", packageName);
+        console.log("class Name dans getComponent : ", className);
+        componentObservable = this.handleViews(packageName, className);
+        break;
+      case 'menu':
+        componentObservable = this.handleMenus(packageName);
+        break;
+      case 'route':
+        componentObservable = (packageName !== "")
+          ? this.handleRoutes(packageName)
+          : this.handleRoutesLives();
+        break;
+      default:
+        return of(null);
+    }
+    
+    console.log("API used to retrieve the specific component.");
+    return componentObservable.pipe(
+      map(components => {
+            console.log("components : ", components);
+        const foundComponent = components.find(comp => comp.name === componentName);
+        if (foundComponent) {
+          // Update the cache with the found component
+          this.equalComponentsSubject.next([...this.equalComponentsSubject.value, foundComponent]);
+        }
+        return foundComponent || null;
+      }),
+      catchError(error => {
+        console.error(`Error fetching specific ${componentType} for ${packageName}:`, error);
+        return of(null);
+      })
+    );
+  }
 
    /**
  * Retrieves components based on the given package name, component type, and an optional class name filter.
@@ -34,13 +108,13 @@ public getComponents(
     // Check for cached components matching the criteria.
     const cachedComponents = currentData.filter(comp =>
       comp.package_name === packageName &&
-      comp.item === componentType &&
-      (className ? comp.name.startsWith(className) : true)
+      comp.type === componentType &&
+      (className ? comp.item.model.startsWith(className) : true)
     );
   
     if (cachedComponents.length > 0) {
         console.log("j'ai récupéré ce qu'il y'avait en cache");
-      return of(cachedComponents);
+        return of(cachedComponents);
     }
   
     let componentObservable: Observable<EqualComponentDescriptor[]>;

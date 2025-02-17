@@ -1,3 +1,4 @@
+import { EqualComponentsProviderService } from './../../in/_services/equal-components-provider.service';
 import { Component, Input, OnChanges, OnInit, Output, EventEmitter, SimpleChanges } from '@angular/core';
 import { Router } from '@angular/router';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
@@ -22,11 +23,11 @@ export class InfoViewComponent implements OnInit, OnChanges {
 
     constructor(
             private router: Router,
-            private api: WorkbenchService) {
+            private api: WorkbenchService,
+            private provider: EqualComponentsProviderService) {
     }
 
     public ngOnInit() {
-        console.log(this.view);
         this.loading = true;
         this.load();
     }
@@ -40,10 +41,9 @@ export class InfoViewComponent implements OnInit, OnChanges {
     private async load() {
         this.loading = true;
         try {
-            let temp = this.view.name.split(":");
-            this.entity = temp[0];
-            this.view_id = temp[1];
-            this.view_schema = await this.api.getView(this.entity, this.view_id);
+            this.entity = `${this.view.package_name}\\${this.view.item.model}`;
+            this.view_id = this.view.name;
+            this.view_schema = this.provider.getComponents(this.view.package_name, "view", this.view.item.model);
             this.fields = this.getFields(this.view_schema);
         }
         catch(response) {
@@ -53,6 +53,7 @@ export class InfoViewComponent implements OnInit, OnChanges {
     }
 
     public onclickEdit() {
+        console.log("view ", this.view);
         this.router.navigate(['/package/' + this.view.package_name + '/view/' + this.view.name]);
     }
 

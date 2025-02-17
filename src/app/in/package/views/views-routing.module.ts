@@ -5,7 +5,8 @@ import { PackageViewsComponent } from './package-views.component';
 const routes: Routes = [
     {
         path: '**',
-        component: PackageViewsComponent
+        component: PackageViewsComponent,
+        
     }
 ];
 
