@@ -14,6 +14,18 @@ export class TypeInputComponent implements OnInit,OnChanges {
     @Input() value:any;
     @Input() name:string = '';
     @Input() disabled:boolean = false;
+    icons = [
+        'hub','check_circle', 'check_box', 
+        'delete', 'delete_forever', 'remove_circle_outline',
+        'publish', 'cloud_upload',
+        'drafts', 'hourglass_empty', 'pending_actions',
+        'autorenew', 'play_arrow', 'pause',
+        'error', 'warning', 'cancel',
+        'check', 'drafts'
+
+      ];
+      
+      selectedIcon: string = 'hub';
 
     @Output() changed = new EventEmitter<any>();
 
@@ -24,7 +36,7 @@ export class TypeInputComponent implements OnInit,OnChanges {
     constructor() { }
 
     ngOnInit(): void {
-
+        this.selectedIcon=this.value;
     }
 
     ngOnChanges() {
@@ -50,6 +62,11 @@ export class TypeInputComponent implements OnInit,OnChanges {
     //d.setHours(d.getHours(),d.getMinutes()+d.getTimezoneOffset(),d.getSeconds(),0)
     this.changed.emit(d.getTime()/1000)
     console.log("emitting : "+d.toISOString())
+  }
+
+  onIconChange(icon: string) {
+    this.selectedIcon = icon;
+    this.changed.emit(icon); // émettre l'icône sélectionnée
   }
 
   noCancel(event: KeyboardEvent) {
@@ -93,10 +110,12 @@ export class TypeInputComponent implements OnInit,OnChanges {
   get cannotBeDisplayed() {
     return this.type !== "string" && this.type !== 'integer' && this.type !== 'float' && this.type !== 'array' && this.type !== 'date'
       && this.type !== 'datetime' && this.type !== 'time' && this.type !== 'boolean' && this.type !== "many2many" &&  this.type !== "one2many"
-      &&  this.type !== "many2one" && this.type !== 'text'
+      &&  this.type !== "many2one" && this.type !== 'text' && this.type !=="icon"
   }
 
 }
+
+
 
 function json_case(control: AbstractControl): ValidationErrors | null {
   let value: string = control.value

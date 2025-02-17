@@ -100,34 +100,6 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     public ngOnInit() {
         this.loading = true;
         this.loadNodesV2();
-
-
-
-
-        /*
-                 // Appeler loadPackages pour charger les packages via WorkbenchV1Service
-                 this.loading = true;
-                 this.workbenchService.loadPackages(); // Appeler la méthode loadPackages du service
-                 // S'abonner aux packages récupérés
-                 this.workbenchService.packages$.subscribe(packages => {
-                     this.elements = packages; // Mettre à jour les éléments avec les données récupérées
-                     this.filteredData = this.elements; // Appliquer tout filtrage si nécessaire
-                     this.loading = false; // Désactiver le chargement une fois les données récupérées
-                 });
-        /*
-                // let arg = this.router.retrieveArgs();
-        
-                this.search_scope = this.node_type ?? 'package';
-        
-                this.loading = true;
-        
-                await this.loadNodes();
-        
-                // refresh filtering
-                this.selectSearchScope();
-        
-                this.loading = false;*/
-
     }
 
     public async ngOnChanges(changes: SimpleChanges) {
@@ -170,7 +142,6 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
                     error => this.handleError(error)
                 );
             }
-            
         }
     }
 

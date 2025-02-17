@@ -279,6 +279,7 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
                     return;
                 }
                 this.saveWorkflowWithMetaData();
+
             });
         } else {
             this.saveWorkflowWithMetaData();
@@ -300,7 +301,6 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
                                 return;
                             }
                             this.snackBar.open("Saved successfully", "INFO");
-                            this.init();
                         });
                 } else {
                     this.workbenchService.createMetaData("workflow", `${this.package}.${this.model}`, JSON.stringify(this.exportMetaData()))
@@ -310,7 +310,6 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
                                 return;
                             }
                             this.snackBar.open("Saved successfully", "INFO");
-                            this.init();
                         });
                 }
             });
