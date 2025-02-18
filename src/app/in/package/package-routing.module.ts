@@ -66,11 +66,15 @@ const routes: Routes = [
         path: 'view/:view_name',
         loadChildren: () => import('./view/view.module').then(m => m.PackageViewModule)
     },
+
+    
     // wildcard route (accept root and any sub route that does not match any of the routes above)
     {
         path: '**',
         component: PackageComponent
     },
+
+
 
 ];
 
