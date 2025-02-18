@@ -5,14 +5,13 @@
         <label class="package-label">{{ package_name }}</label>›<label class="node-label"><mat-icon>view_quilt</mat-icon>Views</label>
     </app-inner-header>
 </div>
-
 <div class="app-inner-body">
     <div class="left_pane">
         <search-mixed-list
                 [node_type]="'view'"
                 [package_name]="package_name"
-                [node_selected]="selected_view"
-                (selectNode)="onSelectNode($event)">
+                (selectNode)="onSelectNode($event)"
+                (updateNode)="onUpdateNode($event)">
         </search-mixed-list>
     </div>
 

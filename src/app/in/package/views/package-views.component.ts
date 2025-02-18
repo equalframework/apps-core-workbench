@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { ActivatedRoute, Route, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
@@ -15,7 +15,7 @@ import { EqualComponentDescriptor } from '../../_models/equal-component-descript
     styleUrls: ['./package-views.component.scss'],
     encapsulation : ViewEncapsulation.Emulated
 })
-export class PackageViewsComponent implements OnInit {
+export class PackageViewsComponent implements OnInit, OnDestroy {
 
     // rx subject for unsubscribing subscriptions on destroy
     private ngUnsubscribe = new Subject<void>();
@@ -39,6 +39,10 @@ export class PackageViewsComponent implements OnInit {
             private snackBar: MatSnackBar,
             private location: Location
         ) { }
+    ngOnDestroy(): void {
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
+    }
 
 
     public  ngOnInit() {

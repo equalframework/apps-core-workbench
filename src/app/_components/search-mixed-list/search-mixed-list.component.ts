@@ -119,6 +119,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         if (this.package_name) {
             // Si package_name est défini, appelez getComponents
             if (this.node_type) {
+                console.log("je suis rentré ici ");
                 this.provider.getComponents(this.package_name, this.node_type,this.model_name)
                     .pipe(takeUntil(this.destroy$)) // Ajout de takeUntil
                     .subscribe(
@@ -129,6 +130,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         } else {
 
             if(this.node_type){
+
                 this.provider.getComponents(this.package_name,this.node_type)
                     .pipe(takeUntil(this.destroy$))
                     .subscribe(

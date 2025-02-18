@@ -39,36 +39,59 @@ export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
         this.load();
     }
 
-    async ngOnChanges(changes: SimpleChanges) {
-        if(changes.view) {
-            this.load();
-        }
-    }
 
-    private load() {
+      
+      async ngOnChanges(changes: SimpleChanges) {
+        if (changes.view) {
+          this.load();
+        }
+      }
+      
+      private load() {
         this.loading = true;
+      
+        // Vérifier si 'view' est bien défini
+        if (!this.view || !this.view.package_name || !this.view.item || !this.view.item.model) {
+          console.error('Invalid view data:', this.view);
+          this.loading = false;
+          return;
+        }
+      
         try {
-          this.entity = `${this.view.package_name}\\${this.view.item.model}`;
+          // Préparer les paramètres pour 'getComponents'
+          const packageName = this.view.package_name;
+          const modelName = this.view.item.model;
+          
+          // Définir les valeurs pour 'entity' et 'view_id'
+          this.entity = `${packageName}\\${modelName}`;
           this.view_id = this.view.name;
-          this.provider.getComponents(this.view.package_name, "view", this.view.item.model)
+      
+          // Appeler l'API pour récupérer les composants
+          this.provider.getComponents(packageName, 'view', modelName)
             .pipe(takeUntil(this.destroy$))
             .subscribe(
               (data) => {
-                this.view_schema = data;
-                // Calculer les fields uniquement après réception des données
-                this.fields = this.getFields(this.view_schema);
+                // Si les données sont valides
+                if (data && Array.isArray(data)) {
+                  this.view_schema = [...data];
+                  this.fields = this.getFields(this.view_schema);
+                } else {
+                  console.warn('Invalid data format for view schema:', data);
+                }
               },
               (error) => {
-                console.error('Erreur lors du chargement des détails de la vue', error);
+                console.error('Error loading view details:', error);
+              },
+              () => {
+                // Charger les champs après la réception des données
+                this.loading = false;
               }
             );
-        }
-        catch(response) {
-          console.log('unexpected error - restricted visibility?', response);
-        }
-        this.loading = false;
-      }
-      
+        } catch (response) {
+          console.error('Unexpected error - restricted visibility?', response);
+          this.loading = false;
+        } 
+    }
 
     public onclickEdit() {
         console.log("view ", this.view);

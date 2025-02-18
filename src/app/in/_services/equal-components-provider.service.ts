@@ -1,7 +1,7 @@
 import { Injectable, Component } from '@angular/core';
 import { BehaviorSubject, forkJoin, from, Observable, of } from 'rxjs';
 import { EqualComponentDescriptor } from '../_models/equal-component-descriptor.class';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, map, switchMap, take, tap } from 'rxjs/operators';
 import { ApiService } from 'sb-shared-lib';
 
 @Injectable({
@@ -116,6 +116,7 @@ export class EqualComponentsProviderService {
         } else {
             // Otherwise, retrieve only the components of the specified type
             const cachedComponents = packageMap.get(componentType) || [];
+            console.log("tiens voilà le cache, ", cachedComponents);
             filteredComponents = cachedComponents.filter(comp =>
                 className ? comp.item.model.startsWith(className) : true
             );
@@ -148,7 +149,6 @@ export class EqualComponentsProviderService {
                     : this.handleRoutesLives();
                 break;
             default:
-                this.loadComponents();
                 return of([]);
         }
 
@@ -158,10 +158,11 @@ export class EqualComponentsProviderService {
                     this.componentsMapByPackage.set(packageName, new Map<string, EqualComponentDescriptor[]>());
                 }
 
+
+
                 const packageMap = this.componentsMapByPackage.get(packageName)!;
                 const updatedComponents = [
-                    ...(packageMap.get(componentType) || []),
-                    ...newComponents
+                    ...(packageMap.get(componentType) || [])
                 ];
 
                 packageMap.set(componentType, updatedComponents);
@@ -179,7 +180,7 @@ export class EqualComponentsProviderService {
 
 
     public refreshComponents(): void {
-        this.loadComponents();
+        console.log("refresh");
     }
 
 
@@ -411,34 +412,36 @@ private handleControllers(packageName: string): Observable<EqualComponentDescrip
   /**
    * Loads all available components.
    */
-private loadComponents(): void {
+  private loadComponents(): void {
     this.collectPackages().pipe(
-      switchMap((packages: EqualComponentDescriptor[]) => {
-        this.equalComponentsSubject.next(packages);
-        return of(packages);
-      })
+        switchMap((packages: EqualComponentDescriptor[]) => {
+            this.equalComponentsSubject.next(packages);
+            return of(packages);
+        }),
+        take(1)
     ).subscribe({
-      next: (packages: EqualComponentDescriptor[]) => {
-        console.log('Packages loaded:', packages);
+        next: (packages: EqualComponentDescriptor[]) => {
+            console.log('Packages loaded:', packages);
 
-        // Update the main cache with components by package
-        packages.forEach(packageComponent => {
-          if (!this.componentsMapByPackage.has(packageComponent.name)) {
-            console.log(packageComponent);
-            this.componentsMapByPackage.set(packageComponent.name, new Map<string, EqualComponentDescriptor[]>());
-          }
+            // Update the main cache with components by package
+            packages.forEach(packageComponent => {
+                if (!this.componentsMapByPackage.has(packageComponent.name)) {
+                    console.log(packageComponent);
+                    this.componentsMapByPackage.set(packageComponent.name, new Map<string, EqualComponentDescriptor[]>());
+                }
+                const packageMap = this.componentsMapByPackage.get(packageComponent.name)!;
+                console.log("Map created during the loading:", packageMap);
+            });
 
-          const packageMap = this.componentsMapByPackage.get(packageComponent.name)!;
-          console.log("Map created during the loading:", packageMap);
-          this.loadClasses(packages);
-          this.loadAdditionalComponents(packages);
-        });
-      },
-      error: (error) => {
-        console.error('Error loading components:', error);
-      }
+            this.loadClasses(packages);
+            this.loadAdditionalComponents(packages);
+        },
+        error: (error) => {
+            console.error('Error loading components:', error);
+        }
     });
-  }
+}
+
 
 
 
@@ -469,7 +472,7 @@ private loadComponents(): void {
 
             if (allComponents.length > 0) {
                 const updatedComponents: EqualComponentDescriptor[] = [];
-
+                console.log("voici la liste a mettre à jour", updatedComponents);
                 // Parcourir tous les composants supplémentaires et les ajouter dans la Map
                 allComponents.forEach(component => {
                     const packageName = component.package_name;
@@ -577,14 +580,13 @@ private loadComponents(): void {
                         // Extraction du nom du modèle à partir du chemin du fichier
                         const matches = package_component.file.match(/([^\\/:]+):[^:]+\.php$/);
                         const modelName = matches ? matches[1] : view_name;
-
                         return {
                             package_name: package_component.name,
                             name: view_name?.split('\\').pop() ?? '',
                             type: 'view',
                             file: `${package_component.name}/views/${view_name}.php`,
                             item: {
-                                model: modelName
+                                model: view_name?.split('\\').pop()?.split(":")[0] ?? ''
                             }
                         };
                     });
