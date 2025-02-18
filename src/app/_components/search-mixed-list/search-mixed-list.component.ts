@@ -407,35 +407,33 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     }
 
     public openCreator() {
-        let d = this.dialog.open(MixedCreatorDialogComponent, {
-            data: {
-                node_type: this.search_scope,
-                lock_type: (this.node_type != ''),
-                package: this.package_name,
-                lock_package: (this.package_name != ''),
-                model: this.model_name,
-                lock_model: (this.model_name != "")
-            },
-            width: "40em",
-            height: "26em"
-        });
-
-        d.afterClosed().subscribe((result) => {
-            console.log(result);
-            if (result) {
-                if (result.success) {
-                    this.notificationService.showSuccess(result.message);
-                    this.addToComponents(result.node);
-                    setTimeout(() => {
-                        this.provider.refreshComponents();
-                    }, 10);
+        this.dialog.open(MixedCreatorDialogComponent, {
+                data: {
+                    node_type: this.search_scope,
+                    lock_type: (this.node_type != ''),
+                    package: this.package_name,
+                    lock_package: (this.package_name != ''),
+                    model: this.model_name,
+                    lock_model: (this.model_name != "")
+                },
+                width: "40em",
+                height: "26em"
+            }).afterClosed().subscribe((result) => {
+                console.log(result);
+                if (result) {
+                    if (result.success) {
+                        this.notificationService.showSuccess(result.message);
+                        this.addToComponents(result.node);
+                        setTimeout(() => {
+                            this.provider.refreshComponents();
+                        }, 10);
+                    }
+                    else {
+                        this.notificationService.showError(result.message);
+                        this.removeFromComponents(result.node);
+                    }
                 }
-                else {
-                    this.notificationService.showError(result.message);
-                    this.removeFromComponents(result.node);
-                }
-            }
-        });
+            });
     }
 
     private addToComponents(node: EqualComponentDescriptor) {

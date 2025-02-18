@@ -88,16 +88,28 @@ export class PackageViewComponent implements OnInit {
           this.entity = tempsplit[0]
           this.view_id = tempsplit[1]
     }
-    this.provider.getComponent(packageName, 'view', this.entity, this.name).subscribe((compo) => {
+    this.provider.getComponent(packageName, 'view', this.entity, this.name).subscribe(async (compo) => {
         if (compo) {
             this.node = compo; // Assign the retrieved component if found
+            this.class_scheme = await this.api.getSchema(`${this.node.package_name}\\${this.entity}`)
+            this.fields = this.obk(this.class_scheme['fields'])
+            this.view_scheme = await this.api.getView(`${this.node.package_name}\\${this.entity}`,this.view_id)
+            this.view_obj = new View(this.view_scheme,this.node.name.split(':')[1].split('.')[0]);
+            this.api.getCoreGroups().then(data => {
+                for(let key in data) {
+                  this.groups.push(data[key]['name'])
+                }
+                console.log(this.groups)
+              })
+            //this.init;
+            this.loading = false
+
         } else {
             console.warn('Component not found.');
         }
     });
 }
-    await this.init();
-    this.loading = false
+    //await this.init();
   }
 
   public async init() {
@@ -105,7 +117,7 @@ export class PackageViewComponent implements OnInit {
     this.icontype = this.TypeUsage.typeIcon
     if(this.name) {
       try {
-
+        console.log("node initialized : ", this.node);
         let tempsplit = this.name.split(":")
         this.entity = tempsplit[0]
         this.view_id = tempsplit[1]
@@ -113,7 +125,7 @@ export class PackageViewComponent implements OnInit {
         this.fields = this.obk(this.class_scheme['fields'])
         this.view_scheme = await this.api.getView(this.entity,this.view_id)
         console.log(this.view_scheme)
-        this.view_obj = new View(this.view_scheme,tempsplit[1].split(".")[0])
+        this.view_obj = new View(this.view_scheme,this.node.name);
         console.log(this.view_obj)
         let temp_controller = await this.api.getDataControllerList(this.entity.split("\\")[0])
         for(let item of temp_controller) {

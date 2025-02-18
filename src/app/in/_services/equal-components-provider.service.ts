@@ -117,11 +117,11 @@ public getComponents(
         return of(cachedComponents);
     }
   
-    let componentObservable: Observable<EqualComponentDescriptor[]>;
+    let componentObservable: Observable<EqualComponentDescriptor[]>; //componentloaderObservable
   
     switch (componentType) {
       case 'class':
-        componentObservable = this.handleClasses(packageName, className);
+        componentObservable = this.handleClasses(packageName, className); //classesLoaderObservable
         break;
       case 'controller':
         componentObservable = this.handleControllers(packageName);
@@ -736,9 +736,6 @@ public getComponents(
         }));
     }
 
-    sortComponents() {
-        console.log("trié");
-    }
 }
 
 

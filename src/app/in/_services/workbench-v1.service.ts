@@ -9,7 +9,7 @@ import { cloneDeep } from 'lodash';
 import { HttpErrorResponse } from '@angular/common/http';
 
 /**
- * WorkbenchV1Service is responsible for managing the creation and deletion of various components 
+ * WorkbenchV1Service is responsible for managing the creation and deletion of various components
  * such as packages, classes, and controllers within the system.
  * It handles requests to the backend API to create and delete components and provides relevant feedback.
  */
@@ -74,7 +74,7 @@ export class WorkbenchV1Service {
         // Return the appropriate observable based on the node type, or a default message for unknown types.
         return deleteActions[node.type]?.() || of({ message: "Unknown type" });
     }
-    
+
 
 
     public updateFieldsFromClass(new_schema: {}, package_name: string, class_name: string){
@@ -122,21 +122,21 @@ export class WorkbenchV1Service {
     private deletePackage(package_name: string): Observable<any> {
         const url = `?do=core_config_delete-package&package=${package_name}`;
         const successfullyMessage=`Package ${package_name} deleted successfully!`
-       return this.callApi(url,successfullyMessage)
+        return this.callApi(url, successfullyMessage);
     }
 
 
     /**
     * Creates a new class within the specified package, potentially inheriting from a parent class.
-    * 
+    *
     * @param {string} package_name - The name of the package where the new class will be created.
     * @param {string} class_name - The name of the new class to be created.
     * @param {string} parent - The name of the parent class that the new class will extend. Defaults to "equal\\orm\\Model".
-    * 
-    * @returns {Observable<{ success: boolean, message: string, response?: string, error?: any }>} 
-    * An observable that emits an object containing the success status, a message, and optionally, 
+    *
+    * @returns {Observable<{ success: boolean, message: string, response?: string, error?: any }>}
+    * An observable that emits an object containing the success status, a message, and optionally,
     * the response or error details if the class creation fails.
-    * 
+    *
     * @example
     * // Usage example
     * createClass('myPackage', 'MyNewClass', 'equal\\orm\\Model')
@@ -157,7 +157,7 @@ export class WorkbenchV1Service {
     private deleteClass(package_name:string,class_name:string){
         const url = `?do=core_config_delete-model&package=${package_name}&model=${class_name}`;
         const successfullyMessage = `Class ${class_name} deleted successfully!`
-        return this.callApi(url, successfullyMessage);    
+        return this.callApi(url, successfullyMessage);
     }
 
 
@@ -197,7 +197,7 @@ export class WorkbenchV1Service {
         const successfullyMessage = `Controller ${name} of type ${type} deleted successfully!`
         return this.callApi(url, successfullyMessage);
     }
-    
+
 
     private callApi(url: string, successMessage: string) {
         return from(this.api.fetch(url)).pipe(
@@ -206,7 +206,7 @@ export class WorkbenchV1Service {
                 message: successMessage,
                 response: response || null
             })),
-            catchError(error => {
+            catchError(error => { //changer en response
                 console.error("Error details:", error);
                 let errorMessage = `Error: `;
                 if (error.error && error.error.errors) {
@@ -220,7 +220,7 @@ export class WorkbenchV1Service {
                 return of({
                     success: false,
                     message: errorMessage,
-                    error
+                    error: error
                 });
             })
         );
@@ -276,7 +276,7 @@ export class WorkbenchV1Service {
       })
     );
   }
-  
+
 
   /**
    * Prepares the workflow data from the API response and metadata.
@@ -376,7 +376,7 @@ export class WorkbenchV1Service {
           })
         );
       }
-    
+
       /**
        * Saves the workflow data.
        * @param pkg The package name.
@@ -394,7 +394,7 @@ export class WorkbenchV1Service {
           })
         );
       }
-    
+
       /**
        * Creates a new workflow.
        * @param pkg The package name.
@@ -411,7 +411,7 @@ export class WorkbenchV1Service {
           })
         );
       }
-    
+
       /**
        * Fetches metadata for a given code and reference.
        * @param code The code for the metadata.
@@ -428,7 +428,7 @@ export class WorkbenchV1Service {
           })
         );
       }
-    
+
       /**
        * Creates metadata for a given code and reference.
        * @param code The code for the metadata.
@@ -446,7 +446,7 @@ export class WorkbenchV1Service {
           })
         );
       }
-    
+
       /**
        * Saves the metadata.
        * @param id The ID of the metadata.
@@ -483,9 +483,9 @@ export class WorkbenchV1Service {
   }
 
 
-  
+
   public saveView(payload:any, package_name: string, entity:string,viewid:string):Observable<any>{
-    console.log("save view : ", entity);
+    console.log("save view : ", payload);
     console.log("save view: ", viewid);
     const url = `?do=core_config_update-view&entity=${package_name}\\${entity}&view_id=${viewid}&payload=${JSON.stringify(payload)}`;
     const successfullyMessage = `${viewid} has been updated`

@@ -313,7 +313,7 @@ export class MixedCreatorDialogComponent implements OnInit {
       if (node.type === 'get' || node.type === 'do') {
         node.name = `${node.package_name}_${node.name}`;
       }
-      const resultWithNode = { ...result, node };
+      const resultWithNode = { ...result, node }; //plus cours et lisible à faire
       this.dialogRef.close(resultWithNode);
     });
   }
