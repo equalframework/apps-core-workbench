@@ -297,7 +297,7 @@ export class MixedCreatorDialogComponent implements OnInit {
       type: this.type,
       name: this.nameControl.value,
       package_name: this.selectedPackage,
-      file: this.nameControl.value,
+      file: this.generateFilePath(),
       item: {
         class_parent: this.subtype,
         model: this.selectedModel
@@ -317,6 +317,29 @@ export class MixedCreatorDialogComponent implements OnInit {
       this.dialogRef.close(resultWithNode);
     });
   }
+
+  private generateFilePath(): string {
+    let folder = '';
+    let extension = '';
+      switch (this.type) {
+      case 'view':
+        folder = 'views'; 
+        extension = '.php';
+        break;
+      case 'class':
+        folder = 'classes'; 
+        extension = '.class.php'; 
+        break;
+      default:
+        folder = ''; 
+        extension = ''; 
+        break;
+    }
+  
+    return `${this.selectedPackage}/${folder}/${this.nameControl.value}${extension}`;
+  }
+  
+  
 
   public get createDisabled(): boolean {
     return this.NameDisabled || this.nameControl.invalid;

@@ -45,6 +45,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     @Input() allow_create?: boolean = true;
     @Input() allow_update?: boolean = true;
     @Input() allow_delete?: boolean = true;
+    public packageStates: { [packageName: string]: boolean } = {};  // Pour suivre l'état des packages
 
     /*
         EqualComponentDescriptor Structure is as follow:
@@ -92,11 +93,14 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         private workbenchService: WorkbenchV1Service,
         private notificationService: NotificationService
     ) { }
+
+
     ngOnDestroy(): void {
         this.destroy$.next();
         this.destroy$.complete();
     }
 
+  
     public ngOnInit() {
         this.loading = true;
         this.loadNodesV2();
@@ -146,6 +150,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     }
 
     private handleComponents(components: any[]) {
+        console.log("ma valeur : ", components);
         this.elements = [...components]; // Copie superficielle du tableau
         this.filteredData = this.elements;
         this.onSearch();
@@ -523,7 +528,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
             case "package":
                 return "Package - packages/" + node.name;
             case "class":
-                return "Model - packages/" + node.package_name + "/classes/" + node.name.replaceAll("\\", "/") + ".php";
+                return "Model - packages/" + node.package_name + "/classes/" + node.name + ".php";
             case "get":
                 splitted_name = node.name.split('_')
                 return "Data provider - packages/" + node.package_name + "/data/" + splitted_name.slice(1).join("/");

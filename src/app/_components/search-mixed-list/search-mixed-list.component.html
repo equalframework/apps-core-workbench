@@ -77,7 +77,7 @@
                         <label class="node-icon component-icon component-color-{{node.type}}"><mat-icon>{{type_dict[node.type].icon}}</mat-icon></label>
                         <label class="node-name" *ngIf="node.type === 'route'">{{node.name}}</label>
                         <label class="node-name" *ngIf="node.type === 'package'">{{node.name}}</label>
-                        <label class="node-name" *ngIf="node.type !== 'route' && node.type !== 'package'">{{ node.package_name ? (node.type === "do" || node.type === "get" || node.type === "view" ? "" : node.package_name+"\\") : ""}}{{node.name}}</label>
+                        <label class="node-name" *ngIf="node.type !== 'route' && node.type !== 'package'">{{node.name}}</label>
                     </div>
                     <div class="node-actions">
                         <button *ngIf="allow_update" mat-icon-button aria-label="Edit node button">

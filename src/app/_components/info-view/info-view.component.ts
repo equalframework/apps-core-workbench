@@ -1,6 +1,8 @@
 import { EqualComponentsProviderService } from './../../in/_services/equal-components-provider.service';
-import { Component, Input, OnChanges, OnInit, Output, EventEmitter, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, Output, EventEmitter, SimpleChanges, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
@@ -10,9 +12,9 @@ import { WorkbenchService } from 'src/app/in/_services/workbench.service';
     templateUrl: './info-view.component.html',
     styleUrls: ['./info-view.component.scss']
 })
-export class InfoViewComponent implements OnInit, OnChanges {
+export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
     @Input() view: EqualComponentDescriptor;
-
+    private destroy$: Subject<boolean> = new Subject<boolean>();
     public loading: boolean = true;
 
     public view_id: string;
@@ -26,6 +28,11 @@ export class InfoViewComponent implements OnInit, OnChanges {
             private api: WorkbenchService,
             private provider: EqualComponentsProviderService) {
     }
+    ngOnDestroy(): void {
+        this.destroy$.next(true);
+        this.destroy$.complete();    
+    }
+
 
     public ngOnInit() {
         this.loading = true;
@@ -38,19 +45,30 @@ export class InfoViewComponent implements OnInit, OnChanges {
         }
     }
 
-    private async load() {
+    private load() {
         this.loading = true;
         try {
-            this.entity = `${this.view.package_name}\\${this.view.item.model}`;
-            this.view_id = this.view.name;
-            this.view_schema = this.provider.getComponents(this.view.package_name, "view", this.view.item.model);
-            this.fields = this.getFields(this.view_schema);
+          this.entity = `${this.view.package_name}\\${this.view.item.model}`;
+          this.view_id = this.view.name;
+          this.provider.getComponents(this.view.package_name, "view", this.view.item.model)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(
+              (data) => {
+                this.view_schema = data;
+                // Calculer les fields uniquement après réception des données
+                this.fields = this.getFields(this.view_schema);
+              },
+              (error) => {
+                console.error('Erreur lors du chargement des détails de la vue', error);
+              }
+            );
         }
         catch(response) {
-            console.log('unexpected error - restricted visibility?', response);
+          console.log('unexpected error - restricted visibility?', response);
         }
         this.loading = false;
-    }
+      }
+      
 
     public onclickEdit() {
         console.log("view ", this.view);
@@ -95,8 +113,11 @@ export class InfoViewComponent implements OnInit, OnChanges {
         return mapFields;
     }
 
-    public getFieldsCount(): number {
-
-        return Object.keys(this.fields).length;
+    getFieldsCount(): number {
+        if (this.view_schema && this.view_schema.fields) {
+            return Object.keys(this.view_schema.fields).length;
+        }
+        return 0;  // Si `view_schema` ou `fields` est undefined, retourne 0
     }
+    
 }

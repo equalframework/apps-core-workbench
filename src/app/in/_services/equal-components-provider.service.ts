@@ -9,270 +9,304 @@ import { ApiService } from 'sb-shared-lib';
 })
 export class EqualComponentsProviderService {
     private equalComponentsSubject = new BehaviorSubject<EqualComponentDescriptor[]>([]);
+    private componentsMapByPackage = new Map<string, Map<string, EqualComponentDescriptor[]>>();
     public equalComponents$ = this.equalComponentsSubject.asObservable();
-    node_type: string;
+
     constructor(private api: ApiService) {
         this.loadComponents();
     }
 
+
+
     /**
- * Retrieves a specific component based on the given criteria.
- *
- * @param {string} packageName - The name of the package.
- * @param {string} componentType - The type of component (e.g., 'class', 'controller', 'view', 'menu', 'route').
- * @param {string} className - The class name filter (used for some types like 'view').
- * @param {string} componentName - The exact name of the component being searched for.
- * @returns {Observable<EqualComponentDescriptor | null>} An observable containing the EqualComponentDescriptor of the specific component, or null if not found.
- */
-public getComponent(
-    packageName: string,
-    componentType: string,
-    className: string,
-    componentName: string
-  ): Observable<EqualComponentDescriptor | null> {
-    const currentData = this.equalComponentsSubject.value;
-    
-    // Search the cache for the specific component
-    const cachedComponent = currentData.find(comp =>
-      comp.package_name === packageName &&
-      comp.type === componentType &&
-      (className ? comp.item.model.startsWith(className) : true) &&
-      comp.name === componentName
-    );
-    
-    if (cachedComponent) {
-      console.log("Specific component retrieved from cache:", cachedComponent);
-      return of(cachedComponent);
-    }
-    
-    // Call the API to fetch all components of this type and filter out the specific component
-    let componentObservable: Observable<EqualComponentDescriptor[]>;
-    
-    switch (componentType) {
-      case 'class':
-        componentObservable = this.handleClasses(packageName, className);
-        break;
-      case 'controller':
-        componentObservable = this.handleControllers(packageName);
-        break;
-      case 'view':
-        console.log("package Name dans getComponent : ", packageName);
-        console.log("class Name dans getComponent : ", className);
-        componentObservable = this.handleViews(packageName, className);
-        break;
-      case 'menu':
-        componentObservable = this.handleMenus(packageName);
-        break;
-      case 'route':
-        componentObservable = (packageName !== "")
-          ? this.handleRoutes(packageName)
-          : this.handleRoutesLives();
-        break;
-      default:
-        return of(null);
-    }
-    
-    console.log("API used to retrieve the specific component.");
-    return componentObservable.pipe(
-      map(components => {
-            console.log("components : ", components);
-        const foundComponent = components.find(comp => comp.name === componentName);
-        if (foundComponent) {
-          // Update the cache with the found component
-          this.equalComponentsSubject.next([...this.equalComponentsSubject.value, foundComponent]);
+     * Retrieves a specific component based on the given criteria.
+     *
+     * @param {string} packageName - The name of the package.
+     * @param {string} componentType - The type of component (e.g., 'class', 'controller', 'view', 'menu', 'route').
+     * @param {string} className - The class name filter (used for some types like 'view').
+     * @param {string} componentName - The exact name of the component being searched for.
+     * @returns {Observable<EqualComponentDescriptor | null>}
+     *          An observable containing the EqualComponentDescriptor of the specific component, or null if not found.
+     */
+    public getComponent(
+        packageName: string,
+        componentType: string,
+        className: string,
+        componentName: string
+    ): Observable<EqualComponentDescriptor | null> {
+
+        const currentData = this.equalComponentsSubject.value;
+
+        // Search the cache for the specific component
+        const cachedComponent = currentData.find(comp =>
+            comp.package_name === packageName &&
+            comp.type === componentType &&
+            (className ? comp.item.model.startsWith(className) : true) &&
+            comp.name === componentName
+        );
+
+        if (cachedComponent) {
+            console.log("Specific component retrieved from cache:", cachedComponent);
+            return of(cachedComponent);
         }
-        return foundComponent || null;
-      }),
-      catchError(error => {
-        console.error(`Error fetching specific ${componentType} for ${packageName}:`, error);
-        return of(null);
-      })
-    );
-  }
 
-   /**
- * Retrieves components based on the given package name, component type, and an optional class name filter.
- *
- * @param {string} packageName - The name of the package.
- * @param {string} componentType - The type of component ('class', 'controller', 'view', or 'menu').
- * @param {string} [className] - Optional filter; if provided, only components whose names start with this string will be returned.
- * @returns {Observable<EqualComponentDescriptor[]>} An observable of an array of EqualComponentDescriptor.
- */
-public getComponents(
-    packageName: string,
-    componentType: string,
-    className?: string
-  ): Observable<EqualComponentDescriptor[]> {
-    const currentData = this.equalComponentsSubject.value;
-  
-    // Check for cached components matching the criteria.
-    const cachedComponents = currentData.filter(comp =>
-      comp.package_name === packageName &&
-      comp.type === componentType &&
-      (className ? comp.item.model.startsWith(className) : true)
-    );
-  
-    if (cachedComponents.length > 0) {
-        console.log("j'ai récupéré ce qu'il y'avait en cache");
-        return of(cachedComponents);
-    }
-  
-    let componentObservable: Observable<EqualComponentDescriptor[]>; //componentloaderObservable
-  
-    switch (componentType) {
-      case 'class':
-        componentObservable = this.handleClasses(packageName, className); //classesLoaderObservable
-        break;
-      case 'controller':
-        componentObservable = this.handleControllers(packageName);
-        break;
-      case 'view':
-        console.log("className : ", className);
-        componentObservable = this.handleViews(packageName, className);
-        break;
+        // Fetch components from API if not found in cache
+        let componentObservable: Observable<EqualComponentDescriptor[]>;
 
-      case 'menu':
-        componentObservable = this.handleMenus(packageName);
-        break;
-     case 'route':
-        console.log("je suis rentreé dans route");
-
-        if(packageName != ""){
-        componentObservable = this.handleRoutes(packageName);
-        }else{
-            componentObservable = this.handleRoutesLives();
+        switch (componentType) {
+            case 'class':
+                componentObservable = this.handleClasses(packageName, className);
+                break;
+            case 'controller':
+                componentObservable = this.handleControllers(packageName);
+                break;
+            case 'view':
+                componentObservable = this.handleViews(packageName, className);
+                break;
+            case 'menu':
+                componentObservable = this.handleMenus(packageName);
+                break;
+            case 'route':
+                componentObservable = (packageName !== "")
+                    ? this.handleRoutes(packageName)
+                    : this.handleRoutesLives();
+                break;
+            default:
+                return of(null);
         }
-        break;
-      default:
-        return of([]);
+
+        console.log("API used to retrieve the specific component.");
+
+        return componentObservable.pipe(
+            map(components => {
+                console.log("Components retrieved:", components);
+                const foundComponent = components.find(comp => comp.name === componentName);
+                return foundComponent || null;
+            }),
+            catchError(error => {
+                console.error(`Error fetching specific ${componentType} for ${packageName}:`, error);
+                return of(null);
+            })
+        );
     }
-  
-    console.log("j'ai du utilisé l'api = (");
-    // Update the cache after fetching the new components and handle errors.
-    return componentObservable.pipe(
-      map(newComponents => {
-        this.equalComponentsSubject.next([...this.equalComponentsSubject.value, ...newComponents]);
-        return newComponents;
-      }),
-      catchError(error => {
-        console.error(`Error fetching ${componentType}s for ${packageName}:`, error);
-        return of([]);
-      })
-    );
-  }
-
-  
-
-  public refreshComponents(): void {
-    this.loadComponents(); // loadComponents() effectue l'appel API et met à jour equalComponentsSubject
-  }
-  
 
 
+    /**
+     * Retrieves components based on the given package name, component type, and an optional class name filter.
+     *
+     * @param {string} packageName - The name of the package.
+     * @param {string} componentType - The type of component ('class', 'controller', 'view', 'menu', or 'route').
+     * @param {string} [className] - Optional filter; if provided, only components whose names start with this string will be returned.
+     * @returns {Observable<EqualComponentDescriptor[]>} An observable of an array of EqualComponentDescriptor.
+     */
+    public getComponents(
+        packageName: string,
+        componentType: string,
+        className?: string
+    ): Observable<EqualComponentDescriptor[]> {
 
+        const packageMap = this.componentsMapByPackage.get(packageName) || new Map<string, EqualComponentDescriptor[]>();
+        let filteredComponents: EqualComponentDescriptor[] = [];
 
-  private handleRoutesLives(): Observable<EqualComponentDescriptor[]>{
-    return this.collectRoutesLives().pipe(
-        map((routesData) => {
+        if (componentType === '') {
+            // If componentType is empty, retrieve all components of the package
+            packageMap.forEach((components) => {
+                filteredComponents.push(...components);
+            });
+        } else {
+            // Otherwise, retrieve only the components of the specified type
+            const cachedComponents = packageMap.get(componentType) || [];
+            filteredComponents = cachedComponents.filter(comp =>
+                className ? comp.item.model.startsWith(className) : true
+            );
+        }
 
+        if (filteredComponents.length > 0) {
+            console.log('Components retrieved from cache:', filteredComponents);
+            return of(filteredComponents);
+        }
 
-            const components: EqualComponentDescriptor[] = [];
+        // If not found in cache, fetch from API
+        let componentObservable: Observable<EqualComponentDescriptor[]>;
 
-            for (const routePath of Object.keys(routesData)) {
-                const item: { [method: string]: { description: string, operation: string } } = {};
-                let packageName;
-                for (const method of Object.keys(routesData[routePath]["methods"])) {
-                    const operation = routesData[routePath]["methods"][method]["operation"];
-                     // Extraction du package après "?quelquechose="
-                    const packageMatch = operation.match(/\?[^=]+=([^\\&]+)/);
-                    packageName = packageMatch ? packageMatch[1].split("\\").shift() : undefined;
-                    packageName = packageName.split("_")[0];
+        switch (componentType) {
+            case 'class':
+                componentObservable = this.handleClasses(packageName, className);
+                break;
+            case 'controller':
+                componentObservable = this.handleControllers(packageName);
+                break;
+            case 'view':
+                componentObservable = this.handleViews(packageName, className);
+                break;
+            case 'menu':
+                componentObservable = this.handleMenus(packageName);
+                break;
+            case 'route':
+                componentObservable = packageName !== ""
+                    ? this.handleRoutes(packageName)
+                    : this.handleRoutesLives();
+                break;
+            default:
+                this.loadComponents();
+                return of([]);
+        }
 
-                    item[method] = {
-                        description: routesData[routePath]["methods"][method]["description"],
-                        operation: routesData[routePath]["methods"][method]["operation"]
-                    };
+        return componentObservable.pipe(
+            map(newComponents => {
+                if (!this.componentsMapByPackage.has(packageName)) {
+                    this.componentsMapByPackage.set(packageName, new Map<string, EqualComponentDescriptor[]>());
                 }
-            
-                const file =`${packageName}/init/routes/${routesData[routePath]["info"]["file"]}`
-                const component = new EqualComponentDescriptor(
-                    packageName,      // Remplace par le vrai package
-                    routePath,
-                    "route",
-                    file,
-                    item
-                );
-            
-                components.push(component);
-            }
-            return components;
-        })
-    )
-  }
+
+                const packageMap = this.componentsMapByPackage.get(packageName)!;
+                const updatedComponents = [
+                    ...(packageMap.get(componentType) || []),
+                    ...newComponents
+                ];
+
+                packageMap.set(componentType, updatedComponents);
+                return newComponents;
+            }),
+            catchError(error => {
+                console.error(`Error fetching ${componentType}s for ${packageName}:`, error);
+                return of([]);
+            })
+        );
+    }
 
 
-  private handleRoutes(packageName: string): Observable<EqualComponentDescriptor[]> {
-    return this.collectRoutesByPackage(packageName).pipe(
-        tap((result)=>{
-            console.log(result);
-        }),
-        map((routesData) => {
 
-            const components: EqualComponentDescriptor[] = [];
-            //fichier contenant les routes
-            for(const file in routesData){
-                const routePath = `${packageName}/init/routes/${file}`;
-                //Le nom des route
-                for(const route_name in routesData[file] ){
-                    let item: any = {};
-                    //Les infos de chaque route (les méthods put,get,post)
-                    for( const method in routesData[file][route_name]){
-                        const routeInfo = routesData[file][route_name][method];
+
+
+    public refreshComponents(): void {
+        this.loadComponents();
+    }
+
+
+
+
+
+    /**
+     * Handles fetching and mapping live routes.
+     *
+     * @returns {Observable<EqualComponentDescriptor[]>}
+     *          An observable of an array of EqualComponentDescriptor representing live routes.
+     */
+    private handleRoutesLives(): Observable<EqualComponentDescriptor[]> {
+        return this.collectRoutesLives().pipe(
+            map((routesData) => {
+                const components: EqualComponentDescriptor[] = [];
+
+                for (const routePath of Object.keys(routesData)) {
+                    const item: { [method: string]: { description: string, operation: string } } = {};
+                    let packageName;
+
+                    for (const method of Object.keys(routesData[routePath]["methods"])) {
+                        const operation = routesData[routePath]["methods"][method]["operation"];
+
+                        // Extract package name after "?something="
+                        const packageMatch = operation.match(/\?[^=]+=([^\\&]+)/);
+                        packageName = packageMatch ? packageMatch[1].split("\\").shift() : undefined;
+                        packageName = packageName.split("_")[0];
+
                         item[method] = {
-                            description: routeInfo.description,
-                            operation: routeInfo.operation
-                        }
+                            description: routesData[routePath]["methods"][method]["description"],
+                            operation: routesData[routePath]["methods"][method]["operation"]
+                        };
                     }
-                    const component = new EqualComponentDescriptor
-                    (packageName, 
-                        route_name, 
+
+                    const file = `${packageName}/init/routes/${routesData[routePath]["info"]["file"]}`;
+
+                    const component = new EqualComponentDescriptor(
+                        packageName,
+                        routePath,
                         "route",
-                        routePath, 
-                        item);
+                        file,
+                        item
+                    );
+
                     components.push(component);
                 }
-            }
-            return components;
-        })
-    )
+
+                return components;
+            })
+        );
+    }
+
+    /**
+     * Handles fetching and mapping routes for a given package.
+     *
+     * @param {string} packageName - The name of the package.
+     * @returns {Observable<EqualComponentDescriptor[]>}
+     *          An observable of an array of EqualComponentDescriptor representing package routes.
+     */
+    private handleRoutes(packageName: string): Observable<EqualComponentDescriptor[]> {
+        return this.collectRoutesByPackage(packageName).pipe(
+            map((routesData) => {
+                const components: EqualComponentDescriptor[] = [];
+
+                // Iterate over files containing routes
+                for (const file in routesData) {
+                    const routePath = `${packageName}/init/routes/${file}`;
+
+                    // Iterate over route names
+                    for (const routeName in routesData[file]) {
+                        let item: any = {};
+
+                        // Iterate over methods (GET, POST, PUT, etc.)
+                        for (const method in routesData[file][routeName]) {
+                            const routeInfo = routesData[file][routeName][method];
+
+                            item[method] = {
+                                description: routeInfo.description,
+                                operation: routeInfo.operation
+                            };
+                        }
+
+                        const component = new EqualComponentDescriptor(
+                            packageName,
+                            routeName,
+                            "route",
+                            routePath,
+                            item
+                        );
+
+                        components.push(component);
+                    }
+                }
+
+                return components;
+            })
+        );
+    }
+
+    /**
+     * Handles fetching and mapping class components.
+     *
+     * @param {string} packageName - The name of the package.
+     * @param {string} [className] - Optional filter for class names.
+     * @returns {Observable<EqualComponentDescriptor[]>}
+     *          An observable of an array of EqualComponentDescriptor representing classes.
+     */
+    private handleClasses(packageName: string, className?: string): Observable<EqualComponentDescriptor[]> {
+        return this.collectClasses().pipe(
+            map((classes: any) =>
+                this.mapClassesToDescriptors(
+                    { name: packageName } as EqualComponentDescriptor,
+                    classes[packageName] || []
+                )
+            )
+        );
     }
 
 
   /**
-   * Handles fetching and mapping for classes.
-   *
-   * @param {string} packageName - The name of the package.
-   * @param {string} [className] - Optional filter for class names.
-   * @returns {Observable<EqualComponentDescriptor[]>} An observable of an array of EqualComponentDescriptor.
-   */
-  private handleClasses(packageName: string, className?: string): Observable<EqualComponentDescriptor[]> {
-    return this.collectClasses().pipe(
-      map((classes: any) =>
-        this.mapClassesToDescriptors(
-          { name: packageName } as EqualComponentDescriptor,
-          classes[packageName] || []
-        )
-      )
-    );
-  }
-  
-  /**
-   * Handles fetching and mapping for controllers.
-   *
-   * @param {string} packageName - The name of the package.
-   * @returns {Observable<EqualComponentDescriptor[]>} An observable of an array of EqualComponentDescriptor.
-   */
-  private handleControllers(packageName: string): Observable<EqualComponentDescriptor[]> {
+ * Handles fetching and mapping for controllers.
+ *
+ * @param {string} packageName - The name of the package.
+ * @returns {Observable<EqualComponentDescriptor[]>} An observable of an array of EqualComponentDescriptor.
+ */
+private handleControllers(packageName: string): Observable<EqualComponentDescriptor[]> {
     return this.collectControllersByPackage(packageName).pipe(
       map(response => {
         const dataDescriptors = response.data.map((controllerName: string) =>
@@ -285,7 +319,7 @@ public getComponents(
       })
     );
   }
-  
+
   /**
    * Handles collecting and mapping for views.
    *
@@ -295,47 +329,43 @@ public getComponents(
    */
   private handleViews(packageName: string, className?: string): Observable<EqualComponentDescriptor[]> {
     return this.collectViewsByPackage(packageName).pipe(
-        map((views: string[]) =>
-            views
-                .filter(view => view.startsWith(`${packageName}\\${className}`))
-                .map(viewName => {
-                    
-                  // Extraction du nom du package et du nom de la vue
-                const matches = viewName.match(/^([^\\/:]+\\[^\\/:]+):([^:]+)$/);
+      map((views: string[]) =>
+        views
+          .filter(view => view.startsWith(`${packageName}\\${className}`))
+          .map(viewName => {
+            // Extraction of package name and view name
+            const matches = viewName.match(/^([^\\/:]+\\[^\\/:]+):([^:]+)$/);
 
-                // Vérification si la correspondance a réussi
-                if (matches) {
-            const matching = matches[1]; 
-            let viewNameCleaned = viewName.split('\\').slice(1).join('\\');
+            if (matches) {
+              const matching = matches[1];
+              let viewNameCleaned = viewName.split('\\').slice(1).join('\\');
 
-               // "test\Test
-            return {
-            package_name: packageName,       // "test"
-            name: viewName.split(`\\`)[1],                   // "list.zaze", "list.tar", etc.
-            type: 'view',
-            file: `${packageName}/views/${viewNameCleaned}`,  // Utilisation du chemin sans extension
-            item: {
-                model: matching.split("\\")[1]  // "Test" extrait du "test\Test"
+              return {
+                package_name: packageName,        // "test"
+                name: viewName.split(`\\`)[1],     // "list.zaze", "list.tar", etc.
+                type: 'view',
+                file: `${packageName}/views/${viewNameCleaned}`, // Use path without extension
+                item: {
+                  model: matching.split("\\")[1] // "Test" extracted from "test\Test"
+                }
+              };
+            } else {
+              // If the match fails, handle the error or return default values
+              return {
+                package_name: '',
+                name: viewName,
+                type: 'view',
+                file: `${viewName}`,
+                item: {
+                  model: viewName
+                }
+              };
             }
-        };
-    } else {
-        // Si la correspondance échoue, gérer l'erreur ou retourner des valeurs par défaut
-        return {
-            package_name: '',
-            name: viewName,
-            type: 'view',
-            file: `${viewName}`, 
-            item: {
-            model: viewName
-            }
-        };
-}
-
-                })
-        )
+          })
+      )
     );
-}
-  
+  }
+
   /**
    * Handles collecting and mapping for menus.
    *
@@ -351,7 +381,7 @@ public getComponents(
       )
     );
   }
-  
+
   /**
    * Builds an EqualComponentDescriptor based on the provided parameters.
    *
@@ -378,66 +408,105 @@ public getComponents(
     };
   }
 
-
-    /**
-    * Loads all available components.
-    */
-    private loadComponents(): void {
-        this.collectPackages().pipe(
-            switchMap((packages: EqualComponentDescriptor[]) => {
-                this.equalComponentsSubject.next(packages);
-                return of(packages);
-            })
-        ).subscribe({
-            next: (packages: EqualComponentDescriptor[]) => {
-                console.log('Packages loaded:', packages);
-                this.equalComponentsSubject.next(packages);
-                this.loadClasses(packages);
-                this.loadAdditionalComponents(packages);
-            },
-            error: (error) => {
-                console.error('Error loading components:', error);
-            }
-        });
-    }
-
-
-
-
-
-    /**
-   * Loads additional components (controllers, views, menus) in the background.
-   * @param {EqualComponentDescriptor[]} packages - The list of packages.
+  /**
+   * Loads all available components.
    */
-    private loadAdditionalComponents(packages: EqualComponentDescriptor[]): void {
-        const apiCalls: Observable<EqualComponentDescriptor[]>[] = [
-            ...this.loadControllers(packages),
-            ...this.loadViews(packages),
-            ...this.loadMenus(packages),
-            ...this.loadRoutes(packages)
-        ];
+private loadComponents(): void {
+    this.collectPackages().pipe(
+      switchMap((packages: EqualComponentDescriptor[]) => {
+        this.equalComponentsSubject.next(packages);
+        return of(packages);
+      })
+    ).subscribe({
+      next: (packages: EqualComponentDescriptor[]) => {
+        console.log('Packages loaded:', packages);
 
-        if (apiCalls.length === 0) {
-            console.log("No packages found for loading additional components.");
-            return;
-        }
+        // Update the main cache with components by package
+        packages.forEach(packageComponent => {
+          if (!this.componentsMapByPackage.has(packageComponent.name)) {
+            console.log(packageComponent);
+            this.componentsMapByPackage.set(packageComponent.name, new Map<string, EqualComponentDescriptor[]>());
+          }
 
-        forkJoin(apiCalls).subscribe({
-            next: (results: EqualComponentDescriptor[][]) => {
-                const allComponents = results.flat();
-                if (allComponents.length > 0) {
-                    console.log('Additional components loaded in background:', allComponents);
-                    this.equalComponentsSubject.next([
-                        ...this.equalComponentsSubject.value,
-                        ...allComponents
-                    ]);
-                }
-            },
-            error: (error) => {
-                console.error('Error loading additional components:', error);
-            }
+          const packageMap = this.componentsMapByPackage.get(packageComponent.name)!;
+          console.log("Map created during the loading:", packageMap);
+          this.loadClasses(packages);
+          this.loadAdditionalComponents(packages);
         });
+      },
+      error: (error) => {
+        console.error('Error loading components:', error);
+      }
+    });
+  }
+
+
+
+
+
+
+
+   /**
+ * Loads additional components (controllers, views, menus, routes) in the background.
+ * @param {EqualComponentDescriptor[]} packages - The list of packages.
+ */
+   private loadAdditionalComponents(packages: EqualComponentDescriptor[]): void {
+    const apiCalls: Observable<EqualComponentDescriptor[]>[] = [
+        ...this.loadControllers(packages),
+        ...this.loadViews(packages),
+        ...this.loadMenus(packages),
+        ...this.loadRoutes(packages)
+    ];
+
+    if (apiCalls.length === 0) {
+        console.log("No packages found for loading additional components.");
+        return;
     }
+
+    forkJoin(apiCalls).subscribe({
+        next: (results: EqualComponentDescriptor[][]) => {
+            const allComponents = results.flat();
+
+            if (allComponents.length > 0) {
+                const updatedComponents: EqualComponentDescriptor[] = [];
+
+                // Parcourir tous les composants supplémentaires et les ajouter dans la Map
+                allComponents.forEach(component => {
+                    const packageName = component.package_name;
+                    const componentType = component.type;
+
+                    // Vérifier si la Map pour ce package existe, sinon la créer
+                    if (!this.componentsMapByPackage.has(packageName)) {
+                        this.componentsMapByPackage.set(packageName, new Map<string, EqualComponentDescriptor[]>());
+                    }
+
+                    // Récupérer la Map des composants pour ce package
+                    const packageMap = this.componentsMapByPackage.get(packageName)!;
+
+                    // Ajouter le composant au bon type dans la Map
+                    const currentComponents = packageMap.get(componentType) || [];
+                    packageMap.set(componentType, [...currentComponents, component]);
+
+                    // Ajouter au tableau des nouveaux composants pour mise à jour du Subject
+                    updatedComponents.push(component);
+                });
+
+                // Mise à jour du Subject avec les nouveaux composants
+                this.equalComponentsSubject.next([
+                    ...this.equalComponentsSubject.value,
+                    ...updatedComponents
+                ]);
+            }
+
+            console.log('Additional components loaded in background:', this.componentsMapByPackage);
+        },
+        error: (error) => {
+            console.error('Error loading additional components:', error);
+        }
+    });
+}
+
+
 
 
     private loadRoutes(packages: EqualComponentDescriptor[]) {
@@ -460,10 +529,10 @@ public getComponents(
                                 }
                             }
                             const component = new EqualComponentDescriptor
-                            (package_component.name, 
-                                route_name, 
+                            (package_component.name,
+                                route_name,
                                 "route",
-                                routePath, 
+                                routePath,
                                 item);
                             components.push(component);
                         }
@@ -480,21 +549,20 @@ public getComponents(
 
 
     /**
- * Loads classes for the given packages.
- * @param {EqualComponentDescriptor[]} packages - The list of packages.
- */
+     * Loads classes for the given packages.
+     * @param {EqualComponentDescriptor[]} packages - The list of packages.
+     */
     private loadClasses(packages: EqualComponentDescriptor[]): void {
-        this.collectClasses().pipe(
-            map((classes: any) => this.associateClassesToPackages(packages, classes))
-        ).subscribe({
-            next: (components: EqualComponentDescriptor[]) => {
-                console.log('Components with classes:', components);
-                this.equalComponentsSubject.next(components);
-            },
-            error: (error) => {
-                console.error('Error loading classes:', error);
-            }
-        });
+            this.collectClasses().pipe(
+                map((classes: any) => this.associateClassesToPackages(packages, classes))
+            ).subscribe({
+                next: (components: EqualComponentDescriptor[]) => {
+                    this.equalComponentsSubject.next(components);
+                },
+                error: (error) => {
+                    console.error('Error loading classes:', error);
+                }
+            });
     }
     /**
     * Loads views for each package.
@@ -509,10 +577,10 @@ public getComponents(
                         // Extraction du nom du modèle à partir du chemin du fichier
                         const matches = package_component.file.match(/([^\\/:]+):[^:]+\.php$/);
                         const modelName = matches ? matches[1] : view_name;
-                
+
                         return {
                             package_name: package_component.name,
-                            name: view_name,
+                            name: view_name?.split('\\').pop() ?? '',
                             type: 'view',
                             file: `${package_component.name}/views/${view_name}.php`,
                             item: {
@@ -596,7 +664,7 @@ public getComponents(
     }
 
 
-     
+
 
 
 
@@ -642,9 +710,6 @@ public getComponents(
     private collectRoutesByPackage(package_name: string): Observable<any> {
         const url = `?get=core_config_routes&package=${package_name}`;
         return from(this.api.fetch(url)).pipe(
-            tap((response)=>{
-                console.log(response);
-            }),
             catchError((error) => {
                 console.warn(`Error fetching routes for ${package_name}:`, error);
                 return of([]); // Returns an empty array in case of an error
@@ -725,16 +790,19 @@ public getComponents(
         return updatedComponents;
     }
 
-    // Méthode pour transformer les noms de classes en des objets descriptors
     private mapClassesToDescriptors(packageDescriptor: EqualComponentDescriptor, classNames: string[]): EqualComponentDescriptor[] {
-        return classNames.map((class_name: string) => ({
-            package_name: packageDescriptor.name,
-            name: class_name,
-            type: 'class',
-            file: `${packageDescriptor.name}/classes/${class_name.replace(/\\/g, '/')}.class.php`,
-            item: 'class'
-        }));
+        return classNames.map((class_name: string) => {
+            const classBaseName = class_name?.split('/').pop() ?? '';
+            return {
+                package_name: packageDescriptor.name,
+                name: classBaseName,
+                type: 'class',
+                file: `${packageDescriptor.name}/classes/${class_name.replace(/\\/g, '/')}.class.php`,
+                item: 'class'
+            };
+        });
     }
+
 
 }
 

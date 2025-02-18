@@ -41,11 +41,11 @@ export class PackageViewsComponent implements OnInit {
         ) { }
 
 
-    public async ngOnInit() {
-        await this.init();
+    public  ngOnInit() {
+        this.init();
     }
 
-    async init() {
+    private init() {
         this.loading = true;
         this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
             this.package_name = params['package_name'];
@@ -56,41 +56,8 @@ export class PackageViewsComponent implements OnInit {
         this.loading = false;
     }
 
-    private async loadViews() {
-        this.loading = true;
-        /*
-        let y = await this.api.getRoutesByPackage(this.package_name);
-        for(let file in y) {
-            for(let route in y[file]) {
-                this.real_name[file.split("-")[0] + "-" + route] = route;
-                this.routes_for_selected_package.push(file.split("-")[0] + "-" + route);
-                this.routelist[file.split("-")[0] + "-" + route] = {
-                        "info":{
-                            "file":file,
-                            "package":this.package_name
-                        },
-                        "methods":y[file][route]
-                    };
-            }
-        }
-        */
-        this.loading = false;
-    }
 
-    public async getViewForSelectedPackage():Promise<string[]> {
-        let x:string[];
-        if (this.type && this.entity) {
-            x = await this.api.getViews(this.type, this.entity);
-            let res:string[] = [];
-            for(let item  of x) {
-                if(item.includes(this.entity)) {
-                    res.push(item);
-                }
-            }
-            return res;
-        }
-        else return []
-    }
+
 
     public getBack() {
         this.location.back()
@@ -110,35 +77,5 @@ export class PackageViewsComponent implements OnInit {
 
     }
 
-   public async onDeleteNode(eq_view: EqualComponentDescriptor) {
-    let sp = eq_view.name.split(":");
 
-    if (sp[1].endsWith(".default")) {
-        this.snackBar.open("Cannot delete a default view.", "Close", { duration: 3000 });
-        return;
-    }
-
-    this.api.deleteView(sp[0], sp[1])
-        .then(() => {
-            this.snackBar.open("Deleted view: " + eq_view.name, "Close", { duration: 3000 });
-
-            // Forcer la mise à jour Angular
-
-        })
-        .catch((error) => {
-            console.error("Deletion error:", error);
-            this.snackBar.open("Error: " + error, "Close", { duration: 3000 });
-        });
-}
-
-
-    public onupdatedList() {
-        
-    }
-
-    /*
-    goto() {
-        this.router.navigate(["/views_edit", this.selected_view], {"view":this.selected_view})
-    }
-    */
 }
