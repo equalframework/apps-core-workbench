@@ -59,7 +59,8 @@ export class InfoViewComponent implements OnInit, OnChanges {
 
     public onclickTranslations() {
         // #todo - depends on route assigned to translation
-        // this.router.navigate(['/package/' + this.view.package_name+'/model/' + this.view.name + '/fields']);
+        if(this.view.item.model)
+        this.router.navigate([`/package/${this.view.package_name}/model/${this.view.item.model}/translations`]);
     }
 
     private getFields(schema: any): any {

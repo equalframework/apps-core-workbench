@@ -1,3 +1,4 @@
+import { Location } from '@angular/common';
 import { Component, OnInit, Optional, Inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormControl, AbstractControl, ValidationErrors } from '@angular/forms';
@@ -33,7 +34,7 @@ export class ModelTradEditorComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router: RouterMemory,
+    private location:Location,
     private api: TranslationService,
     private snack: MatSnackBar,
     private dialog: MatDialog
@@ -98,7 +99,7 @@ export class ModelTradEditorComponent implements OnInit {
   async createNewLang(): Promise<Translator> {
     const scheme = await this.api.getSchema(`${this.package}\\${this.model}`);
     const modelFields = Object.keys(scheme.fields);
-    const viewsList = await this.api.getViews('entity', `${this.package}\\${this.model}`);
+    const viewsList = await this.api.getViews(this.package, `${this.package}\\${this.model}`);
     const views: { name: string, view: View }[] = [];
     for (const viewStr of viewsList) {
       const parts = viewStr.split(':');
@@ -176,7 +177,7 @@ export class ModelTradEditorComponent implements OnInit {
   }
 
   goBack() {
-    this.router.goBack();
+    this.location.back();
   }
 
   debugExport() {
