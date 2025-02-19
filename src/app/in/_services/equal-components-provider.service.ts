@@ -653,7 +653,7 @@ export class EqualComponentsProviderService {
     * @returns {Observable<any>} An observable containing the list of classes.
     */
     private collectAllClasses(): Observable<any> {
-        const url = API_ENDPOINTS.collectAllClasses;
+        const url = API_ENDPOINTS.class.collect_all;
         return from(this.api.fetch(url)).pipe(
             catchError(error => {
                 console.error('Error fetching classes:', error);
@@ -667,7 +667,7 @@ export class EqualComponentsProviderService {
      * @returns {Observable<EqualComponentDescriptor[]>} An observable containing the list of packages.
      */
     private collectAllPackages(): Observable<EqualComponentDescriptor[]> {
-        const url = API_ENDPOINTS.collectAllPackages;
+        const url = API_ENDPOINTS.package.collect_all;
         return from(this.api.fetch(url)).pipe(
             map((packages: any) =>
                 packages.map((package_name: any) => ({
@@ -690,7 +690,7 @@ export class EqualComponentsProviderService {
      * @returns {Observable<any>} An observable containing the routes.
      */
     private collectRoutesFromPackage(package_name: string): Observable<any> {
-        const url = API_ENDPOINTS.collectRoutesFromPackage(package_name);
+        const url = API_ENDPOINTS.route.collect_from_package(package_name);
         return from(this.api.fetch(url)).pipe(
             catchError((error) => {
                 console.warn(`Error fetching routes for ${package_name}:`, error);
@@ -701,7 +701,7 @@ export class EqualComponentsProviderService {
 
 
     private collectRoutesLives(): Observable<any>{
-        const url = API_ENDPOINTS.collectAllLiveRoutes;
+        const url = API_ENDPOINTS.route.collect_all_live;
         return from(this.api.fetch(url)).pipe(
             catchError( (error) => {
                 console.warn(`Error fetching routes lives`, error);
@@ -718,7 +718,7 @@ export class EqualComponentsProviderService {
     * @returns {Observable<{ data: string[], actions: string[] }>} An observable containing the controllers and actions.
     */
     private collectControllersFromPackage(package_name: string): Observable<{ data: string[], actions: string[] }> {
-        const url = API_ENDPOINTS.collectControllersFromPackage(package_name);
+        const url = API_ENDPOINTS.controller.collect_from_package(package_name);
         return from(this.api.fetch(url)).pipe(
             catchError((error) => {
                 console.warn(`Error fetching controllers for ${package_name}:`, error);
@@ -733,7 +733,7 @@ export class EqualComponentsProviderService {
     * @returns {Observable<string[]>} An observable containing the views.
     */
     private collectViewsFromPackage(package_name: string): Observable<string[]> {
-        const url = API_ENDPOINTS.collectViewsFromPackage(package_name);;
+        const url = API_ENDPOINTS.view.collect_from_package(package_name);;
         return from(this.api.fetch(url)).pipe(
             catchError((error) => {
                 console.warn(`Error fetching views for ${package_name}:`, error);
@@ -748,7 +748,7 @@ export class EqualComponentsProviderService {
     * @returns {Observable<string[]>} An observable containing the menus.
     */
     private collectMenusFromPackage(package_name: string): Observable<string[]> {
-        const url = API_ENDPOINTS.collectMenusFromPackage(package_name);
+        const url = API_ENDPOINTS.menu.collect_from_package(package_name);
         return from(this.api.fetch(url)).pipe(
             catchError((error) => {
                 console.warn(`Error fetching menus for ${package_name}:`, error);

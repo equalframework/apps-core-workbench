@@ -1,6 +1,5 @@
-import { type } from 'jquery';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, from, Observable, of } from 'rxjs';
+import {from, Observable, of } from 'rxjs';
 import { EqualComponentDescriptor } from '../_models/equal-component-descriptor.class';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { ApiService } from 'sb-shared-lib';
@@ -8,8 +7,7 @@ import { WorkflowNode } from '../package/model/workflow/_components/workflow-dis
 import { Anchor, WorkflowLink } from '../package/model/workflow/_components/workflow-displayer/_objects/WorkflowLink';
 import { cloneDeep } from 'lodash';
 import { HttpErrorResponse } from '@angular/common/http';
-import { pack } from 'd3';
-
+import { API_ENDPOINTS } from '../_models/api-endpoints';
 /**
  * WorkbenchV1Service is responsible for managing the creation and deletion of various components
  * such as packages, classes, and controllers within the system.
@@ -51,12 +49,12 @@ export class WorkbenchV1Service {
 
 
     /**
-     * Deletes a component based on the type specified in the node.
-     * It supports deleting packages (other types are not implemented).
-     *
-     * @param node The component descriptor containing details of the component to delete.
-     * @returns An observable that emits a success or error message.
-     */
+    * Deletes a component based on the type specified in the node.
+    * It supports deleting packages (other types are not implemented).
+    *
+    * @param node The component descriptor containing details of the component to delete.
+    * @returns An observable that emits a success or error message.
+    */
     public deleteNode(node: EqualComponentDescriptor): Observable<any> {
         console.log("node : ", node);
         const deleteActions: Record<string, () => Observable<any>> = {
@@ -109,7 +107,7 @@ export class WorkbenchV1Service {
      * @returns An observable that emits the result of the package creation, including a success or error message.
      */
     private createPackage(package_name: string): Observable<any> {
-        const url = `?do=core_config_create-package&package=${package_name}`;
+        const url = API_ENDPOINTS.package.create(package_name);
         const successfullyMessage=`Package ${package_name} created successfully!`
        return this.callApi(url, successfullyMessage);
     }
@@ -121,7 +119,7 @@ export class WorkbenchV1Service {
      * @returns An observable that emits the result of the package deletion, including a success or error message.
      */
     private deletePackage(package_name: string): Observable<any> {
-        const url = `?do=core_config_delete-package&package=${package_name}`;
+        const url = API_ENDPOINTS.package.delete(package_name);
         const successfullyMessage=`Package ${package_name} deleted successfully!`
         return this.callApi(url, successfullyMessage);
     }
@@ -150,13 +148,13 @@ export class WorkbenchV1Service {
     *   });
     */
     private createClass(package_name: string, class_name: string, parent: string) {
-    const url = `?do=core_config_create-model&model=${class_name}&package=${package_name}${parent === "equal\\orm\\Model" ? "" : `&extends=${parent.replace(/\\/g, '\\\\')}`}`;
+    const url = API_ENDPOINTS.class.create(package_name,class_name,parent);
     const successfullyMessage = `Class ${class_name} created successfully!`
     return this.callApi(url,successfullyMessage)
 }
 
     private deleteClass(package_name:string,class_name:string){
-        const url = `?do=core_config_delete-model&package=${package_name}&model=${class_name}`;
+        const url = API_ENDPOINTS.class.delete(package_name,class_name);
         const successfullyMessage = `Class ${class_name} deleted successfully!`
         return this.callApi(url, successfullyMessage);
     }
@@ -174,38 +172,41 @@ export class WorkbenchV1Service {
         console.log('#### schema updated', new_schema);
     }
     private createView(package_name:string, model_name: string, view_name: string): Observable<any> {
-        const url = `?do=core_config_create-view&view_id=${view_name}&entity=${package_name}\\${model_name}`;
+        const url = API_ENDPOINTS.view.create(package_name,model_name,view_name);
         const successfullyMessage = `View ${view_name} created successfully!`;
         return this.callApi(url, successfullyMessage);
     }
 
     private deleteView(package_name:string,model_name:string,view_name:string){
-        const url = `?do=core_config_delete-view&entity=${package_name}\\${model_name}&view_id=${view_name}`
+        const url = API_ENDPOINTS.view.delete(package_name,model_name,view_name);
         const successfullyMessage = `View ${model_name}:${view_name} deleted successfully!`;
         return this.callApi(url,successfullyMessage);
     }
 
 
-    private createController(package_name: string, name: string, type: string): Observable<any> {
-        const url = `?do=core_config_create-controller&controller_name=${name}&controller_type=${type}&package=${package_name}`
-        const successfullyMessage = `Controller ${name} of type ${type} created successfully!`
+    private createController(package_name: string, controller_name: string, controller_type: string): Observable<any> {
+        const url = API_ENDPOINTS.controller.create(package_name,controller_name,controller_type)
+        const successfullyMessage = `Controller ${controller_name} of type ${controller_type} created successfully!`
         return this.callApi(url,successfullyMessage);
     }
 
-    private deleteController(package_name: string, name: string, type: string): Observable<any> {
-        console.log("name dans delete controller ", name);
-        const url = `?do=core_config_delete-controller&package=${package_name}&controller_name=${name}&controller_type=${type}`
-        const successfullyMessage = `Controller ${name} of type ${type} deleted successfully!`
+    private deleteController(package_name: string, controller_name: string, controller_type: string): Observable<any> {
+        const url = API_ENDPOINTS.controller.delete(package_name,controller_name, controller_type);
+        const successfullyMessage = `Controller ${controller_name} of type ${controller_type} deleted successfully!`
         return this.callApi(url, successfullyMessage);
     }
 
-    private createMenu(package_name:string, name:string, type:string) {
-        return this.createView(package_name, "//menu",`${name}.${type}`);
+    private createMenu(package_name:string, menu_name:string, menu_type:string) {
+        const url = API_ENDPOINTS.menu.create(package_name,menu_name,menu_type)
+        const successfullyMessage = `Menu ${menu_name} of type ${menu_type} created successfully!`
+        return this.callApi(url,successfullyMessage);
     }
 
-    private deleteMenu(package_name:string,name:string){
-        return this.deleteView(package_name,"//menu",name);
-    }
+    private deleteMenu(package_name:string,menu_name:string){
+        const url = API_ENDPOINTS.menu.delete(package_name,menu_name)
+        const successfullyMessage = `Menu ${menu_name} deleted successfully!`
+        return this.callApi(url,successfullyMessage);
+        }
 
 
 
