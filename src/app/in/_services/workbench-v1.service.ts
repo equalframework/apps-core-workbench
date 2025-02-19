@@ -174,7 +174,7 @@ export class WorkbenchV1Service {
         console.log('#### schema updated', new_schema);
     }
     private createView(package_name:string, model_name: string, view_name: string): Observable<any> {
-        const url = `?do=core_config_create-view&view_id=${package_name}\\${view_name}&entity=${model_name}`;
+        const url = `?do=core_config_create-view&view_id=${view_name}&entity=${package_name}\\${model_name}`;
         const successfullyMessage = `View ${view_name} created successfully!`;
         return this.callApi(url, successfullyMessage);
     }
