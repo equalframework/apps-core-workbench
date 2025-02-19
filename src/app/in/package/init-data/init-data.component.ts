@@ -1,4 +1,5 @@
-import { Component, Inject, OnInit, Optional } from '@angular/core';
+import { Location } from '@angular/common';
+import { Component, Inject, OnInit, OnDestroy, Optional } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 import { InitDataFile } from './_models/init-data';
@@ -6,7 +7,6 @@ import { cloneDeep } from 'lodash';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { prettyPrintJson } from 'pretty-print-json';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -15,105 +15,148 @@ import { takeUntil } from 'rxjs/operators';
     templateUrl: './init-data.component.html',
     styleUrls: ['./init-data.component.scss']
 })
-export class InitDataComponent implements OnInit {
+export class InitDataComponent implements OnInit, OnDestroy {
 
-    // rx subject for unsubscribing subscriptions on destroy
-    private ngUnsubscribe = new Subject<void>();
+    // Subject for unsubscribing when the component is destroyed
+    private ngUnsubscribe: Subject<void> = new Subject<void>();
 
-    public obk = Object.keys;
+    // Pour itérer sur les clés d'un objet dans le template
+    public objectKeys = Object.keys;
 
     public package_name: string = '';
 
     // 'init' | 'demo'
-    public type: string  = 'init';
+    public data_type: string = 'init';
 
-    public scheme:any;
+    public dataScheme: any;
 
-    public file_list:InitDataFile[] = [];
+    public fileList: InitDataFile[] = [];
 
-    public error:boolean = false;
-    public loading:boolean = true;
+    public error: boolean = false;
+    public loading: boolean = true;
 
-    public selected_file_index = 0;
+    public selected_file_index: number = 0;
 
     constructor(
-            private api:EmbeddedApiService,
-            private route: ActivatedRoute,
-            private dialog:MatDialog,
-            private snack:MatSnackBar,
-            private router:RouterMemory) {}
+        private api: EmbeddedApiService,
+        private route: ActivatedRoute,
+        private dialog: MatDialog,
+        private snack: MatSnackBar,
+        private location: Location
+    ) {}
 
     async ngOnInit(): Promise<void> {
-        this.init();
-
+        this.initializeComponent();
     }
 
-    public async init() {
+    ngOnDestroy(): void {
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
+    }
+
+    /**
+     * Initializes the component by subscribing to route parameters and loading initial data.
+     */
+    public async initializeComponent(): Promise<void> {
         this.loading = true;
-
-        this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
+        this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe(async (params) => {
             this.package_name = params['package_name'];
-            this.type = params['type'];
-            console.log("type :", this.type);
-            this.loadData();
+            this.data_type = params['type'];
+            await this.loadInitialData();
         });
-
     }
 
-    private async loadData() {
-        this.scheme = await this.api.getInitData(this.package_name, this.type);
-        for(let key in this.scheme) {
-            try {
-                this.file_list.push(new InitDataFile(this.api, key, cloneDeep(this.scheme[key])))
+    /**
+     * Loads the initial data for the package based on the data type (init or demo).
+     */
+    private async loadInitialData(): Promise<void> {
+        try {
+            this.dataScheme = await this.api.getInitData(this.package_name, this.data_type);
+            for (const key in this.dataScheme) {
+                if (this.dataScheme.hasOwnProperty(key)) {
+                    try {
+                        const initFile = new InitDataFile(this.api, key, cloneDeep(this.dataScheme[key]));
+                        this.fileList.push(initFile);
+                    } catch (error) {
+                        console.error(`Error processing data for key "${key}":`, error);
+                        this.error = true;
+                        return;
+                    }
+                }
             }
-            catch {
-                this.error = true;
-                return;
+        } catch (error) {
+            console.error('Error loading initial data:', error);
+            this.error = true;
+        } finally {
+            this.loading = false;
+        }
+    }
+
+    /**
+     * Exports the current initialization data.
+     */
+    public exportData(): { [id: string]: any } {
+        const exportResult: { [id: string]: any } = {};
+        for (const file of this.fileList) {
+            exportResult[file.name] = file.export();
+        }
+        return exportResult;
+    }
+
+    /**
+     * Opens a dialog displaying the JSON representation of the exported data.
+     */
+    public showJsonDialog(): void {
+        this.dialog.open(JsonViewerDialog, {
+            data: this.exportData(),
+            width: '70vw',
+            height: '80vh'
+        });
+    }
+
+    /**
+     * Saves the current initialization data.
+     */
+    public async saveData(): Promise<void> {
+        try {
+            const result = await this.api.updateInitData(
+                this.package_name,
+                this.data_type,
+                JSON.stringify(this.exportData())
+            );
+            if (result) {
+                this.snack.open('Saved successfully', 'INFO');
             }
-        }
-        this.loading = false;
-    }
-
-    public export() {
-        let exp:any = {};
-        for(let file of this.file_list) {
-            exp[file.name] = file.export();
-        }
-        return exp;
-    }
-
-    public showJSON() {
-        this.dialog.open(Jsonator, {data:this.export(),width:"70vw",height:"80vh"});
-    }
-
-    public async save() {
-        const r = await this.api.updateInitData(this.package_name,this.type,JSON.stringify(this.export()))
-        if(r) {
-            this.snack.open("Saved successfully","INFO")
+        } catch (error) {
+            console.error('Error saving data:', error);
+            this.snack.open('Error saving data', 'ERROR');
         }
     }
 
-    public goBack() {
-        this.router.goBack()
+    /**
+     * Navigates back to the previous location.
+     */
+    public goBack(): void {
+        this.location.back();
     }
-
 }
 
 @Component({
-    selector: 'jsonator',
-    template: "<pre [innerHtml]='datajson'><pre>"
+    selector: 'json-viewer-dialog',
+    template: `<pre [innerHtml]="formattedJson"></pre>`
 })
-class Jsonator implements OnInit {
-  constructor(
-    @Optional() public dialogRef: MatDialogRef<Jsonator>,
-    @Optional() @Inject(MAT_DIALOG_DATA) public data:any,
-  ) {}
+export class JsonViewerDialog implements OnInit {
+    constructor(
+        @Optional() public dialogRef: MatDialogRef<JsonViewerDialog>,
+        @Optional() @Inject(MAT_DIALOG_DATA) public data: any,
+    ) {}
 
-  ngOnInit(): void {
+    ngOnInit(): void {}
 
-  }
-
-  get datajson() {
-    return prettyPrintJson.toHtml(this.data)
-  }
+    /**
+     * Returns a formatted JSON string for display.
+     */
+    get formattedJson(): string {
+        return prettyPrintJson.toHtml(this.data);
+    }
 }

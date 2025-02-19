@@ -7,12 +7,12 @@
     (onButtonBack)="goBack()"
     [customButtonList]="[{icon:'bug_report',name:'show JSON',disabled:false}]"
     [customButton]="true"
-    (onCustomButton)="showJSON()"
+    (onCustomButton)="showJsonDialog()"
     [buttonSave]="true"
-    (onButtonSave)="save()"
+    (onButtonSave)="saveData()"
 >
-    <label *ngIf="type === 'init'">Initial data of </label>
-    <label *ngIf="type === 'demo'">Demo data of </label>
+    <label *ngIf="data_type === 'init'">Initial data of </label>
+    <label *ngIf="data_type === 'demo'">Demo data of </label>
     <label class="packagename">{{package_name}}</label>
 </app-inner-header>
 
@@ -20,7 +20,7 @@
 
     <div class="left_pane">
         <app-param-list
-                [list]="file_list"
+                [list]="fileList"
                 [selectedIndex]="selected_file_index"
                 (select)="selected_file_index = $event">
         </app-param-list>
@@ -28,7 +28,7 @@
 
     <div class="right_pane">
         <app-init-sidepane sidepane
-                [file]="file_list[selected_file_index]">
+                [file]="fileList[selected_file_index]">
         </app-init-sidepane>
     </div>
 </div>
