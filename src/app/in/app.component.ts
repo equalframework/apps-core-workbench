@@ -71,7 +71,7 @@ export class AppComponent implements OnInit {
         this.selectedComponent = equalComponent;
     }
 
-    public onClickModels() {
+   /* public onClickModels() {
         //    this.router.navigate(['/models', this.selectedComponent.name], {"selected": this.selectedComponent});
     }
 
@@ -94,7 +94,7 @@ export class AppComponent implements OnInit {
 
     public onClickInitDemoData() {
         //    this.router.navigate(['/initdata/demo', this.selectedComponent.name], {"selected": this.selectedComponent});
-    }
+    }*/
 
     /**
      * Update the name of a package.

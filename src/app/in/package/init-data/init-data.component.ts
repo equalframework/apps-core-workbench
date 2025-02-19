@@ -54,6 +54,7 @@ export class InitDataComponent implements OnInit {
         this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
             this.package_name = params['package_name'];
             this.type = params['type'];
+            console.log("type :", this.type);
             this.loadData();
         });
 

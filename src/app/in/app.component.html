@@ -29,13 +29,7 @@
         <ng-container *ngIf="selectedComponent.type == 'package' || selectedComponent.type == ''">
             <info-package
                     [package]="selectedComponent"
-                    [package_init_list]="initialized_packages"
-                    (onModelClick)="onClickModels()"
-                    (onControllerClick)="onClickControllers()"
-                    (onViewClick)="onClickView()"
-                    (onRouteClick)="onClickRoute()"
-                    (onIDClick)="onClickInitData()"
-                    (onIDDClick)="onClickInitDemoData()">
+                    [package_init_list]="initialized_packages">
             </info-package>
         </ng-container>
 
