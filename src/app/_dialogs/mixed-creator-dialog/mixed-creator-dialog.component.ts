@@ -299,7 +299,7 @@ export class MixedCreatorDialogComponent implements OnInit {
       package_name: this.selectedPackage,
       file: this.generateFilePath(),
       item: {
-        class_parent: this.subtype,
+        subtype: this.subtype,
         model: this.selectedModel
       }
     };
@@ -312,6 +312,9 @@ export class MixedCreatorDialogComponent implements OnInit {
     this.workbenchService.createNode(node).subscribe(result => {
       if (node.type === 'get' || node.type === 'do') {
         node.name = `${node.package_name}_${node.name}`;
+      }
+      if(node.type === 'menu'){
+        node.name = `${node.name}.${node.item.subtype}`
       }
       const resultWithNode = { ...result, node }; //plus cours et lisible à faire
       this.dialogRef.close(resultWithNode);

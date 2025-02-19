@@ -426,15 +426,12 @@ private handleControllers(packageName: string): Observable<EqualComponentDescrip
             // Update the main cache with components by package
             packages.forEach(packageComponent => {
                 if (!this.componentsMapByPackage.has(packageComponent.name)) {
-                    console.log(packageComponent);
                     this.componentsMapByPackage.set(packageComponent.name, new Map<string, EqualComponentDescriptor[]>());
                 }
-                const packageMap = this.componentsMapByPackage.get(packageComponent.name)!;
-                console.log("Map created during the loading:", packageMap);
             });
 
-            this.loadClasses(packages);
-            this.loadAdditionalComponents(packages);
+            this.preloadAdditionalComponents(packages);
+            console.log("map : ", this.componentsMapByPackage);
         },
         error: (error) => {
             console.error('Error loading components:', error);
@@ -449,66 +446,80 @@ private handleControllers(packageName: string): Observable<EqualComponentDescrip
 
 
 
-   /**
- * Loads additional components (controllers, views, menus, routes) in the background.
+  /**
+ * Preloads additional components (controllers, views, menus, routes, classes) based on the given types.
  * @param {EqualComponentDescriptor[]} packages - The list of packages.
+ * @param {string[]} componentTypes - The list of component types to preload. If empty, all types are loaded.
  */
-   private loadAdditionalComponents(packages: EqualComponentDescriptor[]): void {
-    const apiCalls: Observable<EqualComponentDescriptor[]>[] = [
-        ...this.loadControllers(packages),
-        ...this.loadViews(packages),
-        ...this.loadMenus(packages),
-        ...this.loadRoutes(packages)
-    ];
+private preloadAdditionalComponents(packages: EqualComponentDescriptor[], componentTypes: string[] = []): void {
+    const apiCalls: Observable<EqualComponentDescriptor[]>[] = [];
+
+    // Charge les composants en fonction des types demandés
+    if (componentTypes.length === 0 || componentTypes.includes("controllers")) {
+        apiCalls.push(...this.loadControllers(packages));
+    }
+    if (componentTypes.length === 0 || componentTypes.includes("views")) {
+        apiCalls.push(...this.loadViews(packages));
+    }
+    if (componentTypes.length === 0 || componentTypes.includes("menus")) {
+        apiCalls.push(...this.loadMenus(packages));
+    }
+    if (componentTypes.length === 0 || componentTypes.includes("routes")) {
+        apiCalls.push(...this.loadRoutes(packages));
+    }
+    if (componentTypes.length === 0 || componentTypes.includes("classes")) {
+        apiCalls.push(this.loadClasses(packages)); 
+    }
+    if(componentTypes.length ==0 || componentTypes.includes("data")){
+        apiCalls.push(...this.loadData(packages,'init'));
+    }
 
     if (apiCalls.length === 0) {
-        console.log("No packages found for loading additional components.");
+        console.log("No components selected for preloading.");
         return;
     }
 
     forkJoin(apiCalls).subscribe({
         next: (results: EqualComponentDescriptor[][]) => {
             const allComponents = results.flat();
-
             if (allComponents.length > 0) {
-                const updatedComponents: EqualComponentDescriptor[] = [];
-                console.log("voici la liste a mettre à jour", updatedComponents);
-                // Parcourir tous les composants supplémentaires et les ajouter dans la Map
-                allComponents.forEach(component => {
-                    const packageName = component.package_name;
-                    const componentType = component.type;
-
-                    // Vérifier si la Map pour ce package existe, sinon la créer
-                    if (!this.componentsMapByPackage.has(packageName)) {
-                        this.componentsMapByPackage.set(packageName, new Map<string, EqualComponentDescriptor[]>());
-                    }
-
-                    // Récupérer la Map des composants pour ce package
-                    const packageMap = this.componentsMapByPackage.get(packageName)!;
-
-                    // Ajouter le composant au bon type dans la Map
-                    const currentComponents = packageMap.get(componentType) || [];
-                    packageMap.set(componentType, [...currentComponents, component]);
-
-                    // Ajouter au tableau des nouveaux composants pour mise à jour du Subject
-                    updatedComponents.push(component);
-                });
-
-                // Mise à jour du Subject avec les nouveaux composants
-                this.equalComponentsSubject.next([
-                    ...this.equalComponentsSubject.value,
-                    ...updatedComponents
-                ]);
+                this.updateComponentMap(allComponents);
             }
-
-            console.log('Additional components loaded in background:', this.componentsMapByPackage);
+            console.log('Preloaded additional components:', this.componentsMapByPackage);
         },
         error: (error) => {
-            console.error('Error loading additional components:', error);
+            console.error('Error preloading additional components:', error);
         }
     });
 }
 
+/**
+ * Updates the component map with newly loaded components.
+ * @param {EqualComponentDescriptor[]} components - The components to update.
+ */
+private updateComponentMap(components: EqualComponentDescriptor[]): void {
+    const updatedComponents: EqualComponentDescriptor[] = [];
+
+    components.forEach(component => {
+        const packageName = component.package_name;
+        const componentType = component.type;
+
+        if (!this.componentsMapByPackage.has(packageName)) {
+            this.componentsMapByPackage.set(packageName, new Map<string, EqualComponentDescriptor[]>());
+        }
+
+        const packageMap = this.componentsMapByPackage.get(packageName)!;
+        const currentComponents = packageMap.get(componentType) || [];
+        packageMap.set(componentType, [...currentComponents, component]);
+
+        updatedComponents.push(component);
+    });
+
+    this.equalComponentsSubject.next([
+        ...this.equalComponentsSubject.value,
+        ...updatedComponents
+    ]);
+}
 
 
 
@@ -555,18 +566,14 @@ private handleControllers(packageName: string): Observable<EqualComponentDescrip
      * Loads classes for the given packages.
      * @param {EqualComponentDescriptor[]} packages - The list of packages.
      */
-    private loadClasses(packages: EqualComponentDescriptor[]): void {
-            this.collectClasses().pipe(
-                map((classes: any) => this.associateClassesToPackages(packages, classes))
-            ).subscribe({
-                next: (components: EqualComponentDescriptor[]) => {
-                    this.equalComponentsSubject.next(components);
-                },
-                error: (error) => {
-                    console.error('Error loading classes:', error);
-                }
-            });
+    private loadClasses(packages: EqualComponentDescriptor[]):Observable<EqualComponentDescriptor[]> {
+            return this.collectClasses().pipe(
+                map((classes: any) => {
+                    return this.associateClassesToPackages(packages, classes)
+    })
+            );
     }
+
     /**
     * Loads views for each package.
     * @param {EqualComponentDescriptor[]} packages - The list of packages.
@@ -577,9 +584,6 @@ private handleControllers(packageName: string): Observable<EqualComponentDescrip
             this.collectViewsByPackage(package_component.name).pipe(
                 map((views: string[]) => {
                     return views.map(view_name => {
-                        // Extraction du nom du modèle à partir du chemin du fichier
-                        const matches = package_component.file.match(/([^\\/:]+):[^:]+\.php$/);
-                        const modelName = matches ? matches[1] : view_name;
                         return {
                             package_name: package_component.name,
                             name: view_name?.split('\\').pop() ?? '',
@@ -624,7 +628,26 @@ private handleControllers(packageName: string): Observable<EqualComponentDescrip
         );
     }
 
-    /**
+/**
+ * Todo
+ */
+    private loadData(packages: EqualComponentDescriptor[], type: string = ''): Observable<EqualComponentDescriptor[]>[] {
+        return packages.map((package_component) => {
+            return this.collectDataByType(package_component.name, type).pipe(
+                map((response: any) => {
+                    console.log(`Response for ${package_component.name}:`, response); // Affiche la réponse
+                    const data: EqualComponentDescriptor[] = []; 
+                    return data;
+                }),
+                catchError((error) => {
+                    console.error(`Error loading data for ${package_component.name}:`, error);
+                    return of([]); // Retourne un tableau vide en cas d'erreur
+                })
+            );
+        });
+    }
+    
+        /**
      * Loads controllers for each package.
      * @param {EqualComponentDescriptor[]} packages - The list of packages.
      * @returns {Observable<EqualComponentDescriptor[]>[]} An array of observables containing controller descriptors.
@@ -731,6 +754,16 @@ private handleControllers(packageName: string): Observable<EqualComponentDescrip
 
     }
 
+    private collectDataByType(package_name:string,type:string){
+        const url = `?get=core_config_init-data&package=${package_name}&type=${type}`;
+        return from(this.api.fetch(url)).pipe(
+            catchError ((response) => {
+                console.warn(`Error fetching data ${type}`, response);
+                return of([]);
+            })
+        )
+    }
+
     /**
      * Fetches controllers for a specific package.
      * @param {string} package_name - The package name.
@@ -780,17 +813,16 @@ private handleControllers(packageName: string): Observable<EqualComponentDescrip
     // Méthode pour associer les classes aux packages
     private associateClassesToPackages(packages: EqualComponentDescriptor[], classes: any): EqualComponentDescriptor[] {
         const updatedComponents: EqualComponentDescriptor[] = [];
-
+    
         packages.forEach((packageDescriptor) => {
-            updatedComponents.push(packageDescriptor);
-
             if (classes.hasOwnProperty(packageDescriptor.name)) {
                 updatedComponents.push(...this.mapClassesToDescriptors(packageDescriptor, classes[packageDescriptor.name]));
             }
         });
-
+    
         return updatedComponents;
     }
+    
 
     private mapClassesToDescriptors(packageDescriptor: EqualComponentDescriptor, classNames: string[]): EqualComponentDescriptor[] {
         return classNames.map((class_name: string) => {

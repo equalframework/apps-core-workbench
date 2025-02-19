@@ -1,3 +1,4 @@
+import { type } from 'jquery';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, from, Observable, of } from 'rxjs';
 import { EqualComponentDescriptor } from '../_models/equal-component-descriptor.class';
@@ -7,6 +8,7 @@ import { WorkflowNode } from '../package/model/workflow/_components/workflow-dis
 import { Anchor, WorkflowLink } from '../package/model/workflow/_components/workflow-displayer/_objects/WorkflowLink';
 import { cloneDeep } from 'lodash';
 import { HttpErrorResponse } from '@angular/common/http';
+import { pack } from 'd3';
 
 /**
  * WorkbenchV1Service is responsible for managing the creation and deletion of various components
@@ -29,14 +31,14 @@ export class WorkbenchV1Service {
     public createNode(node: EqualComponentDescriptor): Observable<any> {
         const createActions: Record<string, () => Observable<any>> = {
             package: () => this.createPackage(node.name),
-            class: () => this.createClass(node.package_name, node.name, node.item.class_parent),
+            class: () => this.createClass(node.package_name, node.name, node.item.subtype),
             get: () => this.createController(node.package_name, node.name, node.type),
             do: () => this.createController(node.package_name, node.name, node.type),
             view: () =>{
                     const view_name = node.name.split(":")[1];
-                    return this.createView(`${node.package_name}\\${node.item.model}`, view_name)
+                    return this.createView(node.package_name,node.item.model, view_name)
             },
-            menu: () => this.notImplemented(`Adding menu ${node.name} not implemented`),
+            menu: () => this.createMenu(node.package_name, node.name, node.item.subtype),
             route:() =>this.notImplemented(`Adding route ${node.name} not implemented`)
         };
 
@@ -63,11 +65,10 @@ export class WorkbenchV1Service {
             get: () => this.deleteController(node.package_name, node.name.split("_")[1], node.type),
             do: () => this.deleteController(node.package_name, node.name.split("_")[1], node.type),
             view: () => {
-                const model_name =`${node.package_name}\\${node.item.model}`;
                 const view_name = node.name.split(":")[1];
-                return this.deleteView(model_name, view_name);
+                return this.deleteView(node.package_name,node.item.model, view_name);
             },
-            menu: () => this.notImplemented(`Deleting menu ${node.name} not implemented`),
+            menu: () => this.deleteMenu(node.package_name,node.name),
             route:() =>this.notImplemented(`Deleting route ${node.name} not implemented`)
         };
 
@@ -172,14 +173,14 @@ export class WorkbenchV1Service {
         }
         console.log('#### schema updated', new_schema);
     }
-    private createView(model_name: string, view_name: string): Observable<any> {
-        const url = `?do=core_config_create-view&view_id=${view_name}&entity=${model_name}`;
+    private createView(package_name:string, model_name: string, view_name: string): Observable<any> {
+        const url = `?do=core_config_create-view&view_id=${package_name}\\${view_name}&entity=${model_name}`;
         const successfullyMessage = `View ${view_name} created successfully!`;
         return this.callApi(url, successfullyMessage);
     }
 
-    private deleteView(model_name:string,view_name:string){
-        const url = `?do=core_config_delete-view&entity=${model_name}&view_id=${view_name}`
+    private deleteView(package_name:string,model_name:string,view_name:string){
+        const url = `?do=core_config_delete-view&entity=${package_name}\\${model_name}&view_id=${view_name}`
         const successfullyMessage = `View ${model_name}:${view_name} deleted successfully!`;
         return this.callApi(url,successfullyMessage);
     }
@@ -197,6 +198,15 @@ export class WorkbenchV1Service {
         const successfullyMessage = `Controller ${name} of type ${type} deleted successfully!`
         return this.callApi(url, successfullyMessage);
     }
+
+    private createMenu(package_name:string, name:string, type:string) {
+        return this.createView(package_name, "//menu",`${name}.${type}`);
+    }
+
+    private deleteMenu(package_name:string,name:string){
+        return this.deleteView(package_name,"//menu",name);
+    }
+
 
 
     private callApi(url: string, successMessage: string) {
