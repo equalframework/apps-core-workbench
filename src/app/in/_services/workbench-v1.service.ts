@@ -217,21 +217,21 @@ export class WorkbenchV1Service {
                 message: successMessage,
                 response: response || null
             })),
-            catchError(error => { //changer en response
-                console.error("Error details:", error);
+            catchError(response => { //changer en response
+                console.error("Error details:", response);
                 let errorMessage = `Error: `;
-                if (error.error && error.error.errors) {
-                    let errorDetails = error.error.errors;
+                if (response.error && response.error.errors) {
+                    let errorDetails = response.error.errors;
                     for (const [key, value] of Object.entries(errorDetails)) {
                         errorMessage += `\n${key}: ${value}`;
                     }
                 } else {
-                    errorMessage += error.message;
+                    errorMessage += response.message;
                 }
                 return of({
                     success: false,
                     message: errorMessage,
-                    error: error
+                    response: response
                 });
             })
         );

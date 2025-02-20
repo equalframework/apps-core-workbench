@@ -16,18 +16,11 @@ export class DeleteConfirmationDialogComponent implements OnInit {
     ) {}
 
     onclickNo(): void {
-        this.dialogRef.close();
+        this.dialogRef.close(false);
     }
 
     deleteComponent(){
-        this.workbenchService.deleteNode(this.data).subscribe(result => {
-            const resultWithNode = {
-                ...result,  // Étend le résultat existant
-                node: this.data  // Ajoute l'objet node au résultat
-            };
-
-            this.dialogRef.close(resultWithNode);
-        });
+        this.dialogRef.close(true);
     }
     ngOnInit(): void {
     }

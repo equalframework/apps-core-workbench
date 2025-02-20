@@ -1,3 +1,4 @@
+import { type } from 'jquery';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, SimpleChanges, ViewEncapsulation } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -89,7 +90,8 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     constructor(
         private dialog: MatDialog,
         private provider: EqualComponentsProviderService,
-        private notificationService: NotificationService
+        private notificationService: NotificationService,
+        private workbenchService:WorkbenchV1Service
     ) { }
 
 
@@ -150,7 +152,6 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     }
 
     private handleComponents(components: any[]) {
-        console.log("ma valeur : ", components);
         this.elements = [...components]; // Copie superficielle du tableau
         this.filteredData = this.elements;
         this.onSearch();
@@ -289,28 +290,28 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         }
 
     }*/
-        private getSortKey(component: EqualComponentDescriptor): string {
-            let key = component.package_name || '';
+    private getSortKey(component: EqualComponentDescriptor): string {
+        let key = component.package_name || '';
 
-            if (component.type === "route") {
-                key += component.more + component.name;
-            } else if (component.type === "class" || component.type === "menu") {
-                key += component.name;
-            } else {
-                key = component.name;
-            }
-
-            // normalize the key
-            return key.replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase();
+        if (component.type === "route") {
+            key += component.more + component.name;
+        } else if (component.type === "class" || component.type === "menu") {
+            key += component.name;
+        } else {
+            key = component.name;
         }
 
-        private sortComponents() {
-            this.elements.sort((a, b) => {
-                let x = this.getSortKey(a);
-                let y = this.getSortKey(b);
-                return x.localeCompare(y);
-            });
-        }
+        // normalize the key
+        return key.replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase();
+    }
+
+    private sortComponents() {
+        this.elements.sort((a, b) => {
+            let x = this.getSortKey(a);
+            let y = this.getSortKey(b);
+            return x.localeCompare(y);
+        });
+    }
 
 
     public getComponentsTypes() {
@@ -412,7 +413,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         );
     }
 
-    public oncreate() {
+    public oncreateNode() {
         this.dialog.open(MixedCreatorDialogComponent, {
                 data: {
                     node_type: this.search_scope,
@@ -431,7 +432,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
                         this.notificationService.showSuccess(result.message);
                         this.addToComponents(result.node);
                         setTimeout(() => {
-                            this.provider.refreshComponents();
+                            this.provider.reloadComponents(result.node.package_name,result.node.type);
                         }, 10);
                     }
                     else {
@@ -497,23 +498,24 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     * @param {EqualComponentDescriptor} node - The node to be deleted.
     * @returns {void}
     */
-    public clickDelete(node: EqualComponentDescriptor): void {
-        const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent, {
-            data: node,
-        });
+    public ondeleteNode(node: EqualComponentDescriptor): void {
+        const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent);
 
-        dialogRef.afterClosed().subscribe(result => {
-            if (result) {
-                if (result.success) {
-                    this.removeFromComponents(result.node);
-                    this.provider.refreshComponents();
-                    this.notificationService.showSuccess(result.message);
-                    this.onSearch();
-                    this.selectNode.emit(undefined);
-                }
-                else {
-                    this.notificationService.showError(result.message);
-                }
+        dialogRef.afterClosed().subscribe(can_be_deleted => {
+            if(can_be_deleted){
+                this.workbenchService.deleteNode(node).pipe(takeUntil(this.destroy$)).subscribe(
+                    result => {
+                        if(result.success){
+                            this.removeFromComponents(node);
+                            this.notificationService.showSuccess(result.message);
+                            this.provider.reloadComponents(node.package_name, node.type);
+                            this.onSearch();
+                            this.selectNode.emit(undefined);
+                        } else {
+                            this.notificationService.showError(result.message);
+                        }
+                    }
+                )
             }
 
         });

@@ -83,7 +83,7 @@
                         <button *ngIf="allow_update" mat-icon-button aria-label="Edit node button">
                             <mat-icon (click)="onEditNode(node)">edit</mat-icon>
                         </button>
-                        <button *ngIf="allow_delete" mat-icon-button (click)="clickDelete(node)" aria-label="Delete node button">
+                        <button *ngIf="allow_delete" mat-icon-button (click)="ondeleteNode(node)" aria-label="Delete node button">
                             <mat-icon>delete</mat-icon>
                         </button>
                     </div>
@@ -95,6 +95,6 @@
 
 </mat-list>
 
-<div *ngIf="allow_create" class="adder" (click)="oncreate()">
+<div *ngIf="allow_create" class="adder" (click)="oncreateNode()">
     <mat-icon style="margin-right: 1em;">add</mat-icon> Create new component
 </div>

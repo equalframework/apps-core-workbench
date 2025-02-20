@@ -196,7 +196,7 @@ public type_dict: { [id: string]: { icon: string, disp: string } } = ItemTypes.t
                 if (result.success) {
                     this.notificationService.showSuccess(result.message);
                     this.removeFromComponents(result.node);
-                    this.provider.refreshComponents();
+                    this.provider.reloadComponents(result.node.package_name,result.node.type);
                     this.filterNodes();
                     this.selectNode.emit(undefined);
                 }
@@ -230,7 +230,7 @@ public type_dict: { [id: string]: { icon: string, disp: string } } = ItemTypes.t
                         this.notificationService.showSuccess(result.message);
                         this.addToComponents(result.node);
                         setTimeout(() => {
-                            this.provider.refreshComponents();
+                            this.provider.reloadComponents(result.node.package_name,result.node.type);
                         }, 10);
                     }
                     else {

@@ -60,8 +60,8 @@ export class EqualComponentsProviderService {
                 console.log("Components retrieved:", components);
                 return components.find(comp => comp.name === component_name) || null;
             }),
-            catchError(error => {
-                console.error(`Error fetching specific ${component_type} for ${package_name}:`, error);
+            catchError(response => {
+                console.error(`Error fetching specific ${component_type} for ${package_name}:`, response);
                 return of(null);
             })
         );
@@ -97,8 +97,8 @@ export class EqualComponentsProviderService {
                 }
                 return new_components;
             }),
-            catchError(error => {
-                console.error(`Error fetching ${component_type}s for ${package_name}:`, error);
+            catchError(response => {
+                console.error(`Error fetching ${component_type}s for ${package_name}:`, response);
                 return of([]);
             })
         );
@@ -137,9 +137,45 @@ export class EqualComponentsProviderService {
     }
 
 
-    public refreshComponents(): void {
-        console.log("refresh");
+    /**
+    * Reloads components for a specific component type.
+    * @param package_name? the name of the package if it doesn't exist it refresh all component type from all package
+    * @param component_type The type of component to refresh (e.g., "controllers", "views", "menus", "routes", or "classes").
+    */
+    public reloadComponents(package_name?: string, component_type?: string): void {
+        this.collectAllPackages()
+        .pipe(take(1))
+        .subscribe({
+            next: (packages: EqualComponentDescriptor[]) => {
+                console.log(
+                `Reloading components. Provided package: ${package_name ? package_name : 'all'}, component type: ${component_type ? component_type : 'all'}. Packages loaded:`,
+                packages
+                );
+
+                // If a package is specified, filter the packages accordingly.
+                let filtered_packages: EqualComponentDescriptor[] = packages;
+                if (package_name) {
+                        filtered_packages = packages.filter(pkg => pkg.name === package_name);
+                }
+                if (filtered_packages.length === 0) {
+                console.warn(`No package found with name "${package_name}".`);
+                return;
+                }
+
+                if(component_type){
+                    let componentTypes : string[] = [component_type];
+                    this.preloadComponentsForPackages(filtered_packages, componentTypes);
+                }else{
+                    this.preloadComponentsForPackages(filtered_packages);
+                }
+    },
+    error: (response) => {
+      console.error("Error reloading packages:", response);
     }
+  });
+}
+
+
 
 
 
@@ -391,8 +427,8 @@ export class EqualComponentsProviderService {
             this.preloadComponentsForPackages(packages);
             console.log("map : ", this.componentsMapFromPackage);
         },
-        error: (error) => {
-            console.error('Error loading components:', error);
+        error: (response) => {
+            console.error('Error loading components:', response);
         }
     });
     }
@@ -413,19 +449,19 @@ export class EqualComponentsProviderService {
     const apiCalls: Observable<EqualComponentDescriptor[]>[] = [];
 
     // Charge les composants en fonction des types demandés
-    if (componentTypes.length === 0 || componentTypes.includes("controllers")) {
+    if (componentTypes.length === 0 || componentTypes.includes("controller")) {
         apiCalls.push(...this.loadControllers(packages));
     }
-    if (componentTypes.length === 0 || componentTypes.includes("views")) {
+    if (componentTypes.length === 0 || componentTypes.includes("view")) {
         apiCalls.push(...this.loadViews(packages));
     }
-    if (componentTypes.length === 0 || componentTypes.includes("menus")) {
+    if (componentTypes.length === 0 || componentTypes.includes("menu")) {
         apiCalls.push(...this.loadMenus(packages));
     }
-    if (componentTypes.length === 0 || componentTypes.includes("routes")) {
+    if (componentTypes.length === 0 || componentTypes.includes("route")) {
         apiCalls.push(...this.loadRoutes(packages));
     }
-    if (componentTypes.length === 0 || componentTypes.includes("classes")) {
+    if (componentTypes.length === 0 || componentTypes.includes("class")) {
         apiCalls.push(this.loadClasses(packages));
     }
 
@@ -438,44 +474,82 @@ export class EqualComponentsProviderService {
     forkJoin(apiCalls).subscribe({
         next: (results: EqualComponentDescriptor[][]) => {
             const allComponents = results.flat();
+            console.log("all component : ", allComponents)
             if (allComponents.length > 0) {
                 this.updateComponentMap(allComponents);
             }
             console.log('Preloaded additional components:', this.componentsMapFromPackage);
         },
-        error: (error) => {
-            console.error('Error preloading additional components:', error);
+        error: (response) => {
+            console.error('Error preloading additional components:', response);
         }
     });
     }
 
-    /**
-     * Updates the component map with newly loaded components.
-     * @param {EqualComponentDescriptor[]} components - The components to update.
-     */
-    private updateComponentMap(components: EqualComponentDescriptor[]): void {
-    const updatedComponents: EqualComponentDescriptor[] = [];
+/**
+ * Updates the component map with newly loaded components, and removes stale components.
+ * @param components - The components to update.
+ */
+private updateComponentMap(components: EqualComponentDescriptor[]): void {
+    // Collect all components to be removed from the map.
+    const componentsToRemove: EqualComponentDescriptor[] = [];
 
     components.forEach(component => {
-        const packageName = component.package_name;
-        const componentType = component.type;
+      const package_name = component.package_name;
+      const component_type = component.type;
 
-        if (!this.componentsMapFromPackage.has(packageName)) {
-            this.componentsMapFromPackage.set(packageName, new Map<string, EqualComponentDescriptor[]>());
+      // Ensure the package exists in the cache.
+      if (!this.componentsMapFromPackage.has(package_name)) {
+        this.componentsMapFromPackage.set(package_name, new Map<string, EqualComponentDescriptor[]>());
+      }
+
+      const packageMap = this.componentsMapFromPackage.get(package_name)!;
+      const currentComponents = packageMap.get(component_type) || [];
+
+      // Check if the component is already in the list (using its name as a unique identifier).
+      const exists = currentComponents.some(c => c.name === component.name);
+
+      // If the component doesn't exist, add it.
+      if (!exists) {
+        currentComponents.push(component);
+        packageMap.set(component_type, currentComponents);
+
+        // Add to the list to update the subject.
+        const allComponents = this.equalComponentsSubject.getValue();
+        const alreadyInSubject = allComponents.some(
+          c => c.package_name === package_name && c.name === component.name
+        );
+        if (!alreadyInSubject) {
+          this.equalComponentsSubject.next([...allComponents, component]);
         }
+      }
 
-        const packageMap = this.componentsMapFromPackage.get(packageName)!;
-        const currentComponents = packageMap.get(componentType) || [];
-        packageMap.set(componentType, [...currentComponents, component]);
-
-        updatedComponents.push(component);
+      // Identify stale components (components that need to be removed).
+      // If the component is not in the current list and it should be removed, mark it for removal.
+      componentsToRemove.push(...currentComponents.filter(c => !components.some(newComp => newComp.name === c.name)));
     });
 
-    this.equalComponentsSubject.next([
-        ...this.equalComponentsSubject.value,
-        ...updatedComponents
-    ]);
-    }
+    // Remove stale components from the map and the subject.
+    componentsToRemove.forEach(component => {
+      const packageMap = this.componentsMapFromPackage.get(component.package_name);
+      if (packageMap) {
+        const currentComponents = packageMap.get(component.type);
+        if (currentComponents) {
+          const filteredComponents = currentComponents.filter(c => c.name !== component.name);
+          if (filteredComponents.length === 0) {
+            packageMap.delete(component.type); // Remove the component type from the map if empty
+          } else {
+            packageMap.set(component.type, filteredComponents);
+          }
+        }
+      }
+
+      // Remove from the subject as well.
+      const allComponents = this.equalComponentsSubject.getValue();
+      this.equalComponentsSubject.next(allComponents.filter(c => c.name !== component.name));
+    });
+  }
+
 
 
 
@@ -509,8 +583,8 @@ export class EqualComponentsProviderService {
                     }
                     return components;
                 }),
-                catchError((error) => {
-                    console.error(`Error loading routes for ${package_component.name}:`, error);
+                catchError((response) => {
+                    console.error(`Error loading routes for ${package_component.name}:`, response);
                     return of([]);
                 })
             )
@@ -551,8 +625,8 @@ export class EqualComponentsProviderService {
                         };
                     });
                 }),
-                catchError((error) => {
-                    console.error(`Error loading views for ${package_component.name}:`, error);
+                catchError((response) => {
+                    console.error(`Error loading views for ${package_component.name}:`, response);
                     return of([]);
                 })
             )
@@ -576,8 +650,8 @@ export class EqualComponentsProviderService {
                         item: 'menu'
                     }));
                 }),
-                catchError((error) => {
-                    console.error(`Error loading menus for ${package_component.name}:`, error);
+                catchError((response) => {
+                    console.error(`Error loading menus for ${package_component.name}:`, response);
                     return of([]);
                 })
             )
@@ -618,8 +692,8 @@ export class EqualComponentsProviderService {
 
                     return controllers;
                 }),
-                catchError((error) => {
-                    console.error(`Error loading controllers for ${package_component.name}:`, error);
+                catchError((response) => {
+                    console.error(`Error loading controllers for ${package_component.name}:`, response);
                     return of([]); // Returns an empty array in case of an error
                 })
             )
