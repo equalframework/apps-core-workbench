@@ -88,9 +88,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
 
     constructor(
         private dialog: MatDialog,
-        private api: WorkbenchService,
         private provider: EqualComponentsProviderService,
-        private workbenchService: WorkbenchV1Service,
         private notificationService: NotificationService
     ) { }
 
@@ -100,7 +98,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         this.destroy$.complete();
     }
 
-  
+
     public ngOnInit() {
         this.loading = true;
         this.loadNodesV2();
@@ -171,8 +169,8 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
      */
     /*private async loadNodes() {
 
-        
-        
+
+
        // pass-1 - load packages and classes
         const classes = await this.api.getClasses();
         let packages = [];
@@ -291,28 +289,29 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         }
 
     }*/
+        private getSortKey(component: EqualComponentDescriptor): string {
+            let key = component.package_name || '';
 
-    private sortComponents() {
-        this.elements.sort((a, b) => {
-            let result = 1;
-            let x = (a.type === "route" ?
-                a.package_name + a.more + a.name :
-                ((a.type === "class" || a.type === "menu") ? a.package_name + a.name : a.name)
-            )
-                .replace(/[^a-zA-Z0-9 ]/g, '')
-                .toLowerCase();
-
-            let y = (b.type === "class" ? b.package_name + b.name : b.name)
-                .replace(/[^a-zA-Z0-9 ]/g, '')
-                .toLowerCase();
-
-            if (x < y) {
-                result = -1;
+            if (component.type === "route") {
+                key += component.more + component.name;
+            } else if (component.type === "class" || component.type === "menu") {
+                key += component.name;
+            } else {
+                key = component.name;
             }
 
-            return result;
-        });
-    }
+            // normalize the key
+            return key.replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase();
+        }
+
+        private sortComponents() {
+            this.elements.sort((a, b) => {
+                let x = this.getSortKey(a);
+                let y = this.getSortKey(b);
+                return x.localeCompare(y);
+            });
+        }
+
 
     public getComponentsTypes() {
         if (!this.node_type || this.node_type == '') {
@@ -413,7 +412,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         );
     }
 
-    public openCreator() {
+    public oncreate() {
         this.dialog.open(MixedCreatorDialogComponent, {
                 data: {
                     node_type: this.search_scope,
@@ -421,7 +420,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
                     package: this.package_name,
                     lock_package: (this.package_name != ''),
                     model: this.model_name,
-                    lock_model: (this.model_name != "")
+                    lock_model: (this.model_name != '')
                 },
                 width: "40em",
                 height: "26em"
@@ -454,7 +453,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         this.sortComponents();
         this.onSearch();
     }
-    
+
 
     /**
      * Update the editingNode and editedNode value to match the node.

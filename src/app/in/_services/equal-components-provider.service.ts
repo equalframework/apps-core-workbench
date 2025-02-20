@@ -82,35 +82,19 @@ export class EqualComponentsProviderService {
         class_name?: string
     ): Observable<EqualComponentDescriptor[]> {
         // Attempt to get the cache for this package
-        const package_cache = this.componentsMapFromPackage.get(package_name) || new Map<string, EqualComponentDescriptor[]>();
-        let filtered_components: EqualComponentDescriptor[] = [];
+        const package_cache = this.componentsMapFromPackage.get(package_name);
 
-        if (component_type === '') {
-            // If no type is specified, merge all components from the package
-            package_cache.forEach(components => {
-                filtered_components.push(...components);
-            });
-        } else {
-            // Otherwise, only retrieve components of the specified type
-            filtered_components = (package_cache.get(component_type) || []).filter(comp =>
-                class_name ? comp.item.model.startsWith(class_name) : true
-            );
+        if (package_cache && package_cache.has(component_type)) {
+            return of(package_cache.get(component_type)!);
         }
 
-        if (filtered_components.length > 0) {
-            console.log("Components retrieved from cache:", filtered_components);
-            return of(filtered_components);
-        }
 
         // If not found in cache, retrieve via the API
         return this.fetchComponents(package_name, component_type, class_name).pipe(
             map(new_components => {
-                // Update the cache for this package
                 if (!this.componentsMapFromPackage.has(package_name)) {
                     this.componentsMapFromPackage.set(package_name, new Map<string, EqualComponentDescriptor[]>());
                 }
-                const package_cache = this.componentsMapFromPackage.get(package_name)!;
-                package_cache.set(component_type, new_components);
                 return new_components;
             }),
             catchError(error => {
@@ -136,17 +120,17 @@ export class EqualComponentsProviderService {
     ): Observable<EqualComponentDescriptor[]> {
         switch (component_type) {
             case 'class':
-                return this.handleClasses(package_name, class_name);
+                return this.fetchAndFormatClasses(package_name, class_name);
             case 'controller':
-                return this.handleControllers(package_name);
+                return this.fetchAndFormatControllers(package_name);
             case 'view':
-                return this.handleViews(package_name, class_name);
+                return this.fetchAndFormatViews(package_name, class_name);
             case 'menu':
-                return this.handleMenus(package_name);
+                return this.fetchAndFormatMenus(package_name);
             case 'route':
                 return package_name !== ''
-                    ? this.handleRoutes(package_name)
-                    : this.handleRoutesLives();
+                    ? this.fetchAndFormatRoutes(package_name)
+                    : this.fetchAndFormatRoutesLives();
             default:
                 return of([]);
         }
@@ -167,7 +151,7 @@ export class EqualComponentsProviderService {
      * @returns {Observable<EqualComponentDescriptor[]>}
      *          An observable of an array of EqualComponentDescriptor representing live routes.
      */
-    private handleRoutesLives(): Observable<EqualComponentDescriptor[]> {
+    private fetchAndFormatRoutesLives(): Observable<EqualComponentDescriptor[]> {
         return this.collectRoutesLives().pipe(
             map((routesData) => {
                 const components: EqualComponentDescriptor[] = [];
@@ -215,7 +199,7 @@ export class EqualComponentsProviderService {
      * @returns {Observable<EqualComponentDescriptor[]>}
      *          An observable of an array of EqualComponentDescriptor representing package routes.
      */
-    private handleRoutes(packageName: string): Observable<EqualComponentDescriptor[]> {
+    private fetchAndFormatRoutes(packageName: string): Observable<EqualComponentDescriptor[]> {
         return this.collectRoutesFromPackage(packageName).pipe(
             map((routesData) => {
                 const components: EqualComponentDescriptor[] = [];
@@ -263,7 +247,7 @@ export class EqualComponentsProviderService {
      * @returns {Observable<EqualComponentDescriptor[]>}
      *          An observable of an array of EqualComponentDescriptor representing classes.
      */
-    private handleClasses(packageName: string, className?: string): Observable<EqualComponentDescriptor[]> {
+    private fetchAndFormatClasses(packageName: string, className?: string): Observable<EqualComponentDescriptor[]> {
         return this.collectAllClasses().pipe(
             map((classes: any) =>
                 this.mapClassesToDescriptors(
@@ -281,7 +265,7 @@ export class EqualComponentsProviderService {
      * @param {string} packageName - The name of the package.
      * @returns {Observable<EqualComponentDescriptor[]>} An observable of an array of EqualComponentDescriptor.
      */
-    private handleControllers(packageName: string): Observable<EqualComponentDescriptor[]> {
+    private fetchAndFormatControllers(packageName: string): Observable<EqualComponentDescriptor[]> {
         return this.collectControllersFromPackage(packageName).pipe(
         map(response => {
             const dataDescriptors = response.data.map((controllerName: string) =>
@@ -302,7 +286,7 @@ export class EqualComponentsProviderService {
     * @param {string} [className] - Optional filter for view names.
     * @returns {Observable<EqualComponentDescriptor[]>} An observable of an array of EqualComponentDescriptor.
     */
-    private handleViews(packageName: string, className?: string): Observable<EqualComponentDescriptor[]> {
+    private fetchAndFormatViews(packageName: string, className?: string): Observable<EqualComponentDescriptor[]> {
         return this.collectViewsFromPackage(packageName).pipe(
         map((views: string[]) =>
             views
@@ -347,7 +331,7 @@ export class EqualComponentsProviderService {
      * @param {string} packageName - The name of the package.
      * @returns {Observable<EqualComponentDescriptor[]>} An observable of an array of EqualComponentDescriptor.
      */
-    private handleMenus(packageName: string): Observable<EqualComponentDescriptor[]> {
+    private fetchAndFormatMenus(packageName: string): Observable<EqualComponentDescriptor[]> {
     return this.collectMenusFromPackage(packageName).pipe(
         map((menus: string[]) =>
         menus.map((menuName: string) =>
