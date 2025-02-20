@@ -1,29 +1,32 @@
 import { CdkDragEnd } from '@angular/cdk/drag-drop';
 import { Component, Inject, OnChanges, OnInit, Optional } from '@angular/core';
+
 import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 import { WorkflowNode } from './_components/workflow-displayer/_objects/WorkflowNode';
-import { Anchor, WorkflowLink } from './_components/workflow-displayer/_objects/WorkflowLink';
+import { Anchor, WorkflowLink, test } from './_components/workflow-displayer/_objects/WorkflowLink';
 import { cloneDeep } from 'lodash';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { ActivatedRoute } from '@angular/router';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { prettyPrintJson } from 'pretty-print-json';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Subject, of } from 'rxjs';
-import { takeUntil, tap } from 'rxjs/operators';
-import { WorkbenchV1Service } from 'src/app/in/_services/workbench-v1.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { Location } from '@angular/common';
+import { WorkbenchV1Service } from 'src/app/in/_services/workbench-v1.service';
 
 @Component({
-  selector: 'package-model-workflow',
-  templateUrl: './package-model-workflow.component.html',
-  styleUrls: ['./package-model-workflow.component.scss']
+    selector: 'package-model-workflow',
+    templateUrl: './package-model-workflow.component.html',
+    styleUrls: ['./package-model-workflow.component.scss']
 })
 export class PackageModelWorkflowComponent implements OnInit, OnChanges {
+
     private ngUnsubscribe = new Subject<void>();
 
     public models: string[] = [];
     public state: string = 'normal';
+
     public log = console.log;
 
     public nodes: WorkflowNode[] = [];
@@ -36,22 +39,27 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
     public need_save: boolean = false;
     public selected_class: string = "";
     public tabIndex: number = 1;
+
     public color: { type: string, color: string }[] = [];
     public w = 10;
     public h = 10;
+
     public selected_classes: string[] = ["core\\User"];
+
     public test: { source: string, target: string, type: string }[] = [];
     public has_meta_data: number;
     public exists: boolean = false;
+
     public loading = true;
 
     constructor(
+        private api: EmbeddedApiService,
         private router: RouterMemory,
         private route: ActivatedRoute,
         private matDialog: MatDialog,
         private snackBar: MatSnackBar,
-        private workbenchService: WorkbenchV1Service,
-        private location: Location
+        private location: Location,
+        private workbenchService: WorkbenchV1Service
     ) { }
 
     public async ngOnInit() {
@@ -67,50 +75,72 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
         });
     }
 
-    /**
-     * Charge le workflow, ajuste les positions pour être sûr qu'ils soient visibles,
-     * puis met à jour les nœuds et les liens.
-     */
     private async loadWorkflow() {
-        const packageName = this.route.snapshot.paramMap.get('package_name')!;
-        const model = this.route.snapshot.paramMap.get('class_name')!;
+        this.nodes = [];
+        this.links = [];
+        const r = await this.api.getWorkflow(this.package, this.model);
+        if (r.exists !== null && r.exists !== undefined) {
+            this.exists = r.exists;
+            const metadata = await this.api.fetchMetaData('workflow', this.package + '.' + this.model);
+            this.has_meta_data = Object.keys(metadata).length > 0 ? metadata[0].id : undefined;
+            this.model_scheme = await this.api.getSchema(this.package + "\\" + this.model);
+            const res = r.info;
+            let orig = { x: 200, y: 200 };
+            let mdt: any = {};
+            if (this.has_meta_data) {
+                mdt = JSON.parse(metadata[0].value);
+            }
+            let offset_x: number = 0;
+            let offset_y: number = 0;
+            let is_first: boolean = true;
+            for (let node in res) {
+                let pos = (!this.has_meta_data || !mdt || !mdt[node] || !mdt[node].position) ? cloneDeep(orig) : mdt[node].position;
+                if (is_first && pos.x < 200) {
+                    offset_x = -pos.x + 200;
+                }
+                if (is_first && pos.y < 200) {
+                    offset_y = -pos.y + 200;
+                }
+                pos.x += offset_x;
+                pos.y += offset_y;
+                this.nodes.push(new WorkflowNode(node, {
+                    description: res[node].description,
+                    position: pos,
+                    help: res[node].help,
+                    icon: res[node].icon
+                })
+                );
+                orig.y += 100;
+                orig.x += 100;
+                is_first = false;
+            }
+            for (let node in res) {
+                for (let link in res[node].transitions) {
+                    let a = this.getNodeByName(node);
+                    let b = this.getNodeByName(res[node].transitions[link].status);
 
-        console.log(`Chargement du workflow pour le package: ${packageName} et le modèle: ${model}`);
-        this.workbenchService.getWorkflowData(packageName, model)
-            .pipe(
-                tap(data => console.log('Données de workflow reçues:', data))
-            )
-            .subscribe(data => {
-                // Création des nœuds à partir des données
-                let nodes: WorkflowNode[] = data.nodes.map((nodeData: any) => new WorkflowNode(
-                    nodeData.name,
-                    {
-                        position: nodeData.position,
-                        description: nodeData.description,
-                        help: nodeData.help,
-                        icon: nodeData.icon,
+                    if (!b) {
+                        b = new WorkflowNode(res[node].transitions[link].status, { position: cloneDeep(orig) });
+                        this.nodes.push(b);
+                        orig.y += 100;
+                        orig.x += 100;
+                        this.need_save = true;
                     }
-                ));
-
-                // Calcul de l'offset afin de garantir que tous les nœuds soient visibles
-                let minX = Math.min(...nodes.map(node => node.position.x));
-                let minY = Math.min(...nodes.map(node => node.position.y));
-                const offsetX = (minX < 200) ? (200 - minX) : 0;
-                const offsetY = (minY < 200) ? (200 - minY) : 0;
-
-                console.log(`Calcul des offsets: offsetX=${offsetX}, offsetY=${offsetY}`);
-                nodes.forEach(node => {
-                    node.position.x += offsetX;
-                    node.position.y += offsetY;
-                });
-
-                this.nodes = nodes;
-                this.links = data.links;
-                this.exists = data.exists;
-                this.model_scheme = data.modelScheme;
-                this.loading = false;
-                console.log('Workflow chargé avec succès.', { nodes: this.nodes, links: this.links });
-            });
+                    if (a && b) {
+                        const anch1 = (!this.has_meta_data || !mdt || !mdt[a.name] || !mdt[a.name].transitions || !mdt[a.name].transitions[link] || !mdt[a.name].transitions[link].anchorFrom)
+                            ? Anchor.MiddleRight
+                            : mdt[a.name].transitions[link].anchorFrom;
+                        const anch2 = (!this.has_meta_data || !mdt || !mdt[a.name] || !mdt[a.name].transitions || !mdt[a.name].transitions[link] || !mdt[a.name].transitions[link].anchorFrom)
+                            ? Anchor.MiddleLeft
+                            : mdt[a.name].transitions[link].anchorTo;
+                        this.links.push(
+                            new WorkflowLink(a, b, anch1, anch2, Object.assign(res[node].transitions[link], { name: link }))
+                        );
+                    }
+                }
+            }
+        }
+        this.loading = false;
     }
 
     public reset() {
@@ -124,6 +154,10 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
             if (!["linking-to"].includes(this.state)) {
                 this.selectedNode = -1;
             }
+            if (this.state.includes("linked-failed")) {
+                this.selectedNode = -1;
+                this.snackBar.open("Link already existing");
+            }
             if (!["edit-link", "edit-from", "edit-to"].includes(this.state)) {
                 this.selectedLink = -1;
             }
@@ -133,7 +167,7 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
     selectNode(index: number) {
         this.selectedNode = index;
         this.nodes.forEach((node, idx) => {
-          node.icon = idx === index ? 'check_circle' : 'hub';
+            node.icon = idx === index ? 'check_circle' : 'hub';
         });
     }
 
@@ -200,27 +234,29 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
         this.location.back();
     }
 
-    /**
-     * Exporte le workflow en générant un objet JSON contenant chaque nœud et ses transitions.
-     */
     public export(): { [id: string]: any } {
         const result: { [id: string]: any } = {};
-        for (let node of this.nodes) {
-            result[node.name] = node.export();
-            result[node.name].transitions = {};
-            for (let link of this.links) {
-                if (link.from === node) {
-                    result[node.name].transitions[link.name] = link.export();
-                }
+
+        const transitionsByNode = new Map<string, any>();
+
+        for (const link of this.links) {
+            if (!transitionsByNode.has(link.from.name)) {
+                transitionsByNode.set(link.from.name, {});
             }
+            transitionsByNode.get(link.from.name)![link.name] = link.export();
         }
+
+        for (const node of this.nodes) {
+            result[node.name] = {
+                ...node.export(),
+                transitions: transitionsByNode.get(node.name) || {}
+            };
+        }
+
         console.log('Workflow exporté:', result);
         return result;
     }
 
-    /**
-     * Exporte les méta-données du workflow.
-     */
     public exportMetaData(): { [id: string]: any } {
         const result: { [id: string]: any } = {};
         for (let node of this.nodes) {
@@ -236,9 +272,6 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
         return result;
     }
 
-    /**
-     * Sauvegarde le workflow. S'il n'existe pas, il est créé, puis sauvegardé avec ses méta-données.
-     */
     public save() {
         console.log('Début de la sauvegarde du workflow...');
         if (!this.exists) {
@@ -254,22 +287,18 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
         }
     }
 
-    /**
-     * Sauvegarde le workflow et ses méta-données.
-     */
     private saveWorkflowWithMetaData() {
         const workflowJSON = JSON.stringify(this.export());
         console.log('Envoi du workflow à sauvegarder:', workflowJSON);
         this.workbenchService.saveWorkflow(this.package, this.model, workflowJSON)
-            .subscribe((ret) => {
+            .subscribe((ret: any) => {
                 if (!ret) {
                     console.error("Erreur lors de la sauvegarde du workflow.");
                     return;
                 }
-                // Sauvegarde des méta-données
                 if (this.has_meta_data) {
                     this.workbenchService.saveMetaData(this.has_meta_data, JSON.stringify(this.exportMetaData()))
-                        .subscribe((result) => {
+                        .subscribe((result: any) => {
                             if (!result) {
                                 console.error("Erreur lors de la sauvegarde des méta-données.");
                                 return;

@@ -36,11 +36,20 @@ export class PropertiesEditorComponent implements OnChanges {
   fields:string[] = []
 
   ngOnChanges(): void {
-    if (this.model_schema && this.model_schema['fields']) {
-      this.fields = Object.keys(this.model_schema['fields']);
+    if (this.selectedNode >= 0) {
+      // Vérifie model_schema uniquement si un nœud est sélectionné
+      if (this.model_schema && this.model_schema['fields']) {
+        this.fields = Object.keys(this.model_schema['fields']);
+        this.updateACField();
+      } else {
+        console.warn('model_schema ou model_schema["fields"] est undefined ou null');
+      }
+    } else if (this.selectedLink >= 0) {
+      // Met à jour ACField pour les liens sans vérifier model_schema
       this.updateACField();
     } else {
-      console.warn('model_schema ou model_schema["fields"] est undefined ou null');
+      this.fields = [];
+      this.updateACField();
     }
   }
   

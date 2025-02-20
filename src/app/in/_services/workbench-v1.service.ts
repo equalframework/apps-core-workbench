@@ -237,12 +237,13 @@ export class WorkbenchV1Service {
         );
     }
  /**
-   * Fetches workflow data and prepares it in an Observable pattern.
+  * //Doesn't work 
+   * Fetches workflow data and prepares it in an Observable pattern. 
    * @param packageName The package name.
    * @param model The class name (model).
    * @returns An Observable containing nodes, links, metadata, and other data.
    */
- public getWorkflowData(packageName: string, model: string): Observable<{
+ /*public getWorkflowData(packageName: string, model: string): Observable<{
     nodes: WorkflowNode[],
     links: WorkflowLink[],
     exists: boolean,
@@ -286,7 +287,7 @@ export class WorkbenchV1Service {
         });
       })
     );
-  }
+  }*/
 
 
   /**
@@ -305,7 +306,7 @@ export class WorkbenchV1Service {
       hasMetaData: hasMetaData,
       modelScheme: modelScheme
     };
-
+    console.log("Metadata  : ", metadata);
     let orig = { x: 200, y: 200 };
     let mdt: any = {};
     if (hasMetaData) {
@@ -347,7 +348,7 @@ export class WorkbenchV1Service {
           b = new WorkflowNode(workflowData[node].transitions[link].status, { position: cloneDeep(orig) });
           result.nodes.push(b);
           orig.y += 100;
-          orig.x += 100;
+          orig.x += 300;
         }
         if (a && b) {
           const anch1 = (!mdt[a.name] || !mdt[a.name].transitions || !mdt[a.name].transitions[link] || !mdt[a.name].transitions[link].anchorFrom)
@@ -360,6 +361,7 @@ export class WorkbenchV1Service {
         }
       }
     }
+    console.log("préapration : ", result);
     return result;
   }
 
