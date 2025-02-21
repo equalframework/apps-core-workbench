@@ -71,30 +71,6 @@ export class AppComponent implements OnInit {
         this.selectedComponent = equalComponent;
     }
 
-   /* public onClickModels() {
-        //    this.router.navigate(['/models', this.selectedComponent.name], {"selected": this.selectedComponent});
-    }
-
-    public onClickControllers() {
-        //    this.router.navigate(['/controllers', this.selectedComponent.name], {"selected": this.selectedComponent});
-    }
-
-    public onClickView() {
-        // this.router.navigate(['/views', "package", this.selectedComponent.name], {"selected": this.selectedComponent});
-    }
-
-    public onClickRoute() {
-        //    this.router.navigate(['/routes', this.selectedComponent.name], {"selected": this.selectedComponent});
-    }
-
-    public onClickInitData() {
-
-        //    this.router.navigate(['/initdata/init', this.selectedComponent.name], {"selected": this.selectedComponent});
-    }
-
-    public onClickInitDemoData() {
-        //    this.router.navigate(['/initdata/demo', this.selectedComponent.name], {"selected": this.selectedComponent});
-    }*/
 
     /**
      * Update the name of a package.
@@ -123,164 +99,17 @@ export class AppComponent implements OnInit {
         this.api.createPackage(new_package);
     }
 
-    /**
-     * Function to pretty-print JSON objects as an HTML string
-     *
-     * @param input a JSON
-     * @returns an HTML string
-     */
-    private prettyPrint(input: any) {
-        return prettyPrintJson.toHtml(input);
-    }
 
-    public onChangeStepModel(event:number) {
-        if(this.selectedComponent) {
-            /*
-            if(event == 2) {
-                this.router.navigate(['/fields', this.selectedComponent.package ? this.selectedComponent.package : "", this.selectedComponent.name], {"selected":this.selectedComponent})
-            }
-            if(event == 3 && this.selectedComponent.package) {
-                this.router.navigate(['/views', "entity", this.selectedComponent.package+'\\'+this.selectedComponent.name], {"selected":this.selectedComponent})
-            }
-            if(event == 4 && this.selectedComponent.package) {
-                this.router.navigate(['/translation', "model", this.selectedComponent.package, this.selectedComponent.name], {"selected":this.selectedComponent})
-            }
-            if(event == 5) {
-                this.router.navigate(['/workflow', this.selectedComponent.package, this.selectedComponent.name], {"class":this.selectedComponent})
-            }
-            */
-        }
-    }
+
 
     public goTo(ev: any) {
         let els: EqualComponentDescriptor[] = this.elements.filter(el => (el.name === ev.name && (!ev.package || ev.package === el.package)));
         this.selectNode(els[0]);
     }
 
-    public onViewEditClick() {
-        // this.router.navigate(['/views_edit',this.selectedComponent.name],{"selected":this.selectedComponent});
-    }
-
-    public onViewTranslationClick() {
-        //    this.router.navigate(['/translation', this.selectedComponent.name.split(":").slice(1)[0].split(".")[0] === 'search' ? 'controller' : 'model',this.selectedComponent.package,this.selectedComponent.name.split(":")[0].split("\\").slice(1).join("\\")],{"selected":this.selectedComponent})
-    }
 
 
-    public controllerNav(choice:number) {
-        if(this.selectedComponent) {
-            /*
-            switch(choice) {
-                case 1:
-                    this.router.navigate(['/controllers/params',this.selectedComponent.type,this.selectedComponent.name],{"selected":this.selectedComponent})
-                    break
-                case 2:
-                    this.router.navigate(['/translation',"controller",this.selectedComponent.package,this.selectedComponent.name.split("_").slice(1).join("\\")],{"selected":this.selectedComponent})
-                    break
-                case 3:
-                    this.router.navigate(["/controllers","return",this.selectedComponent.type,this.selectedComponent.name],{"selected":this.selectedComponent})
-                    break
-            }
-            */
-        }
-    }
-
-
-    /*public deleteNode(node: EqualComponentDescriptor): void {
-        const adaptedNode = {
-          package: node.package_name,  // Adaptation ici
-          name: node.name,
-          type: node.type,
-          item: node.item
-        };
-      
-        this.workbenchService.deleteNode(adaptedNode).subscribe({
-          next: (response) => {
-            // Si la suppression a réussi, on affiche un message via le snackBar
-            this.snackBar.open(response.message);
-            
-            // Réinitialiser la sélection du composant après suppression
-            this.selectedComponent = undefined;
-      
-            // Rafraîchir la vue en récupérant les packages à nouveau
-            this.refresh();
-          },
-          error: (error) => {
-            // Gérer l'erreur si la suppression échoue
-            console.error("Deletion error:", error);
-            this.snackBar.open("Error: " + error);
-          }
-        });
-      }*/
-      
-
-
-    
-    
-
-        
-        /*let res;
-        switch(node.type) {
-            case "view":
-                let sp = node.name.split(":");
-                res = await this.api.deleteView(sp[0],sp[1]);
-                if(!res) {
-                    this.snackBar.open("Deleted");
-                    this.selectedComponent = undefined;
-                    this.refresh();
-                }
-                break
-            case "menu":
-                res = await this.api.deleteView(node.package+"\\menu",node.name)
-                if(!res){
-                    this.snackBar.open("Deleted");
-                    this.selectedComponent = undefined;
-                    this.refresh();
-                }
-                break;
-            case "package":
-                res = await this.api.deletePackage(node.name);
-                if(!res) {
-                    this.snackBar.open("Deleted");
-                    this.selectedComponent = undefined;
-                    this.refresh();
-                }
-                break
-            case "class":
-                if(node.package) {
-                    res = await this.api.deleteModel(node.package,node.name);
-                    if(!res) {
-                        this.snackBar.open("Deleted");
-                        this.selectedComponent = undefined;
-                        this.refresh();
-                    }
-                }
-                else {
-                    this.snackBar.open("Error : unknown model");
-                }
-                break
-            case "do":
-            case "get":
-                if(node.package) {
-                    let nom = node.name.split("_").slice(1).join("_");
-                    res = await this.api.deleteController(node.package,node.type,nom);
-                    if(!res){
-                        this.snackBar.open("Deleted");
-                        this.selectedComponent = undefined;
-                        this.refresh();
-                    }
-                }
-                else {
-                    this.snackBar.open("Error : unknown controller");
-                }
-                break
-            default:
-                this.snackBar.open("WIP");
-                break;
-        }*/
-    }
-
-
-    
+}
 
 
 

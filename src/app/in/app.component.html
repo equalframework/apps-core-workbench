@@ -36,7 +36,6 @@
         <ng-container *ngIf="selectedComponent.type === 'class'">
             <info-model
                     [model]="selectedComponent"
-                    (changeStep)="onChangeStepModel($event)"
                     (getRef)="goTo($event)">
             </info-model>
         </ng-container>
@@ -47,8 +46,7 @@
                     [fetch_error]="fetch_error"
                     [selected_package]="selectedComponent.package ? selectedComponent.package : ''"
                     [moving]="true"
-                    (goto)="goTo({name:$event})"
-                    (navigate)="controllerNav($event)">
+                    (goto)="goTo({name:$event})">
             </info-controller>
         </ng-container>
 
@@ -61,9 +59,7 @@
 
         <ng-container *ngIf="selectedComponent.type === 'view'">
             <info-view
-                    [view]="selectedComponent"
-                    (goto)="onViewEditClick()"
-                    (translations)="onViewTranslationClick()">
+                    [view]="selectedComponent">
             </info-view>
         </ng-container>
 
