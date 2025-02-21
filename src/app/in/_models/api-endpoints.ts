@@ -26,7 +26,9 @@ export const API_ENDPOINTS = {
         create: (package_name: string, model_name: string, view_name: string) =>
             `?do=core_config_create-view&view_id=${view_name}&entity=${package_name}\\${model_name}`,
         delete: (package_name: string, model_name: string, view_name: string) =>
-            `?do=core_config_delete-view&entity=${package_name}\\${model_name}&view_id=${view_name}`
+            `?do=core_config_delete-view&entity=${package_name}\\${model_name}&view_id=${view_name}`,
+        read: (package_name : string, model_name:string, view_name: string) =>
+            `?get=core_model_view&view_id=${view_name}&entity=${package_name}\\${model_name}`
     },
 
     // Controller-specific actions

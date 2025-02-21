@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
+import { WorkbenchV1Service } from 'src/app/in/_services/workbench-v1.service';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 
@@ -17,20 +18,18 @@ export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
     private destroy$: Subject<boolean> = new Subject<boolean>();
     public loading: boolean = true;
 
-    public view_id: string;
-    public entity: string;
+    public view_name: string;
 
-    public view_schema: any;
+    public viewSchema: any;
     public fields: any;
 
     constructor(
-            private router: Router,
-            private api: WorkbenchService,
-            private provider: EqualComponentsProviderService) {
+        private router: Router,
+        private workbenchService: WorkbenchV1Service) {
     }
     ngOnDestroy(): void {
         this.destroy$.next(true);
-        this.destroy$.complete();    
+        this.destroy$.complete();
     }
 
 
@@ -40,41 +39,34 @@ export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
     }
 
 
-      
-      async ngOnChanges(changes: SimpleChanges) {
+
+    async ngOnChanges(changes: SimpleChanges) {
         if (changes.view) {
           this.load();
         }
       }
-      
+
       private load() {
         this.loading = true;
-      
-        // Vérifier si 'view' est bien défini
+
         if (!this.view || !this.view.package_name || !this.view.item || !this.view.item.model) {
           console.error('Invalid view data:', this.view);
           this.loading = false;
           return;
         }
-      
+
         try {
-          // Préparer les paramètres pour 'getComponents'
           const packageName = this.view.package_name;
-          const modelName = this.view.item.model;
-          
-          // Définir les valeurs pour 'entity' et 'view_id'
-          this.entity = `${packageName}\\${modelName}`;
-          this.view_id = this.view.name;
-      
-          // Appeler l'API pour récupérer les composants
-          this.provider.getComponents(packageName, 'view', modelName)
+          const model_name = this.view.item.model;
+          this.view_name = this.view.name.split(":")[1];
+
+          this.workbenchService.readView(packageName, this.view_name, model_name)
             .pipe(takeUntil(this.destroy$))
             .subscribe(
               (data) => {
-                // Si les données sont valides
-                if (data && Array.isArray(data)) {
-                  this.view_schema = [...data];
-                  this.fields = this.getFields(this.view_schema);
+                if (data) {
+                    const schema = data.response; // Nom plus clair
+                    this.viewSchema = schema;                  this.fields = this.getFields(this.viewSchema);
                 } else {
                   console.warn('Invalid data format for view schema:', data);
                 }
@@ -83,14 +75,13 @@ export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
                 console.error('Error loading view details:', error);
               },
               () => {
-                // Charger les champs après la réception des données
                 this.loading = false;
               }
             );
         } catch (response) {
           console.error('Unexpected error - restricted visibility?', response);
           this.loading = false;
-        } 
+        }
     }
 
     public onclickEdit() {
@@ -121,7 +112,7 @@ export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
             }
         }
 
-        for(let item of this.view_schema.layout?.items ?? []) {
+        for(let item of this.viewSchema.layout?.items ?? []) {
             if(item.type == 'field') {
                 items.push(item);
             }
@@ -135,12 +126,12 @@ export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
 
         return mapFields;
     }
-
-    getFieldsCount(): number {
-        if (this.view_schema && this.view_schema.fields) {
-            return Object.keys(this.view_schema.fields).length;
-        }
-        return 0;  // Si `view_schema` ou `fields` est undefined, retourne 0
+    getFieldKeys(): string[] {
+        return this.fields ? Object.keys(this.fields) : [];
     }
-    
+
+    public getFieldsCount(): number {
+        return this.fields ? Object.keys(this.fields).length : 0;
+    }
+
 }

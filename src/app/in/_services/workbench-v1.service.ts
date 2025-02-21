@@ -19,6 +19,12 @@ import { API_ENDPOINTS } from '../_models/api-endpoints';
 export class WorkbenchV1Service {
     constructor(private api: ApiService) { }
 
+
+    public readView(package_name:string,view_name:string,model_name:string){
+        const url =API_ENDPOINTS.view.read(package_name,model_name,view_name);
+        return this.callApi(url, `récupérer`);
+    }
+
     /**
      * Creates a new component based on the type specified in the node.
      * It supports creating packages, classes, and controllers (with classes and controllers not implemented yet).
@@ -236,6 +242,8 @@ export class WorkbenchV1Service {
             })
         );
     }
+
+
  /**
   * //Doesn't work 
    * Fetches workflow data and prepares it in an Observable pattern. 

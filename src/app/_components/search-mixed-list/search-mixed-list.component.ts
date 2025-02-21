@@ -499,7 +499,9 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     * @returns {void}
     */
     public ondeleteNode(node: EqualComponentDescriptor): void {
-        const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent);
+        const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent,{
+            data:node
+        });
 
         dialogRef.afterClosed().subscribe(can_be_deleted => {
             if(can_be_deleted){
