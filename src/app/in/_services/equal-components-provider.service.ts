@@ -85,7 +85,8 @@ export class EqualComponentsProviderService {
         const package_cache = this.componentsMapFromPackage.get(package_name);
 
         if (package_cache && package_cache.has(component_type)) {
-            return of(package_cache.get(component_type)!);
+            const components = package_cache.get(component_type)?.filter(viewComponent => class_name ? viewComponent.item.model === class_name : true);
+            return of(components && components.length > 0 ? components : []);
         }
 
 
@@ -546,7 +547,13 @@ export class EqualComponentsProviderService {
                 this.collectViewsFromPackage(packageComponent.name).pipe(
                     map((views: string[]) =>
                         views
-                            .filter(view => !class_name || view.startsWith(`${packageComponent.name}\\${class_name}`))
+                            .filter(view => {
+                                if (!class_name) {
+                                    return true;
+                                  }
+                                const isClassMatch = view.split('\\').pop()?.split(":")[0] === class_name;
+                                return isClassMatch;
+                            })
                             .map(view => {
                                 const cleaned_view_name = view.split('\\').slice(1).join('\\');
                                 const model_name = view.split('\\').slice(1).join('\\');
