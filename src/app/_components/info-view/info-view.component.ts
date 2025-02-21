@@ -66,7 +66,8 @@ export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
               (data) => {
                 if (data) {
                     const schema = data.response; // Nom plus clair
-                    this.viewSchema = schema;                  this.fields = this.getFields(this.viewSchema);
+                    this.viewSchema = schema;                  
+                    this.fields = this.getFields(this.viewSchema);
                 } else {
                   console.warn('Invalid data format for view schema:', data);
                 }

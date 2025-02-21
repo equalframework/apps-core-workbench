@@ -89,13 +89,15 @@
                             [cdkDropListData]="view_obj.layout.items"
                             (cdkDropListDropped)="drop_item($event)"
                         >
-                            <mat-expansion-panel cdkDrag *ngFor="let item of view_obj.layout.items; index as index">
+                        <ng-container *ngFor="let item of view_obj.layout.items; index as index">
+
+                            <mat-expansion-panel cdkDrag *ngIf="item && item.value">
                                 <mat-expansion-panel-header>
                                     <mat-panel-title>
                                         <div class="itemprez">
                                             <mat-icon cdkDragHandle>drag_indicator</mat-icon>
                                             <div class="typeicon">
-                                                <mat-icon>{{class_scheme.fields[item.value] ? icontype[class_scheme.fields[item.value].type] : ""}}</mat-icon>
+                                                <mat-icon>{{ class_scheme?.fields?.[item.value]?.type ? icontype[class_scheme.fields[item.value].type] : "" }}</mat-icon>
                                             </div>
                                             {{item.label.trim() !== "" && item.type === "field" ? item.label.trim() : ToNameDisp(item.value)}}
                                         </div>
@@ -112,14 +114,15 @@
                                     </div>
                                 </mat-expansion-panel-header>
                                 <app-item-editor
-                                    [item]="item"
-                                    [entity]="entity"
-                                    [fields]="fields"
-                                    [types]="types"
-                                    [displayDelete]="true"
-                                    (delete)="deleteItemLayout(view_obj.layout.items.indexOf(item))"
-                                ></app-item-editor>
+                                [item]="item"
+                                [entity]="entity"
+                                [fields]="fields"
+                                [types]="types"
+                                [displayDelete]="true"
+                                (delete)="deleteItemLayout(view_obj.layout.items.indexOf(item))"
+                              ></app-item-editor>
                             </mat-expansion-panel>
+                        </ng-container>
 
                         </mat-accordion>
                     </div>

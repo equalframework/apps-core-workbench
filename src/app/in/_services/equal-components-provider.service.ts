@@ -37,6 +37,7 @@ export class EqualComponentsProviderService {
     ): Observable<EqualComponentDescriptor | null> {
         // Check the cache using the map
         const package_cache = this.componentsMapFromPackage.get(package_name);
+        console.log("cache : ", package_cache);
         if (package_cache) {
             let components_to_search: EqualComponentDescriptor[];
             if (component_type === '') {
@@ -555,11 +556,12 @@ export class EqualComponentsProviderService {
                                 return isClassMatch;
                             })
                             .map(view => {
+                                console.log()
                                 const cleaned_view_name = view.split('\\').slice(1).join('\\');
-                                const model_name = view.split('\\').slice(1).join('\\');
+                                const model_name = view.split('\\').slice(1).join('\\').split(':')[0];
                                 return {
                                     package_name: packageComponent.name,
-                                    name: class_name ? view.split('\\')[1] : (view.split('\\').pop() || ''),
+                                    name: cleaned_view_name.split("\\").pop() || '',
                                     type: 'view',
                                     file: class_name
                                         ? `${packageComponent.name}/views/${cleaned_view_name}`

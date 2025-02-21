@@ -31,10 +31,7 @@ export class AppComponent implements OnInit {
     public loading: boolean = false;
 
     constructor(
-            private context: ContextService,
             private api: WorkbenchService,
-            private snackBar: MatSnackBar,
-            private workbenchService:WorkbenchV1Service
         ) { }
 
     public async ngOnInit() {
