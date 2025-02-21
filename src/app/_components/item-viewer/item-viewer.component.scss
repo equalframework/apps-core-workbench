@@ -1,0 +1,40 @@
+@import '/src/theme.scss';
+
+.subpart-title {
+    font-size: 1.1em;
+}
+
+.accent {
+    color: mat-color($maincolor);
+}
+
+
+
+.iw-item {
+    display: flex;
+    margin : 0em 2em;
+    width: 40em;
+    height: 2.5em;
+    background-color: white;
+    justify-items: center;
+    border-bottom : solid grey 1px;
+}
+
+.iw-col {
+    display: block;
+    margin: auto;
+    margin-left: 1em;
+    
+}
+
+.iw-type {
+    width: 25%;
+}
+
+.iw-value {
+    width: 50%;
+}
+
+.iw-width {
+    width: 25%;
+}

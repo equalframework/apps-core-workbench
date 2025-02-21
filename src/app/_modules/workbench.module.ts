@@ -1,3 +1,5 @@
+import { GroupsViewerComponent } from 'src/app/_components/groups-viewer/groups-viewer.component';
+import { ItemViewerComponent } from 'src/app/_components/item-viewer/item-viewer.component';
 import { NgModule, LOCALE_ID } from '@angular/core';
 
 import { BrowserModule } from '@angular/platform-browser';
@@ -96,7 +98,8 @@ const sharedComponents = [
     InfoRouteComponent,
     InfoModelComponent,
     InfoControllerComponent,
-
+    ItemViewerComponent,
+    GroupsViewerComponent,
     EditorAccessComponent
 ];
 @NgModule({
@@ -143,5 +146,6 @@ export {
     InfoRouteComponent,
     InfoModelComponent,
     InfoControllerComponent,
-    EditorAccessComponent
+    EditorAccessComponent,
+
 }

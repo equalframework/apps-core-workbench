@@ -6,7 +6,8 @@ import { takeUntil } from 'rxjs/operators';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
 import { WorkbenchV1Service } from 'src/app/in/_services/workbench-v1.service';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
-
+import { ItemViewerComponent } from 'src/app/_components/item-viewer/item-viewer.component';  // Importer ItemViewerComponent
+import { GroupsViewerComponent } from '../groups-viewer/groups-viewer.component';
 
 @Component({
     selector: 'info-view',
@@ -22,7 +23,7 @@ export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
 
     public viewSchema: any;
     public fields: any;
-
+    obk = Object.keys
     constructor(
         private router: Router,
         private workbenchService: WorkbenchV1Service) {
@@ -66,7 +67,7 @@ export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
               (data) => {
                 if (data) {
                     const schema = data.response; // Nom plus clair
-                    this.viewSchema = schema;                  
+                    this.viewSchema = schema;
                     this.fields = this.getFields(this.viewSchema);
                 } else {
                   console.warn('Invalid data format for view schema:', data);
@@ -97,36 +98,50 @@ export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
 
     private getFields(schema: any): any {
         let mapFields: any = {};
-        let items: Array<any> = [];
-
-        for(let group of schema.layout?.groups ?? []) {
-            for(let section of group.sections) {
-                for(let row of section.rows) {
-                    for(let column of row.columns) {
-                        for(let item of column.items) {
-                            if(item.type == 'field') {
-                                items.push(item);
+        let items: any[] = [];
+        
+        if (schema.layout) {
+            if (schema.layout.groups) {
+                for (let group of schema.layout.groups) {
+                    if (group.sections) {
+                        for (let section of group.sections) {
+                            if (section.rows) {
+                                for (let row of section.rows) {
+                                    if (row.columns) {
+                                        for (let column of row.columns) {
+                                            if (column.items) {
+                                                for (let item of column.items) {
+                                                    if (item.type === 'field') {
+                                                        items.push(item);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
-        }
-
-        for(let item of this.viewSchema.layout?.items ?? []) {
-            if(item.type == 'field') {
-                items.push(item);
+            if (schema.layout.items) {
+                for (let item of schema.layout.items) {
+                    if (item.type === 'field') {
+                        items.push(item);
+                    }
+                }
             }
         }
-
-        for(let item of items) {
-            if(item.type == 'field') {
+    
+        for (let item of items) {
+            if (item.type === 'field' && item.value) {
                 mapFields[item.value] = item;
             }
         }
-
+    
         return mapFields;
     }
+    
     getFieldKeys(): string[] {
         return this.fields ? Object.keys(this.fields) : [];
     }

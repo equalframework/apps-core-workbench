@@ -1,8 +1,6 @@
 import { Component, Input, OnInit, EventEmitter, Output } from '@angular/core';
 import { ViewItem } from '../../_objects/View';
-import { Router } from '@angular/router';
-import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
-import { ViewEditorServicesService } from '../../../../_services/view-editor-services.service';
+import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 @Component({
   selector: 'app-item-editor',
@@ -31,7 +29,7 @@ export class ItemEditorComponent implements OnInit {
   scheme:any
 
   constructor(
-    private api :ViewEditorServicesService
+    private api :WorkbenchService
   ) { }
 
   async ngOnInit(){
