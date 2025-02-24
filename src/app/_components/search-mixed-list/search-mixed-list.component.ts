@@ -1,8 +1,6 @@
-import { type } from 'jquery';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, SimpleChanges, ViewEncapsulation } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { EnvService } from 'sb-shared-lib';
 import { ItemTypes } from 'src/app/in/_models/item-types.class';
 
 import { MixedCreatorDialogComponent } from 'src/app/_dialogs/mixed-creator-dialog/mixed-creator-dialog.component';

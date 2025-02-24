@@ -154,7 +154,11 @@ export class EqualComponentsProviderService {
     */
     public reloadComponents(package_name?: string, component_type?: string): void {
         this.collectAllPackages()
-        .pipe(take(1))
+        .pipe( switchMap((packages: EqualComponentDescriptor[]) => {
+            this.equalComponentsSubject.next(packages);
+            return of(packages);
+        }),
+        take(1))
         .subscribe({
             next: (packages: EqualComponentDescriptor[]) => {
                 console.log(
