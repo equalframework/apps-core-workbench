@@ -503,8 +503,8 @@ export class EqualComponentsProviderService {
                         }
                         return components;
                     }),
-                    catchError((error) => {
-                        console.error(`Error loading routes for ${package_component.name}:`, error);
+                    catchError((response) => {
+                        console.error(`Error loading routes for ${package_component.name}:`, response);
                         return of([]); // Return an empty array in case of an error
                     })
                 )
@@ -572,8 +572,8 @@ export class EqualComponentsProviderService {
                                 };
                             })
                     ),
-                    catchError(error => {
-                        console.error(`Error loading views for ${packageComponent.name}:`, error);
+                    catchError(response => {
+                        console.error(`Error loading views for ${packageComponent.name}:`, response);
                         return of([]); // Properly returning an empty observable array
                     })
                 )
@@ -604,8 +604,8 @@ export class EqualComponentsProviderService {
                             item: ''
                         }));
                     }),
-                    catchError((error) => {
-                        console.error(`Error loading menus for ${packageComponent.name}:`, error);
+                    catchError((response) => {
+                        console.error(`Error loading menus for ${packageComponent.name}:`, response);
                         return of([]);
                     })
                 )
@@ -628,8 +628,8 @@ export class EqualComponentsProviderService {
     private collectAllClasses(): Observable<any> {
         const url = API_ENDPOINTS.class.collect_all;
         return from(this.api.fetch(url)).pipe(
-            catchError(error => {
-                console.error('Error fetching classes:', error);
+            catchError(response => {
+                console.error('Error fetching classes:', response);
                 return of([]); // Returns an empty array in case of an error
             })
         );
@@ -650,8 +650,8 @@ export class EqualComponentsProviderService {
                     item: 'package'
                 }))
             ),
-            catchError(error => {
-                console.error('Error fetching packages:', error);
+            catchError(response => {
+                console.error('Error fetching packages:', response);
                 return of([]); // Returns an empty array in case of an error
             })
         );
@@ -693,8 +693,8 @@ export class EqualComponentsProviderService {
     private collectControllersFromPackage(package_name: string): Observable<{ data: string[], actions: string[] }> {
         const url = API_ENDPOINTS.controller.collect_from_package(package_name);
         return from(this.api.fetch(url)).pipe(
-            catchError((error) => {
-                console.warn(`Error fetching controllers for ${package_name}:`, error);
+            catchError((response) => {
+                console.warn(`Error fetching controllers for ${package_name}:`, response);
                 return of({ data: [], actions: [] }); // Returns an empty object in case of an error
             })
         );
@@ -708,8 +708,8 @@ export class EqualComponentsProviderService {
     private collectViewsFromPackage(package_name: string): Observable<string[]> {
         const url = API_ENDPOINTS.view.collect_from_package(package_name);;
         return from(this.api.fetch(url)).pipe(
-            catchError((error) => {
-                console.warn(`Error fetching views for ${package_name}:`, error);
+            catchError((response) => {
+                console.warn(`Error fetching views for ${package_name}:`, response);
                 return of([]); // Returns an empty array in case of an error
             })
         );
@@ -723,8 +723,8 @@ export class EqualComponentsProviderService {
     private collectMenusFromPackage(package_name: string): Observable<string[]> {
         const url = API_ENDPOINTS.menu.collect_from_package(package_name);
         return from(this.api.fetch(url)).pipe(
-            catchError((error) => {
-                console.warn(`Error fetching menus for ${package_name}:`, error);
+            catchError((response) => {
+                console.warn(`Error fetching menus for ${package_name}:`, response);
                 return of([]); // Returns an empty array in case of an error
             })
         );

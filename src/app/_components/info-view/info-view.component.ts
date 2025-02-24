@@ -22,7 +22,6 @@ export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
     public view_name: string;
 
     public viewSchema: any;
-    public fields: any;
     obk = Object.keys
     constructor(
         private router: Router,
@@ -68,7 +67,6 @@ export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
                 if (data) {
                     const schema = data.response; // Nom plus clair
                     this.viewSchema = schema;
-                    this.fields = this.getFields(this.viewSchema);
                 } else {
                   console.warn('Invalid data format for view schema:', data);
                 }
@@ -94,60 +92,6 @@ export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
     public onclickTranslations() {
         // #todo - depends on route assigned to translation
         this.router.navigate([`/package/${this.view.package_name}/model/${this.view.item.model}/translations`]);
-    }
-
-    private getFields(schema: any): any {
-        let mapFields: any = {};
-        let items: any[] = [];
-        
-        if (schema.layout) {
-            if (schema.layout.groups) {
-                for (let group of schema.layout.groups) {
-                    if (group.sections) {
-                        for (let section of group.sections) {
-                            if (section.rows) {
-                                for (let row of section.rows) {
-                                    if (row.columns) {
-                                        for (let column of row.columns) {
-                                            if (column.items) {
-                                                for (let item of column.items) {
-                                                    if (item.type === 'field') {
-                                                        items.push(item);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            if (schema.layout.items) {
-                for (let item of schema.layout.items) {
-                    if (item.type === 'field') {
-                        items.push(item);
-                    }
-                }
-            }
-        }
-    
-        for (let item of items) {
-            if (item.type === 'field' && item.value) {
-                mapFields[item.value] = item;
-            }
-        }
-    
-        return mapFields;
-    }
-    
-    getFieldKeys(): string[] {
-        return this.fields ? Object.keys(this.fields) : [];
-    }
-
-    public getFieldsCount(): number {
-        return this.fields ? Object.keys(this.fields).length : 0;
     }
 
 }
