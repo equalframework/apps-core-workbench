@@ -50,7 +50,9 @@ export const API_ENDPOINTS = {
         create: (package_name: string, name: string, type: string) =>
             `?do=core_config_create-view&view_id=${name}.${type}&entity=${package_name}\\menu`,
         delete: (package_name: string, name: string) =>
-            `?do=core_config_delete-view&entity=${package_name}\\menu&view_id=${name}`
+            `?do=core_config_delete-view&entity=${package_name}\\menu&view_id=${name}`,
+        read: (package_name:string, name:string) =>
+            `?get=core_model_menu&package=${package_name}&menu_id=${name}`
     },
 
     // Route-specific actions

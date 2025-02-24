@@ -298,7 +298,6 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         } else {
             key = component.name;
         }
-
         // normalize the key
         return key.replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase();
     }
@@ -387,6 +386,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
                     )
                 );
             });
+            console.log("filtered data ", this.filteredData);
     }
 
     public clearSearch() {
@@ -432,6 +432,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
                         setTimeout(() => {
                             this.provider.reloadComponents(result.node.package_name,result.node.type);
                         }, 10);
+                        this.selectNode.emit(result.node);
                     }
                     else {
                         this.notificationService.showError(result.message);

@@ -17,6 +17,7 @@ export class InfoMenuComponent implements OnInit {
         ) { }
 
     public ngOnInit(): void {
+        this.selected_package = this.menu.package_name;
     }
 
     public onclickTranslations() {

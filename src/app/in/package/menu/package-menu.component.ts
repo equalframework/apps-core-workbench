@@ -10,6 +10,7 @@ import { prettyPrintJson } from 'pretty-print-json';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { WorkbenchV1Service } from '../../_services/workbench-v1.service';
 
 @Component({
     selector: 'package-menu',
@@ -41,7 +42,8 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
             private api: EmbeddedApiService,
             private router: RouterMemory,
             private matSnack: MatSnackBar,
-            private dialog: MatDialog
+            private dialog: MatDialog,
+            private workbenchService: WorkbenchV1Service
         ) { }
 
     public async ngOnInit() {
@@ -50,19 +52,24 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
             this.menu_name = params['menu_name'];
             this.package_name = params['package_name'];
             // Getting the menu as a view json
-            this.menuSchema = await this.api.getView(this.package_name + '\\menu', this.menu_name);
-            // Parsing the json as an Menu object
+            this.workbenchService.readMenu(this.package_name,this.menu_name).subscribe(async data => {
+                this.menuSchema = data.response;
+                // Parsing the json as an Menu object
             // #memo - we clone the schema to avoid the Menu constructor to destroy the original copy
             this.object = new Menu(cloneDeep(this.menuSchema));
             this.entities['model'] = await this.api.listAllModels();
             this.entities['data'] = await this.api.listControllersByType('data');
-        });
-
-        this.api.getCoreGroups().then(data => {
+            this.api.getCoreGroups().then(data => {
                 for(let key in data) {
                     this.groups.push(data[key]['name'])
                 }
             });
+            })
+
+
+        });
+
+
     }
 
     public ngOnDestroy() {

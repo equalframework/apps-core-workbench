@@ -154,11 +154,7 @@ export class EqualComponentsProviderService {
     */
     public reloadComponents(package_name?: string, component_type?: string): void {
         this.collectAllPackages()
-        .pipe( switchMap((packages: EqualComponentDescriptor[]) => {
-            this.equalComponentsSubject.next(packages);
-            return of(packages);
-        }),
-        take(1))
+        .pipe(take(1))
         .subscribe({
             next: (packages: EqualComponentDescriptor[]) => {
                 console.log(
@@ -166,6 +162,7 @@ export class EqualComponentsProviderService {
                 packages
                 );
 
+                this.updateComponentMap(packages);
                 // If a package is specified, filter the packages accordingly.
                 let filtered_packages: EqualComponentDescriptor[] = packages;
                 if (package_name) {

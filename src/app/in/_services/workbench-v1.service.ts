@@ -20,6 +20,10 @@ export class WorkbenchV1Service {
     constructor(private api: ApiService) { }
 
 
+    public readMenu(package_name:string, menu_name:string){
+        const url = API_ENDPOINTS.menu.read(package_name, menu_name)
+        return this.callApi(url, 'found');
+    }
     public readView(package_name:string,view_name:string,model_name:string){
         const url =API_ENDPOINTS.view.read(package_name,model_name,view_name);
         return this.callApi(url, `récupérer`);
