@@ -748,7 +748,7 @@ export class EqualComponentsProviderService {
                 type: 'view',
                 file: className
                   ? `${packageComponent.name}/views/${cleanedViewName}`
-                  : `${packageComponent.name}/views/${view}.php`,
+                  : `${packageComponent.name}/views/${view}.json`,
                 item: {
                   model: className ? modelName : (modelName.split(':')[0] ?? '')
                 }
