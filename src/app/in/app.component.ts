@@ -78,23 +78,6 @@ export class AppComponent implements OnInit {
         this.api.updatePackage(event.old_node, event.new_node);
     }
 
-    /**
-     * Delete a package.
-     *
-     * @param eq_package the name of the package which will be deleted
-     */
-    public ondeletePackage(eq_package: string) {
-        this.api.deletePackage(eq_package);
-    }
-
-    /**
-     * Call the api to create a package.
-     *
-     * @param new_package the name of the new package
-     */
-    public oncreatePackage(new_package: any) {
-        this.api.createPackage(new_package);
-    }
 
 
 
