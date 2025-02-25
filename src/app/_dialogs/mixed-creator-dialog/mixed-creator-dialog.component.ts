@@ -303,7 +303,7 @@ export class MixedCreatorDialogComponent implements OnInit {
         model: this.selectedModel
       }
     };
-
+    console.log("node avant création : ", node);
     // Adapt node name based on type
     if (node.type === 'view') {
       node.name = `${node.item.model}:${this.subtypeName}.${node.name}`;
@@ -316,6 +316,9 @@ export class MixedCreatorDialogComponent implements OnInit {
       if(node.type === 'menu'){
         node.name = `${node.name}.${node.item.subtype}`
       }
+      if(node.type === 'route'){
+        node.item = {}
+      }
       const resultWithNode = { ...result, node }; //plus cours et lisible à faire
       this.dialogRef.close(resultWithNode);
     });
@@ -324,23 +327,27 @@ export class MixedCreatorDialogComponent implements OnInit {
   private generateFilePath(): string {
     let folder = '';
     let extension = '';
-      switch (this.type) {
-      case 'view':
-        folder = 'views'; 
-        extension = '.php';
-        break;
-      case 'class':
-        folder = 'classes'; 
-        extension = '.class.php'; 
-        break;
-      default:
-        folder = ''; 
-        extension = ''; 
-        break;
+
+    switch (this.type) {
+        case 'view':
+            folder = 'views';
+            extension = '.php';
+            break;
+        case 'class':
+            folder = 'classes';
+            extension = '.class.php';
+            break;
+        case 'route': 
+            return `${this.selectedPackage}/init/routes/${this.subtype}`;
+        default:
+            folder = '';
+            extension = '';
+            break;
     }
-  
+
     return `${this.selectedPackage}/${folder}/${this.nameControl.value}${extension}`;
-  }
+}
+
   
   
 

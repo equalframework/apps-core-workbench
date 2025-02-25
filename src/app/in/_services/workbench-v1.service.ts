@@ -22,11 +22,11 @@ export class WorkbenchV1Service {
 
     public readMenu(package_name:string, menu_name:string){
         const url = API_ENDPOINTS.menu.read(package_name, menu_name)
-        return this.callApi(url, 'found');
+        return this.callApi(url, '');
     }
     public readView(package_name:string,view_name:string,model_name:string){
         const url =API_ENDPOINTS.view.read(package_name,model_name,view_name);
-        return this.callApi(url, `récupérer`);
+        return this.callApi(url, '');
     }
 
     /**
@@ -42,20 +42,20 @@ export class WorkbenchV1Service {
             class: () => this.createClass(node.package_name, node.name, node.item.subtype),
             get: () => this.createController(node.package_name, node.name, node.type),
             do: () => this.createController(node.package_name, node.name, node.type),
-            view: () =>{
+            view: () => {
                     const view_name = node.name.split(":")[1];
                     return this.createView(node.package_name,node.item.model, view_name)
             },
             menu: () => this.createMenu(node.package_name, node.name, node.item.subtype),
-            route:() =>this.notImplemented(`Adding route ${node.name} not implemented`)
+            route:() => {
+                        const file_name = node.file.split("/").pop()?.trim() ??""
+                        return this.createRoute(node.package_name,file_name,node.name)
+            }
         };
 
         // Return the appropriate observable based on the node type, or a default message for unknown types.
         return createActions[node.type]?.() || of({ message: "Unknown type" });
     }
-
-
-
 
 
     /**
@@ -77,7 +77,7 @@ export class WorkbenchV1Service {
                 return this.deleteView(node.package_name,node.item.model, view_name);
             },
             menu: () => this.deleteMenu(node.package_name,node.name),
-            route:() =>this.notImplemented(`Deleting route ${node.name} not implemented`)
+            route:() =>this.notImplemented(`Deleting route not implemented`)
         };
 
         // Return the appropriate observable based on the node type, or a default message for unknown types.
@@ -146,16 +146,6 @@ export class WorkbenchV1Service {
     * An observable that emits an object containing the success status, a message, and optionally,
     * the response or error details if the class creation fails.
     *
-    * @example
-    * // Usage example
-    * createClass('myPackage', 'MyNewClass', 'equal\\orm\\Model')
-    *   .subscribe(result => {
-    *     if (result.success) {
-    *       console.log(result.message); // Class MyNewClass created successfully!
-    *     } else {
-    *       console.error(result.message); // Error during class creation
-    *     }
-    *   });
     */
     private createClass(package_name: string, class_name: string, parent: string) {
     const url = API_ENDPOINTS.class.create(package_name,class_name,parent);
@@ -212,11 +202,17 @@ export class WorkbenchV1Service {
         return this.callApi(url,successfullyMessage);
     }
 
-    private deleteMenu(package_name:string,menu_name:string){
+    private deleteMenu(package_name:string,menu_name:string) {
         const url = API_ENDPOINTS.menu.delete(package_name,menu_name)
         const successfullyMessage = `Menu ${menu_name} deleted successfully!`
         return this.callApi(url,successfullyMessage);
-        }
+    }
+    
+    private createRoute(package_name: string, file_name: string, route_name: string): Observable<any> {
+        const url = API_ENDPOINTS.route.create(package_name,file_name,route_name)
+        const successfullyMessage=`Route ${route_name} created successfully!`
+        return this.callApi(url, successfullyMessage)
+    }
 
 
 

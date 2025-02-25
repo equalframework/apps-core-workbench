@@ -386,7 +386,6 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
                     )
                 );
             });
-            console.log("filtered data ", this.filteredData);
     }
 
     public clearSearch() {

@@ -60,9 +60,7 @@ export const API_ENDPOINTS = {
         collect_from_package: (package_name: string) =>
             `?get=core_config_routes&package=${package_name}`,
         collect_all_live: '?get=config_live_routes',
-        create: (package_name: string, route_name: string) =>
-            `?do=core_config_create-route&package=${package_name}&route_name=${route_name}`,
-        delete: (package_name: string, route_name: string) =>
-            `?do=core_config_delete-route&package=${package_name}&route_name=${route_name}`
+        create: (package_name: string, file_name:string, url_route: string) =>
+            `?do=core_config_create-route&package=${package_name}&file=${file_name}&url=${url_route}`,
     }
 };
