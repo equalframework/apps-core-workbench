@@ -1,5 +1,4 @@
 import { Component, Inject, OnInit, Optional } from '@angular/core';
-import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { ActivatedRoute } from '@angular/router';
 import { Param } from '../../../_models/Params';
@@ -10,6 +9,7 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dial
 import { prettyPrintJson } from 'pretty-print-json';
 import { WorkbenchV1Service } from 'src/app/in/_services/workbench-v1.service';
 import { NotificationService } from 'src/app/in/_services/notification.service';
+import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 
 /**
@@ -57,13 +57,12 @@ export class PackageControllerParamsComponent implements OnInit {
     }
 
     constructor(
-            private api: EmbeddedApiService,
+            private workbenchService: WorkbenchService,
             private router: RouterMemory,
             private activatedRoute: ActivatedRoute,
             private matSnack:MatSnackBar,
             private dialog: MatDialog,
             private snack: MatSnackBar,
-            private workbenchService: WorkbenchV1Service,
             private notificationService: NotificationService
         ) { }
 
@@ -81,8 +80,8 @@ export class PackageControllerParamsComponent implements OnInit {
     }
 
     public async ngOnInit(){
-        this.types = ["array",...(await this.api.getTypeList())]
-        this.usages = await this.api.getUsageList()
+        this.types = ["array",...(await this.workbenchService.getTypeList())]
+        this.usages = await this.workbenchService.getUsageList()
         this.types.sort((p1,p2) => p1.localeCompare(p2))
         let a = this.activatedRoute.snapshot.paramMap.get('controller_name')
         if(a) {
@@ -99,7 +98,7 @@ export class PackageControllerParamsComponent implements OnInit {
             this.error = true;
         }
         this.type_icon = ItemTypes.getIconForType(this.controller_type);
-        this.scheme = await this.api.getAnnounceController(this.controller_type,this.controller_name);
+        this.scheme = await this.workbenchService.getAnnounceController(this.controller_type,this.controller_name);
         console.log(this.scheme);
         for(let key in this.scheme["announcement"]["params"]) {
             this.paramList.push(new Param(key,cloneDeep(this.scheme["announcement"]["params"][key])));
@@ -108,7 +107,7 @@ export class PackageControllerParamsComponent implements OnInit {
         console.log(this.paramList);
         this.onChange("Opening file");
         console.log(this.toSchema());
-        this.modelList = await this.api.listAllModels();
+        this.modelList = await this.workbenchService.listAllModels();
     }
 
     public onSelection(index:number){

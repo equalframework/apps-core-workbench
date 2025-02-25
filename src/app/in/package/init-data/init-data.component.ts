@@ -1,7 +1,6 @@
 import { Location } from '@angular/common';
 import { Component, Inject, OnInit, OnDestroy, Optional } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 import { InitDataFile } from './_models/init-data';
 import { cloneDeep } from 'lodash';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -9,6 +8,7 @@ import { prettyPrintJson } from 'pretty-print-json';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { WorkbenchService } from '../../_services/workbench.service';
 
 @Component({
     selector: 'app-init-data',
@@ -38,7 +38,7 @@ export class InitDataComponent implements OnInit, OnDestroy {
     public selected_file_index: number = 0;
 
     constructor(
-        private api: EmbeddedApiService,
+        private workbenchService: WorkbenchService,
         private route: ActivatedRoute,
         private dialog: MatDialog,
         private snack: MatSnackBar,
@@ -71,11 +71,11 @@ export class InitDataComponent implements OnInit, OnDestroy {
      */
     private async loadInitialData(): Promise<void> {
         try {
-            this.dataScheme = await this.api.getInitData(this.package_name, this.data_type);
+            this.dataScheme = await this.workbenchService.getInitData(this.package_name, this.data_type);
             for (const key in this.dataScheme) {
                 if (this.dataScheme.hasOwnProperty(key)) {
                     try {
-                        const initFile = new InitDataFile(this.api, key, cloneDeep(this.dataScheme[key]));
+                        const initFile = new InitDataFile(this.workbenchService, key, cloneDeep(this.dataScheme[key]));
                         this.fileList.push(initFile);
                     } catch (error) {
                         console.error(`Error processing data for key "${key}":`, error);
@@ -119,7 +119,7 @@ export class InitDataComponent implements OnInit, OnDestroy {
      */
     public async saveData(): Promise<void> {
         try {
-            const result = await this.api.updateInitData(
+            const result = await this.workbenchService.updateInitData(
                 this.package_name,
                 this.data_type,
                 JSON.stringify(this.exportData())

@@ -28,7 +28,7 @@ export class ItemEditorComponent implements OnInit {
     public scheme: any;
 
     constructor(
-        private api: WorkbenchService) {
+        private workbenchService: WorkbenchService) {
 
     }
 
@@ -39,8 +39,12 @@ export class ItemEditorComponent implements OnInit {
         if (packageNameMatch) {
             package_name = packageNameMatch[1];
         }
-        this.widget_types = await this.api.getWidgetTypes();
-        this.scheme = await this.api.getSchema(`${package_name}\\${this.entity}`);
+        this.workbenchService.getWidgetTypes().subscribe((data) => {
+            this.widget_types = data;
+        })
+       this.workbenchService.getSchema(`${package_name}\\${this.entity}`).subscribe((data) => {
+        this.scheme = data;
+        })
         if (this.item.viewtype === 1) {
             this.set_has_view(this.item.widgetForm._has_view);
         }
@@ -117,7 +121,7 @@ export class ItemEditorComponent implements OnInit {
             return;
         }
         let t = this.scheme['fields'][this.item.value]['foreign_object'].split("\\");
-        let x = (await this.api.listViewFrom(t[0], t.slice(1).join("\\")))?.filter((value) => value.includes('list.'));
+        let x = (await this.workbenchService.listViewFrom(t[0], t.slice(1).join("\\")))?.filter((value) => value.includes('list.'));
         if (x) {
             let r: { [key: string]: string } = {};
             x.forEach(list => r[list.split(":")[1]] = list);

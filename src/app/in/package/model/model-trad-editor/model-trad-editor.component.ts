@@ -11,6 +11,7 @@ import { TranslationService } from './_services/translation.service';
 import { ErrorItemTranslator, Translator } from './_object/Translation';
 import { Menu } from '../../menu/_models/Menu';
 import { View } from '../views/vieweditor/_objects/View';
+import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 @Component({
   selector: 'app-model-trad-editor',
@@ -35,7 +36,7 @@ export class ModelTradEditorComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private location:Location,
-    private api: TranslationService,
+    private workbenchService: WorkbenchService,
     private snack: MatSnackBar,
     private dialog: MatDialog
   ) {}
@@ -62,10 +63,10 @@ export class ModelTradEditorComponent implements OnInit {
 
   async initMenu() {
     this.loading = true;
-    const langs = await this.api.getTradsLists(this.package, `menu.${this.model}`);
+    const langs = await this.workbenchService.getTradsLists(this.package, `menu.${this.model}`);
     for (const lang in langs) {
       if (langs[lang].length === 0) { continue; }
-      const translationData = await this.api.getTrads(this.package, `menu.${this.model}`, lang);
+      const translationData = await this.workbenchService.getTrads(this.package, `menu.${this.model}`, lang);
       if (!translationData) { continue; }
       const newTranslation = await this.createNewMenuLang();
       if (!newTranslation.ok) { continue; }
@@ -78,9 +79,9 @@ export class ModelTradEditorComponent implements OnInit {
 
   async initModel() {
     this.loading = true;
-    const langs = await this.api.getTradsLists(this.package, this.model);
+    const langs = await this.workbenchService.getTradsLists(this.package, this.model);
     for (const lang in langs) {
-      const translationData = await this.api.getTrads(this.package, this.model, lang);
+      const translationData = await this.workbenchService.getTrads(this.package, this.model, lang);
       if (!translationData) { continue; }
       const newTranslation = await this.createNewLang();
       if (!newTranslation.ok) { continue; }
@@ -92,19 +93,19 @@ export class ModelTradEditorComponent implements OnInit {
   }
 
   async createNewMenuLang(): Promise<Translator> {
-    const scheme = await this.api.getView(`${this.package}\\menu`, this.model);
+    const scheme = await this.workbenchService.getView(`${this.package}\\menu`, this.model);
     return Translator.MenuConstructor(new Menu(scheme));
   }
 
   async createNewLang(): Promise<Translator> {
-    const scheme = await this.api.getSchema(`${this.package}\\${this.model}`);
+    const scheme = await this.workbenchService.getSchemaPromise(`${this.package}\\${this.model}`);
     const modelFields = Object.keys(scheme.fields);
-    const viewsList = await this.api.getViews(this.package, `${this.package}\\${this.model}`);
+    const viewsList = await this.workbenchService.getViews(this.package, `${this.package}\\${this.model}`);
     const views: { name: string, view: View }[] = [];
     for (const viewStr of viewsList) {
       const parts = viewStr.split(':');
       if (!parts[1].includes('list.') && !parts[1].includes('form.') && !parts[1].includes('search.')) { continue; }
-      const viewSchema = await this.api.getView(parts[0], parts[1]);
+      const viewSchema = await this.workbenchService.getView(parts[0], parts[1]);
       views.push({ name: parts[1], view: new View(viewSchema, parts[1].split('.')[0]) });
     }
     return new Translator(modelFields, views);
@@ -189,7 +190,7 @@ export class ModelTradEditorComponent implements OnInit {
   }
 
   saveAll() {
-    this.api.saveTrads(this.package, (this.entitype === 'menu' ? 'menu.' : '') + this.model, this.data);
+    this.workbenchService.saveTrads(this.package, (this.entitype === 'menu' ? 'menu.' : '') + this.model, this.data);
   }
 }
 

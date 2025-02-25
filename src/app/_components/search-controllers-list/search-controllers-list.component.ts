@@ -1,5 +1,5 @@
 import { Node } from './../../in/pipeline/_objects/Node';
-import { Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation, OnChanges, SimpleChanges, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
@@ -7,6 +7,9 @@ import { EqualComponentsProviderService } from 'src/app/in/_services/equal-compo
 import { DeleteConfirmationDialogComponent, MixedCreatorDialogComponent } from 'src/app/_modules/workbench.module';
 import { NotificationService } from 'src/app/in/_services/notification.service';
 import { ItemTypes } from 'src/app/in/_models/item-types.class';
+import { WorkbenchService } from 'src/app/in/_services/workbench.service';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 
 @Component({
     selector: 'search-controllers-list',
@@ -14,7 +17,8 @@ import { ItemTypes } from 'src/app/in/_models/item-types.class';
     styleUrls: ['./search-controllers-list.component.scss'],
     encapsulation: ViewEncapsulation.Emulated
 })
-export class SearchControllersListComponent implements OnInit, OnChanges {
+export class SearchControllersListComponent implements OnInit, OnChanges, OnDestroy {
+    private destroy$: Subject<boolean> = new Subject<boolean>();
 
     // Inputs
     @Input() package_name: string = '';
@@ -48,7 +52,8 @@ export class SearchControllersListComponent implements OnInit, OnChanges {
         private dialog: MatDialog,
         private snackBar: MatSnackBar,
         private provider: EqualComponentsProviderService,
-        private notificationService: NotificationService
+        private notificationService: NotificationService,
+        private workbenchService : WorkbenchService
     ) {}
 
     ngOnInit(): void {
@@ -185,10 +190,7 @@ export class SearchControllersListComponent implements OnInit, OnChanges {
      * @returns void
      */
     deleteNode(node: EqualComponentDescriptor): void {
-        this.nodeDelete.emit({
-            type: node.type,
-            name: node.name
-        });
+        this.nodeDelete.emit(node);
     }
 
     /**
@@ -201,19 +203,23 @@ export class SearchControllersListComponent implements OnInit, OnChanges {
         const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent, {
             data: node
         });
-        dialogRef.afterClosed().subscribe(result => {
-            if (result) {
-                if (result.success) {
-                    this.notificationService.showSuccess(result.message);
-                    this.removeFromComponents(result.node);
-                    this.provider.reloadComponents(result.node.package_name, result.node.type);
-                    this.filterNodes();
-                    this.selectNode.emit(undefined);
-                } else {
-                    this.notificationService.showError(result.message);
+        dialogRef.afterClosed().subscribe(can_be_deleted => {
+                if(can_be_deleted){
+                    this.workbenchService.deleteNode(node).pipe(takeUntil(this.destroy$)).subscribe(
+                        result => {
+                            if(result.success){
+                                this.removeFromComponents(node);
+                                this.notificationService.showSuccess(result.message);
+                                this.provider.reloadComponents(node.package_name, node.type);
+                                this.selectNode.emit(undefined);
+                            } else {
+                                this.notificationService.showError(result.message);
+                            }
+                        }
+                    )
                 }
-            }
-        });
+    
+            });
     }
 
     /**
@@ -275,5 +281,9 @@ export class SearchControllersListComponent implements OnInit, OnChanges {
         }).onAction().subscribe(() => {
             clearTimeout(timerId);
         });
+    }
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 }

@@ -59,7 +59,7 @@ export class SearchFieldsListComponent implements OnInit {
     public editedNode: FieldClass;
 
     constructor(
-            private api: WorkbenchService,
+            private workbenchService: WorkbenchService,
             private dialog: MatDialog,
             private snackBar: MatSnackBar
         ) { }
@@ -85,18 +85,13 @@ export class SearchFieldsListComponent implements OnInit {
         }
     }
 
-    private async loadNodes() {
-        try {
-            const schema = await this.api.getSchema(this.class_name);
-            console.log();
+    private  loadNodes() {
+        this.workbenchService.getSchema(this.class_name).subscribe((schema)=> {
             for(let item in schema['fields']) {
                 const field = schema['fields'][item];
                 this.elements.push(new FieldClass(field.name));
             }
-        }
-        catch(response) {
-
-        }
+        })
     }
 
     /**

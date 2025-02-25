@@ -1,7 +1,6 @@
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { InitDataEntityInstance, InitDataEntitySection, InitDataFile } from '../../_models/init-data';
 import { Sort } from '@angular/material/sort';
-import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 import { PageEvent } from '@angular/material/paginator';
 import { cloneDeep, isObject } from 'lodash';
 import { MatDialog } from '@angular/material/dialog';
@@ -11,6 +10,7 @@ import { EntityDialogComponent } from '../entity-dialog/entity-dialog.component'
 import { MatTab, MatTabChangeEvent } from '@angular/material/tabs';
 import { LangPopupComponent } from '../lang-popup/lang-popup.component';
 import { ImporterComponent } from '../importer/importer.component';
+import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 @Component({
   selector: 'app-init-sidepane',
@@ -34,11 +34,11 @@ export class InitSidepaneComponent implements OnInit, OnChanges {
     public current_sort:Sort = {active : "", direction : 'asc'};
 
     constructor(
-            private api:EmbeddedApiService,
+            private workbenchService:WorkbenchService,
             private dialog:MatDialog) { }
 
     public async ngOnInit() {
-        this.modelList = await this.api.listAllModels()
+        this.modelList = await this.workbenchService.listAllModels()
     }
 
     public get fullWidth(): number {
@@ -61,7 +61,7 @@ export class InitSidepaneComponent implements OnInit, OnChanges {
         this.entity_index;
         if(this.entity_index >= 0) {
             const key = this.obk(this.file.entities)[this.entity_index]
-            const view = await this.api.getView(
+            const view = await this.workbenchService.getView(
                     this.file.entities[key].name,
                     "list.default"
                 );
@@ -168,7 +168,7 @@ export class InitSidepaneComponent implements OnInit, OnChanges {
         const d = this.dialog.open(EntityDialogComponent,{data:{model:this.modelList, model_taken:Object.keys(this.file.entities)}})
         d.afterClosed().subscribe(data => {
             if(data && !this.file.entities[data]) {
-                this.file.entities[data] = new InitDataEntitySection(this.api,{name:data,lang:'en',data:[]});
+                this.file.entities[data] = new InitDataEntitySection(this.workbenchService,{name:data,lang:'en',data:[]});
                 this.entity_index = Math.min(Math.max(this.entity_index,0),this.obk(this.file.entities).length-1);
                 //@ts-expect-error
                 this.refresh({index : Math.max(this.file.entities.length-1,this.entity_index)});

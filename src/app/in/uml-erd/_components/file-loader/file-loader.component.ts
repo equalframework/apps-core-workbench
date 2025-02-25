@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit, Optional } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FileSaverComponent } from '../file-saver/file-saver.component';
-import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
+import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 @Component({
     selector: 'app-file-loader',
@@ -13,7 +13,7 @@ export class FileLoaderComponent implements OnInit {
     constructor(
         @Optional() public dialogRef: MatDialogRef<FileSaverComponent>,
         @Optional() @Inject(MAT_DIALOG_DATA) public data:{path:string},
-        private api:EmbeddedApiService
+        private workbenchService:WorkbenchService
     ) {}
 
     list:{[id:string]:string[]} = {};
@@ -23,7 +23,7 @@ export class FileLoaderComponent implements OnInit {
     value:string = ""
 
     async ngOnInit() {
-        this.list = await this.api.getUMLList("erd");
+        this.list = await this.workbenchService.getUMLList("erd");
         this._filter("")
     }
 

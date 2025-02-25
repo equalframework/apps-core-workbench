@@ -5,7 +5,6 @@ import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { View, ViewGroup, ViewGroupByItem, ViewItem, ViewOperation, ViewSection } from './_objects/View';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { prettyPrintJson } from 'pretty-print-json';
-import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Usage } from 'src/app/in/_models/Params';
@@ -14,6 +13,7 @@ import { EqualComponentDescriptor } from '../../_models/equal-component-descript
 import { EqualComponentsProviderService } from '../../_services/equal-components-provider.service';
 import { WorkbenchV1Service } from '../../_services/workbench-v1.service';
 import { NotificationService } from '../../_services/notification.service';
+import { WorkbenchService } from '../../_services/workbench.service';
 
 @Component({
     selector: 'package-view',
@@ -63,13 +63,12 @@ export class PackageViewComponent implements OnInit {
     constructor(
         private router: RouterMemory,
         private route: ActivatedRoute,
-        private api: EmbeddedApiService,
+        private workbenchService: WorkbenchService,
         private popup: MatDialog,
         private snackBar: MatSnackBar,
         private TypeUsage: TypeUsageService,
         private location: Location,
         private provider:EqualComponentsProviderService,
-        private workbenchService: WorkbenchV1Service,
         private notificationService: NotificationService
     ) { }
 
@@ -95,25 +94,25 @@ export class PackageViewComponent implements OnInit {
                 if (compo) {
                     this.node = compo;
                     try {
-                        this.class_scheme = await this.api.getSchema(`${this.node.package_name}\\${this.entity}`) || { fields: {} };
+                        this.class_scheme = await this.workbenchService.getSchemaPromise(`${this.node.package_name}\\${this.entity}`) || { fields: {} };
                         this.fields = this.obk(this.class_scheme.fields);
-                        this.view_scheme = await this.api.getView(`${this.node.package_name}\\${this.entity}`, this.view_id);
+                        this.view_scheme = await this.workbenchService.getView(`${this.node.package_name}\\${this.entity}`, this.view_id);
                         const nodeNameParts = this.node.name ? this.node.name.split(':') : [];
                         const viewNamePart = (nodeNameParts.length > 1 && nodeNameParts[1])
                                               ? nodeNameParts[1].split('.')[0]
                                               : '';
                         this.view_obj = new View(this.view_scheme, viewNamePart);
 
-                        let temp_controller = await this.api.getDataControllerList(package_name);
+                        let temp_controller = await this.workbenchService.getDataControllerList(package_name);
                         for (let item of temp_controller) {
-                            let data = await this.api.getAnnounceController(item);
+                            let data = await this.workbenchService.getAnnounceController(item);
                             if (!data) continue;
                             if (!data["announcement"]["extends"] || data["announcement"]["extends"] !== "core_model_collect") continue;
                             this.collect_controller.push(item);
                         }
 
-                        this.action_controllers = await this.api.getAllActionControllers();
-                        this.api.getCoreGroups().then(data => {
+                        this.action_controllers = await this.workbenchService.getAllActionControllers();
+                        this.workbenchService.getCoreGroups().then(data => {
                             for (let key in data) {
                                 this.groups.push(data[key]['name']);
                             }

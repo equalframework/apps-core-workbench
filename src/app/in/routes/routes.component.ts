@@ -37,7 +37,6 @@ export class RoutesComponent implements OnInit {
     public loading = true;
 
     constructor(
-            private api: WorkbenchService,
             private route: ActivatedRoute,
             private location: Location,
             public matDialog:MatDialog,
@@ -52,7 +51,7 @@ export class RoutesComponent implements OnInit {
         this.ready = true;
     }
 
-    private async loadRoutes() {
+    /*private async loadRoutes() {
         this.loading = false;
         let routes:any = await this.api.getRoutesLive();
 
@@ -64,7 +63,7 @@ export class RoutesComponent implements OnInit {
         }
 
         this.loading = false;
-    }
+    }*/
 
     /**
      * Select a node.

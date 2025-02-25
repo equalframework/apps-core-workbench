@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ViewRoute } from '../../../_objects/View';
-import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
+import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 @Component({
   selector: 'app-route-edit',
@@ -22,7 +22,7 @@ export class RouteEditComponent implements OnInit {
   big_disp = false
 
   constructor(
-    private api:EmbeddedApiService
+    private workbenchService:WorkbenchService
   ) { }
 
   ngOnInit(): void {
@@ -36,7 +36,7 @@ export class RouteEditComponent implements OnInit {
   }
 
   async refreshViewList() {
-    let x = await this.api.listViewFrom(this.route.context.entity.split("\\")[0],this.route.context.entity.split('\\').slice(1).join('\\'))
+    let x = await this.workbenchService.listViewFrom(this.route.context.entity.split("\\")[0],this.route.context.entity.split('\\').slice(1).join('\\'))
     this.ext_entity_view_list = x ? x : []
     console.log(this.ext_entity_view_list)
   }

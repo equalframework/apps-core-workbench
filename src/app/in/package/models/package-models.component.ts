@@ -1,6 +1,5 @@
 import { Component, OnInit, ViewEncapsulation, ViewChild, OnDestroy } from '@angular/core';
 import { ContextService } from 'sb-shared-lib';
-import { EmbeddedApiService } from 'src/app/_services/embedded-api.service'
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { prettyPrintJson } from 'pretty-print-json';
 import { FieldClassArray } from './_object/FieldClassArray';
@@ -14,6 +13,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Location } from '@angular/common';
 import { EqualComponentDescriptor } from '../../_models/equal-component-descriptor.class';
+import { WorkbenchService } from '../../_services/workbench.service';
 
 @Component({
     selector: 'package-models',
@@ -48,7 +48,7 @@ export class PackageModelsComponent implements OnInit, OnDestroy {
 
     constructor(
             private context: ContextService,
-            private api: EmbeddedApiService,
+            private api: WorkbenchService,
             private snackBar: MatSnackBar,
             private route:ActivatedRoute,
             private location: Location,
@@ -113,41 +113,6 @@ export class PackageModelsComponent implements OnInit, OnDestroy {
     public onUpdateNode(change: {old_node: EqualComponentDescriptor, new_node: EqualComponentDescriptor}) {
     }
 
-    /**
-     * Delete a class for the selected package.
-     *
-     * @param eq_class the name of the class which will be deleted
-     */
-    public async onDeleteNode(eq_class: EqualComponentDescriptor) {
-        let res = await this.api.deleteModel(this.package_name, eq_class.name)
-        if(!res){
-            this.snackBar.open('Deleted');
-            this.init();
-        }
-    }
-
-    /**
-     * Create a class for the selected package.
-     *
-     * @param eq_class the name of the new class
-     */
-    public oncreateClass() {
-        let d = this.matDialog.open(MixedCreatorDialogComponent, {
-                data: {
-                    type: "class",
-                    package: this.package_name,
-                    lock_type : true,
-                    lock_package: true,
-                },
-                width : "40em",
-                height: "26em"
-            });
-
-        d.afterClosed().subscribe(() => {
-            // Do stuff after the dialog has closed
-            this.init()
-        });
-    }
 
 
     public getBack() {

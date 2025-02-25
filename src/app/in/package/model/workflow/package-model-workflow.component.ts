@@ -1,7 +1,6 @@
 import { CdkDragEnd } from '@angular/cdk/drag-drop';
 import { Component, Inject, OnChanges, OnInit, Optional } from '@angular/core';
 
-import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 import { WorkflowNode } from './_components/workflow-displayer/_objects/WorkflowNode';
 import { Anchor, WorkflowLink, test } from './_components/workflow-displayer/_objects/WorkflowLink';
 import { cloneDeep } from 'lodash';
@@ -13,7 +12,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Location } from '@angular/common';
-import { WorkbenchV1Service } from 'src/app/in/_services/workbench-v1.service';
+import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 @Component({
     selector: 'package-model-workflow',
@@ -53,13 +52,12 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
     public loading = true;
 
     constructor(
-        private api: EmbeddedApiService,
+        private workbenchService: WorkbenchService,
         private router: RouterMemory,
         private route: ActivatedRoute,
         private matDialog: MatDialog,
         private snackBar: MatSnackBar,
         private location: Location,
-        private workbenchService: WorkbenchV1Service
     ) { }
 
     public async ngOnInit() {
@@ -78,12 +76,12 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
     private async loadWorkflow() {
         this.nodes = [];
         this.links = [];
-        const r = await this.api.getWorkflow(this.package, this.model);
+        const r = await this.workbenchService.getWorkflowPromise(this.package, this.model);
         if (r.exists !== null && r.exists !== undefined) {
             this.exists = r.exists;
-            const metadata = await this.api.fetchMetaData('workflow', this.package + '.' + this.model);
+            const metadata = await this.workbenchService.fetchMetaDataPromise('workflow', this.package + '.' + this.model);
             this.has_meta_data = Object.keys(metadata).length > 0 ? metadata[0].id : undefined;
-            this.model_scheme = await this.api.getSchema(this.package + "\\" + this.model);
+            this.model_scheme = await this.workbenchService.getSchemaPromise(this.package + "\\" + this.model);
             const res = r.info;
             let orig = { x: 200, y: 200 };
             let mdt: any = {};

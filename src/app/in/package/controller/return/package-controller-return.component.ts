@@ -1,7 +1,6 @@
 import { Component, Inject, OnInit, Optional } from '@angular/core';
 import { Form, FormControl } from '@angular/forms';
 import { ReturnFormatItem, ReturnValue } from './_objects/ReturnValue';
-import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 import { TypeUsageService } from 'src/app/_services/type-usage.service';
 import { cloneDeep } from 'lodash';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -12,6 +11,7 @@ import { prettyPrintJson } from 'pretty-print-json';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Location } from '@angular/common';
+import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 /**
  * Component used to display the component of a package (using `/package/:package_name/controller/:controller_type/:controller_name/return` route)
@@ -57,7 +57,7 @@ export class PackageControllerReturnComponent implements OnInit {
 
     constructor(
             private TypeUsage: TypeUsageService,
-            private api: EmbeddedApiService,
+            private workbenchService: WorkbenchService,
             private matSnack: MatSnackBar,
             private route: ActivatedRoute,
             private dialog: MatDialog,
@@ -69,7 +69,7 @@ export class PackageControllerReturnComponent implements OnInit {
         this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
             this.controller_type = params['controller_type'];
             this.controller_name = params['controller_name'];
-            this.scheme = await this.api.getAnnounceController(this.controller_type, this.controller_name);
+            this.scheme = await this.workbenchService.getAnnounceController(this.controller_type, this.controller_name);
             this.object = new ReturnValue(cloneDeep(this.scheme.announcement.response));
             this.typeControl.setValue(this.object.type)
             this.typeControl.valueChanges.subscribe(value => {
@@ -81,8 +81,8 @@ export class PackageControllerReturnComponent implements OnInit {
         });
 
         this.typeIconList = this.TypeUsage.typeIcon;
-        this.types_regular = await this.api.getTypeList();
-        this.entities = await this.api.listAllModels()
+        this.types_regular = await this.workbenchService.getTypeList();
+        this.entities = await this.workbenchService.listAllModels()
 
         this.filtered_types_regular = this._filter('', 'types_regular');
         this.filtered_types_custom = this._filter('', 'types_custom');
@@ -276,7 +276,7 @@ export class PackageControllerReturnComponent implements OnInit {
     public save() {
         let payload = cloneDeep(this.scheme);
         payload.announcement.response = this.object.export();
-        this.api.updateController(this.controller_name, this.controller_type, payload.announcement);
+        this.workbenchService.updateController(this.controller_name, this.controller_type, payload.announcement);
     }
 
 }

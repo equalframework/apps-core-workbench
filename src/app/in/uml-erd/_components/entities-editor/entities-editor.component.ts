@@ -1,9 +1,9 @@
 import { Component, Input, OnInit, Output, EventEmitter, OnChanges, ViewChild, ElementRef } from '@angular/core';
 import { UmlErdNode } from '../uml-erd-displayer/_objects/UmlErdNode';
-import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 import { MatSelect } from '@angular/material/select';
 import { MatOption } from '@angular/material/core';
 import { moveItemInArray } from '@angular/cdk/drag-drop';
+import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 @Component({
     selector: 'app-entities-editor',
@@ -31,12 +31,12 @@ export class EntitiesEditorComponent implements OnInit, OnChanges {
     public selected_package: string = 'core';
 
     constructor(
-        private api:EmbeddedApiService
+        private workbenchService:WorkbenchService
     ) {}
 
     public async ngOnInit() {
-        this.packages = await this.api.listPackages();
-        this.models = await this.api.listAllModels();
+        this.packages = await this.workbenchService.listPackages();
+        this.models = await this.workbenchService.listAllModels();
         this.updateSelectableEntities();
     }
     public onchangePackage() {

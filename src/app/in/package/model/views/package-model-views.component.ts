@@ -1,10 +1,5 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
-import { ActivatedRoute, Route, Router } from '@angular/router';
-import { RouterMemory } from 'src/app/_services/routermemory.service';
-import { MatDialog } from '@angular/material/dialog';
-import { MixedCreatorDialogComponent } from 'src/app/_modules/workbench.module';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute} from '@angular/router';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -35,10 +30,7 @@ export class PackageModelViewsComponent implements OnInit {
     public loading = true;
 
     constructor(
-            private api: EmbeddedApiService,
             private route: ActivatedRoute,
-            private router: RouterMemory,
-            private matDialog: MatDialog,
             private location: Location,
         ) { }
 

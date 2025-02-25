@@ -1,4 +1,4 @@
-import { EmbeddedApiService } from "src/app/_services/embedded-api.service"
+import { WorkbenchService } from "src/app/in/_services/workbench.service";
 
 export class UmlErdNode {
     public entity: string;
@@ -13,7 +13,7 @@ export class UmlErdNode {
     public show_inheritance: boolean;
     public show_relations: boolean;
 
-    static api:EmbeddedApiService;
+    static workbenchService:WorkbenchService;
 
     constructor(entity:string = "", x:number = 0, y:number = 0, hidden:string[] = [], fields:string[] = [], parent:string = "equal\\orm\\Model", show_inheritance:boolean = true, show_relations:boolean = true) {
         this.entity = entity;
@@ -48,8 +48,8 @@ export class UmlErdNode {
         }
     }
 
-    public static init(api:EmbeddedApiService) {
-        UmlErdNode.api = api;
+    public static init(workbenchService:WorkbenchService) {
+        UmlErdNode.workbenchService = workbenchService;
     }
 
     get fieldNames() {
@@ -57,7 +57,7 @@ export class UmlErdNode {
     }
 
     public static async AsyncConstructor(entity: string = '', hidden: string[] = [], fields: string[] = [], x: number = 0, y: number = 0, show_inheritance: boolean = true, show_relations: boolean = true): Promise<UmlErdNode> {
-        const schema = await this.api.getSchema(entity);
+        const schema = await this.workbenchService.getSchemaPromise(entity);
         let result = new UmlErdNode(entity, x, y, hidden, fields, schema.parent, show_inheritance, show_relations);
         result.schema = schema.fields ?? {};
         if(fields.length == 0) {

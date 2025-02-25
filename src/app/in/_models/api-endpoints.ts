@@ -28,7 +28,9 @@ export const API_ENDPOINTS = {
         delete: (package_name: string, model_name: string, view_name: string) =>
             `?do=core_config_delete-view&entity=${package_name}\\${model_name}&view_id=${view_name}`,
         read: (package_name : string, model_name:string, view_name: string) =>
-            `?get=core_model_view&view_id=${view_name}&entity=${package_name}\\${model_name}`
+            `?get=core_model_view&view_id=${view_name}&entity=${package_name}\\${model_name}`,
+        save: (payload:any, package_name: string, model: string, view_id : string ) => 
+            `?do=core_config_update-view&entity=${package_name}\\${model}&view_id=${view_id}&payload=${JSON.stringify(payload)}`
     },
 
     // Controller-specific actions

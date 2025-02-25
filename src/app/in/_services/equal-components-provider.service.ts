@@ -18,7 +18,30 @@ export class EqualComponentsProviderService {
 
 
 
-
+    public retrievePackages(): Observable<string[]> {
+        // Vérifie si on a déjà des packages en cache
+        if (this.componentsMapFromPackage.size > 0) {
+            return of(Array.from(this.componentsMapFromPackage.keys())); // Retourne les noms des packages en cache
+        }
+    
+        return this.collectAllPackages().pipe(
+            tap(components => {
+                components.forEach(comp => {
+                    const packageName = comp.name;
+                    if (!this.componentsMapFromPackage.has(packageName)) {
+                        this.componentsMapFromPackage.set(packageName, new Map());
+                    }
+                });
+            }),
+            map(components => components.map(comp => comp.name)),
+            catchError(error => {
+                console.error('Erreur lors de la récupération des packages:', error);
+                return of([]);
+            })
+        );
+    }
+    
+    
 
     /**
      * Retrieves a specific component based on the cache or via the API.

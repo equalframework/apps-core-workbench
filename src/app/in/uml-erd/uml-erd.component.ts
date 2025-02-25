@@ -1,6 +1,5 @@
 import { CdkDragEnd } from '@angular/cdk/drag-drop';
 import { Component, Inject, OnChanges, OnInit, Optional } from '@angular/core';
-import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 import { UmlErdNode } from './_components/uml-erd-displayer/_objects/UmlErdNode';
 import { Anchor, UmlErdLink } from './_components/uml-erd-displayer/_objects/UmlErdLink';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
@@ -12,6 +11,7 @@ import { FileSaverComponent } from './_components/file-saver/file-saver.componen
 import { FileLoaderComponent } from './_components/file-loader/file-loader.component';
 
 import { DialogConfirmComponent } from './_components/dialog-confirm/dialog-confirm.component';
+import { WorkbenchService } from '../_services/workbench.service';
 
 @Component({
     selector: 'uml-erd',
@@ -46,15 +46,13 @@ export class UmlErdComponent implements OnInit, OnChanges {
     public exists:boolean = false;
 
     constructor(
-        private api: EmbeddedApiService,
-        private router:RouterMemory,
-        private activatedRoute:ActivatedRoute,
+        private workbenchService: WorkbenchService,
         private matDialog:MatDialog,
         private snackBar:MatSnackBar
     ) { }
 
     public async ngOnInit() {
-        UmlErdNode.init(this.api);
+        UmlErdNode.init(this.workbenchService);
         await this.init();
     }
 
@@ -65,7 +63,7 @@ export class UmlErdComponent implements OnInit, OnChanges {
         if(this.current_filename) {
             try {
                 const parts = this.current_filename.split("::");
-                const schema = await this.api.getUMLContent(parts[0], "erd", parts[1]);
+                const schema = await this.workbenchService.getUMLContent(parts[0], "erd", parts[1]);
                 for(let item of schema) {
                     this.nodes.push(await UmlErdNode.AsyncConstructor(item.entity, item.hidden, item?.fields ?? [], item.position.x, item.position.y, item.show_inheritance, item.show_relations));
                 }
@@ -246,7 +244,7 @@ export class UmlErdComponent implements OnInit, OnChanges {
 
         d.afterClosed().subscribe(async (data:any) => {
             if(data) {
-                const res = await this.api.saveUML(data.package_name, "erd", data.file_name, JSON.stringify(this.export()));
+                const res = await this.workbenchService.saveUML(data.package_name, "erd", data.file_name, JSON.stringify(this.export()));
                 if(res) {
                     this.snackBar.open("Saved successfully","INFO");
                     this.current_filename = data.package_name+'::'+data.file_name+'.erd.json';

@@ -12,9 +12,7 @@
         <search-controllers-list list class="full" *ngIf="controllers"
                 [selected_node]="selected_controller"
                 (selectNode)="onSelectNode($event)"
-                (nodeUpdate)="onupdateController($event)"
-                (nodeDelete)="ondeleteController($event)"
-                (nodeCreate)="oncreateController($event)">
+                (nodeUpdate)="onupdateController($event)">
         </search-controllers-list>
     </div>
 

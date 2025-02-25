@@ -1,12 +1,12 @@
 import { Component, Inject, OnInit, Optional } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 import { InitDataFile } from './_models/init-data';
 import { cloneDeep } from 'lodash';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { prettyPrintJson } from 'pretty-print-json';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { WorkbenchService } from '../_services/workbench.service';
 
 @Component({
     selector: 'app-init-data',
@@ -30,7 +30,7 @@ export class InitDataComponent implements OnInit {
     public selected_file_index = 0;
 
     constructor(
-            private api:EmbeddedApiService,
+            private api:WorkbenchService,
             private activatedRoute:ActivatedRoute,
             private dialog:MatDialog,
             private snack:MatSnackBar,

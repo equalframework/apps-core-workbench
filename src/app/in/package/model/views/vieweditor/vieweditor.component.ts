@@ -4,13 +4,11 @@ import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { View, ViewGroup, ViewGroupByItem, ViewItem, ViewOperation, ViewSection } from './_objects/View';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { prettyPrintJson } from 'pretty-print-json';
-import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Usage } from 'src/app/in/_models/Params';
 import { TypeUsageService } from 'src/app/_services/type-usage.service';
-import { WorkbenchV1Service } from 'src/app/in/_services/workbench-v1.service';
-import { NotificationService } from 'src/app/in/_services/notification.service';
+import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 @Component({
   selector: 'app-vieweditor',
@@ -59,12 +57,11 @@ export class VieweditorComponent implements OnInit {
   constructor(
     private router: RouterMemory,
     private route: ActivatedRoute,
-    private api: EmbeddedApiService,
+    private api: WorkbenchService,
     private popup: MatDialog,
     private snackBar: MatSnackBar,
     private TypeUsage: TypeUsageService,
-    private workbenchService : WorkbenchV1Service,
-    private notificationService: NotificationService
+
   ) { }
 
   async ngOnInit() {
@@ -81,7 +78,7 @@ export class VieweditorComponent implements OnInit {
         let tempsplit = this.name.split(":")
         this.entity = tempsplit[0]
         this.view_id = tempsplit[1]
-        this.class_scheme = await this.api.getSchema(this.entity)
+        this.class_scheme = await this.api.getSchemaPromise(this.entity)
         this.fields = this.obk(this.class_scheme['fields'])
         this.view_scheme = await this.api.getView(this.entity,this.view_id)
         console.log(this.view_scheme)
@@ -167,7 +164,7 @@ export class VieweditorComponent implements OnInit {
 
     
     var timerId = setTimeout(async () => {
-      let success = await this.api.saveView(this.view_obj.export(),this.entity,this.view_id);
+      let success = await this.api.saveViewPromise(this.view_obj.export(),this.entity,this.view_id);
       if(success) {
         this.snackBar.open("Saved ! Change can take time to be ", '', {
             duration: 1000,

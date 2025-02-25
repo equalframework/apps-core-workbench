@@ -1,6 +1,5 @@
 import { Component, OnInit, ViewEncapsulation, Output, OnDestroy } from '@angular/core';
 import { Location } from '@angular/common';
-import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { prettyPrintJson } from 'pretty-print-json';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -9,6 +8,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { EqualComponentDescriptor } from '../../_models/equal-component-descriptor.class';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { WorkbenchService } from '../../_services/workbench.service';
 
 @Component({
     selector: 'package-controller',
@@ -42,7 +42,7 @@ export class PackageControllerComponent implements OnInit, OnDestroy {
     public loading = true;
 
     constructor(
-            private api: EmbeddedApiService,
+            private workbenchService: WorkbenchService,
             private snackBar: MatSnackBar,
             private route: ActivatedRoute,
             private router: Router,
@@ -72,7 +72,7 @@ export class PackageControllerComponent implements OnInit, OnDestroy {
 
     private async loadControllers() {
         this.loading = false;
-        this.controllers = await this.api.getControllers(this.package_name);
+        this.controllers = await this.workbenchService.getControllers(this.package_name);
         this.loading = false;
     }
 
@@ -107,40 +107,7 @@ export class PackageControllerComponent implements OnInit, OnDestroy {
 
     }
 
-    /**
-     * Delete a controller.
-     *
-     * @param controller the name of the controller which will be deleted
-     */
-    public async ondeleteController(event: { type: string, name: string }) {
-        let name = event.name.split("_").slice(1).join("_")
-        let res = await this.api.deleteController(this.package_name, event.type, name)
-        if(!res){
-            this.snackBar.open("Deleted");
-            // this.selected_controller= ""
-            this.init();
-        }
-    }
 
-    /**
-     * Call the api to create a controller.
-     *
-     * @param new_package the name of the new controller
-     */
-    public oncreateController(event: { type: string, name: string }) {
-        let d = this.matDialog.open(MixedCreatorDialogComponent,{
-            data: {
-                type: event.type,
-                package: this.package_name,
-                lock_type : true,
-                lock_package: true,
-            },width : "40em",height: "26em"
-        })
-        d.afterClosed().subscribe(() => {
-            // Do stuff after the dialog has closed
-            this.init()
-        });
-    }
 
     /**
      *

@@ -1,7 +1,6 @@
 import { Component, Input, OnInit, Output, EventEmitter, OnChanges } from '@angular/core';
 import { WorkflowNode } from '../workflow-displayer/_objects/WorkflowNode';
 import { WorkflowLink } from '../workflow-displayer/_objects/WorkflowLink';
-import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 
 @Component({
   selector: 'app-properties-editor',

@@ -2,19 +2,18 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { promise } from 'protractor';
 import { ApiService } from 'sb-shared-lib';
-import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 
 
 @Injectable({
     providedIn: 'root'
 })
-export class TranslationService extends EmbeddedApiService {
+export class TranslationService {
     public cached_schema:any
 
     constructor(
         private http: HttpClient,
-        api: ApiService,
-    ) { super(api) }
+        private api: ApiService,
+    ) { }
     
     public async getTrads(pkg:string, entity:string, lang:string):Promise<{[id:string]:any}|null> {
         try {
