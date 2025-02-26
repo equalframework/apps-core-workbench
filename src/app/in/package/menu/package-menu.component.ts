@@ -51,8 +51,8 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
             this.menu_name = params['menu_name'];
             this.package_name = params['package_name'];
             // Getting the menu as a view json
-            this.workbenchService.readMenu(this.package_name,this.menu_name).subscribe(async data => {
-                this.menuSchema = data.response;
+            this.workbenchService.readMenu(this.package_name,this.menu_name).subscribe(async menuSchema => {
+                this.menuSchema = menuSchema;
                 // Parsing the json as an Menu object
             // #memo - we clone the schema to avoid the Menu constructor to destroy the original copy
             this.object = new Menu(cloneDeep(this.menuSchema));
@@ -86,7 +86,7 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
 
     async updateEntityDependentFields() {
         if(this.selected_item) {
-            this.viewlist =   ((await this.workbenchService.getViews('entity',this.selected_item.context.entity).toPromise()).map((value => value.split(":").slice(1).join(':'))))
+            this.viewlist =   ((await this.workbenchService.getViews(this.package_name,this.selected_item.context.entity).toPromise()).map((value => value.split(":").slice(1).join(':'))))
             this.workbenchService.getSchema(this.selected_item.context.entity.replaceAll("_", "\\"))
             .pipe(
                 map(schema => Object.keys(schema.fields))
@@ -120,12 +120,15 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
     }
 
     public async save() {
-        /*let result = await this.workbenchService.saveViewPromise(this.object.export(),this.package_name+"\\menu",this.menu_name);
+        console.log("package_name : ", this.package_name);
+        console.log("menu_name : ", this.menu_name);
+        console.log("Object exporte : ", this.object.export());
+        let result = await this.workbenchService.saveView(this.object.export(),this.package_name,"\\menu",this.menu_name.trim()).toPromise();
         if(result) {
             this.matSnack.open("Saved successfully","INFO");
             return;
         }
-        this.matSnack.open("Error during save. make sure that www-data has right on the file.","ERROR");*/
+        this.matSnack.open("Error during save. make sure that www-data has right on the file.","ERROR");
     }
 
     public showJSON() {

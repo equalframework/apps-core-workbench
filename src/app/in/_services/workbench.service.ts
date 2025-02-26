@@ -412,7 +412,7 @@ export class WorkbenchService {
          * @todo use equalComponentProvider
          * @returns
          */
-        public listPackages(): Observable<string[]> {
+        public collectAllPackages(): Observable<string[]> {
             const url = '?get=config_packages';
             return this.callApi(url, '').pipe(
               map((result: any) => result.response || [])
@@ -424,10 +424,10 @@ export class WorkbenchService {
          * @todo use equalComponentProvider
          * @returns
          */
-        public listModelFrom(pkg: string): Observable<string[]> {
+        public listModelFrom(package_name: string): Observable<string[]> {
             const url = '?get=core_config_classes';
             return this.callApi(url, '').pipe(
-              map((result: any) => result.response[pkg] || [])
+              map((result: any) => result.response[package_name] || [])
             );
           }
 
@@ -436,7 +436,7 @@ export class WorkbenchService {
          * @todo use equalComponentProvider
          * @returns
          */
-        public listControlerFromPackageAndByType(pkg: string, type: "data" | "actions" | "apps", pkname: boolean = false): Observable<string[]> {
+        public listControllerFromPackageAndByType(pkg: string, type: "data" | "actions" | "apps", pkname: boolean = false): Observable<string[]> {
             const url = `?get=core_config_controllers&package=${pkg}`;
             return this.callApi(url, '').pipe(
               map((result: any) => {
@@ -453,7 +453,7 @@ export class WorkbenchService {
          * @returns
          */
         public listControllersByType(type: "data" | "actions" | "apps"): Observable<string[]> {
-            return this.getPackages().pipe(
+            return this.collectAllPackages().pipe(
               switchMap((pkgs: string[]) => {
                 const observables = pkgs.map(pkg => {
                   const url = `?get=core_config_controllers&package=${pkg}`;
@@ -533,22 +533,22 @@ export class WorkbenchService {
 
 
 
-          public getAllRouteFiles(): Observable<string[]> {
+        public getAllRouteFiles(): Observable<string[]> {
             const packagesUrl = '?get=core_config_packages';
             return this.callApi(packagesUrl, '').pipe(
-              switchMap((result: any) => {
+                switchMap((result: any) => {
                 const packs: string[] = result.response || [];
                 const observables = packs.map(pkg => {
-                  const url = `?get=core_config_routes&package=${pkg}`;
-                  return this.callApi(url, '').pipe(
+                    const url = `?get=core_config_routes&package=${pkg}`;
+                    return this.callApi(url, '').pipe(
                     map((res: any) => Object.keys(res.response || {}))
-                  );
+                    );
                 });
                 return forkJoin(observables);
-              }),
-              map((arrays: string[][]) => arrays.flat())
+                }),
+                map((arrays: string[][]) => arrays.flat())
             );
-          }
+        }
 
 
 
@@ -579,40 +579,46 @@ export class WorkbenchService {
         return this.callApi(url, '');
     }
 
-
-    public getPackages(): Observable<any> {
-        const url = '?get=config_packages';
-        return this.callApi(url, '');
-      }
-
       public getControllers(eq_package: string): Observable<any> {
         const url = `?get=core_config_controllers&package=${eq_package}`;
-        return this.callApi(url, '');
+        return this.callApi(url, '').pipe(
+            map(({response}) => response)
+        );
       }
 
       public getClasses(): Observable<any> {
         const url = '?get=core_config_classes';
-        return this.callApi(url, '');
+        return this.callApi(url, '').pipe(
+            map(({response}) => response)
+        );
       }
 
       public getTypes(): Observable<any> {
         const url = '?get=config_types';
-        return this.callApi(url, '');
+        return this.callApi(url, '').pipe(
+            map(({response}) => response)
+        );
       }
 
       public getValidOperators(): Observable<any> {
         const url = '?get=core_config_domain-operators';
-        return this.callApi(url, '');
+        return this.callApi(url, '').pipe(
+            map(({response}) => response)
+        );
       }
 
       public getUsages(): Observable<any> {
         const url = '?get=config_usage';
-        return this.callApi(url, '');
+        return this.callApi(url, '').pipe(
+            map(({response}) => response)
+        );
       }
 
     public getAllInstanceFrom(entity: string, fields: string[] = []): Observable<any> {
         const url = `?get=core_model_collect&entity=${entity}&fields=${JSON.stringify(fields)}`;
-        return this.callApi(url, '');
+        return this.callApi(url, '').pipe(
+            map(({response}) => response)
+        );
     }
        /**
          * @deprecated
@@ -708,7 +714,9 @@ export class WorkbenchService {
 
     public getCoreGroups(): Observable<any> {
         const url = '?get=core_model_collect&fields=[name]&lang=en&domain=[]&order=id&sort=asc&entity=core\\Group';
-        return this.callApi(url, '');
+        return this.callApi(url, '').pipe(
+            map(({response}) => response)
+        );;
     }
 
 
@@ -827,7 +835,9 @@ export class WorkbenchService {
 
     public getRoutesLive(): Observable<any> {
         const url = '?get=config_live_routes';
-        return this.callApi(url, '');
+        return this.callApi(url, '').pipe(
+            map(({response}) => response)
+        );;
     }
 
 

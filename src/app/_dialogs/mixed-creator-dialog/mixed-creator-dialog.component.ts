@@ -110,7 +110,7 @@ private destroy$: Subject<boolean> = new Subject<boolean>();
     }
 
   public async ngOnInit() {
-    this.cachePkgList = await this.workbenchService.listPackages().toPromise();
+    this.cachePkgList = await this.workbenchService.collectAllPackages().toPromise();
 
     //this.cachePkgList = await this.workbenchService.listPackages();
     await this.reloadList();
@@ -232,7 +232,7 @@ private destroy$: Subject<boolean> = new Subject<boolean>();
         this.implemented = true;
         this.needSubtype = false;
         if (this.selectedPackage) {
-          this.cacheList = await this.workbenchService.listControlerFromPackageAndByType(this.selectedPackage, 'actions').toPromise();
+          this.cacheList = await this.workbenchService.listControllerFromPackageAndByType(this.selectedPackage, 'actions').toPromise();
         }
         break;
       case 'get':
@@ -240,7 +240,7 @@ private destroy$: Subject<boolean> = new Subject<boolean>();
         this.implemented = true;
         this.needSubtype = false;
         if (this.selectedPackage) {
-          this.cacheList = await this.workbenchService.listControlerFromPackageAndByType(this.selectedPackage, 'data').toPromise();
+          this.cacheList = await this.workbenchService.listControllerFromPackageAndByType(this.selectedPackage, 'data').toPromise();
         }
         break;
       case 'route':

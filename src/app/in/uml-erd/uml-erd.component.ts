@@ -65,7 +65,6 @@ export class UmlErdComponent implements OnInit, OnChanges {
                 const parts = this.current_filename.split("::");
                 const schema = await this.workbenchService.getUMLContent(parts[0], "erd", parts[1]).toPromise();
                 for(let item of schema) {
-                    console.log(item)
                     this.nodes.push(await UmlErdNode.AsyncConstructor(item.entity, item.hidden, item?.fields ?? [], item.position.x, item.position.y, item.show_inheritance, item.show_relations));
                 }
             }
@@ -179,7 +178,6 @@ export class UmlErdComponent implements OnInit, OnChanges {
     }
 
     public ngOnChanges() {
-        console.log("CALLED");
     }
 
     public async addNode(value:string){
@@ -201,7 +199,6 @@ export class UmlErdComponent implements OnInit, OnChanges {
             }
             this.links = new_links;
             index = -1;
-            console.log(this.links);
             this.refresh();
         }
     }
