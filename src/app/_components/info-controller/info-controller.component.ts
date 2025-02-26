@@ -100,7 +100,7 @@ export class InfoControllerComponent implements OnInit, OnChanges {
     private async load() {
         this.loading = true;
         try {
-            const response = await this.workbenchService.getAnnounceController(this.controller?.type, this.controller?.name);
+            const response = await this.workbenchService.announceController(this.controller?.type, this.controller?.name).toPromise();
             this.announcement = response.announcement;
             this.schema = this.announcement?.params ?? {};
             this.initialization();
@@ -336,7 +336,7 @@ export class InfoControllerComponent implements OnInit, OnChanges {
     }
 
     public async submit() {
-        let response = await this.workbenchService.submitController(this.controller_type, this.controller_name, this.paramsValue);
+        let response = await this.workbenchService.submitController(this.controller_type, this.controller_name, this.paramsValue).toPromise();
         const dialogConfig = new MatDialogConfig();
         dialogConfig.maxHeight = '86vh';
         dialogConfig.minWidth = '70vw';

@@ -1,6 +1,6 @@
 import { HttpErrorResponse} from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { from, Observable, of, } from 'rxjs';
+import { forkJoin, from, Observable, of, } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { ApiService } from 'sb-shared-lib';
 import { API_ENDPOINTS } from '../_models/api-endpoints';
@@ -78,12 +78,16 @@ export class WorkbenchService {
 
     public readMenu(package_name:string, menu_name:string){
         const url = API_ENDPOINTS.menu.read(package_name, menu_name)
-        return this.callApi(url, '');
+        return this.callApi(url, '').pipe(
+            map(({response}) => response)
+        );
     }
 
     public readView(package_name:string,view_name:string,model_name:string){
         const url =API_ENDPOINTS.view.read(package_name,model_name,view_name);
-        return this.callApi(url, '');
+        return this.callApi(url, '').pipe(
+            map(({response}) => response)
+        );
     }
 
     public updateFieldsFromClass(new_schema: {}, package_name: string, class_name: string){
@@ -213,16 +217,17 @@ export class WorkbenchService {
      */
     public getSchema(entity: string): Observable<any> {
         if (entity) {
-            return from(this.api.fetch('?get=core_model_schema&entity=' + entity)).pipe(
-            switchMap(schema => of(schema)),
+          const url = '?get=core_model_schema&entity=' + entity;
+          return this.callApi(url, '').pipe(
+            map(result => result.response),
             catchError((response: any) => {
-                console.warn('Request error:', response);
-                return of({ fields: [] });
+              console.warn('Request error:', response);
+              return of({ fields: [] });
             })
-            );
+          );
         }
-        return of({ fields: [] }); // Return an observable with default schema if no entity is provided
-    }
+        return of({ fields: [] });
+      }
 
 
 
@@ -373,7 +378,7 @@ export class WorkbenchService {
         const successfullyMessage=`Route ${route_name} created successfully!`
         return this.callApi(url, successfullyMessage)
     }
-    
+
     private callApi(url: string, successMessage: string) {
             return from(this.api.fetch(url)).pipe(
                 map((response: any) => ({
@@ -402,172 +407,154 @@ export class WorkbenchService {
         }
 
 ///////////////////// Functions that should be delete because of duplication but if we delete them now, nothing will work and it will be too much work to do
-        public async listPackages(): Promise<string[]> {
-            try {
-                return await this.api.fetch("?get=core_config_packages");
-            }
-            catch(response) {
-                console.error(response);
-                return [];
-            }
-        }
+        /**
+         * @deprecated
+         * @todo use equalComponentProvider
+         * @returns
+         */
+        public listPackages(): Observable<string[]> {
+            const url = '?get=config_packages';
+            return this.callApi(url, '').pipe(
+              map((result: any) => result.response || [])
+            );
+          }
 
-        public async listModelFrom(pkg:string):Promise<string[]> {
-            try {
-                return (await this.api.fetch('?get=core_config_classes'))[pkg];
-            }
-            catch (response: any) {
-                console.warn('fetch class error', response);
-            }
-            return [];
-        }
+        /**
+         * @deprecated
+         * @todo use equalComponentProvider
+         * @returns
+         */
+        public listModelFrom(pkg: string): Observable<string[]> {
+            const url = '?get=core_config_classes';
+            return this.callApi(url, '').pipe(
+              map((result: any) => result.response[pkg] || [])
+            );
+          }
 
-        public async listControlerFromPackageAndByType(pkg:string,type:"data"|"actions"|"apps",pkname:boolean=false):Promise<string[]> {
-            try {
-                let temp:string[] = (await this.api.fetch("?get=core_config_controllers&package="+pkg))[type];
-                if(pkname) {
-                    return temp;
-                }
-                let res:string[] = [];
-                for(let item of temp) {
-                    res.push(item.split("_").slice(1).join("_"));
-                }
-                return res;
-            }
-            catch {
-                return [];
-            }
-    
-        }
+        /**
+         * @deprecated
+         * @todo use equalComponentProvider
+         * @returns
+         */
+        public listControlerFromPackageAndByType(pkg: string, type: "data" | "actions" | "apps", pkname: boolean = false): Observable<string[]> {
+            const url = `?get=core_config_controllers&package=${pkg}`;
+            return this.callApi(url, '').pipe(
+              map((result: any) => {
+                const temp: string[] = result.response[type] || [];
+                return pkname ? temp : temp.map(item => item.split("_").slice(1).join("_"));
+              })
+            );
+          }
 
-        public async listControllersByType(type:"data"|"actions"|"apps"):Promise<string[]> {
-            try {
-                let res:string[] = [];
-                let pkgs = (await this.listPackages());
-                if(pkgs) {
-                    for(let pkg of pkgs) {
-                        let temp:string[] = (await this.api.fetch("?get=core_config_controllers&package="+pkg))[type];
-                        for(let item of temp) {
-                            res.push(item);
-                        }
-                    }
-                }
-                return res;
-            }
-            catch {
-                return [];
-            }
-        }
 
-        public async listViewFrom(pkg:string,entity:string|undefined=undefined):Promise<string[]|undefined> {
-            if(entity === undefined) {
-                try {
-                    return (await this.api.fetch('?get=core_config_views&package='+pkg));
-                }
-                catch (response: any) {
-                    console.warn('fetch class error', response);
-                }
-                return [];
-            }
-            else {
-                try {
-                    return (await this.api.fetch('?get=core_config_views&entity='+pkg+'\\'+entity));
-                }
-                catch (response: any) {
-                    console.warn('fetch class error', response);
-                }
-                return [];
-            }
+        /**
+         * @deprecated
+         * @todo use equalComponentProvider
+         * @returns
+         */
+        public listControllersByType(type: "data" | "actions" | "apps"): Observable<string[]> {
+            return this.getPackages().pipe(
+              switchMap((pkgs: string[]) => {
+                const observables = pkgs.map(pkg => {
+                  const url = `?get=core_config_controllers&package=${pkg}`;
+                  return this.callApi(url, '').pipe(
+                    map((result: any) => result.response[type] || [])
+                  );
+                });
+                return forkJoin(observables);
+              }),
+              map((arrays: string[][]) => arrays.flat())
+            );
+          }
 
-        }
 
-        public async listAllModels(): Promise<string[]> {
-            try {
-                let x = (await this.api.fetch('?get=core_config_classes'));
-                let ret:string[] = [];
-                for(let key in x) {
-                    console.log(key);
-                    for(let item of x[key]) {
-                        ret.push(key+"\\"+item);
-                    }
+        /**
+         * @deprecated
+         * @todo use equalComponentProvider
+         * @returns
+         */
+        public listViewFrom(pkg: string, entity?: string): Observable<string[]> {
+            const url = entity === undefined
+              ? `?get=core_config_views&package=${pkg}`
+              : `?get=core_config_views&entity=${pkg}\\${entity}`;
+            return this.callApi(url, '').pipe(
+              map((result: any) => result.response || [])
+            );
+          }
+
+
+        /**
+         * @deprecated
+         * @todo use equalComponentProvider
+         * @returns
+         */
+        public listAllModels(): Observable<string[]> {
+            const url = '?get=core_config_classes';
+            return this.callApi(url, '').pipe(
+              map((result: any) => {
+                const x = result.response;
+                let ret: string[] = [];
+                for (const key in x) {
+                  for (const item of x[key]) {
+                    ret.push(`${key}\\${item}`);
+                  }
                 }
                 return ret;
-            }
-            catch (response: any) {
-                console.warn('fetch class error', response);
-            }
-            return [];
-        }
+              })
+            );
+          }
 
-        public async getMenusByPackage(package_name:string): Promise<string[]> {
-            let result = [];
-                try {
-                    result = await this.api.fetch("?get=core_config_menus&package="+package_name)
-                }
-                catch(response) {
-                    console.warn('fetch menus by package error', response);
-                }
-            return result;
-        }
 
-        public async getRoutesByPackage(pkg:string) {
-            try {
-                return await this.api.fetch('?get=core_config_routes&package=' + pkg);
-            }
-            catch (response: any) {
-                return [];
-            }
-        }
 
-        public async getAllRouteFiles():Promise<string[]> {
+        /**
+         * @deprecated
+         * @todo use equalComponentProvider
+         * @returns
+         */
+        public getMenusByPackage(package_name: string): Observable<string[]> {
+            const url = `?get=core_config_menus&package=${package_name}`;
+            return this.callApi(url, '').pipe(
+              map((result: any) => result.response || [])
+            );
+          }
 
-            let result:string[] = [];
-            let x:string[];
-            try {
-                x = (await this.api.fetch('?get=core_config_packages'));
-            }
-            catch (response: any) {
-                x =  [];
-            }
-            for(let pkg of x){
-                let files:{[file:string]:any}
-                try {
-                    files = (await this.api.fetch('?get=core_config_routes&package=' + pkg));
-                }
-                catch {
-                    files = {};
-                }
-                for(let file in files) {
-                    result.push(file);
-                }
-            }
-            return result;
-        }
+
+        /**
+         * @deprecated
+         * @todo use equalComponentProvider
+         * @returns
+         */
+        public getRoutesByPackage(pkg: string): Observable<any> {
+            const url = `?get=core_config_routes&package=${pkg}`;
+            return this.callApi(url, '').pipe(
+              map((result: any) => result.response)
+            );
+          }
+
+
+
+          public getAllRouteFiles(): Observable<string[]> {
+            const packagesUrl = '?get=core_config_packages';
+            return this.callApi(packagesUrl, '').pipe(
+              switchMap((result: any) => {
+                const packs: string[] = result.response || [];
+                const observables = packs.map(pkg => {
+                  const url = `?get=core_config_routes&package=${pkg}`;
+                  return this.callApi(url, '').pipe(
+                    map((res: any) => Object.keys(res.response || {}))
+                  );
+                });
+                return forkJoin(observables);
+              }),
+              map((arrays: string[][]) => arrays.flat())
+            );
+          }
+
 
 
 
         // Method from embedded Api, I just copied them here to delete embedded api need a refactoring
 
-    /**
-     * Return the announcement of a controller
-     *
-     * @param string type_controller the action of the controller(do or get)
-     * @param string eq_package name of the package
-     * @param string name of the controller
-     * @returns array with the announcement of a controller
-     */
-    public async getAnnounceController(type_controller?: string, name?: string) {
-        try {
-            if(!type_controller || !name) {
-                throw 'missing param';
-            }
-            return await this.api.fetch('?' + type_controller + '='+ name + '&announce=true');
-        }
-        catch (response: any) {
-            console.log('unable to fetch controller announcement', response);
-        }
-        return null;
-    }
 
     /**
      * Return the respond of a controller after execution
@@ -578,152 +565,79 @@ export class WorkbenchService {
      * @param array all the parameters for the controller
      * @returns array with the respond of a controller's execution
      */
-    public async submitController(type_controller: string, controller_name: string, params: []):Promise<{err:boolean,resp:any}> {
+    public submitController(type_controller: string, controller_name: string, params: any[]): Observable<any> {
         let stringParams = '';
-        for(let key in params) {
-            if(Array.isArray(params[key])) {
-                stringParams += '&' + key + '=' + JSON.stringify(params[key])
+        for (let key in params) {
+            if (Array.isArray(params[key])) {
+                stringParams += `&${key}=${JSON.stringify(params[key])}`;
             } else {
-                stringParams += '&' + key + '=' + params[key];
+                stringParams += `&${key}=${params[key]}`;
             }
         }
-        try {
-            return {err : false, resp: (await this.api.fetch('?' + type_controller + '=' + controller_name + stringParams))};
-        }
-        catch (response) {
-            return {err : true, resp:response}
-        }
-    }
 
-     /**
-     * Return all the packages available.
-     *
-     * @returns A array with all packages
-     */
-     public async getPackages() {
-        try {
-            return await this.api.fetch('?get=config_packages');
-        }
-        catch (response: any) {
-            console.warn('fetch package error', response);
-        }
-    }
-
-    public async getControllers(eq_package: string) {
-        try {
-            return await this.api.fetch('?get=core_config_controllers&package=' + eq_package);
-        }
-        catch (response: any) {
-            console.warn('request error', response);
-        }
-    }
-
-    /**
-     * Return all the classes foreach package
-     *
-     * @returns A JSON with package as key and classes as value.
-     */
-    public async getClasses() {
-        try {
-            return await this.api.fetch('?get=core_config_classes');
-        }
-        catch (response: any) {
-            console.warn('fetch class error', response);
-        }
-    }
-
-    /**
-     * Return all the available types and foreach type, the properties and foreach property, the type.
-     *
-     * @returns A JSON of each type with key-values.
-     */
-    public async getTypes() {
-        try {
-            return await this.api.fetch('?get=config_types');
-        }
-        catch (response: any) {
-            console.warn('fetch types error', response);
-        }
+        const url = `?${type_controller}=${controller_name}${stringParams}`;
+        return this.callApi(url, '');
     }
 
 
-    /**
-     * Get all the domain's operators for each type.
-     *
-     * @returns An object with key-values.
-     */
-    public async getValidOperators() {
-        try {
-            return await this.api.fetch('?get=core_config_domain-operators');
-        } catch (response: any) {
-            console.warn('request error', response);
-        }
-    }
+    public getPackages(): Observable<any> {
+        const url = '?get=config_packages';
+        return this.callApi(url, '');
+      }
 
-    /**
-     * Return all the usages
-     *
-     * @returns a JSON with all the usages
-     */
-    public async getUsages() {
-        try {
-            return await this.api.fetch('?get=config_usage');
-        } catch (response: any) {
-            console.warn('request error', response);
-        }
-    }
+      public getControllers(eq_package: string): Observable<any> {
+        const url = `?get=core_config_controllers&package=${eq_package}`;
+        return this.callApi(url, '');
+      }
+
+      public getClasses(): Observable<any> {
+        const url = '?get=core_config_classes';
+        return this.callApi(url, '');
+      }
+
+      public getTypes(): Observable<any> {
+        const url = '?get=config_types';
+        return this.callApi(url, '');
+      }
+
+      public getValidOperators(): Observable<any> {
+        const url = '?get=core_config_domain-operators';
+        return this.callApi(url, '');
+      }
+
+      public getUsages(): Observable<any> {
+        const url = '?get=config_usage';
+        return this.callApi(url, '');
+      }
 
     public getAllInstanceFrom(entity: string, fields: string[] = []): Observable<any> {
         const url = `?get=core_model_collect&entity=${entity}&fields=${JSON.stringify(fields)}`;
         return this.callApi(url, '');
     }
-    
-
-    public async getSchemaPromise(entity: string):Promise<any> {
-        if (entity) {
-            try {
-                return await this.api.fetch('?get=core_model_schema&entity=' + entity);
-            }
-            catch (response: any) {
-                console.warn('request error', response);
-                return {"fields" : []};
-            }
-        }
-        return {"fields" : []};
-    }
-
-    public async getViews(package_name:string, entity:string): Promise<string[]> {
-        try {
-            return await this.api.fetch("?get=core_config_views&package="+package_name+"&entity="+entity);
-        }
-        catch(response) {
-            return [];
-        }
-    }
-
-    public getViewsObs(package_name: string, entity: string): Observable<string[]> {
-        return from(
-          this.api.fetch("?get=core_config_views&package=" + package_name + "&entity=" + entity)
-        ).pipe(
-          catchError(() => of([])) // In case of error, return an empty array.
+       /**
+         * @deprecated
+         * @todo use equalComponentProvider
+         * @returns
+         */
+    public getViews(package_name: string, entity: string): Observable<string[]> {
+        const url = `?get=core_config_views&package=${package_name}&entity=${entity}`;
+        return this.callApi(url, '').pipe(
+            map((result: any) => result.response || [])
         );
-      }
-
-      public async getView(entity:string, name:string):Promise<any> {
-        try {
-            return await this.api.fetch("?get=core_model_view&view_id="+name+"&entity="+entity)
-        } catch (response) {
-            return {}
-        }
     }
 
-      public getViewObs(entity: string, name:string): Observable<string[]> {
-        return from(
-          this.api.fetch("?get=core_model_view&view_id="+name+"&entity="+entity)
-        ).pipe(
-          catchError(() => of([])) // In case of error, return an empty array.
+
+    /**
+     * @deprecated
+     * @todo use readView
+     * @returns
+     */
+    public getView(entity: string, name: string): Observable<any> {
+        const url = `?get=core_model_view&view_id=${name}&entity=${entity}`;
+        return this.callApi(url, '').pipe(
+            map((result: any) => result.response || {})
         );
-      }
+    }
 
     public async getInitData(pkg:string, type:string):Promise<{[id:string]:any}> {
         try {
@@ -781,7 +695,7 @@ export class WorkbenchService {
         }
     }
 
-    protected construct_usage_list(object:any,):string[] {
+    private construct_usage_list(object:any,):string[] {
         let result = Object.keys(object);
         Object.keys(object).forEach((element) => {
             result = result.concat(
@@ -792,58 +706,42 @@ export class WorkbenchService {
         return result;
     }
 
-    public async getCoreGroups():Promise<any> {
-        try {
-            return await this.api.fetch('?get=core_model_collect&fields=[name]&lang=en&domain=[]&order=id&sort=asc&entity=core\\Group');
-        }
-        catch (response: any) {
-            return  [];
-        }
-    }
-
-    /** 
-     * @deprecated
-     * @todo use saveView instead
-     * 
-     */
-    public async saveViewPromise(payload:any,entity:string,viewid:string):Promise<boolean> {
-        try {
-        await this.api.fetch("?do=core_config_update-view&entity="+entity+"&view_id="+viewid+"&payload="+JSON.stringify(payload))
-        }
-        catch {
-        return false
-        }
-        return true
+    public getCoreGroups(): Observable<any> {
+        const url = '?get=core_model_collect&fields=[name]&lang=en&domain=[]&order=id&sort=asc&entity=core\\Group';
+        return this.callApi(url, '');
     }
 
 
-    public async getTrads(pkg:string, entity:string, lang:string):Promise<{[id:string]:any}|null> {
-        try {
-            return await this.api.fetch("?get=core_config_translation&lang="+lang+"&entity="+pkg+"\\"+entity)
-        } catch (response){
-            return null
-        }
-        
+
+    public getTranslations(pkg: string, entity: string, lang: string): Observable<{ [id: string]: any } | null> {
+        const url = `?get=core_config_translation&lang=${lang}&entity=${pkg}\\${entity}`;
+        return this.callApi(url, '').pipe(
+            map((response: any) => response.success ? response.response : null) // Si success est true, retourne la réponse, sinon null
+        );
     }
 
-    public async getTradsLists(pkg:string,entity:string):Promise<{[id:string]:string[]}> {
-        try {
-            return await this.api.fetch("?get=core_config_translations&entity="+pkg+"\\"+entity)
-        } catch (response){
-            return {}
-        }
+
+    public getTranslationsList(pkg: string, entity: string): Observable<{ [id: string]: string[] }> {
+        const url = `?get=core_config_translations&entity=${pkg}\\${entity}`;
+        return this.callApi(url, '').pipe(
+            map((response: any) => response.success ? response.response : {}) // Si success est true, retourne la réponse, sinon un objet vide
+        );
     }
 
-    public async saveTrads(pkg:string,entity:string,dict:any) {
-        try {
-            for(let lang in dict) {
-                await this.api.fetch("?do=core_config_update-translation&package="+pkg+"&entity="+entity+"&lang="+lang+"&create_lang=true&payload="+ JSON.stringify(dict[lang].export()))
-            }
-            
-        }catch(resp) {
-            this.api.errorFeedback(resp)
-        }
+
+    public saveTranslations(pkg: string, entity: string, dict: any): Observable<void> {
+        const requests = Object.keys(dict).map((lang) => {
+            const url = `?do=core_config_update-translation&package=${pkg}&entity=${entity}&lang=${lang}&create_lang=true&payload=${JSON.stringify(dict[lang].export())}`;
+            return this.callApi(url, 'Translation updated').pipe(
+                catchError((err) => {
+                    console.error(`Error saving translation for ${lang}:`, err);
+                    return of(null); // Continue even if there's an error
+                })
+            );
+        });
+        return forkJoin(requests).pipe(map(() => {})); // Wait for all the requests to finish
     }
+
 
     public async getDataControllerList(pkg:string):Promise<string[]> {
         try {
@@ -853,89 +751,59 @@ export class WorkbenchService {
         }
     }
 
-    public async getAllActionControllers():Promise<string[]> {
-        try {
-        let packs:string[] = await this.api.fetch('?get=core_config_packages')
-        let contrs = []
-        for(let pkg of packs) {
-            let temp:{[type:string]:string[]} = await this.api.fetch('?get=core_config_controllers&package='+pkg)
-            for(let cont of temp["actions"]) {
-            contrs.push(cont)
-            }
-        }
-        return contrs
-        } catch {
-        return []
-        }
-    }
+    public getAllActionControllers(): Observable<string[]> {
+        const packagesUrl = '?get=core_config_packages';
+        return this.callApi(packagesUrl, 'Fetched packages').pipe(
+          switchMap((pkgResponse: any) => {
+            const packs: string[] = pkgResponse.response || [];
+            const controllerObservables = packs.map(pkg => {
+              const url = `?get=core_config_controllers&package=${pkg}`;
+              return this.callApi(url, `Fetched controllers for package ${pkg}`).pipe(
+                map((ctrlResponse: any) => ctrlResponse.response?.['actions'] || [])
+              );
+            });
+            return forkJoin(controllerObservables);
+          }),
+          map((controllersArray: string[][]) => controllersArray.flat())
+        );
+      }
 
-    public async getWorkflowPromise(pkg:string,model:string):Promise<any> {
-        try {
-            return {exists : true, info : await this.api.get(`?get=core_model_workflow&entity=${pkg}\\${model}`)};
-        }
-        catch(e:any) {
-            const cast:HttpErrorResponse = e;
-            if(cast.status === 404) {
-                return {exists : false, info : {}};
-            }
-            else {
-                this.api.errorFeedback(e);
-                return {};
-            }
-        }
-    }
 
-    public async fetchMetaDataPromise(code:string,reference:string): Promise<any[]> {
-        try {
-            return await this.api.get(`?get=core_model_collect&entity=core\\Meta&fields=[value]&domain=[[code,=,${code}],[reference,=,${reference}]]`);
-        }
-        catch(e) {
-            console.error(e);
-            this.api.errorFeedback(e);
-            return [];
-        }
-    }
 
-    public async saveUML(pkg: string, type: string, path: string, payload: string): Promise<boolean> {
-        try {
-            await this.api.post(`?do=core_config_update-uml&package=${pkg}&type=${type}&filename=${path}`,{"payload":payload});
-            return true;
-        }
-        catch(e) {
-            console.error(e);
-            this.api.errorFeedback(e);
-            return false;
-        }
-    }
 
-    public async getUMLList(type:string):Promise<{[id:string]:string[]}> {
-        try {
-            return await this.api.get(`?get=core_config_umls&type=${type}`);
-        }
-        catch(e) {
-            this.api.errorFeedback(e);
-            return {};
-        }
-    }
 
-    public async getUMLContent(pkg:string, type:string, path:string):Promise<any[]> {
-        try {
-            return await this.api.get(`?get=core_config_uml&package=${pkg}&type=${type}&path=${path}`);
-        }
-        catch(e) {
-            console.error(e);
-            this.api.errorFeedback(e);
-            return [];
-        }
-    }
-
-    public getWidgetTypes(): Observable<{ [id: string]: string[] }> {
-        return from(this.api.fetch("?get=core_config_widget-types")).pipe(
-            catchError(() => of({})) // Retourne un objet vide en cas d'erreur
+    public saveUML(pkg: string, type: string, path: string, payload: string): Observable<boolean> {
+        const url = `?do=core_config_update-uml&package=${pkg}&type=${type}&filename=${path}`;
+        return this.callApi(url, '').pipe(
+            map(({success}) => success)
         );
     }
 
-    
+
+    public getUMLList(type: string): Observable<{ [id: string]: string[] }> {
+        const url = `?get=core_config_umls&type=${type}`;
+        return this.callApi(url, '').pipe(
+            map(({ success, response }) => success ? response : {})
+        );
+    }
+
+
+    public getUMLContent(pkg: string, type: string, path: string): Observable<any[]> {
+        const url = `?get=core_config_uml&package=${pkg}&type=${type}&path=${path}`;
+        return this.callApi(url, '').pipe(
+            map(({ success, response }) => success ? response : [])
+        );
+
+    }
+
+
+    public getWidgetTypes(): Observable<{ [id: string]: string[] }> {
+        return from(this.api.fetch("?get=core_config_widget-types")).pipe(
+            catchError(() => of({}))
+        );
+    }
+
+
      /**
      * Return the announcement of a controller
      *
@@ -944,23 +812,23 @@ export class WorkbenchService {
      * @param string name of the controller
      * @returns array with the announcement of a controller
      */
-     public async doAnnounceController(name: string) {
-        try {
-            return await this.api.fetch('?do=' + name + '&announce=true');
+    public announceController(type_controller?: string, name?: string, ): Observable<any> {
+        if (!type_controller || !name) {
+            return of(null);
         }
-        catch (response: any) {
-            return null;
-        }
-        }
-
-    public async getRoutesLive() {
-        let result = {};
-            try {
-                result = await this.api.fetch('?get=config_live_routes');
-            }
-            catch (response: any) {
-                console.warn('fetch package error', response);
-            }
-        return result;
+        const url = `?${type_controller}=${name}&announce=true`;
+        return this.callApi(url, '').pipe(
+            map(({response}) => response),
+            catchError(() => {
+                return of(null);
+            })
+        );
     }
+
+    public getRoutesLive(): Observable<any> {
+        const url = '?get=config_live_routes';
+        return this.callApi(url, '');
+    }
+
+
 }

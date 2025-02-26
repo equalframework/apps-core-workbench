@@ -94,25 +94,26 @@ export class PackageViewComponent implements OnInit {
                 if (compo) {
                     this.node = compo;
                     try {
-                        this.class_scheme = await this.workbenchService.getSchemaPromise(`${this.node.package_name}\\${this.entity}`) || { fields: {} };
+                        this.class_scheme = await this.workbenchService.getSchema(`${this.node.package_name}\\${this.entity}`).toPromise() || { fields: {} };
                         this.fields = this.obk(this.class_scheme.fields);
-                        this.view_scheme = await this.workbenchService.getView(`${this.node.package_name}\\${this.entity}`, this.view_id);
+                        this.view_scheme = (await this.workbenchService.readView(this.node.package_name,this.view_id,this.entity).toPromise());
                         const nodeNameParts = this.node.name ? this.node.name.split(':') : [];
                         const viewNamePart = (nodeNameParts.length > 1 && nodeNameParts[1])
                                               ? nodeNameParts[1].split('.')[0]
                                               : '';
+                        console.log("test qsd : ", this.view_scheme);
                         this.view_obj = new View(this.view_scheme, viewNamePart);
 
                         let temp_controller = await this.workbenchService.getDataControllerList(package_name);
                         for (let item of temp_controller) {
-                            let data = await this.workbenchService.getAnnounceController(item);
+                            let data = await this.workbenchService.announceController(item).toPromise();
                             if (!data) continue;
                             if (!data["announcement"]["extends"] || data["announcement"]["extends"] !== "core_model_collect") continue;
                             this.collect_controller.push(item);
                         }
 
-                        this.action_controllers = await this.workbenchService.getAllActionControllers();
-                        this.workbenchService.getCoreGroups().then(data => {
+                        this.action_controllers = await this.workbenchService.getAllActionControllers().toPromise();
+                        this.workbenchService.getCoreGroups().toPromise().then(data => {
                             for (let key in data) {
                                 this.groups.push(data[key]['name']);
                             }

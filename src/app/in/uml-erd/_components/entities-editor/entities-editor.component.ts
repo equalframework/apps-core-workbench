@@ -35,8 +35,8 @@ export class EntitiesEditorComponent implements OnInit, OnChanges {
     ) {}
 
     public async ngOnInit() {
-        this.packages = await this.workbenchService.listPackages();
-        this.models = await this.workbenchService.listAllModels();
+        this.packages = await this.workbenchService.listPackages().toPromise();
+        this.models = await this.workbenchService.listAllModels().toPromise();
         this.updateSelectableEntities();
     }
     public onchangePackage() {

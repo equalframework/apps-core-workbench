@@ -26,7 +26,7 @@ export class InfoRouteComponent implements OnInit, OnChanges {
         ) { }
 
     public async ngOnInit() {
-        this.routes = await this.workbenchService.getRoutesLive();
+        this.routes = await this.workbenchService.getRoutesLive().toPromise();
         console.log(this.routes);
         await this.load();
     }

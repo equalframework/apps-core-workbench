@@ -98,7 +98,7 @@ export class PackageControllerParamsComponent implements OnInit {
             this.error = true;
         }
         this.type_icon = ItemTypes.getIconForType(this.controller_type);
-        this.scheme = await this.workbenchService.getAnnounceController(this.controller_type,this.controller_name);
+        this.scheme = await this.workbenchService.announceController(this.controller_type,this.controller_name).toPromise();
         console.log(this.scheme);
         for(let key in this.scheme["announcement"]["params"]) {
             this.paramList.push(new Param(key,cloneDeep(this.scheme["announcement"]["params"][key])));
@@ -107,7 +107,7 @@ export class PackageControllerParamsComponent implements OnInit {
         console.log(this.paramList);
         this.onChange("Opening file");
         console.log(this.toSchema());
-        this.modelList = await this.workbenchService.listAllModels();
+        this.modelList = await this.workbenchService.listAllModels().toPromise();
     }
 
     public onSelection(index:number){

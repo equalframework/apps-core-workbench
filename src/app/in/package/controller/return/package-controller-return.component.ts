@@ -69,7 +69,7 @@ export class PackageControllerReturnComponent implements OnInit {
         this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
             this.controller_type = params['controller_type'];
             this.controller_name = params['controller_name'];
-            this.scheme = await this.workbenchService.getAnnounceController(this.controller_type, this.controller_name);
+            this.scheme = await this.workbenchService.announceController(this.controller_type, this.controller_name).toPromise();
             this.object = new ReturnValue(cloneDeep(this.scheme.announcement.response));
             this.typeControl.setValue(this.object.type)
             this.typeControl.valueChanges.subscribe(value => {
@@ -82,7 +82,7 @@ export class PackageControllerReturnComponent implements OnInit {
 
         this.typeIconList = this.TypeUsage.typeIcon;
         this.types_regular = await this.workbenchService.getTypeList();
-        this.entities = await this.workbenchService.listAllModels()
+        this.entities = await this.workbenchService.listAllModels().toPromise();
 
         this.filtered_types_regular = this._filter('', 'types_regular');
         this.filtered_types_custom = this._filter('', 'types_custom');

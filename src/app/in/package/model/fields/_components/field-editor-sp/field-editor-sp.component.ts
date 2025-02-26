@@ -52,7 +52,7 @@ export class FieldEditorSpComponent implements OnInit {
       try {
         if(this.oldfobj !== this.field.foreign_object) {
           this.oldfobj = this.field.foreign_object
-          this.ffields = Object.keys((await this.workbenchService.getSchemaPromise(this.field.foreign_object))["fields"])
+          this.ffields = Object.keys((await this.workbenchService.getSchema(this.field.foreign_object).toPromise())["fields"])
         }
         this.typeDirective = Field.type_directives[this.field.type]
         this.finalTypeDirective = Field.type_directives[this.field.finalType]

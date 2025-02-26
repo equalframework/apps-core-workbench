@@ -20,7 +20,7 @@ export class PropertyClauseComponent implements OnInit {
 
     async ngOnInit() {
         this.transformDomain();
-        this.validOperators = await this.workbenchService.getValidOperators();
+        this.validOperators = await this.workbenchService.getValidOperators().toPromise();
         this.getSchema();
     }
 
@@ -30,7 +30,10 @@ export class PropertyClauseComponent implements OnInit {
     }
 
     async getSchema() {
-        this.fields = await this.workbenchService.getSchema(this.class);
+        this.workbenchService.getSchema(this.class)
+            .subscribe(schema => {
+                this.fields = schema.fields;
+            });
     }
 
     transformDomain() {

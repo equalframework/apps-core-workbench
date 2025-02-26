@@ -23,7 +23,7 @@ export class FileLoaderComponent implements OnInit {
     value:string = ""
 
     async ngOnInit() {
-        this.list = await this.workbenchService.getUMLList("erd");
+        this.list = await this.workbenchService.getUMLList("erd").toPromise();
         this._filter("")
     }
 

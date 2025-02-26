@@ -1,10 +1,13 @@
-import { Component, Inject, OnInit, Optional, ViewEncapsulation } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit, Optional, ViewEncapsulation } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ItemTypes } from 'src/app/in/_models/item-types.class';
 import { AbstractControl, FormControl, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { WorkbenchV1Service } from 'src/app/in/_services/workbench-v1.service';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
+import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
+import { map, switchMap, takeUntil } from 'rxjs/operators';
+import { forkJoin, from, Observable, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-mixed-creator-dialog',
@@ -12,7 +15,7 @@ import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-des
   styleUrls: ['./mixed-creator-dialog.component.scss'],
   encapsulation: ViewEncapsulation.Emulated
 })
-export class MixedCreatorDialogComponent implements OnInit {
+export class MixedCreatorDialogComponent implements OnInit, OnDestroy {
   // Flag to indicate that all data has been loaded
   public loaded = false;
 
@@ -56,6 +59,8 @@ export class MixedCreatorDialogComponent implements OnInit {
   public tDict = ItemTypes.trueTypeDict;
   public obk = Object.keys;
 
+private destroy$: Subject<boolean> = new Subject<boolean>();
+
   // Form controls with validators
   public nameControl: FormControl = new FormControl('', {
     validators: [
@@ -72,6 +77,7 @@ export class MixedCreatorDialogComponent implements OnInit {
   constructor(
     @Optional() public dialogRef: MatDialogRef<MixedCreatorDialogComponent>,
     private workbenchService: WorkbenchService,
+    private provider : EqualComponentsProviderService,
     @Optional() @Inject(MAT_DIALOG_DATA)
     public data: { node_type: string, package?: string, model?: string, sub_type?: string, lock_type?: boolean, lock_package?: boolean, lock_model?: boolean, lock_subtype?: boolean }
   ) {
@@ -98,9 +104,16 @@ export class MixedCreatorDialogComponent implements OnInit {
       this.onPackageSelect();
     }
   }
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
 
   public async ngOnInit() {
-    this.cachePkgList = await this.workbenchService.listPackages();
+    this.provider.retrievePackages().subscribe((packageNames) => {
+        this.cachePkgList = packageNames
+    })
+    //this.cachePkgList = await this.workbenchService.listPackages();
     await this.reloadList();
     this.loaded = true;
   }
@@ -146,12 +159,22 @@ export class MixedCreatorDialogComponent implements OnInit {
     );
   }
 
-  public async onPackageSelect(): Promise<void> {
-    const models = await this.workbenchService.listModelFrom(this.selectedPackage);
-    const controllers = await this.workbenchService.listControlerFromPackageAndByType(this.selectedPackage, 'data');
-    this.cacheModelList = [...models, ...controllers];
-    await this.reloadList();
-  }
+  public onPackageSelect(): void {
+    forkJoin({
+        models: this.provider.getComponents(this.selectedPackage, "class"),
+        controllers: this.provider.getComponents(this.selectedPackage, "controller")
+    }).pipe(
+        map(({ models, controllers }) => [
+            ...models.map(m => m.name),
+            ...controllers.map(c => c.name)
+        ])
+    ).subscribe(result => {
+        this.cacheModelList = result;
+        this.reloadList();
+    });
+}
+
+
 
   /**
    * Set up component fields based on the type.
@@ -171,7 +194,7 @@ export class MixedCreatorDialogComponent implements OnInit {
         this.subtypeName = this.subtype;
         this.cacheList = [];
         if (this.selectedPackage && this.selectedModel) {
-          const views = await this.workbenchService.listViewFrom(this.selectedPackage, this.selectedModel);
+          const views = await this.workbenchService.listViewFrom(this.selectedPackage, this.selectedModel).toPromise();
           views?.filter(item => {
             const sp = item.split(':');
             return sp[1].split('.')[0] === this.subtype &&
@@ -189,7 +212,7 @@ export class MixedCreatorDialogComponent implements OnInit {
         this.subtypeName = 'View Type';
         this.cacheList = [];
         if (this.selectedPackage) {
-          const menus = await this.workbenchService.getMenusByPackage(this.selectedPackage);
+          const menus = await this.workbenchService.getMenusByPackage(this.selectedPackage).toPromise();
           menus.forEach(item => this.cacheList?.push(item.split('.')[0]));
         }
         break;
@@ -199,7 +222,7 @@ export class MixedCreatorDialogComponent implements OnInit {
         this.needSubtype = true;
         this.subtypeName = 'Extends from';
         if (this.selectedPackage) {
-          const models = await this.workbenchService.listAllModels();
+          const models = await this.workbenchService.listAllModels().toPromise();
           this.subTypeList = ['equal\\orm\\Model', ...models];
           this.cacheList = this.cacheModelList;
         }
@@ -209,7 +232,7 @@ export class MixedCreatorDialogComponent implements OnInit {
         this.implemented = true;
         this.needSubtype = false;
         if (this.selectedPackage) {
-          this.cacheList = await this.workbenchService.listControlerFromPackageAndByType(this.selectedPackage, 'actions');
+          this.cacheList = await this.workbenchService.listControlerFromPackageAndByType(this.selectedPackage, 'actions').toPromise();
         }
         break;
       case 'get':
@@ -217,7 +240,7 @@ export class MixedCreatorDialogComponent implements OnInit {
         this.implemented = true;
         this.needSubtype = false;
         if (this.selectedPackage) {
-          this.cacheList = await this.workbenchService.listControlerFromPackageAndByType(this.selectedPackage, 'data');
+          this.cacheList = await this.workbenchService.listControlerFromPackageAndByType(this.selectedPackage, 'data').toPromise();
         }
         break;
       case 'route':
@@ -228,7 +251,7 @@ export class MixedCreatorDialogComponent implements OnInit {
         this.subtypeName = 'File';
         this.nameTitle = 'URL';
         if (this.selectedPackage) {
-          const routes = await this.workbenchService.getRoutesByPackage(this.selectedPackage);
+          const routes = await this.workbenchService.getRoutesByPackage(this.selectedPackage).toPromise();
           this.subTypeList = Object.keys(routes);
           this.cacheList = [];
           if (routes[this.subtype] && !this.addingState) {
@@ -236,7 +259,7 @@ export class MixedCreatorDialogComponent implements OnInit {
               this.cacheList.push(key);
             }
           } else if (this.addingState) {
-            this.customStList = await this.workbenchService.getAllRouteFiles();
+            this.customStList = await this.workbenchService.getAllRouteFiles().toPromise();
           }
         }
         break;
@@ -307,7 +330,7 @@ export class MixedCreatorDialogComponent implements OnInit {
       node.name = `${node.item.model}:${this.subtypeName}.${node.name}`;
     }
 
-    this.workbenchService.createNode(node).subscribe(result => {
+    this.workbenchService.createNode(node).pipe(takeUntil(this.destroy$)).subscribe(result => {
       if (node.type === 'get' || node.type === 'do') {
         node.name = `${node.package_name}_${node.name}`;
       }

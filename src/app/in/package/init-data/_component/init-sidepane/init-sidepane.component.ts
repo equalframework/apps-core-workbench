@@ -38,7 +38,7 @@ export class InitSidepaneComponent implements OnInit, OnChanges {
             private dialog:MatDialog) { }
 
     public async ngOnInit() {
-        this.modelList = await this.workbenchService.listAllModels()
+        this.modelList = await this.workbenchService.listAllModels().toPromise()
     }
 
     public get fullWidth(): number {
@@ -64,7 +64,7 @@ export class InitSidepaneComponent implements OnInit, OnChanges {
             const view = await this.workbenchService.getView(
                     this.file.entities[key].name,
                     "list.default"
-                );
+                ).toPromise();
             this.viewField = view.layout?.items?.filter((item:any) => item.value !== 'id' && item.type === 'field')
             console.log(this.viewField)
             this.sorted = this.file.entities[key].items.slice();

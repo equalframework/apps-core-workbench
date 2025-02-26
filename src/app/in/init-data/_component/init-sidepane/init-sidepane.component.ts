@@ -1,7 +1,6 @@
 import { ChangeDetectorRef, Component, Input, OnChanges, OnInit } from '@angular/core';
 import { InitDataEntityInstance, InitDataEntitySection, InitDataFile } from '../../_models/init-data';
 import { Sort } from '@angular/material/sort';
-import {  } from 'src/app/_services/embedded-api.service';
 import compareAsc from 'date-fns/compareAsc';
 import { MatPaginatorDefaultOptions, PageEvent } from '@angular/material/paginator';
 import { cloneDeep, isObject } from 'lodash';
@@ -39,7 +38,7 @@ export class InitSidepaneComponent implements OnInit,OnChanges {
   ) { }
 
   async ngOnInit() {
-    this.modelList = await this.api.listAllModels()
+    this.modelList = await this.api.listAllModels().toPromise()
   }
 
   get fullWidth():number {
@@ -65,7 +64,7 @@ export class InitSidepaneComponent implements OnInit,OnChanges {
       this.viewField = (await this.api.getView(
         this.file.entities[key].name,
         "list.default"
-      )).layout.items.filter((item:any) => item.value !== 'id' && item.type === 'field')
+      ).toPromise()).layout.items.filter((item:any) => item.value !== 'id' && item.type === 'field')
       console.log(this.viewField)
       this.sorted = this.file.entities[key].items.slice()
     }

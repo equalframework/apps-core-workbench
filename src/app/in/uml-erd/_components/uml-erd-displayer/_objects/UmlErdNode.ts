@@ -1,5 +1,4 @@
 import { WorkbenchService } from "src/app/in/_services/workbench.service";
-
 export class UmlErdNode {
     public entity: string;
     public schema: any;
@@ -57,7 +56,7 @@ export class UmlErdNode {
     }
 
     public static async AsyncConstructor(entity: string = '', hidden: string[] = [], fields: string[] = [], x: number = 0, y: number = 0, show_inheritance: boolean = true, show_relations: boolean = true): Promise<UmlErdNode> {
-        const schema = await this.workbenchService.getSchemaPromise(entity);
+        const schema =  await this.workbenchService.getSchema(entity).toPromise()
         let result = new UmlErdNode(entity, x, y, hidden, fields, schema.parent, show_inheritance, show_relations);
         result.schema = schema.fields ?? {};
         if(fields.length == 0) {

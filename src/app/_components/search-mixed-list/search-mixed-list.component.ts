@@ -308,6 +308,11 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
             let y = this.getSortKey(b);
             return x.localeCompare(y);
         });
+        this.filteredData.sort((a, b) => {
+            let x = this.getSortKey(a);
+            let y = this.getSortKey(b);
+            return x.localeCompare(y);
+        });
     }
 
 
@@ -386,7 +391,8 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
                     )
                 );
             });
-    }
+            this.sortComponents()
+        }
 
     public clearSearch() {
         this.inputControl.setValue('');
@@ -432,6 +438,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
                             this.provider.reloadComponents(result.node.package_name,result.node.type);
                         }, 10);
                         this.selectNode.emit(result.node);
+                        console.log("this. filetederddData " ,this.filteredData)
                     }
                     else {
                         this.notificationService.showError(result.message);
@@ -443,13 +450,11 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
 
     private addToComponents(node: EqualComponentDescriptor) {
         this.elements.push(node);
-        this.sortComponents();
         this.onSearch();
     }
 
-    private removeFromComponents(node: EqualComponentDescriptor): void {
-        this.elements = this.elements.filter(item => item.name !== node.name);
-        this.sortComponents();
+    private removeFromComponents(node: EqualComponentDescriptor) {
+        this.elements = this.elements.filter(n => n.name !== node.name);
         this.onSearch();
     }
 

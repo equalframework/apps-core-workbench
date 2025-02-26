@@ -27,7 +27,7 @@ export class FileSaverComponent implements OnInit {
 
 
     async ngOnInit() {
-        this.list = await this.workbenchService.getUMLList("erd");
+        this.list = await this.workbenchService.getUMLList("erd").toPromise();
 
         // we received a filename : extract parts
         if(this.data.path.length) {

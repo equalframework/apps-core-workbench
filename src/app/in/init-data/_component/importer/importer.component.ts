@@ -30,16 +30,12 @@ export class ImporterComponent implements OnInit {
   ngOnInit() {
     this.workbenchService.getSchema(this.data.entity).pipe(
         switchMap((schema) => {
-            // On obtient les instances une fois que le schema est disponible
             const fields = Object.keys(schema.fields);
             return this.workbenchService.getAllInstanceFrom(this.data.entity, fields).pipe(
-                map(instances => ({ instances, schema })) // On retourne un objet contenant les deux
+                map(instances => ({ instances, schema }))
             );
             })
     ).subscribe(({ instances, schema }) => {
-        // À ce moment, on a accès à `schema` et `instances` dans le même bloc
-
-        // On traite les instances
         for (let instance of instances) {
             instance.modified = null;
             instance.modifier = null;
@@ -47,7 +43,6 @@ export class ImporterComponent implements OnInit {
             instance.created = null;
             if (instance.deleted) continue;
 
-            // Utilisation de `schema.fields`
             this.ItemList.push(InitDataEntityInstance.ImportFromRealData(instance, schema.fields));
         }
 

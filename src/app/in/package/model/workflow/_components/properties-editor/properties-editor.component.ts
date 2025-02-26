@@ -45,6 +45,7 @@ export class PropertiesEditorComponent implements OnChanges {
       }
     } else if (this.selectedLink >= 0) {
       // Met à jour ACField pour les liens sans vérifier model_schema
+      console.log("this .selecteLink ", this.selectedLink)
       this.updateACField();
     } else {
       this.fields = [];

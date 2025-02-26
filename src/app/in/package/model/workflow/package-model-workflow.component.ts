@@ -76,12 +76,12 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
     private async loadWorkflow() {
         this.nodes = [];
         this.links = [];
-        const r = await this.workbenchService.getWorkflowPromise(this.package, this.model);
+        const r = await this.workbenchService.getWorkflow(this.package, this.model).toPromise();
         if (r.exists !== null && r.exists !== undefined) {
             this.exists = r.exists;
-            const metadata = await this.workbenchService.fetchMetaDataPromise('workflow', this.package + '.' + this.model);
+            const metadata = await this.workbenchService.fetchMetaData('workflow', this.package + '.' + this.model).toPromise();
             this.has_meta_data = Object.keys(metadata).length > 0 ? metadata[0].id : undefined;
-            this.model_scheme = await this.workbenchService.getSchemaPromise(this.package + "\\" + this.model);
+            this.model_scheme = await this.workbenchService.getSchema(this.package + "\\" + this.model).toPromise();
             const res = r.info;
             let orig = { x: 200, y: 200 };
             let mdt: any = {};
@@ -232,43 +232,34 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
         this.location.back();
     }
 
-    public export(): { [id: string]: any } {
-        const result: { [id: string]: any } = {};
-
-        const transitionsByNode = new Map<string, any>();
-
-        for (const link of this.links) {
-            if (!transitionsByNode.has(link.from.name)) {
-                transitionsByNode.set(link.from.name, {});
+    public export() {
+        let result:{[id:string]:any} = {};
+        for(let node of this.nodes) {
+            result[node.name] = node.export();
+            result[node.name].transitions = {};
+            for(let link of this.links) {
+                if(link.from === node){
+                    result[node.name].transitions[link.name] = link.export();
+                }
             }
-            transitionsByNode.get(link.from.name)![link.name] = link.export();
         }
-
-        for (const node of this.nodes) {
-            result[node.name] = {
-                ...node.export(),
-                transitions: transitionsByNode.get(node.name) || {}
-            };
-        }
-
-        console.log('Workflow exporté:', result);
         return result;
     }
 
-    public exportMetaData(): { [id: string]: any } {
-        const result: { [id: string]: any } = {};
-        for (let node of this.nodes) {
+    public exportMetaData() {
+        let result:{[id:string]:any} = {};
+        for(let node of this.nodes) {
             result[node.name] = node.generateMetaData();
             result[node.name].transitions = {};
-            for (let link of this.links) {
-                if (link.from === node) {
+            for(let link of this.links) {
+                if(link.from === node){
                     result[node.name].transitions[link.name] = link.generateMetaData();
                 }
             }
         }
-        console.log('Méta-données exportées:', result);
         return result;
     }
+    
 
     public save() {
         console.log('Début de la sauvegarde du workflow...');

@@ -21,7 +21,7 @@ export class RouteEditorComponent implements OnInit {
 
   async ngOnInit() {
     console.log(this.obj)
-    this.entity_list = await this.workbenchService.listAllModels()
+    this.entity_list = await this.workbenchService.listAllModels().toPromise()
   }
 
   createRoute() {

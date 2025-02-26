@@ -32,7 +32,7 @@ export class ItemEditorComponent implements OnInit {
     private workbenchService :WorkbenchService
   ) { }
 
-  async ngOnInit(){
+  ngOnInit(){
     // First API call (widget types)
     this.workbenchService.getWidgetTypes().subscribe({
         next: (widgetTypes) => {
@@ -113,7 +113,7 @@ export class ItemEditorComponent implements OnInit {
       return 
     }
     let t = this.scheme['fields'][this.item.value]['foreign_object'].split("\\")
-    let x =  (await this.workbenchService.listViewFrom(t[0],t.slice(1).join("\\")))?.filter((value) => value.includes('list.'))
+    let x =  (await this.workbenchService.listViewFrom(t[0],t.slice(1).join("\\")).toPromise())?.filter((value) => value.includes('list.'))
     if(x){
       let r:{[key:string]:string}= {}
       x.forEach(list => r[list.split(":")[1]] = list)

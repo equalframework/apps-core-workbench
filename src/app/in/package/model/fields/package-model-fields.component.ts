@@ -83,7 +83,7 @@ export class PackageModelFieldsComponent implements OnInit {
     }
 
     public async ngOnInit() {
-        this.models = await this.api.listAllModels();
+        this.models = await this.api.listAllModels().toPromise();
         Field.type_directives = await this.api.getTypeDirective();
 
         this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
@@ -101,14 +101,14 @@ export class PackageModelFieldsComponent implements OnInit {
         this.fieldList = [];
         this.parentFieldList = [];
 
-        this.schema = await this.api.getSchemaPromise(this.package_name + '\\' + this.class_name);
+        this.schema = await this.api.getSchema(this.package_name + '\\' + this.class_name).toPromise();
 
         for(let item in this.schema["fields"]) {
             this.fieldList.push(new Field(cloneDeep(this.schema["fields"][item]), item));
         }
 
         if(this.schema.parent !== "equal\\orm\\Model") {
-            this.parent_schema = await this.api.getSchemaPromise(this.schema.parent);
+            this.parent_schema = await this.api.getSchema(this.schema.parent).toPromise();
         }
         for(let item in this.parent_schema["fields"]) {
             this.parentFieldList.push(new Field(cloneDeep(this.parent_schema["fields"][item]), item));

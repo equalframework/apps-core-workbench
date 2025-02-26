@@ -72,7 +72,7 @@ export class PackageControllerComponent implements OnInit, OnDestroy {
 
     private async loadControllers() {
         this.loading = false;
-        this.controllers = await this.workbenchService.getControllers(this.package_name);
+        this.controllers = await this.workbenchService.getControllers(this.package_name).toPromise();
         this.loading = false;
     }
 

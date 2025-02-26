@@ -36,7 +36,7 @@ export class RouteEditComponent implements OnInit {
   }
 
   async refreshViewList() {
-    let x = await this.workbenchService.listViewFrom(this.route.context.entity.split("\\")[0],this.route.context.entity.split('\\').slice(1).join('\\'))
+    let x = await this.workbenchService.listViewFrom(this.route.context.entity.split("\\")[0],this.route.context.entity.split('\\').slice(1).join('\\')).toPromise()
     this.ext_entity_view_list = x ? x : []
     console.log(this.ext_entity_view_list)
   }

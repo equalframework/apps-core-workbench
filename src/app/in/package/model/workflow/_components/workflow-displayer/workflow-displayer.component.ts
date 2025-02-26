@@ -330,6 +330,7 @@ export class WorkflowDisplayerComponent implements OnInit,AfterViewChecked,After
                         this.selectedAnchor, 
                         anchor
                     ));
+                    console.log("thislinks, ", this.links);
                     this.selectNode.emit(-1);
                     this.requestState.emit("linking-from");
                 }

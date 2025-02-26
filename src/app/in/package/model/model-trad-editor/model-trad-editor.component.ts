@@ -1,3 +1,4 @@
+import { result } from 'lodash';
 import { Location } from '@angular/common';
 import { Component, OnInit, Optional, Inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
@@ -12,6 +13,7 @@ import { ErrorItemTranslator, Translator } from './_object/Translation';
 import { Menu } from '../../menu/_models/Menu';
 import { View } from '../views/vieweditor/_objects/View';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
+import { NotificationService } from 'src/app/in/_services/notification.service';
 
 @Component({
   selector: 'app-model-trad-editor',
@@ -37,7 +39,7 @@ export class ModelTradEditorComponent implements OnInit {
     private route: ActivatedRoute,
     private location:Location,
     private workbenchService: WorkbenchService,
-    private snack: MatSnackBar,
+    private notificationService: NotificationService,
     private dialog: MatDialog
   ) {}
 
@@ -63,10 +65,10 @@ export class ModelTradEditorComponent implements OnInit {
 
   async initMenu() {
     this.loading = true;
-    const langs = await this.workbenchService.getTradsLists(this.package, `menu.${this.model}`);
+    const langs = await this.workbenchService.getTranslationsList(this.package, `menu.${this.model}`).toPromise();
     for (const lang in langs) {
       if (langs[lang].length === 0) { continue; }
-      const translationData = await this.workbenchService.getTrads(this.package, `menu.${this.model}`, lang);
+      const translationData = await this.workbenchService.getTranslations(this.package, `menu.${this.model}`, lang).toPromise();
       if (!translationData) { continue; }
       const newTranslation = await this.createNewMenuLang();
       if (!newTranslation.ok) { continue; }
@@ -79,9 +81,9 @@ export class ModelTradEditorComponent implements OnInit {
 
   async initModel() {
     this.loading = true;
-    const langs = await this.workbenchService.getTradsLists(this.package, this.model);
+    const langs = await this.workbenchService.getTranslationsList(this.package, this.model).toPromise();
     for (const lang in langs) {
-      const translationData = await this.workbenchService.getTrads(this.package, this.model, lang);
+      const translationData = await this.workbenchService.getTranslations(this.package, this.model, lang).toPromise();
       if (!translationData) { continue; }
       const newTranslation = await this.createNewLang();
       if (!newTranslation.ok) { continue; }
@@ -93,19 +95,19 @@ export class ModelTradEditorComponent implements OnInit {
   }
 
   async createNewMenuLang(): Promise<Translator> {
-    const scheme = await this.workbenchService.getView(`${this.package}\\menu`, this.model);
+    const scheme = await this.workbenchService.getView(`${this.package}\\menu`, this.model).toPromise();
     return Translator.MenuConstructor(new Menu(scheme));
   }
 
   async createNewLang(): Promise<Translator> {
-    const scheme = await this.workbenchService.getSchemaPromise(`${this.package}\\${this.model}`);
+    const scheme = await this.workbenchService.getSchema(`${this.package}\\${this.model}`).toPromise();
     const modelFields = Object.keys(scheme.fields);
-    const viewsList = await this.workbenchService.getViews(this.package, `${this.package}\\${this.model}`);
+    const viewsList = await this.workbenchService.getViews(this.package, `${this.package}\\${this.model}`).toPromise();
     const views: { name: string, view: View }[] = [];
     for (const viewStr of viewsList) {
       const parts = viewStr.split(':');
       if (!parts[1].includes('list.') && !parts[1].includes('form.') && !parts[1].includes('search.')) { continue; }
-      const viewSchema = await this.workbenchService.getView(parts[0], parts[1]);
+      const viewSchema = await this.workbenchService.getView(parts[0], parts[1]).toPromise();
       views.push({ name: parts[1], view: new View(viewSchema, parts[1].split('.')[0]) });
     }
     return new Translator(modelFields, views);
@@ -134,7 +136,7 @@ export class ModelTradEditorComponent implements OnInit {
 
   async createLanguage() {
     if (this.data[this.langName.value]) {
-      this.snack.open('This model already has a translation for this language.', 'ERROR');
+      this.notificationService.showError('This model already has a translation for this language.', 'ERROR');
       return;
     }
     const newTranslation = this.entitype === 'menu'
@@ -190,7 +192,9 @@ export class ModelTradEditorComponent implements OnInit {
   }
 
   saveAll() {
-    this.workbenchService.saveTrads(this.package, (this.entitype === 'menu' ? 'menu.' : '') + this.model, this.data);
+    this.workbenchService.saveTranslations(this.package, (this.entitype === 'menu' ? 'menu.' : '') + this.model, this.data).subscribe(()=> {
+        this.notificationService.showSuccess("Translations updated")
+    });
   }
 }
 

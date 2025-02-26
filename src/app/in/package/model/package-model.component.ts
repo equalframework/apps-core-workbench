@@ -51,9 +51,9 @@ export class PackageModelComponent implements OnInit, OnDestroy {
         ) { }
 
     public async ngOnInit() {
-        this.packages = await this.workbenchService.getPackages();
-        this.eq_class = await this.workbenchService.getClasses();
-        this.types = await this.workbenchService.getTypes();
+        this.packages = await this.workbenchService.getPackages().toPromise();
+        this.eq_class = await this.workbenchService.getClasses().toPromise();
+        this.types = await this.workbenchService.getTypes().toPromise();
 
         this.init();
     }
@@ -83,7 +83,7 @@ export class PackageModelComponent implements OnInit, OnDestroy {
 
     private async loadClass() {
         try {
-            this.schema = await this.workbenchService.getSchemaPromise(this.package_name + '\\' + this.class_name);
+            this.schema = await this.workbenchService.getSchema(this.package_name + '\\' + this.class_name).toPromise();
         }
         catch(response) {
             console.log('unexpected error', response);
