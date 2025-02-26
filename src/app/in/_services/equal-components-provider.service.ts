@@ -21,6 +21,7 @@ export class EqualComponentsProviderService {
     public retrievePackages(): Observable<string[]> {
         // Vérifie si on a déjà des packages en cache
         if (this.componentsCacheMap .size > 0) {
+            console.log("comonent map : ", this.componentsCacheMap)
             return of(Array.from(this.componentsCacheMap.keys())); // Retourne les noms des packages en cache
         }
     
@@ -184,8 +185,6 @@ export class EqualComponentsProviderService {
                 `Reloading components. Provided package: ${package_name ? package_name : 'all'}, component type: ${component_type ? component_type : 'all'}. Packages loaded:`,
                 packages
                 );
-
-                this.updateComponentMap(packages);
                 // If a package is specified, filter the packages accordingly.
                 let filtered_packages: EqualComponentDescriptor[] = packages;
                 if (package_name) {
@@ -570,6 +569,7 @@ export class EqualComponentsProviderService {
         return from(this.api.fetch(url)).pipe(
             map((packages: any) =>
                 packages.map((package_name: any) => ({
+                    package_name:package_name,
                     name: package_name,
                     type: 'package',
                     file: package_name,

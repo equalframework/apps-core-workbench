@@ -110,9 +110,8 @@ private destroy$: Subject<boolean> = new Subject<boolean>();
     }
 
   public async ngOnInit() {
-    this.provider.retrievePackages().subscribe((packageNames) => {
-        this.cachePkgList = packageNames
-    })
+    this.cachePkgList = await this.workbenchService.listPackages().toPromise();
+
     //this.cachePkgList = await this.workbenchService.listPackages();
     await this.reloadList();
     this.loaded = true;
@@ -164,6 +163,7 @@ private destroy$: Subject<boolean> = new Subject<boolean>();
         models: this.provider.getComponents(this.selectedPackage, "class"),
         controllers: this.provider.getComponents(this.selectedPackage, "controller")
     }).pipe(
+        takeUntil(this.destroy$),
         map(({ models, controllers }) => [
             ...models.map(m => m.name),
             ...controllers.map(c => c.name)

@@ -434,15 +434,12 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
                     if (result.success) {
                         this.notificationService.showSuccess(result.message);
                         this.addToComponents(result.node);
-                        setTimeout(() => {
-                            this.provider.reloadComponents(result.node.package_name,result.node.type);
-                        }, 10);
+                        this.provider.reloadComponents(result.node.package_name,result.node.type);
                         this.selectNode.emit(result.node);
                         console.log("this. filetederddData " ,this.filteredData)
                     }
                     else {
                         this.notificationService.showError(result.message);
-                        this.removeFromComponents(result.node);
                     }
                 }
             });
