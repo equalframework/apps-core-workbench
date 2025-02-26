@@ -91,13 +91,13 @@ export class WorkbenchService {
     }
 
     public updateFieldsFromClass(new_schema: {}, package_name: string, class_name: string){
-        const url = `?do=config_update-model&part=class&entity=${package_name}\\${class_name}&payload=${JSON.stringify(new_schema)}`
-        const successfullyMessage = `Fields from ${package_name}//${class_name} has been updated`
+        const url = API_ENDPOINTS.class.update_fields(new_schema,package_name,class_name);
+        const successfullyMessage = `Fields from ${package_name}//${class_name} has been updated`;
         return this.callApi(url,successfullyMessage);
     }
 
     public updateController(controller_name: string, controller_type: string, payload : {[id:string]:any}){
-        const url = `?do=core_config_update-controller&controller=${controller_name}&operation=${controller_type}&payload=${JSON.stringify(payload)}`
+        const url = API_ENDPOINTS.controller.update(controller_name,controller_type,payload);
         const successfullyMessage = `${controller_name} has been updated`;
         return this.callApi(url, successfullyMessage);
     }
@@ -109,7 +109,8 @@ export class WorkbenchService {
      * @returns An Observable containing the workflow data.
      */
     public getWorkflow(package_name: string, model: string): Observable<any> {
-        return from(this.api.get(`?get=core_model_workflow&entity=${package_name}\\${model}`)).pipe(
+        const url = API_ENDPOINTS.workflow.get(package_name,model)
+        return from(this.api.get(url)).pipe(
             switchMap(info => of({ exists: true, info })),
             catchError((e: any) => {
             const cast: HttpErrorResponse = e;
@@ -131,7 +132,8 @@ export class WorkbenchService {
      * @returns An Observable that resolves to a boolean indicating success.
      */
     public saveWorkflow(package_name: string, model: string, payload: string): Observable<boolean> {
-        return from(this.api.post(`?do=core_config_update-workflow&entity=${package_name}\\${model}`, { payload })).pipe(
+        const url = API_ENDPOINTS.workflow.save(package_name,model);
+        return from(this.api.post(url, { payload })).pipe(
             switchMap(() => of(true)),
             catchError(e => {
             console.error(e);
@@ -148,7 +150,8 @@ export class WorkbenchService {
      * @returns An Observable that resolves to a boolean indicating success.
      */
     public createWorkflow(package_name: string, model: string): Observable<boolean> {
-        return from(this.api.post(`?do=core_config_create-workflow&entity=${package_name}\\${model}`)).pipe(
+        const url = API_ENDPOINTS.workflow.create(package_name,model);
+        return from(this.api.post(url)).pipe(
             switchMap(() => of(true)),
             catchError(e => {
             console.error(e);
@@ -165,7 +168,8 @@ export class WorkbenchService {
      * @returns An Observable containing the metadata.
      */
     public fetchMetaData(code: string, reference: string): Observable<any[]> {
-        return from(this.api.get(`?get=core_model_collect&entity=core\\Meta&fields=[value]&domain=[[code,=,${code}],[reference,=,${reference}]]`)).pipe(
+        const url = API_ENDPOINTS.metadata.collect(code,reference);
+        return from(this.api.get(url)).pipe(
             switchMap((data: any[]) => of(data)),
             catchError(e => {
             console.error(e);
@@ -217,7 +221,7 @@ export class WorkbenchService {
      */
     public getSchema(entity: string): Observable<any> {
         if (entity) {
-          const url = '?get=core_model_schema&entity=' + entity;
+          const url = API_ENDPOINTS.schema.get(entity);
           return this.callApi(url, '').pipe(
             map(result => result.response),
             catchError((response: any) => {
