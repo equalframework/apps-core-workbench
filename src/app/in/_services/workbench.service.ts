@@ -379,8 +379,8 @@ export class WorkbenchService {
         return this.callApi(url, successfullyMessage)
     }
 
-    private callApi(url: string, successMessage: string) {
-            return from(this.api.fetch(url)).pipe(
+    private callApi(url: string, successMessage: string, body:any = {}) {
+            return from(this.api.fetch(url,body)).pipe(
                 map((response: any) => ({
                     success: true,
                     message: successMessage,
@@ -774,7 +774,7 @@ export class WorkbenchService {
 
     public saveUML(pkg: string, type: string, path: string, payload: string): Observable<boolean> {
         const url = `?do=core_config_update-uml&package=${pkg}&type=${type}&filename=${path}`;
-        return this.callApi(url, '').pipe(
+        return this.callApi(url, '', {payload : payload}).pipe(
             map(({success}) => success)
         );
     }

@@ -65,6 +65,7 @@ export class UmlErdComponent implements OnInit, OnChanges {
                 const parts = this.current_filename.split("::");
                 const schema = await this.workbenchService.getUMLContent(parts[0], "erd", parts[1]).toPromise();
                 for(let item of schema) {
+                    console.log(item)
                     this.nodes.push(await UmlErdNode.AsyncConstructor(item.entity, item.hidden, item?.fields ?? [], item.position.x, item.position.y, item.show_inheritance, item.show_relations));
                 }
             }
@@ -244,7 +245,7 @@ export class UmlErdComponent implements OnInit, OnChanges {
 
         d.afterClosed().subscribe(async (data:any) => {
             if(data) {
-                const res = await this.workbenchService.saveUML(data.package_name, "erd", data.file_name, JSON.stringify(this.export()));
+                const res = await this.workbenchService.saveUML(data.package_name, "erd", data.file_name, JSON.stringify(this.export())).toPromise();
                 if(res) {
                     this.snackBar.open("Saved successfully","INFO");
                     this.current_filename = data.package_name+'::'+data.file_name+'.erd.json';
