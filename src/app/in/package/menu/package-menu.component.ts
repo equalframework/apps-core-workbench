@@ -9,7 +9,6 @@ import { prettyPrintJson } from 'pretty-print-json';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Subject } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
-import { WorkbenchV1Service } from '../../_services/workbench-v1.service';
 import { WorkbenchService } from '../../_services/workbench.service';
 
 @Component({

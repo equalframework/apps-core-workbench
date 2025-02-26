@@ -1,13 +1,9 @@
-import { EqualComponentsProviderService } from './../../in/_services/equal-components-provider.service';
-import { Component, Input, OnChanges, OnInit, Output, EventEmitter, SimpleChanges, OnDestroy } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
-import { WorkbenchV1Service } from 'src/app/in/_services/workbench-v1.service';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
-import { ItemViewerComponent } from 'src/app/_components/item-viewer/item-viewer.component';  // Importer ItemViewerComponent
-import { GroupsViewerComponent } from '../groups-viewer/groups-viewer.component';
 
 @Component({
     selector: 'info-view',
@@ -25,7 +21,7 @@ export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
     obk = Object.keys
     constructor(
         private router: Router,
-        private workbenchService: WorkbenchV1Service) {
+        private workbenchService: WorkbenchService) {
     }
     ngOnDestroy(): void {
         this.destroy$.next(true);
@@ -65,7 +61,7 @@ export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
             .subscribe(
               (data) => {
                 if (data) {
-                    const schema = data.response; // Nom plus clair
+                    const schema = data;
                     this.viewSchema = schema;
                 } else {
                   console.warn('Invalid data format for view schema:', data);

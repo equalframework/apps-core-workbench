@@ -8,9 +8,7 @@ import { DeleteConfirmationDialogComponent } from 'src/app/_dialogs/delete-confi
 
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
-import { WorkbenchV1Service } from 'src/app/in/_services/workbench-v1.service';
 import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { NotificationService } from 'src/app/in/_services/notification.service';
@@ -89,7 +87,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         private dialog: MatDialog,
         private provider: EqualComponentsProviderService,
         private notificationService: NotificationService,
-        private workbenchService:WorkbenchV1Service
+        private workbenchService:WorkbenchService
     ) { }
 
 

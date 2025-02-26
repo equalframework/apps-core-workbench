@@ -7,7 +7,6 @@ import { cloneDeep } from 'lodash';
 import { ItemTypes } from 'src/app/in/_models/item-types.class';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { prettyPrintJson } from 'pretty-print-json';
-import { WorkbenchV1Service } from 'src/app/in/_services/workbench-v1.service';
 import { NotificationService } from 'src/app/in/_services/notification.service';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 

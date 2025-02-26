@@ -3,7 +3,6 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ItemTypes } from 'src/app/in/_models/item-types.class';
 import { AbstractControl, FormControl, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
-import { WorkbenchV1Service } from 'src/app/in/_services/workbench-v1.service';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
 import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
 import { map, switchMap, takeUntil } from 'rxjs/operators';

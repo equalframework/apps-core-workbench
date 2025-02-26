@@ -4,7 +4,6 @@ import { WorkbenchService } from './_services/workbench.service'
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { prettyPrintJson } from 'pretty-print-json';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
-import { WorkbenchV1Service } from './_services/workbench-v1.service';
 
 
 @Component({

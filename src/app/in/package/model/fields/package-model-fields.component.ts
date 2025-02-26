@@ -11,7 +11,6 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dial
 import { prettyPrintJson } from 'pretty-print-json';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { WorkbenchV1Service } from 'src/app/in/_services/workbench-v1.service';
 import { NotificationService } from 'src/app/in/_services/notification.service';
 
 @Component({
@@ -62,10 +61,9 @@ export class PackageModelFieldsComponent implements OnInit {
         private route: ActivatedRoute,
         private matSnack: MatSnackBar,
         private router: RouterMemory,
-        private api: WorkbenchService,
+        private workbenchService: WorkbenchService,
         private dialog: MatDialog,
         private location: Location,
-        private workbenchService:WorkbenchV1Service,
         private notificationService:NotificationService
     ) { }
 
@@ -83,8 +81,8 @@ export class PackageModelFieldsComponent implements OnInit {
     }
 
     public async ngOnInit() {
-        this.models = await this.api.listAllModels().toPromise();
-        Field.type_directives = await this.api.getTypeDirective();
+        this.models = await this.workbenchService.listAllModels().toPromise();
+        Field.type_directives = await this.workbenchService.getTypeDirective();
 
         this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
             console.log('package-model-fields::ngOnInit(activatedRoute)', params)
@@ -101,14 +99,14 @@ export class PackageModelFieldsComponent implements OnInit {
         this.fieldList = [];
         this.parentFieldList = [];
 
-        this.schema = await this.api.getSchema(this.package_name + '\\' + this.class_name).toPromise();
+        this.schema = await this.workbenchService.getSchema(this.package_name + '\\' + this.class_name).toPromise();
 
         for(let item in this.schema["fields"]) {
             this.fieldList.push(new Field(cloneDeep(this.schema["fields"][item]), item));
         }
 
         if(this.schema.parent !== "equal\\orm\\Model") {
-            this.parent_schema = await this.api.getSchema(this.schema.parent).toPromise();
+            this.parent_schema = await this.workbenchService.getSchema(this.schema.parent).toPromise();
         }
         for(let item in this.parent_schema["fields"]) {
             this.parentFieldList.push(new Field(cloneDeep(this.parent_schema["fields"][item]), item));

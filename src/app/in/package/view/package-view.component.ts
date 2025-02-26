@@ -11,7 +11,6 @@ import { Usage } from 'src/app/in/_models/Params';
 import { TypeUsageService } from 'src/app/_services/type-usage.service';
 import { EqualComponentDescriptor } from '../../_models/equal-component-descriptor.class';
 import { EqualComponentsProviderService } from '../../_services/equal-components-provider.service';
-import { WorkbenchV1Service } from '../../_services/workbench-v1.service';
 import { NotificationService } from '../../_services/notification.service';
 import { WorkbenchService } from '../../_services/workbench.service';
 
@@ -21,7 +20,7 @@ import { WorkbenchService } from '../../_services/workbench.service';
     styleUrls: ['./package-view.component.scss']
 })
 export class PackageViewComponent implements OnInit {
-    
+
     view_id: string;
     entity: string;
 
