@@ -24,7 +24,7 @@ export class EqualComponentsProviderService {
             console.log("comonent map : ", this.componentsCacheMap)
             return of(Array.from(this.componentsCacheMap.keys())); // Retourne les noms des packages en cache
         }
-    
+
         return this.collectAllPackages().pipe(
             tap(components => {
                 components.forEach(comp => {
@@ -42,7 +42,7 @@ export class EqualComponentsProviderService {
         );
     }
 
-    
+
 
     /**
      * Retrieves a specific component based on the cache or via the API.
