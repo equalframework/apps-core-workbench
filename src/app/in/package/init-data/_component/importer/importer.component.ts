@@ -31,7 +31,7 @@ export class ImporterComponent implements OnInit {
       this.workbenchService.getSchema(this.data.entity).pipe(
           switchMap((schema) => {
               const fields = Object.keys(schema.fields);
-              return this.workbenchService.getAllInstanceFrom(this.data.entity, fields).pipe(
+              return this.workbenchService.collectEntitiesWithFilters(this.data.entity, fields).pipe(
                   map(instances => ({ instances, schema }))
               );
               })

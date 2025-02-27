@@ -31,7 +31,7 @@ export class ImporterComponent implements OnInit {
     this.workbenchService.getSchema(this.data.entity).pipe(
         switchMap((schema) => {
             const fields = Object.keys(schema.fields);
-            return this.workbenchService.getAllInstanceFrom(this.data.entity, fields).pipe(
+            return this.workbenchService.collectEntitiesWithFilters(this.data.entity, fields).pipe(
                 map(instances => ({ instances, schema }))
             );
             })
@@ -48,14 +48,11 @@ export class ImporterComponent implements OnInit {
 
         console.log(this.ItemList);
 
-        // Réinitialiser la pagination
         this.page.pageSize = 10;
         this.page.pageIndex = 0;
 
-        // Marquer comme prêt une fois tout terminé
         this.ready = true;
 
-        // Appliquer le tri
         this.sortData(this.current_sort, this.ItemList);
     });
 }

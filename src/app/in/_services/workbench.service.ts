@@ -72,31 +72,63 @@ export class WorkbenchService {
         return deleteActions[node.type]?.() || of({ message: "Unknown type" });
     }
 
-    public readMenu(package_name:string, menu_name:string){
-        const url = API_ENDPOINTS.menu.read(package_name, menu_name)
+    /**
+     * Reads the menu configuration for a given package and menu name.
+     *
+     * @param package_name The name of the package containing the menu.
+     * @param menu_name The name of the menu to be read.
+     * @returns Observable containing the response of the menu read request.
+     */
+    public readMenu(package_name: string, menu_name: string): Observable<any> {
+        const url = API_ENDPOINTS.menu.read(package_name, menu_name);
         return this.callApi(url, '').pipe(
-            map(({response}) => response)
+            map(({ response }) => response)
         );
     }
 
-    public readView(package_name:string,view_name:string,model_name:string){
-        const url =API_ENDPOINTS.view.read(package_name,model_name,view_name);
+    /**
+     * Reads the view configuration for a given package, model, and view name.
+     *
+     * @param package_name The name of the package containing the model.
+     * @param view_name The name of the view to be read.
+     * @param model_name The name of the model for which the view is configured.
+     * @returns Observable containing the response of the view read request.
+     */
+    public readView(package_name: string, view_name: string, model_name: string): Observable<any> {
+        const url = API_ENDPOINTS.view.read(package_name, model_name, view_name);
         return this.callApi(url, '').pipe(
-            map(({response}) => response)
+            map(({ response }) => response)
         );
     }
 
-    public updateFieldsFromClass(new_schema: {}, package_name: string, class_name: string){
-        const url = API_ENDPOINTS.class.update_fields(new_schema,package_name,class_name);
+    /**
+     * Updates the fields for a given class in a specified package.
+     *
+     * @param new_schema The new schema to be applied to the class fields.
+     * @param package_name The name of the package containing the class.
+     * @param class_name The name of the class whose fields need to be updated.
+     * @returns Observable indicating the success of the update operation.
+     */
+    public updateFieldsFromClass(new_schema: {}, package_name: string, class_name: string): Observable<any> {
+        const url = API_ENDPOINTS.class.update_fields(new_schema, package_name, class_name);
         const successfullyMessage = `Fields from ${package_name}//${class_name} has been updated`;
-        return this.callApi(url,successfullyMessage);
+        return this.callApi(url, successfullyMessage);
     }
 
-    public updateController(controller_name: string, controller_type: string, payload : {[id:string]:any}){
-        const url = API_ENDPOINTS.controller.update(controller_name,controller_type,payload);
+    /**
+     * Updates a given controller with the provided payload.
+     *
+     * @param controller_name The name of the controller to be updated.
+     * @param controller_type The type of the controller (e.g., 'data', 'actions').
+     * @param payload The payload containing the data to update the controller.
+     * @returns Observable indicating the success of the update operation.
+     */
+    public updateController(controller_name: string, controller_type: string, payload: { [id: string]: any }): Observable<any> {
+        const url = API_ENDPOINTS.controller.update(controller_name, controller_type, payload);
         const successfullyMessage = `${controller_name} has been updated`;
         return this.callApi(url, successfullyMessage);
     }
+
 
     /**
      * Fetches the workflow data.
@@ -452,23 +484,8 @@ export class WorkbenchService {
     /**
      * @deprecated
      * @todo use equalComponentProvider
-     * @returns
-     */
-    public listModelFrom(package_name: string): Observable<string[]> {
-        const url = '?get=core_config_classes';
-        return this.callApi(url, '').pipe(
-            map((result: any) => result.response[package_name] || [])
-        );
-        }
-
-
-
-
-    /**
-     * @deprecated
-     * @todo use equalComponentProvider
-     * @returns
-     */
+     * @tag EqualComponentProvider
+     * */
     public collectViews(package_name: string, entity?: string): Observable<string[]> {
         const url = entity === undefined
             ? `?get=core_config_views&package=${package_name}`
@@ -485,7 +502,7 @@ export class WorkbenchService {
     /**
      * @deprecated
      * @todo use equalComponentProvider
-     * @returns
+     * @tag EqualComponentProvider
      */
     public getMenusByPackage(package_name: string): Observable<string[]> {
         const url = `?get=core_config_menus&package=${package_name}`;
@@ -498,7 +515,7 @@ export class WorkbenchService {
     /**
      * @deprecated
      * @todo use equalComponentProvider
-     * @returns
+     * @tag EqualComponentProvider
      */
     public getRoutesByPackage(package_name: string): Observable<any> {
         const url = `?get=core_config_routes&package=${package_name}`;
@@ -529,7 +546,7 @@ export class WorkbenchService {
 
 
 
- //////////////////////////////////////// // Method from embedded Api, I just copied them here to delete embedded api need a refactoring
+ //////////////////////////////////////// // Method from embedded Api, I just copied them here to delete embedded api need a refactoring (currently in refactoring step)
 
 
     /**
@@ -555,12 +572,6 @@ export class WorkbenchService {
         return this.callApi(url, '').pipe();
     }
 
-    public getClasses(): Observable<any> {
-        const url = '?get=core_config_classes';
-        return this.callApi(url, '').pipe(
-            map(({response}) => response)
-        );
-    }
 
     /**
      * Collects core configuration classes or lists all models with optional formatting.
@@ -595,33 +606,64 @@ export class WorkbenchService {
     }
 
 
+    /**
+     * Fetches the available configuration types.
+     *
+     * This method retrieves the list of configuration types from the backend.
+     *
+     * @returns {Observable<any>} An observable that emits the response containing the configuration types.
+     */
     public getTypes(): Observable<any> {
         const url = '?get=config_types';
         return this.callApi(url, '').pipe(
-            map(({response}) => response)
+            map(({ response }) => response)
         );
     }
 
+    /**
+     * Fetches the valid operators.
+     *
+     * This method retrieves a list of valid operators from the backend.
+     *
+     * @returns {Observable<any>} An observable that emits the response containing the valid operators.
+     */
     public getValidOperators(): Observable<any> {
         const url = '?get=core_config_domain-operators';
         return this.callApi(url, '').pipe(
-            map(({response}) => response)
+            map(({ response }) => response)
         );
     }
 
+    /**
+     * Fetches the available usages.
+     *
+     * This method retrieves a list of usages available in the configuration.
+     *
+     * @returns {Observable<any>} An observable that emits the response containing the available usages.
+     */
     public getUsages(): Observable<any> {
         const url = '?get=config_usage';
         return this.callApi(url, '').pipe(
-            map(({response}) => response)
+            map(({ response }) => response)
         );
     }
 
-    public getAllInstanceFrom(entity: string, fields: string[] = []): Observable<any> {
+    /**
+     * Fetches all instances of a specific entity with selected fields.
+     *
+     * This method retrieves instances of a specific entity from the backend and can filter by specific fields if provided.
+     *
+     * @param {string} entity - The entity to fetch instances from.
+     * @param {string[]} [fields=[]] - An optional array of fields to fetch for each instance.
+     * @returns {Observable<any>} An observable that emits the response containing the instances of the entity.
+     */
+    public collectEntitiesWithFilters(entity: string, fields: string[] = []): Observable<any> {
         const url = `?get=core_model_collect&entity=${entity}&fields=${JSON.stringify(fields)}`;
         return this.callApi(url, '').pipe(
-            map(({response}) => response)
+            map(({ response }) => response)
         );
     }
+
 
     /**
      * @deprecated

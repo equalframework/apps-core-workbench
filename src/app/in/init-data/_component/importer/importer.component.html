@@ -26,12 +26,12 @@
                 <th [style.width]="'40px'"><mat-checkbox class="table-item" (click)="$event.stopPropagation()" (change)="selectAll($event.checked)"></mat-checkbox></th>
                 <th mat-sort-header="id" [style.width]="'10%'">id</th>
                 <th *ngFor="let field of data.vf" [style.width]="(field.width/fullWidth)*90 - 40" [mat-sort-header]="field.value">{{field.value}}</th>
-            </tr> 
+            </tr>
             <tr *ngFor="let item of pageContent; index as index" class="pointer">
                 <td (click)="$event.stopPropagation()">
-                    <mat-checkbox class="table-item" 
-                        [checked]="item.selected" 
-                        (change)="item.selected = $event.checked" 
+                    <mat-checkbox class="table-item"
+                        [checked]="item.selected"
+                        (change)="item.selected = $event.checked"
                     ></mat-checkbox>
                 </td>
                 <td><label [style.opacity]="item.id_strict ? 1 : 0.4" class="table-item">{{item.id}}</label></td>
@@ -39,7 +39,7 @@
             </tr>
         </table>
 
-        </div> 
+        </div>
         <label>{{selectedCount}} {{pageContent.length > 1 ? "instances" : "instance"}} selected for importation</label>
     </ng-container>
 </app-popup-layout>
