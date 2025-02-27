@@ -107,7 +107,7 @@ export class PackageControllerParamsComponent implements OnInit {
         console.log(this.paramList);
         this.onChange("Opening file");
         console.log(this.toSchema());
-        this.modelList = await this.workbenchService.listAllModels().toPromise();
+        this.modelList = await this.workbenchService.collectClasses(true).toPromise();
     }
 
     public onSelection(index:number){

@@ -55,8 +55,8 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
                 // Parsing the json as an Menu object
             // #memo - we clone the schema to avoid the Menu constructor to destroy the original copy
             this.object = new Menu(cloneDeep(this.menuSchema));
-            this.entities['model'] = await this.workbenchService.listAllModels().toPromise();
-            this.entities['data'] = await this.workbenchService.listControllersByType('data').toPromise();
+            this.entities['model'] = await this.workbenchService.collectClasses(true).toPromise();
+            this.entities['data'] = await this.workbenchService.collectControllers('data').toPromise();
             this.workbenchService.getCoreGroups().toPromise().then(data => {
                 for(let key in data) {
                     this.groups.push(data[key]['name'])
@@ -85,7 +85,7 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
 
     async updateEntityDependentFields() {
         if(this.selected_item) {
-            this.viewlist =   ((await this.workbenchService.getViews(this.package_name,this.selected_item.context.entity).toPromise()).map((value => value.split(":").slice(1).join(':'))))
+            this.viewlist =   ((await this.workbenchService.collectViews(this.package_name,this.selected_item.context.entity).toPromise()).map((value => value.split(":").slice(1).join(':'))))
             this.workbenchService.getSchema(this.selected_item.context.entity.replaceAll("_", "\\"))
             .pipe(
                 map(schema => Object.keys(schema.fields))

@@ -102,7 +102,7 @@ export class ModelTradEditorComponent implements OnInit {
   async createNewLang(): Promise<Translator> {
     const scheme = await this.workbenchService.getSchema(`${this.package}\\${this.model}`).toPromise();
     const modelFields = Object.keys(scheme.fields);
-    const viewsList = await this.workbenchService.getViews(this.package, `${this.package}\\${this.model}`).toPromise();
+    const viewsList = await this.workbenchService.collectViews(this.package, `${this.package}\\${this.model}`).toPromise();
     const views: { name: string, view: View }[] = [];
     for (const viewStr of viewsList) {
       const parts = viewStr.split(':');

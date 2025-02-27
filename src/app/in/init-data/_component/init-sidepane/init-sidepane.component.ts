@@ -38,7 +38,7 @@ export class InitSidepaneComponent implements OnInit,OnChanges {
   ) { }
 
   async ngOnInit() {
-    this.modelList = await this.api.listAllModels().toPromise()
+    this.modelList = await this.api.collectClasses(true).toPromise()
   }
 
   get fullWidth():number {

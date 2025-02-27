@@ -12,9 +12,6 @@ import { EqualComponentDescriptor } from '../_models/equal-component-descriptor.
     providedIn: 'root'
 })
 export class WorkbenchService {
-    updatePackage(old_node: string, new_node: string) {
-        throw new Error('Method not implemented.');
-    }
 
     constructor(private api: ApiService,) {}
 
@@ -58,7 +55,6 @@ export class WorkbenchService {
     * @returns An observable that emits a success or error message.
     */
     public deleteNode(node: EqualComponentDescriptor): Observable<any> {
-        console.log("node : ", node);
         const deleteActions: Record<string, () => Observable<any>> = {
             package: () => this.deletePackage(node.name),
             class: () => this.deleteClass(node.package_name,node.name),
@@ -383,6 +379,36 @@ export class WorkbenchService {
         return this.callApi(url, successfullyMessage)
     }
 
+    /**
+     * Calls the API and processes the response.
+     *
+     * This method makes an API call using the provided URL and request body, then processes the response.
+     * On success, it returns the response along with a success message. On failure, it catches the error,
+     * logs it to the console, and returns an error message along with the error details.
+     *
+     * @param {string} url - The URL endpoint for the API request.
+     * @param {string} successMessage - A custom success message to be returned upon a successful API call.
+     * @param {any} [body={}] - The request body to be sent with the API call (optional). Defaults to an empty object.
+     *
+     * @returns {Observable<{ success: boolean, message: string, response: any }>} An observable containing the result of the API call.
+     *  - success: A boolean indicating whether the API call was successful (`true` if successful, `false` if failed).
+     *  - message: A string providing a success or error message.
+     *  - response: The response from the API if successful, or the error details if failed.
+     *
+     * Example usage:
+     * ```typescript
+     * this.callApi('/endpoint', 'Data fetched successfully')
+     *   .subscribe(result => {
+     *     if (result.success) {
+     *       console.log(result.message); // Success message
+     *       console.log(result.response); // API response
+     *     } else {
+     *       console.error(result.message); // Error message
+     *       console.error(result.response); // Error details
+     *     }
+     *   });
+     * ```
+     */
     private callApi(url: string, successMessage: string, body:any = {}) {
             return from(this.api.fetch(url,body)).pipe(
                 map((response: any) => ({
@@ -410,154 +436,100 @@ export class WorkbenchService {
             );
         }
 
-///////////////////// Functions that should be delete because of duplication but if we delete them now, nothing will work and it will be too much work to do
-        /**
-         * @deprecated
-         * @todo use equalComponentProvider
-         * @returns
-         */
-        public collectAllPackages(): Observable<string[]> {
-            const url = '?get=config_packages';
-            return this.callApi(url, '').pipe(
-              map((result: any) => result.response || [])
-            );
-          }
+///////////////////// Functions that should need refactoring because it can still contain duplication functions
+    /**
+     * @deprecated
+     * @todo for a better centralized logic, try to use equalComponentProviderService
+     * @tag EqualComponentProvider to use
+     */
+    public collectAllPackages(): Observable<string[]> {
+        const url = '?get=config_packages';
+        return this.callApi(url, '').pipe(
+            map((result: any) => result.response || [])
+        );
+        }
 
-        /**
-         * @deprecated
-         * @todo use equalComponentProvider
-         * @returns
-         */
-        public listModelFrom(package_name: string): Observable<string[]> {
-            const url = '?get=core_config_classes';
-            return this.callApi(url, '').pipe(
-              map((result: any) => result.response[package_name] || [])
-            );
-          }
-
-        /**
-         * @deprecated
-         * @todo use equalComponentProvider
-         * @returns
-         */
-        public listControllerFromPackageAndByType(package_name: string, type: "data" | "actions" | "apps", pkname: boolean = false): Observable<string[]> {
-            const url = `?get=core_config_controllers&package=${package_name}`;
-            return this.callApi(url, '').pipe(
-              map((result: any) => {
-                const temp: string[] = result.response[type] || [];
-                return pkname ? temp : temp.map(item => item.split("_").slice(1).join("_"));
-              })
-            );
-          }
-
-
-        /**
-         * @deprecated
-         * @todo use equalComponentProvider
-         * @returns
-         */
-        public listControllersByType(type: "data" | "actions" | "apps"): Observable<string[]> {
-            return this.collectAllPackages().pipe(
-              switchMap((package_names: string[]) => {
-                const observables = package_names.map(package_name => {
-                  const url = `?get=core_config_controllers&package=${package_name}`;
-                  return this.callApi(url, '').pipe(
-                    map((result: any) => result.response[type] || [])
-                  );
-                });
-                return forkJoin(observables);
-              }),
-              map((arrays: string[][]) => arrays.flat())
-            );
-          }
-
-
-        /**
-         * @deprecated
-         * @todo use equalComponentProvider
-         * @returns
-         */
-        public listViewFrom(package_name: string, entity?: string): Observable<string[]> {
-            const url = entity === undefined
-              ? `?get=core_config_views&package=${package_name}`
-              : `?get=core_config_views&entity=${package_name}\\${entity}`;
-            return this.callApi(url, '').pipe(
-              map((result: any) => result.response || [])
-            );
-          }
-
-
-        /**
-         * @deprecated
-         * @todo use equalComponentProvider
-         * @returns
-         */
-        public listAllModels(): Observable<string[]> {
-            const url = '?get=core_config_classes';
-            return this.callApi(url, '').pipe(
-              map((result: any) => {
-                const x = result.response;
-                let ret: string[] = [];
-                for (const key in x) {
-                  for (const item of x[key]) {
-                    ret.push(`${key}\\${item}`);
-                  }
-                }
-                return ret;
-              })
-            );
-          }
-
-
-
-        /**
-         * @deprecated
-         * @todo use equalComponentProvider
-         * @returns
-         */
-        public getMenusByPackage(package_name: string): Observable<string[]> {
-            const url = `?get=core_config_menus&package=${package_name}`;
-            return this.callApi(url, '').pipe(
-              map((result: any) => result.response || [])
-            );
-          }
-
-
-        /**
-         * @deprecated
-         * @todo use equalComponentProvider
-         * @returns
-         */
-        public getRoutesByPackage(package_name: string): Observable<any> {
-            const url = `?get=core_config_routes&package=${package_name}`;
-            return this.callApi(url, '').pipe(
-              map((result: any) => result.response)
-            );
-          }
-
-
-
-        public getAllRouteFiles(): Observable<string[]> {
-            const packagesUrl = '?get=core_config_packages';
-            return this.callApi(packagesUrl, '').pipe(
-                switchMap((result: any) => {
-                const packs: string[] = result.response || [];
-                const observables = packs.map(package_name => {
-                    const url = `?get=core_config_routes&package=${package_name}`;
-                    return this.callApi(url, '').pipe(
-                    map((res: any) => Object.keys(res.response || {}))
-                    );
-                });
-                return forkJoin(observables);
-                }),
-                map((arrays: string[][]) => arrays.flat())
-            );
+    /**
+     * @deprecated
+     * @todo use equalComponentProvider
+     * @returns
+     */
+    public listModelFrom(package_name: string): Observable<string[]> {
+        const url = '?get=core_config_classes';
+        return this.callApi(url, '').pipe(
+            map((result: any) => result.response[package_name] || [])
+        );
         }
 
 
 
 
-        // Method from embedded Api, I just copied them here to delete embedded api need a refactoring
+    /**
+     * @deprecated
+     * @todo use equalComponentProvider
+     * @returns
+     */
+    public collectViews(package_name: string, entity?: string): Observable<string[]> {
+        const url = entity === undefined
+            ? `?get=core_config_views&package=${package_name}`
+            : `?get=core_config_views&entity=${package_name}\\${entity}`;
+        return this.callApi(url, '').pipe(
+            map((result: any) => result.response || [])
+        );
+        }
+
+
+
+
+
+    /**
+     * @deprecated
+     * @todo use equalComponentProvider
+     * @returns
+     */
+    public getMenusByPackage(package_name: string): Observable<string[]> {
+        const url = `?get=core_config_menus&package=${package_name}`;
+        return this.callApi(url, '').pipe(
+            map((result: any) => result.response || [])
+        );
+        }
+
+
+    /**
+     * @deprecated
+     * @todo use equalComponentProvider
+     * @returns
+     */
+    public getRoutesByPackage(package_name: string): Observable<any> {
+        const url = `?get=core_config_routes&package=${package_name}`;
+        return this.callApi(url, '').pipe(
+            map((result: any) => result.response)
+        );
+        }
+
+
+
+    public getAllRouteFiles(): Observable<string[]> {
+        const packagesUrl = '?get=core_config_packages';
+        return this.callApi(packagesUrl, '').pipe(
+            switchMap((result: any) => {
+            const packs: string[] = result.response || [];
+            const observables = packs.map(package_name => {
+                const url = `?get=core_config_routes&package=${package_name}`;
+                return this.callApi(url, '').pipe(
+                map((res: any) => Object.keys(res.response || {}))
+                );
+            });
+            return forkJoin(observables);
+            }),
+            map((arrays: string[][]) => arrays.flat())
+        );
+    }
+
+
+
+
+ //////////////////////////////////////// // Method from embedded Api, I just copied them here to delete embedded api need a refactoring
 
 
     /**
@@ -583,33 +555,66 @@ export class WorkbenchService {
         return this.callApi(url, '').pipe();
     }
 
-      public getClasses(): Observable<any> {
+    public getClasses(): Observable<any> {
         const url = '?get=core_config_classes';
         return this.callApi(url, '').pipe(
             map(({response}) => response)
         );
-      }
+    }
 
-      public getTypes(): Observable<any> {
+    /**
+     * Collects core configuration classes or lists all models with optional formatting.
+     *
+     * This method can either fetch the core configuration classes or list all models depending on the passed parameters.
+     * It applies formatting if the `format` flag is set to `true`.
+     *
+     * @param {boolean} format - If `true`, the result will be formatted by combining the model type and model name.
+     * @returns {Observable<any>} An observable that emits the response or formatted models list.
+     */
+    public collectClasses(format: boolean = false): Observable<any> {
+        const url = '?get=core_config_classes';
+        return this.callApi(url, '').pipe(
+            map((result: any) => {
+                const x = result.response;
+
+                // If format is false, return the raw response
+                if (!format) {
+                    return x;
+                }
+
+                // If format is true, return a list of formatted models
+                let ret: string[] = [];
+                for (const key in x) {
+                    for (const item of x[key]) {
+                        ret.push(`${key}\\${item}`);
+                    }
+                }
+                return ret;
+            })
+        );
+    }
+
+
+    public getTypes(): Observable<any> {
         const url = '?get=config_types';
         return this.callApi(url, '').pipe(
             map(({response}) => response)
         );
-      }
+    }
 
-      public getValidOperators(): Observable<any> {
+    public getValidOperators(): Observable<any> {
         const url = '?get=core_config_domain-operators';
         return this.callApi(url, '').pipe(
             map(({response}) => response)
         );
-      }
+    }
 
-      public getUsages(): Observable<any> {
+    public getUsages(): Observable<any> {
         const url = '?get=config_usage';
         return this.callApi(url, '').pipe(
             map(({response}) => response)
         );
-      }
+    }
 
     public getAllInstanceFrom(entity: string, fields: string[] = []): Observable<any> {
         const url = `?get=core_model_collect&entity=${entity}&fields=${JSON.stringify(fields)}`;
@@ -626,8 +631,7 @@ export class WorkbenchService {
     public getViews(package_name: string, entity: string): Observable<string[]> {
         const url = `?get=core_config_views&package=${package_name}&entity=${entity}`;
         return this.callApi(url, '').pipe(
-            map((result: any) => result.response || [])
-        );
+            map(({response}) => response || []));
     }
 
 
@@ -699,26 +703,34 @@ export class WorkbenchService {
         }
     }
 
-    private construct_usage_list(object:any,):string[] {
-        let result = Object.keys(object);
-        Object.keys(object).forEach((element) => {
-            result = result.concat(
-                Object.keys(object[element])
-                    .map((field) => (!isNaN(parseFloat(field)) && isFinite(parseFloat(field))) ? field = `${element}/${object[element][field]}` : `${element}/${field}`)
-            )
-        })
-        return result;
-    }
 
+
+    /**
+     * Fetches core groups from the API.
+     *
+     * This method retrieves a list of core groups with specific fields, sorted in ascending order.
+     *
+     * @returns {Observable<any>} An observable that emits the response containing the core groups.
+     */
     public getCoreGroups(): Observable<any> {
         const url = '?get=core_model_collect&fields=[name]&lang=en&domain=[]&order=id&sort=asc&entity=core\\Group';
         return this.callApi(url, '').pipe(
-            map(({response}) => response)
-        );;
+            map(({ response }) => response)
+        );
     }
 
 
-
+    /**
+     * Fetches translations for a specific package, entity, and language.
+     *
+     * This method retrieves translations for a given package and entity, filtered by the specified language.
+     *
+     * @param {string} package_name - The name of the package.
+     * @param {string} entity - The entity within the package.
+     * @param {string} lang - The language code (e.g., "en", "fr").
+     *
+     * @returns {Observable<{ [id: string]: any } | null>} An observable that emits the translations if available, or `null` if no translations are found.
+     */
     public getTranslations(package_name: string, entity: string, lang: string): Observable<{ [id: string]: any } | null> {
         const url = `?get=core_config_translation&lang=${lang}&entity=${package_name}\\${entity}`;
         return this.callApi(url, '').pipe(
@@ -727,14 +739,35 @@ export class WorkbenchService {
     }
 
 
+    /**
+     * Fetches a list of available translations for a specific package and entity.
+     *
+     * This method retrieves a list of translation keys for the specified package and entity.
+     *
+     * @param {string} package_name - The name of the package.
+     * @param {string} entity - The entity within the package.
+     *
+     * @returns {Observable<{ [id: string]: string[] }>} An observable that emits a mapping of translation IDs to their keys.
+     */
     public getTranslationsList(package_name: string, entity: string): Observable<{ [id: string]: string[] }> {
         const url = `?get=core_config_translations&entity=${package_name}\\${entity}`;
         return this.callApi(url, '').pipe(
-            map((response: any) => response.success ? response.response : {})
+            map(({ response }) => response ? response : {})
         );
     }
 
 
+    /**
+     * Saves translations for a specific package, entity, and language dictionary.
+     *
+     * This method updates translations for a given package and entity for each language in the dictionary.
+     *
+     * @param {string} package_name - The name of the package.
+     * @param {string} entity - The entity within the package.
+     * @param {any} dict - The translation dictionary, where keys are language codes and values are translation data.
+     *
+     * @returns {Observable<void>} An observable that emits when all translation updates have been completed.
+     */
     public saveTranslations(package_name: string, entity: string, dict: any): Observable<void> {
         const requests = Object.keys(dict).map((lang) => {
             const url = `?do=core_config_update-translation&package=${package_name}&entity=${entity}&lang=${lang}&create_lang=true&payload=${JSON.stringify(dict[lang].export())}`;
@@ -749,38 +782,70 @@ export class WorkbenchService {
     }
 
 
-    public collectControllers(controllerType: '' | 'data' | 'actions' = '', packageName?: string,): Observable<string[]> {
-        if (!packageName) {
-            return this.callApi('?get=core_config_packages', 'Fetched packages').pipe(
-                switchMap(({response}) => {
-                    const packages: string[] = response || [];
-                    const controllerObservables = packages.map(package_name =>
-                        this.collectControllers(controllerType, package_name, )
-                    );
-                    return forkJoin(controllerObservables);
-                }),
-                map((controllersArray: string[][]) => controllersArray.flat())
-            );
+    /**
+    * @deprecated
+    * @todo for a better centralized logic, try to use equalComponentProviderService
+    * @tag EqualComponentProvider to use
+    */
+    public collectControllers(
+        controller_type: '' | 'data' | 'actions' = '',
+        package_name?: string,
+        format: boolean = false
+      ): Observable<string[]> {
+        //if no package we collect every controller of controller_type from every package
+        if (!package_name) {
+          return this.collectAllPackages().pipe(
+            switchMap((packages) => {
+              const controllerObservables = packages.map(name =>
+                this.collectControllers(controller_type, name, format)
+              );
+              return forkJoin(controllerObservables);
+            }),
+            map((controllerArrays: string[][]) => controllerArrays.flat())
+          );
         }
-
-        const url = `?get=core_config_controllers&package=${packageName}`;
-        return this.callApi(url, `Fetched controllers for package ${packageName}`).pipe(
-            map(({response}) => controllerType ? (response?.[controllerType] || []) : response)
-        );
-    }
-
+        // we collect controllers of controller_type from a package
+        else {
+          return this.collectControllersForPackage(package_name, controller_type, format);
+        }
+      }
 
 
 
 
+
+
+    /**
+     * Saves the UML for a given package and type.
+     *
+     * This method sends a request to update the UML for the specified package, type, and path,
+     * using the provided payload.
+     *
+     * @param {string} package_name - The name of the package.
+     * @param {string} type - The type of UML to save (e.g., "class", "sequence").
+     * @param {string} path - The path where the UML should be saved.
+     * @param {string} payload - The UML data in string format.
+     *
+     * @returns {Observable<boolean>} An observable that emits `true` if the UML was successfully saved, or `false` if failed.
+     */
     public saveUML(package_name: string, type: string, path: string, payload: string): Observable<boolean> {
         const url = `?do=core_config_update-uml&package=${package_name}&type=${type}&filename=${path}`;
-        return this.callApi(url, '', {payload : payload}).pipe(
-            map(({success}) => success)
+        return this.callApi(url, '', { payload: payload }).pipe(
+            map(({ success }) => success)
         );
     }
 
 
+    /**
+     * Retrieves a list of UMLs for a specific type.
+     *
+     * This method fetches the list of UMLs based on the specified type.
+     *
+     * @param {string} type - The type of UMLs to fetch (e.g., "class", "sequence").
+     *
+     * @returns {Observable<{ [id: string]: string[] }>} An observable that emits a mapping of UML IDs to their associated names.
+     *         If the request fails, an empty object is returned.
+     */
     public getUMLList(type: string): Observable<{ [id: string]: string[] }> {
         const url = `?get=core_config_umls&type=${type}`;
         return this.callApi(url, '').pipe(
@@ -789,15 +854,33 @@ export class WorkbenchService {
     }
 
 
+    /**
+     * Retrieves the content of a specific UML for a given package, type, and path.
+     *
+     * This method fetches the content of a UML based on the specified package name, UML type, and path.
+     *
+     * @param {string} package_name - The name of the package.
+     * @param {string} type - The type of UML (e.g., "class", "sequence").
+     * @param {string} path - The path to the UML.
+     *
+     * @returns {Observable<any[]>} An observable that emits the UML content as an array. If the request fails, an empty array is returned.
+     */
     public getUMLContent(package_name: string, type: string, path: string): Observable<any[]> {
         const url = `?get=core_config_uml&package=${package_name}&type=${type}&path=${path}`;
         return this.callApi(url, '').pipe(
             map(({ success, response }) => success ? response : [])
         );
-
     }
 
 
+    /**
+     * Retrieves the available widget types.
+     *
+     * This method fetches the available widget types.
+     *
+     * @returns {Observable<{ [id: string]: string[] }>} An observable that emits a mapping of widget types to their names.
+     *         If the request fails, an empty object is returned.
+     */
     public getWidgetTypes(): Observable<{ [id: string]: string[] }> {
         return from(this.api.fetch("?get=core_config_widget-types")).pipe(
             catchError(() => of({}))
@@ -805,13 +888,16 @@ export class WorkbenchService {
     }
 
 
-     /**
-     * Return the announcement of a controller
+
+    /**
+     * Announces a controller action based on its type and name.
      *
-     * @param string type_controller the action of the controller(do or get)
-     * @param string eq_package name of the package
-     * @param string name of the controller
-     * @returns array with the announcement of a controller
+     * If either the `type_controller` or `name` is missing, or if the request fails, it returns `null`.
+     *
+     * @param {string} [type_controller] - The action type of the controller (e.g., "do", "get").
+     * @param {string} [name] - The name of the controller.
+     *
+     * @returns {Observable<string[] | null>} An observable that emits the controller announcement or `null` on failure.
      */
     public announceController(type_controller?: string, name?: string, ): Observable<any> {
         if (!type_controller || !name) {
@@ -833,5 +919,47 @@ export class WorkbenchService {
         );;
     }
 
+    //////////////////////////////////////////////////////////////////////////Private method///////////////////////////////////////////////////////////////////////////////
+
+    private collectControllersForPackage(
+        package_name: string,
+        controller_type: '' | 'data' | 'actions',
+        format: boolean
+    ): Observable<string[]> {
+        const url = `?get=core_config_controllers&package=${package_name}`;
+
+        return this.callApi(url, `Fetched controllers for package ${package_name}`).pipe(
+            map(({ response }) => {
+                // Step 1: Retrieve controllers based on controller_type
+                let controllers: string[] = controller_type
+                    ? response?.[controller_type] || []
+                    : response;
+
+                // Step 2: If formatting is required, apply the formatControllerName function
+                return format
+                    ? controllers.map(this.formatControllerName)
+                    : controllers;
+            })
+        );
+    }
+
+
+
+
+    private formatControllerName(controller: string): string {
+    // Removes the first segment (prefix) of the controller name.
+        return controller.split("_").slice(1).join("_");
+    }
+
+    private construct_usage_list(object:any,):string[] {
+        let result = Object.keys(object);
+        Object.keys(object).forEach((element) => {
+            result = result.concat(
+                Object.keys(object[element])
+                    .map((field) => (!isNaN(parseFloat(field)) && isFinite(parseFloat(field))) ? field = `${element}/${object[element][field]}` : `${element}/${field}`)
+            )
+        })
+        return result;
+    }
 
 }

@@ -38,7 +38,7 @@ export class InitSidepaneComponent implements OnInit, OnChanges {
             private dialog:MatDialog) { }
 
     public async ngOnInit() {
-        this.modelList = await this.workbenchService.listAllModels().toPromise()
+        this.modelList = await this.workbenchService.collectClasses(true).toPromise()
     }
 
     public get fullWidth(): number {

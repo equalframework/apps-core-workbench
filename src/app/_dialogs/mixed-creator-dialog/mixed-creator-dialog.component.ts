@@ -193,7 +193,7 @@ private destroy$: Subject<boolean> = new Subject<boolean>();
         this.subtypeName = this.subtype;
         this.cacheList = [];
         if (this.selectedPackage && this.selectedModel) {
-          const views = await this.workbenchService.listViewFrom(this.selectedPackage, this.selectedModel).toPromise();
+          const views = await this.workbenchService.collectViews(this.selectedPackage, this.selectedModel).toPromise();
           views?.filter(item => {
             const sp = item.split(':');
             return sp[1].split('.')[0] === this.subtype &&
@@ -221,7 +221,7 @@ private destroy$: Subject<boolean> = new Subject<boolean>();
         this.needSubtype = true;
         this.subtypeName = 'Extends from';
         if (this.selectedPackage) {
-          const models = await this.workbenchService.listAllModels().toPromise();
+          const models = await this.workbenchService.collectClasses(true).toPromise();
           this.subTypeList = ['equal\\orm\\Model', ...models];
           this.cacheList = this.cacheModelList;
         }
@@ -231,7 +231,7 @@ private destroy$: Subject<boolean> = new Subject<boolean>();
         this.implemented = true;
         this.needSubtype = false;
         if (this.selectedPackage) {
-          this.cacheList = await this.workbenchService.listControllerFromPackageAndByType(this.selectedPackage, 'actions').toPromise();
+          this.cacheList = await this.workbenchService.collectControllers('actions',this.selectedPackage,true).toPromise();
         }
         break;
       case 'get':
@@ -239,7 +239,7 @@ private destroy$: Subject<boolean> = new Subject<boolean>();
         this.implemented = true;
         this.needSubtype = false;
         if (this.selectedPackage) {
-          this.cacheList = await this.workbenchService.listControllerFromPackageAndByType(this.selectedPackage, 'data').toPromise();
+          this.cacheList = await this.workbenchService.collectControllers('data',this.selectedPackage,true).toPromise();
         }
         break;
       case 'route':
@@ -323,7 +323,6 @@ private destroy$: Subject<boolean> = new Subject<boolean>();
         model: this.selectedModel
       }
     };
-    console.log("node avant création : ", node);
     // Adapt node name based on type
     if (node.type === 'view') {
       node.name = `${node.item.model}:${this.subtypeName}.${node.name}`;
@@ -339,8 +338,7 @@ private destroy$: Subject<boolean> = new Subject<boolean>();
       if(node.type === 'route'){
         node.item = {}
       }
-      const resultWithNode = { ...result, node }; //plus cours et lisible à faire
-      this.dialogRef.close(resultWithNode);
+      this.dialogRef.close({ ...result, node });
     });
   }
 

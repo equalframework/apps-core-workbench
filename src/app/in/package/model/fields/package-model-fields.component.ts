@@ -81,7 +81,7 @@ export class PackageModelFieldsComponent implements OnInit {
     }
 
     public async ngOnInit() {
-        this.models = await this.workbenchService.listAllModels().toPromise();
+        this.models = await this.workbenchService.collectClasses(true).toPromise();
         Field.type_directives = await this.workbenchService.getTypeDirective();
 
         this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {

@@ -82,7 +82,7 @@ export class PackageControllerReturnComponent implements OnInit {
 
         this.typeIconList = this.TypeUsage.typeIcon;
         this.types_regular = await this.workbenchService.getTypeList();
-        this.entities = await this.workbenchService.listAllModels().toPromise();
+        this.entities = await this.workbenchService.collectClasses(true).toPromise();
 
         this.filtered_types_regular = this._filter('', 'types_regular');
         this.filtered_types_custom = this._filter('', 'types_custom');

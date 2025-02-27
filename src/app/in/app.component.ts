@@ -74,7 +74,7 @@ export class AppComponent implements OnInit {
      * @param event contains the old and new name of the package
      */
     public onupdatePackage(event: { old_node: string, new_node: string }) {
-        this.api.updatePackage(event.old_node, event.new_node);
+        //this.api.updatePackage(event.old_node, event.new_node);
     }
 
 
