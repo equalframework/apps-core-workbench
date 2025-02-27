@@ -1,27 +1,28 @@
 <div class="app-inner-header">
     <app-inner-header
-            [buttonBack]="true"
-            (onButtonBack)="getBack()">
-        <label class="package-label">{{ package_name }}</label>›<label class="model-label"><mat-icon>code</mat-icon>Controllers</label>
+    [buttonBack]="true"
+    (onButtonBack)="getBack()">
+        <label class="package-label">{{ package_name }}</label>›<label
+            class="model-label"><mat-icon>code</mat-icon>Controller</label>
     </app-inner-header>
 </div>
 
 <div class="app-inner-body">
 
     <div class="left_pane">
-        <search-controllers-list list class="full" *ngIf="controllers"
-                    [package_name]="package_name"
-                [selected_node]="selected_controller"
-                (selectNode)="onSelectNode($event)"
-                (nodeUpdate)="onupdateController($event)">
+        <search-controllers-list
+        list class="full"
+        [package_name]="package_name"
+        [selected_node]="selected_controller"
+        (selectNode)="onSelectNode($event)" (nodeUpdate)="onupdateController($event)">
         </search-controllers-list>
     </div>
 
     <div class="right_pane">
         <info-controller
-                *ngIf="selected_controller"
-                [controller]="selected_controller"
-                [selected_package]="package_name">
+        *ngIf="selected_controller"
+        [controller]="selected_controller"
+        [selected_package]="package_name">
         </info-controller>
     </div>
 </div>

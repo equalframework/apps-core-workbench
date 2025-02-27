@@ -580,15 +580,8 @@ export class WorkbenchService {
         }
 
         const url = `?${type_controller}=${controller_name}${stringParams}`;
-        return this.callApi(url, '');
+        return this.callApi(url, '').pipe();
     }
-
-      public getControllers(eq_package: string): Observable<any> {
-        const url = `?get=core_config_controllers&package=${eq_package}`;
-        return this.callApi(url, '').pipe(
-            map(({response}) => response)
-        );
-      }
 
       public getClasses(): Observable<any> {
         const url = '?get=core_config_classes';
@@ -756,30 +749,25 @@ export class WorkbenchService {
     }
 
 
-    public async getDataControllerList(package_name:string):Promise<string[]> {
-        try {
-        return (await this.api.fetch("?get=core_config_controllers&package="+package_name))['data']
-        } catch {
-        return []
+    public collectControllers(controllerType: '' | 'data' | 'actions' = '', packageName?: string,): Observable<string[]> {
+        if (!packageName) {
+            return this.callApi('?get=core_config_packages', 'Fetched packages').pipe(
+                switchMap(({response}) => {
+                    const packages: string[] = response || [];
+                    const controllerObservables = packages.map(package_name =>
+                        this.collectControllers(controllerType, package_name, )
+                    );
+                    return forkJoin(controllerObservables);
+                }),
+                map((controllersArray: string[][]) => controllersArray.flat())
+            );
         }
-    }
 
-    public getAllActionControllers(): Observable<string[]> {
-        const packagesUrl = '?get=core_config_packages';
-        return this.callApi(packagesUrl, 'Fetched packages').pipe(
-          switchMap((package_nameResponse: any) => {
-            const packs: string[] = package_nameResponse.response || [];
-            const controllerObservables = packs.map(package_name => {
-              const url = `?get=core_config_controllers&package=${package_name}`;
-              return this.callApi(url, `Fetched controllers for package ${package_name}`).pipe(
-                map((ctrlResponse: any) => ctrlResponse.response?.['actions'] || [])
-              );
-            });
-            return forkJoin(controllerObservables);
-          }),
-          map((controllersArray: string[][]) => controllersArray.flat())
+        const url = `?get=core_config_controllers&package=${packageName}`;
+        return this.callApi(url, `Fetched controllers for package ${packageName}`).pipe(
+            map(({response}) => controllerType ? (response?.[controllerType] || []) : response)
         );
-      }
+    }
 
 
 

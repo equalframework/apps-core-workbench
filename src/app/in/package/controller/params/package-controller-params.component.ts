@@ -1,3 +1,4 @@
+import { Location } from '@angular/common';
 import { Component, Inject, OnInit, Optional } from '@angular/core';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { ActivatedRoute } from '@angular/router';
@@ -57,7 +58,7 @@ export class PackageControllerParamsComponent implements OnInit {
 
     constructor(
             private workbenchService: WorkbenchService,
-            private router: RouterMemory,
+            private location: Location,
             private activatedRoute: ActivatedRoute,
             private matSnack:MatSnackBar,
             private dialog: MatDialog,
@@ -92,7 +93,7 @@ export class PackageControllerParamsComponent implements OnInit {
         a = this.activatedRoute.snapshot.paramMap.get('controller_type');
         if(a) {
             this.controller_type = a;
-        } 
+        }
         else {
             this.error = true;
         }
@@ -102,7 +103,7 @@ export class PackageControllerParamsComponent implements OnInit {
         for(let key in this.scheme["announcement"]["params"]) {
             this.paramList.push(new Param(key,cloneDeep(this.scheme["announcement"]["params"][key])));
         }
-        //this.paramList =  this.paramList.sort((p1,p2) => p1.name.localeCompare(p2.name)) 
+        //this.paramList =  this.paramList.sort((p1,p2) => p1.name.localeCompare(p2.name))
         console.log(this.paramList);
         this.onChange("Opening file");
         console.log(this.toSchema());
@@ -140,7 +141,7 @@ export class PackageControllerParamsComponent implements OnInit {
 
   public onChange(msg:string) {
     console.log("called!")
-    //this.paramList =  this.paramList.sort((p1,p2) => p1.name.localeCompare(p2.name)) 
+    //this.paramList =  this.paramList.sort((p1,p2) => p1.name.localeCompare(p2.name))
     this.paramListHistory.push({param : cloneDeep(this.paramList), message:msg})
     this.paramFutureHistory = []
     this.paramList = [...this.paramList]
@@ -178,7 +179,7 @@ export class PackageControllerParamsComponent implements OnInit {
   }
 
   goBack() {
-    this.router.goBack()
+    this.location.back()
   }
 
 save() {
@@ -190,7 +191,7 @@ save() {
                 this.notificationService.showError(result.message);
             }
     })
-    
+
   }
 
 }
@@ -207,7 +208,7 @@ class Jsonator implements OnInit {
     ) {}
 
     ngOnInit(): void {
-        
+
     }
 
     get datajson() {

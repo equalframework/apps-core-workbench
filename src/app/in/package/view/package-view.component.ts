@@ -103,7 +103,8 @@ export class PackageViewComponent implements OnInit {
                         console.log("test qsd : ", this.view_scheme);
                         this.view_obj = new View(this.view_scheme, viewNamePart);
 
-                        let temp_controller = await this.workbenchService.getDataControllerList(package_name);
+                        let temp_controller = await this.workbenchService.collectControllers('data',package_name).toPromise();
+                        console.log(temp_controller);
                         for (let item of temp_controller) {
                             let data = await this.workbenchService.announceController(item).toPromise();
                             if (!data) continue;
@@ -111,7 +112,7 @@ export class PackageViewComponent implements OnInit {
                             this.collect_controller.push(item);
                         }
 
-                        this.action_controllers = await this.workbenchService.getAllActionControllers().toPromise();
+                        this.action_controllers = await this.workbenchService.collectControllers('actions').toPromise();
                         this.workbenchService.getCoreGroups().toPromise().then(data => {
                             for (let key in data) {
                                 this.groups.push(data[key]['name']);
