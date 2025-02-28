@@ -1,8 +1,5 @@
-import { Component, OnInit, ViewEncapsulation, ViewChild } from '@angular/core';
-import { ContextService } from 'sb-shared-lib';
+import { Component, OnInit, ViewEncapsulation} from '@angular/core';
 import { WorkbenchService } from './_services/workbench.service'
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { prettyPrintJson } from 'pretty-print-json';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
 
 

@@ -1,8 +1,7 @@
 import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
-import { ActivatedRoute, Route, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { MixedCreatorDialogComponent } from 'src/app/_modules/workbench.module';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -33,10 +32,7 @@ export class PackageViewsComponent implements OnInit, OnDestroy {
     public loading = true;
 
   constructor(
-            private api: WorkbenchService,
             private route: ActivatedRoute,
-            private matDialog: MatDialog,
-            private snackBar: MatSnackBar,
             private location: Location
         ) { }
     ngOnDestroy(): void {

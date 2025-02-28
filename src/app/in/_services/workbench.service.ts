@@ -58,8 +58,8 @@ export class WorkbenchService {
         const deleteActions: Record<string, () => Observable<any>> = {
             package: () => this.deletePackage(node.name),
             class: () => this.deleteClass(node.package_name,node.name),
-            get: () => this.deleteController(node.package_name, node.name.split("_")[1], node.type),
-            do: () => this.deleteController(node.package_name, node.name.split("_")[1], node.type),
+            get: () => this.deleteController(node.package_name, node.name, node.type),
+            do: () => this.deleteController(node.package_name, node.name, node.type),
             view: () => {
                 const view_name = node.name.split(":")[1];
                 return this.deleteView(node.package_name,node.item.model, view_name);
@@ -441,7 +441,7 @@ export class WorkbenchService {
      *   });
      * ```
      */
-    private callApi(url: string, successMessage: string, body:any = {}) {
+    private callApi(url: string, successMessage: string, body:any = {}): Observable<{ success: boolean; message: string; response: any; }> {
             return from(this.api.fetch(url,body)).pipe(
                 map((response: any) => ({
                     success: true,
@@ -704,7 +704,6 @@ export class WorkbenchService {
             return true;
         }
         catch(e) {
-            console.log(e);
             this.api.errorFeedback(e);
             return false;
         }
@@ -958,7 +957,7 @@ export class WorkbenchService {
         const url = '?get=config_live_routes';
         return this.callApi(url, '').pipe(
             map(({response}) => response)
-        );;
+        );
     }
 
     //////////////////////////////////////////////////////////////////////////Private method///////////////////////////////////////////////////////////////////////////////

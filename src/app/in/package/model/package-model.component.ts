@@ -1,6 +1,4 @@
 import { Component, OnInit, ViewEncapsulation, OnDestroy } from '@angular/core';
-import { ContextService } from 'sb-shared-lib';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { prettyPrintJson } from 'pretty-print-json';
 import { FieldClass } from './_object/FieldClass';
 import { cloneDeep} from 'lodash';
@@ -41,9 +39,7 @@ export class PackageModelComponent implements OnInit, OnDestroy {
     public ready = false;
 
     constructor(
-            private context: ContextService,
             private workbenchService: WorkbenchService,
-            private snackBar: MatSnackBar,
             private route:ActivatedRoute,
             private location: Location,
             public matDialog:MatDialog

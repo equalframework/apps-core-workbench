@@ -1,7 +1,7 @@
 <div *ngIf="loading" class="loading-container">
     <mat-spinner></mat-spinner>
   </div>
-  
+
   <div *ngIf="!loading" class="appholder">
     <!-- En-tête personnalisé -->
     <app-inner-header
@@ -15,20 +15,20 @@
       [customButtonList]="[{ name: 'Show Json', icon: 'bug_report', disabled: false }]"
       (onCustomButton)="debugExport()">
       <label>Translations of </label>
-      <label class="packagename">{{ package }}</label>
+      <label class="packagename">{{ package_name }}</label>
       <label class="inbetween">
         {{ entitype === 'model' ? '\\' : (entitype === 'controller' ? '_' : ' ') }}
       </label>
       <label class="{{ entitype }}name">
-        {{ entitype !== 'controller' ? model : model.replaceAll('\\', '_') }}
+        {{ entitype !== 'controller' ? model_name : model_name.replaceAll('\\', '_') }}
       </label>
     </app-inner-header>
-  
+
     <!-- Message en cas d'absence de traduction -->
     <div *ngIf="obk(data).length === 0" class="no-translation">
       No translation available for this model.
     </div>
-  
+
     <div class="translation-container">
       <!-- Sélection / création de langue -->
       <div class="lang-selection" *ngIf="!addingLanguage">
@@ -46,7 +46,7 @@
           </button>
         </div>
       </div>
-  
+
       <div class="lang-selection" *ngIf="addingLanguage">
         <mat-form-field>
           <mat-label>Language code</mat-label>
@@ -59,7 +59,7 @@
           <mat-icon>done</mat-icon> Create
         </button>
       </div>
-  
+
       <!-- Onglets de traduction -->
       <mat-tab-group *ngIf="obk(data).length > 0" animationDuration="0ms" [lang]="lang">
         <!-- Onglet "Model" -->
@@ -79,7 +79,7 @@
               <mat-label>Model description</mat-label>
               <input matInput [(ngModel)]="data[lang].description.value" spellcheck="true">
             </mat-form-field>
-  
+
             <!-- Traduction des champs du modèle -->
             <div *ngIf="entitype !== 'menu'" class="model-items">
               <mat-grid-list cols="16" rowHeight="2em">
@@ -116,7 +116,7 @@
             </div>
           </div>
         </mat-tab>
-  
+
         <!-- Onglet "View" -->
         <mat-tab label="View">
           <div *ngIf="obk(data[lang].view).length <= 0" class="tab-content">
@@ -163,7 +163,7 @@
                         </mat-grid-list>
                       </div>
                     </mat-tab>
-  
+
                     <!-- Sous-onglet "Actions" -->
                     <mat-tab label="Actions" *ngIf="obk(data[lang].view[view].actions).length > 0">
                       <div class="tab-content">
@@ -196,7 +196,7 @@
                         </mat-grid-list>
                       </div>
                     </mat-tab>
-  
+
                     <!-- Sous-onglet "Routes" -->
                     <mat-tab label="Routes" *ngIf="obk(data[lang].view[view].routes).length > 0">
                       <div class="tab-content">
@@ -235,7 +235,7 @@
             </mat-tab-group>
           </div>
         </mat-tab>
-  
+
         <!-- Onglet "Error" -->
         <mat-tab label="Error" *ngIf="entitype !== 'menu'">
           <div class="tab-content">
@@ -284,4 +284,3 @@
       </mat-tab-group>
     </div>
   </div>
-  

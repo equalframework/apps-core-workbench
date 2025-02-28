@@ -1,19 +1,11 @@
-import { Component, OnInit, ViewEncapsulation, ViewChild, OnDestroy } from '@angular/core';
-import { ContextService } from 'sb-shared-lib';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { prettyPrintJson } from 'pretty-print-json';
-import { FieldClassArray } from './_object/FieldClassArray';
+import { Component, OnInit, ViewEncapsulation, OnDestroy } from '@angular/core';
 import { FieldClass } from './_object/FieldClass';
-import { fi } from 'date-fns/locale';
-import { cloneDeep, update } from 'lodash';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute} from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { MixedCreatorDialogComponent, DeleteConfirmationDialogComponent} from 'src/app/_modules/workbench.module';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Location } from '@angular/common';
 import { EqualComponentDescriptor } from '../../_models/equal-component-descriptor.class';
-import { WorkbenchService } from '../../_services/workbench.service';
 
 @Component({
     selector: 'package-models',
@@ -37,8 +29,6 @@ export class PackageModelsComponent implements OnInit, OnDestroy {
     // http://equal.local/index.php?get=config_packages
     public packages: string[];
 
-    // http://equal.local/index.php?get=core_config_classes
-    private eq_class: any;
 
     public fields_for_selected_class: FieldClass[];
     public types: any;
@@ -47,16 +37,12 @@ export class PackageModelsComponent implements OnInit, OnDestroy {
     public ready = false;
 
     constructor(
-            private context: ContextService,
-            private api: WorkbenchService,
-            private snackBar: MatSnackBar,
             private route:ActivatedRoute,
             private location: Location,
             public matDialog:MatDialog
         ) { }
 
     public async ngOnInit() {
-        console.log("c'est moi le package-models qui est appelé");
         this.init();
     }
 

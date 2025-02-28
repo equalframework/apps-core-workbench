@@ -1,16 +1,16 @@
 
 <div *ngIf=" !viewSchema" class="full">
-    This view seems to be malformed
+    Select a view
 </div>
 
 <div *ngIf="viewSchema" class="full margin-container">
     <div class="controller-container-top">
         <div class="flex-labels">
             <label class="viewname">View : </label>
-            <label class="viewname accent">{{ viewSchema["name"] }}</label>
+            <label class="viewname accent">{{ viewSchema["name"] || view.name }}</label>
         </div>
         <div>
-            <label class="subpart-title">{{viewSchema['description']}}</label>
+            <label class="subpart-title">{{ viewSchema["description"] || "No description" }}</label>
         </div>
         <br>
         <div *ngFor="let table of obk(viewSchema['layout'])">

@@ -259,14 +259,14 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
         }
         return result;
     }
-    
+
 
     public save() {
-        console.log('Début de la sauvegarde du workflow...');
+        console.log('Starting workflow save process...');
         if (!this.exists) {
             this.workbenchService.createWorkflow(this.package, this.model).subscribe((create) => {
                 if (!create) {
-                    console.error("Erreur lors de la création du workflow.");
+                    console.error("Error while creating the workflow.");
                     return;
                 }
                 this.saveWorkflowWithMetaData();
@@ -278,18 +278,18 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
 
     private saveWorkflowWithMetaData() {
         const workflowJSON = JSON.stringify(this.export());
-        console.log('Envoi du workflow à sauvegarder:', workflowJSON);
+        console.log('Sending workflow data for saving:', workflowJSON);
         this.workbenchService.saveWorkflow(this.package, this.model, workflowJSON)
             .subscribe((ret: any) => {
                 if (!ret) {
-                    console.error("Erreur lors de la sauvegarde du workflow.");
+                    console.error("Error while saving the workflow.");
                     return;
                 }
                 if (this.has_meta_data) {
                     this.workbenchService.saveMetaData(this.has_meta_data, JSON.stringify(this.exportMetaData()))
                         .subscribe((result: any) => {
                             if (!result) {
-                                console.error("Erreur lors de la sauvegarde des méta-données.");
+                                console.error("Error while saving metadata.");
                                 return;
                             }
                             this.snackBar.open("Saved successfully", "INFO");
@@ -298,7 +298,7 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
                     this.workbenchService.createMetaData("workflow", `${this.package}.${this.model}`, JSON.stringify(this.exportMetaData()))
                         .subscribe((result) => {
                             if (!result) {
-                                console.error("Erreur lors de la création des méta-données.");
+                                console.error("Error while creating metadata.");
                                 return;
                             }
                             this.snackBar.open("Saved successfully", "INFO");

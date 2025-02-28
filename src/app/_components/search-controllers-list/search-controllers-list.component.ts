@@ -218,7 +218,7 @@ export class SearchControllersListComponent implements OnInit, OnChanges, OnDest
                         }
                     )
                 }
-    
+
             });
     }
 
@@ -262,7 +262,7 @@ export class SearchControllersListComponent implements OnInit, OnChanges, OnDest
     }
 
     private removeFromComponents(node: EqualComponentDescriptor): void {
-        this.data = this.data.filter(item => item.name !== node.name);
+        this.data = this.data.filter(n => n.name !== node.name || n.type !== node.type);
         this.filterNodes();
     }
 

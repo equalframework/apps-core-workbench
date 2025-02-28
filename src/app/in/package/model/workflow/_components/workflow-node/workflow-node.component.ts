@@ -1,4 +1,4 @@
-import { AfterViewChecked, AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewChecked, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { WorkflowNode } from '../workflow-displayer/_objects/WorkflowNode';
 import { Anchor } from '../workflow-displayer/_objects/WorkflowLink';
 

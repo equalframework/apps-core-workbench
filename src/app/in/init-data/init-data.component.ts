@@ -1,3 +1,4 @@
+import { Location } from '@angular/common';
 import { Component, Inject, OnInit, Optional } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { InitDataFile } from './_models/init-data';
@@ -5,7 +6,6 @@ import { cloneDeep } from 'lodash';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { prettyPrintJson } from 'pretty-print-json';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { WorkbenchService } from '../_services/workbench.service';
 
 @Component({
@@ -34,7 +34,7 @@ export class InitDataComponent implements OnInit {
             private activatedRoute:ActivatedRoute,
             private dialog:MatDialog,
             private snack:MatSnackBar,
-            private router:RouterMemory) {}
+            private location:Location) {}
 
     async ngOnInit(): Promise<void> {
         const a = this.activatedRoute.snapshot.paramMap.get('package');
@@ -91,7 +91,7 @@ export class InitDataComponent implements OnInit {
     }
 
     public goBack() {
-        this.router.goBack()
+        this.location.back()
     }
 
 }

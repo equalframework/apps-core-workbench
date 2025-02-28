@@ -1,5 +1,5 @@
 import { Location } from '@angular/common';
-import { Component, Inject, OnChanges, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { View, ViewGroup, ViewGroupByItem, ViewItem, ViewOperation, ViewSection } from './_objects/View';
@@ -26,7 +26,6 @@ export class PackageViewComponent implements OnInit {
 
     view_scheme: any;
     obk = Object.keys;
-    // Initialisation par défaut de view_obj afin d'éviter les accès undefined dans le template
     view_obj: View = new View({ layout: { items: [] }, operations: [], groupBy: { items: [] } }, '');
     name: string = "";
     node: EqualComponentDescriptor;
@@ -35,11 +34,9 @@ export class PackageViewComponent implements OnInit {
     loading = true;
     error = false;
 
-    // Pour les vues de type list, form, search
     class_scheme: any = { fields: {} };
     fields: string[] = [];
 
-    // Cache pour la compliancy_id (pour éviter des appels coûteux)
     compliancy_cache: { ok: boolean, id_list: string[] };
 
     domain_visible = false;
@@ -60,7 +57,6 @@ export class PackageViewComponent implements OnInit {
     action_controllers: string[];
 
     constructor(
-        private router: RouterMemory,
         private route: ActivatedRoute,
         private workbenchService: WorkbenchService,
         private popup: MatDialog,
@@ -100,7 +96,6 @@ export class PackageViewComponent implements OnInit {
                         const viewNamePart = (nodeNameParts.length > 1 && nodeNameParts[1])
                                               ? nodeNameParts[1].split('.')[0]
                                               : '';
-                        console.log("test qsd : ", this.view_scheme);
                         this.view_obj = new View(this.view_scheme, viewNamePart);
 
                         let temp_controller = await this.workbenchService.collectControllers('data',package_name).toPromise();
@@ -120,7 +115,6 @@ export class PackageViewComponent implements OnInit {
                         });
                         this.loading = false;
                     } catch (err) {
-                        console.error("Erreur lors de l'initialisation:", err);
                         this.error = true;
                         this.loading = false;
                     }

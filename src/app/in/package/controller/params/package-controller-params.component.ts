@@ -99,14 +99,11 @@ export class PackageControllerParamsComponent implements OnInit {
         }
         this.type_icon = ItemTypes.getIconForType(this.controller_type);
         this.scheme = await this.workbenchService.announceController(this.controller_type,this.controller_name).toPromise();
-        console.log(this.scheme);
         for(let key in this.scheme["announcement"]["params"]) {
             this.paramList.push(new Param(key,cloneDeep(this.scheme["announcement"]["params"][key])));
         }
         //this.paramList =  this.paramList.sort((p1,p2) => p1.name.localeCompare(p2.name))
-        console.log(this.paramList);
         this.onChange("Opening file");
-        console.log(this.toSchema());
         this.modelList = await this.workbenchService.collectClasses(true).toPromise();
     }
 

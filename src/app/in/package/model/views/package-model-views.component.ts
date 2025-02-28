@@ -49,24 +49,7 @@ export class PackageModelViewsComponent implements OnInit {
         });
     }
 
-    private async loadViews() {
-        this.loading = false;
-    }
 
-    /*public async getViewForSelectedPackage():Promise<string[]> {
-        let x:string[];
-        if (this.type && this.entity) {
-            x = await this.api.getViews(this.type,this.entity);
-            let res:string[] = [];
-            for(let item  of x) {
-                if(item.includes(this.entity)) {
-                    res.push(item);
-                }
-            }
-            return res;
-        }
-        else return []
-    }*/
 
     public getBack() {
         this.location.back();
@@ -77,7 +60,7 @@ export class PackageModelViewsComponent implements OnInit {
     }
 
     public onupdatedList() {
-        
+
     }
 
     /**
@@ -105,7 +88,7 @@ export class PackageModelViewsComponent implements OnInit {
 
     public onCreateView() {
         console.log("j'ai cliqué sur createView", this.entity)
-       
+
     }
 
     goto() {

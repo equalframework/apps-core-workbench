@@ -1,16 +1,11 @@
-import { Component, OnInit, ViewEncapsulation, Output } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation} from '@angular/core';
 import { Location } from '@angular/common';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { prettyPrintJson } from 'pretty-print-json';
-import { ActivatedRoute, Router } from '@angular/router';
-import { MixedCreatorDialogComponent } from 'src/app/_modules/workbench.module';
-import { MatDialog } from '@angular/material/dialog';
+import { ActivatedRoute} from '@angular/router';
 import { EqualComponentDescriptor } from '../../_models/equal-component-descriptor.class';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { EqualComponentsProviderService } from '../../_services/equal-components-provider.service';
-import { WorkbenchService } from '../../_services/workbench.service';
-
 @Component({
     selector: 'package-controllers',
     templateUrl: './package-controllers.component.html',

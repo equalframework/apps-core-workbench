@@ -139,7 +139,6 @@ export class PackageControllerReturnComponent implements OnInit {
 
     public changeQty(value:string) {
         this.object.qty = value;
-        console.log(this.object.qty);
         this.onChange("Changed Quantity");
     }
 

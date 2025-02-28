@@ -1,4 +1,4 @@
-import { Injectable, Component } from '@angular/core';
+import { Injectable} from '@angular/core';
 import { BehaviorSubject, forkJoin, from, Observable, of } from 'rxjs';
 import { EqualComponentDescriptor } from '../_models/equal-component-descriptor.class';
 import { catchError, map, switchMap, take, tap } from 'rxjs/operators';
@@ -19,10 +19,9 @@ export class EqualComponentsProviderService {
 
 
     public retrievePackages(): Observable<string[]> {
-        // Vérifie si on a déjà des packages en cache
+        // if we have packages in the cache we take it
         if (this.componentsCacheMap .size > 0) {
-            console.log("comonent map : ", this.componentsCacheMap)
-            return of(Array.from(this.componentsCacheMap.keys())); // Retourne les noms des packages en cache
+            return of(Array.from(this.componentsCacheMap.keys()));
         }
 
         return this.collectAllPackages().pipe(
@@ -36,7 +35,7 @@ export class EqualComponentsProviderService {
             }),
             map(components => components.map(comp => comp.name)),
             catchError(error => {
-                console.error('Erreur lors de la récupération des packages:', error);
+                console.error('Error when trying to retrieve packages', error);
                 return of([]);
             })
         );
@@ -61,7 +60,6 @@ export class EqualComponentsProviderService {
     ): Observable<EqualComponentDescriptor | null> {
         // Check the cache using the map
         const package_cache = this.componentsCacheMap .get(package_name);
-        console.log("cache : ", package_cache);
         if (package_cache) {
             let components_to_search: EqualComponentDescriptor[];
             if (component_type === '') {
@@ -231,7 +229,7 @@ export class EqualComponentsProviderService {
         ): EqualComponentDescriptor {
         return {
             package_name: package_name,
-            name: name,
+            name: name.split('_').slice(1).join('_'),
             type: type,
             file: `${package_name}/${folder}/${name}.php`,
             item: item

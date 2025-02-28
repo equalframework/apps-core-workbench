@@ -1,8 +1,8 @@
+import { Location } from '@angular/common';
 import { Component, Inject, OnDestroy, OnInit, Optional } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Menu, MenuContext, MenuItem } from './_models/Menu';
 import { cloneDeep } from 'lodash';
-import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { prettyPrintJson } from 'pretty-print-json';
@@ -31,7 +31,7 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
     public groups: string[] = [];
     public object: Menu = new Menu();
     public entities: {[id:string]:string[]} = {'model' : [], "data" : []};
-    public viewlist: string[] = [];
+    public viewList: string[] = [];
 
     public selected_item: MenuItem;
     public entity_fields: string[] = [];
@@ -39,7 +39,7 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
     constructor(
             private route: ActivatedRoute,
             private workbenchService: WorkbenchService,
-            private router: RouterMemory,
+            private location: Location,
             private matSnack: MatSnackBar,
             private dialog: MatDialog,
         ) { }
@@ -80,12 +80,12 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
         this.selected_item = event;
         console.log(this.selected_item);
         this.updateEntityDependentFields();
-        console.log(this.viewlist);
+        console.log(this.viewList);
     }
 
     async updateEntityDependentFields() {
         if(this.selected_item) {
-            this.viewlist =   ((await this.workbenchService.collectViews(this.package_name,this.selected_item.context.entity).toPromise()).map((value => value.split(":").slice(1).join(':'))))
+            this.viewList =   ((await this.workbenchService.collectViews(this.package_name,this.selected_item.context.entity).toPromise()).map((value => value.split(":").slice(1).join(':'))))
             this.workbenchService.getSchema(this.selected_item.context.entity.replaceAll("_", "\\"))
             .pipe(
                 map(schema => Object.keys(schema.fields))
@@ -97,7 +97,7 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
     }
 
     public goBack() {
-        this.router.goBack();
+        this.location.back();
     }
 
     public deleteItem(index:number) {

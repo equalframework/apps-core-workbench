@@ -449,7 +449,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     }
 
     private removeFromComponents(node: EqualComponentDescriptor) {
-        this.elements = this.elements.filter(n => n.name !== node.name);
+        this.elements = this.elements.filter(n => n.name !== node.name || n.type !== node.type);
         this.onSearch();
     }
 
