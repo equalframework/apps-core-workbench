@@ -43,7 +43,7 @@ export class InfoPackageComponent implements OnInit {
     constructor(
             private snackBar: MatSnackBar,
             private router: Router,
-            private api: WorkbenchService,
+            private workbenchService: WorkbenchService,
             private matDialog: MatDialog
         ) { }
 
@@ -61,7 +61,7 @@ export class InfoPackageComponent implements OnInit {
         this.loading = true;
         this.current_initialized = (this.package_init_list??[]).indexOf(this.package.name) >= 0;
         this.consistency_loading = true;
-        this.api.getPackageConsistency(this.package.name).then( async (consistency) => {
+        this.workbenchService.getPackageConsistency(this.package.name).toPromise().then( async (consistency) => {
                 this.package_consistency = consistency;
                 this.error_list = this.package_consistency["result"];
                 this.countErrors();
@@ -120,7 +120,7 @@ export class InfoPackageComponent implements OnInit {
         const dialog = this.matDialog.open(InitValidatorComponent,{data:{package: this.package.name}, width:"35em"})
         dialog.afterClosed().subscribe(async (result) => {
             if(result){
-                let x = await this.api.InitPackage(this.package.name, result.import, result.csd, result.impcsd)
+                let x = await this.workbenchService.InitPackage(this.package.name, result.import, result.csd, result.impcsd).toPromise()
                 if(x) {
                     this.snackBar.open("Package "+this.package.name+" has been successfully initialized")
                     this.refresh.emit()

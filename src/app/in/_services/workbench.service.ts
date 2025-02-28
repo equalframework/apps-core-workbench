@@ -271,42 +271,40 @@ export class WorkbenchService {
 
 
 
-    public async InitPackage(package_name:string, do_import: boolean, do_cascade:boolean, do_import_cascade:boolean): Promise<boolean> {
-        try {
-            await this.api.fetch("?do=core_init_package&package="+package_name+(do_import ? "&import=true":"")+"&cascade="+(do_cascade ? "true" : "false")+"&import_cascade="+(do_import_cascade ? "true" : "false"))
-            return true;
+    public InitPackage(
+        package_name: string,
+        do_import: boolean,
+        do_cascade: boolean,
+        do_import_cascade: boolean
+      ): Observable<any> {
+        const url = `?do=core_init_package&package=${package_name}` +
+          `${do_import ? `&import=true` : ``}` +
+          `&cascade=${do_cascade ? `true` : `false`}` +
+          `&import_cascade=${do_import_cascade ? `true` : `false`}`;
+
+        return this.callApi(url, ``).pipe(
+          map(({ response }) => response)
+        );
+      }
+
+    public getInitializedPackages(): Observable<any> {
+        const url = `?get=core_config_live_packages`;
+        return this.callApi(url, ``).pipe(
+            map(({ response }) => response)
+        );
+    }
+
+    public getPackageConsistency(package_name: string): Observable<any> {
+        if (package_name.length <= 0) {
+            console.warn(`Ignoring empty package`);
+            return of([]);
         }
-        catch {
-            return false;
-        }
+        const url = `?do=test_package-consistency&package=${package_name}`;
+        return this.callApi(url, ``).pipe(
+            map(({ response }) => response)
+        );
     }
 
-
-    public async getInitializedPackages(): Promise<string[]> {
-        let result = [];
-            try {
-                result = await this.api.fetch('?get=core_config_live_packages');
-            }
-            catch (response: any) {
-                console.warn('fetch package error', response);
-            }
-        return result;
-    }
-
-    public async getPackageConsistency(package_name: string ): Promise<any> {
-        let result = []
-            try {
-                if(package_name.length <= 0) {
-                    throw 'ignoring empty package';
-                }
-                result = await this.api.fetch('?do=test_package-consistency&package='+package_name);
-            }
-            catch (response: any) {
-                console.warn('fetch package error', response);
-            }
-
-        return result;
-    }
     /**
      * Handles cases where a feature has not been implemented.
      * Logs a warning and returns an observable with the given message.

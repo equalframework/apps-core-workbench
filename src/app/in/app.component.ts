@@ -49,7 +49,7 @@ export class AppComponent implements OnInit {
         this.loading = true;
         this.elements = [];
 
-        this.initialized_packages = await this.api.getInitializedPackages();
+        this.initialized_packages = await this.api.getInitializedPackages().toPromise();
 
         this.loading = false;
     }
