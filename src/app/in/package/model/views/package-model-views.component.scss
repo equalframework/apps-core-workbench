@@ -5,58 +5,66 @@
     height: 100%;
     overflow: hidden;
     box-sizing: border-box;
-}
 
-.title-container {
-    display: flex;
-    align-items: center;
-    font-size : 1.5em;
-}
+    .app-inner-header {
+        height: 80px;
 
-.title-container button,mat-label {
-    margin-left: 0.5em;
-    margin-right: 0.5em;
-}
+        .node-label {
+            background-color: mat-color($get-color,A100);
+            margin-left: 0;
+            padding: 0 .3em;
+            border-radius: .2em;
 
-.title-container .info-menu {
-    display: flex;
-    align-items: center;
-}
+            mat-icon {
+                margin-right: .1em;
+                transform: scale(1.1) translateY(.15em);
+            }
 
-.title-container .info-menu .info-menu-icon {
-    transform : scale(1.2);
-}
+        }
 
-.title-container .info-menu mat-label {
-    margin: 0 !important;
-}
+        .package-label {
+            background-color: mat-color($package-color,A100);
+            margin-left: 0;
+            padding: 0 .3em;
+            border-radius: .2em;
+        }
 
-.title-container .solo {
-    margin-left: 2.5em;
-}
+        .model-label {
+            background-color: mat-color($class-color,A100);
+            margin-left: 0;
+            padding: 0 .3em;
+            border-radius: .2em;
+        }
 
-.view-label {
-    background-color: mat-color($view-color,A100);
-    margin-left: 0;
-    padding: 0 .3em;
-    border-radius: .2em;
-}
+        .view-label{
+            background-color: mat-color($view-color,A100);
+            margin-left: 0;
+            padding: 0 .3em;
+            border-radius: .2em;
+        }
+    }
 
-.view-label mat-icon {
-    margin-right: .1em;
-    transform: scale(1.1) translateY(.15em);
-}
+    .app-inner-body {
+        height: calc(100% - 80px);
+        display: flex;
+        flex-direction: row;
 
-.model-label {
-    background-color: mat-color($class-color,A100);
-    margin-left: 0;
-    padding: 0 .3em;
-    border-radius: .2em;
-}
+        .left_pane, .right_pane {
+            padding: 8px;
+            height: 100%;
+            width: 100%;
+            box-sizing: border-box;
+        }
 
-.package-label {
-    background-color: mat-color($package-color,A100);
-    margin-left: 0;
-    padding: 0 .3em;
-    border-radius: .2em;
+        .left_pane {
+            flex: 0 1 400px;
+            max-width: 400px;
+        }
+
+        .right_pane {
+            flex: 1;
+        }
+
+    }
+
 }

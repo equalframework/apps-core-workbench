@@ -1,61 +1,39 @@
-<div *ngIf="loading" class="loader"><mat-spinner></mat-spinner></div>
 
-<ng-container *ngIf="!loading && !view">
-    Select a view amongst the list to see its details.
-</ng-container>
+<div *ngIf=" !viewSchema" class="full">
+    Select a view
+</div>
 
-<ng-container *ngIf="!loading && view">
-    <div class="header">
-        <div class="main">
-            <div class="title">
-                <label>View :</label>
-                <label class="accent">{{view?.package_name}}\{{ view?.name }}</label>
-            </div>
-            <div class="actions">
-            </div>
+<div *ngIf="viewSchema" class="full margin-container">
+    <div class="controller-container-top">
+        <div class="flex-labels">
+            <label class="viewname">View : </label>
+            <label class="viewname accent">{{ viewSchema["name"] || view.name }}</label>
         </div>
-        <div class="description">
-            <label>{{view_schema?.description}}</label>
+        <div>
+            <label class="subpart-title">{{ viewSchema["description"] || "No description" }}</label>
         </div>
-        <div class="status">
+        <br>
+        <div *ngFor="let table of obk(viewSchema['layout'])">
+            <app-item-viewer *ngIf="table === 'items'"
+                [item_scheme]="viewSchema['layout'][table]"
+            >
+            </app-item-viewer>
+            <app-groups-viewer *ngIf="table === 'groups'"
+                [groups_scheme]="viewSchema['layout'][table]"
+            >
+            </app-groups-viewer>
         </div>
-        <div class="meta">
-            <!--
-            <div><label>Declared in </label><label class="primary filename">{{model.file}}</label></div>
-            <div><label>Extends </label><label class="primary">{{schema['parent']}}</label></div>
-            <div><label>DB Table </label><label class="primary">{{schema['table']}}</label></div>
-            -->
-        </div>
+        <br>
     </div>
-
-    <div class="body">
-
-        <ng-container>
-
-            <div class="header">
-                <div>
-                    <label class="primary">{{getFieldsCount()}} </label><label>Fields</label>
-                </div>
-            </div>
-
-            <div class="items" >
-
-            </div>
-        </ng-container>
-    </div>
-
-    <div class="footer">
-        <mat-grid-list
-                [cols]="4"
-                rowHeight="100%">
+    <div class="controller-container-bottom">
+        <br>
+        <mat-grid-list [cols]="4" rowHeight="5.5em" class="max-width button-pkg-container">
             <mat-grid-tile>
-                <button mat-button class="node-info-button" (click)="onclickEdit()"><mat-icon>edit</mat-icon><label>Edit view</label></button>
+                <button mat-button class="view-info-button" (click)="onclickEdit()"><mat-icon>edit</mat-icon><label>edit</label></button>
             </mat-grid-tile>
             <mat-grid-tile>
-                <button mat-button class="node-info-button" (click)="onclickTranslations()"><mat-icon>translate</mat-icon><label>Translations</label></button>
+                <button mat-button class="view-info-button" (click)="onclickTranslations()"><mat-icon>translate</mat-icon><label>Translations</label></button>
             </mat-grid-tile>
         </mat-grid-list>
     </div>
-
-</ng-container>
-
+</div>

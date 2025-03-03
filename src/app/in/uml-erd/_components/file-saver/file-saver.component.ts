@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit, Optional } from '@angular/core';
 import { AbstractControl, FormControl, ValidationErrors, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
+import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 @Component({
     selector: 'app-file-saver',
@@ -20,14 +20,14 @@ export class FileSaverComponent implements OnInit {
     constructor(
         @Optional() public dialogRef: MatDialogRef<FileSaverComponent>,
         @Optional() @Inject(MAT_DIALOG_DATA) public data:{path:string},
-        private api:EmbeddedApiService
+        private workbenchService:WorkbenchService
     ) {
         this.filenameControl = new FormControl('', Validators.required);
     }
 
 
     async ngOnInit() {
-        this.list = await this.api.getUMLList("erd");
+        this.list = await this.workbenchService.getUMLList("erd").toPromise();
 
         // we received a filename : extract parts
         if(this.data.path.length) {

@@ -2,8 +2,16 @@ import { cloneDeep } from "lodash";
 import { WorkflowNode } from "./WorkflowNode";
 
 export enum Anchor {
-    TopLeft,Top,TopRight,MiddleLeft,MiddleRight,BottomLeft,Bottom,BottomRight
+    TopLeft = "top-left",
+    Top = "top",
+    TopRight = "top-right",
+    MiddleLeft = "middle-left",
+    MiddleRight = "middle-right",
+    BottomLeft = "bottom-left",
+    Bottom = "bottom",
+    BottomRight = "bottom-right"
 }
+
 
 export class WorkflowLink {
     public from:WorkflowNode

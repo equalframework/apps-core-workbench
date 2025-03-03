@@ -48,7 +48,7 @@ export class InfoModelComponent implements OnInit, OnChanges {
     public good_field:any;
 
     constructor(
-            private api: WorkbenchService,
+            private workbenchService: WorkbenchService,
             private router: Router,
         ) { }
 
@@ -64,16 +64,14 @@ export class InfoModelComponent implements OnInit, OnChanges {
         }
     }
 
-    private async load() {
+    private load() {
         this.loading = true;
-        try {
-            this.schema = await this.api.getSchema(this.model.package_name + '\\' + this.model.name);
+        this.workbenchService.getSchema(this.model.package_name + '\\' + this.model.name).subscribe((data) => {
+            this.schema = data;
             this.fields = Object.keys(this.schema['fields']);
-        }
-        catch(response) {
-            console.log('unexpected error - restricted visibility?', response);
-        }
-        this.loading = false;
+            this.loading = false;
+        });
+
     }
 
     public onclickFields() {

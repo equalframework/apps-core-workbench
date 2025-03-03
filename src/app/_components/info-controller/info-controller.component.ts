@@ -1,7 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewEncapsulation, OnChanges, SimpleChanges } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { prettyPrintJson } from 'pretty-print-json';
-import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { RequestSendingDialogComponent } from 'src/app/_dialogs/request-sending-dialog/request-sending-dialog.component';
@@ -9,6 +8,7 @@ import { TypeUsageService } from 'src/app/_services/type-usage.service';
 import { EnvService } from 'sb-shared-lib';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
 import { Router } from '@angular/router';
+import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 @Component({
     selector: 'info-controller',
@@ -71,7 +71,7 @@ export class InfoControllerComponent implements OnInit, OnChanges {
 
     constructor(
             private snackBar: MatSnackBar,
-            private api: EmbeddedApiService,
+            private workbenchService: WorkbenchService,
             public dialog: MatDialog,
             private router: Router,
             private clipboard: Clipboard,
@@ -100,8 +100,8 @@ export class InfoControllerComponent implements OnInit, OnChanges {
     private async load() {
         this.loading = true;
         try {
-            const response = await this.api.getAnnounceController(this.controller?.type, this.controller?.name);
-            this.announcement = response.announcement;
+            const response = await this.workbenchService.announceController(this.controller?.type, this.controller?.name).toPromise();
+            this.announcement = response?.announcement;
             this.schema = this.announcement?.params ?? {};
             this.initialization();
         }
@@ -235,7 +235,7 @@ export class InfoControllerComponent implements OnInit, OnChanges {
     }
 
     /**
-     * @returns the url of the REST API associated to the controller and user input (user input => this.paramsValue)
+     * @returns the url of the REST workbenchService associated to the controller and user input (user input => this.paramsValue)
      */
     public getBaseRoute(): string {
         let result = '';
@@ -336,7 +336,7 @@ export class InfoControllerComponent implements OnInit, OnChanges {
     }
 
     public async submit() {
-        let response = await this.api.submitController(this.controller_type, this.controller_name, this.paramsValue);
+        let response = await this.workbenchService.submitController(this.controller_type, this.controller_name, this.paramsValue).toPromise();
         const dialogConfig = new MatDialogConfig();
         dialogConfig.maxHeight = '86vh';
         dialogConfig.minWidth = '70vw';

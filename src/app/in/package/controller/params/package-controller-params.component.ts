@@ -1,5 +1,5 @@
+import { Location } from '@angular/common';
 import { Component, Inject, OnInit, Optional } from '@angular/core';
-import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { ActivatedRoute } from '@angular/router';
 import { Param } from '../../../_models/Params';
@@ -8,6 +8,8 @@ import { cloneDeep } from 'lodash';
 import { ItemTypes } from 'src/app/in/_models/item-types.class';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { prettyPrintJson } from 'pretty-print-json';
+import { NotificationService } from 'src/app/in/_services/notification.service';
+import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 
 /**
@@ -55,12 +57,13 @@ export class PackageControllerParamsComponent implements OnInit {
     }
 
     constructor(
-            private api: EmbeddedApiService,
-            private router: RouterMemory,
+            private workbenchService: WorkbenchService,
+            private location: Location,
             private activatedRoute: ActivatedRoute,
             private matSnack:MatSnackBar,
             private dialog: MatDialog,
-            private snack: MatSnackBar
+            private snack: MatSnackBar,
+            private notificationService: NotificationService
         ) { }
 
     public onKeydown(event: KeyboardEvent) {
@@ -77,8 +80,8 @@ export class PackageControllerParamsComponent implements OnInit {
     }
 
     public async ngOnInit(){
-        this.types = ["array",...(await this.api.getTypeList())]
-        this.usages = await this.api.getUsageList()
+        this.types = ["array",...(await this.workbenchService.getTypeList())]
+        this.usages = await this.workbenchService.getUsageList()
         this.types.sort((p1,p2) => p1.localeCompare(p2))
         let a = this.activatedRoute.snapshot.paramMap.get('controller_name')
         if(a) {
@@ -90,21 +93,18 @@ export class PackageControllerParamsComponent implements OnInit {
         a = this.activatedRoute.snapshot.paramMap.get('controller_type');
         if(a) {
             this.controller_type = a;
-        } 
+        }
         else {
             this.error = true;
         }
         this.type_icon = ItemTypes.getIconForType(this.controller_type);
-        this.scheme = await this.api.getAnnounceController(this.controller_type,this.controller_name);
-        console.log(this.scheme);
+        this.scheme = await this.workbenchService.announceController(this.controller_type,this.controller_name).toPromise();
         for(let key in this.scheme["announcement"]["params"]) {
             this.paramList.push(new Param(key,cloneDeep(this.scheme["announcement"]["params"][key])));
         }
-        //this.paramList =  this.paramList.sort((p1,p2) => p1.name.localeCompare(p2.name)) 
-        console.log(this.paramList);
+        //this.paramList =  this.paramList.sort((p1,p2) => p1.name.localeCompare(p2.name))
         this.onChange("Opening file");
-        console.log(this.toSchema());
-        this.modelList = await this.api.listAllModels();
+        this.modelList = await this.workbenchService.collectClasses(true).toPromise();
     }
 
     public onSelection(index:number){
@@ -138,7 +138,7 @@ export class PackageControllerParamsComponent implements OnInit {
 
   public onChange(msg:string) {
     console.log("called!")
-    //this.paramList =  this.paramList.sort((p1,p2) => p1.name.localeCompare(p2.name)) 
+    //this.paramList =  this.paramList.sort((p1,p2) => p1.name.localeCompare(p2.name))
     this.paramListHistory.push({param : cloneDeep(this.paramList), message:msg})
     this.paramFutureHistory = []
     this.paramList = [...this.paramList]
@@ -176,15 +176,19 @@ export class PackageControllerParamsComponent implements OnInit {
   }
 
   goBack() {
-    this.router.goBack()
+    this.location.back()
   }
 
-  async save() {
+save() {
     this.snack.open("Saving...","INFO")
-    let result = await this.api.updateController(this.controller_name, this.controller_type, this.export())
-    if(result) {
-      this.snack.open("Saved !","INFO")
-    }
+    this.workbenchService.updateController(this.controller_name, this.controller_type, this.export()).subscribe((result) => {
+            if(result.success){
+                    this.notificationService.showSuccess(result.message)
+            } else{
+                this.notificationService.showError(result.message);
+            }
+    })
+
   }
 
 }
@@ -201,7 +205,7 @@ class Jsonator implements OnInit {
     ) {}
 
     ngOnInit(): void {
-        
+
     }
 
     get datajson() {

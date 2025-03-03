@@ -5,7 +5,6 @@ import { DatePipe } from '@angular/common';
 
 import { SharedLibModule, CustomDateAdapter } from 'sb-shared-lib';
 
-import { PackageControllerComponent } from './package-controller.component';
 import { ControllersRoutingModule } from './controller-routing.module';
 
 
@@ -30,7 +29,6 @@ import { WorkbenchModule } from 'src/app/_modules/workbench.module';
         UsagesModule
     ],
     declarations: [
-        PackageControllerComponent,
         PackageControllerParamsComponent,
         PackageControllerReturnComponent,
         ParamListComponent,

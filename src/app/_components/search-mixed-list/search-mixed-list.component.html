@@ -16,13 +16,21 @@
 
     <mat-form-field class="select-component">
         <mat-select [(value)]="search_scope" (valueChange)="selectSearchScope()" disableOptionCentering="true">
-            <mat-select-trigger><mat-icon class="select-icon component-icon component-color-{{search_scope}}">{{type_dict[search_scope].icon}}</mat-icon> {{type_dict[search_scope].disp}}</mat-select-trigger>
+            <mat-select-trigger>
+                <mat-icon class="select-icon component-icon component-color-{{search_scope}}">
+                    {{type_dict[search_scope]?.icon}}
+                </mat-icon>
+                {{type_dict[search_scope]?.disp}}
+            </mat-select-trigger>
             <mat-option *ngFor="let component_type of getComponentsTypes()" [value]="component_type">
-                <mat-icon class="component-icon component-color-{{component_type}}">{{type_dict[component_type].icon}}</mat-icon> {{type_dict[component_type].disp}}
+                <mat-icon class="component-icon component-color-{{component_type}}">
+                    {{type_dict[component_type]?.icon}}
+                </mat-icon>
+                {{type_dict[component_type]?.disp}}
             </mat-option>
         </mat-select>
     </mat-form-field>
-
+    
 </div>
 
 <mat-list class="list">
@@ -69,13 +77,13 @@
                         <label class="node-icon component-icon component-color-{{node.type}}"><mat-icon>{{type_dict[node.type].icon}}</mat-icon></label>
                         <label class="node-name" *ngIf="node.type === 'route'">{{node.name}}</label>
                         <label class="node-name" *ngIf="node.type === 'package'">{{node.name}}</label>
-                        <label class="node-name" *ngIf="node.type !== 'route' && node.type !== 'package'">{{ node.package_name ? (node.type === "do" || node.type === "get" || node.type === "view" ? "" : node.package_name+"\\") : ""}}{{node.name}}</label>
+                        <label class="node-name" *ngIf="node.type !== 'route' && node.type !== 'package'">{{node.name}}</label>
                     </div>
                     <div class="node-actions">
                         <button *ngIf="allow_update" mat-icon-button aria-label="Edit node button">
                             <mat-icon (click)="onEditNode(node)">edit</mat-icon>
                         </button>
-                        <button *ngIf="allow_delete" mat-icon-button (click)="clickDelete(node)" aria-label="Delete node button">
+                        <button *ngIf="allow_delete" mat-icon-button (click)="ondeleteNode(node)" aria-label="Delete node button">
                             <mat-icon>delete</mat-icon>
                         </button>
                     </div>
@@ -87,6 +95,6 @@
 
 </mat-list>
 
-<div *ngIf="allow_create" class="adder" (click)="openCreator()">
+<div *ngIf="allow_create" class="adder" (click)="oncreateNode()">
     <mat-icon style="margin-right: 1em;">add</mat-icon> Create new component
 </div>

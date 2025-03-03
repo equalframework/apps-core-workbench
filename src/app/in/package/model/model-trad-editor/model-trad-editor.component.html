@@ -1,0 +1,286 @@
+<div *ngIf="loading" class="loading-container">
+    <mat-spinner></mat-spinner>
+  </div>
+
+  <div *ngIf="!loading" class="appholder">
+    <!-- En-tête personnalisé -->
+    <app-inner-header
+      [buttonBack]="true"
+      (onButtonBack)="goBack()"
+      [buttonSave]="true"
+      (onButtonSave)="saveAll()"
+      [buttonCancel]="true"
+      (onButtonCancel)="initModel()"
+      [customButton]="true"
+      [customButtonList]="[{ name: 'Show Json', icon: 'bug_report', disabled: false }]"
+      (onCustomButton)="debugExport()">
+      <label>Translations of </label>
+      <label class="packagename">{{ package_name }}</label>
+      <label class="inbetween">
+        {{ entitype === 'model' ? '\\' : (entitype === 'controller' ? '_' : ' ') }}
+      </label>
+      <label class="{{ entitype }}name">
+        {{ entitype !== 'controller' ? model_name : model_name.replaceAll('\\', '_') }}
+      </label>
+    </app-inner-header>
+
+    <!-- Message en cas d'absence de traduction -->
+    <div *ngIf="obk(data).length === 0" class="no-translation">
+      No translation available for this model.
+    </div>
+
+    <div class="translation-container">
+      <!-- Sélection / création de langue -->
+      <div class="lang-selection" *ngIf="!addingLanguage">
+        <div class="info-left">
+          <mat-form-field>
+            <mat-label>Translation language</mat-label>
+            <mat-select [(value)]="lang">
+              <mat-option *ngFor="let lg of obk(data)" [value]="lg">
+                {{ lg }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <button mat-button (click)="startAddingLanguage()">
+            <mat-icon>add</mat-icon> Add language
+          </button>
+        </div>
+      </div>
+
+      <div class="lang-selection" *ngIf="addingLanguage">
+        <mat-form-field>
+          <mat-label>Language code</mat-label>
+          <input matInput [formControl]="langName">
+        </mat-form-field>
+        <button mat-button (click)="stopAddingLanguage()">
+          <mat-icon>close</mat-icon> Cancel
+        </button>
+        <button mat-button [disabled]="langName.invalid" (click)="createLanguage()">
+          <mat-icon>done</mat-icon> Create
+        </button>
+      </div>
+
+      <!-- Onglets de traduction -->
+      <mat-tab-group *ngIf="obk(data).length > 0" animationDuration="0ms" [lang]="lang">
+        <!-- Onglet "Model" -->
+        <mat-tab label="Model">
+          <div class="tab-content">
+            <div *ngIf="entitype !== 'menu'">
+              <mat-form-field class="nameinput">
+                <mat-label>Model name (singular)</mat-label>
+                <input matInput [(ngModel)]="data[lang].name.value" spellcheck="true">
+              </mat-form-field>
+              <mat-form-field class="nameinput">
+                <mat-label>Model name (plural)</mat-label>
+                <input matInput [(ngModel)]="data[lang].plural.value" spellcheck="true">
+              </mat-form-field>
+            </div>
+            <mat-form-field class="descinput">
+              <mat-label>Model description</mat-label>
+              <input matInput [(ngModel)]="data[lang].description.value" spellcheck="true">
+            </mat-form-field>
+
+            <!-- Traduction des champs du modèle -->
+            <div *ngIf="entitype !== 'menu'" class="model-items">
+              <mat-grid-list cols="16" rowHeight="2em">
+                <mat-grid-tile>Translation</mat-grid-tile>
+                <mat-grid-tile colspan="2">Field</mat-grid-tile>
+                <mat-grid-tile colspan="3">Label</mat-grid-tile>
+                <mat-grid-tile colspan="5">Description</mat-grid-tile>
+                <mat-grid-tile colspan="5">Help</mat-grid-tile>
+              </mat-grid-list>
+              <mat-grid-list *ngFor="let key of obk(data[lang].model)" cols="16" rowHeight="2em">
+                <mat-grid-tile colspan="1">
+                  <mat-checkbox [checked]="data[lang].model[key].is_active"
+                                (change)="data[lang].model[key].is_active = $event.checked">
+                  </mat-checkbox>
+                </mat-grid-tile>
+                <mat-grid-tile colspan="2">
+                  <label class="fieldnamelabel">{{ key }}</label>
+                </mat-grid-tile>
+                <ng-container *ngIf="data[lang].model[key].is_active">
+                  <mat-grid-tile colspan="3">
+                    <input matInput placeholder="Label" [(ngModel)]="data[lang].model[key].label.value" spellcheck="true">
+                  </mat-grid-tile>
+                  <mat-grid-tile colspan="5">
+                    <input matInput placeholder="Description" [(ngModel)]="data[lang].model[key].description.value" spellcheck="true">
+                  </mat-grid-tile>
+                  <mat-grid-tile colspan="5">
+                    <input matInput placeholder="Help" [(ngModel)]="data[lang].model[key].help.value" spellcheck="true">
+                  </mat-grid-tile>
+                </ng-container>
+                <ng-container *ngIf="!data[lang].model[key].is_active">
+                  <mat-grid-tile colspan="13" class="placeholder"></mat-grid-tile>
+                </ng-container>
+              </mat-grid-list>
+            </div>
+          </div>
+        </mat-tab>
+
+        <!-- Onglet "View" -->
+        <mat-tab label="View">
+          <div *ngIf="obk(data[lang].view).length <= 0" class="tab-content">
+            No view for this entity.
+          </div>
+          <div *ngIf="obk(data[lang].view).length > 0" class="tab-content">
+            <mat-tab-group>
+              <mat-tab *ngFor="let view of obk(data[lang].view)" [label]="view">
+                <div class="tab-content">
+                  <mat-form-field class="nameinput">
+                    <mat-label>View name</mat-label>
+                    <input matInput [(ngModel)]="data[lang].view[view].name.value" spellcheck="true">
+                  </mat-form-field>
+                  <mat-form-field class="descinput">
+                    <mat-label>View description</mat-label>
+                    <input matInput [(ngModel)]="data[lang].view[view].description.value" spellcheck="true">
+                  </mat-form-field>
+                  <mat-tab-group>
+                    <!-- Sous-onglet "Layout" -->
+                    <mat-tab label="Layout" *ngIf="obk(data[lang].view[view].layout).length > 0">
+                      <div class="tab-content">
+                        <mat-grid-list cols="16" rowHeight="2em">
+                          <mat-grid-tile>Translation</mat-grid-tile>
+                          <mat-grid-tile colspan="2">Field</mat-grid-tile>
+                          <mat-grid-tile colspan="13">Label</mat-grid-tile>
+                        </mat-grid-list>
+                        <mat-grid-list *ngFor="let key of obk(data[lang].view[view].layout)" cols="16" rowHeight="2em">
+                          <mat-grid-tile colspan="1">
+                            <mat-checkbox [checked]="data[lang].view[view].layout[key].is_active"
+                                          (change)="data[lang].view[view].layout[key].is_active = $event.checked">
+                            </mat-checkbox>
+                          </mat-grid-tile>
+                          <mat-grid-tile colspan="2">
+                            <label class="fieldnamelabel">{{ key }}</label>
+                          </mat-grid-tile>
+                          <ng-container *ngIf="data[lang].view[view].layout[key].is_active">
+                            <mat-grid-tile colspan="13">
+                              <input matInput placeholder="Label" [(ngModel)]="data[lang].view[view].layout[key].label.value" spellcheck="true">
+                            </mat-grid-tile>
+                          </ng-container>
+                          <ng-container *ngIf="!data[lang].view[view].layout[key].is_active">
+                            <mat-grid-tile colspan="13" class="placeholder"></mat-grid-tile>
+                          </ng-container>
+                        </mat-grid-list>
+                      </div>
+                    </mat-tab>
+
+                    <!-- Sous-onglet "Actions" -->
+                    <mat-tab label="Actions" *ngIf="obk(data[lang].view[view].actions).length > 0">
+                      <div class="tab-content">
+                        <mat-grid-list cols="16" rowHeight="2em">
+                          <mat-grid-tile>Translation</mat-grid-tile>
+                          <mat-grid-tile colspan="2">Field</mat-grid-tile>
+                          <mat-grid-tile colspan="5">Label</mat-grid-tile>
+                          <mat-grid-tile colspan="8">Description</mat-grid-tile>
+                        </mat-grid-list>
+                        <mat-grid-list *ngFor="let key of obk(data[lang].view[view].actions)" cols="16" rowHeight="2em">
+                          <mat-grid-tile colspan="1">
+                            <mat-checkbox [checked]="data[lang].view[view].actions[key].is_active"
+                                          (change)="data[lang].view[view].actions[key].is_active = $event.checked">
+                            </mat-checkbox>
+                          </mat-grid-tile>
+                          <mat-grid-tile colspan="2">
+                            <label class="fieldnamelabel">{{ key }}</label>
+                          </mat-grid-tile>
+                          <ng-container *ngIf="data[lang].view[view].actions[key].is_active">
+                            <mat-grid-tile colspan="5">
+                              <input matInput placeholder="Label" [(ngModel)]="data[lang].view[view].actions[key].label.value" spellcheck="true">
+                            </mat-grid-tile>
+                            <mat-grid-tile colspan="8">
+                              <input matInput placeholder="Description" [(ngModel)]="data[lang].view[view].actions[key].description.value" spellcheck="true">
+                            </mat-grid-tile>
+                          </ng-container>
+                          <ng-container *ngIf="!data[lang].view[view].actions[key].is_active">
+                            <mat-grid-tile colspan="13" class="placeholder"></mat-grid-tile>
+                          </ng-container>
+                        </mat-grid-list>
+                      </div>
+                    </mat-tab>
+
+                    <!-- Sous-onglet "Routes" -->
+                    <mat-tab label="Routes" *ngIf="obk(data[lang].view[view].routes).length > 0">
+                      <div class="tab-content">
+                        <mat-grid-list cols="16" rowHeight="2em">
+                          <mat-grid-tile>Translation</mat-grid-tile>
+                          <mat-grid-tile colspan="2">Field</mat-grid-tile>
+                          <mat-grid-tile colspan="5">Label</mat-grid-tile>
+                          <mat-grid-tile colspan="8">Description</mat-grid-tile>
+                        </mat-grid-list>
+                        <mat-grid-list *ngFor="let key of obk(data[lang].view[view].routes)" cols="16" rowHeight="2em">
+                          <mat-grid-tile colspan="1">
+                            <mat-checkbox [checked]="data[lang].view[view].routes[key].is_active"
+                                          (change)="data[lang].view[view].routes[key].is_active = $event.checked">
+                            </mat-checkbox>
+                          </mat-grid-tile>
+                          <mat-grid-tile colspan="2">
+                            <label class="fieldnamelabel">{{ key }}</label>
+                          </mat-grid-tile>
+                          <ng-container *ngIf="data[lang].view[view].routes[key].is_active">
+                            <mat-grid-tile colspan="5">
+                              <input matInput placeholder="Label" [(ngModel)]="data[lang].view[view].routes[key].label.value" spellcheck="true">
+                            </mat-grid-tile>
+                            <mat-grid-tile colspan="8">
+                              <input matInput placeholder="Description" [(ngModel)]="data[lang].view[view].routes[key].description.value" spellcheck="true">
+                            </mat-grid-tile>
+                          </ng-container>
+                          <ng-container *ngIf="!data[lang].view[view].routes[key].is_active">
+                            <mat-grid-tile colspan="13" class="placeholder"></mat-grid-tile>
+                          </ng-container>
+                        </mat-grid-list>
+                      </div>
+                    </mat-tab>
+                  </mat-tab-group>
+                </div>
+              </mat-tab>
+            </mat-tab-group>
+          </div>
+        </mat-tab>
+
+        <!-- Onglet "Error" -->
+        <mat-tab label="Error" *ngIf="entitype !== 'menu'">
+          <div class="tab-content">
+            <div *ngFor="let errType of obk(data[lang].error._base)" class="error-section">
+              <label class="error-type">{{ errType }}</label>
+              <mat-checkbox [checked]="data[lang].error._base[errType].active"
+                            (change)="data[lang].error._base[errType].active = $event.checked">
+                Active
+              </mat-checkbox>
+              <mat-form-field *ngIf="data[lang].error._base[errType].active">
+                <mat-label>New error</mat-label>
+                <input matInput [formControl]="adderror">
+                <button mat-icon-button matSuffix [disabled]="adderror.invalid || !adderror.value"
+                        (click)="createError(lang, errType)">
+                  <mat-icon>add</mat-icon>
+                </button>
+              </mat-form-field>
+              <div class="error-list" *ngIf="data[lang].error._base[errType].active">
+                <mat-grid-list cols="16" rowHeight="2em">
+                  <mat-grid-tile>Translation</mat-grid-tile>
+                  <mat-grid-tile colspan="2">Field</mat-grid-tile>
+                  <mat-grid-tile colspan="13">Label</mat-grid-tile>
+                </mat-grid-list>
+                <mat-grid-list *ngFor="let key of obk(data[lang].error._base[errType].val)" cols="16" rowHeight="2em">
+                  <mat-grid-tile colspan="1">
+                    <mat-checkbox [checked]="data[lang].error._base[errType].val[key].is_active"
+                                  (change)="data[lang].error._base[errType].val[key].is_active = $event.checked">
+                    </mat-checkbox>
+                  </mat-grid-tile>
+                  <mat-grid-tile colspan="2">
+                    <label class="fieldnamelabel">{{ key }}</label>
+                  </mat-grid-tile>
+                  <ng-container *ngIf="data[lang].error._base[errType].val[key].is_active">
+                    <mat-grid-tile colspan="13">
+                      <input matInput placeholder="Label" [(ngModel)]="data[lang].error._base[errType].val[key]._val.value" spellcheck="true">
+                    </mat-grid-tile>
+                  </ng-container>
+                  <ng-container *ngIf="!data[lang].error._base[errType].val[key].is_active">
+                    <mat-grid-tile colspan="13" class="placeholder"></mat-grid-tile>
+                  </ng-container>
+                </mat-grid-list>
+              </div>
+            </div>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </div>
+  </div>

@@ -1,15 +1,11 @@
-import { Component, OnInit, ViewEncapsulation, Output } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation} from '@angular/core';
 import { Location } from '@angular/common';
-import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { prettyPrintJson } from 'pretty-print-json';
-import { ActivatedRoute, Router } from '@angular/router';
-import { MixedCreatorDialogComponent } from 'src/app/_modules/workbench.module';
-import { MatDialog } from '@angular/material/dialog';
+import { ActivatedRoute} from '@angular/router';
 import { EqualComponentDescriptor } from '../../_models/equal-component-descriptor.class';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-
+import { EqualComponentsProviderService } from '../../_services/equal-components-provider.service';
 @Component({
     selector: 'package-controllers',
     templateUrl: './package-controllers.component.html',
@@ -42,11 +38,9 @@ export class PackageControllersComponent implements OnInit {
     public loading = true;
 
     constructor(
-            private api: EmbeddedApiService,
-            private snackBar: MatSnackBar,
             private route: ActivatedRoute,
             private location: Location,
-            private matDialog:MatDialog
+            private provider: EqualComponentsProviderService
         ) { }
 
     public async ngOnInit() {
@@ -67,7 +61,7 @@ export class PackageControllersComponent implements OnInit {
 
     private async loadControllers() {
         this.loading = true;
-        this.controllers = await this.api.getControllers(this.package_name);
+        this.controllers = this.provider.getComponents(this.package_name,'controller');
         this.loading = false;
     }
 
@@ -101,42 +95,6 @@ export class PackageControllersComponent implements OnInit {
     public onupdateController(event: { type: string, old_node: string, new_node: string }) {
 
     }
-
-    /**
-     * Delete a controller.
-     *
-     * @param controller the name of the controller which will be deleted
-     */
-    public async ondeleteController(event: { type: string, name: string }) {
-        let name = event.name.split("_").slice(1).join("_")
-        let res = await this.api.deleteController(this.package_name, event.type, name)
-        if(!res){
-            this.snackBar.open("Deleted");
-            // this.selected_controller= ""
-            this.init();
-        }
-    }
-
-    /**
-     * Call the api to create a controller.
-     *
-     * @param new_package the name of the new controller
-     */
-    public oncreateController(event: { type: string, name: string }) {
-        let d = this.matDialog.open(MixedCreatorDialogComponent,{
-            data: {
-                type: event.type,
-                package: this.package_name,
-                lock_type : true,
-                lock_package: true,
-            },width : "40em",height: "26em"
-        })
-        d.afterClosed().subscribe(() => {
-            // Do stuff after the dialog has closed
-            this.init()
-        });
-    }
-
     /**
      *
      * @returns a pretty HTML string of a schema in JSON.

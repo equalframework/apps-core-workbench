@@ -1,7 +1,6 @@
 import { ChangeDetectorRef, Component, Input, OnChanges, OnInit } from '@angular/core';
 import { InitDataEntityInstance, InitDataEntitySection, InitDataFile } from '../../_models/init-data';
 import { Sort } from '@angular/material/sort';
-import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 import compareAsc from 'date-fns/compareAsc';
 import { MatPaginatorDefaultOptions, PageEvent } from '@angular/material/paginator';
 import { cloneDeep, isObject } from 'lodash';
@@ -12,6 +11,7 @@ import { EntityDialogComponent } from '../entity-dialog/entity-dialog.component'
 import { MatTab, MatTabChangeEvent } from '@angular/material/tabs';
 import { LangPopupComponent } from '../lang-popup/lang-popup.component';
 import { ImporterComponent } from '../importer/importer.component';
+import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 @Component({
   selector: 'app-init-sidepane',
@@ -33,12 +33,12 @@ export class InitSidepaneComponent implements OnInit,OnChanges {
   modelList:string[] = []
 
   constructor(
-    private api:EmbeddedApiService,
+    private api:WorkbenchService,
     private dialog:MatDialog,
   ) { }
 
   async ngOnInit() {
-    this.modelList = await this.api.listAllModels()
+    this.modelList = await this.api.collectClasses(true).toPromise()
   }
 
   get fullWidth():number {
@@ -53,7 +53,7 @@ export class InitSidepaneComponent implements OnInit,OnChanges {
     } catch {
       this.entity_index = -1
     }
-    
+
     await this.refrsh()
   }
 
@@ -64,7 +64,7 @@ export class InitSidepaneComponent implements OnInit,OnChanges {
       this.viewField = (await this.api.getView(
         this.file.entities[key].name,
         "list.default"
-      )).layout.items.filter((item:any) => item.value !== 'id' && item.type === 'field')
+      ).toPromise()).layout.items.filter((item:any) => item.value !== 'id' && item.type === 'field')
       console.log(this.viewField)
       this.sorted = this.file.entities[key].items.slice()
     }
@@ -92,7 +92,7 @@ export class InitSidepaneComponent implements OnInit,OnChanges {
         default :
           const as:string = a.otherfield['en'][sort.active].toString()
           const bs:string = b.otherfield['en'][sort.active].toString()
-          const comp = as.localeCompare(bs) 
+          const comp = as.localeCompare(bs)
           return isAsc ? comp : -comp
       }
     });
@@ -116,7 +116,7 @@ export class InitSidepaneComponent implements OnInit,OnChanges {
       }
       this.sortData(this.current_sort,parent.items)
     })
-    
+
   }
 
   selectAll(state:boolean) {
@@ -134,7 +134,7 @@ export class InitSidepaneComponent implements OnInit,OnChanges {
       if(instance.selected){
         res.push(instance)
       }
-    } 
+    }
     return res
   }
 
@@ -146,7 +146,7 @@ export class InitSidepaneComponent implements OnInit,OnChanges {
         continue
       }
       rs.push(instance)
-    } 
+    }
     this.file.entities[ntity].items = rs
     this.sortData(this.current_sort,this.file.entities[ntity].items)
   }
@@ -185,7 +185,7 @@ export class InitSidepaneComponent implements OnInit,OnChanges {
         continue
       }
       rs[instance] = this.file.entities[instance]
-    } 
+    }
     this.file.entities = rs
     this.entity_index = Math.min(this.entity_index,this.obk(this.file.entities).length-1)
   }
@@ -205,6 +205,6 @@ export class InitSidepaneComponent implements OnInit,OnChanges {
       }
       this.refrsh()
     })
-    
+
   }
 }

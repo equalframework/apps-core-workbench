@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
-import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
+import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 @Component({
     selector: 'app-clause-domain-component',
@@ -16,11 +16,11 @@ export class PropertyClauseComponent implements OnInit {
     public fields: any;
     tempValue: any;
 
-    constructor(private api: EmbeddedApiService) {}
+    constructor(private workbenchService: WorkbenchService) {}
 
     async ngOnInit() {
         this.transformDomain();
-        this.validOperators = await this.api.getValidOperators();
+        this.validOperators = await this.workbenchService.getValidOperators().toPromise();
         this.getSchema();
     }
 
@@ -30,7 +30,10 @@ export class PropertyClauseComponent implements OnInit {
     }
 
     async getSchema() {
-        this.fields = await this.api.getSchema(this.class);
+        this.workbenchService.getSchema(this.class)
+            .subscribe(schema => {
+                this.fields = schema.fields;
+            });
     }
 
     transformDomain() {

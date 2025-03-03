@@ -22,11 +22,11 @@ export class InfoRouteComponent implements OnInit, OnChanges {
 
     constructor(
             public dialog: MatDialog,
-            public api: WorkbenchService
+            public workbenchService: WorkbenchService
         ) { }
 
     public async ngOnInit() {
-        this.routes = await this.api.getRoutesLive();
+        this.routes = await this.workbenchService.getRoutesLive().toPromise();
         console.log(this.routes);
         await this.load();
     }

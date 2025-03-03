@@ -1,0 +1,18 @@
+<div>
+    <label class="subpart-title">Columns of the list (</label>
+    <label class="subpart-title accent">{{item_scheme.length}}</label>
+    <label class="subpart-title">)</label>
+</div>
+<br>
+<div class="iw-tabl">
+    <div class="iw-item">
+        <div class="iw-col iw-type accent">Type</div>
+        <div class="iw-col iw-value accent">Value</div>
+        <div class="iw-col iw-width accent">Width</div>
+    </div>
+    <div class="iw-item" *ngFor="let col of item_scheme">
+        <div class="iw-col iw-type">{{col.type}}</div>
+        <div class="iw-col iw-value">{{col.value}}</div>
+        <div class="iw-col iw-width">{{col.width}}</div>
+    </div>
+</div>

@@ -2,6 +2,16 @@
     <mat-label>{{name}}</mat-label>
     <input [disabled]="disabled" matInput type="number" [value]="value" (keydown)="noCancel($event)" (change)="changed.emit($event.target.value)">
 </mat-form-field>
+<mat-form-field class="fullo" *ngIf="type === 'icon'">
+    <mat-label>{{ name }}</mat-label>
+    <mat-select [(value)]="selectedIcon" (selectionChange)="onIconChange($event.value)" id="icon-select">
+      <mat-option *ngFor="let icon of icons" [value]="icon">
+        <mat-icon>{{ icon }}</mat-icon> {{ icon }}
+      </mat-option>
+    </mat-select>
+    <mat-icon>{{ selectedIcon }}</mat-icon>
+  </mat-form-field>
+  
 <mat-form-field class="fullo" *ngIf="type === 'string' || type === 'text'">
     <mat-label>{{name}}</mat-label>
     <input [disabled]="disabled" matInput [value]="value  ? value : ''" (keydown)="noCancel($event)" (change)="changed.emit($event.target.value)">

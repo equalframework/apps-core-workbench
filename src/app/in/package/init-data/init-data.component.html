@@ -2,19 +2,25 @@
     Something went wrong...
 </div>
 
-<div class="app-inner-header">
-    <app-inner-header
-            [buttonBack]="true"
-            (onButtonBack)="goBack()">
-        <label class="package-label">{{ package_name }}</label> › <label class="model-label">Init ({{ this.type }})</label>
-    </app-inner-header>
-</div>
+<app-inner-header
+    [buttonBack]="true"
+    (onButtonBack)="goBack()"
+    [customButtonList]="[{icon:'bug_report',name:'show JSON',disabled:false}]"
+    [customButton]="true"
+    (onCustomButton)="showJsonDialog()"
+    [buttonSave]="true"
+    (onButtonSave)="saveData()"
+>
+    <label *ngIf="data_type === 'init'">Initial data of </label>
+    <label *ngIf="data_type === 'demo'">Demo data of </label>
+    <label class="packagename">{{package_name}}</label>
+</app-inner-header>
 
 <div class="app-inner-body">
 
     <div class="left_pane">
         <app-param-list
-                [list]="file_list"
+                [list]="fileList"
                 [selectedIndex]="selected_file_index"
                 (select)="selected_file_index = $event">
         </app-param-list>
@@ -22,7 +28,7 @@
 
     <div class="right_pane">
         <app-init-sidepane sidepane
-                [file]="file_list[selected_file_index]">
+                [file]="fileList[selected_file_index]">
         </app-init-sidepane>
     </div>
 </div>

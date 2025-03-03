@@ -1,29 +1,23 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { VieweditorComponent } from './vieweditor.component';
-
-
-import { RouterTestingModule } from '@angular/router/testing';
-import { SharedLibModule } from 'sb-shared-lib';
+import { ItemViewerComponent } from './item-viewer.component';
 import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
-import { TranslateFakeLoader } from '@ngx-translate/core';
 
-describe('VieweditorComponent', () => {
-  let component: VieweditorComponent;
-  let fixture: ComponentFixture<VieweditorComponent>;
+describe('ItemViewerComponent', () => {
+  let component: ItemViewerComponent;
+  let fixture: ComponentFixture<ItemViewerComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RouterTestingModule,SharedLibModule],
-      declarations: [ VieweditorComponent ],
-      providers : [TranslateFakeLoader]
+      declarations: [ ItemViewerComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(VieweditorComponent);
+    fixture = TestBed.createComponent(ItemViewerComponent);
     component = fixture.componentInstance;
+    component.item_scheme = []
     fixture.detectChanges();
   });
 
@@ -48,7 +42,6 @@ describe('VieweditorComponent', () => {
         {teardown: {destroyAfterEach: false}}
       );
   });
-
 
   it('should create', () => {
     expect(component).toBeTruthy();

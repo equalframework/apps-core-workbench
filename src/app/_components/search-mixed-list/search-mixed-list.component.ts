@@ -1,7 +1,6 @@
-import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewEncapsulation } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, SimpleChanges, ViewEncapsulation } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { EnvService } from 'sb-shared-lib';
 import { ItemTypes } from 'src/app/in/_models/item-types.class';
 
 import { MixedCreatorDialogComponent } from 'src/app/_dialogs/mixed-creator-dialog/mixed-creator-dialog.component';
@@ -9,6 +8,10 @@ import { DeleteConfirmationDialogComponent } from 'src/app/_dialogs/delete-confi
 
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
+import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { NotificationService } from 'src/app/in/_services/notification.service';
 
 /**
  * This component is used to display the list of all object you recover in package.component.ts
@@ -23,7 +26,8 @@ import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-des
     styleUrls: ['./search-mixed-list.component.scss'],
     encapsulation: ViewEncapsulation.Emulated
 })
-export class SearchMixedListComponent implements OnInit {
+export class SearchMixedListComponent implements OnInit, OnDestroy {
+    private destroy$: Subject<boolean> = new Subject<boolean>();
 
     // Selected node of the list (consistent with node_type, if provided): parent might force the selection of a node (goto)
     @Input() node_selected?: EqualComponentDescriptor;
@@ -33,11 +37,12 @@ export class SearchMixedListComponent implements OnInit {
     @Input() node_type?: string;
 
     // optional package ref for limiting creation of components to that specific package
-    @Input() package_name?: string = '';
-
+    @Input() package_name: string = "";
+    @Input() model_name : string="";
     @Input() allow_create?: boolean = true;
     @Input() allow_update?: boolean = true;
     @Input() allow_delete?: boolean = true;
+    public packageStates: { [packageName: string]: boolean } = {};  // Pour suivre l'état des packages
 
     /*
         EqualComponentDescriptor Structure is as follow:
@@ -52,7 +57,7 @@ export class SearchMixedListComponent implements OnInit {
 
     // event for notifying parent that selected object has changed
     @Output() selectNode = new EventEmitter<EqualComponentDescriptor>();
-    @Output() updateNode = new EventEmitter<{old_node: EqualComponentDescriptor, new_node: EqualComponentDescriptor}>();
+    @Output() updateNode = new EventEmitter<{ old_node: EqualComponentDescriptor, new_node: EqualComponentDescriptor }>();
     @Output() deleteNode = new EventEmitter<EqualComponentDescriptor>();
     // event for notifying parent that the list has been updated and needs to be refreshed
     @Output() updated = new EventEmitter();
@@ -67,54 +72,103 @@ export class SearchMixedListComponent implements OnInit {
     // value part of the search bar field (parsed in onSearch() method)
     public search_value: string = '';
     // type part of the search bar field (is parsed in onSearch() method)
-    public search_scope: string = 'package';
+    public search_scope: string = "";
 
     // used to render info about components present in filteredData (or data)
     public type_dict: { [id: string]: { icon: string, disp: string } } = ItemTypes.typeDict;
 
     // formControl for search input field
-    public inputControl = new FormControl('');
+    public inputControl = new FormControl('package:');
 
     public editingNode: EqualComponentDescriptor;
     public editedNode: EqualComponentDescriptor;
 
     constructor(
-            private dialog: MatDialog,
-            private api: WorkbenchService
-        ) {}
+        private dialog: MatDialog,
+        private provider: EqualComponentsProviderService,
+        private notificationService: NotificationService,
+        private workbenchService:WorkbenchService
+    ) { }
 
-    public async ngOnInit() {
 
-        // let arg = this.router.retrieveArgs();
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
 
-        this.search_scope = this.node_type ?? 'package';
 
+    public ngOnInit() {
         this.loading = true;
-
-        await this.loadNodes();
-
-        // refresh filtering
-        this.selectSearchScope();
-
-        this.loading = false;
+        this.loadNodesV2();
     }
 
     public async ngOnChanges(changes: SimpleChanges) {
-        if(changes.node_type && this.node_type) {
+        if (changes.node_type && this.node_type) {
             this.selectSearchScope();
         }
         this.onSearch();
     }
 
+
+    private loadNodesV2() {
+
+        if (this.package_name) {
+            // Si package_name est défini, appelez getComponents
+            if (this.node_type) {
+                console.log("je suis rentré ici ");
+                this.provider.getComponents(this.package_name, this.node_type,this.model_name)
+                    .pipe(takeUntil(this.destroy$)) // Ajout de takeUntil
+                    .subscribe(
+                        components => this.handleComponents(components),
+                        error => this.handleError(error)
+                    );
+            }
+        } else {
+
+            if(this.node_type){
+
+                this.provider.getComponents(this.package_name,this.node_type)
+                    .pipe(takeUntil(this.destroy$))
+                    .subscribe(
+                        components => this.handleComponents(components),
+                        error => this.handleError(error)
+                    );
+            }
+
+            else{
+                // Si package_name n'est pas défini et qu'il n'y a pas de note_type, utilisez equalComponents$
+            this.provider.equalComponents$
+                .pipe(takeUntil(this.destroy$)) // Ajout de takeUntil
+                .subscribe(
+                    components => this.handleComponents(components),
+                    error => this.handleError(error)
+                );
+            }
+        }
+    }
+
+    private handleComponents(components: any[]) {
+        this.elements = [...components]; // Copie superficielle du tableau
+        this.filteredData = this.elements;
+        this.onSearch();
+        this.loading = false;
+    }
+
+    private handleError(error: any) {
+        console.error('Erreur lors du chargement des composants:', error);
+        this.loading = false;
+    }
     /**
      * the behavior depends ont the member 'node_type'
      * classes and packages are always loaded synchronously
      * but then other components, if requested, are loaded in background
      * except when node_type is set to a specific value (distinct from '')
      */
-    private async loadNodes() {
+    /*private async loadNodes() {
 
-        // pass-1 - load packages and classes
+
+
+       // pass-1 - load packages and classes
         const classes = await this.api.getClasses();
         let packages = [];
 
@@ -231,35 +285,40 @@ export class SearchMixedListComponent implements OnInit {
                 });
         }
 
+    }*/
+    private getSortKey(component: EqualComponentDescriptor): string {
+        let key = component.package_name || '';
+
+        if (component.type === "route") {
+            key += component.more + component.name;
+        } else if (component.type === "class" || component.type === "menu") {
+            key += component.name;
+        } else {
+            key = component.name;
+        }
+        // normalize the key
+        return key.replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase();
     }
 
     private sortComponents() {
-        this.elements.sort( (a, b) => {
-                let result = 1;
-                let x = ( a.type === "route" ?
-                        a.package_name+a.more+a.name :
-                        ( (a.type === "class" || a.type === "menu") ? a.package_name+a.name : a.name )
-                    )
-                    .replace(/[^a-zA-Z0-9 ]/g, '')
-                    .toLowerCase();
-
-                let y = (b.type === "class" ? b.package_name+b.name : b.name)
-                    .replace(/[^a-zA-Z0-9 ]/g, '')
-                    .toLowerCase();
-
-                if(x < y) {
-                    result = -1;
-                }
-
-                return result;
-            });
+        this.elements.sort((a, b) => {
+            let x = this.getSortKey(a);
+            let y = this.getSortKey(b);
+            return x.localeCompare(y);
+        });
+        this.filteredData.sort((a, b) => {
+            let x = this.getSortKey(a);
+            let y = this.getSortKey(b);
+            return x.localeCompare(y);
+        });
     }
 
+
     public getComponentsTypes() {
-        if(!this.node_type || this.node_type == '') {
+        if (!this.node_type || this.node_type == '') {
             return Object.keys(this.type_dict);
         }
-        return [ this.node_type ];
+        return [this.node_type];
     }
 
     /**
@@ -267,7 +326,7 @@ export class SearchMixedListComponent implements OnInit {
      */
     public selectSearchScope() {
         console.log('selectSearchScope', this.search_scope);
-        if(this.search_scope !== '' && !this.node_type) {
+        if (this.search_scope !== '' && !this.node_type) {
             this.inputControl.setValue(this.search_scope + ":" + this.search_value);
         }
         else {
@@ -282,7 +341,7 @@ export class SearchMixedListComponent implements OnInit {
      */
     public onSearch() {
         let splitted = this.inputControl.value.split(":");
-        if(splitted.length > 1) {
+        if (splitted.length > 1) {
             this.search_scope = splitted[0];
             this.search_value = splitted.slice(1).join(":");
         }
@@ -299,38 +358,39 @@ export class SearchMixedListComponent implements OnInit {
             (node: EqualComponentDescriptor) => {
                 let contains = true;
                 let clue: string = "";
-                if(node.type === "route") {
+                if (node.type === "route") {
                     clue = (node.package_name ? node.package_name : "") + "-" + (node.more ? node.more : "") + "-" + node.name;
                 }
-                else if(node.type === "class") {
+                else if (node.type === "class") {
                     clue = (node.package_name ? node.package_name : "") + "\\" + node.name;
                 }
                 else {
                     clue = node.name;
                 }
-                for(let arg of search_args) {
-                    if(search_package && (((node.package_name && node.package_name !== search_package)) || (!node.package_name && node.name !==search_package))){
+                for (let arg of search_args) {
+                    if (search_package && (((node.package_name && node.package_name !== search_package)) || (!node.package_name && node.name !== search_package))) {
                         contains = false;
                         break;
                     }
-                    if (!clue.toLowerCase().includes(arg.toLowerCase()))  {
+                    if (!clue.toLowerCase().includes(arg.toLowerCase())) {
                         contains = false;
                         break;
                     }
                 }
 
-                return ( contains &&
-                        (
-                            this.search_scope === ''
-                            || (node.type === '')
-                            || (node.type === this.node_type)
-                            || (node.type === this.search_scope)
-                            || ('controller' === this.search_scope && (node.type === 'get' || node.type === 'do'))
-                            || ('view' === this.search_scope && (node.type === 'list' || node.type === 'form'))
-                        )
-                    );
+                return (contains &&
+                    (
+                        this.search_scope === ''
+                        || (node.type === '')
+                        || (node.type === this.node_type)
+                        || (node.type === this.search_scope)
+                        || ('controller' === this.search_scope && (node.type === 'get' || node.type === 'do'))
+                        || ('view' === this.search_scope && (node.type === 'list' || node.type === 'form'))
+                    )
+                );
             });
-    }
+            this.sortComponents()
+        }
 
     public clearSearch() {
         this.inputControl.setValue('');
@@ -340,39 +400,59 @@ export class SearchMixedListComponent implements OnInit {
     public areNodesEqual(node1: EqualComponentDescriptor, node2: EqualComponentDescriptor) {
         // console.log('comparing', node1, node2);
         return (node1?.package_name === node2?.package_name &&
-               node1?.name === node2?.name &&
-               node1?.type === node2?.type);
+            node1?.name === node2?.name &&
+            node1?.type === node2?.type);
     }
 
     public cloneNode(node: EqualComponentDescriptor): EqualComponentDescriptor {
         return new EqualComponentDescriptor(
-                node.package_name,
-                node.name,
-                node.type,
-                node.file,
-                JSON.parse(JSON.stringify(node.item ?? {}))
-            );
+            node.package_name,
+            node.name,
+            node.type,
+            node.file,
+            JSON.parse(JSON.stringify(node.item ?? {}))
+        );
     }
 
-    public openCreator() {
-        let d = this.dialog.open(MixedCreatorDialogComponent, {
+    public oncreateNode() {
+        this.dialog.open(MixedCreatorDialogComponent, {
                 data: {
                     node_type: this.search_scope,
                     lock_type: (this.node_type != ''),
                     package: this.package_name,
-                    lock_package: (this.package_name != '')
+                    lock_package: (this.package_name != ''),
+                    model: this.model_name,
+                    lock_model: (this.model_name != '')
                 },
                 width: "40em",
                 height: "26em"
+            }).afterClosed().subscribe((result) => {
+                console.log(result);
+                if (result) {
+                    if (result.success) {
+                        this.notificationService.showSuccess(result.message);
+                        this.addToComponents(result.node);
+                        this.provider.reloadComponents(result.node.package_name,result.node.type);
+                        this.selectNode.emit(result.node);
+                        console.log("this. filetederddData " ,this.filteredData)
+                    }
+                    else {
+                        this.notificationService.showError(result.message);
+                    }
+                }
             });
-
-        d.afterClosed().subscribe(() => {
-            // Do stuff after the dialog has closed
-            this.updated.emit();
-            this.onSearch();
-        });
-
     }
+
+    private addToComponents(node: EqualComponentDescriptor) {
+        this.elements.push(node);
+        this.onSearch();
+    }
+
+    private removeFromComponents(node: EqualComponentDescriptor) {
+        this.elements = this.elements.filter(n => n.name !== node.name || n.type !== node.type);
+        this.onSearch();
+    }
+
 
     /**
      * Update the editingNode and editedNode value to match the node.
@@ -404,26 +484,44 @@ export class SearchMixedListComponent implements OnInit {
      *
      * @param node value of the node which is updating
      */
-    public onclickUpdate(node: EqualComponentDescriptor){
-        this.updateNode.emit({old_node: node, new_node: <EqualComponentDescriptor> this.editedNode});
+    public onclickUpdate(node: EqualComponentDescriptor) {
+        this.updateNode.emit({ old_node: node, new_node: <EqualComponentDescriptor>this.editedNode });
     }
 
     /**
-     * Open a pop-up if delete icon is clicked and emit delete event if confirmed.
-     *
-     * @param node name of node that the user want to delete
-     */
-    public clickDelete(node: EqualComponentDescriptor) {
-        const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent, {
-            data: node.name,
+    * Handles the deletion of a node after user confirmation.
+    * If the deletion is successful, the node is permanently removed.
+    * If an error occurs, the node is restored to the list.
+    *
+    * @param {EqualComponentDescriptor} node - The node to be deleted.
+    * @returns {void}
+    */
+    public ondeleteNode(node: EqualComponentDescriptor): void {
+        const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent,{
+            data:node
         });
 
-        dialogRef.afterClosed().subscribe((result) => {
-            if (result) {
-                this.deleteNode.emit(node);
+        dialogRef.afterClosed().subscribe(can_be_deleted => {
+            if(can_be_deleted){
+                this.workbenchService.deleteNode(node).pipe(takeUntil(this.destroy$)).subscribe(
+                    result => {
+                        if(result.success){
+                            this.removeFromComponents(node);
+                            this.notificationService.showSuccess(result.message);
+                            this.provider.reloadComponents(node.package_name, node.type);
+                            this.onSearch();
+                            this.selectNode.emit(undefined);
+                        } else {
+                            this.notificationService.showError(result.message);
+                        }
+                    }
+                )
             }
+
         });
     }
+
+
 
 
 
@@ -433,7 +531,7 @@ export class SearchMixedListComponent implements OnInit {
             case "package":
                 return "Package - packages/" + node.name;
             case "class":
-                return "Model - packages/" + node.package_name + "/classes/" + node.name.replaceAll("\\", "/") + ".php";
+                return "Model - packages/" + node.package_name + "/classes/" + node.name + ".php";
             case "get":
                 splitted_name = node.name.split('_')
                 return "Data provider - packages/" + node.package_name + "/data/" + splitted_name.slice(1).join("/");

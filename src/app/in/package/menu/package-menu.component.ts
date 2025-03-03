@@ -1,15 +1,15 @@
+import { Location } from '@angular/common';
 import { Component, Inject, OnDestroy, OnInit, Optional } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 import { Menu, MenuContext, MenuItem } from './_models/Menu';
 import { cloneDeep } from 'lodash';
-import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { prettyPrintJson } from 'pretty-print-json';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { map, takeUntil } from 'rxjs/operators';
+import { WorkbenchService } from '../../_services/workbench.service';
 
 @Component({
     selector: 'package-menu',
@@ -31,17 +31,17 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
     public groups: string[] = [];
     public object: Menu = new Menu();
     public entities: {[id:string]:string[]} = {'model' : [], "data" : []};
-    public viewlist: string[] = [];
+    public viewList: string[] = [];
 
     public selected_item: MenuItem;
     public entity_fields: string[] = [];
 
     constructor(
             private route: ActivatedRoute,
-            private api: EmbeddedApiService,
-            private router: RouterMemory,
+            private workbenchService: WorkbenchService,
+            private location: Location,
             private matSnack: MatSnackBar,
-            private dialog: MatDialog
+            private dialog: MatDialog,
         ) { }
 
     public async ngOnInit() {
@@ -50,19 +50,24 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
             this.menu_name = params['menu_name'];
             this.package_name = params['package_name'];
             // Getting the menu as a view json
-            this.menuSchema = await this.api.getView(this.package_name + '\\menu', this.menu_name);
-            // Parsing the json as an Menu object
+            this.workbenchService.readMenu(this.package_name,this.menu_name).subscribe(async menuSchema => {
+                this.menuSchema = menuSchema;
+                // Parsing the json as an Menu object
             // #memo - we clone the schema to avoid the Menu constructor to destroy the original copy
             this.object = new Menu(cloneDeep(this.menuSchema));
-            this.entities['model'] = await this.api.listAllModels();
-            this.entities['data'] = await this.api.listControllersByType('data');
-        });
-
-        this.api.getCoreGroups().then(data => {
+            this.entities['model'] = await this.workbenchService.collectClasses(true).toPromise();
+            this.entities['data'] = await this.workbenchService.collectControllers('data').toPromise();
+            this.workbenchService.getCoreGroups().toPromise().then(data => {
                 for(let key in data) {
                     this.groups.push(data[key]['name'])
                 }
             });
+            })
+
+
+        });
+
+
     }
 
     public ngOnDestroy() {
@@ -75,18 +80,24 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
         this.selected_item = event;
         console.log(this.selected_item);
         this.updateEntityDependentFields();
-        console.log(this.viewlist);
+        console.log(this.viewList);
     }
 
     async updateEntityDependentFields() {
         if(this.selected_item) {
-            this.viewlist =   ((await this.api.getViews('entity',this.selected_item.context.entity)).map((value => value.split(":").slice(1).join(':'))))
-            this.entity_fields = Object.keys((await this.api.getSchema(this.selected_item.context.entity.replaceAll("_","\\")))['fields'])
-        }
+            this.viewList =   ((await this.workbenchService.collectViews(this.package_name,this.selected_item.context.entity).toPromise()).map((value => value.split(":").slice(1).join(':'))))
+            this.workbenchService.getSchema(this.selected_item.context.entity.replaceAll("_", "\\"))
+            .pipe(
+                map(schema => Object.keys(schema.fields))
+            )
+            .subscribe(fields => {
+                this.entity_fields = fields;
+            });
+                }
     }
 
     public goBack() {
-        this.router.goBack();
+        this.location.back();
     }
 
     public deleteItem(index:number) {
@@ -108,7 +119,10 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
     }
 
     public async save() {
-        let result = await this.api.saveView(this.object.export(),this.package_name+"\\menu",this.menu_name);
+        console.log("package_name : ", this.package_name);
+        console.log("menu_name : ", this.menu_name);
+        console.log("Object exporte : ", this.object.export());
+        let result = await this.workbenchService.saveView(this.object.export(),this.package_name,"\\menu",this.menu_name.trim()).toPromise();
         if(result) {
             this.matSnack.open("Saved successfully","INFO");
             return;

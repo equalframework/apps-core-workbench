@@ -2,7 +2,7 @@ import { Component, OnInit, ViewEncapsulation, Output, OnDestroy } from '@angula
 
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { prettyPrintJson } from 'pretty-print-json';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute} from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -39,9 +39,7 @@ export class PackageComponent implements OnInit, OnDestroy {
     public step = 1;
 
     constructor(
-            private snackBar: MatSnackBar,
             private route: ActivatedRoute,
-            private matDialog: MatDialog
         ) { }
 
     public async ngOnInit() {

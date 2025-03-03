@@ -22,7 +22,7 @@
             </div>
         </div>
         <div class="description">
-            <label>{{ announcement.description }}</label>
+            <label>{{ announcement?.description }}</label>
         </div>
         <div class="status">
             <div *ngIf="announcement?.deprecated" class="warn">
@@ -59,7 +59,7 @@
                 <pre class="content-desc" [innerHTML]="getRequestString()"></pre>
             </div>
 
-            <div class="section params" *ngIf="obk(announcement.params).length">
+            <div class="section params" *ngIf="announcement?.params && obk(announcement.params).length">
                 <label class="content-label">Params</label>
 
                 <mat-accordion>

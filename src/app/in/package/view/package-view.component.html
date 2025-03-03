@@ -21,11 +21,11 @@
             [customButton]="true"
             [customButtonList]="[{name:'Show JSON', icon:'bug_report', disabled: false}]"
             (onCustomButton)="handleCustomButton($event)">
-        <label class="packagename names">{{name.split('\\')[0]}}</label>
+        <label class="packagename names">{{node.package_name}}</label>
         <label>›</label>
-        <label [class.controllername]="view_obj.type === 'search'" [class.classname]="view_obj.type !== 'search'" class="names">{{name.split(':')[0].split('\\').slice(1).join(view_obj.type === 'search' ? "_" : "\\")}}</label>
+        <label [class.controllername]="view_obj.type === 'search'" [class.classname]="view_obj.type !== 'search'" class="names">{{node.item.model}}</label>
         <label>›</label>
-        <label class="viewname names">{{name.split(':').slice(1).join(':')}}</label>
+        <label class="viewname names">{{node.name.split(":")[1]}}</label>
     </app-inner-header>
     <div class="feature-container">
         <label *ngIf="!idCompliancy.ok" [style.color]="'red'">ERROR : {{ (idDoublons.length > 0) ? "Some IDs are duplicated ("+idDoublons+")" : "Some items don't have an ID"}}</label>
@@ -89,13 +89,15 @@
                             [cdkDropListData]="view_obj.layout.items"
                             (cdkDropListDropped)="drop_item($event)"
                         >
-                            <mat-expansion-panel cdkDrag *ngFor="let item of view_obj.layout.items; index as index">
+                        <ng-container *ngFor="let item of view_obj.layout.items; index as index">
+
+                            <mat-expansion-panel cdkDrag *ngIf="item">
                                 <mat-expansion-panel-header>
                                     <mat-panel-title>
                                         <div class="itemprez">
                                             <mat-icon cdkDragHandle>drag_indicator</mat-icon>
                                             <div class="typeicon">
-                                                <mat-icon>{{class_scheme.fields[item.value] ? icontype[class_scheme.fields[item.value].type] : ""}}</mat-icon>
+                                                <mat-icon>{{ class_scheme?.fields?.[item.value]?.type ? icontype[class_scheme.fields[item.value].type] : "" }}</mat-icon>
                                             </div>
                                             {{item.label.trim() !== "" && item.type === "field" ? item.label.trim() : ToNameDisp(item.value)}}
                                         </div>
@@ -112,14 +114,15 @@
                                     </div>
                                 </mat-expansion-panel-header>
                                 <app-item-editor
-                                    [item]="item"
-                                    [entity]="entity"
-                                    [fields]="fields"
-                                    [types]="types"
-                                    [displayDelete]="true"
-                                    (delete)="deleteItemLayout(view_obj.layout.items.indexOf(item))"
-                                ></app-item-editor>
+                                [item]="item"
+                                [entity]="entity"
+                                [fields]="fields"
+                                [types]="types"
+                                [displayDelete]="true"
+                                (delete)="deleteItemLayout(view_obj.layout.items.indexOf(item))"
+                              ></app-item-editor>
                             </mat-expansion-panel>
+                        </ng-container>
 
                         </mat-accordion>
                     </div>

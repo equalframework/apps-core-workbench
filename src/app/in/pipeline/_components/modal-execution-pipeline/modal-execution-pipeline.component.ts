@@ -9,14 +9,16 @@ import { ApiService } from 'sb-shared-lib';
 })
 export class ModalExecutionPipelineComponent {
 
+    public pipelineResponse: any
     constructor(
         public dialogRef: MatDialogRef<ModalExecutionPipelineComponent>,
         @Inject(MAT_DIALOG_DATA) public data: { pipelineName: string, pipelineId: number },
         private api: ApiService,
     ) { }
 
+
     async runPipeline() {
-        await this.api.get("?get=core_run-pipeline", { pipeline_id: this.data.pipelineId });
+        this.pipelineResponse = await this.api.get(`?get=core_run-pipeline`, { pipeline_id: this.data.pipelineId });
     }
 
     onClose(): void {

@@ -1,8 +1,6 @@
 import { Component, Input, OnInit, EventEmitter, Output } from '@angular/core';
 import { ViewItem } from '../../_objects/View';
-import { Router } from '@angular/router';
-import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
-import { ViewEditorServicesService } from '../../../../_services/view-editor-services.service';
+import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 @Component({
   selector: 'app-item-editor',
@@ -31,12 +29,29 @@ export class ItemEditorComponent implements OnInit {
   scheme:any
 
   constructor(
-    private api :ViewEditorServicesService
+    private workbenchService :WorkbenchService
   ) { }
 
-  async ngOnInit(){
-    this.widget_types = await this.api.getWidgetTypes()
-    this.scheme = await this.api.getSchema(this.entity)
+  ngOnInit(){
+    // First API call (widget types)
+    this.workbenchService.getWidgetTypes().subscribe({
+        next: (widgetTypes) => {
+            this.widget_types = widgetTypes;
+        },
+        error: (error) => {
+            console.error('Error fetching widget types:', error);
+        }
+    });
+
+    // Second API call (schema)
+    this.workbenchService.getSchema(this.entity).subscribe({
+        next: (schema) => {
+            this.scheme = schema;
+        },
+        error: (error) => {
+            console.error('Error fetching schema:', error);
+        }
+    });
     if(this.item.viewtype === 1){
       this.set_has_view(this.item.widgetForm._has_view)
     }
@@ -47,7 +62,7 @@ export class ItemEditorComponent implements OnInit {
     if(!Object.keys(this.widget_types).includes((this.scheme.fields[this.item.value].type))) return [""]
     return ["",...this.widget_types[this.scheme.fields[this.item.value].type]]
   }
-  
+
   onDelete() {
     this.delete.emit()
   }
@@ -98,7 +113,7 @@ export class ItemEditorComponent implements OnInit {
       return 
     }
     let t = this.scheme['fields'][this.item.value]['foreign_object'].split("\\")
-    let x =  (await this.api.listViewFrom(t[0],t.slice(1).join("\\")))?.filter((value) => value.includes('list.'))
+    let x =  (await this.workbenchService.collectViews(t[0],t.slice(1).join("\\")).toPromise())?.filter((value) => value.includes('list.'))
     if(x){
       let r:{[key:string]:string}= {}
       x.forEach(list => r[list.split(":")[1]] = list)

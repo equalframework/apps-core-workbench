@@ -1,74 +1,92 @@
-<div class="bigholder">
-    <div>
-        <label class="title">
-            Create a Component
-        </label>
-    </div>
-    <div class="inset">
+<!-- Loader displayed until component is fully loaded -->
+<div *ngIf="!loaded" class="loader">
+    <mat-spinner></mat-spinner>
+  </div>
+  
+  <!-- Main content is displayed only when all data is loaded -->
+  <ng-container *ngIf="loaded">
+    <div class="bigholder">
+      <div>
+        <label class="title">Create a Component</label>
+      </div>
+      <div class="inset">
         <div>
-            <mat-form-field class="mixed-search-select">
-                <mat-label>Component type</mat-label>
-                <mat-select [disabled]="lockType" [(value)]="type" class="" (valueChange)="reloadlist()">
-                    <mat-select-trigger> <mat-icon class="icon-search-small mixed-select-sel-{{type}}">{{t_dict[type].icon}}</mat-icon> {{t_dict[type].disp}}</mat-select-trigger>
-                    <mat-option *ngFor="let key of obk(t_dict)" [value]="key">
-                        <mat-icon class="mixed-select-sel-{{key}}">{{t_dict[key].icon}}</mat-icon> {{t_dict[key].disp}}
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
+          <mat-form-field class="mixed-search-select">
+            <mat-label>Component type</mat-label>
+            <mat-select [disabled]="lockType" [(value)]="type" (valueChange)="reloadList()">
+              <mat-select-trigger>
+                <mat-icon class="icon-search-small mixed-select-sel-{{ type }}">
+                  {{ tDict[type].icon }}
+                </mat-icon>
+                {{ tDict[type].disp }}
+              </mat-select-trigger>
+              <mat-option *ngFor="let key of obk(tDict)" [value]="key">
+                <mat-icon class="mixed-select-sel-{{ key }}">{{ tDict[key].icon }}</mat-icon>
+                {{ tDict[key].disp }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
         <div *ngIf="implemented">
-            <div class="flexing">
-                <mat-form-field *ngIf="need_package" class="mixed-search-select">
-                    <mat-label>Package</mat-label>
-                    <mat-select [disabled]="lockPackage" [(value)]="selected_package" (valueChange)="onPackageSelect()">
-                        <mat-option *ngFor="let pkg of cachepkglist" [value]="pkg">
-                            {{pkg}}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <mat-form-field *ngIf="need_model" class="mixed-search-select">
-                    <mat-label>Model</mat-label>
-                    <mat-select [disabled]="selected_package==='' || lockModel"  [(value)]="selected_model" (valueChange)="reloadlist()">
-                        <mat-option *ngFor="let model of cachemodellist" [value]="model">
-                            {{model}}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
-            </div>
-
-            <div class="flexing">
-                <mat-form-field *ngIf="need_subtype" class="mixed-search-select">
-                    <mat-label>{{subTypeName}}</mat-label>
-                    <mat-select [disabled]="selected_package==='' || lockSubType || addingState" [(value)]="subtype" (valueChange)="reloadlist()">
-                        <mat-option *ngFor="let subtyp of subtypelist" [value]="subtyp">
-                            {{subtyp}}
-                        </mat-option>
-                    </mat-select>
-                    <button *ngIf="can_add_subtypes" [disabled]="selected_package==='' || lockSubType || addingState"  matSuffix mat-icon-button (click)="setAddingState(true)"><mat-icon>edit</mat-icon></button>
-                </mat-form-field>
-
-                <mat-form-field class="mixed-search-select">
-                    <mat-label>{{name_title}}</mat-label>
-                    <input matInput [formControl]="nameControl">
-                    <mat-error *ngIf="nameControl.invalid">{{getControlsErrors(nameControl)}}</mat-error>
-                </mat-form-field>
-            </div>
-
-            <div *ngIf="addingState && can_add_subtypes">
-                <mat-form-field class="mixed-search-select">
-                    <mat-label>custom {{subTypeName}}</mat-label>
-                    <input matInput [formControl]="customSTControl" (input)="reloadlist()">
-                    <button matSuffix mat-icon-button (click)="setAddingState(false)"><mat-icon>cancel</mat-icon></button>
-                    <mat-error *ngIf="customSTControl.invalid">{{getControlsErrors(customSTControl)}}</mat-error>
-                </mat-form-field>
-            </div>
+          <div class="flexing">
+            <mat-form-field *ngIf="needPackage" class="mixed-search-select">
+              <mat-label>Package</mat-label>
+              <mat-select [disabled]="lockPackage" [(value)]="selectedPackage" (valueChange)="onPackageSelect()">
+                <mat-option *ngFor="let pkg of cachePkgList" [value]="pkg">
+                  {{ pkg }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field *ngIf="needModel" class="mixed-search-select">
+              <mat-label>Model</mat-label>
+              <mat-select [disabled]="selectedPackage === '' || lockModel" [(value)]="selectedModel" (valueChange)="reloadList()">
+                <mat-option *ngFor="let model of cacheModelList" [value]="model">
+                  {{ model }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="flexing">
+            <mat-form-field *ngIf="needSubtype" class="mixed-search-select">
+              <mat-label>{{ subtypeName }}</mat-label>
+              <mat-select [disabled]="selectedPackage === '' || lockSubType || addingState" [(value)]="subtype" (valueChange)="reloadList()">
+                <mat-option *ngFor="let subtyp of subTypeList" [value]="subtyp">
+                  {{ subtyp }}
+                </mat-option>
+              </mat-select>
+              <button *ngIf="canAddSubtypes" [disabled]="selectedPackage === '' || lockSubType || addingState" matSuffix mat-icon-button (click)="setAddingState(true)">
+                <mat-icon>edit</mat-icon>
+              </button>
+            </mat-form-field>
+            <mat-form-field class="mixed-search-select">
+              <mat-label>{{ nameTitle }}</mat-label>
+              <input matInput [formControl]="nameControl" />
+              <mat-error *ngIf="nameControl.invalid">{{ getControlsErrors(nameControl) }}</mat-error>
+            </mat-form-field>
+          </div>
+          <div *ngIf="addingState && canAddSubtypes">
+            <mat-form-field class="mixed-search-select">
+              <mat-label>custom {{ subtypeName }}</mat-label>
+              <input matInput [formControl]="customSTControl" (input)="reloadList()" />
+              <button matSuffix mat-icon-button (click)="setAddingState(false)">
+                <mat-icon>cancel</mat-icon>
+              </button>
+              <mat-error *ngIf="customSTControl.invalid">{{ getControlsErrors(customSTControl) }}</mat-error>
+            </mat-form-field>
+          </div>
         </div>
         <div *ngIf="!implemented" class="inset">
-            [WIP]
+          [WIP]
         </div>
+      </div>
     </div>
-</div>
-<div class="flexend">
-    <button mat-button (click)="dialogRef.close()"><mat-icon>cancel</mat-icon>Cancel</button>
-    <button mat-button color="primary" [disabled]="createDisabled" (click)="create()"><mat-icon>create</mat-icon>Create</button>
-</div>
+    <div class="flexend">
+      <button mat-button (click)="dialogRef.close()">
+        <mat-icon>cancel</mat-icon>Cancel
+      </button>
+      <button mat-button color="primary" [disabled]="createDisabled" (click)="createComponent()">
+        <mat-icon>create</mat-icon>Create
+      </button>
+    </div>
+  </ng-container>
+  

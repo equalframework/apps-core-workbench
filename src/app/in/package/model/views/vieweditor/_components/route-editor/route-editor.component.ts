@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ViewRoute } from '../../_objects/View';
-import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 @Component({
   selector: 'app-route-editor',
@@ -16,12 +16,12 @@ export class RouteEditorComponent implements OnInit {
   entity_list:string[]
 
   constructor(
-    private api: EmbeddedApiService
+    private workbenchService: WorkbenchService
   ) { }
 
   async ngOnInit() {
     console.log(this.obj)
-    this.entity_list = await this.api.listAllModels()
+    this.entity_list = await this.workbenchService.collectClasses(true).toPromise()
   }
 
   createRoute() {

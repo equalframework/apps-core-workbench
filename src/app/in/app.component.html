@@ -12,11 +12,10 @@
     <div class="left_pane">
 
         <search-mixed-list
-                class="full"
+                class="package"
                 [node_selected]="selectedComponent"
                 (selectNode)="selectNode($event)"
-                (refresh)="refresh()"
-                (delete)="deleteNode($event)">
+                (refresh)="refresh()">
         </search-mixed-list>
 
     </div>
@@ -30,20 +29,13 @@
         <ng-container *ngIf="selectedComponent.type == 'package' || selectedComponent.type == ''">
             <info-package
                     [package]="selectedComponent"
-                    [package_init_list]="initialized_packages"
-                    (onModelClick)="onClickModels()"
-                    (onControllerClick)="onClickControllers()"
-                    (onViewClick)="onClickView()"
-                    (onRouteClick)="onClickRoute()"
-                    (onIDClick)="onClickInitData()"
-                    (onIDDClick)="onClickInitDemoData()">
+                    [package_init_list]="initialized_packages">
             </info-package>
         </ng-container>
 
         <ng-container *ngIf="selectedComponent.type === 'class'">
             <info-model
                     [model]="selectedComponent"
-                    (changeStep)="onChangeStepModel($event)"
                     (getRef)="goTo($event)">
             </info-model>
         </ng-container>
@@ -54,8 +46,7 @@
                     [fetch_error]="fetch_error"
                     [selected_package]="selectedComponent.package ? selectedComponent.package : ''"
                     [moving]="true"
-                    (goto)="goTo({name:$event})"
-                    (navigate)="controllerNav($event)">
+                    (goto)="goTo({name:$event})">
             </info-controller>
         </ng-container>
 
@@ -68,9 +59,7 @@
 
         <ng-container *ngIf="selectedComponent.type === 'view'">
             <info-view
-                    [view]="selectedComponent"
-                    (goto)="onViewEditClick()"
-                    (translations)="onViewTranslationClick()">
+                    [view]="selectedComponent">
             </info-view>
         </ng-container>
 

@@ -1,7 +1,7 @@
+import { PackageControllersComponent } from './../controllers/package-controllers.component';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { PackageControllerComponent } from './package-controller.component';
 import { PackageControllerParamsComponent } from './params/package-controller-params.component';
 import { PackageControllerReturnComponent } from './return/package-controller-return.component';
 
@@ -23,7 +23,7 @@ const routes: Routes = [
     */
     {
         path: '',
-        component: PackageControllerComponent
+        component: PackageControllersComponent
     }
 ];
 

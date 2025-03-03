@@ -1,12 +1,12 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { VieweditorComponent } from './vieweditor.component';
 
+import { ModelTradEditorComponent } from './model-trad-editor.component';
 
 const routes: Routes = [
   {
       path: '**',
-      component: VieweditorComponent
+      component: ModelTradEditorComponent
   }
 ];
 
@@ -14,4 +14,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class ViewEditorRoutingModule {}
+export class ModelTradEditorRoutingModule {}

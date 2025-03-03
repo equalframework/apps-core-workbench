@@ -1,6 +1,8 @@
 import { strict } from "assert";
 import { cloneDeep } from "lodash";
-import { EmbeddedApiService } from "src/app/_services/embedded-api.service";
+import { WorkbenchService } from "../../_services/workbench.service";
+import { Observable } from "rxjs";
+import { map } from "rxjs/operators";
 
 export class UnparsableError extends Error {
 
@@ -10,7 +12,7 @@ export class InitDataFile {
     public name:string = "new_file.json"
     public entities:{[entity:string]:InitDataEntitySection} = {}
 
-    constructor(private api:EmbeddedApiService,name?:string, schema:any = [] ) {
+    constructor(private workbenchService:WorkbenchService,name?:string, schema:any = [] ) {
         if(name) {
             this.name = name
         }
@@ -19,7 +21,7 @@ export class InitDataFile {
             if(entity.name) {
                 if(!this.entities[entity.name]) {
                     try {
-                        this.entities[entity.name] = new InitDataEntitySection(api,entity)
+                        this.entities[entity.name] = new InitDataEntitySection(workbenchService,entity)
                     } catch(e) {
                         throw e
                     }
@@ -74,30 +76,55 @@ export class InitDataEntitySection {
     }
 
     constructor(
-        private api:EmbeddedApiService,
+        private workbenchService:WorkbenchService,
         scheme:any
     ) {
         if(!scheme.name) {
             throw new UnparsableError()
         }
         this.entity = scheme.name
-        this.getSchema(scheme)
-        
-        this.addItems(scheme.lang,scheme.data)
+        this.loadSchema(scheme).subscribe({
+            next: () => {
+                this.addItems(scheme.lang, scheme.data);
+            },
+            error: (err) => {
+                console.error('Schema loading failed:', err);
+            }
+        });
     }
 
     ok = false
 
-    async getSchema(scheme:any) {
-        let a:{[id:string]:any} =  (await this.api.getSchema(this.entity))['fields']
-        for (const [k, field] of Object.entries(a)) {
-            this.fields.push({name:k, type:field.type, multilang:!!field.multilang, required:!!field.required})
-        }
-        
-        if(!scheme.lang) {
-            throw new UnparsableError()
-        }
-        this.ok = true
+    // Load and process the schema
+    loadSchema(scheme: any): Observable<void> {
+        return this.workbenchService.getSchema(this.entity).pipe(
+            map((schemaResponse) => {
+                // If the schema doesn't contain fields
+                const fields = schemaResponse['fields'];
+                if (!fields) {
+                    throw new UnparsableError(); // Throw an error if fields are missing
+                }
+
+                // Transform the schema into a usable format
+                for (const [k, field] of Object.entries(fields)) {
+                    // Assert that field is of type 'Field'
+                    this.fields.push({
+                        name: k,
+                        type: (field as { type: string }).type,  // Type assertion for 'field'
+                        multilang: !!(field as { multilang: boolean }).multilang,
+                        required: !!(field as { required: boolean }).required,
+                    });
+                }
+                
+                // Ensure that the language is defined
+                if (!scheme.lang) {
+                    throw new UnparsableError(); // Throw an error if the language is missing
+                }
+
+                // The schema is successfully loaded
+                this.ok = true;
+            })
+        );
     }
 
     addLang(lang:string) {

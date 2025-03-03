@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControl, FormControl, ValidationErrors, Validators } from '@angular/forms';
 import { Field } from '../../_object/Field';
-import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
+import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 @Component({
   selector: 'app-field-editor-sp',
@@ -39,7 +39,7 @@ export class FieldEditorSpComponent implements OnInit {
   })
 
   constructor(
-    private api:EmbeddedApiService
+    private workbenchService:WorkbenchService
   ) { }
 
   ngOnInit(): void {
@@ -52,7 +52,7 @@ export class FieldEditorSpComponent implements OnInit {
       try {
         if(this.oldfobj !== this.field.foreign_object) {
           this.oldfobj = this.field.foreign_object
-          this.ffields = Object.keys((await this.api.getSchema(this.field.foreign_object))["fields"])
+          this.ffields = Object.keys((await this.workbenchService.getSchema(this.field.foreign_object).toPromise())["fields"])
         }
         this.typeDirective = Field.type_directives[this.field.type]
         this.finalTypeDirective = Field.type_directives[this.field.finalType]

@@ -1,450 +1,507 @@
-import { Component, Inject, OnChanges, OnInit, Optional, ViewEncapsulation } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit, Optional, ViewEncapsulation } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ItemTypes } from 'src/app/in/_models/item-types.class';
-import { AbstractControl, AsyncValidatorFn, FormControl, MaxLengthValidator, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
+import { AbstractControl, FormControl, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
+import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
+import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
+import { map, switchMap, takeUntil } from 'rxjs/operators';
+import { forkJoin, from, Observable, Subject } from 'rxjs';
 
 @Component({
-    selector: 'mixed-creator-dialog',
-    templateUrl: './mixed-creator-dialog.component.html',
-    styleUrls: ['./mixed-creator-dialog.component.scss'],
-    encapsulation : ViewEncapsulation.Emulated
+  selector: 'app-mixed-creator-dialog',
+  templateUrl: './mixed-creator-dialog.component.html',
+  styleUrls: ['./mixed-creator-dialog.component.scss'],
+  encapsulation: ViewEncapsulation.Emulated
 })
-export class MixedCreatorDialogComponent implements OnInit {
+export class MixedCreatorDialogComponent implements OnInit, OnDestroy {
+    // Flag to indicate that all data has been loaded
+    public loaded = false;
 
-  // ------------------------------- ADD NEW TYPE HERE --------------------------------------------------------
+    // Data for component creation
+    public type = '';
+    public selectedPackage = '';
+    public selectedModel = '';
+    public subtype = "";
 
-    protected async casing() {
-        switch(this.type) {
-            case "package" :
-                this.cachelist = this.cachepkglist;
-                this.implemented = true;
-                break;
-            case "view":
-                this.need_package = true;
-                this.need_model = true;
-                this.need_subtype = true;
-                this.implemented = true;
-                this.subtypelist = ["list","form","search"];
-                this.subtypename = "View Type"
-                this.cachelist = [];
-                if(this.selected_package !== "" && this.selected_model !== "") {
-                    let x = await this.api.listViewFrom(this.selected_package, this.selected_model)
-                    x?.filter(item => {
-                        let sp = item.split(":")
-                        return sp[1].split(".")[0] === this.subtype && sp[0] === this.selected_package + "\\" + this.selected_model
-                    })
-                    .forEach(item => {
-                        return this.cachelist?.push(item.split(":")[1].split(".")[1])
-                    });
+    public cacheList: string[] | undefined;
+    public cachePkgList: string[] | undefined;
+    public cacheModelList: string[] | undefined;
+    public subTypeList: string[];
+    public customStList: string[];
+
+    // UI flags
+    public needPackage = false;
+    public needModel = false;
+    public needSubtype = false;
+    public canAddSubtypes = false;
+    public addingState = false;
+    public implemented = true;
+    public nameTitle = 'Name';
+    public subtypeName = '';
+
+
+    // Lock flags
+    public lockType = false;
+    public lockPackage = false;
+    public lockModel = false;
+    public lockSubType = false;
+
+    // Old values for change detection
+    private oldType: string;
+    private oldSelectedPackage = '';
+    private oldSelectedModel = '';
+    private oldAddingState = false;
+    private oldSubtype: string;
+    private oldCustomSTValid: boolean;
+
+    public tDict = ItemTypes.trueTypeDict;
+    public obk = Object.keys;
+
+    private destroy$: Subject<boolean> = new Subject<boolean>();
+
+    // Form controls with validators
+    public nameControl: FormControl = new FormControl('', {
+        validators: [
+        Validators.required,
+        MixedCreatorDialogComponent.snake_case,
+        MixedCreatorDialogComponent.already_taken(() => this.cacheList || [])
+        ]
+    });
+
+    public customSTControl: FormControl = new FormControl('', {
+        validators: [Validators.required]
+    });
+
+    constructor(
+        @Optional() public dialogRef: MatDialogRef<MixedCreatorDialogComponent>,
+        private workbenchService: WorkbenchService,
+        private provider : EqualComponentsProviderService,
+        @Optional() @Inject(MAT_DIALOG_DATA)
+        public data: { node_type: string, package?: string, model?: string, sub_type?: string, lock_type?: boolean, lock_package?: boolean, lock_model?: boolean, lock_subtype?: boolean }
+    ) {
+        if (!data) {
+        this.type = 'package';
+        return;
+        }
+
+        // Determine component type from injected data
+        this.type = this.obk(this.tDict).includes(data.node_type)
+        ? data.node_type
+        : (data.node_type === 'controller' ? 'do' : 'package');
+
+        this.selectedModel = data.model || '';
+        this.selectedPackage = data.package || '';
+        this.subtype = data.sub_type || '';
+
+        this.lockType = data.lock_type || false;
+        this.lockPackage = data.lock_package && data.package ? data.lock_package : false;
+        this.lockModel = data.lock_model && data.model ? data.lock_model : false;
+        this.lockSubType = data.lock_subtype && data.sub_type ? data.lock_subtype : false;
+
+        if (this.selectedPackage) {
+        this.onPackageSelect();
+        }
+    }
+        ngOnDestroy(): void {
+            this.destroy$.next();
+            this.destroy$.complete();
+        }
+
+    public async ngOnInit() {
+        this.cachePkgList = await this.workbenchService.collectAllPackages().toPromise();
+
+        //this.cachePkgList = await this.workbenchService.listPackages();
+        await this.reloadList();
+        this.loaded = true;
+    }
+
+    /**
+     * Reloads the form display based on the selected entity type.
+     */
+    public async reloadList(): Promise<void> {
+        if (!this.hasSomethingChanged) {
+        return;
+        }
+        this.nameTitle = 'Name';
+        this.needPackage = false;
+        this.needModel = false;
+        this.needSubtype = false;
+        this.canAddSubtypes = false;
+
+        await this.casing();
+
+        if (!this.canAddSubtypes) {
+        this.addingState = false;
+        }
+
+        this.resetFormControl();
+
+        // Store old values for change detection
+        this.oldType = this.type;
+        this.oldAddingState = this.addingState;
+        this.oldSelectedModel = this.selectedModel;
+        this.oldSubtype = this.subtype;
+        this.oldSelectedPackage = this.selectedPackage;
+        this.oldCustomSTValid = this.customSTControl.valid;
+    }
+
+    public get hasSomethingChanged(): boolean {
+        return (
+        this.oldType !== this.type ||
+        this.oldAddingState !== this.addingState ||
+        this.oldSelectedModel !== this.selectedModel ||
+        this.oldSubtype !== this.subtype ||
+        this.oldSelectedPackage !== this.selectedPackage ||
+        this.oldCustomSTValid !== this.customSTControl.valid
+        );
+    }
+
+    public onPackageSelect(): void {
+        forkJoin({
+            models: this.provider.getComponents(this.selectedPackage, "class"),
+            controllers: this.provider.getComponents(this.selectedPackage, "controller")
+        }).pipe(
+            takeUntil(this.destroy$),
+            map(({ models, controllers }) => [
+                ...models.map(m => m.name),
+                ...controllers.map(c => c.name)
+            ])
+        ).subscribe(result => {
+            this.cacheModelList = result;
+            this.reloadList();
+        });
+    }
+
+
+
+    /**
+     * Set up component fields based on the type.
+     */
+    protected async casing(): Promise<void> {
+        switch (this.type) {
+        case 'package':
+            this.cacheList = this.cachePkgList;
+            this.implemented = true;
+            break;
+        case 'view':
+            this.needPackage = true;
+            this.needModel = true;
+            this.needSubtype = true;
+            this.implemented = true;
+            this.subTypeList = ['list', 'form', 'search'];
+            this.subtypeName = 'View Type';
+            this.cacheList = [];
+            if (this.selectedPackage && this.selectedModel) {
+            const views = await this.workbenchService.collectViews(this.selectedPackage, this.selectedModel).toPromise();
+            views?.filter(item => {
+                const sp = item.split(':');
+                return sp[1].split('.')[0] === this.subtype &&
+                    sp[0] === `${this.selectedPackage}\\${this.selectedModel}`;
+            }).forEach(item => {
+                this.cacheList?.push(item.split(':')[1].split('.')[1]);
+            });
+            }
+            break;
+        case 'menu':
+            this.needPackage = true;
+            this.needSubtype = true;
+            this.implemented = true;
+            this.subTypeList = ['left', 'top'];
+            this.subtypeName = 'Menu Type';
+            this.cacheList = [];
+            if (this.selectedPackage) {
+            const menus = await this.workbenchService.getMenusByPackage(this.selectedPackage).toPromise();
+            menus.forEach(item => this.cacheList?.push(item.split('.')[0]));
+            }
+            break;
+        case 'class':
+            this.needPackage = true;
+            this.implemented = true;
+            this.needSubtype = true;
+            this.subtypeName = 'Extends from';
+            if (this.selectedPackage) {
+            const models = await this.workbenchService.collectClasses(true).toPromise();
+            this.subTypeList = ['equal\\orm\\Model', ...models];
+            this.cacheList = this.cacheModelList;
+            }
+            break;
+        case 'do':
+            this.needPackage = true;
+            this.implemented = true;
+            this.needSubtype = false;
+            if (this.selectedPackage) {
+            this.cacheList = await this.workbenchService.collectControllers('actions',this.selectedPackage,true).toPromise();
+            }
+            break;
+        case 'get':
+            this.needPackage = true;
+            this.implemented = true;
+            this.needSubtype = false;
+            if (this.selectedPackage) {
+            this.cacheList = await this.workbenchService.collectControllers('data',this.selectedPackage,true).toPromise();
+            }
+            break;
+        case 'route':
+            this.implemented = true;
+            this.needPackage = true;
+            this.needSubtype = true;
+            this.canAddSubtypes = true;
+            this.subtypeName = 'File';
+            this.nameTitle = 'URL';
+            if (this.selectedPackage) {
+            const routes = await this.workbenchService.getRoutesByPackage(this.selectedPackage).toPromise();
+            this.subTypeList = Object.keys(routes);
+            console.log("subtypeList : ", this.subTypeList)
+            this.cacheList = [];
+            if (routes[this.subtype] && !this.addingState) {
+                for (const key in routes[this.subtype]) {
+                    console.log("key, ", key)
+                this.cacheList.push(key);
                 }
-                break;
-            case "menu":
-                this.need_package = true;
-                //this.need_model = true;
-                this.need_subtype = true;
-                this.implemented = true;
-                this.subtypelist = ["left","top"];
-                this.subtypename = "View Type";
-                this.cachelist = [];
-                if(this.selected_package !== "") {
-                    let x = await this.api.getMenusByPackage(this.selected_package);
-                    x.forEach(item => {
-                        return this.cachelist?.push(item.split(".")[0])
-                    });
-                }
-                break;
-            case "class":
-                this.need_package = true;
-                this.implemented = true;
-                this.need_subtype = true;
-                this.subtypename = "Extends from";
-                if(this.selected_package !== "") {
-                    let x:string[] = (await this.api.listAllModels());
-                    this.subtypelist = ["equal\\orm\\Model",...x];
-                    this.cachelist = this.cachemodellist;
-                }
-                break;
-            case "do":
-                this.need_package = true;
-                this.implemented = true;
-                this.need_subtype = false;
-                if(this.selected_package) {
-                    this.cachelist = (await this.api.listControlerFromPackageAndByType(this.selected_package,"actions"))
-                }
-                break;
-            case "get":
-                this.need_package = true;
-                this.implemented = true;
-                this.need_subtype = false;
-                if(this.selected_package) {
-                    this.cachelist = (await this.api.listControlerFromPackageAndByType(this.selected_package,"data"));
-                }
-                break;
-            case "route":
-                this.implemented = true;
-                this.need_package = true;
-                this.need_subtype = true;
-                this.can_add_subtypes = true;
-                this.subtypename = "File";
-                this.name_title = "URL";
-                if(this.selected_package) {
-                    let x = await this.api.getRoutesByPackage(this.selected_package);
-                    this.subtypelist = Object.keys(x);
-                    this.cachelist = [];
-                    if(x[this.subtype] && !this.addingState){
-                        for(let key in x[this.subtype]) {
-                        this.cachelist.push(key);
-                        }
-                    }
-                    else if(this.addingState) {
-                        this.custom_st_list = await this.api.getAllRouteFiles();
-                    }
-                }
-                break;
+            } else if (this.addingState) {
+                this.customStList = await this.workbenchService.getAllRouteFiles().toPromise();
+                console.log("jai été appelé par le bouton custom")
+            }
+            }
+            break;
         default:
             this.implemented = false;
         }
     }
 
-    protected namecasing() {
-        switch(this.type) {
-            case "package":
-                this.nameControl.addValidators(MixedCreatorDialogComponent.snake_case);
-                break;
-            case "view":
-                this.nameControl.addValidators(MixedCreatorDialogComponent.snake_case);
-                break;
-            case "menu" :
-                this.nameControl.addValidators(MixedCreatorDialogComponent.snake_case);
-                break;
-            case "class":
-                this.nameControl.addValidators(MixedCreatorDialogComponent.camelCase);
-                break;
-            case "do":
-            case "get":
-                this.nameControl.addValidators(MixedCreatorDialogComponent.snake_case_controller);
-                break;
-            case "route":
-                this.nameControl.addValidators(MixedCreatorDialogComponent.url_case_controller);
-                this.customSTControl.addValidators(MixedCreatorDialogComponent.route_file_controller);
-                this.customSTControl.addValidators(MixedCreatorDialogComponent.already_taken(this.custom_st_list));
-                break;
-        }
-    }
-
-    async create() {
-        switch (this.type) {
-            case "package":
-                await this.api.createPackage(this.nameControl.value);
-                this.dialogRef.close();
-                break
-            case "view" :
-                await this.api.createView(this.selected_package + "\\"+this.selected_model, this.subtype + "." + this.nameControl.value)
-                this.dialogRef.close();
-                break
-            case "menu" :
-                await this.api.createView(this.selected_package + "\\menu", this.nameControl.value + "." + this.subtype)
-                this.dialogRef.close();
-                break
-            case "class" :
-                await this.api.createModel(this.selected_package, this.nameControl.value, this.subtype)
-                this.dialogRef.close();
-                break;
-            case "do" :
-                await this.api.createController(this.selected_package,this.nameControl.value,"do")
-                this.dialogRef.close();
-                break;
-            case "get" :
-                await this.api.createController(this.selected_package,this.nameControl.value,"get")
-                this.dialogRef.close();
-                break;
-            case "route" :
-                await this.api.createroute(
-                    this.selected_package,
-                    this.addingState ? this.customSTControl.value : this.subtype,
-                    this.nameControl.value
-                );
-                this.dialogRef.close();
-                break;
-            default:
-                this.dialogRef.close();
-        }
-    }
-
-  // ---------------------------------------------------------------------------------------------------------
-
-    public t_dict = ItemTypes.trueTypeDict;
-    public type: string = "";
-    public obk: Function = Object.keys;
-    public cachelist: string[] | undefined = undefined;
-    public cachepkglist: string[] | undefined = undefined;
-    public cachemodellist: string[] | undefined = undefined;
-    public selected_package:string = "";
-    public selected_model:string = "";
-    public implemented:boolean = true;
-
-    public name_title = "Name";
-
-    public lockType:boolean;
-    public lockPackage:boolean;
-    public lockModel:boolean;
-    public lockSubType:boolean;
-
-    protected subtypename:string = "";
-
-    public get subTypeName() {
-        return this.subtypename === "" ? "Subtype" : this.subtypename;
-    }
-
-    public subtypelist:string[];
-    public subtype:string;
-    public custom_st_list:string[];
-
-    public need_package:boolean;
-    public need_model:boolean;
-    public need_subtype:boolean;
-    public can_add_subtypes:boolean;
-
-    public addingState:boolean = false;
-
-    public old_type:string;
-    public old_selected_package:string = "";
-    public old_selected_model:string = "";
-    public old_addingState:boolean = false;
-    public old_subtype:string;
-    public old_customST_valid:boolean;
-
-
-    public nameControl:FormControl = new FormControl("", {
-            validators: [
-                Validators.required,
-                MixedCreatorDialogComponent.snake_case,
-                MixedCreatorDialogComponent.already_taken(this.cachelist)
-            ]
-        });
-
-    public customSTControl:FormControl = new FormControl("", {
-            validators: [
-                Validators.required,
-            ]
-        });
-
-    constructor(
-                @Optional() public dialogRef: MatDialogRef<MixedCreatorDialogComponent>,
-                private api: WorkbenchService,
-                @Optional() @Inject(MAT_DIALOG_DATA) public data: { node_type: string, package?:string, model?:string, sub_type?:string, lock_type ?:boolean, lock_package?: boolean, lock_model?:boolean, lock_subtype?: boolean },
-            ) {
-
-        if(!data) {
-            this.type = "package";
-            return;
-        }
-
-        this.type = this.obk(this.t_dict).includes(data.node_type) ? data.node_type : (data.node_type === "controller" ? "do" : "package");
-
-        this.selected_model = data.model ? data.model : '';
-        this.selected_package = data.package ? data.package : '';
-        this.subtype = data.sub_type ? data.sub_type : '';
-
-        this.lockType = data.lock_type ? data.lock_type : false;
-        this.lockPackage = data.lock_package && data.package ? data.lock_package : false;
-        this.lockModel = data.lock_model && data.model ? data.lock_model : false;
-        this.lockSubType = data.lock_subtype && data.sub_type ? data.lock_subtype : false;
-
-        if(this.selected_package) {
-            this.onPackageSelect();
-        }
-    }
-
-    public async ngOnInit() {
-        this.cachepkglist = await this.api.listPackages();
-        this.reloadlist();
-    }
-
-    /**
-     * Resync form display with the type of entity selected for creation
-     */
-    public async reloadlist() {
-        if(!this.hasSomethingChanged) {
-            return;
-        }
-        this.name_title = "Name";
-        this.need_package = false;
-        this.need_model = false;
-        this.need_subtype = false;
-        this.can_add_subtypes = false;
-
-        await this.casing();
-
-        if(!this.can_add_subtypes) {
-            this.addingState = false;
-        }
-
-        this.resetFormControl();
-
-        this.old_type = this.type;
-        this.old_addingState = this.addingState;
-        this.old_selected_model = this.selected_model;
-        this.old_subtype = this.subtype;
-        this.old_selected_package = this.selected_package;
-        this.old_customST_valid = this.customSTControl.valid;
-    }
-
-    public get hasSomethingChanged():boolean {
-        return (this.old_type !== this.type) ||
-            (this.old_addingState !== this.addingState) ||
-            (this.old_selected_model !== this.selected_model) ||
-            (this.old_subtype !== this.subtype) ||
-            (this.old_selected_package !== this.selected_package) ||
-            (this.old_customST_valid !== this.customSTControl.valid);
-    }
-
-    public async onPackageSelect() {
-        this.cachemodellist = [...(await this.api.listModelFrom(this.selected_package)),...(await this.api.listControlerFromPackageAndByType(this.selected_package,"data"))];
-        this.reloadlist();
-    }
-
-    public resetFormControl() {
+    public resetFormControl(): void {
         this.nameControl.clearValidators();
-        this.nameControl.addValidators(Validators.required);
-        this.nameControl.addValidators(Validators.maxLength(65));
-        this.nameControl.addValidators(MixedCreatorDialogComponent.already_taken(this.cachelist));
+        this.nameControl.addValidators([
+        Validators.required,
+        Validators.maxLength(65),
+        MixedCreatorDialogComponent.already_taken(() => this.cacheList || [])
+        ]);
         this.customSTControl.clearValidators();
         this.customSTControl.addValidators(Validators.required);
 
-        this.namecasing();
+        this.nameCasing();
 
+        // Trigger validation by setting the same value
         this.nameControl.setValue(this.nameControl.value);
 
-        if(this.NameDisabled) {
-            this.nameControl.disable();
-        }
-        else {
-            this.nameControl.enable();
+        if (this.NameDisabled) {
+        this.nameControl.disable();
+        } else {
+        this.nameControl.enable();
         }
     }
 
+    protected nameCasing(): void {
+        switch (this.type) {
+        case 'package':
+        case 'view':
+        case 'menu':
+            this.nameControl.addValidators(MixedCreatorDialogComponent.snake_case);
+            break;
+        case 'class':
+            this.nameControl.addValidators(MixedCreatorDialogComponent.camelCase);
+            break;
+        case 'do':
+        case 'get':
+            this.nameControl.addValidators(MixedCreatorDialogComponent.snake_case_controller);
+            break;
+        case 'route':
+            this.nameControl.addValidators(MixedCreatorDialogComponent.url_case_controller);
+            this.customSTControl.addValidators(MixedCreatorDialogComponent.route_file_controller);
+            this.customSTControl.addValidators(MixedCreatorDialogComponent.already_taken(() => this.cacheList || [])
+        );
+            break;
+        }
+    }
+
+    public createComponent(): void {
+        let node: EqualComponentDescriptor = this.createNodeDescriptor();
+        node = this.formatNodeName(node);
+        this.workbenchService.createNode(node)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(result => {
+                this.dialogRef.close({ ...result, node });
+            });
+    }
+
+    private createNodeDescriptor(): EqualComponentDescriptor {
+        return {
+            type: this.type,
+            name: this.nameControl.value,
+            package_name: this.selectedPackage,
+            file: this.generateFilePath(),
+            item: {
+                subtype: this.subtype ? this.subtype : this.customSTControl.value,
+                model: this.selectedModel
+            }
+        };
+    }
+
+    private formatNodeName(node: EqualComponentDescriptor): EqualComponentDescriptor {
+        let formattedNode = { ...node };
+
+        if (formattedNode.type === 'view') {
+            formattedNode.name = `${formattedNode.item.model}:${this.subtype}.${formattedNode.name}`;
+        }
+
+        switch (formattedNode.type) {
+            case 'get':
+            case 'do':
+                formattedNode.name = `${formattedNode.package_name}_${formattedNode.name}`;
+                break;
+            case 'route':
+                formattedNode.item = {}
+                break;
+        }
+
+        return formattedNode;
+    }
+
+    private generateFilePath(): string {
+        const folders: Record<string, { folder: string; extension: string }> = {
+            view: { folder: 'views', extension: '.php' },
+            class: { folder: 'classes', extension: '.class.php' },
+            route: { folder: 'init/routes', extension: '' }
+        };
+
+        if (this.type === 'route') {
+            return `${this.selectedPackage}/${folders.route.folder}/${this.subtype ? this.subtype : this.customSTControl.value}`;
+        }
+
+        const config = folders[this.type];
+        return config ? `${this.selectedPackage}/${config.folder}/${this.nameControl.value}${config.extension}` : '';
+    }
+
+
+
+
+
+    public get createDisabled(): boolean {
+        return this.NameDisabled || this.nameControl.invalid;
+    }
+
+    public get NameDisabled(): boolean {
+        return (
+        (this.needPackage && !this.selectedPackage) ||
+        (this.needModel && !this.selectedModel) ||
+        (
+            ((!this.canAddSubtypes || !this.addingState) && this.needSubtype && !this.subtype) ||
+            (this.canAddSubtypes && this.addingState && this.customSTControl.invalid)
+        )
+        );
+    }
+
+    public setAddingState(state: boolean): void {
+        this.addingState = state;
+        this.reloadList();
+    }
+
+    // ----- Custom Validators -----
+
     public static camelCase(control: AbstractControl): ValidationErrors | null {
-        let valid_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ\\abcdefghijkmlnopqrstuvwxyz";
-        for(let char of control.value) {
-            if(!valid_chars.includes(char)) {
-                return {"case": true};
-            }
+        const validChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\\abcdefghijkmlnopqrstuvwxyz';
+        for (const char of control.value) {
+        if (!validChars.includes(char)) {
+            return { case: true };
         }
-        let value: string[] = control.value.split("\\");
-        let f = value[value.length-1][0];
-        for(let i=0; i < value.length-1; i++) {
-            if(value[i].toLowerCase() !== value[i]) {
-                return {"case": true};
-            }
         }
-        return "ABCDEFGHIJKLMNOPQRSTUVWXYZ".includes(f) ? null : {"case": true};
+        const parts = control.value.split('\\');
+        const firstChar = parts[parts.length - 1][0];
+        for (let i = 0; i < parts.length - 1; i++) {
+        if (parts[i].toLowerCase() !== parts[i]) {
+            return { case: true };
+        }
+        }
+        return 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.includes(firstChar) ? null : { case: true };
     }
 
     public static snake_case(control: AbstractControl): ValidationErrors | null {
-        let value: string = control.value;
-        let valid_chars = "abcdefghijkmlnopqrstuvwxyz-";
-        for(let char of value) {
-            if(!valid_chars.includes(char)) {
-                return {"case": true};
-            }
+        const value: string = control.value;
+        const validChars = 'abcdefghijkmlnopqrstuvwxyz-';
+        for (const char of value) {
+        if (!validChars.includes(char)) {
+            return { case: true };
+        }
         }
         return null;
     }
 
     public static snake_case_controller(control: AbstractControl): ValidationErrors | null {
-        let value: string = control.value;
-        let valid_chars = "abcdefghijkmlnopqrstuvwxyz-_";
-        for(let char of value) {
-            if(!valid_chars.includes(char)) {
-                return {"case":true};
-            }
+        const value: string = control.value;
+        const validChars = 'abcdefghijkmlnopqrstuvwxyz-_';
+        for (const char of value) {
+        if (!validChars.includes(char)) {
+            return { case: true };
+        }
         }
         return null;
     }
 
     public static url_case_controller(control: AbstractControl): ValidationErrors | null {
-        let value: string = control.value;
-        if(value.length < 2) {
-            return {"case":true};
+        const value: string = control.value;
+        if (value.length < 2 || !value.startsWith('/')) {
+        return { case: true };
         }
-        if(!value.startsWith('/')) {
-            return {"case":true};
+        const validChars = 'abcdefghijkmlnopqrstuvwxyz_/:';
+        for (const char of value) {
+        if (!validChars.includes(char)) {
+            return { case: true };
         }
-        let valid_chars = "abcdefghijkmlnopqrstuvwxyz_/:";
-        for(let char of value) {
-            if(!valid_chars.includes(char)) {
-                return {"case":true};
-            }
         }
         return null;
     }
 
     public static route_file_controller(control: AbstractControl): ValidationErrors | null {
-        let value: string = control.value;
-        let dgts:string = "0123456789";
-        let letter:string = "abcdefghijklmnopqrstuvwxyz";
-        if(value.length < 3) {
-            return {"case":true};
+        const value: string = control.value;
+        const dgts = '0123456789';
+        const letter = 'abcdefghijklmnopqrstuvwxyz';
+        if (value.length < 3 || !value.endsWith('.json')) {
+        return { case: true };
         }
-        if(!value.endsWith(".json")) {
-            return {"case":true};
+        if (!(dgts.includes(value[0]) && dgts.includes(value[1])) || (value[0] === '0' && value[1] === '0')) {
+        return { case: true };
         }
-        if(!(dgts.includes(value[0]) && dgts.includes(value[1])) || (value[0] === "0" && value[1] === "0")) {
-            return {"case":true};
+        if (value[2] !== '-') {
+        return { case: true };
         }
-        if(value[2] !== "-") {
-            return {"case":true};
+        for (let i = 3; i < value.length - 5; i++) {
+        if (!letter.includes(value[i])) {
+            return { case: true };
         }
-        for(let i=3 ; i < value.length-5 ; i++){
-            if(!letter.includes(value[i])) return {"case":true}
         }
         return null;
     }
 
-    public static already_taken(pkglist: string[] | undefined): ValidatorFn {
-        return (control: AbstractControl):ValidationErrors | null => {
-            if(pkglist === undefined) {
-                return { "taken": true };
+    public static already_taken(getPkgList: () => string[]): ValidatorFn {
+        return (control: AbstractControl): ValidationErrors | null => {
+        const pkgList = getPkgList();
+        if (!pkgList) {
+            return { taken: true };
+        }
+        for (const pkg of pkgList) {
+            if (pkg === control.value) {
+            return { taken: true };
             }
-
-            for(let pkg of pkglist) {
-                if (pkg === control.value) {
-                    return { "taken": true };
-                }
-            }
-            return null;
+        }
+        return null;
         };
     }
 
-    public getControlsErrors(controller: FormControl) {
-        if(controller.getError("required")) return "this field is mandatory";
-        if(controller.getError("case")) return "this does not comply with naming standards";
-        if(controller.getError("taken")) return "this name is already taken";
-        if(controller.getError("maxlength")) return "this name is too long";
-        return "";
-    }
 
-
-    public get createDisabled() {
-        return this.NameDisabled || this.nameControl.invalid;
-    }
-
-    public get NameDisabled() {
-        return (
-                ( this.need_package && !(this.selected_package) ) ||
-                ( this.need_model && !(this.selected_model) ) ||
-                (
-                    ( (!this.can_add_subtypes || !this.addingState) && this.need_subtype && !(this.subtype) ) ||
-                    ( this.can_add_subtypes && this.addingState && this.customSTControl.invalid )
-                )
-            );
-    }
-
-    public setAddingState(state:boolean) {
-        this.addingState = state;
-        this.reloadlist();
+    public getControlsErrors(control: FormControl): string {
+        if (control.getError('required')) {
+        return 'this field is mandatory';
+        }
+        if (control.getError('case')) {
+        return 'this does not comply with naming standards';
+        }
+        if (control.getError('taken')) {
+        return 'this name is already taken';
+        }
+        if (control.getError('maxlength')) {
+        return 'this name is too long';
+        }
+        return '';
     }
 }

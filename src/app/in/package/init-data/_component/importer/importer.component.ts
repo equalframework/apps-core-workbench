@@ -2,9 +2,10 @@ import { Component, Inject, OnInit, Optional } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { InitPopupEditorComponent } from '../init-popup-editor/init-popup-editor.component';
 import { InitDataEntityInstance } from '../../_models/init-data';
-import { EmbeddedApiService } from 'src/app/_services/embedded-api.service';
 import { Sort } from '@angular/material/sort';
 import { PageEvent } from '@angular/material/paginator';
+import { WorkbenchService } from 'src/app/in/_services/workbench.service';
+import { map, switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-importer',
@@ -23,26 +24,37 @@ export class ImporterComponent implements OnInit {
   constructor(
     @Optional() public ref: MatDialogRef<InitPopupEditorComponent>,
     @Optional() @Inject(MAT_DIALOG_DATA) public data: { entity: string, vf:any[] },
-    private api: EmbeddedApiService
+    private workbenchService: WorkbenchService
   ) { }
 
-  async ngOnInit() {
-    const model = await this.api.getSchema(this.data.entity)
-    const instances = await this.api.getAllInstanceFrom(this.data.entity,Object.keys(model.fields))
-    console.log(instances)
-    for(let instance of instances) {
-      instance.modified = null
-      instance.modifier = null
-      instance.creator = null
-      instance.created = null
-      if(instance.deleted) continue
-      this.ItemList.push(InitDataEntityInstance.ImportFromRealData(instance,model.fields))
-    }
-    console.log(this.ItemList)
-    this.page.pageSize = 10
-    this.page.pageIndex = 0
-    this.ready = true
-    this.sortData(this.current_sort,this.ItemList)
+  ngOnInit() {
+      this.workbenchService.getSchema(this.data.entity).pipe(
+          switchMap((schema) => {
+              const fields = Object.keys(schema.fields);
+              return this.workbenchService.collectEntitiesWithFilters(this.data.entity, fields).pipe(
+                  map(instances => ({ instances, schema }))
+              );
+              })
+      ).subscribe(({ instances, schema }) => {
+          for (let instance of instances) {
+              instance.modified = null;
+              instance.modifier = null;
+              instance.creator = null;
+              instance.created = null;
+              if (instance.deleted) continue;
+              this.ItemList.push(InitDataEntityInstance.ImportFromRealData(instance, schema.fields));
+          }
+  
+          console.log(this.ItemList);
+  
+          this.page.pageSize = 10;
+          this.page.pageIndex = 0;
+  
+          this.ready = true;
+  
+          // Appliquer le tri
+          this.sortData(this.current_sort, this.ItemList);
+      });
   }
 
   get selectedCount() {

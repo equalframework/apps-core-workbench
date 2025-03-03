@@ -19,10 +19,10 @@ export class PopupParamsComponent implements OnInit {
   constructor(
         @Optional() public dialogRef: MatDialogRef<PopupParamsComponent>,
         @Optional() @Inject(MAT_DIALOG_DATA) public data:ViewAction,
-        private api: WorkbenchService) { }
+        private workbenchService: WorkbenchService) { }
 
   async ngOnInit() {
-    this.scheme = await this.api.doAnnounceController(this.data.controller)
+    this.scheme = await this.workbenchService.announceController('do',this.data.controller).toPromise()
     this.conStruct(this.data.params)
   }
 
