@@ -1,16 +1,41 @@
-<app-popup-layout
-    (close)="dialogRef.close(null)"
-    [okButton]="true"
-    okButtonText="Load"
-    [okButtonDisabled]="!value"
-    (ok)="dialogRef.close(value)"
->
-    <div class="content">
-        <label>Select file...</label><br>
-        <autocomplete
-                [(value)]="value"
-                [values]="filtered_list"
-                width="100%">
-        </autocomplete>
+<h1 mat-dialog-title class="dialog-title">Choose a UML</h1>
+
+<div mat-dialog-content class="file-explorer-container">
+  <div class="file-explorer-wrapper">
+    <div class="folders">
+      <!-- List of folders on the left -->
+      <div *ngFor="let folder of (umlExplorator$ | async) | keyvalue" class="folder" (click)="onSelectFolder(folder.key)">
+        <mat-icon *ngIf="isFolderSelected(folder.key)">folder</mat-icon>
+        <mat-icon *ngIf="!isFolderSelected(folder.key)">folder_open</mat-icon>
+        <span>{{ folder.key }}</span>
+      </div>
     </div>
-</app-popup-layout>
+
+    <div class="uml-files">
+      <!-- List of UMLs in the selected folder -->
+      <div *ngIf="selectedFolder" class="uml-file-list">
+        <h3>{{ selectedFolder }} UMLs:</h3>
+
+        <div *ngIf="(umlExplorator$ | async)?.[selectedFolder]?.length === 0" class="no-umls-message">
+          <span>There are no UMLs in this folder.</span>
+        </div>
+
+        <div *ngFor="let uml of (umlExplorator$ | async)?.[selectedFolder]" class="uml-file" (click)="onSelectUml(uml)">
+          <mat-icon>insert_drive_file</mat-icon>
+          <span>{{ uml }}</span>
+        </div>
+      </div>
+
+      <!-- Show a message if no folder is selected -->
+      <div *ngIf="!selectedFolder" class="no-selection">
+        <span>Please select a folder to view the UMLs.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Actions to cancel or select the UML -->
+<div mat-dialog-actions class="dialog-actions">
+  <button mat-button (click)="dialogRef.close()">Cancel</button>
+  <button mat-button [disabled]="!selectedUml" (click)="dialogRef.close(selectedFolder + '::' + selectedUml)">Select</button>
+</div>

@@ -1,4 +1,71 @@
-.content {
-    margin-top: 25px;
-    margin-bottom: 25px;
-}
+/* File Explorer Container */
+.file-explorer-container {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+  }
+
+  .file-explorer-wrapper {
+    display: flex;
+    overflow: auto;
+  }
+
+  .folders {
+    max-height: 300px;
+    overflow-y: auto;
+    width: 200px;
+    border-right: 1px solid #ccc;
+    padding-right: 10px;
+  }
+
+  .uml-files {
+    flex-grow: 1;
+    padding-left: 20px;
+  }
+
+  .folder {
+    cursor: pointer;
+    padding: 10px;
+  }
+
+  .uml-file-list {
+    padding-top: 10px;
+  }
+
+  .uml-file {
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+  }
+
+  .mat-icon {
+    margin-right: 10px;
+  }
+
+  .dialog-title {
+    position: sticky;
+    top: 0;
+    background-color: #fff;
+    z-index: 10;
+    padding: 10px;
+  }
+
+  .no-selection {
+    font-style: italic;
+    color: #aaa;
+  }
+
+  .no-umls-message {
+    font-style: italic;
+    color: #aaa;
+    padding: 10px;
+    background-color: #f8f8f8;
+  }
+
+  /* Action buttons */
+  .dialog-actions {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+  }

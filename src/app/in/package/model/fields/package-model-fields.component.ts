@@ -79,7 +79,6 @@ export class PackageModelFieldsComponent implements OnInit {
             this.revertOneChange();
         }
     }
-
     public async ngOnInit() {
         this.models = await this.workbenchService.collectClasses(true).toPromise();
         Field.type_directives = await this.workbenchService.getTypeDirective();
@@ -125,6 +124,20 @@ export class PackageModelFieldsComponent implements OnInit {
             }
         }
     }
+
+    async cancel() {
+        this.loading = true;
+        this.notificationService.showInfo("Canceling...");
+
+        try {
+          await this.loadFields();
+          this.notificationService.showSuccess("Canceled");
+        } catch (error) {
+          this.notificationService.showError("Error occurred while canceling.");
+        } finally {
+          this.loading = false;
+        }
+      }
 
     public revertOneChange() {
         if(this.fieldFutureHistory.length > 0) {
@@ -198,7 +211,7 @@ export class PackageModelFieldsComponent implements OnInit {
     }
 
     public async savedata() {
-        this.notificationService.showInfo("Saving....");        
+        this.notificationService.showInfo("Saving....");
         this.workbenchService.updateFieldsFromClass(this.export2JSON(),this.package_name,this.class_name).subscribe((result) => {
                 if(result.success){
                     this.notificationService.showSuccess(result.message);

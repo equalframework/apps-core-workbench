@@ -65,7 +65,7 @@ export class UmlErdComponent implements OnInit, OnChanges {
                 const parts = this.current_filename.split("::");
                 const schema = await this.workbenchService.getUMLContent(parts[0], "erd", parts[1]).toPromise();
                 for(let item of schema) {
-                    this.nodes.push(await UmlErdNode.AsyncConstructor(item.entity, item.hidden, item?.fields ?? [], item.position.x, item.position.y, item.show_inheritance, item.show_relations));
+                    this.nodes.push(await UmlErdNode.AsyncConstructor(item.entity, item.hidden, item?.fields ?? [], item.position?.x, item.position?.y, item.show_inheritance, item.show_relations));
                 }
             }
             catch(e) {
