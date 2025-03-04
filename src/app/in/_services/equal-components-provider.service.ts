@@ -363,41 +363,61 @@ export class EqualComponentsProviderService {
 
       }
 
-      private updateComponentsMap(components: EqualComponentDescriptor[]): void {
+    private updateComponentsMap(components: EqualComponentDescriptor[]): void {
         const cacheMap = this.componentsCacheMapSubject.getValue();
 
         components.forEach(component => {
-          const pkg = component.package_name;
-          const type = component.type;
+            const pkg = component.package_name;
+            const type = component.type;
 
-          // Optionally create the package if it's missing
-          if (!cacheMap.has(pkg)) {
+            // Optionally create the package if it's missing
+            if (!cacheMap.has(pkg)) {
             cacheMap.set(pkg, new Map<string, EqualComponentDescriptor[]>());
-          }
-          const packageMap = cacheMap.get(pkg)!;
+            }
+            const packageMap = cacheMap.get(pkg)!;
 
-          if (!packageMap.has(type)) {
+            if (!packageMap.has(type)) {
             packageMap.set(type, []);
-          }
-          packageMap.get(type)!.push(component);
+            }
+
+            const existingComponents = packageMap.get(type)!;
+        // Check if the component already exists in the list
+        const componentExists = existingComponents.some(existingComponent =>
+            existingComponent.name === component.name && existingComponent.package_name === component.package_name
+        );
+
+            // Push the component only if it doesn't exist in the list
+        if (!componentExists) {
+            existingComponents.push(component);
+        }
         });
 
+        // Remove components that are no longer in the components list
+        cacheMap.forEach((packageMap, pkg) => {
+            packageMap.forEach((existingComponents, type) => {
+                // Filter out components that no longer exist in the `components` list
+                packageMap.set(type, existingComponents.filter(existingComponent =>
+                    components.some(component =>
+                        component.name === existingComponent.name && component.package_name === existingComponent.package_name
+                    )
+                ));
+            });
+        });
         // Update the BehaviorSubject with the modified map
         this.componentsCacheMapSubject.next(cacheMap);
-
         // Flatten the map to update `equalComponentsSubject`, including a package entry for each package
         const allComponentsArray: EqualComponentDescriptor[] = [];
         cacheMap.forEach((pkgMap, pkgName) => {
-          // Package entry
-          allComponentsArray.push(new EqualComponentDescriptor(pkgName, pkgName, 'package'));
-          // Associated components
-          pkgMap.forEach((componentsArray) => {
+            // Package entry
+            allComponentsArray.push(new EqualComponentDescriptor(pkgName, pkgName, 'package'));
+            // Associated components
+            pkgMap.forEach((componentsArray) => {
             allComponentsArray.push(...componentsArray);
-          });
+            });
         });
 
         this.equalComponentsSubject.next(allComponentsArray);
-      }
+    }
 
 
 

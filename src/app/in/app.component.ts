@@ -63,12 +63,20 @@ export class AppComponent implements OnInit {
      *
      * @param eq_package the package that the user has selected
      */
-    public async selectNode(equalComponent: EqualComponentDescriptor) {
+    public selectNode(equalComponent: EqualComponentDescriptor) {
         console.log('selectNode', equalComponent);
-        this.selectedComponent = equalComponent;
 
+        if (this.selectedComponent && this.areNodesEqual(this.selectedComponent, equalComponent)) {
+            this.selectedComponent = undefined;
+        } else {
+            this.selectedComponent = equalComponent;
+        }
     }
-
+    public areNodesEqual(node1: EqualComponentDescriptor | undefined, node2: EqualComponentDescriptor): boolean {
+        return node1?.package_name === node2?.package_name &&
+               node1?.name === node2?.name &&
+               node1?.type === node2?.type;
+    }
 
     /**
      * Update the name of a package.
