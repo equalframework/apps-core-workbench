@@ -9,7 +9,10 @@ import { API_ENDPOINTS } from '../_models/api-endpoints';
 })
 export class EqualComponentsProviderService {
     private equalComponentsSubject = new BehaviorSubject<EqualComponentDescriptor[]>([]);
-    private componentsCacheMap  = new Map<string, Map<string, EqualComponentDescriptor[]>>();
+    private componentsCacheMapSubject = new BehaviorSubject<Map<string, Map<string, EqualComponentDescriptor[]>>>(new Map());
+    get componentsCacheMap$(): Observable<Map<string, Map<string, EqualComponentDescriptor[]>>> {
+        return this.componentsCacheMapSubject.asObservable();
+      }
     public equalComponents$ = this.equalComponentsSubject.asObservable();
 
     constructor(private api: ApiService) {
@@ -18,39 +21,33 @@ export class EqualComponentsProviderService {
 
 
 
-    public retrievePackages(): Observable<string[]> {
-        // if we have packages in the cache we take it
-        if (this.componentsCacheMap .size > 0) {
-            return of(Array.from(this.componentsCacheMap.keys()));
-        }
-
-        return this.collectAllPackages().pipe(
-            tap(components => {
-                components.forEach(comp => {
-                    const packageName = comp.name;
-                    if (!this.componentsCacheMap .has(packageName)) {
-                        this.componentsCacheMap .set(packageName, new Map());
-                    }
-                });
-            }),
-            map(components => components.map(comp => comp.name)),
-            catchError(error => {
-                console.error('Error when trying to retrieve packages', error);
-                return of([]);
-            })
+    getComponentCountByType(type: string, packageName?: string): Observable<number> {
+        return this.componentsCacheMap$.pipe(
+          map(cacheMap => {
+            if (!packageName) {
+              return type === 'package'
+                ? cacheMap.size
+                : Array.from(cacheMap.values())
+                    .map(pkgMap => pkgMap.get(type)?.length ?? 0)
+                    .reduce((sum, count) => sum + count, 0);
+            } else {
+              return cacheMap.get(packageName)?.get(type)?.length ?? 0;
+            }
+          })
         );
-    }
+      }
+
+
+
 
 
 
     /**
      * Retrieves a specific component based on the cache or via the API.
-     *
-     * @param package_name   - The package name.
+     * @param package_name - The package name.
      * @param component_type - The component type.
-     * @param class_name     - Filter for the model (for some types, e.g., 'view').
+     * @param class_name - Filter for the model (for some types, e.g., 'view').
      * @param component_name - The exact name of the component to search for.
-     * @returns An Observable containing the EqualComponentDescriptor of the component or null if not found.
      */
     public getComponent(
         package_name: string,
@@ -58,75 +55,79 @@ export class EqualComponentsProviderService {
         class_name: string,
         component_name: string
     ): Observable<EqualComponentDescriptor | null> {
-        // Check the cache using the map
-        const package_cache = this.componentsCacheMap .get(package_name);
-        if (package_cache) {
-            let components_to_search: EqualComponentDescriptor[];
-            if (component_type === '') {
-                components_to_search = Array.from(package_cache.values()).flat();
-            } else {
-                components_to_search = package_cache.get(component_type) || [];
-            }
-            const found_component = components_to_search.find(comp => {
-                const matches_class_name = class_name ? comp.item.model.startsWith(class_name) : true;
-                const matches_component_name = comp.name === component_name;
-                return matches_class_name && matches_component_name;
-            });
-            if (found_component) {
-                return of(found_component);
-            }
+        // Check the cache using the reactive map
+        const cacheMap = this.componentsCacheMapSubject.getValue();
+        const packageCache = cacheMap.get(package_name);
+        if (packageCache) {
+        let componentsToSearch: EqualComponentDescriptor[];
+        if (component_type === '') {
+            componentsToSearch = Array.from(packageCache.values()).flat();
+        } else {
+            componentsToSearch = packageCache.get(component_type) || [];
+        }
+        const foundComponent = componentsToSearch.find(comp => {
+            const matchesClassName = class_name ? comp.item.model.startsWith(class_name) : true;
+            const matchesComponentName = comp.name === component_name;
+            return matchesClassName && matchesComponentName;
+        });
+        if (foundComponent) {
+            return of(foundComponent);
+        }
         }
 
         // If not found in the cache, retrieve via the API
         return this.fetchComponents(package_name, component_type, class_name).pipe(
-            map(components => {
-                console.log("Components retrieved:", components);
-                return components.find(comp => comp.name === component_name) || null;
-            }),
-            catchError(response => {
-                console.error(`Error fetching specific ${component_type} for ${package_name}:`, response);
-                return of(null);
-            })
+        map(components => {
+            console.log("Components retrieved:", components);
+            return components.find(comp => comp.name === component_name) || null;
+        }),
+        catchError(response => {
+            console.error(`Error fetching specific ${component_type} for ${package_name}:`, response);
+            return of(null);
+        })
         );
     }
 
 
-    /**
+
+        /**
      * Retrieves components of a package based on the type and an optional class name filter.
-     *
-     * @param package_name   - The package name.
+     * @param package_name - The package name.
      * @param component_type - The component type ('class', 'controller', 'view', 'menu', 'route').
-     * @param class_name     - (Optional) Filter for the model.
-     * @returns An Observable containing an array of EqualComponentDescriptor.
+     * @param class_name - (Optional) Filter for the model.
      */
     public getComponents(
         package_name: string,
         component_type: string,
         class_name?: string
     ): Observable<EqualComponentDescriptor[]> {
-        // Attempt to get the cache for this package
-        const package_cache = this.componentsCacheMap .get(package_name);
+        const cacheMap = this.componentsCacheMapSubject.getValue();
+        const packageCache = cacheMap.get(package_name);
 
-        if (package_cache && package_cache.has(component_type)) {
-            const components = package_cache.get(component_type)?.filter(viewComponent => class_name ? viewComponent.item.model === class_name : true);
-            return of(components && components.length > 0 ? components : []);
+        if (packageCache && packageCache.has(component_type)) {
+        const components = packageCache.get(component_type)?.filter(component =>
+            class_name ? component.item.model === class_name : true
+        );
+        return of(components && components.length > 0 ? components : []);
         }
-
-
+        console.log("bon bah go dans l'api hn");
         // If not found in cache, retrieve via the API
         return this.fetchComponents(package_name, component_type, class_name).pipe(
-            map(new_components => {
-                if (!this.componentsCacheMap .has(package_name)) {
-                    this.componentsCacheMap .set(package_name, new Map<string, EqualComponentDescriptor[]>());
-                }
-                return new_components;
-            }),
-            catchError(response => {
-                console.error(`Error fetching ${component_type}s for ${package_name}:`, response);
-                return of([]);
-            })
+        map(newComponents => {
+            // Optionally, update the cache here
+            if (!cacheMap.has(package_name)) {
+            cacheMap.set(package_name, new Map<string, EqualComponentDescriptor[]>());
+            }
+            this.componentsCacheMapSubject.next(cacheMap);
+            return newComponents;
+        }),
+        catchError(response => {
+            console.error(`Error fetching ${component_type}s for ${package_name}:`, response);
+            return of([]);
+        })
         );
     }
+
 
 
     /**
@@ -183,6 +184,26 @@ export class EqualComponentsProviderService {
                 `Reloading components. Provided package: ${package_name ? package_name : 'all'}, component type: ${component_type ? component_type : 'all'}. Packages loaded:`,
                 packages
                 );
+                this.updatePackagesMap(packages)
+                const currentCacheMap = this.componentsCacheMapSubject.getValue();
+                let updatedCacheMap = new Map<string, Map<string, EqualComponentDescriptor[]>>(currentCacheMap);
+
+                Array.from(updatedCacheMap.keys()).forEach((packageKey: string) => {
+                    const isPackageValid = packages.some(packageComponent => packageKey === packageComponent.name);
+
+                    if (!isPackageValid) {
+                        console.log(`Removing package from cache: ${packageKey}`);
+                        updatedCacheMap.delete(packageKey);
+                    }else{
+                        if (!updatedCacheMap.has(packageKey)) {
+                            console.log(`Adding package to cache: ${packageKey}`);
+                            updatedCacheMap.set(packageKey, new Map());
+                        }
+                    }
+                });
+                this.componentsCacheMapSubject.next(updatedCacheMap);
+
+
                 // If a package is specified, filter the packages accordingly.
                 let filtered_packages: EqualComponentDescriptor[] = packages;
                 if (package_name) {
@@ -190,6 +211,9 @@ export class EqualComponentsProviderService {
                 }
                 if (filtered_packages.length === 0) {
                 console.warn(`No package found with name "${package_name}".`);
+                 // Remove package from the components subject
+                 const updatedComponents = this.equalComponentsSubject.getValue().filter(comp => comp.package_name !== package_name);
+                 this.equalComponentsSubject.next(updatedComponents);
                 return;
                 }
 
@@ -239,34 +263,27 @@ export class EqualComponentsProviderService {
     /**
      * Loads all available components.
      */
-    private preloadComponents (): void {
-    this.collectAllPackages()
-    .pipe(
-        switchMap((packages: EqualComponentDescriptor[]) => {
-            this.equalComponentsSubject.next(packages);
-            return of(packages);
-        }),
-        take(1)
-        )
-    .subscribe({
-        next: (packages: EqualComponentDescriptor[]) => {
-            console.log('Packages loaded:', packages);
+    private preloadComponents(): void {
+        this.collectAllPackages()
+          .pipe(
+            switchMap((packages: EqualComponentDescriptor[]) => {
+                return of(packages);
+            }),
+            take(1)
+          )
+          .subscribe({
+              next: (packages: EqualComponentDescriptor[]) => {
+                this.updatePackagesMap(packages);
+                console.log('Packages loaded:', packages);
+                this.preloadComponentsForPackages(packages);
+                console.log("Updated map:", this.componentsCacheMapSubject.getValue());
+              },
+              error: (response) => {
+                  console.error('Error loading components:', response);
+              }
+          });
+      }
 
-            // Update the main cache with components by package
-            packages.forEach(packageComponent => {
-                if (!this.componentsCacheMap .has(packageComponent.name)) {
-                    this.componentsCacheMap .set(packageComponent.name, new Map<string, EqualComponentDescriptor[]>());
-                }
-            });
-
-            this.preloadComponentsForPackages(packages);
-            console.log("map : ", this.componentsCacheMap );
-        },
-        error: (response) => {
-            console.error('Error loading components:', response);
-        }
-    });
-    }
 
 
 
@@ -310,9 +327,8 @@ export class EqualComponentsProviderService {
             const allComponents = results.flat();
             console.log("all component : ", allComponents)
             if (allComponents.length > 0) {
-                this.updateComponentMap(allComponents);
+                this.updateComponentsMap(allComponents);
             }
-            console.log('Preloaded additional components:', this.componentsCacheMap );
         },
         error: (response) => {
             console.error('Error preloading additional components:', response);
@@ -320,69 +336,73 @@ export class EqualComponentsProviderService {
     });
     }
 
-    /**
-     * Updates the component map with newly loaded components, and removes stale components.
-     * @param components - The components to update.
-     */
-    private updateComponentMap(components: EqualComponentDescriptor[]): void {
-        // Collect all components to be removed from the map.
-        const componentsToRemove: EqualComponentDescriptor[] = [];
+    private updatePackagesMap(packages: EqualComponentDescriptor[]): void {
+        const cacheMap = this.componentsCacheMapSubject.getValue();
+
+        packages.forEach(pkg => {
+          const pkgName = pkg.package_name;
+          if (!cacheMap.has(pkgName)) {
+            // Create an empty package entry if it doesn't exist
+            cacheMap.set(pkgName, new Map<string, EqualComponentDescriptor[]>());
+          }
+        });
+
+        // Update the BehaviorSubject with the new map state
+        this.componentsCacheMapSubject.next(cacheMap);
+
+        // Flatten the map to update `equalComponentsSubject`, including a package entry for each package
+        const allComponentsArray: EqualComponentDescriptor[] = [];
+        cacheMap.forEach((pkgMap, pkgName) => {
+          // Package entry
+          allComponentsArray.push(new EqualComponentDescriptor(pkgName, pkgName, 'package'));
+          // Associated components
+          pkgMap.forEach((componentsArray) => {
+            allComponentsArray.push(...componentsArray);
+          });
+        });
+        this.equalComponentsSubject.next(allComponentsArray);
+
+      }
+
+      private updateComponentsMap(components: EqualComponentDescriptor[]): void {
+        const cacheMap = this.componentsCacheMapSubject.getValue();
 
         components.forEach(component => {
-        const package_name = component.package_name;
-        const component_type = component.type;
+          const pkg = component.package_name;
+          const type = component.type;
 
-        // Ensure the package exists in the cache.
-        if (!this.componentsCacheMap .has(package_name)) {
-            this.componentsCacheMap .set(package_name, new Map<string, EqualComponentDescriptor[]>());
-        }
+          // Optionally create the package if it's missing
+          if (!cacheMap.has(pkg)) {
+            cacheMap.set(pkg, new Map<string, EqualComponentDescriptor[]>());
+          }
+          const packageMap = cacheMap.get(pkg)!;
 
-        const packageMap = this.componentsCacheMap .get(package_name)!;
-        const currentComponents = packageMap.get(component_type) || [];
-
-        // Check if the component is already in the list (using its name as a unique identifier).
-        const exists = currentComponents.some(c => c.name === component.name);
-
-        // If the component doesn't exist, add it.
-        if (!exists) {
-            currentComponents.push(component);
-            packageMap.set(component_type, currentComponents);
-
-            // Add to the list to update the subject.
-            const allComponents = this.equalComponentsSubject.getValue();
-            const alreadyInSubject = allComponents.some(
-            c => c.package_name === package_name && c.name === component.name
-            );
-            if (!alreadyInSubject) {
-            this.equalComponentsSubject.next([...allComponents, component]);
-            }
-        }
-
-        // Identify stale components (components that need to be removed).
-        // If the component is not in the current list and it should be removed, mark it for removal.
-        componentsToRemove.push(...currentComponents.filter(c => !components.some(newComp => newComp.name === c.name)));
+          if (!packageMap.has(type)) {
+            packageMap.set(type, []);
+          }
+          packageMap.get(type)!.push(component);
         });
 
-        // Remove stale components from the map and the subject.
-        componentsToRemove.forEach(component => {
-        const packageMap = this.componentsCacheMap .get(component.package_name);
-        if (packageMap) {
-            const currentComponents = packageMap.get(component.type);
-            if (currentComponents) {
-            const filteredComponents = currentComponents.filter(c => c.name !== component.name);
-            if (filteredComponents.length === 0) {
-                packageMap.delete(component.type); // Remove the component type from the map if empty
-            } else {
-                packageMap.set(component.type, filteredComponents);
-            }
-            }
-        }
+        // Update the BehaviorSubject with the modified map
+        this.componentsCacheMapSubject.next(cacheMap);
 
-        // Remove from the subject as well.
-        const allComponents = this.equalComponentsSubject.getValue();
-        this.equalComponentsSubject.next(allComponents.filter(c => c.name !== component.name));
+        // Flatten the map to update `equalComponentsSubject`, including a package entry for each package
+        const allComponentsArray: EqualComponentDescriptor[] = [];
+        cacheMap.forEach((pkgMap, pkgName) => {
+          // Package entry
+          allComponentsArray.push(new EqualComponentDescriptor(pkgName, pkgName, 'package'));
+          // Associated components
+          pkgMap.forEach((componentsArray) => {
+            allComponentsArray.push(...componentsArray);
+          });
         });
-    }
+
+        this.equalComponentsSubject.next(allComponentsArray);
+      }
+
+
+
+
 
     /**
      * Retrieve all the routes in live.

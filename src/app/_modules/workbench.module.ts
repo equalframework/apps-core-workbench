@@ -69,6 +69,7 @@ import { InfoControllerComponent } from '../_components/info-controller/info-con
 import { EditorAccessComponent } from '../_components/editor-access/editor-access.component';
 
 import { TypeInputComponent } from '../_components/type-input/type-input.component';
+import { InfoSystemComponent } from '../_components/info-system/info-system.component';
 
 const sharedComponents = [
 
@@ -98,9 +99,10 @@ const sharedComponents = [
     InfoRouteComponent,
     InfoModelComponent,
     InfoControllerComponent,
+    InfoSystemComponent,
     ItemViewerComponent,
     GroupsViewerComponent,
-    EditorAccessComponent
+    EditorAccessComponent,
 ];
 @NgModule({
     declarations: [
@@ -146,6 +148,7 @@ export {
     InfoRouteComponent,
     InfoModelComponent,
     InfoControllerComponent,
+    InfoSystemComponent,
     EditorAccessComponent,
 
 }

@@ -21,7 +21,7 @@
     </div>
 
     <div *ngIf="!selectedComponent" class="right_pane">
-        (select a component)
+        <info-system [component_type]="'package'"></info-system>
     </div>
 
     <div *ngIf="selectedComponent" class="right_pane">

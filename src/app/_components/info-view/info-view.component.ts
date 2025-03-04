@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges, OnDestroy } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -8,7 +8,9 @@ import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 @Component({
     selector: 'info-view',
     templateUrl: './info-view.component.html',
-    styleUrls: ['./info-view.component.scss']
+    styleUrls: ['./info-view.component.scss'],
+    encapsulation : ViewEncapsulation.Emulated
+
 })
 export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
     @Input() view: EqualComponentDescriptor;

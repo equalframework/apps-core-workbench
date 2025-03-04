@@ -1,0 +1,51 @@
+<div class="full margin-container">
+    <div class="controller-container-top">
+        <h2 class="viewname">Component Statistics</h2>
+        <br>
+        <div class="flex-labels">
+            <label class="viewname">
+                Total {{ component_type ? (component_type.charAt(0).toUpperCase() + component_type.slice(1)) : 'Components' }}:
+            </label>
+            <label class="viewname accent">{{ total_count$ | async }}</label>
+        </div>
+    </div>
+
+    <div class="info-section" *ngIf="envData$ | async as envData">
+        <div class="info-item">
+            <label class="info-label">App Name:</label>
+            <span>{{ envData.app_name }}</span>
+        </div>
+        <div class="info-item">
+            <label class="info-label">Version:</label>
+            <span>{{ envData.version }}</span>
+        </div>
+        <div class="info-item">
+            <label class="info-label">Company Name:</label>
+            <span>{{ envData.company_name }}</span>
+        </div>
+        <div class="info-item">
+            <label class="info-label">License:</label>
+            <span>{{ envData.license }}</span>
+        </div>
+        <div class="info-item">
+            <label class="info-label">License URL:</label>
+            <a [href]="envData.license_url" target="_blank">{{ envData.license_url }}</a>
+        </div>
+        <div class="info-item">
+            <label class="info-label">Locale:</label>
+            <span>{{ envData.locale }}</span>
+        </div>
+        <div class="info-item">
+            <label class="info-label">Currency Symbol:</label>
+            <span>{{ envData.currency_symbol }}</span>
+        </div>
+        <div class="info-item">
+            <label class="info-label">Backend URL:</label>
+            <a [href]="envData.backend_url" target="_blank">{{ envData.backend_url }}</a>
+        </div>
+    </div>
+
+    <div class="app-logo" *ngIf="envData$ | async as envData">
+        <img *ngIf="envData.app_logo_url" [src]="envData.app_logo_url" alt="App Logo" />
+    </div>
+</div>

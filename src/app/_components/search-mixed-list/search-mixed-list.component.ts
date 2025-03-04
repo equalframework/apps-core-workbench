@@ -100,6 +100,8 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     public ngOnInit() {
         this.loading = true;
         this.loadNodesV2();
+        console.log("this.fileter data : ", this.filteredData)
+        console.log("this elements : ", this.elements);
     }
 
     public async ngOnChanges(changes: SimpleChanges) {
@@ -158,134 +160,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         console.error('Erreur lors du chargement des composants:', error);
         this.loading = false;
     }
-    /**
-     * the behavior depends ont the member 'node_type'
-     * classes and packages are always loaded synchronously
-     * but then other components, if requested, are loaded in background
-     * except when node_type is set to a specific value (distinct from '')
-     */
-    /*private async loadNodes() {
 
-
-
-       // pass-1 - load packages and classes
-        const classes = await this.api.getClasses();
-        let packages = [];
-
-        if(this.package_name && this.package_name != '') {
-            packages.push(this.package_name);
-        }
-        else {
-            packages = await this.api.getPackages();
-        }
-
-        for(const package_name of packages) {
-            if(['', 'package'].includes(this.node_type ?? '')) {
-                this.elements.push(<EqualComponentDescriptor> {
-                        package_name: package_name,
-                        name: package_name,
-                        type: "package",
-                        file: package_name
-                    });
-            }
-
-            if(classes.hasOwnProperty(package_name) && ['', 'class'].includes(this.node_type ?? '')) {
-                for(const class_name of classes[package_name]) {
-                    this.elements.push(<EqualComponentDescriptor> {
-                            package_name: package_name,
-                            name: class_name,
-                            type: "class",
-                            file: package_name + '/classes/' + class_name.replace(/\\/g, '/') + '.class.php'
-                        });
-                }
-            }
-        }
-
-        let apiCalls: any = [];
-
-        // pass-2 - load other components for each package
-        for(const package_name of packages) {
-
-            if(['', 'do', 'get', 'controller'].includes(this.node_type ?? '')) {
-                apiCalls.push( () => this.api.getControllersByPackage(package_name).then((x) => {
-                        x.data.forEach(controller_name => {
-                            this.elements.push(<EqualComponentDescriptor> {
-                                    package_name: package_name,
-                                    name: controller_name,
-                                    type:'get',
-                                    file: package_name + '/data/' + controller_name+'.php'
-                                });
-                        });
-                        x.actions.forEach(controller_name => {
-                                this.elements.push(<EqualComponentDescriptor> {
-                                        package_name: package_name,
-                                        name: controller_name,
-                                        type: 'do',
-                                        file: package_name + '/actions/' + controller_name+'.php'
-                                    });
-                            });
-                    }));
-            }
-
-            if(['', 'route'].includes(this.node_type ?? '')) {
-                apiCalls.push( () => this.api.getRoutesByPackage(package_name).then((routes) => {
-                        for(let file in routes) {
-                            for(let route_name in routes[file]) {
-                                this.elements.push(<EqualComponentDescriptor> {
-                                        package_name: package_name,
-                                        name: route_name,
-                                        type: "route",
-                                        file: package_name + '/init/routes/' + file, item: routes[file][route_name]
-                                    });
-                            }
-                        }
-                    }) );
-            }
-
-            if(['', 'view'].includes(this.node_type ?? '')) {
-                apiCalls.push( () => this.api.getViewsByPackage(package_name).then((y) => {
-                        y.forEach(view_name => {
-                            this.elements.push(<EqualComponentDescriptor> {
-                                    package_name: package_name,
-                                    name: view_name,
-                                    type: "view"
-                                });
-                        });
-                    }) );
-            }
-
-            if(['', 'menu'].includes(this.node_type ?? '')) {
-                apiCalls.push( () => this.api.getMenusByPackage(package_name).then((y) => {
-                        y.forEach(view =>{
-                            this.elements.push(<EqualComponentDescriptor> {
-                                    package_name: package_name,
-                                    name: view,
-                                    type: "menu"
-                                });
-                        })
-                    }) );
-            }
-
-        }
-
-        // we need the result of the calls before returning
-        if(this.node_type && this.node_type != '') {
-            for(const apiCall of apiCalls) {
-                await apiCall();
-            }
-            this.sortComponents();
-        }
-        // load in background and immediately return packages
-        else {
-            setTimeout( async () => {
-                    for(const apiCall of apiCalls) {
-                        await apiCall();
-                    }
-                    this.sortComponents();
-                });
-        }
-
-    }*/
     private getSortKey(component: EqualComponentDescriptor): string {
         let key = component.package_name || '';
 
