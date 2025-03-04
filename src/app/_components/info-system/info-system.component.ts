@@ -12,6 +12,7 @@ import { EqualComponentsProviderService } from 'src/app/in/_services/equal-compo
 export class InfoSystemComponent implements OnInit, OnChanges {
     @Input() component_type: string = '';
     @Input() package_name: string ='';
+    @Input() class_name:string = '';
     total_count$!: Observable<number>;
     envData$!: Observable<any>;
 
@@ -37,7 +38,7 @@ export class InfoSystemComponent implements OnInit, OnChanges {
     }
 
     private loadCount(): Observable<number> {
-        return this.equalComponentsProvider.getComponentCountByType(this.component_type,this.package_name)
+        return this.equalComponentsProvider.getComponentCountByType(this.component_type,this.package_name,this.class_name)
     }
 
     private loadEnvData(): Observable<any> {

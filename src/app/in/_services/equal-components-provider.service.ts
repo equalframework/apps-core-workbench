@@ -21,16 +21,16 @@ export class EqualComponentsProviderService {
 
 
 
-    getComponentCountByType(type: string, packageName?: string): Observable<number> {
+    public getComponentCountByType(type: string, packageName?: string, class_name?: string): Observable<number> {
         return this.componentsCacheMap$.pipe(
-          map(cacheMap => {
-            if (!packageName) {
-              return this.countAllPackages(cacheMap, type);
-            }
-            return this.countSpecificPackage(cacheMap, type, packageName);
-          })
+            map(cacheMap => {
+                if (!packageName) {
+                    return this.countAllPackages(cacheMap, type, class_name);
+                }
+                return this.countSpecificPackage(cacheMap, type, packageName, class_name);
+            })
         );
-      }
+    }
 
 
 
@@ -847,40 +847,60 @@ export class EqualComponentsProviderService {
         return result;
     }
 
-    // Count components across all packages
-    private countAllPackages(cacheMap: Map<string, Map<string, EqualComponentDescriptor[]>>, type: string): number {
-        if (type === 'package') {
-          return cacheMap.size;
-        }
-        return Array.from(cacheMap.values())
-          .map(pkgMap => this.countComponentsByType(pkgMap, type))
-          .reduce((sum, count) => sum + count, 0);
-      }
-
-      // Count components within a specific package
-      private countSpecificPackage(
+    // Count components across all packages, with optional class_name filtering
+    private countAllPackages(
         cacheMap: Map<string, Map<string, EqualComponentDescriptor[]>>,
         type: string,
-        packageName: string
-      ): number {
+        class_name?: string
+    ): number {
+        if (type === 'package') {
+            return cacheMap.size;
+        }
+        return Array.from(cacheMap.values())
+            .map(pkgMap => this.countComponentsByType(pkgMap, type, class_name))
+            .reduce((sum, count) => sum + count, 0);
+    }
+
+    // Count components within a specific package, with optional class_name filtering
+    private countSpecificPackage(
+        cacheMap: Map<string, Map<string, EqualComponentDescriptor[]>>,
+        type: string,
+        packageName: string,
+        class_name?: string
+    ): number {
         const packageMap = cacheMap.get(packageName);
         if (!packageMap) {
-          return 0;
+            return 0;
         }
-        return this.countComponentsByType(packageMap, type);
-      }
+        return this.countComponentsByType(packageMap, type, class_name);
+    }
 
-      // Handles counting logic for 'controller' and other types
-      private countComponentsByType(pkgMap: Map<string, EqualComponentDescriptor[]>, type: string): number {
+    // Handles counting logic, allowing optional filtering by class_name
+    private countComponentsByType(
+        pkgMap: Map<string, EqualComponentDescriptor[]>,
+        type: string,
+        class_name?: string
+    ): number {
+        let components: EqualComponentDescriptor[] = [];
+
         if (type === '') {
-            return Array.from(pkgMap.values())
-              .reduce((sum, components) => sum + components.length, 0);
-          }
-        if (type === 'controller') {
-          return (pkgMap.get('do')?.length ?? 0) + (pkgMap.get('get')?.length ?? 0);
+            components = Array.from(pkgMap.values()).flat();
+        } else if (type === 'controller') {
+            components = [...(pkgMap.get('do') ?? []), ...(pkgMap.get('get') ?? [])];
+        } else {
+            components = pkgMap.get(type) ?? [];
         }
-        return pkgMap.get(type)?.length ?? 0;
-      }
+
+        // Apply class_name filtering if provided
+        if (class_name) {
+            components = components.filter(component =>
+                (component.items?.some((item: { model: string; }) => item.model === class_name) ?? false) ||
+                component.item?.model === class_name
+            );
+        }
+
+        return components.length;
+    }
 }
 
 
