@@ -25,17 +25,16 @@ export class EqualComponentsProviderService {
         return this.componentsCacheMap$.pipe(
           map(cacheMap => {
             if (!packageName) {
-              return type === 'package'
-                ? cacheMap.size
-                : Array.from(cacheMap.values())
-                    .map(pkgMap => pkgMap.get(type)?.length ?? 0)
-                    .reduce((sum, count) => sum + count, 0);
-            } else {
-              return cacheMap.get(packageName)?.get(type)?.length ?? 0;
+              return this.countAllPackages(cacheMap, type);
             }
+            return this.countSpecificPackage(cacheMap, type, packageName);
           })
         );
       }
+
+
+
+
 
 
 
@@ -827,6 +826,41 @@ export class EqualComponentsProviderService {
 
         return result;
     }
+
+    // Count components across all packages
+    private countAllPackages(cacheMap: Map<string, Map<string, EqualComponentDescriptor[]>>, type: string): number {
+        if (type === 'package') {
+          return cacheMap.size;
+        }
+        return Array.from(cacheMap.values())
+          .map(pkgMap => this.countComponentsByType(pkgMap, type))
+          .reduce((sum, count) => sum + count, 0);
+      }
+
+      // Count components within a specific package
+      private countSpecificPackage(
+        cacheMap: Map<string, Map<string, EqualComponentDescriptor[]>>,
+        type: string,
+        packageName: string
+      ): number {
+        const packageMap = cacheMap.get(packageName);
+        if (!packageMap) {
+          return 0;
+        }
+        return this.countComponentsByType(packageMap, type);
+      }
+
+      // Handles counting logic for 'controller' and other types
+      private countComponentsByType(pkgMap: Map<string, EqualComponentDescriptor[]>, type: string): number {
+        if (type === '') {
+            return Array.from(pkgMap.values())
+              .reduce((sum, components) => sum + components.length, 0);
+          }
+        if (type === 'controller') {
+          return (pkgMap.get('do')?.length ?? 0) + (pkgMap.get('get')?.length ?? 0);
+        }
+        return pkgMap.get(type)?.length ?? 0;
+      }
 }
 
 

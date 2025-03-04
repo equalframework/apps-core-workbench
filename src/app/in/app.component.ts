@@ -23,13 +23,17 @@ export class AppComponent implements OnInit {
     public selected_type_controller:string = '';
     public fetch_error:boolean = false;
     public route_list:any = {};
-
+    search_scope ='package'
     public loading: boolean = false;
 
     constructor(
             private api: WorkbenchService,
         ) { }
 
+        handleSearchScopeChange(newScope: string): void {
+            this.search_scope = newScope;
+            console.log('Received new search scope:', this.search_scope);
+          }
     public async ngOnInit() {
         /*
         let args = this.router.retrieveArgs();

@@ -58,7 +58,8 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     // event for notifying parent that selected object has changed
     @Output() selectNode = new EventEmitter<EqualComponentDescriptor>();
     @Output() updateNode = new EventEmitter<{ old_node: EqualComponentDescriptor, new_node: EqualComponentDescriptor }>();
-    @Output() deleteNode = new EventEmitter<EqualComponentDescriptor>();
+    @Output() searchScopeChange = new EventEmitter<string>();
+
     // event for notifying parent that the list has been updated and needs to be refreshed
     @Output() updated = new EventEmitter();
 
@@ -76,7 +77,6 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
 
     // used to render info about components present in filteredData (or data)
     public type_dict: { [id: string]: { icon: string, disp: string } } = ItemTypes.typeDict;
-
     // formControl for search input field
     public inputControl = new FormControl('package:');
 
@@ -100,8 +100,6 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     public ngOnInit() {
         this.loading = true;
         this.loadNodesV2();
-        console.log("this.fileter data : ", this.filteredData)
-        console.log("this elements : ", this.elements);
     }
 
     public async ngOnChanges(changes: SimpleChanges) {
@@ -117,7 +115,6 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         if (this.package_name) {
             // Si package_name est défini, appelez getComponents
             if (this.node_type) {
-                console.log("je suis rentré ici ");
                 this.provider.getComponents(this.package_name, this.node_type,this.model_name)
                     .pipe(takeUntil(this.destroy$)) // Ajout de takeUntil
                     .subscribe(
@@ -207,6 +204,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         else {
             this.inputControl.setValue(this.search_value);
         }
+        this.searchScopeChange.emit(this.search_scope);
         this.onSearch();
     }
 
@@ -302,14 +300,12 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
                 width: "40em",
                 height: "26em"
             }).afterClosed().subscribe((result) => {
-                console.log(result);
                 if (result) {
                     if (result.success) {
                         this.notificationService.showSuccess(result.message);
                         this.addToComponents(result.node);
                         this.provider.reloadComponents(result.node.package_name,result.node.type);
                         this.selectNode.emit(result.node);
-                        console.log("this. filetederddData " ,this.filteredData)
                     }
                     else {
                         this.notificationService.showError(result.message);

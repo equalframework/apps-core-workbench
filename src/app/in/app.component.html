@@ -15,13 +15,14 @@
                 class="package"
                 [node_selected]="selectedComponent"
                 (selectNode)="selectNode($event)"
-                (refresh)="refresh()">
+                (refresh)="refresh()"
+                (searchScopeChange)="handleSearchScopeChange($event)">
         </search-mixed-list>
 
     </div>
 
     <div *ngIf="!selectedComponent" class="right_pane">
-        <info-system [component_type]="'package'"></info-system>
+        <info-system [component_type]="search_scope"></info-system>
     </div>
 
     <div *ngIf="selectedComponent" class="right_pane">
