@@ -18,6 +18,10 @@
     <div class="right_pane">
         <info-view *ngIf="selected_view" [view]="selected_view">
         </info-view>
+        <info-system *ngIf="!selected_view"
+        [component_type]="'view'"
+        [package_name]="package_name">
+        </info-system>
     </div>
 </div>
 

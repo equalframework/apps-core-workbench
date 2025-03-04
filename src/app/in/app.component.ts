@@ -30,10 +30,10 @@ export class AppComponent implements OnInit {
             private api: WorkbenchService,
         ) { }
 
-        handleSearchScopeChange(newScope: string): void {
-            this.search_scope = newScope;
-            console.log('Received new search scope:', this.search_scope);
-          }
+    handleSearchScopeChange(newScope: string): void {
+        this.search_scope = newScope;
+        console.log('Received new search scope:', this.search_scope);
+        }
     public async ngOnInit() {
         /*
         let args = this.router.retrieveArgs();
@@ -66,6 +66,7 @@ export class AppComponent implements OnInit {
     public async selectNode(equalComponent: EqualComponentDescriptor) {
         console.log('selectNode', equalComponent);
         this.selectedComponent = equalComponent;
+
     }
 
 

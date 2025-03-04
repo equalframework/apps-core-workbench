@@ -1,3 +1,4 @@
+import { Router } from '@angular/router';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, SimpleChanges, ViewEncapsulation } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -87,7 +88,8 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         private dialog: MatDialog,
         private provider: EqualComponentsProviderService,
         private notificationService: NotificationService,
-        private workbenchService:WorkbenchService
+        private workbenchService:WorkbenchService,
+        private router: Router,
     ) { }
 
 
@@ -347,6 +349,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
      * @param node value of the node which is clicked on
      */
     public onclickSelect(node: EqualComponentDescriptor) {
+        //this.router.navigate(['/package', node.name]);
         this.selectNode.emit(node);
     }
 

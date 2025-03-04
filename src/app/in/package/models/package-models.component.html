@@ -18,13 +18,13 @@
     </div>
 
     <div class="right_pane">
-        <info-model *ngIf="selected_class" [model]="selected_class">
-        </info-model>
+        <info-model *ngIf="selected_class" [model]="selected_class"></info-model>
+        <info-system *ngIf="!selected_class" [component_type]="'class'" [package_name]="package_name"></info-system>
     </div>
 </div>
 
 
-<!-- 
+<!--
 <div *ngIf="loading" style="display: flex; justify-content: center; align-items: center; height: 100%;">
     <mat-spinner></mat-spinner>
 </div>

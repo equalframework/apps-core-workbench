@@ -24,5 +24,10 @@
         [controller]="selected_controller"
         [selected_package]="package_name">
         </info-controller>
+        <info-system *ngIf="!selected_controller"
+        [component_type]="'controller'"
+        [package_name]="package_name">
+        </info-system>
+
     </div>
 </div>
