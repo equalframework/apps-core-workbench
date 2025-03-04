@@ -47,14 +47,14 @@ export class InfoSystemComponent implements OnInit, OnChanges {
     objectEntries(obj: any): Array<{ key: string, value: any }> {
         return Object.keys(obj).map(key => ({ key, value: obj[key] }));
     }
-    isUrl(value: string): boolean {
-        try {
-            new URL(value);
-            return true;
-        } catch (e) {
-            return false;
+    isUrl(value: any): boolean {
+        if (typeof value !== 'string') {
+          return false;
         }
-    }
+        return value.startsWith('http://') || value.startsWith('https://');
+      }
+
+
 
 
     }
