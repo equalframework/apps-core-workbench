@@ -127,5 +127,81 @@
             }
         }
     }
+    .info-section {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
 }
+/* Conteneur principal */
+.full.margin-container {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Titre principal */
+.controller-container-top h2.viewname {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+/* Tableau des informations */
+.info-section {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    max-height: 300px;
+    overflow-y: auto;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.info-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 14px;
+    color: #444;
+}
+
+.info-table th, .info-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.info-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+.info-table td a {
+    color: #007bff;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.info-table td a:hover {
+    color: #0056b3;
+}
+
+/* Logo de l'application */
+.app-logo {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.app-logo img {
+    max-width: 200px;
+    height: auto;
+    border-radius: 8px;
+}
+
 

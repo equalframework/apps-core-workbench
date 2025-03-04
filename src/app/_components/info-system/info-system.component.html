@@ -11,38 +11,23 @@
     </div>
 
     <div class="info-section" *ngIf="envData$ | async as envData">
-        <div class="info-item">
-            <label class="info-label">App Name:</label>
-            <span>{{ envData.app_name }}</span>
-        </div>
-        <div class="info-item">
-            <label class="info-label">Version:</label>
-            <span>{{ envData.version }}</span>
-        </div>
-        <div class="info-item">
-            <label class="info-label">Company Name:</label>
-            <span>{{ envData.company_name }}</span>
-        </div>
-        <div class="info-item">
-            <label class="info-label">License:</label>
-            <span>{{ envData.license }}</span>
-        </div>
-        <div class="info-item">
-            <label class="info-label">License URL:</label>
-            <a [href]="envData.license_url" target="_blank">{{ envData.license_url }}</a>
-        </div>
-        <div class="info-item">
-            <label class="info-label">Locale:</label>
-            <span>{{ envData.locale }}</span>
-        </div>
-        <div class="info-item">
-            <label class="info-label">Currency Symbol:</label>
-            <span>{{ envData.currency_symbol }}</span>
-        </div>
-        <div class="info-item">
-            <label class="info-label">Backend URL:</label>
-            <a [href]="envData.backend_url" target="_blank">{{ envData.backend_url }}</a>
-        </div>
+        <table class="info-table">
+            <thead>
+                <tr>
+                    <th>Variable</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let entry of objectEntries(envData)">
+                    <td class="info-label">{{ entry.key }}</td>
+                    <td>
+                        <span *ngIf="!isUrl(entry.value)">{{ entry.value }}</span>
+                        <a *ngIf="isUrl(entry.value)" [href]="entry.value" target="_blank">{{ entry.value }}</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 
     <div class="app-logo" *ngIf="envData$ | async as envData">

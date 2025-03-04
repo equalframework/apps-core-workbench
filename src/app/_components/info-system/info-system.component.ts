@@ -41,18 +41,19 @@ export class InfoSystemComponent implements OnInit, OnChanges {
     }
 
     private loadEnvData(): Observable<any> {
-        return from(this.envService.getEnv()).pipe(
-        map((response:any) => ({
-            app_logo_url: response.app_logo_url || '',
-            app_name: response.app_name || '',
-            backend_url: response.backend_url || '',
-            company_name: response.company_name || '',
-            version: response.version || '',
-            license: response.license || '',
-            license_url: response.license_url || '',
-            locale: response.locale || '',
-            currency_symbol: response.core?.units?.currency || ''
-        }))
-        );
+        return from(this.envService.getEnv());
     }
+    objectEntries(obj: any): Array<{ key: string, value: any }> {
+        return Object.keys(obj).map(key => ({ key, value: obj[key] }));
+    }
+    isUrl(value: string): boolean {
+        try {
+            new URL(value);
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+
     }
