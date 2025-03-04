@@ -254,9 +254,6 @@ export class UmlErdComponent implements OnInit, OnChanges {
 
     public async load() {
         const d = this.matDialog.open(FileLoaderComponent, {
-                data: {
-                    path: this.current_filename
-                },
                 width: "60vw",
                 maxWidth: "600px"
             });
