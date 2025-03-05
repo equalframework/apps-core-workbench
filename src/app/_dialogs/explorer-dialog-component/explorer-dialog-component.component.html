@@ -1,0 +1,67 @@
+<h1 mat-dialog-title class="dialog-title">File Explorer</h1>
+
+<div mat-dialog-content class="file-explorer-container">
+  <div class="file-explorer-wrapper">
+    <!-- Left side: Folder list -->
+    <mat-nav-list class="packages">
+      <h3 class="section-title">Folders</h3>
+      <mat-list-item *ngFor="let package of (packages$ | async)"
+                     (click)="onSelectPackage(package)"
+                     [class.selected]="isPackageSelected(package)">
+        <mat-icon matListIcon>
+          {{ isPackageSelected(package) ? 'folder' : 'folder_open' }}
+        </mat-icon>
+        <h4 matLine>{{ package }}</h4>
+      </mat-list-item>
+    </mat-nav-list>
+
+    <!-- Right side: Items list + Add New Item -->
+    <div class="items">
+      <ng-container *ngIf="selectedPackage; else noFolderSelected">
+        <h3 class="section-title">{{ selectedPackage }} Items</h3>
+
+        <!-- Scrollable item list -->
+        <div class="item-list">
+          <mat-nav-list *ngIf="(items$ | async)?.[selectedPackage]?.length > 0; else noItems">
+            <mat-list-item *ngFor="let item of (items$ | async)?.[selectedPackage]"
+                           (click)="onSelectItem(item)"
+                           [class.selected]="selectedItem === item">
+              <mat-icon matListIcon>insert_drive_file</mat-icon>
+              <h4 matLine>{{ item }}</h4>
+            </mat-list-item>
+          </mat-nav-list>
+        </div>
+
+        <ng-template #noItems>
+          <div class="no-items-message">
+            <span>No items in this folder.</span>
+          </div>
+        </ng-template>
+      </ng-container>
+
+      <ng-template #noFolderSelected>
+        <div class="no-selection">
+          <span>Please select a folder to view its items.</span>
+        </div>
+      </ng-template>
+
+      <!-- Fixed "Add New Item" section at the bottom -->
+      <div class="add-item-section" *ngIf="selectedPackage">
+        <mat-form-field appearance="outline" class="add-item-field">
+          <mat-label>New item name</mat-label>
+          <input matInput [(ngModel)]="newItem" />
+        </mat-form-field>
+        <button mat-raised-button color="primary" (click)="oncreateItem()">Add</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Dialog actions -->
+<div mat-dialog-actions class="dialog-actions">
+  <button mat-button (click)="dialogRef.close()">Cancel</button>
+  <button mat-raised-button color="accent" [disabled]="!selectedItem"
+          (click)="dialogRef.close(selectedPackage + '::' + selectedItem)">
+    Select
+  </button>
+</div>

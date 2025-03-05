@@ -70,6 +70,7 @@ import { EditorAccessComponent } from '../_components/editor-access/editor-acces
 
 import { TypeInputComponent } from '../_components/type-input/type-input.component';
 import { InfoSystemComponent } from '../_components/info-system/info-system.component';
+import { ExplorerDialogComponentComponent } from '../_dialogs/explorer-dialog-component/explorer-dialog-component.component';
 
 const sharedComponents = [
 
@@ -103,6 +104,7 @@ const sharedComponents = [
     ItemViewerComponent,
     GroupsViewerComponent,
     EditorAccessComponent,
+    ExplorerDialogComponentComponent
 ];
 @NgModule({
     declarations: [

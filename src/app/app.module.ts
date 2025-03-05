@@ -59,7 +59,7 @@ const sharedComponents = [
     declarations: [
         AppRootComponent,
         AppComponent
-    ],
+        ],
     imports: [
         SharedLibModule,
         WorkbenchModule,

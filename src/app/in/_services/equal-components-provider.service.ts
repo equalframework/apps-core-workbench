@@ -39,7 +39,11 @@ export class EqualComponentsProviderService {
 
 
 
-
+    public getPackages(): Observable<any> {
+        return this.componentsCacheMap$.pipe(
+            map(cacheMap => Array.from(cacheMap.keys()))
+        )
+    }
 
     /**
      * Retrieves a specific component based on the cache or via the API.
@@ -89,7 +93,7 @@ export class EqualComponentsProviderService {
 
 
 
-        /**
+    /**
      * Retrieves components of a package based on the type and an optional class name filter.
      * @param package_name - The package name.
      * @param component_type - The component type ('class', 'controller', 'view', 'menu', 'route').
@@ -222,6 +226,27 @@ export class EqualComponentsProviderService {
                 }else{
                     this.preloadComponentsForPackages(filtered_packages);
                 }
+
+                // Get the current value of the componentsCacheMap
+                const currentMap = this.componentsCacheMapSubject.getValue();
+
+                // Sort the outer Map (by package name)
+                const sortedCacheMap = new Map(
+                [...currentMap.entries()]
+                    .sort(([keyA], [keyB]) => keyA.localeCompare(keyB)) // Sorting by package name
+                );
+
+                // Optionally, sort the inner Map for each package (by component type)
+                sortedCacheMap.forEach((packageMap, packageName) => {
+                const sortedPackageMap = new Map(
+                    [...packageMap.entries()]
+                    .sort(([typeA], [typeB]) => typeA.localeCompare(typeB)) // Sorting by component type
+                );
+                sortedCacheMap.set(packageName, sortedPackageMap);
+                });
+
+                // Update the componentsCacheMapSubject with the sorted Map
+                this.componentsCacheMapSubject.next(sortedCacheMap);
             },
             error: (response) => {
             console.error("Error reloading packages:", response);

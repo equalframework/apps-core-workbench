@@ -12,6 +12,7 @@ import { FileLoaderComponent } from './_components/file-loader/file-loader.compo
 
 import { DialogConfirmComponent } from './_components/dialog-confirm/dialog-confirm.component';
 import { WorkbenchService } from '../_services/workbench.service';
+import { ExplorerDialogComponentComponent } from 'src/app/_dialogs/explorer-dialog-component/explorer-dialog-component.component';
 
 @Component({
     selector: 'uml-erd',
@@ -253,19 +254,23 @@ export class UmlErdComponent implements OnInit, OnChanges {
     }
 
     public async load() {
-        const d = this.matDialog.open(FileLoaderComponent, {
-                width: "60vw",
-                maxWidth: "600px"
-            });
+        const d = this.matDialog.open(ExplorerDialogComponentComponent, {
+            width: "60vw",
+            maxWidth: "600px",
+            data: {
+                fetchItems: (package_name: string) => this.workbenchService.getUMLList('erd',package_name)
+            }
+        });
 
-        d.afterClosed().subscribe(async (data:string|null) => {
-                if(data) {
-                    this.current_filename = data;
-                    console.log('loaded: ', data);
-                    this.init();
-                }
-            });
+        d.afterClosed().subscribe(async (data: string | null) => {
+            if (data) {
+                this.current_filename = data;
+                console.log('loaded: ', data);
+                this.init();
+            }
+        });
     }
+
 
     public export(): any[] {
         let ret:any = [];

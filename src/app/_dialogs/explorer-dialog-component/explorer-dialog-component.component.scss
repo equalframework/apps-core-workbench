@@ -1,0 +1,87 @@
+/* File Explorer Container */
+.file-explorer-container {
+    display: flex;
+    flex-direction: column;
+    height: 70vh;
+}
+
+/* Layout for the file explorer */
+.file-explorer-wrapper {
+    display: flex;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+/* Left section: Folder list */
+.packages {
+    width: 250px;
+    max-height: 100%;
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-bottom: 20px; /* Space for better visibility */
+    border-right: 1px solid #ddd;
+    padding-right: 10px;
+}
+
+/* Right section: Items + Add Item */
+.items {
+    flex-grow: 1;
+    padding-left: 20px;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Item list should take all available space and be scrollable */
+.item-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-bottom: 10px; /* Space for better visibility */
+}
+
+/* List items */
+.mat-list-item {
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.mat-list-item.selected {
+    background-color: rgba(0, 0, 255, 0.1);
+}
+
+/* Empty states */
+.no-selection,
+.no-items-message {
+    font-style: italic;
+    color: #888;
+    padding: 10px;
+    text-align: center;
+}
+
+/* "Add New Item" section fixed at the bottom */
+.add-item-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: white;
+    border-top: 1px solid #ddd;
+    position: sticky;
+    bottom: 0;
+}
+
+/* Input field styling */
+.add-item-field {
+    flex-grow: 1;
+}
+
+/* Fix action buttons at the bottom */
+.dialog-actions {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    position: sticky;
+    bottom: 0;
+    background: white;
+    border-top: 1px solid #ddd;
+}
