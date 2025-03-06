@@ -12,7 +12,7 @@ import { FileLoaderComponent } from './_components/file-loader/file-loader.compo
 
 import { DialogConfirmComponent } from './_components/dialog-confirm/dialog-confirm.component';
 import { WorkbenchService } from '../_services/workbench.service';
-import { ExplorerDialogComponentComponent } from 'src/app/_dialogs/explorer-dialog-component/explorer-dialog-component.component';
+import { ExplorerDialogComponent } from 'src/app/_dialogs/explorer-dialog/explorer-dialog.component';
 
 @Component({
     selector: 'uml-erd',
@@ -233,7 +233,17 @@ export class UmlErdComponent implements OnInit, OnChanges {
     }
 
     public async save() {
-        const d = this.matDialog.open(FileSaverComponent, {
+        const package_name = this.current_filename.split(":")[0]
+        const file_name_without_ext = this.current_filename.trim().split(":").pop()?.split(".")[0] || "default";
+
+        console.log("file name ", file_name_without_ext)
+        const res = await this.workbenchService.saveUML(package_name, "erd",file_name_without_ext , JSON.stringify(this.export())).toPromise();
+                if(res) {
+                    this.snackBar.open("Saved successfully","INFO");
+                    this.current_filename = package_name+'::'+ file_name_without_ext +'.erd.json';
+                    this.init();
+                }
+        /*const d = this.matDialog.open(FileSaverComponent, {
                 data: {
                     path: this.current_filename
                 },
@@ -250,15 +260,20 @@ export class UmlErdComponent implements OnInit, OnChanges {
                     this.init();
                 }
             }
-        });
+        });*/
     }
 
+    private formatErdJson(file:string){
+        return `${file}.erd.json`;
+    }
     public async load() {
-        const d = this.matDialog.open(ExplorerDialogComponentComponent, {
+        const d = this.matDialog.open(ExplorerDialogComponent, {
             width: "60vw",
             maxWidth: "600px",
             data: {
-                fetchItems: (package_name: string) => this.workbenchService.getUMLList('erd',package_name)
+                fetchItems: (package_name: string) => this.workbenchService.getUMLList('erd',package_name),
+                formatItem : (file : string) => this.formatErdJson(file),
+                createItem: (item:string, package_name: string) => this.workbenchService.saveUML(package_name,'erd',item,'')
             }
         });
 

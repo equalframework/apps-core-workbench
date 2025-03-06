@@ -1,0 +1,81 @@
+<h1 mat-dialog-title class="dialog-title">File Explorer</h1>
+
+<div mat-dialog-content class="file-explorer-container">
+  <div class="file-explorer-wrapper">
+    <!-- Left side: Folder list -->
+    <mat-nav-list class="packages">
+      <h3 class="section-title">Packages</h3>
+      <mat-list-item
+        *ngFor="let folder of (packages$ | async)"
+        (click)="onSelectPackage(folder)"
+        [class.selected]="(selectedPackage$ | async) === folder">
+        <mat-icon matListIcon>
+          {{ (selectedPackage$ | async) === folder ? 'folder' : 'folder_open' }}
+        </mat-icon>
+        <h4 matLine>{{ folder }}</h4>
+      </mat-list-item>
+    </mat-nav-list>
+
+    <!-- Right side: Items list + Add New Item -->
+    <div class="items">
+      <!-- Use a container to extract the selectedPackage from the async pipe -->
+      <ng-container *ngIf="selectedPackage$ | async as selectedPackage; else noFolderSelected">
+        <h3 class="section-title">{{ selectedPackage }} Items</h3>
+
+        <!-- Scrollable item list -->
+        <div class="item-list">
+          <mat-nav-list *ngIf="((items$ | async) || []).length > 0; else noItems">
+            <mat-list-item
+              *ngFor="let item of (items$ | async)"
+              (click)="onSelectItem(item)"
+              [class.selected]="selectedItem === item">
+              <mat-icon matListIcon>insert_drive_file</mat-icon>
+              <h4 matLine>{{ item.name || item }}</h4>
+            </mat-list-item>
+          </mat-nav-list>
+        </div>
+
+        <ng-template #noItems>
+          <div class="no-items-message">
+            <span>No items in this folder.</span>
+          </div>
+        </ng-template>
+      </ng-container>
+
+      <ng-template #noFolderSelected>
+        <div class="no-selection">
+          <span>Please select a folder to view its items.</span>
+        </div>
+      </ng-template>
+
+<!-- Fixed "Add New Item" section at the bottom -->
+<ng-container *ngIf="selectedPackage$ | async">
+    <div class="add-item-section">
+      <mat-form-field appearance="outline" class="add-item-field">
+        <mat-label>New item name</mat-label>
+        <input matInput [(ngModel)]="newItem" />
+      </mat-form-field>
+
+      <button mat-raised-button color="primary" (click)="onCreateItem()">New</button>
+
+      <!-- Error message below the input -->
+      <div *ngIf="errorMessage$ | async as errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+    </div>
+  </ng-container>
+
+    </div>
+  </div>
+</div>
+
+<!-- Dialog actions -->
+<ng-container *ngIf="selectedPackage$ | async as selectedPackage">
+  <div mat-dialog-actions class="dialog-actions">
+    <button mat-button (click)="dialogRef.close()">Cancel</button>
+    <button mat-raised-button color="accent" [disabled]="!selectedItem"
+            (click)="dialogRef.close(selectedPackage + '::' + selectedItem)">
+      Select
+    </button>
+  </div>
+</ng-container>

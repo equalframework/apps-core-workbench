@@ -885,12 +885,21 @@ export class WorkbenchService {
      * @returns {Observable<{ [id: string]: string[] }>} An observable that emits a mapping of UML IDs to their associated names.
      *         If the request fails, an empty object is returned.
      */
-    public getUMLList(type: string, package_name?:string): Observable<{ [id: string]: string[] }> {
+    public getUMLList(type: string, package_name?: string): Observable<any> {
         const url = `?get=core_config_umls&type=${type}&package=${package_name}`;
-        return this.callApi(url, '').pipe(
-            map(({ success, response }) => success ? response : {})
-        );
+        if(package_name){
+            return this.callApi(url, '').pipe(
+                map(({ success, response }) => success ? response[package_name] || [] : [])
+            );
+        }
+        else{
+            return this.callApi(url, '').pipe(
+                map(({ success, response }) => success ? response : {})
+            );
+        }
+
     }
+
 
 
     /**

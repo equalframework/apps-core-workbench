@@ -1,16 +1,16 @@
 <app-inner-header
         [buttonSave]="true"
         (onButtonSave)="save()"
+        [buttonSaveDisabled]="!current_filename"
         [buttonCancel]="true"
         (onButtonCancel)="reset()"
+        [buttonCancelDisabled]="!current_filename"
         [buttonLoad]="true"
         (onButtonLoad)="load()"
-        [buttonNew]="true"
-        (onButtonNew)="newFile()"
         [customButton]="true"
         [customButtonList]="[{icon:'bug_report', name:'Show JSON', disabled:false},{icon:'print',name:'Print to PDF', disabled:false}]"
         (onCustomButton)="customButtonBehavior($event)">
-    <label>UML Entity-Relationship Diagram › {{current_filename ? current_filename.split('.').slice(0, -2) : "new file"}}</label>
+    <label>UML Entity-Relationship Diagram › {{current_filename ? current_filename.split('.').slice(0, -2) : "No file selected"}}</label>
 </app-inner-header>
 <div class="holder">
     <mat-grid-list cols="12" rowHeight="100%">
@@ -28,7 +28,7 @@
                 </uml-erd-displayer>
             </div>
             <div style="position: absolute; top: 10px; right: 10px; z-index: 1;">
-                <button mat-mini-fab color="primary" style="scale: 0.8" (click)="changeState('create-node')"><mat-icon>add</mat-icon></button>
+                <button [disabled]="!current_filename"mat-mini-fab color="primary" style="scale: 0.8" (click)="changeState('create-node')"><mat-icon>add</mat-icon></button>
             </div>
         </mat-grid-tile>
         <mat-grid-tile *ngIf="sizeEditor > 0"  [colspan]="sizeEditor" class="sizeanim">
