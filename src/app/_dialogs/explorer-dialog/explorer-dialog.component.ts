@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, Inject, OnInit, Optional, inject } 
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ExplorerDialogFacade } from './explorer-dialog.facade';
 import { Observable } from 'rxjs';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 interface DialogData {
   fetchItems: (packageName: string) => Observable<any>;
@@ -16,13 +17,13 @@ interface DialogData {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ExplorerDialogComponent implements OnInit {
+    fileForm: FormGroup;
 
 
   packages$ = this.facade.packages$;
   items$ = this.facade.items$;
   selectedPackage$ = this.facade.selectedPackage$;
   errorMessage$ = this.facade.errorMessage$
-  newItem: string = '';
 
   // Added property for selected item
   selectedItem: any = null;
@@ -31,13 +32,15 @@ export class ExplorerDialogComponent implements OnInit {
   constructor(
     @Optional() public dialogRef: MatDialogRef<ExplorerDialogComponent>,
     @Optional() @Inject(MAT_DIALOG_DATA) public data: DialogData,
-    private facade: ExplorerDialogFacade
+    private facade: ExplorerDialogFacade,
+    private fb: FormBuilder
   ) {}
 
-
   ngOnInit(): void {
-
+    this.createForm()
   }
+
+
 
   onSelectPackage(packageName: string): void {
     // Reset selected item when switching folders.
@@ -55,16 +58,47 @@ export class ExplorerDialogComponent implements OnInit {
   }
 
   onCreateItem(): void {
-    if (this.newItem && this.data?.createItem) {
-      // Optionally apply formatting if necessary.
-      const formattedItem = this.data.formatItem ? this.data.formatItem(this.newItem) : this.newItem;
+    if (this.fileForm.valid && this.data?.createItem) {
+      const newItem = this.fileForm.value.newItem;
+
+      const formattedItem = this.data.formatItem ? this.data.formatItem(newItem) : newItem;
       const selectedPackage = this.facade.getSelectedPackage();
       if (selectedPackage) {
         // Use the optimistic method to add the item.
         this.facade.optimisticCreateItem(this.data.createItem, formattedItem, selectedPackage);
         // Reset the input field.
-        this.newItem = '';
+        this.fileForm.reset();
       }
     }
   }
+
+   getErrorMessage(controlName: string): string {
+    const control = this.fileForm.get(controlName);
+    if (control?.hasError('required')) {
+      return 'Item name is required.';
+    }
+    if (control?.hasError('invalidCharacter')) {
+      return 'The filename cannot contain a period (\'\').';
+    }
+    return '';
+  }
+
+  private createForm() {
+    this.fileForm = this.fb.group({
+      newItem: ['', [
+        Validators.required,
+        this.noDotsValidator,
+      ]]
+    });
+  }
+
+  private noDotsValidator(control: any) {
+    if (control.value && control.value.includes('.')) {
+      return { invalidCharacter: true };
+    }
+    return null;
+  }
+
+
+
 }

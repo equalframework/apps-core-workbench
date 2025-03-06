@@ -70,9 +70,24 @@
     bottom: 0;
 }
 
+/* Input and button aligned in one row */
+.input-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-grow: 1;
+}
+
 /* Input field styling */
 .add-item-field {
     flex-grow: 1;
+}
+
+/* Validation message styling */
+mat-error {
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
 }
 
 /* Fix action buttons at the bottom */
@@ -85,8 +100,3 @@
     background: white;
     border-top: 1px solid #ddd;
 }
-.error-message {
-    color: red;
-    font-size: 12px;
-    margin-top: 8px;
-  }
