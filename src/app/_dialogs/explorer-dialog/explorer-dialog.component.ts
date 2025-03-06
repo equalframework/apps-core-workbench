@@ -45,10 +45,10 @@ export class ExplorerDialogComponent implements OnInit {
   onSelectPackage(packageName: string): void {
     // Reset selected item when switching folders.
     this.selectedItem = null;
+    this.fileForm.reset();
     this.facade.selectPackage(packageName);
     if (this.data?.fetchItems) {
       this.facade.loadItems(this.data.fetchItems, packageName);
-      console.log("this item : ", this.items$)
     }
   }
 
