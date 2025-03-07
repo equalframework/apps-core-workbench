@@ -106,7 +106,18 @@ export class EqualComponentsProviderService {
     ): Observable<EqualComponentDescriptor[]> {
         const cacheMap = this.componentsCacheMapSubject.getValue();
         const packageCache = cacheMap.get(package_name);
+        if(packageCache && component_type==='controller'){
+            if(packageCache.has('do') && packageCache.has('get')){
+                const doComponents = packageCache.get('do')  || [];
+                const getComponents = packageCache.get('get') || [];
 
+                const components = [...doComponents, ...getComponents] ;
+
+                return of(components.filter(component =>
+                    class_name ? component.item.model === class_name : true
+                ));
+            }
+        }
         if (packageCache && packageCache.has(component_type)) {
         const components = packageCache.get(component_type)?.filter(component =>
             class_name ? component.item.model === class_name : true
@@ -153,6 +164,9 @@ export class EqualComponentsProviderService {
             file: '',
             item: undefined
         };
+        if(component_type ==='do' || component_type ==='get'){
+            component_type = 'controller'
+        }
 
         switch (component_type) {
             case 'class':
