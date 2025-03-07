@@ -61,9 +61,6 @@
             <mat-error *ngIf="fileForm.get('newItem')?.invalid && (fileForm.get('newItem')?.dirty || fileForm.get('newItem')?.touched)">
               {{ getErrorMessage('newItem') }}
             </mat-error>
-            <mat-error *ngIf="fileForm.get('newItem')?.hasError('customError')">
-                {{ errorMessage$ | async }}
-              </mat-error>
           </mat-form-field>
 
           <!-- New button next to the input -->
