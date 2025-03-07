@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, Inject, OnInit, Optional, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject, OnDestroy, OnInit, Optional, inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ExplorerDialogFacade } from './explorer-dialog.facade';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { takeUntil } from 'rxjs/operators';
 
 interface DialogData {
   fetchItems: (packageName: string) => Observable<any>;
@@ -16,7 +17,7 @@ interface DialogData {
   styleUrls: ['./explorer-dialog.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ExplorerDialogComponent implements OnInit {
+export class ExplorerDialogComponent implements OnInit, OnDestroy {
     fileForm: FormGroup;
 
 
@@ -27,6 +28,7 @@ export class ExplorerDialogComponent implements OnInit {
 
     // Added property for selected item
     selectedItem: any = null;
+    private destroy$ = new Subject<void>();
 
 
     constructor(
@@ -36,9 +38,17 @@ export class ExplorerDialogComponent implements OnInit {
         private fb: FormBuilder
     ) {}
 
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+        this.facade.reset();
+    }
+
     ngOnInit(): void {
         this.createForm()
-        this.facade.items$.subscribe(items => {
+        this.resetState()
+        this.facade.items$.pipe(takeUntil(this.destroy$)).subscribe(items => {
             const existingNames = items;
             const control = this.fileForm.get('newItem');
             if (control) {
@@ -50,6 +60,11 @@ export class ExplorerDialogComponent implements OnInit {
             control.updateValueAndValidity();
             }
         });
+    }
+
+    private resetState() {
+        this.fileForm.reset();
+        this.selectedItem = null;
     }
 
 

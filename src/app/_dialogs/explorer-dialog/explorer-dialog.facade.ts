@@ -23,7 +23,14 @@ export class ExplorerDialogFacade {
         this.loadPackages();
     }
 
+    reset(): void {
+        this.itemsSubject.next([]);
+        this.selectedPackageSubject.next(null);
+        this.errorMessageSubject.next(null);
+    }
+
     private loadPackages(): void {
+        this.selectedPackageSubject.next(null);
         this.provider.getPackages().subscribe({
         next: (packages: string[]) => this.packagesSubject.next(packages),
         error: err => console.error('Error loading packages', err)
@@ -33,10 +40,13 @@ export class ExplorerDialogFacade {
     selectPackage(packageName: string): void {
         if (this.selectedPackageSubject.getValue() !== packageName) {
         this.selectedPackageSubject.next(packageName);
+        this.itemsSubject.next([]);
         }
     }
 
     loadItems(fetchItems: (packageName: string) => Observable<any>, packageName: string): void {
+
+        this.itemsSubject.next([]);
         fetchItems(packageName).subscribe({
         next: (items: any[]) => this.itemsSubject.next(items),
         error: err => console.error('Error loading items', err)
