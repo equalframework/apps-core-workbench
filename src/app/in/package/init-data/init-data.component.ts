@@ -1,3 +1,4 @@
+import { NotificationService } from './../../_services/notification.service';
 import { Location } from '@angular/common';
 import { Component, Inject, OnInit, OnDestroy, Optional } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
@@ -42,7 +43,8 @@ export class InitDataComponent implements OnInit, OnDestroy {
         private route: ActivatedRoute,
         private dialog: MatDialog,
         private snack: MatSnackBar,
-        private location: Location
+        private location: Location,
+        private notificationService:NotificationService
     ) {}
 
     async ngOnInit(): Promise<void> {
@@ -71,11 +73,15 @@ export class InitDataComponent implements OnInit, OnDestroy {
      */
     private async loadInitialData(): Promise<void> {
         try {
+            this.loading = true;
+            this.fileList = [];
+
             this.dataScheme = await this.workbenchService.getInitData(this.package_name, this.data_type);
+
             for (const key in this.dataScheme) {
                 if (this.dataScheme.hasOwnProperty(key)) {
                     try {
-                        const initFile = new InitDataFile(this.workbenchService, key, cloneDeep(this.dataScheme[key]));
+                        const initFile = new InitDataFile(this.workbenchService, key, Object.assign(this.dataScheme[key]));
                         this.fileList.push(initFile);
                     } catch (error) {
                         console.error(`Error processing data for key "${key}":`, error);
@@ -84,6 +90,8 @@ export class InitDataComponent implements OnInit, OnDestroy {
                     }
                 }
             }
+            this.fileList= [...this.fileList]
+
         } catch (error) {
             console.error('Error loading initial data:', error);
             this.error = true;
@@ -91,6 +99,7 @@ export class InitDataComponent implements OnInit, OnDestroy {
             this.loading = false;
         }
     }
+
 
     /**
      * Exports the current initialization data.
@@ -139,6 +148,20 @@ export class InitDataComponent implements OnInit, OnDestroy {
     public goBack(): void {
         this.location.back();
     }
+
+    async cancel() {
+        this.notificationService.showInfo("Canceling...");
+
+        try {
+            await this.loadInitialData();
+            this.notificationService.showSuccess("Canceled");
+        } catch (error) {
+            this.notificationService.showError("Error occurred while canceling.");
+        } finally {
+            this.loading = false;
+        }
+    }
+
 }
 
 @Component({

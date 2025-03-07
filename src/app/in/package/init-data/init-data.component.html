@@ -10,6 +10,8 @@
     (onCustomButton)="showJsonDialog()"
     [buttonSave]="true"
     (onButtonSave)="saveData()"
+    [buttonCancel]="true"
+    (onButtonCancel)="cancel()"
 >
     <label *ngIf="data_type === 'init'">Initial data of </label>
     <label *ngIf="data_type === 'demo'">Demo data of </label>
