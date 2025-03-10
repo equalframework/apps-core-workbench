@@ -104,6 +104,7 @@ export class EqualComponentsProviderService {
         component_type: string,
         class_name?: string
     ): Observable<EqualComponentDescriptor[]> {
+        console.log("package_name ", package_name)
         const cacheMap = this.componentsCacheMapSubject.getValue();
         const packageCache = cacheMap.get(package_name);
         if(packageCache && component_type==='controller'){
@@ -220,7 +221,6 @@ export class EqualComponentsProviderService {
                 });
                 this.componentsCacheMapSubject.next(updatedCacheMap);
 
-
                 // If a package is specified, filter the packages accordingly.
                 let filtered_packages: EqualComponentDescriptor[] = packages;
                 if (package_name) {
@@ -236,31 +236,23 @@ export class EqualComponentsProviderService {
 
                 if(component_type){
                     let componentTypes : string[] = [component_type];
-                    this.preloadComponentsForPackages(filtered_packages, componentTypes);
+                    this.reloadComponentsFromPackage(filtered_packages, component_type);
+
                 }else{
-                    this.preloadComponentsForPackages(filtered_packages);
+                    this.reloadComponentsFromPackage(filtered_packages);
                 }
 
                 // Get the current value of the componentsCacheMap
                 const currentMap = this.componentsCacheMapSubject.getValue();
-
                 // Sort the outer Map (by package name)
                 const sortedCacheMap = new Map(
                 [...currentMap.entries()]
                     .sort(([keyA], [keyB]) => keyA.localeCompare(keyB)) // Sorting by package name
                 );
 
-                // Optionally, sort the inner Map for each package (by component type)
-                sortedCacheMap.forEach((packageMap, packageName) => {
-                const sortedPackageMap = new Map(
-                    [...packageMap.entries()]
-                    .sort(([typeA], [typeB]) => typeA.localeCompare(typeB)) // Sorting by component type
-                );
-                sortedCacheMap.set(packageName, sortedPackageMap);
-                });
-
                 // Update the componentsCacheMapSubject with the sorted Map
                 this.componentsCacheMapSubject.next(sortedCacheMap);
+
             },
             error: (response) => {
             console.error("Error reloading packages:", response);
@@ -268,7 +260,77 @@ export class EqualComponentsProviderService {
         });
     }
 
+    private reloadComponentsFromPackage(packages: EqualComponentDescriptor[], component_type?:string){
+        const apiCalls: Observable<EqualComponentDescriptor[]>[] = [];
 
+    if (!component_type || component_type.includes("controller")) {
+        apiCalls.push(this.retrieveControllers(packages));
+    }
+    if (!component_type || component_type.includes("view")) {
+        apiCalls.push(this.retrieveViews(packages));
+    }
+    if (!component_type ||component_type.includes("menu")) {
+        apiCalls.push(this.retrieveMenus(packages));
+    }
+    if (!component_type ||component_type.includes("route")) {
+        apiCalls.push(this.retrieveRoutes(packages));
+    }
+    if (!component_type ||component_type.includes("class")) {
+        apiCalls.push(this.retrieveClasses(packages));
+    }
+
+
+    if (apiCalls.length === 0) {
+        console.log("No components selected for preloading.");
+        return;
+    }
+
+    forkJoin(apiCalls).subscribe({
+        next: (results: EqualComponentDescriptor[][]) => {
+            const allComponents = results.flat();
+            console.log("all component : ", allComponents)
+            if (allComponents.length > 0) {
+                this.refreshComponentsMapFromPackage(packages[0].name, allComponents);
+            }
+        },
+        error: (response) => {
+            console.error('Error preloading additional components:', response);
+        }
+    });
+    }
+
+    private refreshComponentsMapFromPackage(package_name: string, components: EqualComponentDescriptor[]): void {
+        const cacheMap = this.componentsCacheMapSubject.getValue();
+
+        let packageMap = cacheMap.get(package_name);
+        if (!packageMap) {
+          packageMap = new Map<string, EqualComponentDescriptor[]>();
+          cacheMap.set(package_name, packageMap);
+        }
+
+        if (components.length > 0) {
+          const componentType = components[0].type;
+          const areAllSameType = components.every(comp => comp.type === componentType);
+          if (!areAllSameType) {
+            console.warn(`Components of ${package_name} are not the same type.`);
+          }
+          packageMap.set(componentType, components);
+        } else {
+          console.warn(`No components given to refresh ${package_name}.`);
+        }
+
+        this.componentsCacheMapSubject.next(cacheMap);
+        const allComponentsArray: EqualComponentDescriptor[] = [];
+        cacheMap.forEach((pkgMap, pkgName) => {
+          // Package entry
+          allComponentsArray.push(new EqualComponentDescriptor(pkgName, pkgName, 'package'));
+          // Associated components
+          pkgMap.forEach((componentsArray) => {
+            allComponentsArray.push(...componentsArray);
+          });
+        });
+        this.equalComponentsSubject.next(allComponentsArray);
+      }
 
 
 
@@ -404,17 +466,15 @@ export class EqualComponentsProviderService {
 
     private updateComponentsMap(components: EqualComponentDescriptor[]): void {
         const cacheMap = this.componentsCacheMapSubject.getValue();
-
+        console.log("map before : ", cacheMap);
         components.forEach(component => {
             const pkg = component.package_name;
             const type = component.type;
-
             // Optionally create the package if it's missing
             if (!cacheMap.has(pkg)) {
             cacheMap.set(pkg, new Map<string, EqualComponentDescriptor[]>());
             }
             const packageMap = cacheMap.get(pkg)!;
-
             if (!packageMap.has(type)) {
             packageMap.set(type, []);
             }
@@ -431,19 +491,11 @@ export class EqualComponentsProviderService {
         }
         });
 
-        // Remove components that are no longer in the components list
-        cacheMap.forEach((packageMap, pkg) => {
-            packageMap.forEach((existingComponents, type) => {
-                // Filter out components that no longer exist in the `components` list
-                packageMap.set(type, existingComponents.filter(existingComponent =>
-                    components.some(component =>
-                        component.name === existingComponent.name && component.package_name === existingComponent.package_name
-                    )
-                ));
-            });
-        });
+
+
         // Update the BehaviorSubject with the modified map
         this.componentsCacheMapSubject.next(cacheMap);
+        console.log("this.componentsCachemap : ", this.componentsCacheMapSubject.getValue())
         // Flatten the map to update `equalComponentsSubject`, including a package entry for each package
         const allComponentsArray: EqualComponentDescriptor[] = [];
         cacheMap.forEach((pkgMap, pkgName) => {
@@ -454,9 +506,12 @@ export class EqualComponentsProviderService {
             allComponentsArray.push(...componentsArray);
             });
         });
-
+        console.log("AllComponentsArray : ", allComponentsArray)
         this.equalComponentsSubject.next(allComponentsArray);
     }
+
+
+
 
 
 
