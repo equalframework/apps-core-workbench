@@ -14,6 +14,10 @@
                 <label class="accent">{{ package.name }}</label>
             </div>
             <div class="actions">
+                <button mat-button color="primary" (click)="checkConsistency()">
+                    <mat-icon>rule</mat-icon>
+                    <label>Check consistency</label>
+                </button>
                 <button mat-button color="primary" (click)="initPackage()">
                     <mat-icon>not_started</mat-icon>
                     <label>Init package</label>
@@ -30,12 +34,18 @@
             </div>
 
             <ng-container *ngIf="!consistency_loading">
-                <div *ngIf="(error_count !== 0 || warn_count !== 0)" class="warn">
-                    <mat-icon>error</mat-icon>
-                    <label class="warn">{{error_count}} errors and {{warn_count}} warnings</label>
+
+                <div *ngIf="!consistency_checked" class="info">
+                    <mat-icon>info</mat-icon>
+                    <label>No consistency check done</label>
                 </div>
 
-                <div *ngIf="(error_count === 0 && warn_count === 0)" class="new">
+                <div *ngIf="consistency_checked && (error_count !== 0 || warn_count !== 0)" class="warn">
+                    <mat-icon>error</mat-icon>
+                    <label class="warn">{{ error_count }} errors and {{ warn_count }} warnings</label>
+                </div>
+
+                <div *ngIf="consistency_checked && error_count === 0 && warn_count === 0" class="new">
                     <mat-icon>check_circle</mat-icon>
                     <label>No error or warning on this package</label>
                 </div>
@@ -133,9 +143,10 @@
             </mat-grid-tile>
 
             <mat-grid-tile>
-                <button mat-button
-                        class="package-info-button"
-                        (click)="onclickInitData('init')">
+                <button
+                  mat-button
+                  class="package-info-button"
+                  (click)="onclickInitData('init')">
                     <mat-icon>file_present</mat-icon>
                     <label>Initial data</label>
                 </button>

@@ -6,6 +6,8 @@ import { prettyPrintJson } from 'pretty-print-json';
 import { MatDialog } from '@angular/material/dialog';
 import { InitValidatorComponent } from './_components/init-validator/init-validator.component';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
+import { of } from 'rxjs';
+import { catchError, finalize, tap } from 'rxjs/operators';
 
 @Component({
     selector: 'info-package',
@@ -34,11 +36,12 @@ export class InfoPackageComponent implements OnInit {
     public error_count:number;
     public error_list:{type:number, text:string}[];
     public info_popup = true;
-    public consistency_loading = true;
+    public consistency_loading = false;
     public want_errors:boolean = true;
     public want_warning:boolean = true;
+    public consistency_checked = false;
 
-    public loading: boolean = true;
+    public loading: boolean = false;
 
     constructor(
             private snackBar: MatSnackBar,
@@ -47,28 +50,66 @@ export class InfoPackageComponent implements OnInit {
             private matDialog: MatDialog
         ) { }
 
-    public async ngOnInit() {
-        await this.load();
-    }
-
-    public async ngOnChanges(changes: SimpleChanges) {
-        if(changes.package) {
-            await this.load();
+        ngOnInit(): void {
+            this.current_initialized = this.package_init_list.includes(this.package.name);
         }
-    }
 
-    private async load() {
-        this.loading = true;
-        this.current_initialized = (this.package_init_list??[]).indexOf(this.package.name) >= 0;
-        this.consistency_loading = true;
-        this.workbenchService.getPackageConsistency(this.package.name).toPromise().then( async (consistency) => {
-                this.package_consistency = consistency;
-                this.error_list = this.package_consistency["result"];
-                this.countErrors();
-                this.consistency_loading = false;
+        ngOnChanges(changes: SimpleChanges): void {
+            if (changes.package) {
+                this.resetConsistencyState();
+            }
+        }
+
+        private resetConsistencyState(): void {
+            this.consistency_loading = false;
+            this.warn_count = 0;
+            this.error_count = 0;
+            this.error_list = [];
+            this.consistency_checked = false;
+
+        }
+
+        checkConsistency(): void {
+            this.consistency_loading = true;
+            this.workbenchService.getPackageConsistency(this.package.name).pipe(
+                tap((consistency: any) => {
+                    console.log('Received consistency data:', consistency);
+                    this.package_consistency = consistency;
+                    this.processConsistencyResults();
+                    return consistency;
+                }),
+                catchError(error => {
+                    console.error('Error fetching package consistency:', error);
+                    this.snackBar.open('Error fetching package consistency', 'Close', { duration: 3000 });
+                    return of(null);
+                }),
+                finalize(() => {
+                    this.consistency_loading = false;
+                    this.consistency_checked = true;
+                })
+            ).subscribe();
+        }
+
+
+        private processConsistencyResults(): void {
+            this.warn_count = 0;
+            this.error_count = 0;
+            this.error_list = [];
+
+            if (!this.package_consistency?.result) return;
+
+            this.package_consistency.result.forEach((message: string) => {
+                if (message.startsWith("WARN")) {
+                    this.error_list.push({ type: 1, text: message });
+                    this.warn_count++;
+                } else if (message.startsWith("ERROR")) {
+                    this.error_list.push({ type: 2, text: message });
+                    this.error_count++;
+                }
             });
-        this.loading = false;
-    }
+
+            this.snackBar.open(`Consistency check complete: ${this.error_count} errors, ${this.warn_count} warnings`, 'Close', { duration: 3000 });
+        }
 
     public countErrors() {
         this.warn_count = 0;
