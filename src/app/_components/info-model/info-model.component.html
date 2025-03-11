@@ -9,7 +9,10 @@
         <div class="main">
             <div class="title">
                 <label>Class :</label>
-                <label class="accent">{{model.package_name}}\{{ model.name }}</label>
+                <label class="accent">
+                    {{ model.name }}
+                </label>
+                <copy-button [textToCopy]="model.file"></copy-button>
             </div>
             <div class="actions">
             </div>
@@ -20,9 +23,24 @@
         <div class="status">
         </div>
         <div class="meta">
-            <div><label>Declared in </label><label class="primary filename">{{model.file}}</label></div>
-            <div><label>Extends </label><label class="primary">{{schema['parent']}}</label></div>
-            <div><label>DB Table </label><label class="primary">{{schema['table']}}</label></div>
+            <div>
+                <mat-icon>description</mat-icon>
+                <label
+                class="primary filename"
+                matTooltip="{{ model.file }}">
+                {{ model.file | shortenPath:2 }}
+            </label>
+                <copy-button [textToCopy]="model.file"></copy-button>
+            </div>
+            <div>
+                <mat-icon>fork_right</mat-icon>
+                <label class="primary">{{schema['parent']}}</label>
+            </div>
+            <div>
+                <mat-icon>grid_on</mat-icon>
+                <label class="primary">{{schema['table']}}</label>
+            </div>
+
         </div>
     </div>
 

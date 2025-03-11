@@ -71,7 +71,10 @@ import { EditorAccessComponent } from '../_components/editor-access/editor-acces
 import { TypeInputComponent } from '../_components/type-input/type-input.component';
 import { InfoSystemComponent } from '../_components/info-system/info-system.component';
 import { ExplorerDialogComponent } from '../_dialogs/explorer-dialog/explorer-dialog.component';
-
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { ClipboardModule } from '@angular/cdk/clipboard';
+import { ShortenPathPipe } from '../_pipes/shorten-path.pipe';
+import { CopyButtonComponent } from '../_components/copy-button/copy-button.component';
 const sharedComponents = [
 
 
@@ -104,18 +107,25 @@ const sharedComponents = [
     ItemViewerComponent,
     GroupsViewerComponent,
     EditorAccessComponent,
-    ExplorerDialogComponent
+    ExplorerDialogComponent,
+    CopyButtonComponent
 ];
+
+const sharedPipes = [
+    ShortenPathPipe
+]
 @NgModule({
     declarations: [
-        ...sharedComponents
-
+        ...sharedComponents,
+        ...sharedPipes
     ],
     imports: [
         SharedLibModule,
         PropertyClauseModule,
         PropertyDomainModule,
-        AutocompleteModule
+        AutocompleteModule,
+        MatTooltipModule,
+        ClipboardModule,
     ],
     exports: [
         PropertyClauseModule,
@@ -152,5 +162,6 @@ export {
     InfoControllerComponent,
     InfoSystemComponent,
     EditorAccessComponent,
+
 
 }
