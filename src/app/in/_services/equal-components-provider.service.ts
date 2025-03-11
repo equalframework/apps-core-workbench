@@ -104,7 +104,6 @@ export class EqualComponentsProviderService {
         component_type: string,
         class_name?: string
     ): Observable<EqualComponentDescriptor[]> {
-        console.log("package_name ", package_name)
         const cacheMap = this.componentsCacheMapSubject.getValue();
         const packageCache = cacheMap.get(package_name);
         if(packageCache && component_type==='controller'){
@@ -125,10 +124,12 @@ export class EqualComponentsProviderService {
         );
         return of(components && components.length > 0 ? components : []);
         }
+        console.log("class name : ", class_name);
         console.log("bon bah go dans l'api hn");
         // If not found in cache, retrieve via the API
         return this.fetchComponents(package_name, component_type, class_name).pipe(
         map(newComponents => {
+            console.log("components : ", newComponents)
             // Optionally, update the cache here
             if (!cacheMap.has(package_name)) {
             cacheMap.set(package_name, new Map<string, EqualComponentDescriptor[]>());
@@ -160,7 +161,7 @@ export class EqualComponentsProviderService {
     ): Observable<EqualComponentDescriptor[]> {
         const packageComponent: EqualComponentDescriptor = {
             name: package_name,
-            package_name: '',
+            package_name: package_name,
             type: '',
             file: '',
             item: undefined
@@ -599,11 +600,30 @@ export class EqualComponentsProviderService {
      */
     private retrieveViews(packages: EqualComponentDescriptor[], class_name?: string): Observable<EqualComponentDescriptor[]> {
        return this.collectViews(packages).pipe(
-        map(rawData => this.formatViews(rawData,class_name))
+        map(rawData => {
+
+            rawData.forEach(item => {
+                item.views = this.filterViews(item.views, class_name);
+            });
+            console.log("rawData", rawData);
+            return this.formatViews(rawData,class_name)})
        )
     }
 
+    private filterViews(views: string[], class_name?: string): string[] {
+        return views
+            .filter((view) => !class_name || this.extractRelevantPath(view) ===class_name)
+    }
 
+
+
+    private extractRelevantPath(fullPath: string): string {
+        if (!fullPath) return "";
+
+        const [beforeColon] = fullPath.split(":");
+        const parts = beforeColon.split(/[\\/]/);
+        return parts.length > 1 ? parts.slice(1).join("\\") : beforeColon;
+    }
 
     /**
      * Retrieve menus for the given packages.
@@ -885,17 +905,12 @@ export class EqualComponentsProviderService {
         const result: EqualComponentDescriptor[] = [];
         data.forEach(({ package: packageComponent, views }) => {
           views
-            .filter(view => {
-              if (!className) return true;
-              const extractedClass = view.split('\\').pop()?.split(":")[0];
-              return extractedClass === className;
-            })
             .forEach(view => {
               const cleanedViewName = view.split('\\').slice(1).join('\\');
               const modelName = cleanedViewName.split(':')[0];
               result.push({
                 package_name: packageComponent.name,
-                name: cleanedViewName.split("\\").pop() || '',
+                name: cleanedViewName || '',
                 type: 'view',
                 file: className
                   ? `${packageComponent.name}/views/${cleanedViewName}`
@@ -906,6 +921,7 @@ export class EqualComponentsProviderService {
               });
             });
         });
+        console.log("resultat : ", result)
         return result;
       }
 
