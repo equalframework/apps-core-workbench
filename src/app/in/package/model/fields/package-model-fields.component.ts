@@ -12,6 +12,7 @@ import { prettyPrintJson } from 'pretty-print-json';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { NotificationService } from 'src/app/in/_services/notification.service';
+import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
 
 @Component({
     selector: 'package-model-fields',
@@ -207,7 +208,7 @@ export class PackageModelFieldsComponent implements OnInit {
     }
 
     public showJSON() {
-        this.dialog.open(Jsonator,{data:this.export2JSON(),width:"70%",height:"85%"})
+        this.dialog.open(JsonViewerComponent,{data:this.export2JSON(),width:"70%",height:"85%"})
     }
 
     public async savedata() {
@@ -230,21 +231,3 @@ export class PackageModelFieldsComponent implements OnInit {
     }
 }
 
-@Component({
-    selector: 'jsonator',
-    template: "<pre [innerHtml]='datajson'><pre>"
-})
-class Jsonator implements OnInit {
-    constructor(
-        @Optional() public dialogRef: MatDialogRef<Jsonator>,
-        @Optional() @Inject(MAT_DIALOG_DATA) public data:any,
-    ) {}
-
-    ngOnInit(): void {
-
-    }
-
-    get datajson() {
-        return prettyPrintJson.toHtml(this.data)
-    }
-}
