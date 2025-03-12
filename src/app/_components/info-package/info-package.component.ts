@@ -52,6 +52,7 @@ export class InfoPackageComponent implements OnInit {
 
         ngOnInit(): void {
             this.current_initialized = this.package_init_list.includes(this.package.name);
+
         }
 
         ngOnChanges(changes: SimpleChanges): void {
@@ -66,22 +67,27 @@ export class InfoPackageComponent implements OnInit {
             this.error_count = 0;
             this.error_list = [];
             this.consistency_checked = false;
-
+            this.current_initialized = this.package_init_list.includes(this.package.name);
         }
 
         checkConsistency(): void {
+            this.resetConsistencyState();
             this.consistency_loading = true;
-            this.workbenchService.getPackageConsistency(this.package.name).pipe(
-                tap((consistency: any) => {
-                    console.log('Received consistency data:', consistency);
-                    this.package_consistency = consistency;
-                    this.processConsistencyResults();
-                    return consistency;
-                }),
-                catchError(error => {
-                    console.error('Error fetching package consistency:', error);
-                    this.snackBar.open('Error fetching package consistency', 'Close', { duration: 3000 });
-                    return of(null);
+            this.workbenchService.checkPackageConsistency(this.package.name).pipe(
+                tap((result: any) => {
+                    if(result.success){
+                        console.log('Received consistency data:', result.response);
+                        this.package_consistency = result.response;
+                        this.processConsistencyResults();
+                        return result.response;
+                    }
+                    else{
+                        console.error('Error fetching package consistency:', result.message);
+                        this.error_list.push({ type: 2, text: result.message });
+                        this.error_count = this.error_list.filter(({type}) => type===2).length;
+                        this.snackBar.open('Error fetching package consistency', 'Close', { duration: 3000 });
+                        return of(null);
+                    }
                 }),
                 finalize(() => {
                     this.consistency_loading = false;
@@ -153,7 +159,7 @@ export class InfoPackageComponent implements OnInit {
 
     public get filtered_error_list() {
         return this.error_list.filter((item) => (
-            (item.text.includes("ERROR") && this.want_errors) || (item.text.includes("WARN") && this.want_warning)
+            (item.type===2 && this.want_errors) || (item.type ===1 && this.want_warning)
         ));
     }
 

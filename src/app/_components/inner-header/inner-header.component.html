@@ -41,6 +41,12 @@
                 (click)="onButtonSave.emit()">
             <mat-icon>save</mat-icon> Save
         </button>
+        <button mat-stroked-button
+        *ngIf="buttonSaveAs"
+        [disabled]="buttonSaveAsDisabled"
+        (click)="onButtonSaveAs.emit()">
+    <mat-icon>save_alt</mat-icon> Save as
+    </button>
         <button *ngIf="buttonRun"
                 mat-stroked-button
                 [disabled]="buttonRunDisabled"

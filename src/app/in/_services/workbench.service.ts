@@ -294,15 +294,14 @@ export class WorkbenchService {
         );
     }
 
-    public getPackageConsistency(package_name: string): Observable<any> {
+    public checkPackageConsistency(package_name: string): Observable<any> {
         if (package_name.length <= 0) {
             console.warn(`Ignoring empty package`);
             return of([]);
         }
         const url = `?do=test_package-consistency&package=${package_name}`;
-        return this.callApi(url, ``).pipe(
-            map(({ response }) => response)
-        );
+        return this.callApi(url, ``)
+        ;
     }
 
     /**

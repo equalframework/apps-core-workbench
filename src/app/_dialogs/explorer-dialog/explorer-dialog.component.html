@@ -30,7 +30,7 @@
               (click)="onSelectItem(item)"
               [class.selected]="selectedItem === item">
               <mat-icon matListIcon>insert_drive_file</mat-icon>
-              <h4 matLine>{{ item.name || item }}</h4>
+              <h4 matLine>{{ item.name || item | removeExtension }}</h4>
             </mat-list-item>
           </mat-nav-list>
         </div>

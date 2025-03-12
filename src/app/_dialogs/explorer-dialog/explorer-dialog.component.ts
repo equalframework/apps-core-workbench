@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Inject, OnDestroy, OnInit, Optional, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject, Input, OnDestroy, OnInit, Optional, inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ExplorerDialogFacade } from './explorer-dialog.facade';
 import { Observable, Subject } from 'rxjs';
@@ -9,6 +9,9 @@ interface DialogData {
   fetchItems: (packageName: string) => Observable<any>;
   createItem?: (item: string, packageName: string) => Observable<any>;
   formatItem?: (item: string) => string;
+  saveItem?: (item: string, packageName: string) => Observable<any>;
+  current_file_name?: string;
+  current_package?:string;
 }
 
 @Component({
@@ -46,8 +49,10 @@ export class ExplorerDialogComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
+
         this.createForm()
         this.resetState()
+        this.setInitValues()
         this.facade.items$.pipe(takeUntil(this.destroy$)).subscribe(items => {
             const existingNames = items;
             const control = this.fileForm.get('newItem');
@@ -60,8 +65,21 @@ export class ExplorerDialogComponent implements OnInit, OnDestroy {
             control.updateValueAndValidity();
             }
         });
+        if(this.data.current_package){
+            this.facade.selectPackage(this.data.current_package);
+        }
     }
 
+    private setInitValues(){
+        if(this.data.current_package){
+            this.onSelectPackage(this.data.current_package)
+            if(this.data.current_file_name){
+                this.fileForm.setValue({
+                    newItem: this.data.current_file_name
+                  });
+            }
+        }
+    }
     private resetState() {
         this.fileForm.reset();
         this.selectedItem = null;
@@ -72,7 +90,6 @@ export class ExplorerDialogComponent implements OnInit, OnDestroy {
     onSelectPackage(packageName: string): void {
         // Reset selected item when switching folders.
         this.selectedItem = null;
-        this.fileForm.reset();
         this.facade.selectPackage(packageName);
         if (this.data?.fetchItems) {
         this.facade.loadItems(this.data.fetchItems, packageName);

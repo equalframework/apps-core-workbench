@@ -76,6 +76,7 @@ import { ClipboardModule } from '@angular/cdk/clipboard';
 import { ShortenPathPipe } from '../_pipes/shorten-path.pipe';
 import { CopyButtonComponent } from '../_components/copy-button/copy-button.component';
 import { JsonViewerComponent } from '../_components/json-viewer/json-viewer.component';
+import { RemoveExtensionPipe } from '../_pipes/remove-extension.pipe';
 const sharedComponents = [
 
 
@@ -114,7 +115,8 @@ const sharedComponents = [
 ];
 
 const sharedPipes = [
-    ShortenPathPipe
+    ShortenPathPipe,
+    RemoveExtensionPipe
 ]
 @NgModule({
     declarations: [

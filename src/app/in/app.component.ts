@@ -54,7 +54,6 @@ export class AppComponent implements OnInit {
         this.elements = [];
 
         this.initialized_packages = await this.api.getInitializedPackages().toPromise();
-
         this.loading = false;
     }
 
