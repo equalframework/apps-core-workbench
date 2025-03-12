@@ -75,6 +75,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { ShortenPathPipe } from '../_pipes/shorten-path.pipe';
 import { CopyButtonComponent } from '../_components/copy-button/copy-button.component';
+import { JsonViewerComponent } from '../_components/json-viewer/json-viewer.component';
 const sharedComponents = [
 
 
@@ -108,7 +109,8 @@ const sharedComponents = [
     GroupsViewerComponent,
     EditorAccessComponent,
     ExplorerDialogComponent,
-    CopyButtonComponent
+    CopyButtonComponent,
+    JsonViewerComponent
 ];
 
 const sharedPipes = [

@@ -58,7 +58,7 @@ const sharedComponents = [
 @NgModule({
     declarations: [
         AppRootComponent,
-        AppComponent
+        AppComponent,
         ],
     imports: [
         SharedLibModule,

@@ -13,6 +13,7 @@ import { FileLoaderComponent } from './_components/file-loader/file-loader.compo
 import { DialogConfirmComponent } from './_components/dialog-confirm/dialog-confirm.component';
 import { WorkbenchService } from '../_services/workbench.service';
 import { ExplorerDialogComponent } from 'src/app/_dialogs/explorer-dialog/explorer-dialog.component';
+import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
 
 @Component({
     selector: 'uml-erd',
@@ -298,7 +299,7 @@ export class UmlErdComponent implements OnInit, OnChanges {
     public customButtonBehavior(evt: string) {
         switch(evt) {
         case "Show JSON" :
-            this.matDialog.open(Jsonator, {data:this.export(), width : "70vw", height : "80vh"});
+            this.matDialog.open(JsonViewerComponent, {data:this.export(), width : "70vw", height : "80vh"});
             break;
         case "Print to PDF" :
             this.state = "normal"

@@ -13,6 +13,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Location } from '@angular/common';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
+import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
 
 @Component({
     selector: 'package-model-workflow',
@@ -308,7 +309,7 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
     }
 
     public showJSON() {
-        this.matDialog.open(Jsonator, {
+        this.matDialog.open(JsonViewerComponent, {
             data: this.export(),
             width: "70vw",
             height: "85vh"
@@ -316,7 +317,7 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
     }
 
     public showJSONMetaData() {
-        this.matDialog.open(Jsonator, {
+        this.matDialog.open(JsonViewerComponent, {
             data: this.exportMetaData(),
             width: "70vw",
             height: "85vh"
@@ -343,17 +344,3 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
     }
 }
 
-@Component({
-    selector: 'jsonator',
-    template: "<pre [innerHtml]='datajson'><pre>"
-})
-class Jsonator {
-    constructor(
-        @Optional() public dialogRef: MatDialogRef<Jsonator>,
-        @Optional() @Inject(MAT_DIALOG_DATA) public data: any,
-    ) { }
-
-    get datajson() {
-        return prettyPrintJson.toHtml(this.data);
-    }
-}

@@ -10,6 +10,7 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dial
 import { prettyPrintJson } from 'pretty-print-json';
 import { NotificationService } from 'src/app/in/_services/notification.service';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
+import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
 
 
 /**
@@ -164,7 +165,7 @@ export class PackageControllerParamsComponent implements OnInit {
   }
 
   showJson() {
-    this.dialog.open(Jsonator,{data:this.export(),width:"75%",height:"85%"})
+    this.dialog.open(JsonViewerComponent,{data:this.export(),width:"75%",height:"85%"})
   }
 
   handleCustomButton(name:string) {
@@ -193,22 +194,3 @@ save() {
 
 }
 
-
-@Component({
-  selector: 'jsonator',
-  template: "<pre [innerHtml]='datajson'><pre>"
-})
-class Jsonator implements OnInit {
-    constructor(
-        @Optional() public dialogRef: MatDialogRef<Jsonator>,
-        @Optional() @Inject(MAT_DIALOG_DATA) public data:any,
-    ) {}
-
-    ngOnInit(): void {
-
-    }
-
-    get datajson() {
-        return prettyPrintJson.toHtml(this.data)
-    }
-}

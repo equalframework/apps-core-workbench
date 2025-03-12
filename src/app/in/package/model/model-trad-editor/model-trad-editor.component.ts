@@ -8,7 +8,6 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dial
 import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { prettyPrintJson } from 'pretty-print-json';
 
-import { TranslationService } from './_services/translation.service';
 import { ErrorItemTranslator, Translator } from './_object/Translation';
 import { Menu } from '../../menu/_models/Menu';
 import { View } from '../views/vieweditor/_objects/View';

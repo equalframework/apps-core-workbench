@@ -10,6 +10,7 @@ import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/dr
 import { Subject } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
 import { WorkbenchService } from '../../_services/workbench.service';
+import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
 
 @Component({
     selector: 'package-menu',
@@ -131,7 +132,7 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
     }
 
     public showJSON() {
-        this.dialog.open(Jsonator,{data:this.object.export(),width:"70%",height:"85%"});
+        this.dialog.open(JsonViewerComponent,{data:this.object.export(),width:"70%",height:"85%"});
     }
 
     public drop(event: CdkDragDrop<MenuItem[]>) {
@@ -149,22 +150,3 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
     }
 }
 
-@Component({
-    selector: 'jsonator',
-    template: "<pre [innerHtml]='datajson'><pre>"
-})
-class Jsonator implements OnInit {
-    constructor(
-        @Optional() public dialogRef: MatDialogRef<Jsonator>,
-        @Optional() @Inject(MAT_DIALOG_DATA) public data:any,
-    ) {}
-
-    ngOnInit(): void {
-
-    }
-
-    get datajson() {
-        return prettyPrintJson.toHtml(this.data)
-    }
-
-}
