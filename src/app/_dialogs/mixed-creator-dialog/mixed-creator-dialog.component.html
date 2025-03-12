@@ -1,3 +1,10 @@
+
+<div class="top-right">
+    <button mat-icon-button (click)="dialogRef.close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
 <!-- Loader displayed until component is fully loaded -->
 <div *ngIf="!loaded" class="loader">
     <mat-spinner></mat-spinner>
@@ -9,6 +16,7 @@
       <div>
         <label class="title">Create a Component</label>
       </div>
+
       <div class="inset">
         <div>
           <mat-form-field class="mixed-search-select">
