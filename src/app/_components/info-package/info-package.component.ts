@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewEncapsulation, SimpleChanges } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewEncapsulation, SimpleChanges, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
@@ -6,8 +6,8 @@ import { prettyPrintJson } from 'pretty-print-json';
 import { MatDialog } from '@angular/material/dialog';
 import { InitValidatorComponent } from './_components/init-validator/init-validator.component';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
-import { Observable, of } from 'rxjs';
-import { catchError, finalize, tap } from 'rxjs/operators';
+import { Observable, of, Subject } from 'rxjs';
+import { catchError, finalize, takeUntil, tap } from 'rxjs/operators';
 import { PackageSummary } from 'src/app/in/_models/package-info.model';
 
 @Component({
@@ -17,7 +17,7 @@ import { PackageSummary } from 'src/app/in/_models/package-info.model';
     encapsulation : ViewEncapsulation.Emulated,
 })
 
-export class InfoPackageComponent implements OnInit {
+export class InfoPackageComponent implements OnInit, OnDestroy {
 
     @Input() package: EqualComponentDescriptor;
 
@@ -30,6 +30,7 @@ export class InfoPackageComponent implements OnInit {
     @Output() refresh = new EventEmitter<void>();
     @Output() onIDClick = new EventEmitter<void>();
     @Output() onIDDClick = new EventEmitter<void>();
+    private destroy$ = new Subject<void>(); // Subject for takeUntil
 
     public package_consistency:any;
     public current_initialized = false;
@@ -50,8 +51,13 @@ export class InfoPackageComponent implements OnInit {
             private workbenchService: WorkbenchService,
             private matDialog: MatDialog
         ) { }
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
 
     ngOnInit(): void {
+        this.resetConsistencyState();
         this.current_initialized = this.package_init_list.includes(this.package.name);
         this.loadPackage(this.package.name)
     }
@@ -80,6 +86,7 @@ export class InfoPackageComponent implements OnInit {
         this.resetConsistencyState();
         this.consistency_loading = true;
         this.workbenchService.checkPackageConsistency(this.package.name).pipe(
+            takeUntil(this.destroy$),
             tap((result: any) => {
                 if(result.success){
                     console.log('Received consistency data:', result.response);
