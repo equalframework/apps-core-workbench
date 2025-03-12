@@ -1,0 +1,49 @@
+<div *ngIf="packageInfo; else noData">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>{{ packageInfo.appIcon || 'apps' }}</mat-icon>
+          {{ packageInfo.appName || 'No app name available' }}
+        </mat-card-title>
+        <mat-card-subtitle>{{ packageInfo.appDescription || 'No description available' }}</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <section class="info-section">
+          <h3>Description</h3>
+          <p>{{ packageInfo.description || 'No description available' }}</p>
+        </section>
+
+        <section class="info-section">
+          <h3>Version</h3>
+          <p>{{ packageInfo.version || 'No version available' }}</p>
+        </section>
+
+        <section class="info-section">
+          <h3>Authors</h3>
+          <ul *ngIf="packageInfo.authors && packageInfo.authors.length > 0; else noAuthors">
+            <li *ngFor="let author of packageInfo.authors">{{ author }}</li>
+          </ul>
+          <ng-template #noAuthors>
+            <li>No authors available</li>
+          </ng-template>
+        </section>
+
+        <section class="info-section">
+          <h3>Dependencies</h3>
+          <ul *ngIf="packageInfo.depends_on && packageInfo.depends_on.length > 0; else noDependencies">
+            <li *ngFor="let dep of packageInfo.depends_on">{{ dep }}</li>
+          </ul>
+          <ng-template #noDependencies>
+            <li>No dependencies available</li>
+          </ng-template>
+        </section>
+      </mat-card-content>
+    </mat-card>
+</div>
+
+<ng-template #noData>
+  <mat-card>
+    <p>No information available.</p>
+  </mat-card>
+</ng-template>

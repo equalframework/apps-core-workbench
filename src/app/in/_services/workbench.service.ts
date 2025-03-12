@@ -5,7 +5,7 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import { ApiService } from 'sb-shared-lib';
 import { API_ENDPOINTS } from '../_models/api-endpoints';
 import { EqualComponentDescriptor } from '../_models/equal-component-descriptor.class';
-
+import { PackageInfos, PackageSummary } from '../_models/package-info.model';
 
 
 @Injectable({
@@ -269,7 +269,27 @@ export class WorkbenchService {
         return this.callApi(url, successfullyMessage);
     }
 
+    public readPackage(package_name: string): Observable<{ response: PackageSummary; message: string }> {
+        const url = API_ENDPOINTS.package.infos(package_name);
+        return this.callApi(url, '').pipe(
+            map(({ response, message }) => {
+                const packageInfo: PackageInfos = response;
+                const mainApp = packageInfo.apps.find(app => app.id === packageInfo.name) || packageInfo.apps[0];
 
+                const transformedResponse: PackageSummary = {
+                    description: packageInfo.description,
+                    version: packageInfo.version,
+                    authors: packageInfo.authors,
+                    depends_on: packageInfo.depends_on,
+                    appName: mainApp?.name || '',
+                    appIcon: mainApp?.icon || '',
+                    appDescription: mainApp?.description || '',
+                };
+
+                return { response: transformedResponse, message };
+            })
+        );
+    }
 
     public InitPackage(
         package_name: string,

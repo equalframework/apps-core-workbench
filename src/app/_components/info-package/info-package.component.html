@@ -99,7 +99,39 @@
                 </label>
             </div>
         </ng-container>
+        <mat-expansion-panel *ngIf="!consistency_checked" class="custom-panel">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                Package Summary
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <div class="summary-container">
+              <ng-container *ngIf="packageInfos$ | async as packageInfos">
+                <summary-package [packageInfo]="packageInfos.response" [message]="packageInfos.message"></summary-package>
+              </ng-container>
+            </div>
+          </mat-expansion-panel>
+
+          <mat-expansion-panel *ngIf="!consistency_checked" class="custom-panel">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                Package Statistics
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <div class="summary-container">
+              <ng-container >
+                In work....
+              </ng-container>
+            </div>
+          </mat-expansion-panel>
+
+
+
+
     </div>
+
 
 
     <div class="footer">

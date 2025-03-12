@@ -10,6 +10,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { WorkbenchService } from '../../_services/workbench.service';
+import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
 
 @Component({
     selector: 'app-init-data',
@@ -116,7 +117,7 @@ export class InitDataComponent implements OnInit, OnDestroy {
      * Opens a dialog displaying the JSON representation of the exported data.
      */
     public showJsonDialog(): void {
-        this.dialog.open(JsonViewerDialog, {
+        this.dialog.open(JsonViewerComponent, {
             data: this.exportData(),
             width: '70vw',
             height: '80vh'
@@ -164,22 +165,4 @@ export class InitDataComponent implements OnInit, OnDestroy {
 
 }
 
-@Component({
-    selector: 'json-viewer-dialog',
-    template: `<pre [innerHtml]="formattedJson"></pre>`
-})
-export class JsonViewerDialog implements OnInit {
-    constructor(
-        @Optional() public dialogRef: MatDialogRef<JsonViewerDialog>,
-        @Optional() @Inject(MAT_DIALOG_DATA) public data: any,
-    ) {}
 
-    ngOnInit(): void {}
-
-    /**
-     * Returns a formatted JSON string for display.
-     */
-    get formattedJson(): string {
-        return prettyPrintJson.toHtml(this.data);
-    }
-}

@@ -5,7 +5,9 @@ export const API_ENDPOINTS = {
         create: (package_name: string) =>
             `?do=core_config_create-package&package=${package_name}`,
         delete: (package_name: string) =>
-            `?do=core_config_delete-package&package=${package_name}`
+            `?do=core_config_delete-package&package=${package_name}`,
+        infos: (package_name:string) =>
+            `?get=packageinfo&package=${package_name}`
     },
 
     // Class-specific actions

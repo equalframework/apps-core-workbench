@@ -77,6 +77,7 @@ import { ShortenPathPipe } from '../_pipes/shorten-path.pipe';
 import { CopyButtonComponent } from '../_components/copy-button/copy-button.component';
 import { JsonViewerComponent } from '../_components/json-viewer/json-viewer.component';
 import { RemoveExtensionPipe } from '../_pipes/remove-extension.pipe';
+import { SummaryPackageComponent } from '../_components/summary-package/summary-package.component';
 const sharedComponents = [
 
 
@@ -111,7 +112,8 @@ const sharedComponents = [
     EditorAccessComponent,
     ExplorerDialogComponent,
     CopyButtonComponent,
-    JsonViewerComponent
+    JsonViewerComponent,
+    SummaryPackageComponent
 ];
 
 const sharedPipes = [
