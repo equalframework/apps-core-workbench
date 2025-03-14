@@ -33,6 +33,8 @@
             <div class="meta-item">
                 <mat-icon matTooltip="DB_table">grid_on</mat-icon>
                 <label class="primary meta-text">{{schema['table']}}</label>
+                <copy-button [textToCopy]="schema['table']"></copy-button>
+
             </div>
         </div>
     </div>
