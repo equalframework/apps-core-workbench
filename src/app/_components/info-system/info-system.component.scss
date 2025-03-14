@@ -138,6 +138,7 @@
     background-color: #f9fafc;
     border-radius: 8px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
+    overflow: auto;
 }
 
 .controller-container-top {
@@ -151,7 +152,8 @@
     font-size: 22px;
     font-weight: bold;
     color: #2c3e50;
-    text-align: center;
+    text-align: left;
+
 }
 
 .flex-labels {

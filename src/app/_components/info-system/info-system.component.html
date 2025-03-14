@@ -35,7 +35,16 @@
       </mat-accordion>
     </div>
 
-    <div class="app-logo" *ngIf="envData$ | async as envData">
-      <img *ngIf="envData.app_logo_url" [src]="envData.app_logo_url" alt="App Logo" />
-    </div>
+    <div class="info-section" *ngIf="envData$ | async as envData">
+        <mat-accordion>
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                Other
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            in progress...
+          </mat-expansion-panel>
+        </mat-accordion>
+      </div>
   </div>

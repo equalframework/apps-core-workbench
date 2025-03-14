@@ -280,14 +280,14 @@ export class WorkbenchService {
                     version: packageInfo.version,
                     authors: packageInfo.authors,
                     depends_on: packageInfo.depends_on,
-                    apps: packageInfo.apps.map(app => ({
+                    apps: packageInfo.apps?.map(app => ({
                         appName: app.name?? app,
                         appIcon: app.icon,
                         appDescription: app.description
                     }))
                 };
 
-                return { response: transformedResponse, message };
+                return { response: transformedResponse || null, message };
             })
         );
     }
