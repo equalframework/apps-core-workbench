@@ -1,7 +1,7 @@
 <button
   mat-icon-button
   (click)="handleCopy()"
-  matTooltip="Copy filepath"
-  aria-label="Copy filepath">
+  [matTooltip]="tooltip_text"
+  [attr.aria-label]="tooltip_text">
   <mat-icon>{{icon}}</mat-icon>
   </button>

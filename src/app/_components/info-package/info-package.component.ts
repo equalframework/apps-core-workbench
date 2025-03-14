@@ -70,6 +70,7 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
         if (changes.package) {
             this.resetConsistencyState();
             this.loadPackage(this.package.name)
+            this.destroy$.next()
         }
     }
 

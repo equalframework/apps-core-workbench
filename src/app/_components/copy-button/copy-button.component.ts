@@ -9,12 +9,13 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   styleUrls: ['./copy-button.component.scss'],
 })
 export class CopyButtonComponent {
-  @Input() textToCopy: string = '';
+  @Input() text_to_copy: string = '';
+  @Input() tooltip_text:string ='Copy';
   icon: string = 'content_copy';
   constructor(private clipboard: Clipboard) {}
 
   handleCopy(): void {
-    this.clipboard.copy(this.textToCopy);
+    this.clipboard.copy(this.text_to_copy);
 
     this.icon = 'check';
     setTimeout(() => {
