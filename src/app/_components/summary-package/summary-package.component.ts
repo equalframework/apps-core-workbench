@@ -7,6 +7,7 @@ import { PackageSummary } from '../../in/_models/package-info.model';
   styleUrls: ['./summary-package.component.scss']
 })
 export class SummaryPackageComponent {
-  @Input() packageInfo!: PackageSummary | null;
+  @Input() packageInfo!: PackageSummary| null;
   @Input() message!: string;
+  
 }

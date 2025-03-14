@@ -274,22 +274,25 @@ export class WorkbenchService {
         return this.callApi(url, '').pipe(
             map(({ response, message }) => {
                 const packageInfo: PackageInfos = response;
-                const mainApp = packageInfo.apps.find(app => app.id === packageInfo.name) || packageInfo.apps[0];
 
                 const transformedResponse: PackageSummary = {
                     description: packageInfo.description,
                     version: packageInfo.version,
                     authors: packageInfo.authors,
                     depends_on: packageInfo.depends_on,
-                    appName: mainApp?.name || '',
-                    appIcon: mainApp?.icon || '',
-                    appDescription: mainApp?.description || '',
+                    apps: packageInfo.apps.map(app => ({
+                        appName: app.name?? app,
+                        appIcon: app.icon,
+                        appDescription: app.description
+                    }))
                 };
 
                 return { response: transformedResponse, message };
             })
         );
     }
+
+
 
     public InitPackage(
         package_name: string,

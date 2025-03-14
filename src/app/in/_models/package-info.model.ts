@@ -25,7 +25,9 @@ export interface PackageInfos {
   }
 
   export type PackageSummary = Pick<PackageInfos, "description" | "version" | "authors" | "depends_on"> & {
-    appName: string;
-    appIcon: string;
-    appDescription: string;
+    apps: {
+      appName: string;
+      appIcon: string;
+      appDescription: string;
+    }[];
   };
