@@ -111,6 +111,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         this.onSearch();
     }
 
+    trackByFn = (index: number, item: EqualComponentDescriptor) => item.name;
 
     private loadNodesV2() {
 

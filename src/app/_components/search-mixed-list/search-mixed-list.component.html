@@ -35,7 +35,7 @@
 
 <mat-list class="list">
 
-    <mat-list-item *ngFor="let node of filteredData" >
+    <mat-list-item *ngFor="let node of filteredData; trackBy: trackByFn">
         <ng-container *ngIf="areNodesEqual(node, editingNode); else displayMode">
             <div class="node_edit">
                 <mat-form-field class="node-edited">
