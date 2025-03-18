@@ -3,7 +3,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ExplorerDialogFacade } from './explorer-dialog.facade';
 import { Observable, Subject } from 'rxjs';
 import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
-import { takeUntil } from 'rxjs/operators';
+import { take, takeUntil } from 'rxjs/operators';
 
 interface DialogData {
   fetchItems: (packageName: string) => Observable<any>;
@@ -23,7 +23,7 @@ interface DialogData {
 export class ExplorerDialogComponent implements OnInit, OnDestroy {
     fileForm: FormGroup;
 
-
+    isCreateVisible: boolean = this.data.current_file_name ? true : false;
     packages$ = this.facade.packages$;
     items$ = this.facade.items$;
     selectedPackage$ = this.facade.selectedPackage$;
@@ -72,14 +72,31 @@ export class ExplorerDialogComponent implements OnInit, OnDestroy {
 
     private setInitValues(){
         if(this.data.current_package){
-            this.onSelectPackage(this.data.current_package)
-            if(this.data.current_file_name){
-                this.fileForm.setValue({
-                    newItem: this.data.current_file_name
-                  });
+          this.onSelectPackage(this.data.current_package);
+          if(this.data.current_file_name){
+            this.items$.pipe(takeUntil(this.destroy$)).subscribe(items => {
+
+            const existingNames = items.map(item => item.name || item);
+            let baseName= this.data.current_file_name;
+            let newName = baseName || '';
+            let suffix = 1;
+            console.log("base name : ", baseName)
+
+            console.log()
+            while(existingNames.includes(this.data.formatItem ? this.data.formatItem(newName):newName)){
+                newName = `${baseName}_${suffix}`;
+                suffix++;
+            }
+
+            console.log("newName : ", newName)
+            this.fileForm.setValue({
+            newItem: newName
+            });
+                });
             }
         }
     }
+
     private resetState() {
         this.fileForm.reset();
         this.selectedItem = null;
@@ -156,6 +173,9 @@ export class ExplorerDialogComponent implements OnInit, OnDestroy {
         };
     }
 
+    toggleCreateItem(): void {
+        this.isCreateVisible = !this.isCreateVisible;
+      }
 
 
 }

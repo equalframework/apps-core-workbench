@@ -14,7 +14,7 @@
         <mat-icon matListIcon>
           {{ (selectedPackage$ | async) === folder ? 'folder' : 'folder_open' }}
         </mat-icon>
-        <h4 matLine>{{ folder }}</h4>
+        <h4 matLine matTooltip="{{ folder }}">{{ folder }}</h4>
       </mat-list-item>
     </mat-nav-list>
 
@@ -50,10 +50,20 @@
         </div>
       </ng-template>
 
+
+
 <!-- Fixed "Add New Item" section at the bottom -->
 <ng-container *ngIf="selectedPackage$ | async">
     <div class="add-item-section">
-      <form [formGroup]="fileForm" (ngSubmit)="onCreateItem()">
+        <button mat-raised-button color="primary" (click)="toggleCreateItem()">
+            <ng-container *ngIf="!isCreateVisible">
+              Create
+            </ng-container>
+            <ng-container *ngIf="isCreateVisible">
+              <mat-icon>close</mat-icon>
+            </ng-container>
+          </button>
+      <form *ngIf="isCreateVisible" [formGroup]="fileForm" (ngSubmit)="onCreateItem()">
         <div class="input-section">
           <mat-form-field appearance="outline" class="add-item-field">
             <mat-label>New item name</mat-label>

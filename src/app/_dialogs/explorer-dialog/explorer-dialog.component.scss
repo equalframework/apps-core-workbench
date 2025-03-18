@@ -69,8 +69,19 @@
     position: sticky;
     bottom: 0;
     z-index: 20;
+    justify-content: flex-start;
+    gap: 5px;
+}
+.add-item-section button {
+    padding: 4px 8px;
+    font-size: 14px;
+    height: 36px;
+    min-width: auto;
 }
 
+.add-item-section mat-icon {
+    font-size: 20px;
+}
 /* Input and button aligned in one row */
 .input-section {
     display: flex;
