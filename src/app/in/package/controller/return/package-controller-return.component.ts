@@ -12,6 +12,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Location } from '@angular/common';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
+import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
 
 /**
  * Component used to display the component of a package (using `/package/:package_name/controller/:controller_type/:controller_name/return` route)
@@ -269,7 +270,7 @@ export class PackageControllerReturnComponent implements OnInit {
     }
 
     public showJson() {
-        this.dialog.open(Jsonator, {data:this.object.export(),width:"75%",height:"85%"});
+        this.dialog.open(JsonViewerComponent, {data:this.object.export(),width:"75%",height:"85%"});
     }
 
     public save() {
@@ -278,24 +279,4 @@ export class PackageControllerReturnComponent implements OnInit {
         this.workbenchService.updateController(this.controller_name, this.controller_type, payload.announcement);
     }
 
-}
-
-
-@Component({
-  selector: 'jsonator',
-  template: "<pre [innerHtml]='datajson'><pre>"
-})
-class Jsonator implements OnInit {
-  constructor(
-    @Optional() public dialogRef: MatDialogRef<Jsonator>,
-    @Optional() @Inject(MAT_DIALOG_DATA) public data:any,
-  ) {}
-
-  ngOnInit(): void {
-
-  }
-
-  get datajson() {
-    return prettyPrintJson.toHtml(this.data)
-  }
 }

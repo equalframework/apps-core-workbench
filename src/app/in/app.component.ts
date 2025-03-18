@@ -23,13 +23,17 @@ export class AppComponent implements OnInit {
     public selected_type_controller:string = '';
     public fetch_error:boolean = false;
     public route_list:any = {};
-
+    search_scope ='package'
     public loading: boolean = false;
 
     constructor(
             private api: WorkbenchService,
         ) { }
 
+    handleSearchScopeChange(newScope: string): void {
+        this.search_scope = newScope;
+        console.log('Received new search scope:', this.search_scope);
+        }
     public async ngOnInit() {
         /*
         let args = this.router.retrieveArgs();
@@ -50,7 +54,6 @@ export class AppComponent implements OnInit {
         this.elements = [];
 
         this.initialized_packages = await this.api.getInitializedPackages().toPromise();
-
         this.loading = false;
     }
 
@@ -59,11 +62,20 @@ export class AppComponent implements OnInit {
      *
      * @param eq_package the package that the user has selected
      */
-    public async selectNode(equalComponent: EqualComponentDescriptor) {
+    public selectNode(equalComponent: EqualComponentDescriptor) {
         console.log('selectNode', equalComponent);
-        this.selectedComponent = equalComponent;
-    }
 
+        if (this.selectedComponent && this.areNodesEqual(this.selectedComponent, equalComponent)) {
+            this.selectedComponent = undefined;
+        } else {
+            this.selectedComponent = equalComponent;
+        }
+    }
+    public areNodesEqual(node1: EqualComponentDescriptor | undefined, node2: EqualComponentDescriptor): boolean {
+        return node1?.package_name === node2?.package_name &&
+               node1?.name === node2?.name &&
+               node1?.type === node2?.type;
+    }
 
     /**
      * Update the name of a package.

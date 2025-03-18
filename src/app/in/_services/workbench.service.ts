@@ -5,7 +5,8 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import { ApiService } from 'sb-shared-lib';
 import { API_ENDPOINTS } from '../_models/api-endpoints';
 import { EqualComponentDescriptor } from '../_models/equal-component-descriptor.class';
-
+import { PackageInfos, PackageSummary } from '../_models/package-info.model';
+import { ViewSchema } from '../_models/view-schema.model';
 
 
 @Injectable({
@@ -94,7 +95,7 @@ export class WorkbenchService {
      * @param model_name The name of the model for which the view is configured.
      * @returns Observable containing the response of the view read request.
      */
-    public readView(package_name: string, view_name: string, model_name: string): Observable<any> {
+    public readView(package_name: string, view_name: string, model_name: string): Observable<ViewSchema> {
         const url = API_ENDPOINTS.view.read(package_name, model_name, view_name);
         return this.callApi(url, '').pipe(
             map(({ response }) => response)
@@ -269,6 +270,29 @@ export class WorkbenchService {
         return this.callApi(url, successfullyMessage);
     }
 
+    public readPackage(package_name: string): Observable<{ response: PackageSummary; message: string }> {
+        const url = API_ENDPOINTS.package.infos(package_name);
+        return this.callApi(url, '').pipe(
+            map(({ response, message }) => {
+                const packageInfo: PackageInfos = response;
+
+                const transformedResponse: PackageSummary = {
+                    description: packageInfo.description,
+                    version: packageInfo.version,
+                    authors: packageInfo.authors,
+                    depends_on: packageInfo.depends_on,
+                    apps: packageInfo.apps?.map(app => ({
+                        appName: app.name?? app,
+                        appIcon: app.icon,
+                        appDescription: app.description
+                    }))
+                };
+
+                return { response: transformedResponse || null, message };
+            })
+        );
+    }
+
 
 
     public InitPackage(
@@ -294,15 +318,14 @@ export class WorkbenchService {
         );
     }
 
-    public getPackageConsistency(package_name: string): Observable<any> {
+    public checkPackageConsistency(package_name: string): Observable<any> {
         if (package_name.length <= 0) {
             console.warn(`Ignoring empty package`);
             return of([]);
         }
         const url = `?do=test_package-consistency&package=${package_name}`;
-        return this.callApi(url, ``).pipe(
-            map(({ response }) => response)
-        );
+        return this.callApi(url, ``)
+        ;
     }
 
     /**
@@ -885,12 +908,21 @@ export class WorkbenchService {
      * @returns {Observable<{ [id: string]: string[] }>} An observable that emits a mapping of UML IDs to their associated names.
      *         If the request fails, an empty object is returned.
      */
-    public getUMLList(type: string): Observable<{ [id: string]: string[] }> {
-        const url = `?get=core_config_umls&type=${type}`;
-        return this.callApi(url, '').pipe(
-            map(({ success, response }) => success ? response : {})
-        );
+    public getUMLList(type: string, package_name?: string): Observable<any> {
+        const url = `?get=core_config_umls&type=${type}&package=${package_name}`;
+        if(package_name){
+            return this.callApi(url, '').pipe(
+                map(({ success, response }) => success ? response[package_name] || [] : [])
+            );
+        }
+        else{
+            return this.callApi(url, '').pipe(
+                map(({ success, response }) => success ? response : {})
+            );
+        }
+
     }
+
 
 
     /**

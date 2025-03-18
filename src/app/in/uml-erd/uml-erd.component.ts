@@ -12,6 +12,8 @@ import { FileLoaderComponent } from './_components/file-loader/file-loader.compo
 
 import { DialogConfirmComponent } from './_components/dialog-confirm/dialog-confirm.component';
 import { WorkbenchService } from '../_services/workbench.service';
+import { ExplorerDialogComponent } from 'src/app/_dialogs/explorer-dialog/explorer-dialog.component';
+import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
 
 @Component({
     selector: 'uml-erd',
@@ -65,7 +67,7 @@ export class UmlErdComponent implements OnInit, OnChanges {
                 const parts = this.current_filename.split("::");
                 const schema = await this.workbenchService.getUMLContent(parts[0], "erd", parts[1]).toPromise();
                 for(let item of schema) {
-                    this.nodes.push(await UmlErdNode.AsyncConstructor(item.entity, item.hidden, item?.fields ?? [], item.position.x, item.position.y, item.show_inheritance, item.show_relations));
+                    this.nodes.push(await UmlErdNode.AsyncConstructor(item.entity, item.hidden, item?.fields ?? [], item.position?.x, item.position?.y, item.show_inheritance, item.show_relations));
                 }
             }
             catch(e) {
@@ -231,8 +233,42 @@ export class UmlErdComponent implements OnInit, OnChanges {
         }
     }
 
+    public saveAs() {
+        const package_name = this.current_filename.split(":")[0];
+        const file_name_without_ext = this.current_filename.trim().split(":").pop()?.split(".")[0] || "default";
+
+        const dialogData = {
+          fetchItems: (package_name: string) => this.workbenchService.getUMLList('erd', package_name),
+          formatItem: (file: string) => this.formatErdJson(file),
+          createItem: (item: string, package_name: string) =>
+            this.workbenchService.saveUML(package_name, 'erd', item, JSON.stringify(this.export())),
+          current_file_name: file_name_without_ext,
+          current_package: package_name
+        };
+
+        const d = this.openExplorerDialog(dialogData);
+        d.afterClosed().subscribe(async (data: string | null) => {
+          if (data) {
+            this.current_filename = data;
+            console.log('loaded: ', data);
+            this.init();
+          }
+        });
+      }
+
+
     public async save() {
-        const d = this.matDialog.open(FileSaverComponent, {
+        const package_name = this.current_filename.split(":")[0]
+        const file_name_without_ext = this.current_filename.trim().split(":").pop()?.split(".")[0] || "default";
+
+        console.log("file name ", file_name_without_ext)
+        const res = await this.workbenchService.saveUML(package_name, "erd",file_name_without_ext , JSON.stringify(this.export())).toPromise();
+                if(res) {
+                    this.snackBar.open("Saved successfully","INFO");
+                    this.current_filename = package_name+'::'+ file_name_without_ext +'.erd.json';
+                    this.init();
+                }
+        /*const d = this.matDialog.open(FileSaverComponent, {
                 data: {
                     path: this.current_filename
                 },
@@ -249,26 +285,31 @@ export class UmlErdComponent implements OnInit, OnChanges {
                     this.init();
                 }
             }
+        });*/
+    }
+
+    private formatErdJson(file:string){
+        return `${file}.erd.json`;
+    }
+    public load() {
+        const dialogData = {
+          fetchItems: (package_name: string) => this.workbenchService.getUMLList('erd', package_name),
+          formatItem: (file: string) => this.formatErdJson(file),
+          createItem: (item: string, package_name: string) =>
+            this.workbenchService.saveUML(package_name, 'erd', item, '')
+        };
+
+        const d = this.openExplorerDialog(dialogData);
+        d.afterClosed().subscribe(async (data: string | null) => {
+          if (data) {
+            this.current_filename = data;
+            console.log('loaded: ', data);
+            this.init();
+          }
         });
-    }
+      }
 
-    public async load() {
-        const d = this.matDialog.open(FileLoaderComponent, {
-                data: {
-                    path: this.current_filename
-                },
-                width: "60vw",
-                maxWidth: "600px"
-            });
 
-        d.afterClosed().subscribe(async (data:string|null) => {
-                if(data) {
-                    this.current_filename = data;
-                    console.log('loaded: ', data);
-                    this.init();
-                }
-            });
-    }
 
     public export(): any[] {
         let ret:any = [];
@@ -281,7 +322,7 @@ export class UmlErdComponent implements OnInit, OnChanges {
     public customButtonBehavior(evt: string) {
         switch(evt) {
         case "Show JSON" :
-            this.matDialog.open(Jsonator, {data:this.export(), width : "70vw", height : "80vh"});
+            this.matDialog.open(JsonViewerComponent, {data:this.export(), width : "70vw", height : "80vh"});
             break;
         case "Print to PDF" :
             this.state = "normal"
@@ -292,19 +333,14 @@ export class UmlErdComponent implements OnInit, OnChanges {
         }
 
     }
+
+    private openExplorerDialog(dialogData: any): MatDialogRef<ExplorerDialogComponent> {
+        return this.matDialog.open(ExplorerDialogComponent, {
+          width: "60vw",
+          maxWidth: "600px",
+          data: dialogData
+        });
+      }
+
 }
 
-@Component({
-    selector: 'jsonator',
-    template: "<pre [innerHtml]='datajson'><pre>"
-    })
-    class Jsonator {
-    constructor(
-        @Optional() public dialogRef: MatDialogRef<Jsonator>,
-        @Optional() @Inject(MAT_DIALOG_DATA) public data:any,
-    ) {}
-
-    get datajson() {
-        return prettyPrintJson.toHtml(this.data)
-    }
-}

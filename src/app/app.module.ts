@@ -41,7 +41,6 @@ import { PropertyDomainComponent } from 'src/app/_components/property-domain-com
 
 // specific locale setting
 import localeFr from '@angular/common/locales/fr';
-
 registerLocaleData(localeFr);
 
 
@@ -59,8 +58,8 @@ const sharedComponents = [
 @NgModule({
     declarations: [
         AppRootComponent,
-        AppComponent
-    ],
+        AppComponent,
+        ],
     imports: [
         SharedLibModule,
         WorkbenchModule,

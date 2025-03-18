@@ -1,0 +1,13 @@
+
+:host ::ng-deep .mat-dialog-container {
+    width: 100vw;    /* Prendre toute la largeur de l'écran */
+    height: 100vh;   /* Prendre toute la hauteur de l'écran */
+    margin: 0;       /* Enlever les marges */
+    padding: 0;      /* Enlever les paddings */
+  }
+  
+:host{
+position:relative;
+height: 100%;
+width:100%;
+}

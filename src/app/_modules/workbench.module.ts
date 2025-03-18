@@ -69,7 +69,16 @@ import { InfoControllerComponent } from '../_components/info-controller/info-con
 import { EditorAccessComponent } from '../_components/editor-access/editor-access.component';
 
 import { TypeInputComponent } from '../_components/type-input/type-input.component';
-
+import { InfoSystemComponent } from '../_components/info-system/info-system.component';
+import { ExplorerDialogComponent } from '../_dialogs/explorer-dialog/explorer-dialog.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { ClipboardModule } from '@angular/cdk/clipboard';
+import { ShortenPathPipe } from '../_pipes/shorten-path.pipe';
+import { CopyButtonComponent } from '../_components/copy-button/copy-button.component';
+import { JsonViewerComponent } from '../_components/json-viewer/json-viewer.component';
+import { RemoveExtensionPipe } from '../_pipes/remove-extension.pipe';
+import { SummaryPackageComponent } from '../_components/summary-package/summary-package.component';
+import { CloseButtonComponent } from '../_components/close-button/close-button.component';
 const sharedComponents = [
 
 
@@ -98,20 +107,33 @@ const sharedComponents = [
     InfoRouteComponent,
     InfoModelComponent,
     InfoControllerComponent,
+    InfoSystemComponent,
     ItemViewerComponent,
     GroupsViewerComponent,
-    EditorAccessComponent
+    EditorAccessComponent,
+    ExplorerDialogComponent,
+    CopyButtonComponent,
+    JsonViewerComponent,
+    SummaryPackageComponent,
+    CloseButtonComponent
 ];
+
+const sharedPipes = [
+    ShortenPathPipe,
+    RemoveExtensionPipe
+]
 @NgModule({
     declarations: [
-        ...sharedComponents
-
+        ...sharedComponents,
+        ...sharedPipes
     ],
     imports: [
         SharedLibModule,
         PropertyClauseModule,
         PropertyDomainModule,
-        AutocompleteModule
+        AutocompleteModule,
+        MatTooltipModule,
+        ClipboardModule,
     ],
     exports: [
         PropertyClauseModule,
@@ -146,6 +168,8 @@ export {
     InfoRouteComponent,
     InfoModelComponent,
     InfoControllerComponent,
+    InfoSystemComponent,
     EditorAccessComponent,
+
 
 }

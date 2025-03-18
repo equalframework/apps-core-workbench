@@ -24,7 +24,12 @@
     </div>
 
     <div class="right_pane">
-        <info-view [view]="selected_view">
+        <info-system *ngIf="!selected_view"
+        [component_type]="'view'"
+        [package_name]="package_name"
+        [class_name]="model_name">
+        </info-system>
+        <info-view *ngIf="selected_view" [view]="selected_view" >
         </info-view>
     </div>
 </div>

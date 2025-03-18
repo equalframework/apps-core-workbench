@@ -1,3 +1,4 @@
+import { Router } from '@angular/router';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, SimpleChanges, ViewEncapsulation } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -58,7 +59,8 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     // event for notifying parent that selected object has changed
     @Output() selectNode = new EventEmitter<EqualComponentDescriptor>();
     @Output() updateNode = new EventEmitter<{ old_node: EqualComponentDescriptor, new_node: EqualComponentDescriptor }>();
-    @Output() deleteNode = new EventEmitter<EqualComponentDescriptor>();
+    @Output() searchScopeChange = new EventEmitter<string>();
+
     // event for notifying parent that the list has been updated and needs to be refreshed
     @Output() updated = new EventEmitter();
 
@@ -76,7 +78,6 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
 
     // used to render info about components present in filteredData (or data)
     public type_dict: { [id: string]: { icon: string, disp: string } } = ItemTypes.typeDict;
-
     // formControl for search input field
     public inputControl = new FormControl('package:');
 
@@ -87,7 +88,8 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         private dialog: MatDialog,
         private provider: EqualComponentsProviderService,
         private notificationService: NotificationService,
-        private workbenchService:WorkbenchService
+        private workbenchService:WorkbenchService,
+        private router: Router,
     ) { }
 
 
@@ -109,13 +111,13 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         this.onSearch();
     }
 
+    trackByFn = (index: number, item: EqualComponentDescriptor) => item.name;
 
     private loadNodesV2() {
 
         if (this.package_name) {
             // Si package_name est défini, appelez getComponents
             if (this.node_type) {
-                console.log("je suis rentré ici ");
                 this.provider.getComponents(this.package_name, this.node_type,this.model_name)
                     .pipe(takeUntil(this.destroy$)) // Ajout de takeUntil
                     .subscribe(
@@ -158,134 +160,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         console.error('Erreur lors du chargement des composants:', error);
         this.loading = false;
     }
-    /**
-     * the behavior depends ont the member 'node_type'
-     * classes and packages are always loaded synchronously
-     * but then other components, if requested, are loaded in background
-     * except when node_type is set to a specific value (distinct from '')
-     */
-    /*private async loadNodes() {
 
-
-
-       // pass-1 - load packages and classes
-        const classes = await this.api.getClasses();
-        let packages = [];
-
-        if(this.package_name && this.package_name != '') {
-            packages.push(this.package_name);
-        }
-        else {
-            packages = await this.api.getPackages();
-        }
-
-        for(const package_name of packages) {
-            if(['', 'package'].includes(this.node_type ?? '')) {
-                this.elements.push(<EqualComponentDescriptor> {
-                        package_name: package_name,
-                        name: package_name,
-                        type: "package",
-                        file: package_name
-                    });
-            }
-
-            if(classes.hasOwnProperty(package_name) && ['', 'class'].includes(this.node_type ?? '')) {
-                for(const class_name of classes[package_name]) {
-                    this.elements.push(<EqualComponentDescriptor> {
-                            package_name: package_name,
-                            name: class_name,
-                            type: "class",
-                            file: package_name + '/classes/' + class_name.replace(/\\/g, '/') + '.class.php'
-                        });
-                }
-            }
-        }
-
-        let apiCalls: any = [];
-
-        // pass-2 - load other components for each package
-        for(const package_name of packages) {
-
-            if(['', 'do', 'get', 'controller'].includes(this.node_type ?? '')) {
-                apiCalls.push( () => this.api.getControllersByPackage(package_name).then((x) => {
-                        x.data.forEach(controller_name => {
-                            this.elements.push(<EqualComponentDescriptor> {
-                                    package_name: package_name,
-                                    name: controller_name,
-                                    type:'get',
-                                    file: package_name + '/data/' + controller_name+'.php'
-                                });
-                        });
-                        x.actions.forEach(controller_name => {
-                                this.elements.push(<EqualComponentDescriptor> {
-                                        package_name: package_name,
-                                        name: controller_name,
-                                        type: 'do',
-                                        file: package_name + '/actions/' + controller_name+'.php'
-                                    });
-                            });
-                    }));
-            }
-
-            if(['', 'route'].includes(this.node_type ?? '')) {
-                apiCalls.push( () => this.api.getRoutesByPackage(package_name).then((routes) => {
-                        for(let file in routes) {
-                            for(let route_name in routes[file]) {
-                                this.elements.push(<EqualComponentDescriptor> {
-                                        package_name: package_name,
-                                        name: route_name,
-                                        type: "route",
-                                        file: package_name + '/init/routes/' + file, item: routes[file][route_name]
-                                    });
-                            }
-                        }
-                    }) );
-            }
-
-            if(['', 'view'].includes(this.node_type ?? '')) {
-                apiCalls.push( () => this.api.getViewsByPackage(package_name).then((y) => {
-                        y.forEach(view_name => {
-                            this.elements.push(<EqualComponentDescriptor> {
-                                    package_name: package_name,
-                                    name: view_name,
-                                    type: "view"
-                                });
-                        });
-                    }) );
-            }
-
-            if(['', 'menu'].includes(this.node_type ?? '')) {
-                apiCalls.push( () => this.api.getMenusByPackage(package_name).then((y) => {
-                        y.forEach(view =>{
-                            this.elements.push(<EqualComponentDescriptor> {
-                                    package_name: package_name,
-                                    name: view,
-                                    type: "menu"
-                                });
-                        })
-                    }) );
-            }
-
-        }
-
-        // we need the result of the calls before returning
-        if(this.node_type && this.node_type != '') {
-            for(const apiCall of apiCalls) {
-                await apiCall();
-            }
-            this.sortComponents();
-        }
-        // load in background and immediately return packages
-        else {
-            setTimeout( async () => {
-                    for(const apiCall of apiCalls) {
-                        await apiCall();
-                    }
-                    this.sortComponents();
-                });
-        }
-
-    }*/
     private getSortKey(component: EqualComponentDescriptor): string {
         let key = component.package_name || '';
 
@@ -332,6 +207,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         else {
             this.inputControl.setValue(this.search_value);
         }
+        this.searchScopeChange.emit(this.search_scope);
         this.onSearch();
     }
 
@@ -427,14 +303,12 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
                 width: "40em",
                 height: "26em"
             }).afterClosed().subscribe((result) => {
-                console.log(result);
                 if (result) {
                     if (result.success) {
                         this.notificationService.showSuccess(result.message);
                         this.addToComponents(result.node);
                         this.provider.reloadComponents(result.node.package_name,result.node.type);
                         this.selectNode.emit(result.node);
-                        console.log("this. filetederddData " ,this.filteredData)
                     }
                     else {
                         this.notificationService.showError(result.message);
@@ -476,6 +350,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
      * @param node value of the node which is clicked on
      */
     public onclickSelect(node: EqualComponentDescriptor) {
+        //this.router.navigate(['/package', node.name]);
         this.selectNode.emit(node);
     }
 

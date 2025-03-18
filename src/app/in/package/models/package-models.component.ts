@@ -22,7 +22,7 @@ export class PackageModelsComponent implements OnInit, OnDestroy {
 
     public package_name: string = '';
 
-    public selected_class: EqualComponentDescriptor;
+    public selected_class: EqualComponentDescriptor | undefined;
 
     public selected_field: FieldClass|undefined = undefined;
 
@@ -71,8 +71,14 @@ export class PackageModelsComponent implements OnInit, OnDestroy {
      * @param eq_route the route that the user has selected
      */
     public async onSelectNode(eq_class: EqualComponentDescriptor) {
-        this.selected_class = eq_class;
+        // Si l'élément est déjà sélectionné, le désélectionner
+        if (this.selected_class === eq_class) {
+            this.selected_class = undefined; // ou null, selon votre préférence
+        } else {
+            this.selected_class = eq_class; // Sinon, sélectionnez l'élément
+        }
     }
+
 
     public async onChangeStep(step:number) {
         /*

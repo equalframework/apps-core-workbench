@@ -13,6 +13,7 @@ import { EqualComponentDescriptor } from '../../_models/equal-component-descript
 import { EqualComponentsProviderService } from '../../_services/equal-components-provider.service';
 import { NotificationService } from '../../_services/notification.service';
 import { WorkbenchService } from '../../_services/workbench.service';
+import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
 
 @Component({
     selector: 'package-view',
@@ -160,7 +161,7 @@ export class PackageViewComponent implements OnInit {
 
     logit() {
         console.log(this.view_obj);
-        this.popup.open(DialogOverviewExampleDialog,{data:this.view_obj.export()});
+        this.popup.open(JsonViewerComponent,{data:this.view_obj.export(),width:"70%",height:"85%"});
     }
 
     addGroup() {
@@ -272,24 +273,3 @@ export class PackageViewComponent implements OnInit {
     }
 }
 
-// This component is used to have a preview of the json file (mostly for debug reasons)
-@Component({
-  selector: 'dialog-overview-example-dialog',
-  template:"<style>pre{overflow-y : scroll; font-size: .8em; height: 50em; width: 80em;}</style><pre  [innerHTML]='datahtml'></pre>"
-})
-export class DialogOverviewExampleDialog {
-    constructor(
-        public dialogRef: MatDialogRef<DialogOverviewExampleDialog>,
-        @Inject(MAT_DIALOG_DATA) public data:any,
-    ) {
-        console.log(data)
-    }
-
-    get datahtml() {
-        return prettyPrintJson.toHtml(this.data,{indent:2,quoteKeys:true})
-    }
-
-    onClick(): void {
-        this.dialogRef.close();
-    }
-}

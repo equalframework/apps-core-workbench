@@ -1,0 +1,39 @@
+.close-button{
+    float: right;
+    top:-20px;
+    right:-20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    width: 32px;
+    z-index: 9999;
+  }
+
+  .close-button mat-icon {
+    font-size: 24px;
+    color: #666;
+  }
+
+  .close-button:hover mat-icon {
+    color: #000;
+  }
+
+  .close-icon {
+    transition: 1s ease-in-out;
+  }
+
+  .close-icon:hover {
+    transform: rotate(90deg);
+  }
+
+  ::ng-deep .icon-outside .close-button{
+    float: right;
+    top:-52px;
+    right:-52px;
+  }
+
+  ::ng-deep .icon-outside .mat-dialog-container {
+   overflow: unset
+  }

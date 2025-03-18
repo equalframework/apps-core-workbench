@@ -1,0 +1,69 @@
+<div *ngIf="packageInfo as pkg; else noData">
+    <mat-card>
+      <mat-card-content>
+        <section class="info-section">
+          <h3>Description</h3>
+          <p>{{ pkg.description || 'No description available' }}</p>
+        </section>
+
+        <section class="info-section">
+          <h3>Version</h3>
+          <p>{{ pkg.version || 'No version available' }}</p>
+        </section>
+
+        <section class="info-section">
+          <h3>Authors</h3>
+          <ng-container *ngIf="pkg.authors && pkg.authors.length > 0; else noAuthors">
+            <ul>
+              <li *ngFor="let author of pkg.authors">{{ author }}</li>
+            </ul>
+          </ng-container>
+          <ng-template #noAuthors>
+            <p>No authors available</p>
+          </ng-template>
+        </section>
+
+        <section class="info-section">
+          <h3>Dependencies</h3>
+          <ng-container *ngIf="pkg.depends_on && pkg.depends_on.length > 0; else noDependencies">
+            <ul>
+              <li *ngFor="let dep of pkg.depends_on">{{ dep }}</li>
+            </ul>
+          </ng-container>
+          <ng-template #noDependencies>
+            <p>No dependencies available</p>
+          </ng-template>
+        </section>
+
+        <section class="info-section">
+            <h3>Applications</h3>
+            <div class="apps-grid">
+              <div *ngFor="let app of pkg.apps"
+                   [ngStyle]="{'flex': '0 0 calc(100% / ' + pkg.apps.length + ')'}"
+                   class="app-tile">
+                <mat-card class="app-card">
+                  <mat-card-header>
+                    <mat-icon class="app-icon">{{ app.appIcon || 'apps' }}</mat-icon>
+                    <mat-card-title>{{ app.appName }}</mat-card-title>
+                    <mat-card-subtitle>
+                      <p>{{ app.appDescription || 'No description available' }}</p>
+                    </mat-card-subtitle>
+                  </mat-card-header>
+                </mat-card>
+              </div>
+            </div>
+          </section>
+
+
+
+
+
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <ng-template #noData>
+    <mat-card>
+      <p>No information available.</p>
+    </mat-card>
+  </ng-template>

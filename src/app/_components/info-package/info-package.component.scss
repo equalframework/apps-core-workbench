@@ -4,7 +4,6 @@
     display: block;
     width: 100%;
     height: 100%;
-
     padding: 20px 20px 0 20px;
     border-radius: 8px;
     background-color: #f5f5f5;
@@ -25,28 +24,23 @@
     .header {
         height: 110px;
         width: 100%;
-
         .main {
-            display : flex;
+            display: flex;
             align-items: center;
             justify-content: space-between;
-
             .title {
                 flex: 1;
                 max-width: 80%;
                 overflow: hidden;
                 white-space: nowrap;
-
                 label {
                     margin-right: 0.5em;
                     font-size: 24px;
-
                     &.accent {
                         color: mat-color($accentcolor);
                     }
                 }
             }
-
             .actions {
                 margin-left: auto;
             }
@@ -54,23 +48,19 @@
 
         .status {
             font-size: 16px;
-
             div {
                 display: flex;
                 align-content: center;
                 align-items: center;
-
                 mat-icon {
                     margin-right: .25em;
                 }
             }
-
             .warn {
-                color: mat-color($warncolor)
+                color: mat-color($warncolor);
             }
-
             .new {
-                color: mat-color($newcolor)
+                color: mat-color($newcolor);
             }
         }
 
@@ -79,19 +69,15 @@
             align-items: center;
             justify-content: flex-start;
             font-size: 18px;
-
             .primary {
-                color: mat-color($maincolor)
+                color: mat-color($maincolor);
             }
-
             div {
                 display: inline-block;
                 white-space: nowrap;
                 margin-right: 20px;
             }
-
         }
-
     }
 
     .body {
@@ -104,7 +90,7 @@
             top: 0;
             z-index: 1;
             height: 64px;
-            width: 100%;;
+            width: 100%;
             background-color: white;
             border-radius: 20px;
             padding: 16px;
@@ -122,16 +108,13 @@
                     margin: 0 .2em;
                     background-color: #dddddd;
                     user-select: none;
-
                     &.checked.chip-warning {
                         background-color: mat-color($editedcolor);
                     }
-
                     &.checked.chip-error {
                         background-color: mat-color($warncolor);
                     }
                 }
-
             }
 
             .collapse {
@@ -143,16 +126,17 @@
 
         .items {
             position: absolute;
-            overflow-y: scroll;
+            overflow-y: auto;
             height: calc(100% - 50px);
             top: 50px;
             z-index: 1;
             width: 100%;
             background-color: white;
-            border-bottom-left-radius : 20px;
-            border-bottom-right-radius : 20px;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
             padding: 0 16px 16px 16px;
-
+            max-height: 80vh;
+            border: 1px solid #ccc;
 
             ::-webkit-scrollbar {
                 width: 8px;
@@ -171,36 +155,41 @@
             .item {
                 display: block;
                 width: 100%;
-                white-space: nowrap;
+                white-space: normal;
+                overflow-wrap: break-word;
+                word-wrap: break-word;
                 overflow: hidden;
                 margin: 0;
-                padding: 0;
-                text-overflow: ellipsis;
+                padding: 8px 0;
                 font-family: monospace;
+                transition: background-color 0.3s ease, padding-left 0.3s ease;
 
                 &.color-red {
-                    color : mat-color($warncolor)
+                    color: mat-color($warncolor);
                 }
 
                 &.color-orange {
-                    color : mat-color($editedcolor)
+                    color: mat-color($editedcolor);
                 }
 
                 &.bold {
                     font-weight: bold;
                 }
 
+                &:hover {
+                    background-color: rgba(255, 0, 0, 0.1);
+                    padding-left: 10px;
+                }
             }
         }
-
     }
 
     .footer {
         height: 25%;
 
         .package-info-button {
-            color : mat-color($maincolor) !important;
-            background-color:  #e4e4e4 !important;
+            color: mat-color($maincolor) !important;
+            background-color: #e4e4e4 !important;
             width: 80%;
             overflow: hidden;
             height: 56px;
@@ -214,7 +203,50 @@
                 transform: scale(1.2);
             }
         }
-
     }
 
+    .summary-container {
+        max-height: 300px; // Adjust height as needed
+        overflow-y: auto;
+        padding: 10px;
+    }
+
+    /* Custom scrollbar */
+    .summary-container::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .summary-container::-webkit-scrollbar-thumb {
+        background: #6200ee; // Adjust color if needed
+        border-radius: 8px;
+    }
+
+    .summary-container::-webkit-scrollbar-track {
+        background: #f0f0f0;
+    }
 }
+
+mat-expansion-panel {
+    margin-bottom: 10px; /* Adjust the space as needed */
+  }
+
+  /* For each mat-expansion-panel */
+.custom-panel {
+    margin-bottom: 10px; /* Space between panels */
+  }
+
+  /* Handle overflow for the content within the expansion panel */
+  mat-expansion-panel .mat-expansion-panel-body {
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 16px;
+  }
+
+  mat-expansion-panel-header {
+    padding: 10px 16px;
+  }
+
+  mat-expansion-panel {
+    transition: margin 0.3s ease;
+  }
+

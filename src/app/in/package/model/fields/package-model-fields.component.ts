@@ -12,6 +12,7 @@ import { prettyPrintJson } from 'pretty-print-json';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { NotificationService } from 'src/app/in/_services/notification.service';
+import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
 
 @Component({
     selector: 'package-model-fields',
@@ -79,7 +80,6 @@ export class PackageModelFieldsComponent implements OnInit {
             this.revertOneChange();
         }
     }
-
     public async ngOnInit() {
         this.models = await this.workbenchService.collectClasses(true).toPromise();
         Field.type_directives = await this.workbenchService.getTypeDirective();
@@ -125,6 +125,20 @@ export class PackageModelFieldsComponent implements OnInit {
             }
         }
     }
+
+    async cancel() {
+        this.loading = true;
+        this.notificationService.showInfo("Canceling...");
+
+        try {
+          await this.loadFields();
+          this.notificationService.showSuccess("Canceled");
+        } catch (error) {
+          this.notificationService.showError("Error occurred while canceling.");
+        } finally {
+          this.loading = false;
+        }
+      }
 
     public revertOneChange() {
         if(this.fieldFutureHistory.length > 0) {
@@ -194,11 +208,11 @@ export class PackageModelFieldsComponent implements OnInit {
     }
 
     public showJSON() {
-        this.dialog.open(Jsonator,{data:this.export2JSON(),width:"70%",height:"85%"})
+        this.dialog.open(JsonViewerComponent,{data:this.export2JSON(),width:"70%",height:"85%"})
     }
 
     public async savedata() {
-        this.notificationService.showInfo("Saving....");        
+        this.notificationService.showInfo("Saving....");
         this.workbenchService.updateFieldsFromClass(this.export2JSON(),this.package_name,this.class_name).subscribe((result) => {
                 if(result.success){
                     this.notificationService.showSuccess(result.message);
@@ -217,21 +231,3 @@ export class PackageModelFieldsComponent implements OnInit {
     }
 }
 
-@Component({
-    selector: 'jsonator',
-    template: "<pre [innerHtml]='datajson'><pre>"
-})
-class Jsonator implements OnInit {
-    constructor(
-        @Optional() public dialogRef: MatDialogRef<Jsonator>,
-        @Optional() @Inject(MAT_DIALOG_DATA) public data:any,
-    ) {}
-
-    ngOnInit(): void {
-
-    }
-
-    get datajson() {
-        return prettyPrintJson.toHtml(this.data)
-    }
-}

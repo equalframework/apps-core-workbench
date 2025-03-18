@@ -1,14 +1,20 @@
+
+<div class="top-right">
+    <close-button (close)="this.dialogRef.close()"></close-button>
+</div>
+
 <!-- Loader displayed until component is fully loaded -->
 <div *ngIf="!loaded" class="loader">
     <mat-spinner></mat-spinner>
   </div>
-  
+
   <!-- Main content is displayed only when all data is loaded -->
   <ng-container *ngIf="loaded">
     <div class="bigholder">
       <div>
         <label class="title">Create a Component</label>
       </div>
+
       <div class="inset">
         <div>
           <mat-form-field class="mixed-search-select">
@@ -66,14 +72,16 @@
           </div>
           <div *ngIf="addingState && canAddSubtypes">
             <mat-form-field class="mixed-search-select">
-              <mat-label>custom {{ subtypeName }}</mat-label>
-              <input matInput [formControl]="customSTControl" (input)="reloadList()" />
+              <mat-label>Custom {{ subtypeName }}</mat-label>
+              <input matInput [formControl]="customSTControl" (input)="reloadList()" placeholder="e.g., 11-default.json" />
+              <mat-hint>Format: two digits, a hyphen, then a file name ending with .json</mat-hint>
               <button matSuffix mat-icon-button (click)="setAddingState(false)">
                 <mat-icon>cancel</mat-icon>
               </button>
               <mat-error *ngIf="customSTControl.invalid">{{ getControlsErrors(customSTControl) }}</mat-error>
             </mat-form-field>
           </div>
+
         </div>
         <div *ngIf="!implemented" class="inset">
           [WIP]
@@ -89,4 +97,3 @@
       </button>
     </div>
   </ng-container>
-  

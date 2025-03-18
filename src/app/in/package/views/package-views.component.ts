@@ -22,7 +22,7 @@ export class PackageViewsComponent implements OnInit, OnDestroy {
     public package_name: string = '';
     public view_name: string = '';
 
-    public selected_view: EqualComponentDescriptor;
+    public selected_view: EqualComponentDescriptor | undefined;
 
     public views_for_selected_package: string[] = [];
 
@@ -70,9 +70,22 @@ export class PackageViewsComponent implements OnInit, OnDestroy {
      * @param eq_route the route that the user has selected
      */
     public async onSelectNode(eq_view: EqualComponentDescriptor) {
-        this.selected_view = eq_view;
-    }
 
+        if (this.selected_view && this.areNodesEqual(this.selected_view, eq_view)) {
+            this.selected_view = undefined;
+        } else {
+            this.selected_view = eq_view;
+        }
+    }
+    public areNodesEqual(node1: EqualComponentDescriptor | undefined, node2: EqualComponentDescriptor): boolean {
+        return node1?.package_name === node2?.package_name &&
+               node1?.name === node2?.name &&
+               node1?.type === node2?.type;
+    }
+    public selectNode(equalComponent: EqualComponentDescriptor) {
+            console.log('selectNode', equalComponent);
+
+        }
     public onUpdateNode(event:any) {
 
     }

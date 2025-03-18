@@ -22,7 +22,7 @@ export class PackageModelViewsComponent implements OnInit {
     public package_name: string = '';
     public view_name: string = '';
     public model_name: string='';
-    public selected_view: EqualComponentDescriptor;
+    public selected_view: EqualComponentDescriptor | undefined;
 
     public type: string|null;
     public entity: string;
@@ -55,8 +55,18 @@ export class PackageModelViewsComponent implements OnInit {
         this.location.back();
     }
 
-    public selectNode(eq_view: EqualComponentDescriptor) {
-        this.selected_view = eq_view;
+    public async selectNode(eq_view: EqualComponentDescriptor) {
+
+        if (this.selected_view && this.areNodesEqual(this.selected_view, eq_view)) {
+            this.selected_view = undefined;
+        } else {
+            this.selected_view = eq_view;
+        }
+    }
+    public areNodesEqual(node1: EqualComponentDescriptor | undefined, node2: EqualComponentDescriptor): boolean {
+        return node1?.package_name === node2?.package_name &&
+               node1?.name === node2?.name &&
+               node1?.type === node2?.type;
     }
 
     public onupdatedList() {
@@ -69,7 +79,12 @@ export class PackageModelViewsComponent implements OnInit {
      * @param eq_route the route that the user has selected
      */
     public async onSelectNode(eq_view: EqualComponentDescriptor) {
-        this.selected_view = eq_view;
+
+        if (this.selected_view && this.areNodesEqual(this.selected_view, eq_view)) {
+            this.selected_view = undefined;
+        } else {
+            this.selected_view = eq_view;
+        }
     }
 
     public onUpdateNode(event: any) {
@@ -77,13 +92,6 @@ export class PackageModelViewsComponent implements OnInit {
     }
 
     public async onDeleteNode(eq_view: EqualComponentDescriptor) {
-        /*
-        let sp = event.split(":")
-        let res = await this.api.deleteView(sp[0],sp[1])
-        this.init()
-        if(!res) this.snackBar.open("Deleted")
-        else this.snackBar.open(res)
-        */
     }
 
     public onCreateView() {

@@ -30,12 +30,12 @@
             </mat-option>
         </mat-select>
     </mat-form-field>
-    
+
 </div>
 
 <mat-list class="list">
 
-    <mat-list-item *ngFor="let node of filteredData" >
+    <mat-list-item *ngFor="let node of filteredData; trackBy: trackByFn">
         <ng-container *ngIf="areNodesEqual(node, editingNode); else displayMode">
             <div class="node_edit">
                 <mat-form-field class="node-edited">
@@ -71,9 +71,9 @@
             <div class="node_display"
                     [class.hover]="node_selected != node"
                     [class.selected]="node_selected === node"
-                    [title]="getTitle(node)">
+                    [matTooltip]="getTitle(node)">
                 <div class="inner" (click)="onclickSelect(node)">
-                    <div class="node-text" (click)="onclickSelect(node)">
+                    <div class="node-text">
                         <label class="node-icon component-icon component-color-{{node.type}}"><mat-icon>{{type_dict[node.type].icon}}</mat-icon></label>
                         <label class="node-name" *ngIf="node.type === 'route'">{{node.name}}</label>
                         <label class="node-name" *ngIf="node.type === 'package'">{{node.name}}</label>

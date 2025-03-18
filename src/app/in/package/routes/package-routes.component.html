@@ -19,7 +19,8 @@
     </div>
 
     <div class="right_pane">
-        <info-route *ngIf="selected_route" [route]="selected_route">
-        </info-route>
+        <info-route *ngIf="selected_route" [route]="selected_route"></info-route>
+        <info-system *ngIf="!selected_route" [component_type]="'route'" [package_name]="package_name"></info-system>
+
     </div>
 </div>

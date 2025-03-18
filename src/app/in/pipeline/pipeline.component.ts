@@ -8,6 +8,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { PipelineLoaderComponent } from './_components/pipeline-loader/pipeline-loader.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ModalExecutionPipelineComponent } from './_components/modal-execution-pipeline/modal-execution-pipeline.component';
+import { ExplorerDialogComponent } from 'src/app/_dialogs/explorer-dialog/explorer-dialog.component';
 
 @Component({
     selector: 'app-pipeline',
@@ -74,9 +75,9 @@ export class PipelineComponent {
                 pipelineMap[r.name] = { id: r.id, nodes_ids: r.nodes_ids };
             }
 
-            const dialogRef = this.dialog.open(PipelineLoaderComponent, {
-                width: '450px',
-                height: '200px',
+            const dialogRef = this.dialog.open(ExplorerDialogComponent, {
+                width: "60vw",
+                maxWidth: "600px",
                 data: { pipeline: "", pipelines: pipelines },
             });
 

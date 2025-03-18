@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit, Optional } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { FileSaverComponent } from '../file-saver/file-saver.component';
+import { Observable } from 'rxjs';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 @Component({
@@ -11,30 +11,40 @@ import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 export class FileLoaderComponent implements OnInit {
 
     constructor(
-        @Optional() public dialogRef: MatDialogRef<FileSaverComponent>,
-        @Optional() @Inject(MAT_DIALOG_DATA) public data:{path:string},
-        private workbenchService:WorkbenchService
+        @Optional() public dialogRef: MatDialogRef<FileLoaderComponent>,
+        @Optional() @Inject(MAT_DIALOG_DATA) public data: { path: string },
+        private workbenchService: WorkbenchService
     ) {}
 
-    list:{[id:string]:string[]} = {};
+    // Directly store the observable here, no need for manual subscription in TS
+    umlExplorator$: Observable<{ [id: string]: string[] }>;
 
-    filtered_list:string[] = []
+    selectedFolder: string | null = null;                     // Selected folder
+    selectedUml: string | null = null;                        // Selected UML
+    filteredUmls: string[] = [];                              // Filtered UMLs to display
 
-    value:string = ""
-
-    async ngOnInit() {
-        this.list = await this.workbenchService.getUMLList("erd").toPromise();
-        this._filter("")
+    ngOnInit() {
+        this.loadUmlExplorator();
     }
 
-    private _filter(value:string) {
-        let temp = []
-        for(let pkg in this.list) {
-            for(let item of this.list[pkg]) {
-                temp.push(pkg+"::"+item)
-            }
-        }
-        this.filtered_list = temp.filter((item) => item.toLowerCase().includes(value.toLowerCase()));
+    // This method is now only used to load the observable.
+    private loadUmlExplorator() {
+        this.umlExplorator$ = this.workbenchService.getUMLList('erd');  // Replace with your generic type if needed
     }
 
+    // When the user selects a folder, show the associated UMLs
+    onSelectFolder(folderName: string) {
+        this.selectedFolder = folderName;
+        this.selectedUml = null; // Reset UML selection
+    }
+
+    // When the user selects a UML
+    onSelectUml(uml: string) {
+        this.selectedUml = uml;
+    }
+
+    // Check if a folder is selected
+    isFolderSelected(folderName: string): boolean {
+        return this.selectedFolder === folderName;
+    }
 }

@@ -21,7 +21,7 @@ export class InnerHeaderComponent implements OnInit {
     @Input() buttonRun:boolean = false
     @Input() buttonCancel:boolean = false
     @Input() customButton:boolean = false
-
+    @Input() buttonSaveAs:boolean =false
     // Button Disable
     @Input() buttonBackDisabled:boolean = false
     @Input() buttonCancelOneDisabled:boolean = false
@@ -31,6 +31,7 @@ export class InnerHeaderComponent implements OnInit {
     @Input() buttonLoadDisabled:boolean = false
     @Input() buttonNewDisabled:boolean = false
     @Input() buttonCancelDisabled:boolean = false
+    @Input() buttonSaveAsDisabled:boolean = false;
 
     // Button Actions
     @Output() onButtonBack = new EventEmitter<void>()
@@ -43,7 +44,7 @@ export class InnerHeaderComponent implements OnInit {
     @Output() onButtonCancel = new EventEmitter<void>()
     @Output() onCustomButton = new EventEmitter<string>()
     @Output() onContextualButton = new EventEmitter<string>()
-
+    @Output() onButtonSaveAs = new EventEmitter<void>();
     constructor() { }
 
     ngOnInit(): void {
