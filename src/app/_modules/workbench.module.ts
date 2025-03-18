@@ -113,7 +113,7 @@ const sharedComponents = [
     ExplorerDialogComponent,
     CopyButtonComponent,
     JsonViewerComponent,
-    SummaryPackageComponent
+    SummaryPackageComponent,
 ];
 
 const sharedPipes = [

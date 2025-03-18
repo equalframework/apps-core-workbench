@@ -6,6 +6,7 @@ import { ApiService } from 'sb-shared-lib';
 import { API_ENDPOINTS } from '../_models/api-endpoints';
 import { EqualComponentDescriptor } from '../_models/equal-component-descriptor.class';
 import { PackageInfos, PackageSummary } from '../_models/package-info.model';
+import { ViewSchema } from '../_models/view-schema.model';
 
 
 @Injectable({
@@ -94,7 +95,7 @@ export class WorkbenchService {
      * @param model_name The name of the model for which the view is configured.
      * @returns Observable containing the response of the view read request.
      */
-    public readView(package_name: string, view_name: string, model_name: string): Observable<any> {
+    public readView(package_name: string, view_name: string, model_name: string): Observable<ViewSchema> {
         const url = API_ENDPOINTS.view.read(package_name, model_name, view_name);
         return this.callApi(url, '').pipe(
             map(({ response }) => response)
