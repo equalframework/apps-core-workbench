@@ -1,9 +1,7 @@
 
 <div class="top-right">
-    <button mat-icon-button (click)="dialogRef.close()">
-      <mat-icon>close</mat-icon>
-    </button>
-  </div>
+    <close-button (close)="this.dialogRef.close()"></close-button>
+</div>
 
 <!-- Loader displayed until component is fully loaded -->
 <div *ngIf="!loaded" class="loader">
