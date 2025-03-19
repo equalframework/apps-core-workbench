@@ -2,7 +2,7 @@
 
 :host {
     display: grid;
-    grid-template: 'header' 25% 'body' 50% 'footer' 25%;
+    grid-template: 'header' 25% 'title' 5% 'body' 45% 'footer' 25%;
     height: 100%;
     padding: 20px;
     border-radius: 8px;
@@ -92,20 +92,19 @@
     grid-area: body; /* Assign the body section */
     flex-grow: 1;
     position: relative;
-    overflow-y: auto;
     background: white;
     border-radius: 8px;
     padding: 16px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
 
     .header {
         font-size: 18px;
         font-weight: bold;
         margin-bottom: 12px;
-        position: sticky;
-        top:0;
         z-index:1000;
     }
+
 
     mat-expansion-panel {
         margin-bottom: 8px;
@@ -162,6 +161,16 @@
 
         }
     }
+}
+
+.field-counter {
+    grid-area: title;
+    padding-bottom: 12px;
+    font-size: 18px;
+    font-weight: bold;
+    border-bottom: 2px solid #ddd;
+    background: white#f9f9f9;
+    border-radius: 6px;
 }
 
 mat-panel-title {
