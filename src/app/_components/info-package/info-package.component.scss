@@ -206,7 +206,7 @@
     }
 
     .summary-container {
-        max-height: 300px; // Adjust height as needed
+        max-height: 400px; // Adjust height as needed
         overflow-y: auto;
         padding: 10px;
     }
@@ -237,7 +237,7 @@ mat-expansion-panel {
 
   /* Handle overflow for the content within the expansion panel */
   mat-expansion-panel .mat-expansion-panel-body {
-    max-height: 400px;
+    max-height: auto;
     overflow-y: auto;
     padding-right: 16px;
   }
