@@ -9,18 +9,8 @@
             <label class="subpart-title">{{ viewSchema["description"] || "No description" }}</label>
         </div>
         <br>
-        <div *ngFor="let table of obk(viewSchema['layout'])">
-            <app-item-viewer *ngIf="table === 'items'"
-                [item_scheme]="viewSchema['layout'][table]"
-            >
-            </app-item-viewer>
-            <app-groups-viewer *ngIf="table === 'groups'"
-                [groups_scheme]="viewSchema['layout'][table]"
-            >
-            </app-groups-viewer>
+        <hierarchical-overview [viewSchema]="viewSchema"></hierarchical-overview>
         </div>
-        <br>
-    </div>
     <div class="controller-container-bottom">
         <br>
         <mat-grid-list [cols]="4" rowHeight="5.5em" class="max-width button-pkg-container">
