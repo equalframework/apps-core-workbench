@@ -79,6 +79,7 @@ import { JsonViewerComponent } from '../_components/json-viewer/json-viewer.comp
 import { RemoveExtensionPipe } from '../_pipes/remove-extension.pipe';
 import { SummaryPackageComponent } from '../_components/summary-package/summary-package.component';
 import { CloseButtonComponent } from '../_components/close-button/close-button.component';
+import { HierarchicalOverviewComponent } from '../_components/hierarchical-overview/hierarchical-overview.component';
 const sharedComponents = [
 
 
@@ -115,7 +116,9 @@ const sharedComponents = [
     CopyButtonComponent,
     JsonViewerComponent,
     SummaryPackageComponent,
-    CloseButtonComponent
+    CloseButtonComponent,
+    HierarchicalOverviewComponent,
+
 ];
 
 const sharedPipes = [

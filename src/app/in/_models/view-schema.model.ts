@@ -49,4 +49,4 @@ export interface ViewSchemaBase {
     };
   }
 
-  export type ViewSchema = SimpleLayout | DatasetLayout | GroupedLayout;
+  export type ViewSchema = GroupedLayout;
