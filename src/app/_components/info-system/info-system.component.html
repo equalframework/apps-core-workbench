@@ -11,27 +11,30 @@
     </div>
 
     <div class="info-section" *ngIf="envData$ | async as envData">
-      <mat-accordion>
-        <mat-expansion-panel>
-          <mat-expansion-panel-header>
-            <mat-panel-title>
-              Environment
-            </mat-panel-title>
-          </mat-expansion-panel-header>
-          <div *ngFor="let entry of objectEntries(envData)" class="info-item">
-            <div class="variable">
-              {{ entry.key }}
-            </div>
-            <div class="value">
-              <ng-container *ngIf="!isUrl(entry.value)">
-                {{ entry.value }}
-              </ng-container>
-              <a *ngIf="isUrl(entry.value)" [href]="entry.value" target="_blank">
-                {{ entry.value }}
-              </a>
-            </div>
-          </div>
-        </mat-expansion-panel>
-      </mat-accordion>
+        <mat-accordion>
+            <mat-expansion-panel [expanded]="true">
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  Environment
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <div *ngFor="let entry of objectEntries(envData)" class="info-item">
+                <div class="variable">
+                  {{ entry.key }}
+                </div>
+                <div class="value">
+                  <ng-container *ngIf="!isUrl(entry.value)">
+                    {{ entry.value }}
+                  </ng-container>
+                  <a *ngIf="isUrl(entry.value)" [href]="entry.value" target="_blank">
+                    {{ entry.value }}
+                  </a>
+                  <copy-button [text_to_copy]="entry.value"></copy-button>
+
+                </div>
+              </div>
+            </mat-expansion-panel>
+          </mat-accordion>
+
     </div>
   </div>

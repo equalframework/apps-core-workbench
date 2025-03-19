@@ -62,7 +62,7 @@
 
         .info-item {
             margin-bottom: 15px;
-
+            margin: 20px 350px;
             .info-label {
                 font-weight: bold;
                 font-size: 1.1em;
@@ -139,6 +139,10 @@
     border-radius: 8px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
     overflow: auto;
+    height: 100%;
+  display: flex;
+  flex-direction: column;
+
 }
 
 .controller-container-top {
@@ -185,7 +189,12 @@
     border-radius: 8px;
     box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.05);
     width:100%;
-
+    flex: 1;
+    overflow: auto;
+    // On affiche les items en deux colonnes
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 .info-table {
@@ -233,7 +242,14 @@
     background: #fff;
     border-radius: 5px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-
+    flex: 1 1 calc(50% - 15px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: #fff;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
     .variable {
     font-weight: bold;
@@ -263,7 +279,6 @@
     margin-bottom: 10px;
     border-radius: 8px;
     box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
-    max-width: 600px;
     margin: 0 auto;
   }
 
@@ -273,4 +288,6 @@
   }
 
 
-
+.mat-accordion {
+    width:100%;
+}
