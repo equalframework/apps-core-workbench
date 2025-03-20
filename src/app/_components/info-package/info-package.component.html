@@ -12,6 +12,7 @@
             <div class="title">
                 <label>Package :</label>
                 <label class="accent">{{ package.name }}</label>
+                <copy-button [text_to_copy]="package.name"></copy-button>
             </div>
             <div class="actions">
                 <button mat-button color="primary" (click)="checkConsistency()">
