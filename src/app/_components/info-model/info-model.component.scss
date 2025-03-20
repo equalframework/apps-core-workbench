@@ -21,7 +21,9 @@
     background: rgba(255, 255, 255, 0.8);
     z-index: 10;
 }
-
+app-info-header {
+    grid-area: header;
+}
 .header {
     grid-area: header; /* Assign the header section */
     background: white;

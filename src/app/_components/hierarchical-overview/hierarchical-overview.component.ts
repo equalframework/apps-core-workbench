@@ -11,7 +11,7 @@ getTotalRows() {
 return this.viewSchema?.layout?.groups[0]?.sections[0]?.rows?.length ?? 0;
 }
 
-    @Input() viewSchema:ViewSchema;
+    @Input() viewSchema:GroupedLayout;
 
 
   constructor() { }

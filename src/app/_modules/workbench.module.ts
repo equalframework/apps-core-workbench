@@ -80,6 +80,8 @@ import { RemoveExtensionPipe } from '../_pipes/remove-extension.pipe';
 import { SummaryPackageComponent } from '../_components/summary-package/summary-package.component';
 import { CloseButtonComponent } from '../_components/close-button/close-button.component';
 import { HierarchicalOverviewComponent } from '../_components/hierarchical-overview/hierarchical-overview.component';
+import { InfoHeaderComponent } from '../_components/info-header/info-header.component';
+import { DoubleBackslashPipe } from '../_pipes/double-backslash.pipe';
 const sharedComponents = [
 
 
@@ -118,12 +120,13 @@ const sharedComponents = [
     SummaryPackageComponent,
     CloseButtonComponent,
     HierarchicalOverviewComponent,
-
+    InfoHeaderComponent
 ];
 
 const sharedPipes = [
     ShortenPathPipe,
-    RemoveExtensionPipe
+    RemoveExtensionPipe,
+    DoubleBackslashPipe
 ]
 @NgModule({
     declarations: [

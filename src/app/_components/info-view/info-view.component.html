@@ -1,13 +1,14 @@
 
 <div *ngIf="viewSchema" class="full margin-container">
     <div class="controller-container-top">
-        <div class="flex-labels">
-            <label class="viewname">View : </label>
-            <label class="viewname accent">{{ viewSchema["name"] || view.name }}</label>
-        </div>
-        <div>
-            <label class="subpart-title">{{ viewSchema["description"] || "No description" }}</label>
-        </div>
+        <app-info-header
+        [titleLabel]="'View'"
+        [title]="viewSchema['name'] || view.name"
+        [copyText]="viewSchema['name'] || view.name"
+        [description]="viewSchema['description']"
+        [metaData]="metaData">
+    </app-info-header>
+
         <br>
         <hierarchical-overview [viewSchema]="viewSchema"></hierarchical-overview>
         </div>

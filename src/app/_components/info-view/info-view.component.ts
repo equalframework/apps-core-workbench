@@ -16,6 +16,13 @@ export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
     @Input() view: EqualComponentDescriptor;
     private destroy$: Subject<boolean> = new Subject<boolean>();
     public loading: boolean = true;
+    public metaData: {
+        icon: string;
+        tooltip: string;
+        value: string;
+        copyable?: boolean;
+        double_backslash?:boolean
+      }[];
 
     public view_name: string;
 
@@ -57,7 +64,11 @@ export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
           const packageName = this.view.package_name;
           const model_name = this.view.item.model;
           this.view_name = this.view.name.split(":")[1];
-
+          this.metaData =[
+            { icon: 'description', tooltip: 'File path', value: this.view.file , copyable: true },
+            { icon: 'key', tooltip: 'ID', value: this.view_name, copyable:true },
+            {icon: 'category',tooltip: 'entity/model', value:`${this.view.package_name}\\${this.view.item.model}`, copyable:true, double_backslash:true}
+            ]
           this.workbenchService.readView(packageName, this.view_name, model_name)
             .pipe(takeUntil(this.destroy$))
             .subscribe(

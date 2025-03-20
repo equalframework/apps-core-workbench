@@ -7,37 +7,18 @@
 </ng-container>
 
 <ng-container *ngIf="!loading && model">
-    <div class="header material-style">
-        <div class="main">
-            <div class="title">
-                <label>Class :</label>
-                <label class="accent">{{ model.name }}</label>
-                <copy-button [text_to_copy]="model.name" tooltip_text="Copy path"></copy-button>
-            </div>
-        </div>
-        <div class="description">
-            <p>{{schema['description']}}</p>
-        </div>
-        <div class="meta">
-            <div class="meta-item">
-                <mat-icon matTooltip="File path">description</mat-icon>
-                <label class="primary filename meta-text" matTooltip="{{ model.file }}">
-                    {{ model.file | shortenPath:2 }}
-                </label>
-                <copy-button [text_to_copy]="model.file" tooltip_text="Copy path"></copy-button>
-            </div>
-            <div class="meta-item">
-                <mat-icon matTooltip="Extends">fork_right</mat-icon>
-                <label class="primary meta-text">{{schema['parent']}}</label>
-            </div>
-            <div class="meta-item">
-                <mat-icon matTooltip="DB_table">grid_on</mat-icon>
-                <label class="primary meta-text">{{schema['table']}}</label>
-                <copy-button [text_to_copy]="schema['table']" tooltip_text="Copy name of the table"></copy-button>
+    <app-info-header
+    [titleLabel]="'Class'"
+    [title]="model.name"
+    [copyText]="model.name"
+    [description]="schema['description']"
+    [metaData]="[
+        { icon: 'description', tooltip: 'File path', value: model.file , copyable: true },
+        { icon: 'fork_right', tooltip: 'Extends', value: schema['parent'] },
+        { icon: 'grid_on', tooltip: 'DB_table', value: schema['table'], copyable: true }
+    ]">
+</app-info-header>
 
-            </div>
-        </div>
-    </div>
 
         <div class="field-counter">
             <h3><span class="primary">{{ fieldNumber }}</span> Fields</h3>
