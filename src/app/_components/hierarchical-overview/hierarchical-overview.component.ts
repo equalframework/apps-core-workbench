@@ -1,5 +1,5 @@
-import { GroupedLayout, ViewSchema } from '../../in/_models/view-schema.model';
 import { Component, Input, OnInit } from '@angular/core';
+import { GroupedLayout, ViewSchema, SimpleLayout } from '../../in/_models/view-schema.model';
 
 @Component({
   selector: 'hierarchical-overview',
@@ -7,41 +7,35 @@ import { Component, Input, OnInit } from '@angular/core';
   styleUrls: ['./hierarchical-overview.component.scss']
 })
 export class HierarchicalOverviewComponent implements OnInit {
-getTotalRows() {
-return this.viewSchema?.layout?.groups[0]?.sections[0]?.rows?.length ?? 0;
-}
 
-    @Input() viewSchema:GroupedLayout;
-
+  @Input() viewSchema: ViewSchema;
 
   constructor() { }
 
   ngOnInit(): void {
-    console.log("viewSchema ", this.viewSchema)
+    console.log("viewSchema", this.viewSchema);
   }
+
+  // Type guard pour vérifier si c'est un GroupedLayout
+  private isGroupedLayout(viewSchema: ViewSchema): viewSchema is GroupedLayout {
+    return (viewSchema as GroupedLayout).layout?.groups !== undefined;
+  }
+
+  // Fonction pour obtenir le type du layout
+  getLayoutType(viewSchema: ViewSchema): 'GroupedLayout' | 'SimpleLayout' {
+    return this.isGroupedLayout(viewSchema) ? 'GroupedLayout' : 'SimpleLayout';
+  }
+
+  get groupedLayout(): GroupedLayout | null {
+    return this.isGroupedLayout(this.viewSchema) ? this.viewSchema : null;
+  }
+
+  get simpleLayout(): SimpleLayout | null {
+    return !this.isGroupedLayout(this.viewSchema) ? this.viewSchema : null;
+  }
+
   getTotalSections(): number {
-    return this.viewSchema?.layout?.groups?.reduce((acc, group) => acc + (group.sections?.length || 0), 0) || 0;
+    return this.groupedLayout?.layout?.groups?.reduce((acc, group) => acc + (group.sections?.length || 0), 0) || 0;
   }
-  getTotalItemsPerSection(): number {
-    let total = 0;
-    this.viewSchema?.layout?.groups?.forEach(group => {
-      group.sections?.forEach(section => {
-        section.rows?.forEach(row => {
-          row.columns?.forEach(column => {
-            total += column.items?.length || 0;
-          });
-        });
-      });
-    });
-    return total;
-  }
-
-  getTotalItemsForSection(section: any): number {
-    return section.rows?.reduce((total: any, row: { columns: any[]; }) => {
-      return total + row.columns?.reduce((s: any, column: { items: string | any[]; }) => s + (column.items?.length || 0), 0);
-    }, 0) || 0;
-  }
-
-
 
 }

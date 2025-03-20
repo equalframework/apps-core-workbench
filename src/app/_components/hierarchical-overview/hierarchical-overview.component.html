@@ -1,130 +1,52 @@
-<!-- Container en Flexbox pour afficher les 4 accordeons horizontalement -->
 <div class="flex-container">
-    <!-- Accordéon 1 : Groupes -->
-    <mat-accordion class="accordion">
-      <mat-expansion-panel>
+
+        <!-- Accordéon pour GroupedLayout -->
+    <mat-accordion class="accordion" *ngIf="groupedLayout" >
+        <mat-expansion-panel [expanded]="true">
         <mat-expansion-panel-header>
-          <mat-panel-title>
-            Groupes ({{ viewSchema.layout.groups?.length || 0 }})
-          </mat-panel-title>
+            <mat-panel-title>
+            Groupes ({{ groupedLayout.layout.groups?.length || 0 }})
+            </mat-panel-title>
         </mat-expansion-panel-header>
-        <!-- Liste des groupes -->
-        <div *ngFor="let group of viewSchema.layout.groups; let i = index" style="padding: 8px;">
-          <p><strong>Groupe {{ i + 1 }}</strong></p>
+        <div *ngFor="let group of groupedLayout.layout.groups; let i = index">
+            <p><strong>Groupe {{ i + 1 }}</strong></p>
         </div>
-      </mat-expansion-panel>
+        </mat-expansion-panel>
     </mat-accordion>
 
-    <!-- Accordéon 2 : Sections -->
-    <mat-accordion class="accordion">
-      <mat-expansion-panel>
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            Section ({{ getTotalSections() }})
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <!-- Pour chaque groupe, afficher ses sections -->
-        <div *ngFor="let group of viewSchema.layout.groups; let indexGroup = index" style="padding: 8px;">
+     <!-- Accordéon 2 : Sections -->
+     <mat-accordion class="accordion" *ngIf="groupedLayout">
+        <mat-expansion-panel [expanded]="true">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Section ({{ getTotalSections() }})
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <div *ngFor="let group of groupedLayout.layout.groups; let indexGroup = index">
             <p><strong>Groupe {{ indexGroup + 1 }}</strong></p>
 
-          <div *ngFor="let section of group.sections; let indexSection = index">
-            <p class="section-header">Section {{indexSection+1}} :  {{ section.label ||'No name' }}</p>
+            <div *ngFor="let section of group.sections; let indexSection = index">
+              <p class="section-header">Section {{indexSection+1}} :  {{ section.label ||'No name' }}</p>
+            </div>
           </div>
-        </div>
-      </mat-expansion-panel>
-    </mat-accordion>
-
-  <!-- Accordéon 3 : Lignes -->
-<mat-accordion class="accordion">
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          Lignes ({{ getTotalRows() }})
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-      <!-- Pour chaque section, afficher ses lignes sous forme de tableau -->
-      <div *ngFor="let group of viewSchema.layout.groups; let i = index" style="padding: 8px;">
-        <p><strong>Groupe {{ i + 1 }}</strong></p>
-        <div *ngFor="let section of group.sections; let i = index">
-          <p class="section-header">Section {{ i + 1 }}: {{ section.label || 'No name' }}</p>
-
-          <!-- Tableau pour afficher les lignes -->
-          <table *ngIf="section.rows && section.rows.length" style="width: 100%; border-collapse: collapse;">
-            <thead>
-              <tr>
-                <th>Column</th>
-                <th>Item Type</th>
-                <th>Item Label</th>
-                <th>Item Value</th>
-                <th>Item Width</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- Parcours des lignes -->
-              <ng-container *ngFor="let row of section.rows">
-                <!-- Parcours des colonnes dans la ligne -->
-                <ng-container *ngFor="let column of row.columns">
-                  <!-- Parcours des items dans la colonne -->
-                  <ng-container *ngFor="let item of column.items">
-                    <tr>
-                      <td>{{ column.width }}</td>
-                      <td>{{ item.type }}</td>
-                      <td>{{ item.label || 'N/A' }}</td>
-                      <td>{{ item.value }}</td>
-                      <td>{{ item.width }}</td>
-                    </tr>
-                  </ng-container>
-                </ng-container>
-              </ng-container>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </mat-expansion-panel>
-  </mat-accordion>
+        </mat-expansion-panel>
+      </mat-accordion>
 
 
-    <!-- Accordéon 4 : Items -->
-    <mat-accordion class="accordion">
-      <mat-expansion-panel>
+
+    <!-- Accordéon pour SimpleLayout -->
+    <mat-accordion class="accordion" *ngIf="simpleLayout">
+        <mat-expansion-panel [expanded]="true">
         <mat-expansion-panel-header>
-          <mat-panel-title>
-            Item ({{ getTotalItemsPerSection() }})
-          </mat-panel-title>
+            <mat-panel-title>
+            Items ({{ simpleLayout.layout.items?.length || 0 }})
+            </mat-panel-title>
         </mat-expansion-panel-header>
-        <!-- Pour chaque section, afficher un tableau récapitulatif des items -->
-        <div *ngFor="let group of viewSchema.layout.groups" style="padding: 8px;">
-          <div *ngFor="let section of group.sections;let i =index">
-            <p class="section-header">      Section {{ i + 1 }}: {{ section.label || 'No name' }} ({{ getTotalItemsForSection(section) }} items)
-            </p>
-            <!-- Tableau pour les items de la section -->
-            <table *ngIf="section.rows && section.rows.length">
-              <thead>
-                <tr>
-                  <th>Type</th>
-                  <th>Label</th>
-                  <th>Value</th>
-                  <th>Width</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- On parcourt toutes les lignes, colonnes et items -->
-                <ng-container *ngFor="let row of section.rows">
-                  <ng-container *ngFor="let column of row.columns">
-                    <tr *ngFor="let item of column.items">
-                      <td>{{ item.type }}</td>
-                      <td>{{ item.label || 'N/A' }}</td>
-                      <td>{{ item.value }}</td>
-                      <td>{{ item.width }}</td>
-                    </tr>
-                  </ng-container>
-                </ng-container>
-              </tbody>
-            </table>
-            <!-- Message si aucune ligne n'est présente -->
-            <p *ngIf="!section.rows || !section.rows.length">Aucune donnée d'item pour cette section.</p>
-          </div>
+        <div *ngFor="let item of simpleLayout.layout.items">
+            <p><strong>{{ item.type }} - {{ item.value }}</strong></p>
         </div>
-      </mat-expansion-panel>
+        </mat-expansion-panel>
     </mat-accordion>
-  </div>
+
+
+</div>
