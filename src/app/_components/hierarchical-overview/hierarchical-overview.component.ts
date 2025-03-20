@@ -38,4 +38,12 @@ export class HierarchicalOverviewComponent implements OnInit {
     return this.groupedLayout?.layout?.groups?.reduce((acc, group) => acc + (group.sections?.length || 0), 0) || 0;
   }
 
+  getSectionItems(section: any): any[] {
+    return section.rows
+      ?.flatMap((row: { columns: any; }) => row.columns || [])
+      .flatMap((column: { items: any; }) => column.items || []) || [];
+  }
+
+
+
 }

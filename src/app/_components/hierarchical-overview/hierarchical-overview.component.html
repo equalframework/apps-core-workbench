@@ -32,6 +32,32 @@
         </mat-expansion-panel>
       </mat-accordion>
 
+    <!-- Accordéon 3 : Items per section -->
+<mat-accordion class="accordion" *ngIf="groupedLayout">
+    <mat-expansion-panel [expanded]="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          Items per section
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <div *ngFor="let group of groupedLayout.layout.groups; let indexGroup = index">
+        <p><strong>Groupe {{ indexGroup + 1 }}</strong></p>
+
+        <div *ngFor="let section of group.sections; let indexSection = index">
+          <p class="section-header">
+            Section {{ indexSection + 1 }} : {{ section.label || 'No name' }}
+          </p>
+          <div *ngFor="let item of getSectionItems(section)">
+            <p>{{ item.type }} - {{ item.value }}</p>
+          </div>
+
+        </div>
+      </div>
+
+    </mat-expansion-panel>
+  </mat-accordion>
+
 
 
     <!-- Accordéon pour SimpleLayout -->
