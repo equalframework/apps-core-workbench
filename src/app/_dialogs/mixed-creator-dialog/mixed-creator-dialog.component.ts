@@ -360,7 +360,7 @@ export class MixedCreatorDialogComponent implements OnInit, OnDestroy {
 
     private generateFilePath(): string {
         const folders: Record<string, { folder: string; extension: string }> = {
-            view: { folder: 'views', extension: '.php' },
+            view: { folder: 'views', extension: '.json' },
             class: { folder: 'classes', extension: '.class.php' },
             route: { folder: 'init/routes', extension: '' }
         };
@@ -369,6 +369,9 @@ export class MixedCreatorDialogComponent implements OnInit, OnDestroy {
             return `${this.selectedPackage}/${folders.route.folder}/${this.subtype ? this.subtype : this.customSTControl.value}`;
         }
 
+        if(this.type ==='view'){
+            return `${this.selectedPackage}/${folders.view.folder}/${this.selectedModel}.${this.subtype}.${this.nameControl.value}${folders.view.extension}`;
+        }
         const config = folders[this.type];
         return config ? `${this.selectedPackage}/${config.folder}/${this.nameControl.value}${config.extension}` : '';
     }

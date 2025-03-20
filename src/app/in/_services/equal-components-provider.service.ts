@@ -914,7 +914,7 @@ export class EqualComponentsProviderService {
                 type: 'view',
                 file: className
                   ? `${packageComponent.name}/views/${cleanedViewName}`
-                  : `${packageComponent.name}/views/${view}.json`,
+                  : `${packageComponent.name}/views/${modelName}.${cleanedViewName.split(':')[1]}.json`,
                 item: {
                   model: className ? modelName : (modelName.split(':')[0] ?? '')
                 }
