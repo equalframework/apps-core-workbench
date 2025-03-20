@@ -406,7 +406,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
             case "package":
                 return "Package - packages/" + node.name;
             case "class":
-                return "Model - packages/" + node.package_name + "/classes/" + node.name + ".php";
+                return "Model - packages/" + node.file;
             case "get":
                 splitted_name = node.name.split('_')
                 return "Data provider - packages/" + node.package_name + "/data/" + splitted_name.slice(1).join("/");
@@ -417,7 +417,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
                 splitted_name = node.name.split('\\')
                 return "View - packages/" + node.package_name + "/views/" + splitted_name.slice(1).join("/").replace(":", ".");
             case "route":
-                return "Route - packages/" + node.package_name + "/init/routes/" + node.item.file;
+                return "Route - packages/" + node.package_name + node.file;
             default:
                 return "";
         }

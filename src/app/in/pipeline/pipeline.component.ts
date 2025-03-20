@@ -75,7 +75,7 @@ export class PipelineComponent {
                 pipelineMap[r.name] = { id: r.id, nodes_ids: r.nodes_ids };
             }
 
-            const dialogRef = this.dialog.open(ExplorerDialogComponent, {
+            const dialogRef = this.dialog.open(PipelineLoaderComponent, {
                 width: "60vw",
                 maxWidth: "600px",
                 data: { pipeline: "", pipelines: pipelines },
