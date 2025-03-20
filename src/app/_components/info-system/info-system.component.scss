@@ -275,6 +275,11 @@
     }
   }
 
+  copy-button {
+    pointer-events: auto;
+    z-index: 9999;
+  }
+
   .mat-expansion-panel {
     margin-bottom: 10px;
     border-radius: 8px;
@@ -291,3 +296,5 @@
 .mat-accordion {
     width:100%;
 }
+
+
