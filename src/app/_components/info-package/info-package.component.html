@@ -12,6 +12,7 @@
             <div class="title">
                 <label>Package :</label>
                 <label class="accent">{{ package.name }}</label>
+                <copy-button [text_to_copy]="package.name"></copy-button>
             </div>
             <div class="actions">
                 <button mat-button color="primary" (click)="checkConsistency()">
@@ -99,7 +100,7 @@
                 </label>
             </div>
         </ng-container>
-        <mat-expansion-panel *ngIf="!consistency_checked" class="custom-panel">
+        <mat-expansion-panel *ngIf="!consistency_checked" [expanded]="!consistency_checked" class="custom-panel">
             <mat-expansion-panel-header>
               <mat-panel-title>
                 Package Summary

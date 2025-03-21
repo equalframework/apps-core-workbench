@@ -1,3 +1,4 @@
+import { KeyValue } from '@angular/common';
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { Observable, from } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -47,14 +48,13 @@ export class InfoSystemComponent implements OnInit, OnChanges {
     objectEntries(obj: any): Array<{ key: string, value: any }> {
         return Object.keys(obj).map(key => ({ key, value: obj[key] }));
     }
-    isUrl(value: any): boolean {
-        if (typeof value !== 'string') {
-          return false;
-        }
-        return value.startsWith('http://') || value.startsWith('https://');
+    isUrl(value: unknown): value is string {
+        return typeof value === 'string' && value.startsWith('http');
       }
 
 
+// Dans le composant
+originalOrder = (a: KeyValue<string, string>, b: KeyValue<string, string>): number => 0;
 
 
     }

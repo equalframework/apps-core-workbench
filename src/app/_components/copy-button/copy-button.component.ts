@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ViewEncapsulation } from '@angular/core';
 import { Clipboard } from '@angular/cdk/clipboard'; // Import du service Clipboard
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -7,6 +7,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   selector: 'copy-button',
   templateUrl: './copy-button.component.html',
   styleUrls: ['./copy-button.component.scss'],
+  encapsulation: ViewEncapsulation.Emulated
 })
 export class CopyButtonComponent {
   @Input() text_to_copy: string = '';
