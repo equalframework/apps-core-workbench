@@ -1,78 +1,88 @@
-<div class="flex-container">
+<div class="dashboard-container">
 
-        <!-- Accordéon pour GroupedLayout -->
-    <mat-accordion class="accordion" *ngIf="groupedLayout" >
-        <mat-expansion-panel [expanded]="true">
-        <mat-expansion-panel-header>
-            <mat-panel-title>
-            Groupes ({{ groupedLayout.layout.groups?.length || 0 }})
-            </mat-panel-title>
-        </mat-expansion-panel-header>
-        <div *ngFor="let group of groupedLayout.layout.groups; let i = index">
-            <p><strong>Groupe {{ i + 1 }}</strong></p>
-        </div>
-        </mat-expansion-panel>
-    </mat-accordion>
-
-     <!-- Accordéon 2 : Sections -->
-     <mat-accordion class="accordion" *ngIf="groupedLayout">
+    <!-- Grouped Layout -->
+    <div class="dashboard-card" *ngIf="groupedLayout">
+      <h2><mat-icon>layers</mat-icon> Groupes ({{ groupedLayout.layout.groups?.length || 0 }})</h2>
+      <mat-accordion class="accordion">
         <mat-expansion-panel [expanded]="true">
           <mat-expansion-panel-header>
-            <mat-panel-title>
-              Section ({{ getTotalSections() }})
-            </mat-panel-title>
+            <mat-panel-title> Groupes </mat-panel-title>
+          </mat-expansion-panel-header>
+          <div *ngFor="let group of groupedLayout.layout.groups; let i = index">
+            <p><strong>Groupe {{ i + 1 }}</strong></p>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+
+    <!-- Sections -->
+    <div class="dashboard-card" *ngIf="groupedLayout">
+      <h2><mat-icon>view_list</mat-icon> Sections ({{ getTotalSections() }})</h2>
+      <mat-accordion class="accordion">
+        <mat-expansion-panel [expanded]="true">
+          <mat-expansion-panel-header>
+            <mat-panel-title> Sections </mat-panel-title>
           </mat-expansion-panel-header>
           <div *ngFor="let group of groupedLayout.layout.groups; let indexGroup = index">
             <p><strong>Groupe {{ indexGroup + 1 }}</strong></p>
-
             <div *ngFor="let section of group.sections; let indexSection = index">
-              <p class="section-header">Section {{indexSection+1}} :  {{ section.label ||'No name' }}</p>
+              <p class="section-header">Section {{ indexSection+1 }} : {{ section.label || 'No name' }}</p>
             </div>
           </div>
         </mat-expansion-panel>
       </mat-accordion>
+    </div>
 
-    <!-- Accordéon 3 : Items per section -->
-<mat-accordion class="accordion" *ngIf="groupedLayout">
-    <mat-expansion-panel [expanded]="true">
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          Items per section
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-
-      <div *ngFor="let group of groupedLayout.layout.groups; let indexGroup = index">
-        <p><strong>Groupe {{ indexGroup + 1 }}</strong></p>
-
-        <div *ngFor="let section of group.sections; let indexSection = index">
-          <p class="section-header">
-            Section {{ indexSection + 1 }} : {{ section.label || 'No name' }}
-          </p>
-          <div *ngFor="let item of getSectionItems(section)">
-            <p>{{ item.type }} - {{ item.value }}</p>
-          </div>
-
-        </div>
-      </div>
-
-    </mat-expansion-panel>
-  </mat-accordion>
-
-
-
-    <!-- Accordéon pour SimpleLayout -->
-    <mat-accordion class="accordion" *ngIf="simpleLayout">
-        <mat-expansion-panel [expanded]="true">
+   <!-- Items per Section -->
+<div class="dashboard-card" *ngIf="groupedLayout">
+    <h2><mat-icon>inventory</mat-icon> Items per section</h2>
+    <mat-accordion class="accordion">
+      <mat-expansion-panel [expanded]="true">
         <mat-expansion-panel-header>
-            <mat-panel-title>
-            Items ({{ simpleLayout.layout.items?.length || 0 }})
-            </mat-panel-title>
+          <mat-panel-title> Détails des items </mat-panel-title>
         </mat-expansion-panel-header>
-        <div *ngFor="let item of simpleLayout.layout.items">
-            <p><strong>{{ item.type }} - {{ item.value }}</strong></p>
+
+        <div *ngFor="let group of groupedLayout.layout.groups; let indexGroup = index">
+          <p><strong>Groupe {{ indexGroup + 1 }}</strong></p>
+
+          <div *ngFor="let section of group.sections; let indexSection = index">
+            <p class="section-header">Section {{ indexSection + 1 }} : {{ section.label || 'No name' }} ({{getTotalItemsSection(section)}})</p>
+
+            <div class="items-list">
+              <div class="item" *ngFor="let item of getSectionItems(section)">
+                <span class="item-type">{{ item.type }}</span> -
+                <span class="item-value">{{ item.value }}</span>
+              </div>
+            </div>
+
+          </div>
         </div>
-        </mat-expansion-panel>
+
+      </mat-expansion-panel>
     </mat-accordion>
+  </div>
 
 
-</div>
+    <!-- Simple Layout -->
+    <div class="dashboard-card" *ngIf="simpleLayout">
+      <h2><mat-icon>assignment</mat-icon> Items ({{ simpleLayout.layout.items?.length || 0 }})</h2>
+      <mat-accordion class="accordion">
+        <mat-expansion-panel [expanded]="true">
+          <mat-expansion-panel-header>
+            <mat-panel-title> Items </mat-panel-title>
+          </mat-expansion-panel-header>
+          <table>
+            <tr>
+              <th>Type</th>
+              <th>Value</th>
+            </tr>
+            <tr *ngFor="let item of simpleLayout.layout.items">
+              <td>{{ item.type }}</td>
+              <td>{{ item.value }}</td>
+            </tr>
+          </table>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+
+  </div>

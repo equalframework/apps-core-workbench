@@ -44,6 +44,9 @@ export class HierarchicalOverviewComponent implements OnInit {
       .flatMap((column: { items: any; }) => column.items || []) || [];
   }
 
+  getTotalItemsSection(section:any){
+    return this.getSectionItems(section).length
+  }
 
 
 }
