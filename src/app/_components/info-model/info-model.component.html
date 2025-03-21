@@ -10,13 +10,9 @@
     <app-info-header
     [titleLabel]="'Class'"
     [title]="model.name"
-    [copyText]="model.name"
+    [copyText]="model.package_name + '\\' + model.name | doubleBackslash"
     [description]="schema['description']"
-    [metaData]="[
-        { icon: 'description', tooltip: 'File path', value: model.file , copyable: true },
-        { icon: 'fork_right', tooltip: 'Extends', value: schema['parent'] },
-        { icon: 'grid_on', tooltip: 'DB_table', value: schema['table'], copyable: true }
-    ]">
+    [metaData]="metaData">
 </app-info-header>
 
 

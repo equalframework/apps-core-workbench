@@ -24,7 +24,7 @@ export class InfoModelComponent implements OnInit, OnChanges {
 
     public schema:any = {};
     public fields: string[] = [];
-
+    metaData: any;
     public iconList: { [id: string]: string } = {
         'string':       'format_quote',
         'integer':      '123',
@@ -70,7 +70,13 @@ export class InfoModelComponent implements OnInit, OnChanges {
             this.schema = data;
             this.fields = Object.keys(this.schema['fields']);
             this.loading = false;
+            this.metaData =[
+                { icon: 'description', tooltip: 'File path', value: this.model.file , copyable: true },
+                { icon: 'fork_right', tooltip: 'Extends', value: this.schema['parent'] },
+                { icon: 'grid_on', tooltip: 'DB_table', value: this.schema['table'], copyable: true },
+                ]
         });
+
 
     }
 
