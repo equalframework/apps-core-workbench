@@ -7,6 +7,7 @@ import { API_ENDPOINTS } from '../_models/api-endpoints';
 import { EqualComponentDescriptor } from '../_models/equal-component-descriptor.class';
 import { PackageInfos, PackageSummary } from '../_models/package-info.model';
 import { ViewSchema } from '../_models/view-schema.model';
+import { PolicyResponse } from '../_models/policy.model';
 
 
 @Injectable({
@@ -99,6 +100,13 @@ export class WorkbenchService {
         const url = API_ENDPOINTS.view.read(package_name, model_name, view_name);
         return this.callApi(url, '').pipe(
             map(({ response }) => response)
+        );
+    }
+
+    public getPolicies(package_name: string, class_name:string): Observable<PolicyResponse>{
+        const url = API_ENDPOINTS.class.policies.get(package_name,class_name);
+        return this.callApi(url,'').pipe(
+            map(({response})=> response)
         );
     }
 

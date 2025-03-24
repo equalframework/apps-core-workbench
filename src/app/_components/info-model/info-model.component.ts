@@ -76,8 +76,6 @@ export class InfoModelComponent implements OnInit, OnChanges {
                 { icon: 'grid_on', tooltip: 'DB_table', value: this.schema['table'], copyable: true },
                 ]
         });
-
-
     }
 
     public onclickFields() {
@@ -96,6 +94,9 @@ export class InfoModelComponent implements OnInit, OnChanges {
         this.router.navigate(['/package/' + this.model.package_name+'/model/' + this.model.name + '/workflow']);
     }
 
+    onclickPolicies(){
+        this.router.navigate(['/package/' + this.model.package_name+'/model/' + this.model.name + '/policies']);
+    }
     /**
      * @description
      * Looks for properties about a field of the model

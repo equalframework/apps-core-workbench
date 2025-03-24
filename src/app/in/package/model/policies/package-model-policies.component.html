@@ -1,0 +1,21 @@
+<app-inner-header [buttonBack]="true" (onButtonBack)="goBack()">
+    <label>Policies of </label><label>{{ package_name }}</label><label>\</label><label>{{ model_name }}</label>
+  </app-inner-header>
+
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <label>Loading...</label>
+  </div>
+
+
+  <app-classic-layout *ngIf="!loading">
+
+        <app-policy-editor-list *ngIf='(policies$ | async) as policies' list
+          [listPolicy]="policies | keyvalue"
+          [selectedIndex]="selectedPolicyIndex"
+          (select)="onSelectPolicy($event)">
+        </app-policy-editor-list>
+
+  </app-classic-layout>
+
+
