@@ -5,13 +5,19 @@
       <input matInput placeholder="Search..." [formControl]="filterControl" />
     </mat-form-field>
 
-    <mat-nav-list>
-      <mat-list-item
-        *ngFor="let item of filteredList; let i = index"
-        (click)="onClickItem(i)"
-        [class.selected]="selectedIndex === i">
-        <mat-icon class="policy-icon">policy</mat-icon>
-        <span class="policy-key">{{ item.key }}</span>
-      </mat-list-item>
-    </mat-nav-list>
+    <ng-container *ngIf="filteredList.length > 0; else noPolicies">
+      <mat-nav-list>
+        <mat-list-item
+          *ngFor="let item of filteredList; let i = index"
+          (click)="onClickItem(i)"
+          [class.selected]="selectedIndex === i">
+          <mat-icon class="policy-icon">policy</mat-icon>
+          <span class="policy-key">{{ item.key }}</span>
+        </mat-list-item>
+      </mat-nav-list>
+    </ng-container>
+
+    <ng-template #noPolicies>
+      <p class="no-policies">No policies for this model</p>
+    </ng-template>
   </div>
