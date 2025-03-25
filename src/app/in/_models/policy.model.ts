@@ -6,3 +6,9 @@ export interface Policy {
   export interface PolicyResponse {
     [key: string]: Policy;
   }
+
+
+  export interface PolicyItem {
+    key: string;
+    value: Policy;
+  }

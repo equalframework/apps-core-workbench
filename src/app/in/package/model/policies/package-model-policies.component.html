@@ -12,10 +12,13 @@
 
         <app-policy-editor-list *ngIf='(policies$ | async) as policies' list
           [listPolicy]="policies | keyvalue"
-          [selectedIndex]="selectedPolicyIndex"
+          [selectPolicy]="selectedPolicy"
           (select)="onSelectPolicy($event)">
         </app-policy-editor-list>
 
+        <app-policy-editor-detail *ngIf="selectedPolicy"
+        [policy]="selectedPolicy" sidepane>
+        ></app-policy-editor-detail>
   </app-classic-layout>
 
 

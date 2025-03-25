@@ -9,8 +9,8 @@
       <mat-nav-list>
         <mat-list-item
           *ngFor="let item of filteredList; let i = index"
-          (click)="onClickItem(i)"
-          [class.selected]="selectedIndex === i">
+          (click)="onClickItem(item)"
+          [class.selected]="selectPolicy?.key === item.key">
           <mat-icon class="policy-icon">policy</mat-icon>
           <span class="policy-key">{{ item.key }}</span>
         </mat-list-item>

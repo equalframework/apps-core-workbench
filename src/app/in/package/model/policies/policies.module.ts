@@ -8,12 +8,14 @@ import { PackageModelPolicies } from './package-model-policies.component';
 import { PoliciesRoutingModule } from './policies-routing.module';
 import { PolicyEditorListComponent } from './_components/policy-editor-list/policy-editor-list.component';
 import { ClassicLayoutModule } from 'src/app/in/classic-layout/classic-layout.module';
+import { PolicyEditorDetailComponent } from './_components/policy-editor-detail/policy-editor-detail.component';
 
 
 @NgModule({
     declarations: [
         PackageModelPolicies,
-        PolicyEditorListComponent
+        PolicyEditorListComponent,
+        PolicyEditorDetailComponent
     ],
     imports: [
         CommonModule,

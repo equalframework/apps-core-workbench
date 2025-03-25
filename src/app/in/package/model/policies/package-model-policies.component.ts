@@ -3,7 +3,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { PolicyResponse } from 'src/app/in/_models/policy.model';
+import { PolicyItem, PolicyResponse } from 'src/app/in/_models/policy.model';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 
@@ -17,7 +17,7 @@ export class PackageModelPolicies implements OnInit, OnDestroy {
     package_name: string = '';
     model_name: string = '';
     loading = false;
-    selectedPolicyIndex: number = 0; // Assurez-vous de déclarer cet index
+    selectedPolicy: PolicyItem | undefined;
     private destroy$ = new Subject<void>();
 
     constructor(
@@ -41,13 +41,18 @@ export class PackageModelPolicies implements OnInit, OnDestroy {
       this.location.back();
     }
 
-    onSelectPolicy(index: number) {
-      this.selectedPolicyIndex = index;
+    onSelectPolicy(policy: PolicyItem) {
+      //this.selectedPolicyIndex = index;
+      //console.log("this.selectedPOlicyIndex", this.selectedPolicyIndex)
+      this.selectedPolicy = policy;
     }
 
     ngOnDestroy(): void {
       this.destroy$.next();
       this.destroy$.complete();
     }
+
+
+
   }
 

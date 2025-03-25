@@ -82,6 +82,8 @@ import { CloseButtonComponent } from '../_components/close-button/close-button.c
 import { HierarchicalOverviewComponent } from '../_components/hierarchical-overview/hierarchical-overview.component';
 import { InfoHeaderComponent } from '../_components/info-header/info-header.component';
 import { DoubleBackslashPipe } from '../_pipes/double-backslash.pipe';
+import { InfoPolicyComponent } from '../_components/info-policy/info-policy.component';
+import { PolicyTransformPipe } from '../_pipes/policy-transform.pip';
 const sharedComponents = [
 
 
@@ -120,13 +122,15 @@ const sharedComponents = [
     SummaryPackageComponent,
     CloseButtonComponent,
     HierarchicalOverviewComponent,
-    InfoHeaderComponent
+    InfoHeaderComponent,
+    InfoPolicyComponent
 ];
 
 const sharedPipes = [
     ShortenPathPipe,
     RemoveExtensionPipe,
-    DoubleBackslashPipe
+    DoubleBackslashPipe,
+    PolicyTransformPipe
 ]
 @NgModule({
     declarations: [
@@ -145,7 +149,8 @@ const sharedPipes = [
         PropertyClauseModule,
         PropertyDomainModule,
         AutocompleteModule,
-        ...sharedComponents
+        ...sharedComponents,
+        ...sharedPipes
     ],
 
     // other module metadata
