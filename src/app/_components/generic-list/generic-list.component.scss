@@ -2,7 +2,10 @@
     width: 100%;
     margin-bottom: 1em;
   }
-
+  .list-container {
+    max-height: 100%;
+    overflow-y: auto;
+  }
   mat-list-item {
     cursor: pointer;
     padding: 0.5em;
@@ -28,3 +31,4 @@
     color: #888;
     margin-top: 1em;
   }
+

@@ -34,7 +34,7 @@ const routes: Routes = [
     },
     {
         path:'roles',
-        /*Todo*/
+        loadChildren: () => import('./roles/roles.module').then(m => m.PackageModelRolesModule)
     },
     {
         path: '',

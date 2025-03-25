@@ -101,6 +101,11 @@ export class InfoModelComponent implements OnInit, OnChanges {
     onclickActions(){
         this.router.navigate(['/package/' + this.model.package_name+'/model/' + this.model.name + '/actions']);
     }
+
+    onclickRoles(){
+        this.router.navigate(['/package/' + this.model.package_name+'/model/' + this.model.name + '/roles']);
+
+    }
     /**
      * @description
      * Looks for properties about a field of the model

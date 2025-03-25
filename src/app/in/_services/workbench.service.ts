@@ -9,6 +9,7 @@ import { PackageInfos, PackageSummary } from '../_models/package-info.model';
 import { ViewSchema } from '../_models/view-schema.model';
 import { PolicyResponse } from '../_models/policy.model';
 import { Actions } from '../_models/actions.model';
+import { Roles } from '../_models/roles.model';
 
 
 @Injectable({
@@ -115,6 +116,13 @@ export class WorkbenchService {
         const url = API_ENDPOINTS.class.actions.get(package_name,class_name);
         return this.callApi(url,'').pipe(
             map(({response}) => response)
+        )
+    }
+
+    public getRoles(package_name:string, class_name:string):Observable<Roles>{
+        const url = API_ENDPOINTS.class.roles.get(package_name,class_name);
+        return this.callApi(url,'').pipe(
+            map(({response})=> response)
         )
     }
     /**

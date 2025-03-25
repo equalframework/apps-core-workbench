@@ -1,0 +1,8 @@
+<app-inner-header [buttonBack]="true" (onButtonBack)="goBack()">
+    <label>Roles of </label><label>{{ package_name }}</label><label>\</label><label>{{ model_name }}</label>
+  </app-inner-header>
+
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <label>Loading...</label>
+  </div>
