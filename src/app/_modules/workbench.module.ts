@@ -50,6 +50,8 @@ import { InfoHeaderComponent } from '../_components/info/info-header/info-header
 import { DoubleBackslashPipe } from '../_pipes/double-backslash.pipe';
 import { InfoPolicyComponent } from '../_components/info/info-policy/info-policy.component';
 import { PolicyTransformPipe } from '../_pipes/policy-transform.pip';
+import { GenericListComponent } from '../_components/generic-list/generic-list.component';
+import { InfoActionsComponent } from '../_components/info/info-actions/info-actions.component';
 const sharedComponents = [
 
 
@@ -89,7 +91,9 @@ const sharedComponents = [
     CloseButtonComponent,
     HierarchicalOverviewComponent,
     InfoHeaderComponent,
-    InfoPolicyComponent
+    InfoPolicyComponent,
+    GenericListComponent,
+    InfoActionsComponent
 ];
 
 const sharedPipes = [

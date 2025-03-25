@@ -1,0 +1,22 @@
+<div class="action-container">
+    <app-info-header
+      [titleLabel]="'Action'"
+      [title]="action.key"
+      [copyText]="action.key"
+      [description]="action.value.description">
+    </app-info-header>
+
+    <div class="action-details">
+      <div class="action-function">
+        <strong>Function:</strong>
+        <p>{{ action.value.function }} <copy-button [text_to_copy]="action.value.function"></copy-button></p>
+      </div>
+
+      <div class="action-policies">
+        <strong>Policies:</strong>
+        <ul>
+          <li *ngFor="let policy of action.value.policies">{{ policy }}</li>
+        </ul>
+      </div>
+    </div>
+  </div>

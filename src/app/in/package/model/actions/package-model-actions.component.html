@@ -1,0 +1,24 @@
+<app-inner-header [buttonBack]="true" (onButtonBack)="goBack()">
+    <label>Actions of </label><label>{{ package_name }}</label><label>\</label><label>{{ model_name }}</label>
+  </app-inner-header>
+
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <label>Loading...</label>
+  </div>
+
+
+  <app-classic-layout *ngIf="!loading">
+
+        <app-generic-list *ngIf='(actions$ | async) as actions' list
+          [itemList]="actions | keyvalue"
+          [selectedItem]="selectedAction"
+          [icon]="'play_arrow'"
+          (select)="onselectAction($event)">
+        </app-generic-list>
+
+        <info-actions *ngIf="selectedAction" sidepane
+        [action]="selectedAction"></info-actions>
+  </app-classic-layout>
+
+

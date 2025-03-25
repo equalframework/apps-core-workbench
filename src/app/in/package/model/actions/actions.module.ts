@@ -4,16 +4,14 @@ import { PropertyDomainModule } from 'src/app/_components/property-domain-compon
 
 import { SharedLibModule, CustomDateAdapter } from 'sb-shared-lib';
 import { WorkbenchModule } from 'src/app/_modules/workbench.module';
-import { PackageModelPolicies } from './package-model-policies.component';
-import { PoliciesRoutingModule } from './policies-routing.module';
 import { ClassicLayoutModule } from 'src/app/in/classic-layout/classic-layout.module';
-import { PolicyEditorDetailComponent } from './_components/policy-editor-detail/policy-editor-detail.component';
+import { ActionsRoutingModule } from './actions-routing.module';
+import { PackageModelActions } from './package-model-actions.component';
 
 
 @NgModule({
     declarations: [
-        PackageModelPolicies,
-        PolicyEditorDetailComponent
+        PackageModelActions
     ],
     imports: [
         CommonModule,
@@ -21,7 +19,7 @@ import { PolicyEditorDetailComponent } from './_components/policy-editor-detail/
         WorkbenchModule,
         ClassicLayoutModule,
         PropertyDomainModule,
-        PoliciesRoutingModule,
-    ],
+        ActionsRoutingModule
+      ],
 })
-export class PackageModelPoliciesModule { }
+export class PackageModelActionsModule { }

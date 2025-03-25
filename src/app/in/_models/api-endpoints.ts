@@ -22,8 +22,14 @@ export const API_ENDPOINTS = {
         policies: {
             get: (package_name : string, class_name: string) =>
                 `?get=core_model_policies&entity=${package_name}\\${class_name}`,
-
-
+        },
+        actions: {
+            get: (package_name : string, class_name: string) =>
+                `?get=core_model_actions&entity=${package_name}\\${class_name}`,
+        },
+        roles: {
+            get: (package_name : string, class_name: string) =>
+                `?get=core_model_roles&entity=${package_name}\\${class_name}`,
         }
     },
 

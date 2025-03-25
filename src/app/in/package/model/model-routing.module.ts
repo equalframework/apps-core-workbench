@@ -1,3 +1,4 @@
+import { PackageModelActions } from './actions/package-model-actions.component';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
@@ -29,7 +30,7 @@ const routes: Routes = [
     },
     {
         path: 'actions',
-        /*Todo*/
+        loadChildren: () => import('./actions/actions.module').then(m => m.PackageModelActionsModule)
     },
     {
         path:'roles',

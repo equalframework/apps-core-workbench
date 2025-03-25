@@ -3,21 +3,22 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { Action, ActionItem, Actions } from 'src/app/in/_models/actions.model';
 import { PolicyItem, PolicyResponse } from 'src/app/in/_models/policy.model';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 
 @Component({
   selector: 'app-policy',
-  templateUrl: './package-model-policies.component.html',
-  styleUrls: ['./package-model-policies.component.scss']
+  templateUrl: './package-model-actions.component.html',
+  styleUrls: ['./package-model-actions.component.scss']
 })
-export class PackageModelPolicies implements OnInit, OnDestroy {
-    policies$: Observable<PolicyResponse>;
+export class PackageModelActions implements OnInit, OnDestroy {
+    actions$: Observable<Actions>;
     package_name: string = '';
     model_name: string = '';
     loading = false;
-    selectedPolicy: PolicyItem | undefined;
+    selectedAction: ActionItem | undefined;
     private destroy$ = new Subject<void>();
 
     constructor(
@@ -34,17 +35,17 @@ export class PackageModelPolicies implements OnInit, OnDestroy {
         this.loading = false;
       });
       console.log("package and model : ", this.package_name + "\\" + this.model_name);
-      this.policies$ = this.workbenchService.getPolicies(this.package_name, this.model_name);
+      this.actions$ = this.workbenchService.getActions(this.package_name, this.model_name);
     }
 
     goBack() {
       this.location.back();
     }
 
-    onselectPolicy(policy: PolicyItem) {
+    onselectAction(action: ActionItem) {
       //this.selectedPolicyIndex = index;
       //console.log("this.selectedPOlicyIndex", this.selectedPolicyIndex)
-      this.selectedPolicy = policy;
+      this.selectedAction = action;
     }
 
     ngOnDestroy(): void {

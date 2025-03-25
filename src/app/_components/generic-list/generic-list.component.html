@@ -5,19 +5,19 @@
       <input matInput placeholder="Search..." [formControl]="filterControl" />
     </mat-form-field>
 
-    <ng-container *ngIf="filteredList.length > 0; else noPolicies">
+    <ng-container *ngIf="filteredList.length > 0; else noItems">
       <mat-nav-list>
         <mat-list-item
           *ngFor="let item of filteredList; let i = index"
           (click)="onClickItem(item)"
-          [class.selected]="selectPolicy?.key === item.key">
-          <mat-icon class="policy-icon">policy</mat-icon>
-          <span class="policy-key">{{ item.key }}</span>
+          [class.selected]="selectedItem?.key === item.key">
+          <mat-icon class="item-icon">{{icon}}</mat-icon>
+          <span class="item-key">{{ item.key }}</span>
         </mat-list-item>
       </mat-nav-list>
     </ng-container>
 
-    <ng-template #noPolicies>
-      <p class="no-policies">No policies for this model</p>
+    <ng-template #noItems>
+      <p class="no-items">No items found</p>
     </ng-template>
   </div>

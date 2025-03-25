@@ -10,11 +10,12 @@
 
   <app-classic-layout *ngIf="!loading">
 
-        <app-policy-editor-list *ngIf='(policies$ | async) as policies' list
-          [listPolicy]="policies | keyvalue"
-          [selectPolicy]="selectedPolicy"
-          (select)="onSelectPolicy($event)">
-        </app-policy-editor-list>
+        <app-generic-list *ngIf='(policies$ | async) as policies' list
+          [itemList]="policies | keyvalue"
+          [selectedItem]="selectedPolicy"
+          [icon]="'policy'"
+          (select)="onselectPolicy($event)">
+        </app-generic-list>
 
         <app-policy-editor-detail *ngIf="selectedPolicy"
         [policy]="selectedPolicy" sidepane>

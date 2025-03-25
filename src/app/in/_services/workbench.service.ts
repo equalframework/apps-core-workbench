@@ -8,6 +8,7 @@ import { EqualComponentDescriptor } from '../_models/equal-component-descriptor.
 import { PackageInfos, PackageSummary } from '../_models/package-info.model';
 import { ViewSchema } from '../_models/view-schema.model';
 import { PolicyResponse } from '../_models/policy.model';
+import { Actions } from '../_models/actions.model';
 
 
 @Injectable({
@@ -110,6 +111,12 @@ export class WorkbenchService {
         );
     }
 
+    public getActions(package_name:string, class_name:string):Observable<Actions>{
+        const url = API_ENDPOINTS.class.actions.get(package_name,class_name);
+        return this.callApi(url,'').pipe(
+            map(({response}) => response)
+        )
+    }
     /**
      * Updates the fields for a given class in a specified package.
      *
