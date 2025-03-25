@@ -1,4 +1,4 @@
-import { Node } from './../../in/pipeline/_objects/Node';
+import { Node } from '../../../in/pipeline/_objects/Node';
 import { Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation, OnChanges, SimpleChanges, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';

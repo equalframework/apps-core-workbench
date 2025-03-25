@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { FieldClassArray } from '../../in/package/models/_object/FieldClassArray';
-import { FieldClass } from '../../in/package/models/_object/FieldClass';
+import { FieldClassArray } from '../../../in/package/models/_object/FieldClassArray';
+import { FieldClass } from '../../../in/package/models/_object/FieldClass';
 import { DeleteConfirmationDialogComponent } from 'src/app/_dialogs/delete-confirmation-dialog/delete-confirmation-dialog.component';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
