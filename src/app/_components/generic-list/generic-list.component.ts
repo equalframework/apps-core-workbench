@@ -11,17 +11,37 @@ export class GenericListComponent<T extends { key: string }> {
   @Input() selectedItem: T | undefined;
   @Input() icon = 'category';
   @Output() select = new EventEmitter<T>();
-  @Output() addItem = new EventEmitter<void>();
+  @Output() addItem = new EventEmitter<T>();
 
   filterControl = new FormControl('');
+  newItemName: string = '';
 
   onClickItem(item: T): void {
     this.select.emit(item);
   }
 
   onAddItem(): void {
-    this.addItem.emit();
+    let itemName = this.newItemName.trim();
+
+    if (!itemName) {
+      const baseName = 'default_';
+      let index = 1;
+      while (this.itemList.some(item => item.key === `${baseName}${index}`)) {
+        index++;
+      }
+      itemName = `${baseName}${index}`;
+    } else {
+      if (this.itemList.some(item => item.key === itemName)) {
+        alert("An item with this name already exists!");
+        return;
+      }
+    }
+
+    const newItem = { key: itemName } as T;
+    this.addItem.emit(newItem);
+    this.newItemName = '';
   }
+
   get filteredList(): T[] {
     const filterValue = (this.filterControl.value || '').toLowerCase();
     return this.itemList.filter(item =>

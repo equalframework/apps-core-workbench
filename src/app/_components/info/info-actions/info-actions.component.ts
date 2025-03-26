@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActionItem } from 'src/app/in/_models/actions.model';
+import { PolicyItem } from 'src/app/in/_models/policy.model';
 
 @Component({
   selector: 'info-actions',
@@ -8,7 +9,7 @@ import { ActionItem } from 'src/app/in/_models/actions.model';
 })
 export class InfoActionsComponent implements OnInit {
 
-  availablePolicies = ['Policy 1', 'Policy 2', 'Policy 3', 'Policy 4'];
+  @Input() availablePolicies:string[]=[];
   filteredPolicies = [...this.availablePolicies];
   newPolicy: string = '';
   showCreatePolicyInput = false;
@@ -19,6 +20,7 @@ export class InfoActionsComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
+
   }
 
   addPolicy(): void {

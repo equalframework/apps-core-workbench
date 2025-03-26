@@ -26,6 +26,9 @@ export const API_ENDPOINTS = {
         actions: {
             get: (package_name : string, class_name: string) =>
                 `?get=core_model_actions&entity=${package_name}\\${class_name}`,
+            save: (package_name:string, class_name:string) =>
+                `?do=core_config_update-actions&entity=${package_name}\\${class_name}`,
+
         },
         roles: {
             get: (package_name : string, class_name: string) =>

@@ -1,4 +1,10 @@
-<app-inner-header [buttonBack]="true" (onButtonBack)="goBack()" [buttonSave]="true" (onButtonSave)="save()">
+<app-inner-header [buttonBack]="true"
+(onButtonBack)="goBack()"
+[buttonSave]="true"
+(onButtonSave)="save()"
+[customButton]="true"
+[customButtonList]="[{icon:'bug_report', name:'Show JSON', disabled:false}]"
+(onCustomButton)="customButtonBehavior($event)">
     <label>Actions of </label><label>{{ package_name }}</label><label>\</label><label>{{ model_name }}</label>
   </app-inner-header>
 
@@ -14,7 +20,8 @@
           [itemList]="actions | keyvalue"
           [selectedItem]="selectedAction"
           [icon]="'play_arrow'"
-          (select)="onselectAction($event)">
+          (select)="onselectAction($event)"
+          (addItem)="addAction($event)">
         </app-generic-list>
 
         <info-actions *ngIf="selectedAction" sidepane

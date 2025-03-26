@@ -133,6 +133,11 @@ export class WorkbenchService {
               })
             );
     }
+
+    public saveActions(package_name:string, class_name:string,payload:any): Observable<any>{
+        const url = API_ENDPOINTS.class.actions.save(package_name, class_name);
+        return this.callApi(url,'Actions saved', { payload });
+    }
     /**
      * Updates the fields for a given class in a specified package.
      *
@@ -493,8 +498,8 @@ export class WorkbenchService {
      *   });
      * ```
      */
-    private callApi(url: string, successMessage: string, body:any = {}): Observable<{ success: boolean; message: string; response: any; }> {
-            return from(this.api.fetch(url,body)).pipe(
+    private callApi(url: string, successMessage: string, payload:any = {}): Observable<{ success: boolean; message: string; response: any; }> {
+            return from(this.api.fetch(url,payload)).pipe(
                 map((response: any) => ({
                     success: true,
                     message: successMessage,

@@ -1,4 +1,14 @@
 <div class="list-container">
+    <div class="add-item-container">
+        <mat-form-field class="input add-item">
+            <mat-label>Enter item name</mat-label>
+            <input matInput [(ngModel)]="newItemName" placeholder="Enter name">
+        </mat-form-field>
+        <button mat-button color="primary" (click)="onAddItem()">
+            <mat-icon>add</mat-icon>
+        </button>
+    </div>
+
     <mat-form-field class="input search-bar">
         <mat-icon matPrefix class="icon">filter_list</mat-icon>
         <input matInput placeholder="Search..." [formControl]="filterControl">
@@ -20,10 +30,4 @@
     <ng-template #noItems>
         <p class="no-items">No items found</p>
     </ng-template>
-
-    <div class="add-button-container">
-        <button mat-fab color="primary" (click)="onAddItem()">
-            <mat-icon>add</mat-icon>
-        </button>
-    </div>
 </div>
