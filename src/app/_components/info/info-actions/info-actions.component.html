@@ -7,15 +7,51 @@
     </app-info-header>
 
     <div class="action-details">
+      <!-- Editable Function -->
       <div class="action-function">
         <strong>Function:</strong>
-        <p>{{ action.value.function }} <copy-button [text_to_copy]="action.value.function"></copy-button></p>
+        <input matInput [(ngModel)]="action.value.function" placeholder="Enter function">
       </div>
 
+      <!-- Editable Description -->
+      <div class="action-description">
+        <strong>Description:</strong>
+        <textarea matInput [(ngModel)]="action.value.description" placeholder="Enter description"></textarea>
+      </div>
+
+      <!-- Editable Policies -->
       <div class="action-policies">
         <strong>Policies:</strong>
+
+        <!-- Searchable dropdown for Policies -->
+        <mat-form-field>
+          <mat-label>Search or Create Policy</mat-label>
+          <mat-select [(ngModel)]="selectedPolicy">
+            <mat-option *ngFor="let policy of filteredPolicies" [value]="policy">
+              {{ policy }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Create new Policy -->
+        <div class="create-policy">
+          <mat-form-field *ngIf="showCreatePolicyInput">
+            <mat-label>Create New Policy</mat-label>
+            <input matInput [(ngModel)]="newPolicy" placeholder="Enter new policy name">
+          </mat-form-field>
+          <button mat-raised-button (click)="createPolicy()" *ngIf="newPolicy">Create Policy</button>
+          <button mat-button (click)="toggleCreatePolicyInput()">Create New Policy</button>
+        </div>
+
+        <!-- Add selected Policy -->
+        <button mat-raised-button (click)="addPolicy()">Add Policy</button>
+
+        <!-- List of selected policies -->
         <ul>
-          <li *ngFor="let policy of action.value.policies">{{ policy }}</li>
+          <li *ngFor="let policy of action.value.policies; let i = index">
+            <span>{{ policy }}</span>
+            <button mat-button (click)="removePolicy(i)">Remove</button>
+          </li>
         </ul>
       </div>
     </div>

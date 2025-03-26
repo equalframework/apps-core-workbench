@@ -53,7 +53,9 @@ export class PackageModelActions implements OnInit, OnDestroy {
       this.destroy$.complete();
     }
 
-
+    save(){
+        console.log("saved");
+    }
 
   }
 
