@@ -9,7 +9,7 @@ import { PolicyItem } from 'src/app/in/_models/policy.model';
 })
 export class InfoActionsComponent implements OnInit {
 
-  @Input() availablePolicies:string[]=[];
+  @Input() availablePolicies:string[]=["Poilce 11", "Police 23", "Police 234"];
   filteredPolicies = [...this.availablePolicies];
   newPolicy: string = '';
   showCreatePolicyInput = false;
@@ -53,4 +53,19 @@ export class InfoActionsComponent implements OnInit {
       policy.toLowerCase().includes(search.toLowerCase())
     );
   }
+
+  onActionChange(updatedAction: ActionItem) {
+    this.action = updatedAction;
+  }
+
+  onAddPolicy(event: { key: string; value: string }) {
+    if (!this.action.value.policies.includes(event.value)) {
+      this.action.value.policies.push(event.value);
+    }
+  }
+
+  onRemovePolicy(event: { key: string; index: number }) {
+    this.action.value.policies.splice(event.index, 1);
+  }
+
 }

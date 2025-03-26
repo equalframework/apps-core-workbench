@@ -14,6 +14,9 @@ export interface Role{
     implied_by?: string[]
 }
 
+export const allEnumKeys = Object.keys(Right).filter(key => isNaN(Number(key)));
+
+
 export interface Roles{
     [key:string] : Role
 }

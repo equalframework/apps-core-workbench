@@ -1,25 +1,12 @@
-<div class="role-container">
-    <app-info-header
-      [titleLabel]="'Role'"
-      [title]="role.key"
-      [copyText]="role.key"
-      [description]="role.value.description">
-    </app-info-header>
+<app-info-generic
+title="Role"
+  [item]="role"
+  [descriptionKey]="'value.description'"
+  [editableFields]="[{key:'value.description',label:'Description'}]"
+  [listFields]="listFields"
+  (itemChange)="onActionChange($event)"
+  (addToList)="onAddPolicy($event)"
+  (removeFromList)="onRemovePolicy($event)"
+>
 
-    <div class="role-details">
-        <div class="role-rights">
-            <strong>Rights:</strong>
-            <ul>
-                <li *ngFor="let right of role.value.rights">{{ getRightName(right) }}</li>
-            </ul>
-
-        </div>
-
-        <div class="role-implied-by" *ngIf="role.value.implied_by?.length">
-            <strong>Implied by:</strong>
-            <ul>
-                <li *ngFor="let implied of role.value.implied_by">{{ implied }}</li>
-            </ul>
-        </div>
-    </div>
-</div>
+</app-info-generic>
