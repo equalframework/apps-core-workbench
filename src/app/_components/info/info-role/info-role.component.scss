@@ -1,50 +1,50 @@
-.action-container {
+.role-container {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     padding: 2em;
     background-color: whitesmoke;
     border-radius: 1em;
     height: 100%;
-  }
+}
 
-  .action-details {
+.role-details {
     margin-top: 16px;
-  }
+}
 
-  .action-description, .action-function, .action-policies {
+.role-rights, .role-implied-by {
     margin-bottom: 12px;
-  }
+}
 
-  strong {
+strong {
     font-weight: 600;
     color: #1976d2;
-  }
+}
 
-  p {
+p {
     margin: 4px 0;
     color: #333;
-  }
+}
 
-  ul {
+ul {
     list-style-type: disc;
     margin-left: 20px;
-  }
+}
 
-  li {
+li {
     margin-bottom: 6px;
     color: #555;
-  }
+}
 
-  .app-info-header {
+.app-info-header {
     background-color: #ffffff;
     padding: 12px;
     border-radius: 4px;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-  }
+}
 
-  .app-info-header h1 {
+.app-info-header h1 {
     color: #333;
-  }
+}
 
-  .app-info-header p {
+.app-info-header p {
     color: #555;
-  }
+}

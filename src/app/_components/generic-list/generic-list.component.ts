@@ -11,6 +11,7 @@ export class GenericListComponent<T extends { key: string }> {
   @Input() selectedItem: T | undefined;
   @Input() icon = 'category';
   @Output() select = new EventEmitter<T>();
+  @Output() addItem = new EventEmitter<void>();
 
   filterControl = new FormControl('');
 
@@ -18,6 +19,9 @@ export class GenericListComponent<T extends { key: string }> {
     this.select.emit(item);
   }
 
+  onAddItem(): void {
+    this.addItem.emit();
+  }
   get filteredList(): T[] {
     const filterValue = (this.filterControl.value || '').toLowerCase();
     return this.itemList.filter(item =>

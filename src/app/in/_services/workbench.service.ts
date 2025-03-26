@@ -9,7 +9,7 @@ import { PackageInfos, PackageSummary } from '../_models/package-info.model';
 import { ViewSchema } from '../_models/view-schema.model';
 import { PolicyResponse } from '../_models/policy.model';
 import { Actions } from '../_models/actions.model';
-import { Roles } from '../_models/roles.model';
+import { convertRights, Right, Roles } from '../_models/roles.model';
 
 
 @Injectable({
@@ -122,8 +122,16 @@ export class WorkbenchService {
     public getRoles(package_name:string, class_name:string):Observable<Roles>{
         const url = API_ENDPOINTS.class.roles.get(package_name,class_name);
         return this.callApi(url,'').pipe(
-            map(({response})=> response)
-        )
+            map(({ response }) => {
+                Object.keys(response).forEach(roleKey => {
+                    const role = response[roleKey];
+                    if (role.rights && !Array.isArray(role.rights[0])) {
+                        role.rights = convertRights(role.rights as unknown as number);
+                    }
+                });
+                return response;
+              })
+            );
     }
     /**
      * Updates the fields for a given class in a specified package.

@@ -3,8 +3,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { Action, ActionItem, Actions } from 'src/app/in/_models/actions.model';
-import { PolicyItem, PolicyResponse } from 'src/app/in/_models/policy.model';
+import { RoleItem, Roles } from 'src/app/in/_models/roles.model';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 
@@ -14,11 +13,11 @@ import { WorkbenchService } from 'src/app/in/_services/workbench.service';
   styleUrls: ['./package-model-roles.component.scss']
 })
 export class PackageModelRoles implements OnInit, OnDestroy {
-    actions$: Observable<Actions>;
+    roles$: Observable<Roles>;
     package_name: string = '';
     model_name: string = '';
     loading = false;
-    selectedAction: ActionItem | undefined;
+    selectedRole: RoleItem | undefined;
     private destroy$ = new Subject<void>();
 
     constructor(
@@ -35,17 +34,15 @@ export class PackageModelRoles implements OnInit, OnDestroy {
         this.loading = false;
       });
       console.log("package and model : ", this.package_name + "\\" + this.model_name);
-      this.actions$ = this.workbenchService.getActions(this.package_name, this.model_name);
+      this.roles$ = this.workbenchService.getRoles(this.package_name, this.model_name);
     }
 
     goBack() {
       this.location.back();
     }
 
-    onselectAction(action: ActionItem) {
-      //this.selectedPolicyIndex = index;
-      //console.log("this.selectedPOlicyIndex", this.selectedPolicyIndex)
-      this.selectedAction = action;
+    onselectRole(role: RoleItem) {
+      this.selectedRole = role;
     }
 
     ngOnDestroy(): void {

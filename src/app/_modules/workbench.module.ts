@@ -52,6 +52,7 @@ import { InfoPolicyComponent } from '../_components/info/info-policy/info-policy
 import { PolicyTransformPipe } from '../_pipes/policy-transform.pip';
 import { GenericListComponent } from '../_components/generic-list/generic-list.component';
 import { InfoActionsComponent } from '../_components/info/info-actions/info-actions.component';
+import { InfoRoleComponent } from '../_components/info/info-role/info-role.component';
 const sharedComponents = [
 
 
@@ -93,7 +94,8 @@ const sharedComponents = [
     InfoHeaderComponent,
     InfoPolicyComponent,
     GenericListComponent,
-    InfoActionsComponent
+    InfoActionsComponent,
+    InfoRoleComponent
 ];
 
 const sharedPipes = [

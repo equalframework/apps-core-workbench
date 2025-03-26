@@ -31,4 +31,19 @@
     color: #888;
     margin-top: 1em;
   }
+  .list-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
 
+.list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.add-button-container {
+    display: flex;
+    justify-content: center;
+    padding: 16px;
+}

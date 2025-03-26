@@ -6,3 +6,19 @@
     <mat-spinner></mat-spinner>
     <label>Loading...</label>
   </div>
+
+  <app-classic-layout *ngIf="!loading">
+
+    <app-generic-list *ngIf='(roles$ | async) as roles' list
+      [itemList]="roles | keyvalue"
+      [selectedItem]="selectedRole"
+      [icon]="'question_mark'"
+      (select)="onselectRole($event)">
+    </app-generic-list>
+
+    <info-role sidepane
+    *ngIf="selectedRole"
+    [role]="selectedRole">
+
+    </info-role>
+</app-classic-layout>
