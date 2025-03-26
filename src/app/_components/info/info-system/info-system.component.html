@@ -1,0 +1,38 @@
+<div class="full margin-container">
+    <div class="controller-container-top">
+      <h2 class="viewname">Component Statistics</h2>
+      <br>
+      <div class="flex-labels">
+        <label class="viewname">
+          Total {{ component_type ? (component_type.charAt(0).toUpperCase() + component_type.slice(1)) : 'Components' }}:
+        </label>
+        <label class="viewname accent">{{ total_count$ | async }}</label>
+      </div>
+    </div>
+
+
+    <div class="info-section" *ngIf="envData$ | async as envData">
+        <mat-accordion>
+            <mat-expansion-panel [expanded]="true">
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  Environment
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <div *ngFor="let entry of envData | keyvalue: originalOrder as entries" class="info-item">
+                <div class="variable">{{ entry.key }}</div>
+                <div class="value">
+                  <ng-container *ngIf="isUrl(entry.value); else notUrl">
+                    <a [href]="entry.value" target="_blank">{{ entry.value }}</a>
+                  </ng-container>
+                  <ng-template #notUrl>
+                    {{ entry.value }}
+                  </ng-template>
+                  <copy-button [text_to_copy]="entry.value"></copy-button>
+                </div>
+              </div>
+            </mat-expansion-panel>
+          </mat-accordion>
+
+    </div>
+  </div>
