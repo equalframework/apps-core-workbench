@@ -14,7 +14,8 @@
           [itemList]="policies | keyvalue"
           [selectedItem]="selectedPolicy"
           [icon]="'policy'"
-          (select)="onselectPolicy($event)">
+          (select)="onselectPolicy($event)"
+          (addItem)="addPolicy($event)">
         </app-generic-list>
 
         <app-policy-editor-detail *ngIf="selectedPolicy"

@@ -1,8 +1,8 @@
 import { Location } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Observable, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Observable, of, Subject } from 'rxjs';
+import { take, takeUntil } from 'rxjs/operators';
 import { PolicyItem, PolicyResponse } from 'src/app/in/_models/policy.model';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
@@ -52,7 +52,12 @@ export class PackageModelPolicies implements OnInit, OnDestroy {
       this.destroy$.complete();
     }
 
-
+    addPolicy(newItem: PolicyItem) {
+        this.policies$.pipe(take(1)).subscribe(policies => {
+          const updatedPolicies = { ...policies, [newItem.key]: { description: '', function: '' } };
+          this.policies$ = of(updatedPolicies);
+        });
+      }
 
   }
 

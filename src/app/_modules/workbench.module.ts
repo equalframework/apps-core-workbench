@@ -54,6 +54,8 @@ import { GenericListComponent } from '../_components/generic-list/generic-list.c
 import { InfoActionsComponent } from '../_components/info/info-actions/info-actions.component';
 import { InfoRoleComponent } from '../_components/info/info-role/info-role.component';
 import { InfoGenericComponent } from '../_components/info/info-generic/info-generic.component';
+import { ChipsAutocompleteComponent } from '../_components/chips-auto-complete/chips-auto-complete.component';
+import { CheckboxListComponent } from '../_components/checkbox-list/checkbox-list.component';
 const sharedComponents = [
 
 
@@ -97,7 +99,10 @@ const sharedComponents = [
     GenericListComponent,
     InfoActionsComponent,
     InfoRoleComponent,
-    InfoGenericComponent
+    InfoGenericComponent,
+    ChipsAutocompleteComponent,
+    CheckboxListComponent,
+
 ];
 
 const sharedPipes = [

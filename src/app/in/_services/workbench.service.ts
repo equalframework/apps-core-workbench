@@ -43,12 +43,16 @@ export class WorkbenchService {
             route:() => {
                         const file_name = node.file.split("/").pop()?.trim() ??""
                         return this.createRoute(node.package_name,file_name,node.name)
-            }
+            },
+            policy:()=>  this.notImplemented("Policy creation not implemented")
+
+
         };
 
         // Return the appropriate observable based on the node type, or a default message for unknown types.
         return createActions[node.type]?.() || of({ message: "Unknown type" });
     }
+
 
 
     /**

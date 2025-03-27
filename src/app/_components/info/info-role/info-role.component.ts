@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { allEnumKeys, convertRights, getRightName, Right, RoleItem } from 'src/app/in/_models/roles.model';
+import { allEnumKeys, allEnumValues, convertRights, getRightName, Right, RoleItem } from 'src/app/in/_models/roles.model';
 
 @Component({
   selector: 'info-role',
@@ -15,13 +15,18 @@ export class InfoRoleComponent implements OnInit {
         {
           key: 'value.rights',
           label: 'Rights',
-          format: this.getRightName,
-          list:allEnumKeys
+          list:allEnumValues,
+          type_show: 'checkbox',
+          format: (key: number) => Right[key],
+          type_list:'right'
         },
         {
             key: 'value.implied_by',
             label: 'Implied_by',
-            list:this.roles
+            list:this.roles,
+            type_show:'chips',
+            type_list:'implied_by'
+
           }
       ];
 
@@ -32,11 +37,11 @@ export class InfoRoleComponent implements OnInit {
     return getRightName(right);
 }
 
-  onActionChange(updatedRole: RoleItem) {
+  onRoleChange(updatedRole: RoleItem) {
     this.role = updatedRole;
   }
 
-  onAddPolicy(event:(any)) {
+  onAddRight(event:(any)) {
     console.log(event);
     if (event.key ==='value.rights' && !this.role.value.rights.includes(event.value)) {
       this.role.value.rights.push(event.value);
@@ -45,11 +50,9 @@ export class InfoRoleComponent implements OnInit {
     if (event.key ==='value.implied_by' && !this.role.value.implied_by?.includes(event.value)) {
         this.role.value.implied_by?.push(event.value);
       }
-
-
   }
 
-  onRemovePolicy(event: { key: string; index: number }) {
+  onRemoveRight(event: { key: string; index: number }) {
     this.role.value.rights.splice(event.index, 1);
   }
 

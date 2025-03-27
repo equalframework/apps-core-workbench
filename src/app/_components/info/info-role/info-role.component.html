@@ -4,9 +4,7 @@ title="Role"
   [descriptionKey]="'value.description'"
   [editableFields]="[{key:'value.description',label:'Description'}]"
   [listFields]="listFields"
-  (itemChange)="onActionChange($event)"
-  (addToList)="onAddPolicy($event)"
-  (removeFromList)="onRemovePolicy($event)"
->
-
+  (itemChange)="onRoleChange($event)"
+  (addToList)="onAddRight($event)"
+  (removeFromList)="onRemoveRight($event)">
 </app-info-generic>

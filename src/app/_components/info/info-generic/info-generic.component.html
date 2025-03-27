@@ -1,46 +1,66 @@
 <div class="info-container">
-  <app-info-header
-    [titleLabel]="title"
-    [title]="item?.key"
-    [copyText]="item?.key"
-    [description]="item?.value.description">
-  </app-info-header>
+    <app-info-header
+      [titleLabel]="title"
+      [title]="item?.key"
+      [copyText]="item?.key"
+      [description]="item?.value.description">
+    </app-info-header>
 
-  <div class="info-details">
-    <!-- Champs éditables -->
-    <div *ngFor="let field of editableFields" class="editable-field">
+    <div class="info-details">
+      <!-- Champs éditables -->
+      <div *ngFor="let field of editableFields" class="editable-field">
         <strong>{{ field.label | titlecase }}:</strong>
         <input matInput
                [ngModel]="getNestedValue(item, field.key)"
                (ngModelChange)="updateField(field.key, $event)"
-               placeholder="Enter {{ field }}">
+               placeholder="Enter {{ field.label }}">
       </div>
 
+      <!-- Listes associées -->
+      <div *ngFor="let list of listFields" class="info-list">
+        <strong>{{ list.label }}:</strong>
 
-    <!-- Listes associées (ex: policies) -->
-    <div *ngFor="let list of listFields" class="info-list">
-      <strong>{{ list.label }}:</strong>
+        <!-- 🟢 Sélection simple (mat-select) -->
+        <div *ngIf="!list.type_show">
+          <mat-form-field>
+            <mat-label>Select {{ list.label }}</mat-label>
+            <mat-select [(ngModel)]="selectedListValue[list.key]">
+              <mat-option *ngFor="let option of list.list" [value]="option">
+                {{ list.format ? list.format(option) : option }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <button mat-raised-button (click)="addItemToList(list.key)">Add {{ list.label }}</button>
+          <ul>
+            <li *ngFor="let value of getNestedValue(item, list.key) || [] ; let i = index">
+              <span>{{ list.format ? list.format(value) : value }}</span>
+              <button mat-button (click)="removeItemFromList(list.key, i)">Remove</button>
+            </li>
+          </ul>
+        </div>
 
-      <!-- Dropdown pour sélectionner un élément -->
-      <mat-form-field>
-        <mat-label>Select {{ list.label }}</mat-label>
-        <mat-select [(ngModel)]="selectedListValue[list.key]">
-          <mat-option *ngFor="let option of list.list" [value]="list.format? list.format(option) : option">
-            {{ option }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
+        <!-- 🟡 Liste avec Chips (app-chips-autocomplete) -->
+        <app-chips-autocomplete *ngIf="list.type_show==='chips'"
+          [label]="list.label"
+          [list]="list.list"
+          [selectedValues]="getNestedValue(item, list.key) || []"
+          [displayWith]="getDisplayFunction(list)"
+          [allowCreate]="true"
+          (selectionChange)="updateField(list.key, $event)"
+          [type_list] = "list.type_list"
+          (createItem)="onCreateNewItem($event)">
+        </app-chips-autocomplete>
 
-      <!-- Ajouter un élément à la liste -->
-      <button mat-raised-button (click)="addItemToList(list.key)">Add {{ list.label }}</button>
+        <!-- 🔵 Liste avec Checkbox (app-checkbox-list) -->
+        <app-checkbox-list *ngIf="list.type_show==='checkbox'"
+        [label]="list.label"
+        [options]="list.list"
+        [selectedValues]="getDisplayValues(list, getNestedValue(item, list.key) || [])"
+        [displayWith]="getDisplayFunction(list)"
+        (selectionChange)="updateField(list.key, $event)">
+        </app-checkbox-list>
 
-      <!-- Liste des éléments -->
-      <ul>
-        <li *ngFor="let value of item[list.key.split('.')[0]][list.key.split('.')[1]] ; let i = index">
-          <span>{{ list.format ? list.format(value) : value }}</span>
-          <button mat-button (click)="removeItemFromList(list.key, i)">Remove</button>
-        </li>
-      </ul>
+
+      </div>
     </div>
   </div>
-</div>

@@ -14,4 +14,9 @@ export class InfoPolicyComponent implements OnInit {
   ngOnInit(): void {
   }
 
+
+    onActionChange(updatedPolicy: PolicyItem) {
+      this.policy = updatedPolicy;
+    }
+
 }

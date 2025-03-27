@@ -1,4 +1,9 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { Observable } from 'rxjs';
+import { ExplorerDialogComponent } from 'src/app/_dialogs/explorer-dialog/explorer-dialog.component';
+import { MixedCreatorDialogComponent } from 'src/app/_modules/workbench.module';
+import { ListField } from './_models/listFields.model';
 
 @Component({
   selector: 'app-info-generic',
@@ -6,6 +11,9 @@ import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
   styleUrls: ['./info-generic.component.scss']
 })
 export class InfoGenericComponent<T extends Record<string, any>>  implements OnInit{
+    constructor(private matDialog:MatDialog){
+
+    }
     ngOnInit(): void {
         console.log(this.item);
     }
@@ -13,8 +21,9 @@ export class InfoGenericComponent<T extends Record<string, any>>  implements OnI
   @Input() item: T; // L'objet générique (Action, Policy, Role...)
   @Input() descriptionKey: string = 'description'; // Clé pour récupérer la description
   @Input() editableFields: {key:string, label:string, format?:(text:any)=>string}[] = []; // Champs éditables
-  @Input() listFields: { key: string; label: string, format?:(text:any)=>string, list: any[] }[] = []; // Listes associées
-
+  @Input() listFields: ListField[] = [];
+  @Input() package_name: string;
+  @Input() model_name:string;
   @Output() itemChange = new EventEmitter<T>();
   @Output() addToList = new EventEmitter<{ key: string; value: any }>();
   @Output() removeFromList = new EventEmitter<{ key: string; index: number }>();
@@ -48,6 +57,34 @@ export class InfoGenericComponent<T extends Record<string, any>>  implements OnI
  getNestedValue(item: any, path: string): any {
     return path.split('.').reduce((acc, part) => acc && acc[part], item);
   }
+
+  getDisplayFunction(list: { format?: (text: any) => string }): (text: any) => string {
+    return list.format ? list.format : (v: any) => v;
+  }
+
+  onCreateNewItem(type_show:string) {
+    console.log(type_show)
+ this.matDialog.open(MixedCreatorDialogComponent, {
+                data: {
+                    node_type: type_show,
+                    lock_type: true,
+                    package:this.package_name,
+                    lock_package:true,
+                    model:this.model_name,
+                    lock_model:true
+                },
+                width: "40em",
+                height: "26em"
+            }).afterClosed().subscribe((data) =>{
+               console.log(data);
+            })
+  }
+
+  getDisplayValues(listField: { key: string; format?: (value: any) => string }, values: any[]): any[] {
+    return listField.format ? values.map(v => listField.format!(v)) : values;
+  }
+
+
 
 
 }

@@ -15,7 +15,7 @@ export interface Role{
 }
 
 export const allEnumKeys = Object.keys(Right).filter(key => isNaN(Number(key)));
-
+export const allEnumValues = Object.values(Right).filter(value => typeof value === 'number') as number[];
 
 export interface Roles{
     [key:string] : Role
