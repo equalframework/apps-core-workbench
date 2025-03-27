@@ -21,7 +21,8 @@
           [selectedItem]="selectedAction"
           [icon]="'play_arrow'"
           (select)="onselectAction($event)"
-          (addItem)="addAction($event)">
+          (addItem)="addAction($event)"
+          (deleteItem)="ondeleteAction($event)">
         </app-generic-list>
 
         <info-actions *ngIf="selectedAction" sidepane

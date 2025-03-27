@@ -102,11 +102,19 @@ export class PackageModelActions implements OnInit, OnDestroy {
 getPoliciesFromApi(package_name: string, model_name: string): Observable<string[]> {
     return this.workbenchService.getPolicies(package_name, model_name).pipe(
       map((response: PolicyResponse) => {
-        // Extraire les clés de l'objet PolicyResponse comme un tableau de chaînes de caractères
-        return Object.keys(response); // Retourne un tableau des clés de l'objet PolicyResponse
+        return Object.keys(response);
       })
     );
   }
+
+  ondeleteAction(action: ActionItem): void {
+    this.actions$.pipe(take(1)).subscribe(actions => {
+      const updatedActions = { ...actions };
+      delete updatedActions[action.key];
+      this.actions$ = of(updatedActions);
+    });
+  }
+
 
 
 }

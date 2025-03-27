@@ -16,14 +16,17 @@
 
     <ng-container *ngIf="filteredList.length > 0; else noItems">
         <mat-list class="list scrollable">
-            <mat-list-item *ngFor="let item of filteredList; let i = index"
-                           (click)="onClickItem(item)"
-                           [class.selected]="selectedItem?.key === item.key">
-                <div class="node_container">
-                    <mat-icon class="item-icon">{{icon}}</mat-icon>
-                    <span class="item-key">{{ item.key }}</span>
-                </div>
-            </mat-list-item>
+            <app-item-display
+                *ngFor="let item of filteredList; let i = index"
+                [value]="item.key"
+                [icon]="icon"
+                [tooltip]="'Click to select ' + item.key"
+                [editable]="true"
+                [deletable]="true"
+                (delete)="onDeleteItem(item)"
+                (click)="onClickItem(item)"
+                [class.selected]="selectedItem?.key === item.key">
+            </app-item-display>
         </mat-list>
     </ng-container>
 

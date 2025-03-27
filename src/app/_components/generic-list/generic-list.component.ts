@@ -12,7 +12,7 @@ export class GenericListComponent<T extends { key: string }> {
   @Input() icon = 'category';
   @Output() select = new EventEmitter<T>();
   @Output() addItem = new EventEmitter<T>();
-
+ @Output() deleteItem = new EventEmitter<T>();
   filterControl = new FormControl('');
   newItemName: string = '';
 
@@ -48,4 +48,10 @@ export class GenericListComponent<T extends { key: string }> {
       item.key.toLowerCase().includes(filterValue)
     );
   }
+  onDeleteItem(item: any) {
+    this.itemList = this.itemList.filter(i => i.key !== item.key);
+    this.deleteItem.emit(item);
+
+  }
+
 }

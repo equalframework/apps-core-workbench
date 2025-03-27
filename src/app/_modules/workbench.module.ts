@@ -56,6 +56,7 @@ import { InfoRoleComponent } from '../_components/info/info-role/info-role.compo
 import { InfoGenericComponent } from '../_components/info/info-generic/info-generic.component';
 import { ChipsAutocompleteComponent } from '../_components/chips-auto-complete/chips-auto-complete.component';
 import { CheckboxListComponent } from '../_components/checkbox-list/checkbox-list.component';
+import { ItemDisplayComponent } from '../_components/item-display/item-display.component';
 const sharedComponents = [
 
 
@@ -102,7 +103,7 @@ const sharedComponents = [
     InfoGenericComponent,
     ChipsAutocompleteComponent,
     CheckboxListComponent,
-
+    ItemDisplayComponent
 ];
 
 const sharedPipes = [
