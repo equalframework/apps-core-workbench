@@ -9,6 +9,7 @@ import { startWith, map } from 'rxjs/operators';
   styleUrls: ['./chips-auto-complete.component.scss']
 })
 export class ChipsAutocompleteComponent implements OnInit {
+
     @Input() label: string = '';
     @Input() list: any[] = []; // Liste complète des options possibles
     @Input() selectedValues: any[] = []; // Valeurs actuellement sélectionnées

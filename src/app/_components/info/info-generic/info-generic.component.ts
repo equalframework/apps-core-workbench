@@ -27,7 +27,7 @@ export class InfoGenericComponent<T extends Record<string, any>>  implements OnI
   @Output() itemChange = new EventEmitter<T>();
   @Output() addToList = new EventEmitter<{ key: string; value: any }>();
   @Output() removeFromList = new EventEmitter<{ key: string; index: number }>();
-
+  @Output() createItem = new EventEmitter<string>();
   selectedListValue: { [key: string]: any } = {};
 
   // Fonction pour mettre à jour la valeur dans item
@@ -63,21 +63,7 @@ export class InfoGenericComponent<T extends Record<string, any>>  implements OnI
   }
 
   onCreateNewItem(type_show:string) {
-    console.log(type_show)
- this.matDialog.open(MixedCreatorDialogComponent, {
-                data: {
-                    node_type: type_show,
-                    lock_type: true,
-                    package:this.package_name,
-                    lock_package:true,
-                    model:this.model_name,
-                    lock_model:true
-                },
-                width: "40em",
-                height: "26em"
-            }).afterClosed().subscribe((data) =>{
-               console.log(data);
-            })
+    this.createItem.emit(type_show)
   }
 
   getDisplayValues(listField: { key: string; format?: (value: any) => string }, values: any[]): any[] {

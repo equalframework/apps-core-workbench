@@ -142,6 +142,11 @@ export class WorkbenchService {
         const url = API_ENDPOINTS.class.actions.save(package_name, class_name);
         return this.callApi(url,'Actions saved', { payload });
     }
+
+    public savePolicies(package_name:string, class_name:string, payload:any): Observable<any>{
+        const url = API_ENDPOINTS.class.policies.save(package_name,class_name);
+        return this.callApi(url,'Policies saved', { payload });
+    }
     /**
      * Updates the fields for a given class in a specified package.
      *

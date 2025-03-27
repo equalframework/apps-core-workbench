@@ -112,8 +112,8 @@ export class MixedCreatorDialogComponent implements OnInit, OnDestroy {
         this.cachePkgList = await this.workbenchService.collectAllPackages().toPromise();
 
         //this.cachePkgList = await this.workbenchService.listPackages();
-        await this.reloadList();
         this.loaded = true;
+        await this.reloadList();
     }
 
     /**

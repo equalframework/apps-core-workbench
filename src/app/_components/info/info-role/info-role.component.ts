@@ -1,3 +1,4 @@
+import { ListField } from './../info-generic/_models/listFields.model';
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { allEnumKeys, allEnumValues, convertRights, getRightName, Right, RoleItem } from 'src/app/in/_models/roles.model';
 
@@ -9,9 +10,13 @@ import { allEnumKeys, allEnumValues, convertRights, getRightName, Right, RoleIte
 export class InfoRoleComponent implements OnInit {
 
     @Input() role:RoleItem;
-    @Input() roles:string[]=['owner','editor','test'];
+    @Input() availableRoles:string[]=[];
     constructor() { }
-    listFields = [
+    listFields:ListField[]
+
+  ngOnInit(): void {
+    console.log("Avaible : ", this.availableRoles)
+    this.listFields = [
         {
           key: 'value.rights',
           label: 'Rights',
@@ -23,14 +28,12 @@ export class InfoRoleComponent implements OnInit {
         {
             key: 'value.implied_by',
             label: 'Implied_by',
-            list:this.roles,
+            list:this.availableRoles,
             type_show:'chips',
             type_list:'implied_by'
 
           }
       ];
-
-  ngOnInit(): void {
   }
 
   getRightName(right: Right): string {

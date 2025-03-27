@@ -1,4 +1,10 @@
-<app-inner-header [buttonBack]="true" (onButtonBack)="goBack()">
+<app-inner-header [buttonBack]="true"
+ (onButtonBack)="goBack()"
+ [buttonSave]="true"
+(onButtonSave)="save()"
+[customButton]="true"
+[customButtonList]="[{icon:'bug_report', name:'Show JSON', disabled:false}]"
+(onCustomButton)="customButtonBehavior($event)">
     <label>Policies of </label><label>{{ package_name }}</label><label>\</label><label>{{ model_name }}</label>
   </app-inner-header>
 
@@ -20,7 +26,7 @@
 
         <app-policy-editor-detail *ngIf="selectedPolicy"
         [policy]="selectedPolicy" sidepane>
-        ></app-policy-editor-detail>
+        </app-policy-editor-detail>
   </app-classic-layout>
 
 

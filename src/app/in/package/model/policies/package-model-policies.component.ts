@@ -1,9 +1,11 @@
 import { Location } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, of, Subject } from 'rxjs';
-import { take, takeUntil } from 'rxjs/operators';
-import { PolicyItem, PolicyResponse } from 'src/app/in/_models/policy.model';
+import { map, take, takeUntil } from 'rxjs/operators';
+import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
+import { PolicyItem, PolicyManager, PolicyResponse } from 'src/app/in/_models/policy.model';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 
@@ -23,7 +25,8 @@ export class PackageModelPolicies implements OnInit, OnDestroy {
     constructor(
       private workbenchService: WorkbenchService,
       private route: ActivatedRoute,
-      private location: Location
+      private location: Location,
+      private matDialog: MatDialog
     ) {}
 
     ngOnInit(): void {
@@ -59,5 +62,35 @@ export class PackageModelPolicies implements OnInit, OnDestroy {
         });
       }
 
+      public customButtonBehavior(evt: string) {
+              switch (evt) {
+                case "Show JSON":
+                  this.export().subscribe(exportedData => {
+                    this.matDialog.open(JsonViewerComponent, {
+                      data: exportedData,
+                      width: "70vw",
+                      height: "80vh"
+                    });
+                  });
+                  break;
+              }
+            }
+
+            public export(): Observable<PolicyResponse> {
+              return this.policies$.pipe(
+                take(1),
+                map(policies => {
+                  const policyManager = new PolicyManager(policies)
+                  return policyManager.export()
+                })
+              );
+
   }
+  save(){
+    this.export().pipe(take(1)).subscribe(exportedActions => {
+        const jsonData = JSON.stringify(exportedActions);
+        this.workbenchService.savePolicies(this.package_name, this.model_name, jsonData);
+    });
+  }
+}
 
