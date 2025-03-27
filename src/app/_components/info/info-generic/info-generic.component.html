@@ -55,7 +55,7 @@
         <app-checkbox-list *ngIf="list.type_show==='checkbox'"
         [label]="list.label"
         [options]="list.list"
-        [selectedValues]="getDisplayValues(list, getNestedValue(item, list.key) || [])"
+        [selectedValues]="getNestedValue(item,list.key) || []"
         [displayWith]="getDisplayFunction(list)"
         (selectionChange)="updateField(list.key, $event)">
         </app-checkbox-list>

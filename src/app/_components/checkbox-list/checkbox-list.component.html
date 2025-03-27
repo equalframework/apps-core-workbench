@@ -2,7 +2,7 @@
     <strong>{{ label }}</strong>
     <div class="checkbox-group">
       <mat-checkbox *ngFor="let option of options"
-                    [checked]="internalSelectedValues.has(displayWith(option))"
+                    [checked]="internalSelectedValues.has(option)"
                     (change)="toggleSelection(option)">
         {{ displayWith(option) }}
       </mat-checkbox>
