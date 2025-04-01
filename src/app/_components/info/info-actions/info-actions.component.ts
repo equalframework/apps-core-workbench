@@ -12,71 +12,72 @@ import { NotificationService } from 'src/app/in/_services/notification.service';
 })
 export class InfoActionsComponent implements OnInit {
 
-  @Input() availablePolicies:string[]=[];
-  filteredPolicies = [...this.availablePolicies];
-  selectedPolicy: string | null = null;
+    @Input() availablePolicies:string[]=[];
     @Input() package_name: string = '';
     @Input() model_name: string = '';
-  @Input() action: ActionItem;
+    @Input() action: ActionItem;
 
-  @Output() onrefresh = new EventEmitter<void>();
-  constructor(private matDialog:MatDialog, private notificationService:NotificationService) { }
+    @Output() onrefresh = new EventEmitter<void>();
 
-  ngOnInit(): void {
+    filteredPolicies = [...this.availablePolicies];
+    selectedPolicy: string | null = null;
+    constructor(private matDialog:MatDialog, private notificationService:NotificationService) { }
 
-  }
+    ngOnInit(): void {
 
-  addPolicy(): void {
-    if (this.selectedPolicy && !this.action.value.policies.includes(this.selectedPolicy)) {
-      this.action.value.policies.push(this.selectedPolicy);
-      this.selectedPolicy = null;
     }
-  }
 
-
-  removePolicy(index: number): void {
-    this.action.value.policies.splice(index, 1);
-  }
-
-
-  filterPolicies(search: string): void {
-    this.filteredPolicies = this.availablePolicies.filter(policy =>
-      policy.toLowerCase().includes(search.toLowerCase())
-    );
-  }
-
-  oncreate(type_show:string){
-    console.log(type_show);
- this.matDialog.open(MixedCreatorDialogComponent, {
-                data: {
-                    node_type: type_show,
-                    lock_type: true,
-                    package:this.package_name,
-                    lock_package:true,
-                    model:this.model_name,
-                    lock_model:true
-                },
-                width: "40em",
-                height: "26em"
-            }).afterClosed().subscribe((data) =>{
-               this.notificationService.showInfo(data.message);
-            })
-  }
-  onActionChange(updatedAction: ActionItem) {
-    this.action = updatedAction;
-  }
-
-  onAddPolicy(event: { key: string; value: string }) {
-    if (!this.action.value.policies.includes(event.value)) {
-      this.action.value.policies.push(event.value);
+    addPolicy(): void {
+        if (this.selectedPolicy && !this.action.value.policies.includes(this.selectedPolicy)) {
+        this.action.value.policies.push(this.selectedPolicy);
+        this.selectedPolicy = null;
+        }
     }
-  }
 
-  onRemovePolicy(event: { key: string; index: number }) {
-    this.action.value.policies.splice(event.index, 1);
-  }
 
-  onrefreshPolicy(){
-    this.onrefresh.emit();
-  }
-}
+    removePolicy(index: number): void {
+        this.action.value.policies.splice(index, 1);
+    }
+
+
+    filterPolicies(search: string): void {
+        this.filteredPolicies = this.availablePolicies.filter(policy =>
+        policy.toLowerCase().includes(search.toLowerCase())
+        );
+    }
+
+    oncreate(type_show:string){
+        console.log(type_show);
+    this.matDialog.open(MixedCreatorDialogComponent, {
+                    data: {
+                        node_type: type_show,
+                        lock_type: true,
+                        package:this.package_name,
+                        lock_package:true,
+                        model:this.model_name,
+                        lock_model:true
+                    },
+                    width: "40em",
+                    height: "26em"
+                }).afterClosed().subscribe((data) =>{
+                this.notificationService.showInfo(data.message);
+                })
+    }
+    onActionChange(updatedAction: ActionItem) {
+        this.action = updatedAction;
+    }
+
+    onAddPolicy(event: { key: string; value: string }) {
+        if (!this.action.value.policies.includes(event.value)) {
+        this.action.value.policies.push(event.value);
+        }
+    }
+
+    onRemovePolicy(event: { key: string; index: number }) {
+        this.action.value.policies.splice(event.index, 1);
+    }
+
+    onrefreshPolicy(){
+        this.onrefresh.emit();
+    }
+    }

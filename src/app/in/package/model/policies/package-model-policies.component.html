@@ -5,15 +5,16 @@
 [customButton]="true"
 [customButtonList]="[{icon:'bug_report', name:'Show JSON', disabled:false}]"
 (onCustomButton)="customButtonBehavior($event)">
-<div *ngIf="loading" class="loading-container">
-    <mat-spinner></mat-spinner>
-    <label>Loading...</label>
-  </div>
+
 
     <label>Policies of </label><label>{{ package_name }}</label><label>\</label><label>{{ model_name }}</label>
   </app-inner-header>
 
-
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <label>Loading...</label>
+  </div>
+  
   <app-classic-layout >
 
         <app-generic-list *ngIf='(policies$ | async) as policies' list

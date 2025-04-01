@@ -15,7 +15,7 @@ export class InfoRoleComponent implements OnInit {
     listFields:ListField[]
 
   ngOnInit(): void {
-    console.log("Avaible : ", this.availableRoles)
+    console.log("Avaible : ", this.role)
     this.listFields = [
         {
           key: 'value.rights',

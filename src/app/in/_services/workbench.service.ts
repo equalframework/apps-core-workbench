@@ -9,7 +9,7 @@ import { PackageInfos, PackageSummary } from '../_models/package-info.model';
 import { ViewSchema } from '../_models/view-schema.model';
 import { PolicyResponse } from '../_models/policy.model';
 import { Actions } from '../_models/actions.model';
-import { convertRights, Right, Roles } from '../_models/roles.model';
+import { convertRights, convertRightsFromStrings, Right, Roles } from '../_models/roles.model';
 
 
 @Injectable({
@@ -128,19 +128,29 @@ export class WorkbenchService {
         )
     }
 
-    public getRoles(package_name:string, class_name:string):Observable<Roles>{
-        const url = API_ENDPOINTS.class.roles.get(package_name,class_name);
-        return this.callApi(url,'').pipe(
+    public getRoles(package_name: string, class_name: string): Observable<Roles> {
+        const url = API_ENDPOINTS.class.roles.get(package_name, class_name);
+        return this.callApi(url, '').pipe(
             map(({ response }) => {
                 Object.keys(response).forEach(roleKey => {
                     const role = response[roleKey];
-                    if (role.rights && !Array.isArray(role.rights[0])) {
-                        role.rights = convertRights(role.rights as unknown as number);
+
+                    if (Array.isArray(role.rights)) {
+                        role.rights = convertRightsFromStrings(role.rights);
+                    } else if (typeof role.rights === 'number') {
+                        // Cas où rights est un entier (bitwise OR)
+                        role.rights = convertRights(role.rights);
+                    }
+
+                    if (!role.implied_by) {
+                        role.implied_by = [];
                     }
                 });
+
+                console.log("response : ", response);
                 return response;
-              })
-            );
+            })
+        );
     }
 
     public saveActions(package_name:string, class_name:string,payload:any): Observable<any>{
@@ -151,6 +161,11 @@ export class WorkbenchService {
     public savePolicies(package_name:string, class_name:string, payload:any): Observable<any>{
         const url = API_ENDPOINTS.class.policies.save(package_name,class_name);
         return this.callApi(url,'Policies saved', { payload });
+    }
+
+    public saveRoles(package_name:string, class_name:string, payload:any): Observable<any>{
+        const url = API_ENDPOINTS.class.roles.save(package_name,class_name);
+        return this.callApi(url,'Roles saved', { payload });
     }
     /**
      * Updates the fields for a given class in a specified package.

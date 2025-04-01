@@ -39,6 +39,6 @@ export class ItemDisplayComponent {
   }
 
   onClickItem() {
-    this.itemClick.emit();
-  }
+  this.itemClick.emit();
+}
 }

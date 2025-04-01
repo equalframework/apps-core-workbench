@@ -1,9 +1,11 @@
 import { Location } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, Subject } from 'rxjs';
-import { takeUntil,map } from 'rxjs/operators';
-import { RoleItem, Roles } from 'src/app/in/_models/roles.model';
+import { takeUntil,map, take, shareReplay } from 'rxjs/operators';
+import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
+import { RoleItem, RoleManager, Roles, RolesSend } from 'src/app/in/_models/roles.model';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 
@@ -24,7 +26,8 @@ export class PackageModelRoles implements OnInit, OnDestroy {
     constructor(
       private workbenchService: WorkbenchService,
       private route: ActivatedRoute,
-      private location: Location
+      private location: Location,
+      private matDialog: MatDialog
     ) {}
 
     ngOnInit(): void {
@@ -35,7 +38,9 @@ export class PackageModelRoles implements OnInit, OnDestroy {
         this.loading = false;
       });
       console.log("package and model : ", this.package_name + "\\" + this.model_name);
-      this.roles$ = this.workbenchService.getRoles(this.package_name, this.model_name);
+      this.roles$ = this.workbenchService.getRoles(this.package_name, this.model_name).pipe(
+        shareReplay(1)
+      );
       this.getRolesFromApi(this.package_name, this.model_name).subscribe((data)=> this.availableRoles=data);
     }
 
@@ -54,17 +59,41 @@ export class PackageModelRoles implements OnInit, OnDestroy {
 
     getRolesFromApi(package_name: string, model_name: string): Observable<string[]> {
         return this.workbenchService.getRoles(package_name, model_name).pipe(
-          map((response: Roles) => {
-            return Object.keys(response);
-          })
+            takeUntil(this.destroy$),
+            map((response: Roles) => {
+                return Object.keys(response);
+            })
         );
       }
-save(){
-
-}
-
-public customButtonBehavior(evt: string) {
+      save(){
+        this.export().pipe(take(1)).subscribe(exportedActions => {
+            const jsonData = JSON.stringify(exportedActions);
+            this.workbenchService.saveRoles(this.package_name, this.model_name, jsonData);
+        });
       }
 
+    public customButtonBehavior(evt: string) {
+        switch (evt) {
+            case "Show JSON":
+                this.export().subscribe(exportedData => {
+                this.matDialog.open(JsonViewerComponent, {
+                    data: exportedData,
+                    width: "70vw",
+                    height: "80vh"
+                });
+                });
+                break;
+        }
+    }
+
+    public export(): Observable<any> {
+        return this.roles$.pipe(
+            takeUntil(this.destroy$),
+            take(1),
+            map(roles => {
+            const roleManager = new RoleManager(roles)
+            return roleManager.export()
+            }))
   }
 
+}

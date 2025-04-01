@@ -45,8 +45,6 @@ export class PackageModelPolicies implements OnInit, OnDestroy {
     }
 
     onselectPolicy(policy: PolicyItem) {
-      //this.selectedPolicyIndex = index;
-      //console.log("this.selectedPOlicyIndex", this.selectedPolicyIndex)
       this.selectedPolicy = policy;
     }
 
@@ -62,28 +60,28 @@ export class PackageModelPolicies implements OnInit, OnDestroy {
         });
       }
 
-      public customButtonBehavior(evt: string) {
-              switch (evt) {
-                case "Show JSON":
-                  this.export().subscribe(exportedData => {
-                    this.matDialog.open(JsonViewerComponent, {
-                      data: exportedData,
-                      width: "70vw",
-                      height: "80vh"
-                    });
-                  });
-                  break;
-              }
-            }
+    public customButtonBehavior(evt: string) {
+        switch (evt) {
+            case "Show JSON":
+                this.export().subscribe(exportedData => {
+                this.matDialog.open(JsonViewerComponent, {
+                    data: exportedData,
+                    width: "70vw",
+                    height: "80vh"
+                });
+                });
+                break;
+        }
+    }
 
-            public export(): Observable<PolicyResponse> {
-              return this.policies$.pipe(
-                take(1),
-                map(policies => {
-                  const policyManager = new PolicyManager(policies)
-                  return policyManager.export()
-                })
-              );
+    public export(): Observable<PolicyResponse> {
+        return this.policies$.pipe(
+        take(1),
+        map(policies => {
+            const policyManager = new PolicyManager(policies)
+            return policyManager.export()
+        })
+        );
 
   }
 
@@ -107,6 +105,7 @@ export class PackageModelPolicies implements OnInit, OnDestroy {
         const updatedPolicies = { ...policies };
         delete updatedPolicies[policy.key];
         this.policies$ = of(updatedPolicies);
+        this.selectedPolicy = undefined;
       });
     }
 }

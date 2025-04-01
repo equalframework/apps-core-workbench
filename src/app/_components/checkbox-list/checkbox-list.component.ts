@@ -14,17 +14,26 @@ export class CheckboxListComponent implements OnChanges {
   @Output() selectionChange = new EventEmitter<any[]>();
 
   internalSelectedValues: Set<any> = new Set();
-
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.selectedValues) {
-      console.log("🔍 selectedValues reçu :", this.selectedValues);
-      this.internalSelectedValues = new Set(this.selectedValues || []);
+      const previous = changes.selectedValues.previousValue || [];
+      const current = changes.selectedValues.currentValue || [];
+      if (!this.areArraysEqual(previous, current)) {
+        console.log("🔍 selectedValues modifié :", current);
+        this.internalSelectedValues = new Set(current);
+      }
     }
-    if (changes.options) {
-      console.log("🔍 options disponibles :", this.options);
-    }
-    console.log("🔍 displayWith", this.displayWith(this.selectedValues[0]))
   }
+
+  private areArraysEqual(arr1: any[], arr2: any[]): boolean {
+    if (arr1.length !== arr2.length) {
+      return false;
+    }
+    const sorted1 = [...arr1].sort();
+    const sorted2 = [...arr2].sort();
+    return sorted1.every((value, index) => value === sorted2[index]);
+  }
+
 
 
   toggleSelection(value: any) {

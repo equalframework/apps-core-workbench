@@ -23,7 +23,10 @@ export class PackageModelActions implements OnInit, OnDestroy {
     selectedAction: ActionItem | undefined;
     private destroy$ = new Subject<void>();
     availablePolicies$: Observable<string[]>;
-
+    loadingState = {
+        actions: false,
+        policies: false
+    };
     constructor(
       private workbenchService: WorkbenchService,
       private route: ActivatedRoute,
@@ -112,22 +115,23 @@ export class PackageModelActions implements OnInit, OnDestroy {
         const updatedActions = { ...actions };
         delete updatedActions[action.key];
         this.actions$ = of(updatedActions);
+        this.selectedAction = undefined;
         });
     }
 
     refreshAction(){
-        this.loading = true;
+        this.loadingState.actions = true;
         this.actions$ = this.workbenchService.getActions(this.package_name, this.model_name);
         this.actions$.pipe(take(1)).subscribe(() => {
-            this.loading = false;
+            this.loadingState.actions = false;
         });
     }
 
     refreshPolicies(){
-        this.loading=true;
+        this.loadingState.policies=true;
         this.availablePolicies$ = this.getPoliciesFromApi(this.package_name, this.model_name);
         this.availablePolicies$.pipe(take(1)).subscribe(() => {
-            this.loading = false;
+            this.loadingState.policies = false;
         });
     }
 

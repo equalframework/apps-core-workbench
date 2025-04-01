@@ -1,43 +1,49 @@
 <div class="list-container">
     <div class="add-item-container">
-        <mat-form-field class="input add-item">
-            <mat-label>Enter item name</mat-label>
-            <input matInput [(ngModel)]="newItemName" placeholder="Enter name">
-        </mat-form-field>
-        <button mat-button color="primary" (click)="onAddItem()">
-            <mat-icon>add</mat-icon>
-        </button>
-        <button mat-button color="accent" (click)="onrefresh()">
-            <mat-icon>refresh</mat-icon>
-        </button>
+      <mat-form-field class="input add-item">
+        <mat-label>Enter item name</mat-label>
+        <input matInput [(ngModel)]="newItemName" placeholder="Enter name">
+      </mat-form-field>
+      <button mat-button color="primary" (click)="onAddItem()">
+        <mat-icon>add</mat-icon>
+      </button>
+      <button mat-button color="accent" (click)="refresh()">
+        <mat-icon>refresh</mat-icon>
+      </button>
     </div>
 
-    <div *ngIf="loading" class="loading-container">
-        <mat-spinner></mat-spinner>
-        <label>Loading...</label>
-    </div>
     <mat-form-field class="input search-bar">
-        <mat-icon matPrefix class="icon">filter_list</mat-icon>
-        <input matInput placeholder="Search..." [formControl]="filterControl">
+      <mat-icon matPrefix class="icon">filter_list</mat-icon>
+      <input matInput placeholder="Search..." [formControl]="filterControl">
     </mat-form-field>
 
-    <ng-container *ngIf="filteredList.length > 0; else noItems">
-        <mat-list class="list scrollable">
+    <div class="list-wrapper">
+      <ng-container *ngIf="loading; else itemListTemplate">
+        <div class="loading-container">
+          <mat-spinner diameter="30"></mat-spinner>
+          <label>Loading...</label>
+        </div>
+      </ng-container>
+      <ng-template #itemListTemplate>
+        <ng-container *ngIf="filteredList.length > 0; else noItems">
+          <mat-list class="list scrollable">
             <app-item-display
-                *ngFor="let item of filteredList; let i = index"
-                [value]="item.key"
-                [icon]="icon"
-                [tooltip]="'Click to select ' + item.key"
-                [editable]="true"
-                [deletable]="true"
-                (delete)="onDeleteItem(item)"
-                (click)="onClickItem(item)"
-                [class.selected]="selectedItem?.key === item.key">
+              *ngFor="let item of filteredList; let i = index"
+              [value]="item.key"
+              [icon]="icon"
+              [tooltip]="'Click to select ' + item.key"
+              [editable]="true"
+              [deletable]="true"
+              (delete)="onDeleteItem(item)"
+              (click)="onClickItem(item)"
+              [class.selected]="selectedItem?.key === item.key">
             </app-item-display>
-        </mat-list>
-    </ng-container>
+          </mat-list>
+        </ng-container>
+      </ng-template>
+    </div>
 
     <ng-template #noItems>
-        <p class="no-items">No items found</p>
+      <p class="no-items">No items found</p>
     </ng-template>
-</div>
+  </div>

@@ -38,6 +38,8 @@ export const API_ENDPOINTS = {
         roles: {
             get: (package_name : string, class_name: string) =>
                 `?get=core_model_roles&entity=${package_name}\\${class_name}`,
+            save: (package_name:string, class_name:string) =>
+                `?do=core_config_update-roles&entity=${package_name}\\${class_name}`,
         }
     },
 

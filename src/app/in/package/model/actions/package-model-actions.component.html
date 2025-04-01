@@ -23,7 +23,8 @@
           (select)="onselectAction($event)"
           (addItem)="addAction($event)"
           (deleteItem)="ondeleteAction($event)"
-          (onrefresh)="refreshAction()">
+          (onrefresh)="refreshAction()"
+          [loading]="loadingState.actions">
         </app-generic-list>
 
         <info-actions *ngIf="selectedAction" sidepane
