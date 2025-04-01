@@ -7,7 +7,7 @@
     </app-info-header>
 
     <div class="info-details">
-      <!-- Champs éditables -->
+      <!-- Editable fields -->
       <div *ngFor="let field of editableFields" class="editable-field">
         <strong>{{ field.label | titlecase }}:</strong>
         <input matInput
@@ -16,42 +16,51 @@
                placeholder="Enter {{ field.label }}">
       </div>
 
-      <!-- Listes associées -->
+      <!-- Linked lists -->
       <div *ngFor="let list of listFields" class="info-list">
         <strong>{{ list.label }}:</strong>
 
-        <!-- 🟢 Sélection simple (mat-select) -->
-        <div *ngIf="!list.type_show">
-          <mat-form-field>
-            <mat-label>Select {{ list.label }}</mat-label>
-            <mat-select [(ngModel)]="selectedListValue[list.key]">
-              <mat-option *ngFor="let option of list.list" [value]="option">
-                {{ list.format ? list.format(option) : option }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-          <button mat-raised-button (click)="addItemToList(list.key)">Add {{ list.label }}</button>
-          <ul>
-            <li *ngFor="let value of getNestedValue(item, list.key) || [] ; let i = index">
-              <span>{{ list.format ? list.format(value) : value }}</span>
-              <button mat-button (click)="removeItemFromList(list.key, i)">Remove</button>
-            </li>
-          </ul>
+        <!-- 🟢 simple selection (mat-select) -->
+        <div *ngIf="!list.type_show" class="selection-container">
+            <mat-form-field>
+                <mat-label>Select {{ list.label }}</mat-label>
+                <mat-select [(ngModel)]="selectedListValue[list.key]">
+                    <mat-option *ngFor="let option of list.list" [value]="option">
+                        {{ list.format ? list.format(option) : option }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <button mat-raised-button (click)="addItemToList(list.key)">Add {{ list.label }}</button>
+            <button mat-icon-button class="refresh-btn" (click)="refresh()">
+                <mat-icon>refresh</mat-icon>
+            </button>
+            <ul>
+                <li *ngFor="let value of getNestedValue(item, list.key) || [] ; let i = index">
+                    <span>{{ list.format ? list.format(value) : value }}</span>
+                    <button mat-button (click)="removeItemFromList(list.key, i)">Remove</button>
+                </li>
+            </ul>
         </div>
 
-        <!-- 🟡 Liste avec Chips (app-chips-autocomplete) -->
-        <app-chips-autocomplete *ngIf="list.type_show==='chips'"
-          [label]="list.label"
-          [list]="list.list"
-          [selectedValues]="getNestedValue(item, list.key) || []"
-          [displayWith]="getDisplayFunction(list)"
-          [allowCreate]="true"
-          (selectionChange)="updateField(list.key, $event)"
-          [type_list] = "list.type_list"
-          (createItem)="onCreateNewItem($event)">
-        </app-chips-autocomplete>
+        <!-- 🟡 Chips (app-chips-autocomplete) -->
+        <div *ngIf="list.type_show === 'chips'" class="chips-container">
+            <app-chips-autocomplete
+                [label]="list.label"
+                [list]="list.list"
+                [selectedValues]="getNestedValue(item, list.key) || []"
+                [displayWith]="getDisplayFunction(list)"
+                [allowCreate]="true"
+                (selectionChange)="updateField(list.key, $event)"
+                [type_list]="list.type_list"
+                (createItem)="onCreateNewItem($event)">
+            </app-chips-autocomplete>
+            <!-- Bouton refresh placé sur la même ligne que la barre des chips -->
+            <button mat-icon-button class="refresh-btn" (click)="refresh()">
+                <mat-icon>refresh</mat-icon>
+            </button>
+        </div>
 
-        <!-- 🔵 Liste avec Checkbox (app-checkbox-list) -->
+        <!-- 🔵 Checkbox (app-checkbox-list) -->
         <app-checkbox-list *ngIf="list.type_show==='checkbox'"
         [label]="list.label"
         [options]="list.list"

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MixedCreatorDialogComponent } from 'src/app/_modules/workbench.module';
 import { ActionItem } from 'src/app/in/_models/actions.model';
@@ -12,13 +12,14 @@ import { NotificationService } from 'src/app/in/_services/notification.service';
 })
 export class InfoActionsComponent implements OnInit {
 
-  @Input() availablePolicies:string[]=["Poilce 11", "Police 23", "Police 234"];
+  @Input() availablePolicies:string[]=[];
   filteredPolicies = [...this.availablePolicies];
   selectedPolicy: string | null = null;
     @Input() package_name: string = '';
     @Input() model_name: string = '';
   @Input() action: ActionItem;
 
+  @Output() onrefresh = new EventEmitter<void>();
   constructor(private matDialog:MatDialog, private notificationService:NotificationService) { }
 
   ngOnInit(): void {
@@ -75,4 +76,7 @@ export class InfoActionsComponent implements OnInit {
     this.action.value.policies.splice(event.index, 1);
   }
 
+  onrefreshPolicy(){
+    this.onrefresh.emit();
+  }
 }

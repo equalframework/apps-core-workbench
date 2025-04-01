@@ -22,14 +22,16 @@
           [icon]="'play_arrow'"
           (select)="onselectAction($event)"
           (addItem)="addAction($event)"
-          (deleteItem)="ondeleteAction($event)">
+          (deleteItem)="ondeleteAction($event)"
+          (onrefresh)="refreshAction()">
         </app-generic-list>
 
         <info-actions *ngIf="selectedAction" sidepane
         [action]="selectedAction"
         [package_name]="package_name"
         [model_name]="model_name"
-        [availablePolicies]="(availablePolicies$ | async) || [] "></info-actions>
+        [availablePolicies]="(availablePolicies$ | async) || [] "
+        (onrefresh)="refreshPolicies()"></info-actions>
   </app-classic-layout>
 
 

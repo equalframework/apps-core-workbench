@@ -7,14 +7,15 @@ import { FormControl } from '@angular/forms';
   styleUrls: ['./generic-list.component.scss']
 })
 export class GenericListComponent<T extends { key: string }> {
-  @Input() itemList: T[] = [];
-  @Input() selectedItem: T | undefined;
-  @Input() icon = 'category';
-  @Output() select = new EventEmitter<T>();
-  @Output() addItem = new EventEmitter<T>();
- @Output() deleteItem = new EventEmitter<T>();
- @Output() refreshList = new EventEmitter<void>();
- @Input() loading = false;
+    @Input() itemList: T[] = [];
+    @Input() selectedItem: T | undefined;
+    @Input() icon = 'category';
+    @Input() loading = false;
+
+    @Output() select = new EventEmitter<T>();
+    @Output() addItem = new EventEmitter<T>();
+    @Output() deleteItem = new EventEmitter<T>();
+    @Output() refreshList = new EventEmitter<void>();
 
   filterControl = new FormControl('');
   newItemName: string = '';

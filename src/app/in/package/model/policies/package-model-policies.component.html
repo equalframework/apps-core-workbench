@@ -22,7 +22,7 @@
           [icon]="'policy'"
           (select)="onselectPolicy($event)"
           (addItem)="addPolicy($event)"
-          (refreshList)="refreshPolicies()"
+          (onrefresh)="refreshPolicies()"
           (deleteItem)="ondeletePolicy($event)">
           [loading]="loading">
         </app-generic-list>

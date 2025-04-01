@@ -89,31 +89,48 @@ export class PackageModelActions implements OnInit, OnDestroy {
         }
       }
 
-      public export(): Observable<Actions> {
+    public export(): Observable<Actions> {
         return this.actions$.pipe(
-          take(1),
-          map(actions => {
+            take(1),
+            map(actions => {
             const actionManager = new ActionManager(actions)
             return actionManager.export()
-          })
+            })
         );
-}
+    }
 
-getPoliciesFromApi(package_name: string, model_name: string): Observable<string[]> {
-    return this.workbenchService.getPolicies(package_name, model_name).pipe(
-      map((response: PolicyResponse) => {
-        return Object.keys(response);
-      })
-    );
-  }
+    getPoliciesFromApi(package_name: string, model_name: string): Observable<string[]> {
+        return this.workbenchService.getPolicies(package_name, model_name).pipe(
+        map((response: PolicyResponse) => {
+            return Object.keys(response);
+        })
+        );
+    }
 
-  ondeleteAction(action: ActionItem): void {
-    this.actions$.pipe(take(1)).subscribe(actions => {
-      const updatedActions = { ...actions };
-      delete updatedActions[action.key];
-      this.actions$ = of(updatedActions);
-    });
-  }
+    ondeleteAction(action: ActionItem): void {
+        this.actions$.pipe(take(1)).subscribe(actions => {
+        const updatedActions = { ...actions };
+        delete updatedActions[action.key];
+        this.actions$ = of(updatedActions);
+        });
+    }
+
+    refreshAction(){
+        this.loading = true;
+        this.actions$ = this.workbenchService.getActions(this.package_name, this.model_name);
+        this.actions$.pipe(take(1)).subscribe(() => {
+            this.loading = false;
+        });
+    }
+
+    refreshPolicies(){
+        this.loading=true;
+        this.availablePolicies$ = this.getPoliciesFromApi(this.package_name, this.model_name);
+        this.availablePolicies$.pipe(take(1)).subscribe(() => {
+            this.loading = false;
+        });
+    }
+
 
 
 

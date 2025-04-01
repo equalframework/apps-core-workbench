@@ -1,8 +1,4 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { Observable } from 'rxjs';
-import { ExplorerDialogComponent } from 'src/app/_dialogs/explorer-dialog/explorer-dialog.component';
-import { MixedCreatorDialogComponent } from 'src/app/_modules/workbench.module';
 import { ListField } from './_models/listFields.model';
 
 @Component({
@@ -11,12 +7,9 @@ import { ListField } from './_models/listFields.model';
   styleUrls: ['./info-generic.component.scss']
 })
 export class InfoGenericComponent<T extends Record<string, any>>  implements OnInit{
-    constructor(private matDialog:MatDialog){
+    constructor(){}
 
-    }
-    ngOnInit(): void {
-        console.log(this.item);
-    }
+    ngOnInit(): void {}
   @Input() title: string;
   @Input() item: T; // L'objet générique (Action, Policy, Role...)
   @Input() descriptionKey: string = 'description'; // Clé pour récupérer la description
@@ -24,10 +17,12 @@ export class InfoGenericComponent<T extends Record<string, any>>  implements OnI
   @Input() listFields: ListField[] = [];
   @Input() package_name: string;
   @Input() model_name:string;
+
   @Output() itemChange = new EventEmitter<T>();
   @Output() addToList = new EventEmitter<{ key: string; value: any }>();
   @Output() removeFromList = new EventEmitter<{ key: string; index: number }>();
   @Output() createItem = new EventEmitter<string>();
+  @Output() onrefresh = new EventEmitter<void>();
   selectedListValue: { [key: string]: any } = {};
 
   // Fonction pour mettre à jour la valeur dans item
@@ -70,6 +65,9 @@ export class InfoGenericComponent<T extends Record<string, any>>  implements OnI
     return listField.format ? values.map(v => listField.format!(v)) : values;
   }
 
+  refresh() {
+    this.onrefresh.emit();
+  }
 
 
 

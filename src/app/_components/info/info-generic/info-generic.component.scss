@@ -64,3 +64,13 @@
   .actions-policies{
     overflow-y:scroll;
   }
+
+  .chips-container, .selection-container {
+    display: flex;
+    align-items: center;
+}
+
+.refresh-btn {
+    margin-left: 10px;
+}
+
