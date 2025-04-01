@@ -44,13 +44,18 @@ export class WorkbenchService {
                         const file_name = node.file.split("/").pop()?.trim() ??""
                         return this.createRoute(node.package_name,file_name,node.name)
             },
-            policy:()=>  this.createPolicy(node.package_name,node.item.model, node.name)
+            policy:()=>  this.createPolicy(node.package_name,node.item.model, node.name),
+            role: ()=> this.createRole(node.package_name,node.item.model, node.name)
 
 
         };
 
         // Return the appropriate observable based on the node type, or a default message for unknown types.
         return createActions[node.type]?.() || of({ message: "Unknown type" });
+    }
+    private createRole(package_name: string, model: any, name: string): Observable<any> {
+        const url = API_ENDPOINTS.class.roles.create(package_name,model,name);
+        return this.callApi(url, 'Role created');
     }
 
 

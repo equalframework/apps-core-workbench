@@ -11,6 +11,7 @@ export class ItemTypes {
         'get':       { icon: "data_array", disp: "Data providers", truetype: true, showInFilter: true },
         'do':        { icon: "open_in_browser", disp: "Action handlers", truetype: true, showInFilter: true },
         'policy':    { icon: "policy", disp: "Policies", truetype: true, showInFilter: false },
+        'role':      {icon: "question_mark", disp:'Roles', truetype:true, showInFilter:false}
     };
 
 

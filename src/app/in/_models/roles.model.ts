@@ -59,8 +59,6 @@ export class RoleManager {
 
     constructor(roles: Roles) {
         this.roles = roles;
-        console.log("roles : ", this.roles);
-        console.log("roles given : ", roles);
     }
 
     export(): { [key: string]: RolesSend } {

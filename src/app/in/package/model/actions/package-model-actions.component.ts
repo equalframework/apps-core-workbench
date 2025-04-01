@@ -2,13 +2,12 @@ import { Location } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
-import { Observable, of, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { map, take, takeUntil } from 'rxjs/operators';
 import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
 import { Action, ActionItem, ActionManager, Actions } from 'src/app/in/_models/actions.model';
 import { PolicyItem, PolicyResponse } from 'src/app/in/_models/policy.model';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
-
 
 @Component({
   selector: 'app-policy',
@@ -16,44 +15,67 @@ import { WorkbenchService } from 'src/app/in/_services/workbench.service';
   styleUrls: ['./package-model-actions.component.scss']
 })
 export class PackageModelActions implements OnInit, OnDestroy {
-    actions$: Observable<Actions>;
+    actions$ = new BehaviorSubject<Actions>({});
+    availablePolicies$ = new BehaviorSubject<string[]>([]);
     package_name: string = '';
     model_name: string = '';
     loading = false;
     selectedAction: ActionItem | undefined;
     private destroy$ = new Subject<void>();
-    availablePolicies$: Observable<string[]>;
     loadingState = {
         actions: false,
         policies: false
     };
+
     constructor(
       private workbenchService: WorkbenchService,
       private route: ActivatedRoute,
       private location: Location,
-    private matDialog:MatDialog
+      private matDialog: MatDialog
     ) {}
 
     ngOnInit(): void {
       this.loading = true;
+
       this.route.params.pipe(takeUntil(this.destroy$)).subscribe(async (params) => {
         this.package_name = params['package_name'];
         this.model_name = params['class_name'];
         this.loading = false;
+        this.loadActions();
+        this.loadPolicies();
       });
-      console.log("package and model : ", this.package_name + "\\" + this.model_name);
-      this.actions$ = this.workbenchService.getActions(this.package_name, this.model_name);
-      this.availablePolicies$ = this.getPoliciesFromApi(this.package_name, this.model_name);
 
+      console.log("Package and model:", this.package_name + "\\" + this.model_name);
     }
 
-    goBack() {
+    /**
+     * Loads the actions from the API and updates the BehaviorSubject.
+     */
+    private loadActions(): void {
+      this.workbenchService.getActions(this.package_name, this.model_name).pipe(
+        take(1)
+      ).subscribe(actions => {
+        this.actions$.next(actions);
+      });
+    }
+
+    /**
+     * Loads the available policies from the API and updates the BehaviorSubject.
+     */
+    private loadPolicies(): void {
+      this.workbenchService.getPolicies(this.package_name, this.model_name).pipe(
+        take(1),
+        map((response: PolicyResponse) => Object.keys(response))
+      ).subscribe(policies => {
+        this.availablePolicies$.next(policies);
+      });
+    }
+
+    goBack(): void {
       this.location.back();
     }
 
-    onselectAction(action: ActionItem) {
-      //this.selectedPolicyIndex = index;
-      //console.log("this.selectedPOlicyIndex", this.selectedPolicyIndex)
+    onselectAction(action: ActionItem): void {
       this.selectedAction = action;
     }
 
@@ -62,7 +84,10 @@ export class PackageModelActions implements OnInit, OnDestroy {
       this.destroy$.complete();
     }
 
-    save() {
+    /**
+     * Saves the current actions by sending them to the API.
+     */
+    save(): void {
         console.log("saved");
 
         this.export().pipe(take(1)).subscribe(exportedActions => {
@@ -70,73 +95,78 @@ export class PackageModelActions implements OnInit, OnDestroy {
             this.workbenchService.saveActions(this.package_name, this.model_name, jsonData);
         });
     }
-    addAction(newItem: ActionItem) {
+
+    /**
+     * Adds a new action to the current state.
+     * @param newItem The item to be added.
+     */
+    addAction(newItem: ActionItem): void {
         this.actions$.pipe(take(1)).subscribe(actions => {
-          const updatedActions = { ...actions, [newItem.key]: { description: '', policies: [], function: '' } };
-          this.actions$ = of(updatedActions);
+            const updatedActions = { ...actions, [newItem.key]: {'description':'','policies':[],'function':''} };
+            this.actions$.next(updatedActions);
         });
-      }
+    }
 
+    /**
+     * Deletes an action from the current state.
+     * @param action The action to be deleted.
+     */
+    ondeleteAction(action: ActionItem): void {
+        this.actions$.pipe(take(1)).subscribe(actions => {
+            const updatedActions = { ...actions };
+            delete updatedActions[action.key];
+            this.actions$.next(updatedActions);
+            this.selectedAction = undefined;
+        });
+    }
 
-    public customButtonBehavior(evt: string) {
-        switch (evt) {
-          case "Show JSON":
-            this.export().subscribe(exportedData => {
-              this.matDialog.open(JsonViewerComponent, {
-                data: exportedData,
-                width: "70vw",
-                height: "80vh"
-              });
+    /**
+     * Displays the actions as JSON.
+     * @param evt The triggering event.
+     */
+    public customButtonBehavior(evt: string): void {
+        if (evt === "Show JSON") {
+            this.export().pipe(take(1)).subscribe(exportedData => {
+                this.matDialog.open(JsonViewerComponent, {
+                    data: exportedData,
+                    width: "70vw",
+                    height: "80vh"
+                });
             });
-            break;
         }
-      }
+    }
 
+    /**
+     * Exports the actions to the required format.
+     * @returns An observable containing the exported actions.
+     */
     public export(): Observable<Actions> {
         return this.actions$.pipe(
             take(1),
-            map(actions => {
-            const actionManager = new ActionManager(actions)
-            return actionManager.export()
-            })
+            map(actions => new ActionManager(actions).export())
         );
     }
 
-    getPoliciesFromApi(package_name: string, model_name: string): Observable<string[]> {
-        return this.workbenchService.getPolicies(package_name, model_name).pipe(
-        map((response: PolicyResponse) => {
-            return Object.keys(response);
-        })
-        );
+    /**
+     * Refreshes the list of actions by reloading them from the API.
+     */
+    refreshAction(): void {
+      this.loadingState.actions = true;
+      this.workbenchService.getActions(this.package_name, this.model_name).pipe(take(1)).subscribe(actions => {
+          this.actions$.next(actions);
+          this.loadingState.actions = false;
+      });
     }
 
-    ondeleteAction(action: ActionItem): void {
-        this.actions$.pipe(take(1)).subscribe(actions => {
-        const updatedActions = { ...actions };
-        delete updatedActions[action.key];
-        this.actions$ = of(updatedActions);
-        this.selectedAction = undefined;
-        });
+    /**
+     * Refreshes the list of available policies by reloading them from the API.
+     */
+    refreshPolicies(): void {
+      this.loadingState.policies = true;
+      this.workbenchService.getPolicies(this.package_name, this.model_name).pipe(take(1)).subscribe(response => {
+          const policies = Object.keys(response);
+          this.availablePolicies$.next(policies);
+          this.loadingState.policies = false;
+      });
     }
-
-    refreshAction(){
-        this.loadingState.actions = true;
-        this.actions$ = this.workbenchService.getActions(this.package_name, this.model_name);
-        this.actions$.pipe(take(1)).subscribe(() => {
-            this.loadingState.actions = false;
-        });
-    }
-
-    refreshPolicies(){
-        this.loadingState.policies=true;
-        this.availablePolicies$ = this.getPoliciesFromApi(this.package_name, this.model_name);
-        this.availablePolicies$.pipe(take(1)).subscribe(() => {
-            this.loadingState.policies = false;
-        });
-    }
-
-
-
-
 }
-
