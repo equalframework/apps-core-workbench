@@ -7,8 +7,15 @@
         <button mat-button color="primary" (click)="onAddItem()">
             <mat-icon>add</mat-icon>
         </button>
+        <button mat-button color="accent" (click)="onrefresh()">
+            <mat-icon>refresh</mat-icon>
+        </button>
     </div>
 
+    <div *ngIf="loading" class="loading-container">
+        <mat-spinner></mat-spinner>
+        <label>Loading...</label>
+    </div>
     <mat-form-field class="input search-bar">
         <mat-icon matPrefix class="icon">filter_list</mat-icon>
         <input matInput placeholder="Search..." [formControl]="filterControl">

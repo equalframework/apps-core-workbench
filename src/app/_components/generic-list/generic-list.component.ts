@@ -13,6 +13,9 @@ export class GenericListComponent<T extends { key: string }> {
   @Output() select = new EventEmitter<T>();
   @Output() addItem = new EventEmitter<T>();
  @Output() deleteItem = new EventEmitter<T>();
+ @Output() refreshList = new EventEmitter<void>();
+ @Input() loading = false;
+
   filterControl = new FormControl('');
   newItemName: string = '';
 
@@ -20,6 +23,9 @@ export class GenericListComponent<T extends { key: string }> {
     this.select.emit(item);
   }
 
+  onrefresh(): void {
+      this.refreshList.emit();
+  }
   onAddItem(): void {
     let itemName = this.newItemName.trim();
 

@@ -40,9 +40,9 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     // optional package ref for limiting creation of components to that specific package
     @Input() package_name: string = "";
     @Input() model_name : string="";
-    @Input() allow_create?: boolean = true;
-    @Input() allow_update?: boolean = true;
-    @Input() allow_delete?: boolean = true;
+    @Input() allow_create: boolean = true;
+    @Input() allow_update: boolean = true;
+    @Input() allow_delete: boolean = true;
     public packageStates: { [packageName: string]: boolean } = {};  // Pour suivre l'état des packages
 
     /*

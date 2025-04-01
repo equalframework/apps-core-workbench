@@ -13,6 +13,7 @@ export class ItemDisplayComponent {
   @Input() deletable: boolean = true;
 
   @Output() delete = new EventEmitter<void>();
+  @Output() itemClick = new EventEmitter<void>();
 
   isEditing: boolean = false;
   editedValue: string = '';
@@ -35,5 +36,9 @@ export class ItemDisplayComponent {
   onDelete(event: Event) {
     event.stopPropagation();
     this.delete.emit();
+  }
+
+  onClickItem() {
+    this.itemClick.emit();
   }
 }

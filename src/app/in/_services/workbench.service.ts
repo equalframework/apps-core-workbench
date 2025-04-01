@@ -44,7 +44,7 @@ export class WorkbenchService {
                         const file_name = node.file.split("/").pop()?.trim() ??""
                         return this.createRoute(node.package_name,file_name,node.name)
             },
-            policy:()=>  this.notImplemented("Policy creation not implemented")
+            policy:()=>  this.createPolicy(node.package_name,node.item.model, node.name)
 
 
         };
@@ -53,6 +53,11 @@ export class WorkbenchService {
         return createActions[node.type]?.() || of({ message: "Unknown type" });
     }
 
+
+    private createPolicy(package_name:string,class_name:string,policy_name:string){
+        const url = API_ENDPOINTS.class.policies.create(package_name,class_name,policy_name);
+        return this.callApi(url,'yes saved');
+    }
 
 
     /**

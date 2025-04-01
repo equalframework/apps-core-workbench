@@ -24,6 +24,9 @@ export const API_ENDPOINTS = {
                 `?get=core_model_policies&entity=${package_name}\\${class_name}`,
             save: (package_name:string, class_name:string) =>
                 `?do=core_config_update-policies&entity=${package_name}\\${class_name}`,
+            create: (package_name:string, class_name: string, policy_name:string) =>
+                `?do=core_config_create-policy&entity=${package_name}\\${class_name}&name=${policy_name}`,
+
         },
         actions: {
             get: (package_name : string, class_name: string) =>

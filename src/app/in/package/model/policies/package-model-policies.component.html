@@ -5,23 +5,26 @@
 [customButton]="true"
 [customButtonList]="[{icon:'bug_report', name:'Show JSON', disabled:false}]"
 (onCustomButton)="customButtonBehavior($event)">
-    <label>Policies of </label><label>{{ package_name }}</label><label>\</label><label>{{ model_name }}</label>
-  </app-inner-header>
-
-  <div *ngIf="loading" class="loading-container">
+<div *ngIf="loading" class="loading-container">
     <mat-spinner></mat-spinner>
     <label>Loading...</label>
   </div>
 
+    <label>Policies of </label><label>{{ package_name }}</label><label>\</label><label>{{ model_name }}</label>
+  </app-inner-header>
 
-  <app-classic-layout *ngIf="!loading">
+
+  <app-classic-layout >
 
         <app-generic-list *ngIf='(policies$ | async) as policies' list
           [itemList]="policies | keyvalue"
           [selectedItem]="selectedPolicy"
           [icon]="'policy'"
           (select)="onselectPolicy($event)"
-          (addItem)="addPolicy($event)">
+          (addItem)="addPolicy($event)"
+          (refreshList)="refreshPolicies()"
+          (deleteItem)="ondeletePolicy($event)">
+          [loading]="loading">
         </app-generic-list>
 
         <app-policy-editor-detail *ngIf="selectedPolicy"

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MixedCreatorDialogComponent } from 'src/app/_modules/workbench.module';
 import { ActionItem } from 'src/app/in/_models/actions.model';

@@ -86,11 +86,28 @@ export class PackageModelPolicies implements OnInit, OnDestroy {
               );
 
   }
+
+  refreshPolicies(): void {
+    this.loading = true;
+    this.policies$ = this.workbenchService.getPolicies(this.package_name, this.model_name);
+    this.policies$.pipe(take(1)).subscribe(() => {
+        this.loading = false;
+    });
+}
   save(){
     this.export().pipe(take(1)).subscribe(exportedActions => {
         const jsonData = JSON.stringify(exportedActions);
         this.workbenchService.savePolicies(this.package_name, this.model_name, jsonData);
     });
   }
+
+
+    ondeletePolicy(policy: PolicyItem): void {
+      this.policies$.pipe(take(1)).subscribe(policies => {
+        const updatedPolicies = { ...policies };
+        delete updatedPolicies[policy.key];
+        this.policies$ = of(updatedPolicies);
+      });
+    }
 }
 
