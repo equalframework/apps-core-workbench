@@ -276,6 +276,16 @@ export class MixedCreatorDialogComponent implements OnInit, OnDestroy {
             .toPromise();
             console.log("this.cache Liste : ", this.cacheList);
             break;
+        case 'role':
+            this.needPackage = true;
+            this.needModel=true;
+            this.implemented=true;
+            this.cacheList = await this.workbenchService
+            .getRoles(this.selectedPackage,this.oldSelectedModel)
+            .pipe(
+                map(response => Object.keys(response))
+            ).toPromise();
+            break;
         default:
             this.implemented = false;
         }
@@ -328,6 +338,10 @@ export class MixedCreatorDialogComponent implements OnInit, OnDestroy {
             this.nameControl.addValidators(MixedCreatorDialogComponent.snake_case_controller);
             this.nameControl.addValidators(MixedCreatorDialogComponent.allLowerCase);
             break;
+        case 'role':
+            this.nameControl.addValidators(MixedCreatorDialogComponent.already_taken(()=>this.cacheList || []));
+            this.nameControl.addValidators(MixedCreatorDialogComponent.snake_case_controller);
+            this.nameControl.addValidators(MixedCreatorDialogComponent.allLowerCase);
         }
     }
 

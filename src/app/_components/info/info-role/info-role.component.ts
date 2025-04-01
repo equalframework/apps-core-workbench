@@ -35,7 +35,7 @@ export class InfoRoleComponent implements OnInit {
             label: 'Implied_by',
             list:this.availableRoles,
             type_show:'chips',
-            type_list:'implied_by'
+            type_list:'role'
 
           }
       ];
