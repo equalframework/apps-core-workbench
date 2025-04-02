@@ -25,14 +25,14 @@
         </div>
       </ng-container>
       <ng-template #itemListTemplate>
-        <ng-container *ngIf="filteredList.length > 0; else noItems">
+        <ng-container *ngIf="filteredList.length > 0; else showNoItems">
           <mat-list class="list scrollable">
             <app-item-display
               *ngFor="let item of filteredList; let i = index"
               [value]="item.key"
               [icon]="icon"
               [tooltip]="'Click to select ' + item.key"
-              [editable]="true"
+              [editable]="false"
               [deletable]="true"
               (delete)="onDeleteItem(item)"
               (click)="onClickItem(item)"
@@ -41,9 +41,9 @@
           </mat-list>
         </ng-container>
       </ng-template>
-    </div>
 
-    <ng-template #noItems>
-      <p class="no-items">No items found</p>
-    </ng-template>
+      <ng-template #showNoItems>
+        <p class="no-items" *ngIf="!loading">No items found</p>
+      </ng-template>
+
   </div>

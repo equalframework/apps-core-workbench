@@ -7,5 +7,7 @@ export interface ListField {
     list: any[];
     type_show?: string;
     type_list: string;
+    allowCreate?: boolean;
+    allowRefresh?:boolean;
     create?: (...args: any[]) => Observable<any>;
   }

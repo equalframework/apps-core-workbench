@@ -2,6 +2,8 @@
  (onButtonBack)="goBack()"
  [buttonSave]="true"
 (onButtonSave)="save()"
+[buttonCancel]="true"
+(onButtonCancel)="cancel()"
 [customButton]="true"
 [customButtonList]="[{icon:'bug_report', name:'Show JSON', disabled:false}]"
 (onCustomButton)="customButtonBehavior($event)">
@@ -10,23 +12,28 @@
     <label>Policies of </label><label>{{ package_name }}</label><label>\</label><label>{{ model_name }}</label>
   </app-inner-header>
 
-  <div *ngIf="loading" class="loading-container">
-    <mat-spinner></mat-spinner>
-    <label>Loading...</label>
-  </div>
-  
+
+
   <app-classic-layout >
 
-        <app-generic-list *ngIf='(policies$ | async) as policies' list
-          [itemList]="policies | keyvalue"
-          [selectedItem]="selectedPolicy"
-          [icon]="'policy'"
-          (select)="onselectPolicy($event)"
-          (addItem)="addPolicy($event)"
-          (onrefresh)="refreshPolicies()"
-          (deleteItem)="ondeletePolicy($event)">
-          [loading]="loading">
-        </app-generic-list>
+    <app-generic-list *ngIf="(policies$ | async) as policies; else loadingTemplate" list
+    [itemList]="policies | keyvalue"
+    [selectedItem]="selectedPolicy"
+    [icon]="'policy'"
+    (select)="onselectPolicy($event)"
+    (addItem)="addPolicy($event)"
+    (onrefresh)="refreshPolicies()"
+    (deleteItem)="ondeletePolicy($event)"
+    [loading]="loading">
+  </app-generic-list>
+
+  <ng-template #loadingTemplate list>
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+      <label>Loading policies...</label>
+    </div>
+  </ng-template>
+
 
         <app-policy-editor-detail *ngIf="selectedPolicy"
         [policy]="selectedPolicy" sidepane>

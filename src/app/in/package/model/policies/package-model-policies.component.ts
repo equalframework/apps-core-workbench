@@ -1,3 +1,4 @@
+import { NotificationService } from './../../../_services/notification.service';
 import { Location } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -25,7 +26,8 @@ export class PackageModelPolicies implements OnInit, OnDestroy {
       private workbenchService: WorkbenchService,
       private route: ActivatedRoute,
       private location: Location,
-      private matDialog: MatDialog
+      private matDialog: MatDialog,
+      private notificationService:NotificationService
     ) {}
 
     ngOnInit(): void {
@@ -37,33 +39,33 @@ export class PackageModelPolicies implements OnInit, OnDestroy {
         this.loading = false;
         this.loadPolicies();
       });
-
-      console.log("Package and model:", this.package_name + "\\" + this.model_name);
     }
 
     /**
      * Loads the policies from the API and updates the BehaviorSubject.
      */
     private loadPolicies(): void {
-      this.workbenchService.getPolicies(this.package_name, this.model_name).pipe(
-        take(1)
-      ).subscribe(policies => {
-        this.policies$.next(policies);
-      });
+        this.loading = true;
+        this.workbenchService.getPolicies(this.package_name, this.model_name).pipe(
+            take(1)
+        ).subscribe(policies => {
+            this.policies$.next(policies);
+            this.loading = false;
+        });
     }
 
     goBack(): void {
-      this.location.back();
+        this.location.back();
     }
 
     onselectPolicy(policy: PolicyItem): void {
-      this.selectedPolicy = policy;
-      console.log("Policy : ", this.selectedPolicy);
+        this.selectedPolicy = policy;
+        console.log("Policy : ", this.selectedPolicy);
     }
 
     ngOnDestroy(): void {
-      this.destroy$.next();
-      this.destroy$.complete();
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     /**
@@ -82,12 +84,12 @@ export class PackageModelPolicies implements OnInit, OnDestroy {
      * @param policy The policy to be deleted.
      */
     ondeletePolicy(policy: PolicyItem): void {
-      this.policies$.pipe(take(1)).subscribe(policies => {
-          const updatedPolicies = { ...policies };
-          delete updatedPolicies[policy.key];
-          this.policies$.next(updatedPolicies);
-          this.selectedPolicy = undefined;
-      });
+        this.policies$.pipe(take(1)).subscribe(policies => {
+            const updatedPolicies = { ...policies };
+            delete updatedPolicies[policy.key];
+            this.policies$.next(updatedPolicies);
+            this.selectedPolicy = undefined;
+        });
     }
 
     /**
@@ -121,20 +123,29 @@ export class PackageModelPolicies implements OnInit, OnDestroy {
      * Refreshes the list of policies by reloading them from the API.
      */
     refreshPolicies(): void {
-      this.loading = true;
-      this.workbenchService.getPolicies(this.package_name, this.model_name).pipe(take(1)).subscribe(policies => {
-          this.policies$.next(policies);
-          this.loading = false;
-      });
+        this.loading = true;
+        this.workbenchService.getPolicies(this.package_name, this.model_name).pipe(take(1)).subscribe(policies => {
+            this.policies$.next(policies);
+            this.loading = false;
+        });
     }
 
     /**
      * Saves the current policies by sending them to the API.
      */
     save(): void {
-      this.export().pipe(take(1)).subscribe(exportedActions => {
-          const jsonData = JSON.stringify(exportedActions);
-          this.workbenchService.savePolicies(this.package_name, this.model_name, jsonData);
-      });
+        this.notificationService.showInfo("Saving....");
+        this.export().pipe(take(1)).subscribe(exportedActions => {
+            const jsonData = JSON.stringify(exportedActions);
+            this.workbenchService.savePolicies(this.package_name, this.model_name, jsonData).pipe(take(1)).subscribe(
+                (result) => {
+                    result.success ? this.notificationService.showSuccess(result.message) : this.notificationService.showError(result.message);
+                }
+            );
+        });
+    }
+
+    cancel(){
+        this.loadPolicies()
     }
 }

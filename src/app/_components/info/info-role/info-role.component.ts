@@ -1,5 +1,5 @@
 import { ListField } from './../info-generic/_models/listFields.model';
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MixedCreatorDialogComponent } from 'src/app/_modules/workbench.module';
 import { allEnumKeys, allEnumValues, convertRights, getRightName, Right, RoleItem } from 'src/app/in/_models/roles.model';
@@ -10,7 +10,7 @@ import { NotificationService } from 'src/app/in/_services/notification.service';
   templateUrl: './info-role.component.html',
   styleUrls: ['./info-role.component.scss']
 })
-export class InfoRoleComponent implements OnInit {
+export class InfoRoleComponent implements OnInit, OnChanges {
 
     @Input() role:RoleItem;
     @Input() availableRoles:string[]=[];
@@ -19,27 +19,37 @@ export class InfoRoleComponent implements OnInit {
     constructor(private matDialog: MatDialog, private notificationService:NotificationService) { }
     listFields:ListField[]
 
+
+    @Output() onrefresh = new EventEmitter<void>();
+
   ngOnInit(): void {
-    console.log("Avaible : ", this.role)
+    this.initializeListFields();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    this.initializeListFields();
+}
+
+initializeListFields(): void {
     this.listFields = [
         {
-          key: 'value.rights',
-          label: 'Rights',
-          list:allEnumValues,
-          type_show: 'checkbox',
-          format: (key: number) => Right[key],
-          type_list:'right'
+            key: 'value.rights',
+            label: 'Rights',
+            list: allEnumValues,
+            type_show: 'checkbox',
+            format: (key: number) => Right[key],
+            type_list: 'right'
         },
         {
             key: 'value.implied_by',
             label: 'Implied_by',
-            list:this.availableRoles,
-            type_show:'chips',
-            type_list:'role'
-
-          }
-      ];
-  }
+            list: this.availableRoles.filter(role => role != this.role.key),
+            type_show: 'chips',
+            type_list: 'role',
+            allowRefresh: false
+        }
+    ];
+}
 
   getRightName(right: Right): string {
     return getRightName(right);
@@ -78,8 +88,15 @@ export class InfoRoleComponent implements OnInit {
                       width: "40em",
                       height: "26em"
                   }).afterClosed().subscribe((data) =>{
+                    if(data.success){
+                       this.availableRoles =[...this.availableRoles, data.node.name];
+                       this.onrefreshRoles();
+                    }
                   this.notificationService.showInfo(data.message);
                   })
       }
 
+      onrefreshRoles(){
+        this.onrefresh.emit();
+    }
 }

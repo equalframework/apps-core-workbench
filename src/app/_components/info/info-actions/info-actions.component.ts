@@ -4,6 +4,7 @@ import { MixedCreatorDialogComponent } from 'src/app/_modules/workbench.module';
 import { ActionItem } from 'src/app/in/_models/actions.model';
 import { PolicyItem } from 'src/app/in/_models/policy.model';
 import { NotificationService } from 'src/app/in/_services/notification.service';
+import { ListField } from '../info-generic/_models/listFields.model';
 
 @Component({
   selector: 'info-actions',
@@ -18,13 +19,13 @@ export class InfoActionsComponent implements OnInit {
     @Input() action: ActionItem;
 
     @Output() onrefresh = new EventEmitter<void>();
-
+    listFields : ListField[]
     filteredPolicies = [...this.availablePolicies];
     selectedPolicy: string | null = null;
     constructor(private matDialog:MatDialog, private notificationService:NotificationService) { }
 
     ngOnInit(): void {
-
+        this.listFields = [{ key: 'value.policies', label: 'Policies', list: this.availablePolicies, type_show:'chips',type_list:'policy' }]
     }
 
     addPolicy(): void {
@@ -47,7 +48,6 @@ export class InfoActionsComponent implements OnInit {
     }
 
     oncreate(type_show:string){
-        console.log(type_show);
     this.matDialog.open(MixedCreatorDialogComponent, {
                     data: {
                         node_type: type_show,
@@ -60,6 +60,9 @@ export class InfoActionsComponent implements OnInit {
                     width: "40em",
                     height: "26em"
                 }).afterClosed().subscribe((data) =>{
+                    if(data.success){
+                       this.availablePolicies = [...this.availablePolicies, data.node.name];
+                    }
                 this.notificationService.showInfo(data.message);
                 })
     }

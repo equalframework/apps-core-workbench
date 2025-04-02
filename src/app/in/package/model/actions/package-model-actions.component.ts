@@ -7,6 +7,7 @@ import { map, take, takeUntil } from 'rxjs/operators';
 import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
 import { Action, ActionItem, ActionManager, Actions } from 'src/app/in/_models/actions.model';
 import { PolicyItem, PolicyResponse } from 'src/app/in/_models/policy.model';
+import { NotificationService } from 'src/app/in/_services/notification.service';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 @Component({
@@ -31,12 +32,12 @@ export class PackageModelActions implements OnInit, OnDestroy {
       private workbenchService: WorkbenchService,
       private route: ActivatedRoute,
       private location: Location,
-      private matDialog: MatDialog
+      private matDialog: MatDialog,
+      private notificationService: NotificationService
     ) {}
 
     ngOnInit(): void {
       this.loading = true;
-
       this.route.params.pipe(takeUntil(this.destroy$)).subscribe(async (params) => {
         this.package_name = params['package_name'];
         this.model_name = params['class_name'];
@@ -52,10 +53,12 @@ export class PackageModelActions implements OnInit, OnDestroy {
      * Loads the actions from the API and updates the BehaviorSubject.
      */
     private loadActions(): void {
+        this.loadingState.actions = true;
       this.workbenchService.getActions(this.package_name, this.model_name).pipe(
         take(1)
       ).subscribe(actions => {
         this.actions$.next(actions);
+        this.loadingState.actions = false;
       });
     }
 
@@ -63,36 +66,40 @@ export class PackageModelActions implements OnInit, OnDestroy {
      * Loads the available policies from the API and updates the BehaviorSubject.
      */
     private loadPolicies(): void {
-      this.workbenchService.getPolicies(this.package_name, this.model_name).pipe(
-        take(1),
-        map((response: PolicyResponse) => Object.keys(response))
-      ).subscribe(policies => {
-        this.availablePolicies$.next(policies);
-      });
+        this.loadingState.policies = true;
+        this.workbenchService.getPolicies(this.package_name, this.model_name).pipe(
+            take(1),
+            map((response: PolicyResponse) => Object.keys(response))
+        ).subscribe(policies => {
+            this.availablePolicies$.next(policies);
+            this.loadingState.policies = false;
+        });
     }
 
     goBack(): void {
-      this.location.back();
+        this.location.back();
     }
 
     onselectAction(action: ActionItem): void {
-      this.selectedAction = action;
+        this.selectedAction = action;
     }
 
     ngOnDestroy(): void {
-      this.destroy$.next();
-      this.destroy$.complete();
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     /**
      * Saves the current actions by sending them to the API.
      */
     save(): void {
-        console.log("saved");
-
         this.export().pipe(take(1)).subscribe(exportedActions => {
             const jsonData = JSON.stringify(exportedActions);
-            this.workbenchService.saveActions(this.package_name, this.model_name, jsonData);
+            this.workbenchService.saveActions(this.package_name, this.model_name, jsonData).pipe(take(1)).subscribe(
+                (result) => {
+                    result.success ? this.notificationService.showSuccess(result.message) : this.notificationService.showError(result.message);
+                }
+            );
         });
     }
 
@@ -168,5 +175,13 @@ export class PackageModelActions implements OnInit, OnDestroy {
           this.availablePolicies$.next(policies);
           this.loadingState.policies = false;
       });
+    }
+
+    /**
+     * Cancel all the changes on reloading
+     */
+    cancel(){
+        this.loadActions();
+        this.loadPolicies();
     }
 }

@@ -1,6 +1,8 @@
 <app-inner-header
 [buttonBack]="true"
 (onButtonBack)="goBack()"
+[buttonCancel]="true"
+(onButtonCancel)="cancel()"
 [buttonSave]="true"
 (onButtonSave)="save()"
 [customButton]="true"
@@ -9,30 +11,33 @@
     <label>Roles of </label><label>{{ package_name }}</label><label>\</label><label>{{ model_name }}</label>
   </app-inner-header>
 
-  <div *ngIf="loading" class="loading-container">
-    <mat-spinner></mat-spinner>
-    <label>Loading...</label>
-  </div>
+  <app-classic-layout>
 
-  <app-classic-layout *ngIf="!loading">
-
-    <app-generic-list *ngIf='(roles$ | async) as roles' list
+    <app-generic-list *ngIf='(roles$ | async) as roles; else loadingTemplate' list
       [itemList]="roles | keyvalue"
       [selectedItem]="selectedRole"
       [icon]="'question_mark'"
-      (select)="onselectRole($event)"
+      (select)="selectRole($event)"
       (addItem)="addRole($event)"
       (deleteItem)="deleteRole($event)"
-      (onrefresh)="refreshRoles()">
+      (onrefresh)="refreshRoles()"
+      [loading]="loading">
     </app-generic-list>
 
+    <ng-template #loadingTemplate list>
+        <div class="loading-container">
+          <mat-spinner></mat-spinner>
+          <label>Loading policies...</label>
+        </div>
+      </ng-template>
 
     <info-role sidepane
     *ngIf="selectedRole"
     [role]="selectedRole"
-    [availableRoles]="availableRoles"
+    [availableRoles]="(availableRoles$ | async) || []"
     [package_name]="package_name"
     [model_name]="model_name"
+    (onrefresh)="refreshRoles()"
     >
 
     </info-role>

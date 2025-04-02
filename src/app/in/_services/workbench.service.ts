@@ -55,13 +55,13 @@ export class WorkbenchService {
     }
     private createRole(package_name: string, model: any, name: string): Observable<any> {
         const url = API_ENDPOINTS.class.roles.create(package_name,model,name);
-        return this.callApi(url, 'Role created');
+        return this.callApi(url, `Role ${name} created`);
     }
 
 
     private createPolicy(package_name:string,class_name:string,policy_name:string){
         const url = API_ENDPOINTS.class.policies.create(package_name,class_name,policy_name);
-        return this.callApi(url,'yes saved');
+        return this.callApi(url,`Policy ${policy_name} created`);
     }
 
 

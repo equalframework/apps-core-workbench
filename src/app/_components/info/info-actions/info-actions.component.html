@@ -3,7 +3,7 @@
   [item]="action"
   [descriptionKey]="'value.description'"
   [editableFields]="[{key:'value.function', label:'Function'}, {key:'value.description',label:'Description'}]"
-  [listFields]="[{ key: 'value.policies', label: 'Policies', list: availablePolicies, type_show:'chips',type_list:'policy' }]"
+  [listFields]="listFields"
   (itemChange)="onActionChange($event)"
   (addToList)="onAddPolicy($event)"
   (removeFromList)="onRemovePolicy($event)"

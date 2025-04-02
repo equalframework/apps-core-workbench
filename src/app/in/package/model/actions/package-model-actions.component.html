@@ -2,6 +2,8 @@
 (onButtonBack)="goBack()"
 [buttonSave]="true"
 (onButtonSave)="save()"
+[buttonCancel]="true"
+(onButtonCancel)="cancel()"
 [customButton]="true"
 [customButtonList]="[{icon:'bug_report', name:'Show JSON', disabled:false}]"
 (onCustomButton)="customButtonBehavior($event)">
@@ -16,7 +18,7 @@
 
   <app-classic-layout *ngIf="!loading">
 
-        <app-generic-list *ngIf='(actions$ | async) as actions' list
+        <app-generic-list *ngIf="(actions$ | async) as actions;else loadingTemplate" list
           [itemList]="actions | keyvalue"
           [selectedItem]="selectedAction"
           [icon]="'play_arrow'"
@@ -27,12 +29,20 @@
           [loading]="loadingState.actions">
         </app-generic-list>
 
+        <ng-template #loadingTemplate list>
+            <div class="loading-container">
+              <mat-spinner></mat-spinner>
+              <label>Loading actions...</label>
+            </div>
+          </ng-template>
+
         <info-actions *ngIf="selectedAction" sidepane
         [action]="selectedAction"
         [package_name]="package_name"
         [model_name]="model_name"
         [availablePolicies]="(availablePolicies$ | async) || [] "
         (onrefresh)="refreshPolicies()"></info-actions>
+        
   </app-classic-layout>
 
 

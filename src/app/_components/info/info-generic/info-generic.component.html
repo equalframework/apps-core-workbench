@@ -49,13 +49,12 @@
                 [list]="list.list"
                 [selectedValues]="getNestedValue(item, list.key) || []"
                 [displayWith]="getDisplayFunction(list)"
-                [allowCreate]="true"
+                [allowCreate]="list?.allowCreate ?? true"
                 (selectionChange)="updateField(list.key, $event)"
                 [type_list]="list.type_list"
                 (createItem)="onCreateNewItem($event)">
             </app-chips-autocomplete>
-            <!-- Bouton refresh placé sur la même ligne que la barre des chips -->
-            <button mat-icon-button class="refresh-btn" (click)="refresh()">
+            <button mat-icon-button class="refresh-btn" *ngIf="list?.allowRefresh?? true"(click)="refresh()">
                 <mat-icon>refresh</mat-icon>
             </button>
         </div>
