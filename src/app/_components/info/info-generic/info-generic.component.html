@@ -10,11 +10,22 @@
       <!-- Editable fields -->
       <div *ngFor="let field of editableFields" class="editable-field">
         <strong>{{ field.label | titlecase }}:</strong>
-        <input matInput
+
+        <textarea *ngIf="isLongText(getNestedValue(item, field.key))"
+                  matInput
+                  [ngModel]="getNestedValue(item, field.key)"
+                  (ngModelChange)="updateField(field.key, $event)"
+                  placeholder="Enter {{ field.label }}"
+                  rows="3">
+        </textarea>
+
+        <input *ngIf="!isLongText(getNestedValue(item, field.key))"
+               matInput
                [ngModel]="getNestedValue(item, field.key)"
                (ngModelChange)="updateField(field.key, $event)"
                placeholder="Enter {{ field.label }}">
-      </div>
+    </div>
+
 
       <!-- Linked lists -->
       <div *ngFor="let list of listFields" class="info-list">

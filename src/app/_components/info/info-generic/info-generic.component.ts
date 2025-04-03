@@ -77,6 +77,8 @@ export class InfoGenericComponent<T extends Record<string, any>>  implements OnI
         this.onrefresh.emit();
     }
 
-
+    isLongText(value: string | null | undefined): boolean {
+        return value ? value.length > 50 : false;
+      }
 
 }
