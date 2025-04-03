@@ -122,14 +122,14 @@ export class WorkbenchService {
     public getPolicies(package_name: string, class_name:string): Observable<PolicyResponse>{
         const url = API_ENDPOINTS.class.policies.get(package_name,class_name);
         return this.callApi(url,'').pipe(
-            map(({response})=> response)
+            map(({success, response})=> success ? response: [])
         );
     }
 
     public getActions(package_name:string, class_name:string):Observable<Actions>{
         const url = API_ENDPOINTS.class.actions.get(package_name,class_name);
         return this.callApi(url,'').pipe(
-            map(({response}) => response)
+            map(({success, response})=> success ? response: [])
         )
     }
 
@@ -143,7 +143,6 @@ export class WorkbenchService {
                     if (Array.isArray(role.rights)) {
                         role.rights = convertRightsFromStrings(role.rights);
                     } else if (typeof role.rights === 'number') {
-                        // Cas où rights est un entier (bitwise OR)
                         role.rights = convertRights(role.rights);
                     }
 
@@ -151,8 +150,6 @@ export class WorkbenchService {
                         role.implied_by = [];
                     }
                 });
-
-                console.log("response : ", response);
                 return response;
             })
         );

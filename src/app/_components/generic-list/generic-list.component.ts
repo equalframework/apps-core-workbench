@@ -73,6 +73,7 @@ export class GenericListComponent<T extends { key: string }> {
      */
     @Input() icon = 'category';
 
+    @Input() type_item: string = 'item'
     /**
      * Enables or disables the loading indicator.
      */

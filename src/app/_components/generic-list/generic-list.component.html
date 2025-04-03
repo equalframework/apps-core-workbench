@@ -1,7 +1,7 @@
 <div class="list-container">
     <div class="add-item-container">
       <mat-form-field class="input add-item">
-        <mat-label>Enter item name</mat-label>
+        <mat-label>Enter {{type_item}} name</mat-label>
         <input matInput [(ngModel)]="newItemName" placeholder="Enter name">
       </mat-form-field>
       <button mat-button color="primary" (click)="onAddItem()">
@@ -43,7 +43,7 @@
       </ng-template>
 
       <ng-template #showNoItems>
-        <p class="no-items" *ngIf="!loading">No items found</p>
+        <p class="no-items" *ngIf="!loading">No {{type_item}} found</p>
       </ng-template>
 
   </div>

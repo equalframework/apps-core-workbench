@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MixedCreatorDialogComponent } from 'src/app/_modules/workbench.module';
 import { ActionItem } from 'src/app/in/_models/actions.model';
@@ -11,7 +11,7 @@ import { ListField } from '../info-generic/_models/listFields.model';
   templateUrl: './info-actions.component.html',
   styleUrls: ['./info-actions.component.scss']
 })
-export class InfoActionsComponent implements OnInit {
+export class InfoActionsComponent implements OnInit, OnChanges {
 
     @Input() availablePolicies:string[]=[];
     @Input() package_name: string = '';
@@ -25,7 +25,23 @@ export class InfoActionsComponent implements OnInit {
     constructor(private matDialog:MatDialog, private notificationService:NotificationService) { }
 
     ngOnInit(): void {
-        this.listFields = [{ key: 'value.policies', label: 'Policies', list: this.availablePolicies, type_show:'chips',type_list:'policy' }]
+        this.initializeListFields()
+    }
+
+    ngOnChanges(changes: SimpleChanges) {
+        this.initializeListFields();
+    }
+
+    initializeListFields(): void {
+        this.listFields = [
+            {
+            key: 'value.policies',
+            label: 'Policies',
+            list: this.availablePolicies,
+            type_show:'chips',
+            type_list:'policy'
+            }
+        ]
     }
 
     addPolicy(): void {
@@ -60,7 +76,7 @@ export class InfoActionsComponent implements OnInit {
                     width: "40em",
                     height: "26em"
                 }).afterClosed().subscribe((data) =>{
-                    if(data.success){
+                    if(data?.success){
                        this.availablePolicies = [...this.availablePolicies, data.node.name];
                     }
                 this.notificationService.showInfo(data.message);

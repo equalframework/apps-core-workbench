@@ -1,9 +1,10 @@
+import { ButtonStateService } from './../../../_services/button-state.service';
 import { Location } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { takeUntil, map, take, shareReplay } from 'rxjs/operators';
+import { takeUntil, map, take, shareReplay, finalize } from 'rxjs/operators';
 import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
 import { RoleItem, RoleManager, Roles } from 'src/app/in/_models/roles.model';
 import { NotificationService } from 'src/app/in/_services/notification.service';
@@ -28,7 +29,8 @@ export class PackageModelRoles implements OnInit, OnDestroy {
       private route: ActivatedRoute,
       private location: Location,
       private matDialog: MatDialog,
-      private notificationService: NotificationService
+      private notificationService: NotificationService,
+      public buttonStateService:ButtonStateService
     ) {}
 
     ngOnInit(): void {
@@ -42,12 +44,15 @@ export class PackageModelRoles implements OnInit, OnDestroy {
 
     private loadRoles(): void {
         this.loading = true;
+        this.buttonStateService.disableButtons()
         this.workbenchService.getRoles(this.package_name, this.model_name).pipe(
             take(1),
             shareReplay(1)
         ).subscribe(roles => {
             this.roles$.next(roles);
             this.loading = false;
+            this.buttonStateService.enableButtons()
+
         });
     }
 
@@ -65,17 +70,27 @@ export class PackageModelRoles implements OnInit, OnDestroy {
     }
 
     save(): void {
+        this.buttonStateService.disableButtons();
         this.notificationService.showInfo("Saving...");
         this.export().pipe(take(1)).subscribe(exportedActions => {
-            const jsonData = JSON.stringify(exportedActions);
-            this.workbenchService.saveRoles(this.package_name, this.model_name, jsonData).pipe(take(1)).subscribe(
-                result => result.success
-                    ? this.notificationService.showSuccess(result.message)
-                    : this.notificationService.showError(result.message)
-            );
+          const jsonData = JSON.stringify(exportedActions);
+          this.workbenchService.saveRoles(this.package_name, this.model_name, jsonData).pipe(
+            take(1),
+            finalize(() => this.buttonStateService.enableButtons())
+          ).subscribe(
+            (result) => {
+              if (result.success) {
+                this.notificationService.showSuccess(result.message);
+              } else {
+                this.notificationService.showError(result.message);
+              }
+            },
+            (error) => {
+              this.notificationService.showError("Error when saving");
+            }
+          );
         });
-    }
-
+      }
     customButtonBehavior(event: string): void {
         if (event === "Show JSON") {
             this.export().pipe(take(1)).subscribe(exportedData => {

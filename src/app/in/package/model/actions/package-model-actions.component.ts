@@ -7,6 +7,7 @@ import { map, take, takeUntil } from 'rxjs/operators';
 import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
 import { Action, ActionItem, ActionManager, Actions } from 'src/app/in/_models/actions.model';
 import { PolicyItem, PolicyResponse } from 'src/app/in/_models/policy.model';
+import { ButtonStateService } from 'src/app/in/_services/button-state.service';
 import { NotificationService } from 'src/app/in/_services/notification.service';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
@@ -33,7 +34,8 @@ export class PackageModelActions implements OnInit, OnDestroy {
       private route: ActivatedRoute,
       private location: Location,
       private matDialog: MatDialog,
-      private notificationService: NotificationService
+      private notificationService: NotificationService,
+      public buttonStateService: ButtonStateService
     ) {}
 
     ngOnInit(): void {
@@ -54,12 +56,14 @@ export class PackageModelActions implements OnInit, OnDestroy {
      */
     private loadActions(): void {
         this.loadingState.actions = true;
-      this.workbenchService.getActions(this.package_name, this.model_name).pipe(
-        take(1)
-      ).subscribe(actions => {
-        this.actions$.next(actions);
-        this.loadingState.actions = false;
-      });
+        this.buttonStateService.disableButtons()
+        this.workbenchService.getActions(this.package_name, this.model_name).pipe(
+            take(1)
+        ).subscribe(actions => {
+            this.actions$.next(actions);
+            this.loadingState.actions = false;
+            this.buttonStateService.enableButtons()
+        });
     }
 
     /**
@@ -93,11 +97,14 @@ export class PackageModelActions implements OnInit, OnDestroy {
      * Saves the current actions by sending them to the API.
      */
     save(): void {
+        this.buttonStateService.disableButtons();
+        this.notificationService.showInfo("Saving...")
         this.export().pipe(take(1)).subscribe(exportedActions => {
             const jsonData = JSON.stringify(exportedActions);
             this.workbenchService.saveActions(this.package_name, this.model_name, jsonData).pipe(take(1)).subscribe(
                 (result) => {
                     result.success ? this.notificationService.showSuccess(result.message) : this.notificationService.showError(result.message);
+                    this.buttonStateService.enableButtons()
                 }
             );
         });
@@ -158,23 +165,14 @@ export class PackageModelActions implements OnInit, OnDestroy {
      * Refreshes the list of actions by reloading them from the API.
      */
     refreshAction(): void {
-      this.loadingState.actions = true;
-      this.workbenchService.getActions(this.package_name, this.model_name).pipe(take(1)).subscribe(actions => {
-          this.actions$.next(actions);
-          this.loadingState.actions = false;
-      });
+        this.loadActions()
     }
 
     /**
      * Refreshes the list of available policies by reloading them from the API.
      */
     refreshPolicies(): void {
-      this.loadingState.policies = true;
-      this.workbenchService.getPolicies(this.package_name, this.model_name).pipe(take(1)).subscribe(response => {
-          const policies = Object.keys(response);
-          this.availablePolicies$.next(policies);
-          this.loadingState.policies = false;
-      });
+        this.loadPolicies();
     }
 
     /**

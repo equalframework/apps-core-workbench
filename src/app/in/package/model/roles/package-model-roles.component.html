@@ -3,8 +3,10 @@
 (onButtonBack)="goBack()"
 [buttonCancel]="true"
 (onButtonCancel)="cancel()"
+[buttonCancelDisabled]="(buttonStateService.buttonsState$ | async)?.cancel || false"
 [buttonSave]="true"
 (onButtonSave)="save()"
+[buttonSaveDisabled]="(buttonStateService.buttonsState$ | async)?.save || false"
 [customButton]="true"
 [customButtonList]="[{icon:'bug_report', name:'Show JSON', disabled:false}]"
 (onCustomButton)="customButtonBehavior($event)">
@@ -14,14 +16,15 @@
   <app-classic-layout>
 
     <app-generic-list *ngIf='(roles$ | async) as roles; else loadingTemplate' list
-      [itemList]="roles | keyvalue"
-      [selectedItem]="selectedRole"
-      [icon]="'question_mark'"
-      (select)="selectRole($event)"
-      (addItem)="addRole($event)"
-      (deleteItem)="deleteRole($event)"
-      (onrefresh)="refreshRoles()"
-      [loading]="loading">
+        [type_item]="'roles'"
+        [itemList]="roles | keyvalue"
+        [selectedItem]="selectedRole"
+        [icon]="'question_mark'"
+        (select)="selectRole($event)"
+        (addItem)="addRole($event)"
+        (deleteItem)="deleteRole($event)"
+        (onrefresh)="refreshRoles()"
+        [loading]="loading">
     </app-generic-list>
 
     <ng-template #loadingTemplate list>

@@ -7,6 +7,7 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { map, take, takeUntil } from 'rxjs/operators';
 import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
 import { PolicyItem, PolicyManager, PolicyResponse } from 'src/app/in/_models/policy.model';
+import { ButtonStateService } from 'src/app/in/_services/button-state.service';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 @Component({
@@ -20,6 +21,10 @@ export class PackageModelPolicies implements OnInit, OnDestroy {
     model_name: string = '';
     loading = false;
     selectedPolicy: PolicyItem | undefined;
+    buttonsDisable = {
+        save:false,
+        cancel:false
+    }
     private destroy$ = new Subject<void>();
 
     constructor(
@@ -27,7 +32,8 @@ export class PackageModelPolicies implements OnInit, OnDestroy {
       private route: ActivatedRoute,
       private location: Location,
       private matDialog: MatDialog,
-      private notificationService:NotificationService
+      private notificationService:NotificationService,
+      public buttonStateService: ButtonStateService
     ) {}
 
     ngOnInit(): void {
@@ -45,14 +51,17 @@ export class PackageModelPolicies implements OnInit, OnDestroy {
      * Loads the policies from the API and updates the BehaviorSubject.
      */
     private loadPolicies(): void {
+        this.buttonStateService.disableButtons()
         this.loading = true;
         this.workbenchService.getPolicies(this.package_name, this.model_name).pipe(
             take(1)
         ).subscribe(policies => {
             this.policies$.next(policies);
             this.loading = false;
+            this.buttonStateService.enableButtons()
         });
     }
+
 
     goBack(): void {
         this.location.back();
@@ -134,12 +143,22 @@ export class PackageModelPolicies implements OnInit, OnDestroy {
      * Saves the current policies by sending them to the API.
      */
     save(): void {
+        this.buttonStateService.disableButtons()
         this.notificationService.showInfo("Saving....");
         this.export().pipe(take(1)).subscribe(exportedActions => {
             const jsonData = JSON.stringify(exportedActions);
             this.workbenchService.savePolicies(this.package_name, this.model_name, jsonData).pipe(take(1)).subscribe(
                 (result) => {
-                    result.success ? this.notificationService.showSuccess(result.message) : this.notificationService.showError(result.message);
+                    this.buttonStateService.enableButtons()
+                    if (result.success) {
+                        this.notificationService.showSuccess(result.message);
+                    } else {
+                        this.notificationService.showError(result.message);
+                    }
+                },
+                (error) => {
+                    this.buttonStateService.enableButtons()
+                    this.notificationService.showError("Error when saving");
                 }
             );
         });
