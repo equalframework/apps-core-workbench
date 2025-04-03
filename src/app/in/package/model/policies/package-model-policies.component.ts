@@ -166,5 +166,7 @@ export class PackageModelPolicies implements OnInit, OnDestroy {
 
     cancel(){
         this.loadPolicies()
+        this.selectedPolicy = undefined;
+
     }
 }

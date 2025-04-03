@@ -133,5 +133,6 @@ export class PackageModelRoles implements OnInit, OnDestroy {
 
     cancel(): void {
         this.loadRoles();
+        this.selectedRole = undefined;
     }
 }

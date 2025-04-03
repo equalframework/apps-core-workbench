@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, ElementRef, ViewChild, AfterViewChecked } from '@angular/core';
 import { ListField } from './_models/listFields.model';
 
 @Component({
@@ -6,8 +6,12 @@ import { ListField } from './_models/listFields.model';
   templateUrl: './info-generic.component.html',
   styleUrls: ['./info-generic.component.scss']
 })
-export class InfoGenericComponent<T extends Record<string, any>>  implements OnInit, OnChanges{
+export class InfoGenericComponent<T extends Record<string, any>>  implements OnInit,AfterViewChecked{
     constructor(){}
+
+    @ViewChild('refInput') refInput!: ElementRef;
+  @ViewChild('refTextarea') refTextarea!: ElementRef;
+  private lastFocusedField: string | null = null;
 
     ngOnInit(): void {}
     @Input() title: string;
@@ -17,6 +21,7 @@ export class InfoGenericComponent<T extends Record<string, any>>  implements OnI
     @Input() listFields: ListField[] = [];
     @Input() package_name: string;
     @Input() model_name:string;
+
 
     @Output() itemChange = new EventEmitter<T>();
     @Output() addToList = new EventEmitter<{ key: string; value: any }>();
@@ -35,15 +40,21 @@ export class InfoGenericComponent<T extends Record<string, any>>  implements OnI
         }
     }
 
-     /**
-     * Detects changes in `item` and `listFields`
-     */
-     ngOnChanges(changes: SimpleChanges): void {
-        if (changes['item']) {
-            console.log("Item updated in InfoGenericComponent:", this.item);
-        }
-        if (changes['listFields']) {
-            console.log("ListFields updated in InfoGenericComponent:", this.listFields);
+
+    handleInputChange(fieldKey: string, value: string) {
+        this.updateField(fieldKey, value);
+        this.lastFocusedField = fieldKey;
+      }
+
+    ngAfterViewChecked(): void {
+        if (this.lastFocusedField) {
+            setTimeout(() => {
+            if (this.refInput?.nativeElement) {
+                this.refInput.nativeElement.focus();
+            } else if (this.refTextarea?.nativeElement) {
+                this.refTextarea.nativeElement.focus();
+            }
+            });
         }
     }
     addItemToList(key: string) {
@@ -78,7 +89,7 @@ export class InfoGenericComponent<T extends Record<string, any>>  implements OnI
     }
 
     isLongText(value: string | null | undefined): boolean {
-        return value ? value.length > 50 : false;
+        return value ? value.length > 80 : false;
       }
 
 }

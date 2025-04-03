@@ -181,5 +181,6 @@ export class PackageModelActions implements OnInit, OnDestroy {
     cancel(){
         this.loadActions();
         this.loadPolicies();
+        this.selectedAction = undefined;
     }
 }
