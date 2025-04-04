@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, ElementRef, ViewChild, AfterViewChecked } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import { ListField } from './_models/listFields.model';
 
 @Component({
@@ -6,12 +6,8 @@ import { ListField } from './_models/listFields.model';
   templateUrl: './info-generic.component.html',
   styleUrls: ['./info-generic.component.scss']
 })
-export class InfoGenericComponent<T extends Record<string, any>>  implements OnInit,AfterViewChecked{
+export class InfoGenericComponent<T extends Record<string, any>>  implements OnInit{
     constructor(){}
-
-    @ViewChild('refInput') refInput!: ElementRef;
-  @ViewChild('refTextarea') refTextarea!: ElementRef;
-  private lastFocusedField: string | null = null;
 
     ngOnInit(): void {}
     @Input() title: string;
@@ -43,20 +39,8 @@ export class InfoGenericComponent<T extends Record<string, any>>  implements OnI
 
     handleInputChange(fieldKey: string, value: string) {
         this.updateField(fieldKey, value);
-        this.lastFocusedField = fieldKey;
       }
 
-    ngAfterViewChecked(): void {
-        if (this.lastFocusedField) {
-            setTimeout(() => {
-            if (this.refInput?.nativeElement) {
-                this.refInput.nativeElement.focus();
-            } else if (this.refTextarea?.nativeElement) {
-                this.refTextarea.nativeElement.focus();
-            }
-            });
-        }
-    }
     addItemToList(key: string) {
         if (this.selectedListValue[key]) {
         this.addToList.emit({ key, value: this.selectedListValue[key] });
@@ -89,7 +73,7 @@ export class InfoGenericComponent<T extends Record<string, any>>  implements OnI
     }
 
     isLongText(value: string | null | undefined): boolean {
-        return value ? value.length > 80 : false;
+        return value ? value.length > 165 : false;
       }
 
 }
