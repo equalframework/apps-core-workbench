@@ -1,0 +1,17 @@
+button {
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.3s, transform 0.2s;
+    height: 20px;
+    width: 20px;
+
+
+
+    mat-icon {
+      color: #00796b;
+      font-size: 15px;
+      padding: 0 0 30px;
+    }
+  }

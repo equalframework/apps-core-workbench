@@ -1,36 +1,30 @@
-/* File Explorer Container */
 .file-explorer-container {
-    display: flex;
-    flex-direction: column;
     height: 70vh;
-}
-
-/* Layout for the file explorer */
-.file-explorer-wrapper {
-    display: flex;
-    flex-grow: 1;
+    min-height: 70vh;
+    max-height: 70vh;
     overflow: hidden;
 }
 
-/* Left section: Folder list */
-.packages {
-    width: 250px;
-    max-height: 100%;
-    flex-grow: 1;
-    overflow-y: auto;
-    padding-bottom: 20px; /* Space for better visibility */
-    border-right: 1px solid #ddd;
-    padding-right: 10px;
+.file-explorer-wrapper {
+    display: flex;
+    height: 100%;
+    width: 100%;
 }
 
-/* Right section: Items + Add Item */
-.items {
-    flex-grow: 1;
-    padding-left: 20px;
-    max-height: 100%;
-    display: flex;
-    flex-direction: column;
+.packages {
+    width: 250px;
+    min-width: 250px;
+    max-width: 250px;
+    overflow-y: auto;
 }
+
+.item-list {
+    flex: 0 0 auto;
+    height: calc(100% - 50px);
+    overflow-y: auto;
+}
+
+
 
 /* Item list should take all available space and be scrollable */
 .item-list {
@@ -39,6 +33,13 @@
     padding-bottom: 10px; /* Space for better visibility */
 }
 
+.items {
+    flex-grow: 1;
+    padding-left: 20px;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+}
 /* List items */
 .mat-list-item {
     cursor: pointer;

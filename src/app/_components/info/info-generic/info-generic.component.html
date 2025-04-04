@@ -1,0 +1,87 @@
+<div class="info-container">
+    <app-info-header
+      [titleLabel]="title"
+      [title]="item?.key"
+      [copyText]="item?.key"
+      [description]="item?.value.description">
+    </app-info-header>
+
+    <div class="info-details">
+      <!-- Editable fields -->
+      <div *ngFor="let field of editableFields" class="editable-field">
+        <strong>{{ field.label | titlecase }}:</strong>
+        <textarea *ngIf="isLongText(getNestedValue(item, field.key))"
+                  #refTextarea
+                  matInput
+                  [ngModel]="getNestedValue(item, field.key)"
+                  (ngModelChange)="handleInputChange(field.key, $event)"
+                  placeholder="Enter {{ field.label }}"
+                  rows="3">
+        </textarea>
+
+        <input *ngIf="!isLongText(getNestedValue(item, field.key))"
+               #refInput
+               matInput
+               [ngModel]="getNestedValue(item, field.key)"
+               (ngModelChange)="handleInputChange(field.key, $event)"
+               placeholder="Enter {{ field.label }}">
+    </div>
+
+
+
+      <!-- Linked lists -->
+      <div *ngFor="let list of listFields" class="info-list">
+        <strong>{{ list.label }}:</strong>
+
+        <!-- 🟢 simple selection (mat-select) -->
+        <div *ngIf="!list.type_show" class="selection-container">
+            <mat-form-field>
+                <mat-label>Select {{ list.label }}</mat-label>
+                <mat-select [(ngModel)]="selectedListValue[list.key]">
+                    <mat-option *ngFor="let option of list.list" [value]="option">
+                        {{ list.format ? list.format(option) : option }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <button mat-raised-button (click)="addItemToList(list.key)">Add {{ list.label }}</button>
+            <button mat-icon-button class="refresh-btn" (click)="refresh()">
+                <mat-icon>refresh</mat-icon>
+            </button>
+            <ul>
+                <li *ngFor="let value of getNestedValue(item, list.key) || [] ; let i = index">
+                    <span>{{ list.format ? list.format(value) : value }}</span>
+                    <button mat-button (click)="removeItemFromList(list.key, i)">Remove</button>
+                </li>
+            </ul>
+        </div>
+
+        <!-- 🟡 Chips (app-chips-autocomplete) -->
+        <div *ngIf="list.type_show === 'chips'" class="chips-container">
+            <app-chips-autocomplete
+                [label]="list.label"
+                [list]="list.list"
+                [selectedValues]="getNestedValue(item, list.key) || []"
+                [displayWith]="getDisplayFunction(list)"
+                [allowCreate]="list?.allowCreate ?? true"
+                (selectionChange)="updateField(list.key, $event)"
+                [type_list]="list.type_list"
+                (createItem)="onCreateNewItem($event)">
+            </app-chips-autocomplete>
+            <button mat-icon-button class="refresh-btn" *ngIf="list?.allowRefresh?? true"(click)="refresh()">
+                <mat-icon>refresh</mat-icon>
+            </button>
+        </div>
+
+        <!-- 🔵 Checkbox (app-checkbox-list) -->
+        <app-checkbox-list *ngIf="list.type_show==='checkbox'"
+        [label]="list.label"
+        [options]="list.list"
+        [selectedValues]="getNestedValue(item,list.key) || []"
+        [displayWith]="getDisplayFunction(list)"
+        (selectionChange)="updateField(list.key, $event)">
+        </app-checkbox-list>
+
+
+      </div>
+    </div>
+  </div>
