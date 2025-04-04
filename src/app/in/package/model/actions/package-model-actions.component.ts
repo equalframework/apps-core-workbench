@@ -78,7 +78,6 @@ export class PackageModelActions implements OnInit, OnDestroy {
      */
     private loadPolicies(): void {
         this.loadingState.policies = true;
-
         this.workbenchService.getPolicies(this.package_name, this.model_name).pipe(
           take(1),
           map((response: PolicyResponse) => Object.keys(response)),
