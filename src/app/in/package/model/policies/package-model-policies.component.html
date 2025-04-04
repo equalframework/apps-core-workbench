@@ -1,33 +1,36 @@
-<app-inner-header [buttonBack]="true"
- (onButtonBack)="goBack()"
- [buttonSave]="true"
- [buttonSaveDisabled]="(buttonStateService.buttonsState$ | async)?.save || false"
-(onButtonSave)="save()"
-[buttonCancel]="true"
-(onButtonCancel)="cancel()"
-[buttonCancelDisabled]="(buttonStateService.buttonsState$ | async)?.cancel || false"
-[customButton]="true"
-[customButtonList]="[{icon:'bug_report', name:'Show JSON', disabled:false}]"
-(onCustomButton)="customButtonBehavior($event)">
+<app-inner-header
+  [buttonBack]="true"
+  (onButtonBack)="goBack()"
+  [buttonSave]="true"
+  [buttonSaveDisabled]="(buttonStateService.buttonsState$ | async)?.save || false"
+  (onButtonSave)="save()"
+  [buttonCancel]="true"
+  (onButtonCancel)="cancel()"
+  [buttonCancelDisabled]="(buttonStateService.buttonsState$ | async)?.cancel || false"
+  [customButton]="true"
+  [customButtonList]="[{ icon: 'bug_report', name: 'Show JSON', disabled: false }]"
+  (onCustomButton)="customButtonBehavior($event)"
+>
+  <label>Policies of </label>
+  <label>{{ package_name }}</label>
+  <label>\</label>
+  <label>{{ model_name }}</label>
+</app-inner-header>
 
-
-    <label>Policies of </label><label>{{ package_name }}</label><label>\</label><label>{{ model_name }}</label>
-  </app-inner-header>
-
-
-
-  <app-classic-layout >
-
-    <app-generic-list *ngIf="(policies$ | async) as policies; else loadingTemplate" list
-        [type_item]="'policies'"
-        [itemList]="policies | keyvalue"
-        [selectedItem]="selectedPolicy"
-        [icon]="'policy'"
-        (select)="onselectPolicy($event)"
-        (addItem)="addPolicy($event)"
-        (onrefresh)="refreshPolicies()"
-        (deleteItem)="ondeletePolicy($event)"
-        [loading]="loading">
+<app-classic-layout>
+  <app-generic-list
+    *ngIf="(policies$ | async) as policies; else loadingTemplate"
+    list
+    [type_item]="'policies'"
+    [itemList]="policies | keyvalue"
+    [selectedItem]="selectedPolicy"
+    [icon]="'policy'"
+    (select)="onselectPolicy($event)"
+    (addItem)="addPolicy($event)"
+    (onrefresh)="refreshPolicies()"
+    (deleteItem)="ondeletePolicy($event)"
+    [loading]="loading"
+  >
   </app-generic-list>
 
   <ng-template #loadingTemplate list>
@@ -37,10 +40,10 @@
     </div>
   </ng-template>
 
-
-        <app-policy-editor-detail *ngIf="selectedPolicy"
-        [policy]="selectedPolicy" sidepane>
-        </app-policy-editor-detail>
-  </app-classic-layout>
-
-
+  <app-policy-editor-detail
+    *ngIf="selectedPolicy"
+    [policy]="selectedPolicy"
+    sidepane
+  >
+  </app-policy-editor-detail>
+</app-classic-layout>

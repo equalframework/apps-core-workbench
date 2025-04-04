@@ -99,10 +99,13 @@ export class GenericListComponent<T extends { key: string }> {
      */
     @Output() onrefresh = new EventEmitter<void>();
 
+
+    @Output() showError = new EventEmitter<string>();
+
     /**
      * Search filter control for filtering the item list.
      */
-    filterControl = new FormControl('');
+    readonly filterControl = new FormControl('');
 
     /**
      * Stores the name of the new item to be added.

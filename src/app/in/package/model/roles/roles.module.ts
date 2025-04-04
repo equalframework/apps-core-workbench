@@ -5,14 +5,14 @@ import { PropertyDomainModule } from 'src/app/_components/property-domain-compon
 import { SharedLibModule, CustomDateAdapter } from 'sb-shared-lib';
 import { WorkbenchModule } from 'src/app/_modules/workbench.module';
 import { ClassicLayoutModule } from 'src/app/in/classic-layout/classic-layout.module';
-import { PackageModelRoles } from './package-model-roles.component';
+import { PackageModelRolesComponent } from './package-model-roles.component';
 import { RolesRoutingModule } from './roles-routing.module';
 
 
 
 @NgModule({
     declarations: [
-        PackageModelRoles
+        PackageModelRolesComponent
     ],
     imports: [
         CommonModule,

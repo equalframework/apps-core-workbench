@@ -2,8 +2,8 @@ import { Location } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { map, take, takeUntil } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
+import { catchError, finalize, map, take, takeUntil, tap } from 'rxjs/operators';
 import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
 import { Action, ActionItem, ActionManager, Actions } from 'src/app/in/_models/actions.model';
 import { PolicyItem, PolicyResponse } from 'src/app/in/_models/policy.model';
@@ -56,29 +56,42 @@ export class PackageModelActions implements OnInit, OnDestroy {
      */
     private loadActions(): void {
         this.loadingState.actions = true;
-        this.buttonStateService.disableButtons()
+        this.buttonStateService.disableButtons();
+
         this.workbenchService.getActions(this.package_name, this.model_name).pipe(
-            take(1)
-        ).subscribe(actions => {
-            this.actions$.next(actions);
+          take(1),
+          tap(actions => this.actions$.next(actions)),
+          catchError(() => {
+            this.notificationService.showError('Failed to load actions');
+            return of([]);
+          }),
+          finalize(() => {
             this.loadingState.actions = false;
-            this.buttonStateService.enableButtons()
-        });
-    }
+            this.buttonStateService.enableButtons();
+          })
+        ).subscribe();
+      }
+
 
     /**
      * Loads the available policies from the API and updates the BehaviorSubject.
      */
     private loadPolicies(): void {
         this.loadingState.policies = true;
+
         this.workbenchService.getPolicies(this.package_name, this.model_name).pipe(
-            take(1),
-            map((response: PolicyResponse) => Object.keys(response))
-        ).subscribe(policies => {
-            this.availablePolicies$.next(policies);
+          take(1),
+          map((response: PolicyResponse) => Object.keys(response)),
+          tap(policies => this.availablePolicies$.next(policies)),
+          catchError(() => {
+            this.notificationService.showError('Failed to load policies');
+            return of([]);
+          }),
+          finalize(() => {
             this.loadingState.policies = false;
-        });
-    }
+          })
+        ).subscribe();
+      }
 
     goBack(): void {
         this.location.back();

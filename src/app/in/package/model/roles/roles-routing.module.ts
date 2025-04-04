@@ -1,12 +1,12 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { PackageModelRoles } from './package-model-roles.component';
+import { PackageModelRolesComponent } from './package-model-roles.component';
 
 
 const routes: Routes = [
   {
       path: '**',
-      component:PackageModelRoles
+      component:PackageModelRolesComponent
   }
 ];
 
