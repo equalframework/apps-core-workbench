@@ -1,0 +1,21 @@
+.policy-container {
+    padding: 2em;
+    background-color: whitesmoke;
+    border-radius: 1em;
+    height: 100%;
+
+    .policy-details {
+      margin-top: 16px;
+      font-size: 14px;
+      color: #333;
+
+      p {
+        margin: 8px 0;
+      }
+
+      strong {
+        color: #007bff;
+      }
+    }
+
+  }

@@ -1,0 +1,58 @@
+<div class="list-container">
+    <div class="add-item-container">
+      <mat-form-field class="input add-item">
+        <mat-label>Enter {{ type_item }} name</mat-label>
+        <input
+          matInput
+          [(ngModel)]="newItemName"
+          placeholder="Enter name"
+          type="text"
+          autocomplete="off"
+        />
+      </mat-form-field>
+
+      <button mat-button type="button" color="primary" (click)="onAddItem()">
+        <mat-icon>add</mat-icon>
+      </button>
+      <button mat-button type="button" color="accent" (click)="refresh()">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </div>
+
+    <mat-form-field class="input search-bar">
+      <mat-icon matPrefix class="icon">filter_list</mat-icon>
+      <input matInput placeholder="Search..." [formControl]="filterControl" />
+    </mat-form-field>
+
+    <div class="list-wrapper">
+      <ng-container *ngIf="loading; else itemListTemplate">
+        <div class="loading-container">
+          <mat-spinner diameter="30" aria-label="Loading list"></mat-spinner>
+          <label>Loading...</label>
+        </div>
+      </ng-container>
+
+      <ng-template #itemListTemplate>
+        <ng-container *ngIf="filteredList.length > 0; else showNoItems">
+          <mat-list class="list scrollable">
+            <app-item-display
+              *ngFor="let item of filteredList"
+              [value]="item.key"
+              [icon]="icon"
+              [tooltip]="'Click to select ' + item.key"
+              [editable]="false"
+              [deletable]="true"
+              (delete)="onDeleteItem(item)"
+              (click)="onClickItem(item)"
+              [class.selected]="selectedItem?.key === item.key"
+            >
+            </app-item-display>
+          </mat-list>
+        </ng-container>
+      </ng-template>
+
+      <ng-template #showNoItems>
+        <p class="no-items" *ngIf="!loading">No {{ type_item }} found</p>
+      </ng-template>
+    </div>
+  </div>

@@ -7,6 +7,9 @@ import { API_ENDPOINTS } from '../_models/api-endpoints';
 import { EqualComponentDescriptor } from '../_models/equal-component-descriptor.class';
 import { PackageInfos, PackageSummary } from '../_models/package-info.model';
 import { ViewSchema } from '../_models/view-schema.model';
+import { PolicyResponse } from '../_models/policy.model';
+import { Actions } from '../_models/actions.model';
+import { convertRights, convertRightsFromStrings, Right, Roles } from '../_models/roles.model';
 
 
 @Injectable({
@@ -40,11 +43,25 @@ export class WorkbenchService {
             route:() => {
                         const file_name = node.file.split("/").pop()?.trim() ??""
                         return this.createRoute(node.package_name,file_name,node.name)
-            }
+            },
+            policy:()=>  this.createPolicy(node.package_name,node.item.model, node.name),
+            role: ()=> this.createRole(node.package_name,node.item.model, node.name)
+
+
         };
 
         // Return the appropriate observable based on the node type, or a default message for unknown types.
         return createActions[node.type]?.() || of({ message: "Unknown type" });
+    }
+    private createRole(package_name: string, model: any, name: string): Observable<any> {
+        const url = API_ENDPOINTS.class.roles.create(package_name,model,name);
+        return this.callApi(url, `Role ${name} created`);
+    }
+
+
+    private createPolicy(package_name:string,class_name:string,policy_name:string){
+        const url = API_ENDPOINTS.class.policies.create(package_name,class_name,policy_name);
+        return this.callApi(url,`Policy ${policy_name} created`);
     }
 
 
@@ -102,6 +119,56 @@ export class WorkbenchService {
         );
     }
 
+    public getPolicies(package_name: string, class_name:string): Observable<PolicyResponse>{
+        const url = API_ENDPOINTS.class.policies.get(package_name,class_name);
+        return this.callApi(url,'').pipe(
+            map(({success, response})=> success ? response: [])
+        );
+    }
+
+    public getActions(package_name:string, class_name:string):Observable<Actions>{
+        const url = API_ENDPOINTS.class.actions.get(package_name,class_name);
+        return this.callApi(url,'').pipe(
+            map(({success, response})=> success ? response: [])
+        )
+    }
+
+    public getRoles(package_name: string, class_name: string): Observable<Roles> {
+        const url = API_ENDPOINTS.class.roles.get(package_name, class_name);
+        return this.callApi(url, '').pipe(
+            map(({ response }) => {
+                Object.keys(response).forEach(roleKey => {
+                    const role = response[roleKey];
+
+                    if (Array.isArray(role.rights)) {
+                        role.rights = convertRightsFromStrings(role.rights);
+                    } else if (typeof role.rights === 'number') {
+                        role.rights = convertRights(role.rights);
+                    }
+
+                    if (!role.implied_by) {
+                        role.implied_by = [];
+                    }
+                });
+                return response;
+            })
+        );
+    }
+
+    public saveActions(package_name:string, class_name:string,payload:any): Observable<any>{
+        const url = API_ENDPOINTS.class.actions.save(package_name, class_name);
+        return this.callApi(url,'Actions saved', { payload });
+    }
+
+    public savePolicies(package_name:string, class_name:string, payload:any): Observable<any>{
+        const url = API_ENDPOINTS.class.policies.save(package_name,class_name);
+        return this.callApi(url,'Policies saved', { payload });
+    }
+
+    public saveRoles(package_name:string, class_name:string, payload:any): Observable<any>{
+        const url = API_ENDPOINTS.class.roles.save(package_name,class_name);
+        return this.callApi(url,'Roles saved', { payload });
+    }
     /**
      * Updates the fields for a given class in a specified package.
      *
@@ -462,8 +529,8 @@ export class WorkbenchService {
      *   });
      * ```
      */
-    private callApi(url: string, successMessage: string, body:any = {}): Observable<{ success: boolean; message: string; response: any; }> {
-            return from(this.api.fetch(url,body)).pipe(
+    private callApi(url: string, successMessage: string, payload:any = {}): Observable<{ success: boolean; message: string; response: any; }> {
+            return from(this.api.fetch(url,payload)).pipe(
                 map((response: any) => ({
                     success: true,
                     message: successMessage,

@@ -1,0 +1,10 @@
+<div class="checkbox-list-container">
+    <strong>{{ label }}</strong>
+    <div class="checkbox-group">
+      <mat-checkbox *ngFor="let option of options"
+                    [checked]="internalSelectedValues.has(option)"
+                    (change)="toggleSelection(option)">
+        {{ displayWith(option) }}
+      </mat-checkbox>
+    </div>
+  </div>

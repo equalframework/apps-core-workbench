@@ -67,7 +67,7 @@ export class AutocompleteMultiComponent implements OnInit {
       event.preventDefault()
       event.stopImmediatePropagation()
     }
-  } 
+  }
 
   reset() {
     this.valueControl.setValue(this.value,{emitEvent:false})

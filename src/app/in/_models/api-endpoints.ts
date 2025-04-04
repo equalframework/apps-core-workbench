@@ -18,7 +18,31 @@ export const API_ENDPOINTS = {
         update_fields: (new_schema: {}, package_name: string, class_name: string) =>
             `?do=config_update-model&part=class&entity=${package_name}\\${class_name}&payload=${JSON.stringify(new_schema)}`,
         delete: (package_name: string, class_name: string) =>
-            `?do=core_config_delete-model&package=${package_name}&model=${class_name}`
+            `?do=core_config_delete-model&package=${package_name}&model=${class_name}`,
+        policies: {
+            get: (package_name : string, class_name: string) =>
+                `?get=core_model_policies&entity=${package_name}\\${class_name}`,
+            save: (package_name:string, class_name:string) =>
+                `?do=core_config_update-policies&entity=${package_name}\\${class_name}`,
+            create: (package_name:string, class_name: string, policy_name:string) =>
+                `?do=core_config_create-policy&entity=${package_name}\\${class_name}&name=${policy_name}`,
+
+        },
+        actions: {
+            get: (package_name : string, class_name: string) =>
+                `?get=core_model_actions&entity=${package_name}\\${class_name}`,
+            save: (package_name:string, class_name:string) =>
+                `?do=core_config_update-actions&entity=${package_name}\\${class_name}`,
+
+        },
+        roles: {
+            get: (package_name : string, class_name: string) =>
+                `?get=core_model_roles&entity=${package_name}\\${class_name}`,
+            save: (package_name:string, class_name:string) =>
+                `?do=core_config_update-roles&entity=${package_name}\\${class_name}`,
+            create: (package_name:string, class_name: string, role_name:string) =>
+                `?do=core_config_create-role&entity=${package_name}\\${class_name}&name=${role_name}`,
+        }
     },
 
     // View-specific actions

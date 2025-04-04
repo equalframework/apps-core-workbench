@@ -1,0 +1,26 @@
+<mat-form-field class="full-width">
+    <mat-label>{{ label }}</mat-label>
+    <mat-chip-list #chipList aria-label="Selected values">
+      <mat-chip *ngFor="let value of selectedValues" (removed)="remove(value)">
+        {{ displayWith(value) }}
+        <button matChipRemove>&times;</button>
+      </mat-chip>
+    </mat-chip-list>
+    <input
+      placeholder="Choose..."
+      [formControl]="chipCtrl"
+      [matAutocomplete]="auto"
+      [matChipInputFor]="chipList"
+      #inputField
+
+    />
+  </mat-form-field>
+
+  <mat-autocomplete #auto (optionSelected)="add($event)">
+    <mat-option *ngFor="let option of filteredList" [value]="option">
+      {{ displayWith(option) }}
+    </mat-option>
+    <mat-option *ngIf="allowCreate" (click)="onCreate()">
+      ➕ Create
+    </mat-option>
+  </mat-autocomplete>

@@ -1,0 +1,65 @@
+@import '/src/theme.scss';
+
+.header {
+    background: white;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 12px;
+    width: 70vw;
+
+    .main {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            label {
+                font-size: 20px;
+                font-weight: bold;
+            }
+
+            .accent {
+                color: mat-color($accentcolor);
+            }
+        }
+    }
+
+    .description {
+        font-size: 16px;
+        color: #666;
+        margin-top: 8px;
+    }
+
+    .meta {
+        display: flex;
+        gap: 10%;
+        margin-top: 12px;
+        font-size: 16px;
+        color: #666;
+        align-items: center;
+
+        .meta-item {
+            display: flex;
+            gap: 10px;
+            font-size: 16px;
+            color: mat-color($maincolor);
+
+            mat-icon {
+                color: mat-color($maincolor);
+                font-size: 2em;
+                margin-right: 8px;
+            }
+
+            .meta-text {
+                display: flex;
+                align-items: center;
+                overflow: hidden;
+            }
+        }
+    }
+}
