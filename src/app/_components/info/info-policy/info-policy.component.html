@@ -1,0 +1,7 @@
+<app-info-generic
+  title="Policies"
+  [item]="policy"
+  [descriptionKey]="'value.description'"
+  [editableFields]="[{key:'value.function', label:'Function'}, {key:'value.description',label:'Description'}]"
+  (itemChange)="onActionChange($event)">
+</app-info-generic>

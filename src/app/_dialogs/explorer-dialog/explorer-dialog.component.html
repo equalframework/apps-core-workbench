@@ -89,10 +89,10 @@
 </div>
 
 <!-- Dialog actions -->
-<ng-container *ngIf="selectedPackage$ | async as selectedPackage">
+<ng-container >
   <div mat-dialog-actions class="dialog-actions">
     <button mat-button (click)="dialogRef.close()">Cancel</button>
-    <button mat-raised-button color="accent" [disabled]="!selectedItem"
+    <button  mat-raised-button color="accent" [disabled]="!selectedItem" *ngIf="selectedPackage$ | async as selectedPackage"
             (click)="dialogRef.close(selectedPackage + '::' + selectedItem)">
       Select
     </button>

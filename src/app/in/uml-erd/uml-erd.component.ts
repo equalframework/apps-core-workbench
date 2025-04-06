@@ -336,8 +336,8 @@ export class UmlErdComponent implements OnInit, OnChanges {
 
     private openExplorerDialog(dialogData: any): MatDialogRef<ExplorerDialogComponent> {
         return this.matDialog.open(ExplorerDialogComponent, {
-          width: "60vw",
-          maxWidth: "600px",
+          width: "100vw",
+          maxWidth: "40vw",
           data: dialogData
         });
       }

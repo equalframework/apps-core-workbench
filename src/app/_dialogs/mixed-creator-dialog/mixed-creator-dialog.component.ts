@@ -112,8 +112,8 @@ export class MixedCreatorDialogComponent implements OnInit, OnDestroy {
         this.cachePkgList = await this.workbenchService.collectAllPackages().toPromise();
 
         //this.cachePkgList = await this.workbenchService.listPackages();
-        await this.reloadList();
         this.loaded = true;
+        await this.reloadList();
     }
 
     /**
@@ -261,9 +261,30 @@ export class MixedCreatorDialogComponent implements OnInit, OnDestroy {
                 }
             } else if (this.addingState) {
                 this.customStList = await this.workbenchService.getAllRouteFiles().toPromise();
-                console.log("jai été appelé par le bouton custom")
             }
             }
+            break;
+        case 'policy':
+            this.needPackage = true;
+            this.needModel = true;
+            this.implemented = true;
+            this.cacheList = await this.workbenchService
+            .getPolicies(this.selectedPackage, this.selectedModel)
+            .pipe(
+              map(response => Object.keys(response))
+            )
+            .toPromise();
+            console.log("this.cache Liste : ", this.cacheList);
+            break;
+        case 'role':
+            this.needPackage = true;
+            this.needModel=true;
+            this.implemented=true;
+            this.cacheList = await this.workbenchService
+            .getRoles(this.selectedPackage,this.oldSelectedModel)
+            .pipe(
+                map(response => Object.keys(response))
+            ).toPromise();
             break;
         default:
             this.implemented = false;
@@ -312,6 +333,15 @@ export class MixedCreatorDialogComponent implements OnInit, OnDestroy {
             this.customSTControl.addValidators(MixedCreatorDialogComponent.already_taken(() => this.cacheList || [])
         );
             break;
+        case'policy':
+            this.nameControl.addValidators(MixedCreatorDialogComponent.already_taken(()=>this.cacheList || []));
+            this.nameControl.addValidators(MixedCreatorDialogComponent.snake_case_controller);
+            this.nameControl.addValidators(MixedCreatorDialogComponent.allLowerCase);
+            break;
+        case 'role':
+            this.nameControl.addValidators(MixedCreatorDialogComponent.already_taken(()=>this.cacheList || []));
+            this.nameControl.addValidators(MixedCreatorDialogComponent.snake_case_controller);
+            this.nameControl.addValidators(MixedCreatorDialogComponent.allLowerCase);
         }
     }
 
@@ -360,7 +390,7 @@ export class MixedCreatorDialogComponent implements OnInit, OnDestroy {
 
     private generateFilePath(): string {
         const folders: Record<string, { folder: string; extension: string }> = {
-            view: { folder: 'views', extension: '.php' },
+            view: { folder: 'views', extension: '.json' },
             class: { folder: 'classes', extension: '.class.php' },
             route: { folder: 'init/routes', extension: '' }
         };
@@ -369,6 +399,9 @@ export class MixedCreatorDialogComponent implements OnInit, OnDestroy {
             return `${this.selectedPackage}/${folders.route.folder}/${this.subtype ? this.subtype : this.customSTControl.value}`;
         }
 
+        if(this.type ==='view'){
+            return `${this.selectedPackage}/${folders.view.folder}/${this.selectedModel}.${this.subtype}.${this.nameControl.value}${folders.view.extension}`;
+        }
         const config = folders[this.type];
         return config ? `${this.selectedPackage}/${config.folder}/${this.nameControl.value}${config.extension}` : '';
     }
@@ -415,6 +448,19 @@ export class MixedCreatorDialogComponent implements OnInit, OnDestroy {
         }
         return 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.includes(firstChar) ? null : { case: true };
     }
+
+    public static containsUnderscore(control: AbstractControl): ValidationErrors | null {
+        if (typeof control.value !== 'string') {
+          return null;
+        }
+        return control.value.includes('_') ? null : { missingUnderscore: true };
+      }
+    public static allLowerCase(control: AbstractControl): ValidationErrors | null {
+        if (typeof control.value === 'string' && control.value !== control.value.toLowerCase()) {
+          return { allLowerCase: true };
+        }
+        return null;
+      }
 
     public static snake_case(control: AbstractControl): ValidationErrors | null {
         const value: string = control.value;

@@ -3,50 +3,67 @@ export interface ViewSchemaBase {
     description?: string;
   }
 
+  // --- Simple Layout ---
+  export interface SimpleLayoutItem {
+    type: string;
+    value: string;
+    width: string;
+  }
+
   export interface SimpleLayout extends ViewSchemaBase {
     layout: {
-      items: {
-        type: string;
-        value: string;
-        width: string;
-      }[];
+      items: SimpleLayoutItem[];
     };
+  }
+
+  // --- Dataset Layout ---
+  export interface Dataset {
+    label: string;
+    operation: string;
   }
 
   export interface DatasetLayout extends ViewSchemaBase {
     layout: {
       entity?: string;
       group_by?: string;
-      datasets: {
-        label: string;
-        operation: string;
-      }[];
+      datasets: Dataset[];
     };
+  }
+
+  // --- Grouped Layout ---
+  export interface GroupedLayoutItem {
+    type: string;
+    label?: string;
+    value: string;
+    width: string;
+    widget?: {
+      heading?: boolean;
+    };
+  }
+
+  export interface GroupedLayoutColumn {
+    width: string;
+    items: GroupedLayoutItem[];
+  }
+
+  export interface GroupedLayoutRow {
+    columns: GroupedLayoutColumn[];
+  }
+
+  export interface GroupedLayoutSection {
+    id?: string;
+    label?: string;
+    rows: GroupedLayoutRow[];
+  }
+
+  export interface GroupedLayoutGroup {
+    sections: GroupedLayoutSection[];
   }
 
   export interface GroupedLayout extends ViewSchemaBase {
     layout: {
-      groups: {
-        sections: {
-            id?:string ,
-            label?:string ,
-          rows: {
-            columns: {
-              width: string;
-              items: {
-                type: string;
-                label?: string;
-                value: string;
-                width: string;
-                widget?: {
-                  heading?: boolean;
-                };
-              }[];
-            }[];
-          }[];
-        }[];
-      }[];
+      groups: GroupedLayoutGroup[];
     };
   }
 
-  export type ViewSchema = SimpleLayout | DatasetLayout | GroupedLayout;
+  export type ViewSchema = GroupedLayout | SimpleLayout;

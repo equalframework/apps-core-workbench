@@ -1,0 +1,28 @@
+<div class="item-container" [matTooltip]="tooltip">
+    <!-- Mode Édition -->
+    <ng-container *ngIf="isEditing; else displayMode">
+      <div class="edit-mode">
+        <input matInput [(ngModel)]="editedValue">
+        <button mat-icon-button aria-label="Save" (click)="saveEdit()">
+          <mat-icon>check_circle</mat-icon>
+        </button>
+        <button mat-icon-button aria-label="Cancel" (click)="cancelEdit()">
+          <mat-icon>cancel</mat-icon>
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- Mode Affichage -->
+    <ng-template #displayMode>
+      <div class="display-mode" (click)="onClickItem()">
+        <mat-icon class="item-icon">{{ icon }}</mat-icon>
+        <span class="item-value">{{ value }}</span>
+        <button *ngIf="editable" mat-icon-button aria-label="Edit" (click)="startEdit()">
+          <mat-icon>check_circle</mat-icon>
+        </button>
+        <button *ngIf="deletable" mat-icon-button aria-label="Delete" (click)="onDelete($event)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </ng-template>
+  </div>

@@ -1,0 +1,12 @@
+<app-info-generic
+title="Role"
+  [item]="role"
+  [descriptionKey]="'value.description'"
+  [editableFields]="[{key:'value.description',label:'Description'}]"
+  [listFields]="listFields"
+  (itemChange)="onRoleChange($event)"
+  (addToList)="onAddRight($event)"
+  (removeFromList)="onRemoveRight($event)"
+  (createItem)="oncreate($event)"
+  (onrefresh)="onrefreshRoles()">
+</app-info-generic>

@@ -1,0 +1,22 @@
+<div class="header material-style">
+    <div class="main">
+        <div class="title">
+            <label>{{ titleLabel }} :</label>
+            <label class="accent">{{ title }}</label>
+            <copy-button *ngIf="copyText" [text_to_copy]="copyText" tooltip_text="Copy"></copy-button>
+        </div>
+    </div>
+    <div class="description">
+        <p>{{ description || 'No description available' }}</p>
+    </div>
+    <div class="meta" *ngIf="metaData.length > 0">
+        <div class="meta-item" *ngFor="let item of metaData">
+            <mat-icon matTooltip="{{ item.tooltip }}">{{ item.icon }}</mat-icon>
+            <label matTooltip="{{ item.double_backslash ? (item.value | doubleBackslash) : item.value }}" class="primary meta-text">
+                {{ item.double_backslash ? (item.value | doubleBackslash) : item.value | shortenPath:2}}</label>
+            <copy-button *ngIf="item.copyable"
+            [text_to_copy]="item.double_backslash ? (item.value | doubleBackslash) : item.value"
+            tooltip_text="Copy"></copy-button>
+        </div>
+    </div>
+</div>

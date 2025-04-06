@@ -1,0 +1,182 @@
+@import "/src/theme.scss";
+
+:host {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    .loader {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        z-index: 2;
+        background-color: white;
+
+        .mat-spinner {
+            margin: auto;
+            margin-top: 33%;
+        }
+    }
+
+    .searchbar {
+        height: 54px;
+        width: 100%;
+
+        .input-query {
+            display: inline-block;
+            width: 50%;
+            height: 65px;
+            padding: 0px !important;
+            margin-bottom: -11px;
+        }
+
+        .select-component {
+            display: inline-block;
+            width: 50%;
+            height: 3em;
+            margin-top: -10px;
+
+            .select-icon {
+                transform: translateY(.2em);
+                margin-left : .5em;
+                margin-right : .5em;
+            }
+
+        }
+    }
+
+    .list {
+        border-radius: 8px;
+        height: 100%;
+        max-height: calc(100% - 56px);
+        background-color: whitesmoke;
+        overflow-y: scroll;
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #c0b5b5;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #656161;
+        }
+
+        ::ng-deep .mat-list-item-content {
+            padding: 5px 5px 0 5px !important;
+        }
+
+        .node_edit {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+
+            .node-edited {
+                transform: translateY(5px);
+                width: 100%;
+                padding-left: 10px;
+
+                ::ng-deep .mat-form-field-infix {
+                    padding: 0 !important;
+                }
+
+                ::ng-deep .mat-input-element {
+                    height: 40px !important;
+                }
+            }
+
+            .node-edited > div {
+                width: 100%;
+            }
+        }
+
+        .node_display {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            user-select: none;
+
+            &.hover:hover {
+                background-color: #ebebeb !important;
+            }
+
+            &.selected {
+                background-color: #dbdbdb !important;
+            }
+
+            .inner {
+                height: 100%;
+                width: 100%;
+                display: flex;
+                align-items: center;
+                cursor: pointer;
+
+                .node-actions {
+                    width: 80px;
+                }
+
+                .node-text {
+                    flex: 1;
+                    height: 100%;
+                    width: 100%;
+                    padding-left: 10px;
+                    display: flex;
+                    align-items: center;
+                    max-width: calc(100% - 80px);
+
+                    .node-name {
+                        overflow: hidden;
+                        white-space: nowrap;
+                        display:inline-block;
+                        width: 80%;
+                        text-overflow: ellipsis;
+                    }
+
+                    .node-icon {
+                        display:inline-block;
+                        width: 10%;
+                        text-align: center;
+                        margin-right: 5%;
+
+                        mat-icon {
+                            transform: scale(.8) translateY(.2em)
+                        }
+
+                    }
+                }
+
+            }
+        }
+    }
+
+    .adder {
+        height: 56px;
+        margin-top: 10px;
+        background-color: mat-color($maincolor);
+        color: white;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    ::ng-deep .mat-tooltip {
+        font-size: 12px;
+        padding: 8px;
+        max-width: 200px;
+        white-space: normal;
+        word-wrap: break-word;
+      }
+
+}
+

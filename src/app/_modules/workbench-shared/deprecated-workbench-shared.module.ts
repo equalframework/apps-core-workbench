@@ -33,7 +33,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
 
 import { InnerHeaderComponent } from '../../_components/inner-header/inner-header.component';
-import { SearchMixedListComponent } from '../../_components/search-mixed-list/search-mixed-list.component';
+import { SearchMixedListComponent } from '../../_components/search-list/search-mixed-list/search-mixed-list.component';
 
 
 
