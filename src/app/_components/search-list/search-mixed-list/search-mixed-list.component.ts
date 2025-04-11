@@ -200,12 +200,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
      */
     public selectSearchScope() {
         console.log('selectSearchScope', this.search_scope);
-        if (this.search_scope !== '' && !this.node_type) {
-            this.inputControl.setValue(this.search_scope + ":" + this.search_value);
-        }
-        else {
-            this.inputControl.setValue(this.search_value);
-        }
+        this.inputControl.setValue(this.search_value);
         this.searchScopeChange.emit(this.search_scope);
         this.onSearch();
     }
@@ -224,7 +219,6 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
             this.search_scope = this.node_type ?? '';
             this.search_value = splitted[0];
         }
-
         const arrow_split = this.search_value.split(">");
         const search_package = arrow_split.length > 1 ? arrow_split[0] : "";
         const search_args = (arrow_split.length > 1 ? arrow_split.slice(1).join("=>") : arrow_split[0]).split(" ");
