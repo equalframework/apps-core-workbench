@@ -13,6 +13,7 @@ import { Menu } from '../../menu/_models/Menu';
 import { View } from '../views/vieweditor/_objects/View';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { NotificationService } from 'src/app/in/_services/notification.service';
+import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
 
 @Component({
   selector: 'app-model-trad-editor',
@@ -32,6 +33,8 @@ export class ModelTradEditorComponent implements OnInit {
     adderror = new FormControl('', { validators: [ ModelTradEditorComponent.snakeCaseValidator ] });
     langName = new FormControl('', { validators: [ ModelTradEditorComponent.langCaseValidator ] });
     data: { [id: string]: Translator } = {};
+    allLanguages = ['en', 'fr', 'de', 'es', 'it', 'pt', 'nl'];
+    availableLanguages: string[] = [];
 
     constructor(
         private route: ActivatedRoute,
@@ -42,6 +45,7 @@ export class ModelTradEditorComponent implements OnInit {
     ) {}
 
     async ngOnInit() {
+        this.allLanguages = await this.workbenchService.collectAllLanguagesCode().toPromise();  // await this.api.collect("core\\pipeline\\Pipeline", [], ['name', 'nodes_ids'])
         const selectedPackage = this.route.parent?.snapshot.paramMap.get('package_name');
         const selectedModel = this.route.snapshot.paramMap.get('class_name');
         const type = this.route.snapshot.paramMap.get('type');
@@ -90,6 +94,7 @@ export class ModelTradEditorComponent implements OnInit {
         }
         this.lang = Object.keys(this.data).sort()[0] || '';
         this.loading = false;
+        this.updateAvailableLanguages();
     }
 
     async createNewMenuLang(): Promise<Translator> {
@@ -132,18 +137,30 @@ export class ModelTradEditorComponent implements OnInit {
     }
 
     async createLanguage() {
-        if (this.data[this.langName.value]) {
-        this.notificationService.showError('this.model_name already has a translation for this language.', 'ERROR');
-        return;
+        const selectedLang = this.langName.value;
+
+        if (!selectedLang) return;
+
+        if (this.data[selectedLang]) {
+          this.notificationService.showError('This model already has a translation for this language.', 'ERROR');
+          return;
         }
+
         const newTranslation = this.entitype === 'menu'
-        ? await this.createNewMenuLang()
-        : await this.createNewLang();
-        this.data[this.langName.value] = newTranslation;
+          ? await this.createNewMenuLang()
+          : await this.createNewLang();
+
+        this.data[selectedLang] = newTranslation;
         this.addingLanguage = false;
-        this.lang = this.langName.value;
+        this.lang = selectedLang;
         this.langName.setValue('');
-    }
+        this.updateAvailableLanguages(); // Pour rafraîchir la liste
+      }
+
+      updateAvailableLanguages() {
+        const existingLangs = Object.keys(this.data || {});
+        this.availableLanguages = this.allLanguages.filter(lang => !existingLangs.includes(lang));
+      }
 
     static snakeCaseValidator(control: AbstractControl): ValidationErrors | null {
         const value: string = control.value;
@@ -179,7 +196,7 @@ export class ModelTradEditorComponent implements OnInit {
     }
 
     debugExport() {
-        this.dialog.open(ModelTradJsonComponent, {
+        this.dialog.open(JsonViewerComponent, {
         data: this.data[this.lang] ? this.data[this.lang].export() : {},
         height: '80%',
         width: '80%'
@@ -193,19 +210,4 @@ export class ModelTradEditorComponent implements OnInit {
     }
     }
 
-@Component({
-  selector: 'app-model-trad-json',
-  template: `<pre [innerHtml]="jsonData"></pre>`
-})
-export class ModelTradJsonComponent implements OnInit {
-  constructor(
-    @Optional() public dialogRef: MatDialogRef<ModelTradJsonComponent>,
-    @Optional() @Inject(MAT_DIALOG_DATA) public data: any
-  ) {}
 
-  ngOnInit(): void {}
-
-  get jsonData(): string {
-    return prettyPrintJson.toHtml(this.data);
-  }
-}

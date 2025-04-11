@@ -1,7 +1,7 @@
 import { HttpErrorResponse} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { forkJoin, from, Observable, of, } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { ApiService } from 'sb-shared-lib';
 import { API_ENDPOINTS } from '../_models/api-endpoints';
 import { EqualComponentDescriptor } from '../_models/equal-component-descriptor.class';
@@ -155,6 +155,15 @@ export class WorkbenchService {
         );
     }
 
+    public collect(entity:string, domain:any[], fields:any[], order:string='id', sort:string='asc', start:number=0, limit:number=25, lang: string = ''){
+        return from(this.api.collect(entity,domain,fields,order,sort,start,limit,lang))
+    }
+
+    public collectAllLanguagesCode(){
+        return this.collect('core\\Lang',[],['code']).pipe(
+            map(response => response.map((lang: { code: string }) => lang.code))
+        );
+    }
     public saveActions(package_name:string, class_name:string,payload:any): Observable<any>{
         const url = API_ENDPOINTS.class.actions.save(package_name, class_name);
         return this.callApi(url,'Actions saved', { payload });

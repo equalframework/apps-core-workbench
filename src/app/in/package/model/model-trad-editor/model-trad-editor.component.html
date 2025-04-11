@@ -52,18 +52,24 @@
 
         <div class="lang-selection" *ngIf="addingLanguage || obk(data).length === 0">
             <mat-form-field appearance="outline">
-            <mat-label>Language code</mat-label>
-            <input matInput [formControl]="langName">
+              <mat-label>Language</mat-label>
+              <mat-select [formControl]="langName">
+                <mat-option *ngFor="let lang of availableLanguages" [value]="lang">
+                  {{ lang }}
+                </mat-option>
+              </mat-select>
             </mat-form-field>
+
             <div class="lang-actions">
-            <button mat-button (click)="stopAddingLanguage()">
+              <button mat-button (click)="stopAddingLanguage()">
                 <mat-icon>close</mat-icon> Cancel
-            </button>
-            <button mat-raised-button color="accent" [disabled]="langName.invalid" (click)="createLanguage()">
+              </button>
+              <button mat-raised-button color="accent" [disabled]="langName.invalid" (click)="createLanguage()">
                 <mat-icon>done</mat-icon> Create
-            </button>
+              </button>
             </div>
-        </div>
+          </div>
+
 
 
         <!-- Onglets de traduction -->

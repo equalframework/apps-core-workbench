@@ -116,10 +116,9 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     private loadNodesV2() {
 
         if (this.package_name) {
-            // Si package_name est défini, appelez getComponents
             if (this.node_type) {
                 this.provider.getComponents(this.package_name, this.node_type,this.model_name)
-                    .pipe(takeUntil(this.destroy$)) // Ajout de takeUntil
+                    .pipe(takeUntil(this.destroy$))
                     .subscribe(
                         components => this.handleComponents(components),
                         error => this.handleError(error)
@@ -138,9 +137,8 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
             }
 
             else{
-                // Si package_name n'est pas défini et qu'il n'y a pas de note_type, utilisez equalComponents$
             this.provider.equalComponents$
-                .pipe(takeUntil(this.destroy$)) // Ajout de takeUntil
+                .pipe(takeUntil(this.destroy$))
                 .subscribe(
                     components => this.handleComponents(components),
                     error => this.handleError(error)
@@ -150,10 +148,11 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     }
 
     private handleComponents(components: any[]) {
-        this.elements = [...components]; // Copie superficielle du tableau
+        this.elements = [...components];
         this.filteredData = this.elements;
         this.onSearch();
         this.loading = false;
+
     }
 
     private handleError(error: any) {

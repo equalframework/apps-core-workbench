@@ -71,11 +71,10 @@ export class PackageModelsComponent implements OnInit, OnDestroy {
      * @param eq_route the route that the user has selected
      */
     public async onSelectNode(eq_class: EqualComponentDescriptor) {
-        // Si l'élément est déjà sélectionné, le désélectionner
         if (this.selected_class === eq_class) {
-            this.selected_class = undefined; // ou null, selon votre préférence
+            this.selected_class = undefined;
         } else {
-            this.selected_class = eq_class; // Sinon, sélectionnez l'élément
+            this.selected_class = eq_class;
         }
     }
 

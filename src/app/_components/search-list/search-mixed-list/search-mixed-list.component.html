@@ -71,7 +71,8 @@
             <div class="node_display"
                     [class.hover]="node_selected != node"
                     [class.selected]="node_selected === node"
-                    [matTooltip]="getTitle(node)">
+                    [matTooltip]="getTitle(node)"
+                    >
                 <div class="inner" (click)="onclickSelect(node)">
                     <div class="node-text">
                         <label class="node-icon component-icon component-color-{{node.type}}"><mat-icon>{{type_dict[node.type].icon}}</mat-icon></label>
