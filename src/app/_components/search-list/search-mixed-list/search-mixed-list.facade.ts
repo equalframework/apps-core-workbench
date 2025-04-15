@@ -63,6 +63,7 @@ this.destroy$.complete();
     this.search_value=search_value;
     this.search_scope=search_scope
   }
+  
   onSearch() {
     const arrowSplit = this.search_value.split(">");
     const searchPackage = arrowSplit.length > 1 ? arrowSplit[0] : "";
