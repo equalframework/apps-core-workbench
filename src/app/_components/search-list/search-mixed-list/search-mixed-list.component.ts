@@ -74,7 +74,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     // value part of the search bar field (parsed in onSearch() method)
     public search_value: string = '';
     // type part of the search bar field (is parsed in onSearch() method)
-    public search_scope: string = "";
+    public search_scope: string = "package";
 
     // used to render info about components present in filteredData (or data)
     public type_dict: { [id: string]: { icon: string, disp: string } } = ItemTypes.typeDict;
@@ -214,7 +214,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
 
         const { filters, terms } = this.extractFiltersAndTerms(tokens);
 
-        this.search_scope = this.node_type ?? 'package';
+        this.search_scope = this.node_type ?? this.search_scope;
         this.filteredData = this.elements.filter((element: EqualComponentDescriptor) => {
             if (!this.matchesFilters(element, element.name, filters, terms)) {
                 return false;
