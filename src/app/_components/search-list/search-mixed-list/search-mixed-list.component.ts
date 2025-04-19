@@ -74,12 +74,12 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     // value part of the search bar field (parsed in onSearch() method)
     public search_value: string = '';
     // type part of the search bar field (is parsed in onSearch() method)
-    public search_scope: string = "";
+    public search_scope: string = "package";
 
     // used to render info about components present in filteredData (or data)
     public type_dict: { [id: string]: { icon: string, disp: string } } = ItemTypes.typeDict;
     // formControl for search input field
-    public inputControl = new FormControl('package:');
+    public inputControl = new FormControl('');
 
     public editingNode: EqualComponentDescriptor;
     public editedNode: EqualComponentDescriptor;
@@ -116,10 +116,9 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     private loadNodesV2() {
 
         if (this.package_name) {
-            // Si package_name est défini, appelez getComponents
             if (this.node_type) {
                 this.provider.getComponents(this.package_name, this.node_type,this.model_name)
-                    .pipe(takeUntil(this.destroy$)) // Ajout de takeUntil
+                    .pipe(takeUntil(this.destroy$))
                     .subscribe(
                         components => this.handleComponents(components),
                         error => this.handleError(error)
@@ -138,9 +137,8 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
             }
 
             else{
-                // Si package_name n'est pas défini et qu'il n'y a pas de note_type, utilisez equalComponents$
             this.provider.equalComponents$
-                .pipe(takeUntil(this.destroy$)) // Ajout de takeUntil
+                .pipe(takeUntil(this.destroy$))
                 .subscribe(
                     components => this.handleComponents(components),
                     error => this.handleError(error)
@@ -150,14 +148,15 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     }
 
     private handleComponents(components: any[]) {
-        this.elements = [...components]; // Copie superficielle du tableau
+        this.elements = [...components];
         this.filteredData = this.elements;
         this.onSearch();
         this.loading = false;
+
     }
 
     private handleError(error: any) {
-        console.error('Erreur lors du chargement des composants:', error);
+        console.error('Error while loading components:', error);
         this.loading = false;
     }
 
@@ -201,12 +200,6 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
      */
     public selectSearchScope() {
         console.log('selectSearchScope', this.search_scope);
-        if (this.search_scope !== '' && !this.node_type) {
-            this.inputControl.setValue(this.search_scope + ":" + this.search_value);
-        }
-        else {
-            this.inputControl.setValue(this.search_value);
-        }
         this.searchScopeChange.emit(this.search_scope);
         this.onSearch();
     }
@@ -216,57 +209,121 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
      *
      */
     public onSearch() {
-        let splitted = this.inputControl.value.split(":");
-        if (splitted.length > 1) {
-            this.search_scope = splitted[0];
-            this.search_value = splitted.slice(1).join(":");
-        }
-        else {
-            this.search_scope = this.node_type ?? '';
-            this.search_value = splitted[0];
+        const input = this.inputControl.value.trim();
+        const tokens = input.split(" ");
+
+        const { filters, terms } = this.extractFiltersAndTerms(tokens);
+
+        this.search_scope = this.node_type ?? this.search_scope;
+        this.filteredData = this.elements.filter((element: EqualComponentDescriptor) => {
+            if (!this.matchesFilters(element, element.name, filters, terms)) {
+                return false;
+            }
+
+            return this.matchesScope(element);
+        });
+
+        this.sortComponents();
+    }
+
+    /**
+     * Parses tokens to separate filters (like `package:xyz`) from regular search terms.
+     *
+     * @param tokens Array of search tokens split by space
+     * @returns An object containing extracted filters and search terms
+     */
+    private extractFiltersAndTerms(tokens: string[]): { filters: { [key: string]: string }, terms: string[] } {
+        const filters: { [key: string]: string } = {};
+        const terms: string[] = [];
+
+        for (const token of tokens) {
+            if (token.includes(":")) {
+                const [key, ...valueParts] = token.split(":");
+                filters[key.toLowerCase()] = valueParts.join(":");
+            } else {
+                terms.push(token.toLowerCase());
+            }
         }
 
-        const arrow_split = this.search_value.split(">");
-        const search_package = arrow_split.length > 1 ? arrow_split[0] : "";
-        const search_args = (arrow_split.length > 1 ? arrow_split.slice(1).join("=>") : arrow_split[0]).split(" ");
+        return { filters, terms };
+    }
 
-        this.filteredData = this.elements.filter(
-            (node: EqualComponentDescriptor) => {
-                let contains = true;
-                let clue: string = "";
-                if (node.type === "route") {
-                    clue = (node.package_name ? node.package_name : "") + "-" + (node.more ? node.more : "") + "-" + node.name;
-                }
-                else if (node.type === "class") {
-                    clue = (node.package_name ? node.package_name : "") + "\\" + node.name;
-                }
-                else {
-                    clue = node.name;
-                }
-                for (let arg of search_args) {
-                    if (search_package && (((node.package_name && node.package_name !== search_package)) || (!node.package_name && node.name !== search_package))) {
-                        contains = false;
-                        break;
-                    }
-                    if (!clue.toLowerCase().includes(arg.toLowerCase())) {
-                        contains = false;
-                        break;
-                    }
-                }
+    /**
+     * Builds a searchable descriptor string for an element based on its type.
+     * This string is used to match search terms against the element.
+     *
+     * @param element The component descriptor to convert into a search clue
+     * @returns A formatted string representing the element
+     */
+    private buildDescriptor(element: EqualComponentDescriptor): string {
+       return element.name;
+    }
 
-                return (contains &&
-                    (
-                        this.search_scope === ''
-                        || (node.type === '')
-                        || (node.type === this.node_type)
-                        || (node.type === this.search_scope)
-                        || ('controller' === this.search_scope && (node.type === 'get' || node.type === 'do'))
-                        || ('view' === this.search_scope && (node.type === 'list' || node.type === 'form'))
-                    )
-                );
-            });
-            this.sortComponents()
+    /**
+     * Verifies whether an element matches the provided filters and search terms.
+     *
+     * @param element The element to check
+     * @param descriptor The pre-built string representing the element
+     * @param filters A key-value map of applied filters (e.g., package, name)
+     * @param terms Additional search keywords
+     * @returns True if the element matches all criteria, false otherwise
+     */
+    private matchesFilters(
+        element: EqualComponentDescriptor,
+        descriptor: string,
+        filters: { [key: string]: string },
+        terms: string[]
+    ): boolean {
+        const keyMap: { [key: string]: string } = {
+            package: "package_name",
+            name: "name",
+            type: "type",
+            model: "item.model"
+            };
+
+        for (const key of Object.keys(filters)) {
+            const filterValue = filters[key].toLowerCase();
+            const mappedPath = keyMap[key] ?? key;
+            // if propriety exist
+            const elementValue = this.getValueByPath(element, mappedPath)?.toString().toLowerCase();
+
+            // propriety doesn't exist or is not include
+            if (!elementValue || !elementValue.includes(filterValue)) {
+                return false;
+            }
         }
+
+        for (const term of terms) {
+            if (!descriptor.toLowerCase().includes(term)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private getValueByPath(obj: any, path: string): any {
+        return path.split('.').reduce((acc, key) => acc?.[key], obj);
+    }
+
+    /**
+     * Checks if an element's type matches the current search scope.
+     * This includes special handling for groupings like "controller" and "view".
+     *
+     * @param element The element to validate against the selected scope
+     * @returns True if the element belongs to the active search scope
+     */
+    private matchesScope(element: EqualComponentDescriptor): boolean {
+        return (
+            this.search_scope === '' ||
+            element.type === this.search_scope ||
+            (this.search_scope === 'controller' && (element.type === 'get' || element.type === 'do')) ||
+            (this.search_scope === 'view' && (element.type === 'list' || element.type === 'form'))
+        );
+    }
+
+
+
 
     public clearSearch() {
         this.inputControl.setValue('');

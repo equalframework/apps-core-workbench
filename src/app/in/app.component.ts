@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewEncapsulation} from '@angular/core';
 import { WorkbenchService } from './_services/workbench.service'
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
+import {Router } from '@angular/router';
 
 
 @Component({
@@ -28,19 +29,34 @@ export class AppComponent implements OnInit {
 
     constructor(
             private api: WorkbenchService,
+            private router: Router,
+
         ) { }
 
     handleSearchScopeChange(newScope: string): void {
         this.search_scope = newScope;
         console.log('Received new search scope:', this.search_scope);
-        }
+    }
+
     public async ngOnInit() {
-        /*
-        let args = this.router.retrieveArgs();
-        if(args && args['selected']) {
-            this.selectNode(args['selected']);
+        let restored = history.state?.selectedComponent;
+
+        if (!restored) {
+            const fromStorage = sessionStorage.getItem('selectedComponent');
+            if (fromStorage) {
+                try {
+                    restored = JSON.parse(fromStorage);
+                } catch (e) {
+                    console.warn('Impossible to parse from sessionStorage');
+                }
+            }
         }
-        */
+
+        if (restored) {
+            this.selectedComponent = restored;
+            console.log('Component restored :', this.selectedComponent);
+        }
+
         await this.init();
     }
 
@@ -69,8 +85,13 @@ export class AppComponent implements OnInit {
             this.selectedComponent = undefined;
         } else {
             this.selectedComponent = equalComponent;
+            history.replaceState({ ...history.state, selectedComponent: null }, '');
+            sessionStorage.setItem('selectedComponent', JSON.stringify(this.selectedComponent));
         }
     }
+
+
+
     public areNodesEqual(node1: EqualComponentDescriptor | undefined, node2: EqualComponentDescriptor): boolean {
         return node1?.package_name === node2?.package_name &&
                node1?.name === node2?.name &&

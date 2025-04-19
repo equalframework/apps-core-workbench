@@ -52,18 +52,24 @@
 
         <div class="lang-selection" *ngIf="addingLanguage || obk(data).length === 0">
             <mat-form-field appearance="outline">
-            <mat-label>Language code</mat-label>
-            <input matInput [formControl]="langName">
+              <mat-label>Language</mat-label>
+              <mat-select [formControl]="langName">
+                <mat-option *ngFor="let lang of availableLanguages" [value]="lang">
+                  {{ lang }}
+                </mat-option>
+              </mat-select>
             </mat-form-field>
+
             <div class="lang-actions">
-            <button mat-button (click)="stopAddingLanguage()">
+              <button mat-button (click)="stopAddingLanguage()">
                 <mat-icon>close</mat-icon> Cancel
-            </button>
-            <button mat-raised-button color="accent" [disabled]="langName.invalid" (click)="createLanguage()">
+              </button>
+              <button mat-raised-button color="accent" [disabled]="langName.invalid" (click)="createLanguage()">
                 <mat-icon>done</mat-icon> Create
-            </button>
+              </button>
             </div>
-        </div>
+          </div>
+
 
 
         <!-- Onglets de traduction -->
@@ -89,37 +95,44 @@
               <!-- Traduction des champs du modèle -->
               <div *ngIf="entitype !== 'menu'" class="model-items">
                 <mat-grid-list cols="16" rowHeight="2em" gutterSize="8px">
-                  <mat-grid-tile>Translation</mat-grid-tile>
-                  <mat-grid-tile colspan="2">Field</mat-grid-tile>
-                  <mat-grid-tile colspan="3">Label</mat-grid-tile>
-                  <mat-grid-tile colspan="5">Description</mat-grid-tile>
-                  <mat-grid-tile colspan="5">Help</mat-grid-tile>
+                  <mat-grid-tile class="header-tile">Translation</mat-grid-tile>
+                  <mat-grid-tile class="header-tile" colspan="2">Field</mat-grid-tile>
+                  <mat-grid-tile class="header-tile" colspan="3">Label</mat-grid-tile>
+                  <mat-grid-tile class="header-tile" colspan="5">Description</mat-grid-tile>
+                  <mat-grid-tile class="header-tile" colspan="5">Help</mat-grid-tile>
                 </mat-grid-list>
+
                 <mat-grid-list *ngFor="let key of obk(data[lang].model)" cols="16" rowHeight="2em" gutterSize="8px">
                   <mat-grid-tile colspan="1">
                     <mat-checkbox [checked]="data[lang].model[key].is_active"
                                   (change)="data[lang].model[key].is_active = $event.checked">
                     </mat-checkbox>
                   </mat-grid-tile>
+
                   <mat-grid-tile colspan="2">
                     <label class="fieldnamelabel">{{ key }}</label>
                   </mat-grid-tile>
+
                   <ng-container *ngIf="data[lang].model[key].is_active">
-                    <mat-grid-tile colspan="3">
+                    <mat-grid-tile colspan="3" class="editable-cell">
                       <input matInput placeholder="Label" [(ngModel)]="data[lang].model[key].label.value" spellcheck="true">
                     </mat-grid-tile>
-                    <mat-grid-tile colspan="5">
+
+                    <mat-grid-tile colspan="5" class="editable-cell">
                       <input matInput placeholder="Description" [(ngModel)]="data[lang].model[key].description.value" spellcheck="true">
                     </mat-grid-tile>
-                    <mat-grid-tile colspan="5">
+
+                    <mat-grid-tile colspan="5" class="editable-cell">
                       <input matInput placeholder="Help" [(ngModel)]="data[lang].model[key].help.value" spellcheck="true">
                     </mat-grid-tile>
                   </ng-container>
+
                   <ng-container *ngIf="!data[lang].model[key].is_active">
                     <mat-grid-tile colspan="13" class="placeholder"></mat-grid-tile>
                   </ng-container>
                 </mat-grid-list>
               </div>
+
             </div>
           </mat-tab>
 

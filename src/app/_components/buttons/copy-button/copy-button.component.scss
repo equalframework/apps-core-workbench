@@ -7,11 +7,12 @@ button {
     height: 20px;
     width: 20px;
 
-
-
     mat-icon {
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
       color: #00796b;
       font-size: 15px;
-      padding: 0 0 30px;
     }
   }
