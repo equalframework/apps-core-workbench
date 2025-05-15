@@ -18,6 +18,7 @@ import { ExplorerDialogComponent } from 'src/app/_dialogs/explorer-dialog/explor
 export class PipelineComponent {
     public pipelineId: number = -1;
 
+    isLoading:boolean = false;
     public pipelineName: string = 'New Pipeline';
 
     public state: string = 'view';
@@ -66,118 +67,105 @@ export class PipelineComponent {
 
     async load() {
         try {
-            const res: { name: string, id: number, nodes_ids: string[] }[] = await this.api.collect("core\\pipeline\\Pipeline", [], ['name', 'nodes_ids']);
-            const pipelines: string[] = [];
-            const pipelineMap: { [name: string]: { id: number, nodes_ids: string[] } } = {};
+            // Optional: Show loading spinner
 
-            for (let r of res) {
-                pipelines.push(r.name);
-                pipelineMap[r.name] = { id: r.id, nodes_ids: r.nodes_ids };
-            }
+            // Step 1: Fetch available pipelines
+            const res: { name: string, id: number }[] = await this.api.collect("core\\pipeline\\Pipeline", [], ['name']);
+            const pipelines = res.map(p => p.name);
+            const pipelineMap = new Map<string, number>(res.map(p => [p.name, p.id]));
 
+            // Step 2: Show dialog for user to select a pipeline
             const dialogRef = this.dialog.open(PipelineLoaderComponent, {
                 width: "60vw",
                 maxWidth: "600px",
-                data: { pipeline: "", pipelines: pipelines },
+                data: { pipeline: "", pipelines }
             });
 
-            dialogRef.afterClosed().subscribe(async result => {
-                const pipeline: { id: number, nodes_ids: string[] } = pipelineMap[result];
-                if (pipeline) {
-                    this.newFile();
-                    this.pipelineId = pipeline.id;
-                    this.pipelineName = result;
+            dialogRef.afterClosed().subscribe(async selectedName => {
+                if (!selectedName || !pipelineMap.has(selectedName)) return;
 
-                    const links_ids: Set<string> = new Set<string>();
-                    const params_ids: Set<string> = new Set<string>();
+                // Step 3: Load full pipeline by name
+                const fullPipeline = await this.api.call(`?get=model_pipeline-load&name=${selectedName}`);
 
-                    for (let nodeId of pipeline.nodes_ids) {
-                        const valueNode: { id: number, name: string, description: string, out_links_ids: string[], in_links_ids: string[], operation_controller: string, operation_type: string, params_ids: string[] } = (await this.api.collect("core\\pipeline\\Node", [['id', '=', nodeId]], ['id', 'name', 'description', 'out_links_ids', 'in_links_ids', 'operation_controller', 'operation_type', 'params_ids']))[0];
-                        const metaNode: { position: { x: number, y: number }, icon: string, color: string } = JSON.parse((await this.api.collect("core\\Meta", [['reference', '=', 'node.' + nodeId]], ['value']))[0].value);
+                // Step 4: Reset current state
+                this.newFile();
+                this.pipelineId = fullPipeline.pipeline.id;
+                this.pipelineName = selectedName;
 
-                        const node: Node = new Node(metaNode.position);
-                        node.name = valueNode.name;
-                        node.description = valueNode.description;
-                        node.id = valueNode.id;
-                        node.color = metaNode.color;
-                        node.icon = metaNode.icon;
+                const nodesMap = new Map<number, Node>();
 
-                        if (valueNode.operation_controller) {
-                            const index = valueNode.operation_controller.lastIndexOf("_");
-                            const pack = valueNode.operation_controller.substring(0, index).replace("_", ":");
-                            const name = valueNode.operation_controller.substring(index + 1);
-                            const apiUrl = "?" + valueNode.operation_type + "=" + valueNode.operation_controller;
-                            const controllerData: ControllerData = new ControllerData(valueNode.operation_controller, (valueNode.operation_type === "get") ? "data" : "actions", pack, name, apiUrl);
+                // Step 5: Create nodes (parallel controller fetch)
+                const nodePromises = fullPipeline.nodes.map(async (nodeData: any) => {
+                    const node = new Node(nodeData.meta.position);
+                    node.id = nodeData.id;
+                    node.name = nodeData.name;
+                    node.description = nodeData.description;
+                    node.color = nodeData.meta.color;
+                    node.icon = nodeData.meta.icon;
 
-                            const info = (await this.api.fetch(apiUrl + '&announce=true')).announcement;
-                            controllerData.description = info.description;
-                            controllerData.params = info.params;
-                            controllerData.response = info.response;
+                    if (nodeData.operation_controller) {
+                        const index = nodeData.operation_controller.lastIndexOf("_");
+                        const pack = nodeData.operation_controller.substring(0, index).replace("_", ":");
+                        const name = nodeData.operation_controller.substring(index + 1);
+                        const apiUrl = "?" + nodeData.operation_type + "=" + nodeData.operation_controller;
 
-                            node.data = controllerData;
-                        }
+                        const info = (await this.api.fetch(apiUrl + '&announce=true')).announcement;
 
-                        this.nodes.push(node);
+                        const controllerData = new ControllerData(
+                            nodeData.operation_controller,
+                            nodeData.operation_type === "get" ? "data" : "actions",
+                            pack,
+                            name,
+                            apiUrl
+                        );
+                        controllerData.description = info.description;
+                        controllerData.params = info.params;
+                        controllerData.response = info.response;
 
-                        for (let link_id of valueNode.in_links_ids) {
-                            links_ids.add(link_id);
-                        }
-                        for (let link_id of valueNode.out_links_ids) {
-                            links_ids.add(link_id);
-                        }
-                        for (let param_id of valueNode.params_ids) {
-                            params_ids.add(param_id);
-                        }
+                        node.data = controllerData;
                     }
 
-                    for (let link_id of links_ids) {
-                        const valueLink: { id: number, reference_node_id: number, source_node_id: number, target_node_id: number, target_param: string } = (await this.api.collect("core\\pipeline\\NodeLink", [['id', '=', link_id]], ['id', 'reference_node_id', 'source_node_id', 'target_node_id', 'target_param']))[0];
-                        let reference: Node | undefined = undefined;
-                        let source: Node | undefined = undefined;
-                        let target: Node | undefined = undefined;
-                        for (let node of this.nodes) {
-                            if (node.id === valueLink.reference_node_id) {
-                                reference = node;
-                            }
-                            if (node.id === valueLink.source_node_id) {
-                                source = node;
-                            }
-                            if (node.id === valueLink.target_node_id) {
-                                target = node;
-                            }
-                        }
+                    nodesMap.set(node.id, node);
+                    return node;
+                });
+                this.isLoading = true;
+                this.nodes = await Promise.all(nodePromises);
 
-                        if (reference && source && target) {
-                            const link: NodeLink = new NodeLink(reference, source, target);
-                            link.id = valueLink.id;
-                            link.target_param = valueLink.target_param;
-                            this.links.push(link);
-                        }
+                // Step 6: Create links
+                for (const link of fullPipeline.links) {
+                    const reference = nodesMap.get(link.reference_node_id);
+                    const source = nodesMap.get(link.source_node_id);
+                    const target = nodesMap.get(link.target_node_id);
+
+                    if (reference && source && target) {
+                        const nodeLink = new NodeLink(reference, source, target);
+                        nodeLink.id = link.id;
+                        nodeLink.target_param = link.target_param;
+                        this.links.push(nodeLink);
                     }
-
-                    for (let param_id of params_ids) {
-                        const valueParameter: { id: number, node_id: number, value: string, param: string } = (await this.api.collect("core\\pipeline\\Parameter", [['id', '=', param_id]], ['id', 'node_id', 'value', 'param']))[0];
-                        const value: any = JSON.parse(valueParameter.value);
-                        for (let node of this.nodes) {
-                            if (node.id === valueParameter.node_id) {
-                                const parameter: Parameter = new Parameter(node, valueParameter.param, value);
-                                parameter.id = valueParameter.id;
-                                this.parameters.push(parameter);
-                                break;
-                            }
-                        }
-                    }
-
-                    this.isRunnable = true;
-
-                    this.matSnack.open("Loaded successfully !", "INFO")
                 }
+
+                // Step 7: Create parameters
+                for (const param of fullPipeline.parameters) {
+                    const node = nodesMap.get(param.node_id);
+                    if (node) {
+                        const parameter = new Parameter(node, param.param, param.value);
+                        parameter.id = param.id;
+                        this.parameters.push(parameter);
+                    }
+                }
+
+                this.isRunnable = true;
+                this.matSnack.open("Loaded successfully!", "INFO");
+                this.isLoading = false;
             });
-        }
-        catch (e) {
+        } catch (e) {
             this.api.errorFeedback(e);
+        } finally {
+            this.isLoading = false;
         }
     }
+
 
     async save() {
         try {
@@ -249,8 +237,8 @@ export class PipelineComponent {
 
     async run() {
         const dialogRef = this.dialog.open(ModalExecutionPipelineComponent, {
-            width: '450px',
-            height: '350px',
+            width: '80%',
+            height: '80%',
             data: { pipelineName: this.pipelineName, pipelineId: this.pipelineId },
         });
     }

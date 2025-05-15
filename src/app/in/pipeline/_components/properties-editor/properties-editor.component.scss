@@ -177,3 +177,44 @@ td {
     max-height: 65vh;
     overflow-y: auto;
 }
+
+.output-schema-info {
+    margin-top: 20px;
+    background-color: white;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 0.85em;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+}
+
+.output-title {
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-size: 1em;
+    color: #333;
+}
+
+.output-info-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 6px;
+
+    .type {
+        margin-right: 8px;
+        transform: scale(0.8);
+        background-color: mat-color($maincolor, A100);
+        border-radius: 10px;
+    }
+
+    .output-key {
+        font-weight: 500;
+        margin-right: 5px;
+        color: #555;
+        min-width: 90px;
+    }
+
+    .output-value {
+        color: #222;
+        word-break: break-word;
+    }
+}

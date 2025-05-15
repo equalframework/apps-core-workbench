@@ -95,6 +95,40 @@
                                     </td>
                                 </tr>
                             </table>
+                            <div class="output-schema-info" *ngIf="selectedNode.data.response?.schema">
+                                <h5 class="output-title">Output</h5>
+                                <div class="output-info-row">
+
+                                    <span class="output-key">Type:</span>
+                                    <span class="output-value">
+                                        {{ selectedNode.data.response.schema.type }}
+                                    </span>
+                                    <mat-icon class="type" [title]="selectedNode.data.response.schema.type">
+                                        {{ typeIcon[selectedNode.data.response.schema.type] }}
+                                    </mat-icon>
+                                </div>
+                                <div class="output-info-row" *ngIf="selectedNode.data.response.schema.usage">
+                                    <span class="output-key">Description:</span>
+                                    <span class="output-value">{{ selectedNode.data.response.schema.usage }}</span>
+                                </div>
+                                <div class="output-info-row">
+                                    <span class="output-key">Quantity:</span>
+                                    <span class="output-value">
+                                        {{
+                                            selectedNode.data.response.schema.qty === 'many'
+                                                ? 'Array'
+                                                : selectedNode.data.response.schema.qty === 'one'
+                                                    ? 'Single value'
+                                                    : selectedNode.data.response.schema.qty
+                                        }}
+                                    </span>
+                                </div>
+                                <div class="output-info-row" *ngIf="selectedNode.data.response['content-type']">
+                                    <span class="output-key">Content-Type:</span>
+                                    <span class="output-value">{{ selectedNode.data.response['content-type'] }}</span>
+                                </div>
+                            </div>
+
                         </div>
                     </mat-tab>
                     <mat-tab label="Appearance">
@@ -160,13 +194,19 @@
                                         <label>{{ link.target_param }}</label>
                                     </mat-select-trigger>
                                     <mat-option></mat-option>
-                                    <mat-option *ngFor="let pair of link.target.data.params | keyvalue"
-                                        [value]="pair.key">
-                                        <mat-icon [title]="pair.value.type">
-                                            {{typeIcon[pair.value.type]}}
-                                        </mat-icon>
-                                        {{pair.key}}
-                                    </mat-option>
+                                    <ng-container *ngFor="let pair of link.target.data.params | keyvalue">
+                                        <mat-option
+                                          *ngIf="isCompatible(link.reference, pair.value)"
+                                          [value]="pair.key"
+                                        >
+                                          <mat-icon [title]="pair.value.type">
+                                            {{ typeIcon[pair.value.type] }}
+                                          </mat-icon>
+                                          {{ pair.key }}
+                                        </mat-option>
+                                      </ng-container>
+
+
                                 </mat-select>
                             </mat-form-field>
                         </td>
