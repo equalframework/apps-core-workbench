@@ -258,4 +258,14 @@ export class PropertiesEditorComponent implements OnInit {
         }
         this.changePipeline.emit();
     }
+
+    isCompatible(reference: Node, targetParam: any): boolean {
+        const refSchema = reference.data?.response?.schema;
+        if (!refSchema || !targetParam) return false;
+
+        return refSchema.type === targetParam.type;
+    }
+
+
+
 }

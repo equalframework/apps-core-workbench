@@ -5,6 +5,13 @@
         <input matInput [(ngModel)]="pipelineName">
     </mat-form-field>
 </app-inner-header>
+
+<!-- Spinner Overlay -->
+<div *ngIf="isLoading" class="spinner-overlay">
+    <mat-spinner diameter="64"></mat-spinner>
+</div>
+
+
 <div class="holder">
     <mat-grid-list cols="12" rowHeight="89%" gutterSize="10px">
         <mat-grid-tile [colspan]="sizeViewer" class="sizeanim">
