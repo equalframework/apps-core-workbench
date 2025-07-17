@@ -32,25 +32,31 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
     @Output() onIDDClick = new EventEmitter<void>();
     private destroy$ = new Subject<void>(); // Subject for takeUntil
 
-    public package_consistency:any;
+    public package_consistency: any;
     public current_initialized = false;
-    public warn_count:number;
-    public error_count:number;
-    public error_list:{type:number, text:string}[];
+    public warn_count: number;
+    public error_count: number;
+    public error_list: {type: number, text: string}[];
     public info_popup = true;
     public consistency_loading = false;
-    public want_errors:boolean = true;
-    public want_warning:boolean = true;
     public consistency_checked = false;
-
     public loading: boolean = false;
-    packageInfos$!: Observable<{ response: PackageSummary; message: string }>;
+    public packageInfos$!: Observable<{ response: PackageSummary; message: string }>;
+
+    public show_errors: boolean = true;
+    public show_warnings: boolean = true;
+    public show_dbms: boolean = true;
+    public show_orm: boolean = true;
+    public show_i18n: boolean = true;
+    public show_gui: boolean = true;
+
     constructor(
             private snackBar: MatSnackBar,
             private router: Router,
             private workbenchService: WorkbenchService,
             private matDialog: MatDialog
         ) { }
+
     ngOnDestroy(): void {
         this.destroy$.next();
         this.destroy$.complete();
@@ -173,7 +179,12 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
 
     public get filtered_error_list() {
         return this.error_list.filter((item) => (
-            (item.type===2 && this.want_errors) || (item.type ===1 && this.want_warning)
+            (this.show_errors && item.type === 2) ||
+            (this.show_warnings && item.type === 1) ||
+            (this.show_dbms && item.text.includes('DBM')) ||
+            (this.show_orm && item.text.includes('ORM')) ||
+            (this.show_i18n && item.text.includes('I18')) ||
+            (this.show_gui && item.text.includes('GUI'))
         ));
     }
 

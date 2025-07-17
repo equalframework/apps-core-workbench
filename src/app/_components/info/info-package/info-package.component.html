@@ -73,15 +73,39 @@
                 <div class="filters">
                     <label class="toggle-chip chip-warning"
                             *ngIf="warn_count > 0"
-                            [class.checked]="want_warning"
-                            (click)="want_warning = !want_warning">
+                            [class.checked]="show_warnings"
+                            (click)="show_warnings = !show_warnings">
                         Warnings
                     </label>
                     <label class="toggle-chip chip-error"
                             *ngIf="error_count > 0"
-                            [class.checked]="want_errors"
-                            (click)="want_errors = !want_errors">
+                            [class.checked]="show_errors"
+                            (click)="show_errors = !show_errors">
                         Errors
+                    </label>
+
+                    <label class="toggle-chip"
+                            [class.checked]="show_dbms"
+                            (click)="show_dbms = !show_dbms">
+                        DBMS
+                    </label>
+
+                    <label class="toggle-chip"
+                            [class.checked]="show_orm"
+                            (click)="show_orm = !show_orm">
+                        ORM
+                    </label>
+
+                    <label class="toggle-chip"
+                            [class.checked]="show_i18n"
+                            (click)="show_i18n = !show_i18n">
+                        I18N
+                    </label>
+
+                    <label class="toggle-chip"
+                            [class.checked]="show_gui"
+                            (click)="show_gui = !show_gui">
+                        GUI
                     </label>
                 </div>
                 <button class="collapse" mat-icon-button
@@ -94,8 +118,7 @@
                 <label *ngFor="let item of filtered_error_list"
                         class="item"
                         [class.color-red]="item.type==2"
-                        [class.color-orange]="item.type==1"
-                        [class.bold]="item.type==2">
+                        [class.color-orange]="item.type==1">
                     {{item.text}}
                 </label>
             </div>

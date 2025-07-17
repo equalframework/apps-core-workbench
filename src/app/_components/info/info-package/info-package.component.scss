@@ -160,7 +160,7 @@
                 word-wrap: break-word;
                 overflow: hidden;
                 margin: 0;
-                padding: 8px 0;
+                padding-bottom: 4px;
                 font-family: monospace;
                 transition: background-color 0.3s ease, padding-left 0.3s ease;
 
@@ -178,7 +178,6 @@
 
                 &:hover {
                     background-color: rgba(255, 0, 0, 0.1);
-                    padding-left: 10px;
                 }
             }
         }
