@@ -22,9 +22,9 @@
             [customButtonList]="[{name:'Show JSON', icon:'bug_report', disabled: false}]"
             (onCustomButton)="handleCustomButton($event)">
         <label class="packagename names">{{node.package_name}}</label>
-        <label>›</label>
+        <label style="margin: 0 5px;">›</label>
         <label [class.controllername]="view_obj.type === 'search'" [class.classname]="view_obj.type !== 'search'" class="names">{{node.item.model}}</label>
-        <label>›</label>
+        <label style="margin: 0 5px;">›</label>
         <label class="viewname names">{{node.name.split(":")[1]}}</label>
     </app-inner-header>
     <div class="feature-container">
@@ -188,7 +188,7 @@
                 <mat-tab>
                     <ng-template mat-tab-label>
                         <mat-icon class="tab-label-icon">open_in_browser</mat-icon>
-                        <label>Action</label>
+                        <label>Actions</label>
                     </ng-template>
                     <div class="tab-item indent">
                         <mat-slide-toggle [(ngModel)]="view_obj._has_actions"></mat-slide-toggle>

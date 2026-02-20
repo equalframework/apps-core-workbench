@@ -10,6 +10,14 @@ import { Observable, of, Subject } from 'rxjs';
 import { catchError, finalize, takeUntil, tap } from 'rxjs/operators';
 import { PackageSummary } from 'src/app/in/_models/package-info.model';
 
+class ConsistencyResultItem {
+    constructor(
+        public type: number, // 1 = warning, 2 = error
+        public mode: string, // DBM, ORM, I18, GUI
+        public text: string
+    ) {}
+}
+
 @Component({
     selector: 'info-package',
     templateUrl: './info-package.component.html',
@@ -36,7 +44,8 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
     public current_initialized = false;
     public warn_count: number;
     public error_count: number;
-    public error_list: {type: number, text: string}[];
+
+    public error_list: ConsistencyResultItem[];
     public info_popup = true;
     public consistency_loading = false;
     public consistency_checked = false;
@@ -49,6 +58,8 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
     public show_orm: boolean = true;
     public show_i18n: boolean = true;
     public show_gui: boolean = true;
+
+    public selectedConsistencyResultItem: ConsistencyResultItem | null = null;
 
     constructor(
             private snackBar: MatSnackBar,
@@ -89,7 +100,11 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
         this.current_initialized = this.package_init_list.includes(this.package.name);
     }
 
-    checkConsistency(): void {
+    public selectConsistencyResultItem(item: ConsistencyResultItem): void {
+        this.selectedConsistencyResultItem = item;
+    }
+
+    public checkConsistency(): void {
         this.resetConsistencyState();
         this.consistency_loading = true;
         this.workbenchService.checkPackageConsistency(this.package.name).pipe(
@@ -103,8 +118,6 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
                 }
                 else{
                     console.error('Error fetching package consistency:', result.message);
-                    this.error_list.push({ type: 2, text: result.message });
-                    this.error_count = this.error_list.filter(({type}) => type===2).length;
                     this.snackBar.open('Error fetching package consistency', 'Close', { duration: 3000 });
                     return of(null);
                 }
@@ -126,10 +139,11 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
 
         this.package_consistency.result.forEach((message: string) => {
             if (message.startsWith("WARN")) {
-                this.error_list.push({ type: 1, text: message });
+                this.error_list.push(<ConsistencyResultItem>{ type: 1, text: message });
                 this.warn_count++;
-            } else if (message.startsWith("ERROR")) {
-                this.error_list.push({ type: 2, text: message });
+            }
+            else if (message.startsWith("ERROR")) {
+                this.error_list.push(<ConsistencyResultItem>{ type: 2, text: message });
                 this.error_count++;
             }
         });
@@ -137,6 +151,7 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
         this.snackBar.open(`Consistency check complete: ${this.error_count} errors, ${this.warn_count} warnings`, 'Close', { duration: 3000 });
     }
 
+    /*
     public countErrors() {
         this.warn_count = 0;
         this.error_count = 0;
@@ -152,6 +167,7 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
             }
         }
     }
+    */
 
     public onclickModels() {
         this.router.navigate(['/package/' + this.package.name+'/models']);
@@ -178,14 +194,15 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
     }
 
     public get filtered_error_list() {
-        return this.error_list.filter((item) => (
-            (this.show_errors && item.type === 2) ||
-            (this.show_warnings && item.type === 1) ||
-            (this.show_dbms && item.text.includes('DBM')) ||
-            (this.show_orm && item.text.includes('ORM')) ||
-            (this.show_i18n && item.text.includes('I18')) ||
-            (this.show_gui && item.text.includes('GUI'))
-        ));
+        return this.error_list.filter((item) => {
+            if(!this.show_errors && item.type === 2) return false;
+            if(!this.show_warnings && item.type === 1) return false;
+            if(!this.show_dbms && item.text.includes('DBM')) return false;
+            if(!this.show_orm && item.text.includes('ORM')) return false;
+            if(!this.show_i18n && item.text.includes('I18')) return false;
+            if(!this.show_gui && item.text.includes('GUI')) return false;
+            return true;
+        });
     }
 
     public async initPackage() {

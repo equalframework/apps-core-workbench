@@ -108,11 +108,14 @@
                     margin: 0 .2em;
                     background-color: #dddddd;
                     user-select: none;
-                    &.checked.chip-warning {
-                        background-color: mat-color($editedcolor);
-                    }
-                    &.checked.chip-error {
-                        background-color: mat-color($warncolor);
+                    &.checked {
+                        background-color: mat-color($maincolor);
+                        &.chip-warning {
+                            background-color: mat-color($editedcolor);
+                        }
+                        &.chip-error {
+                            background-color: mat-color($warncolor);
+                        }
                     }
                 }
             }
@@ -155,21 +158,20 @@
             .item {
                 display: block;
                 width: 100%;
-                white-space: normal;
+                white-space: nowrap;
                 overflow-wrap: break-word;
                 word-wrap: break-word;
                 overflow: hidden;
                 margin: 0;
-                padding-bottom: 4px;
                 font-family: monospace;
-                transition: background-color 0.3s ease, padding-left 0.3s ease;
+                user-select: none;
 
                 &.color-red {
                     color: mat-color($warncolor);
                 }
 
                 &.color-orange {
-                    color: mat-color($editedcolor);
+                    color: #eb572a;
                 }
 
                 &.bold {
@@ -178,6 +180,13 @@
 
                 &:hover {
                     background-color: rgba(255, 0, 0, 0.1);
+                }
+
+                &.selected {
+                    background-color: rgba(0, 0, 255, 0.1);
+                    white-space: normal;
+                    text-indent: -2em;
+                    padding-left: 2em;
                 }
             }
         }

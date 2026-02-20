@@ -7,19 +7,19 @@
     height: 100%;
 
     .packagename {
-        background-color: mat-color($package-color, A100);
+        background-color: rgba(mat-color($package-color, A100), 0.5);
     }
 
     .classname {
-        background-color: mat-color($class-color, A100);
+        background-color: rgba(mat-color($class-color, A100), 0.5);
     }
 
     .controllername {
-        background-color: mat-color($do-color, A100);
+        background-color: rgba(mat-color($do-color, A100), 0.5);
     }
 
     .viewname {
-        background-color: mat-color($view-color, A100);
+        background-color: rgba(mat-color($view-color, A100), 0.5);
     }
 
     .names {

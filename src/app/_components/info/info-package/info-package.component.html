@@ -83,7 +83,8 @@
                             (click)="show_errors = !show_errors">
                         Errors
                     </label>
-
+                    <!-- separator -->
+                    <span style="display: inline-block; width: 30px;"></span>
                     <label class="toggle-chip"
                             [class.checked]="show_dbms"
                             (click)="show_dbms = !show_dbms">
@@ -117,8 +118,10 @@
             <div class="items" *ngIf="info_popup && (error_count !== 0 || warn_count !== 0)">
                 <label *ngFor="let item of filtered_error_list"
                         class="item"
-                        [class.color-red]="item.type==2"
-                        [class.color-orange]="item.type==1">
+                        [class.color-red]="item.type == 2"
+                        [class.color-orange]="item.type == 1"
+                        [class.selected]="item === selectedConsistencyResultItem"
+                        (click)="selectConsistencyResultItem(item)">
                     {{item.text}}
                 </label>
             </div>

@@ -400,8 +400,7 @@ export class WorkbenchService {
             return of([]);
         }
         const url = `?do=test_package-consistency&package=${package_name}`;
-        return this.callApi(url, ``)
-        ;
+        return this.callApi(url, ``);
     }
 
     /**
