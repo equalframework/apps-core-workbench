@@ -48,29 +48,34 @@ export class ModelTradEditorComponent implements OnInit {
         this.allLanguages = await this.workbenchService.collectAllLanguagesCode().toPromise();  // await this.api.collect("core\\pipeline\\Pipeline", [], ['name', 'nodes_ids'])
         const selectedPackage = this.route.parent?.snapshot.paramMap.get('package_name');
         const selectedModel = this.route.snapshot.paramMap.get('class_name');
+        const selectedMenu = this.route.snapshot.paramMap.get('menu_name');
         const type = this.route.snapshot.paramMap.get('type');
+        
         if (type) { this.entitype = type; }
-        if (!selectedPackage || !selectedModel) {
-        this.error = true;
-        return;
+        if (!selectedPackage || (!selectedModel && !selectedMenu)) {
+            this.error = true;
+            return;
         }
-        this.package_name = selectedPackage;
-        this.model_name = selectedModel;
+        if (selectedMenu) {this.entitype = 'menu'; }
 
-        if (this.entitype === 'menu') {
-        await this.initMenu();
-        } else {
-        await this.initModel();
+        this.package_name = selectedPackage;
+        if (this.entitype === 'menu') { 
+            this.model_name = selectedMenu!;
+            await this.initMenu(); }
+        else {
+            
+            this.model_name = selectedModel!;   
+            await this.initModel();
         }
         this.loading = false;
     }
 
     async initMenu() {
         this.loading = true;
-        const langs = await this.workbenchService.getTranslationsList(this.package_name, `menu.${this.model_name}`).toPromise();
+        const langs = await this.workbenchService.getMenuTranslationsList(this.package_name, `${this.model_name}`).toPromise();
         for (const lang in langs) {
         if (langs[lang].length === 0) { continue; }
-        const translationData = await this.workbenchService.getTranslations(this.package_name, `menu.${this.model_name}`, lang).toPromise();
+        const translationData = await this.workbenchService.getMenuTranslationsList(this.package_name, `${this.model_name}`).toPromise();
         if (!translationData) { continue; }
         const newTranslation = await this.createNewMenuLang();
         if (!newTranslation.ok) { continue; }
@@ -79,13 +84,14 @@ export class ModelTradEditorComponent implements OnInit {
         }
         this.lang = Object.keys(this.data).sort()[0] || '';
         this.loading = false;
+        this.updateAvailableLanguages();
     }
 
     async initModel() {
         this.loading = true;
         const langs = await this.workbenchService.getTranslationsList(this.package_name, this.model_name).toPromise();
         for (const lang in langs) {
-        const translationData = await this.workbenchService.getTranslations(this.package_name, this.model_name, lang).toPromise();
+        const translationData = await this.workbenchService.getTranslations(this.package_name, this.model_name).toPromise();
         if (!translationData) { continue; }
         const newTranslation = await this.createNewLang();
         if (!newTranslation.ok) { continue; }
@@ -98,7 +104,7 @@ export class ModelTradEditorComponent implements OnInit {
     }
 
     async createNewMenuLang(): Promise<Translator> {
-        const scheme = await this.workbenchService.getView(`${this.package_name}\\menu`, this.model_name).toPromise();
+        const scheme = await this.workbenchService.readMenu(this.package_name, this.model_name).toPromise();
         return Translator.MenuConstructor(new Menu(scheme));
     }
 
@@ -204,10 +210,16 @@ export class ModelTradEditorComponent implements OnInit {
     }
 
     saveAll() {
-        this.workbenchService.saveTranslations(this.package_name, (this.entitype === 'menu' ? 'menu.' : '') + this.model_name, this.data).subscribe(()=> {
-            this.notificationService.showSuccess("Translations updated")
-        });
+        if (this.entitype === 'menu') {
+            //#memo: This cannot be done with the current API, as menu translations do not pass do=core_update-translations/get=core_config_translations because of configuration issues. It would require a specific API endpoint to update menu translations, which is currently not implemented.
+            this.notificationService.showInfo("Saving translations for menus is not implemented.");
+            //this.workbenchService.overwriteTranslations(this.package_name, `menu.${this.model_name}`, this.data).subscribe(()=> {
+            //    this.notificationService.showSuccess("Translations updated");
+            //});
+        } else {
+            this.workbenchService.saveTranslations(this.package_name, this.model_name, this.data).subscribe(()=> {
+                this.notificationService.showSuccess("Translations updated");
+            });
+        }
     }
-    }
-
-
+}

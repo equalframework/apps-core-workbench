@@ -864,12 +864,11 @@ export class WorkbenchService {
      *
      * @param {string} package_name - The name of the package.
      * @param {string} entity - The entity within the package.
-     * @param {string} lang - The language code (e.g., "en", "fr").
      *
      * @returns {Observable<{ [id: string]: any } | null>} An observable that emits the translations if available, or `null` if no translations are found.
      */
-    public getTranslations(package_name: string, entity: string, lang: string): Observable<{ [id: string]: any } | null> {
-        const url = `?get=core_config_translation&lang=${lang}&entity=${package_name}\\${entity}`;
+    public getTranslations(package_name: string, entity: string) : Observable<{ [id: string]: any } | null> {
+        const url = `?get=core_config_translations&entity=${package_name}\\${entity}`;
         return this.callApi(url, '').pipe(
             map((response: any) => response.success ? response.response : null)
         );
@@ -892,7 +891,6 @@ export class WorkbenchService {
             map(({ response }) => response ? response : {})
         );
     }
-
 
     /**
      * Saves translations for a specific package, entity, and language dictionary.
@@ -918,6 +916,48 @@ export class WorkbenchService {
         return forkJoin(requests).pipe(map(() => {})); // Wait for all the requests to finish
     }
 
+    /**
+     * Fetches translations for a specific menu.
+     *
+     * This method retrieves translations for a given package and menu id.
+     *
+     * @param {string} package_name - The name of the package.
+     * @param {string} menu_id - The menu's id within the package.
+     *
+     * @returns {Observable<{ [id: string]: any } | null>} An observable that emits the translations if available, or `null` if no translations are found.
+     */
+    //#memo: This method should be updated to handle a list of translations instead of a single one, to be consistent with the other translation methods
+    public getMenuTranslationsList(package_name: string, menu_id: string): Observable<{ [id: string]: string[] }> {
+        console.log("Fetching menu translations for package:", package_name, "and menu_id:", menu_id);
+        const url = `?get=core_config_i18n-menu&package=${package_name}&menu_id=${menu_id}`;
+        return this.callApi(url, '').pipe(
+            map(({ response }) => response ? response : {})
+        );
+    }
+
+    /**
+     * Saves translations for a specific package, entity, and language dictionary.
+     *
+     * This method overwrites translations for a given package and entity for each language in the dictionary.
+     *
+     * @param {string} package_name - The name of the package.
+     * @param {string} entity - The entity within the package.
+     * @param {any} dict - The translation dictionary, where keys are language codes and values are translation data.
+     *
+     * @returns {Observable<void>} An observable that emits when all translation updates have been completed.
+     */
+    public overwriteTranslations(package_name: string, entity: string, dict: any): Observable<void> {
+        const requests = Object.keys(dict).map((lang) => {
+            const url = `?do=core_config_generate-i18n&package=${package_name}&entity=${entity}&overwrite=true&lang=${lang}&create_lang=true&payload=${JSON.stringify(dict[lang].export())}`;
+            return this.callApi(url, 'Translation updated').pipe(
+                catchError((err) => {
+                    console.error(`Error saving translation for ${lang}:`, err);
+                    return of(null); // Continue even if there's an error
+                })
+            );
+        });
+        return forkJoin(requests).pipe(map(() => {})); // Wait for all the requests to finish
+    }
 
     /**
     * @deprecated
