@@ -43,6 +43,7 @@ export class InfoControllerComponent implements OnInit, OnChanges {
 
     public controller_name: string;
     public controller_type: string;
+    public controller_package: string;
 
     @Input() selected_package: string;
 
@@ -93,6 +94,7 @@ export class InfoControllerComponent implements OnInit, OnChanges {
         if(changes.controller) {
             this.controller_name = this.controller?.name ?? '';
             this.controller_type = this.controller?.type ?? '';
+            this.controller_package = this.controller?.package_name ?? '';
             this.load();
         }
     }
@@ -383,14 +385,14 @@ export class InfoControllerComponent implements OnInit, OnChanges {
     }
 
     public onclickRequestParams() {
-        this.router.navigate(['/package/'+this.selected_package+'/controller/'+this.controller_type+'/'+this.controller_name+'/params']);
+        this.router.navigate(['/package/'+this.controller_package+'/controller/'+this.controller_type+'/'+this.controller_name+'/params']);
     }
 
     public onclickResponseValues() {
-        this.router.navigate(['/package/'+this.selected_package+'/controller/'+this.controller_type+'/'+this.controller_name+'/return']);
+        this.router.navigate(['/package/'+this.controller_package+'/controller/'+this.controller_type+'/'+this.controller_name+'/return']);
     }
 
     public onclickTranslations() {
-        this.router.navigate(['/package/'+this.selected_package+'/controller/'+this.controller_type+'/'+this.controller_name+'/translations']);
+        this.router.navigate(['/package/'+this.controller_package+'/controller/'+this.controller_type+'/'+this.controller_name+'/translations']);
     }
 }
