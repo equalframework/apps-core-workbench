@@ -21,6 +21,10 @@ const routes: Routes = [
         component: PackageControllersComponent
     },
     */
+   {
+        path: 'controller/:type/:name',
+        component: PackageControllersComponent
+   },
     {
         path: '',
         component: PackageControllersComponent
