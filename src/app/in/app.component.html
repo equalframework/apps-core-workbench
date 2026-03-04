@@ -30,7 +30,8 @@
         <ng-container *ngIf="selectedComponent.type == 'package' || selectedComponent.type == ''">
             <info-package
                     [package]="selectedComponent"
-                    [package_init_list]="initialized_packages">
+                    [package_init_list]="initialized_packages"
+                    [key]="package_name">
             </info-package>
         </ng-container>
 
@@ -68,6 +69,23 @@
             <info-menu
                     [menu]="selectedComponent">
             </info-menu>
+        </ng-container>
+
+        <ng-container *ngIf="selectedComponent.type === 'model'">
+            <info-model
+                    [model]="selectedComponent"
+                    (getRef)="goTo($event)">
+            </info-model>
+        </ng-container>
+
+        <ng-container *ngIf="selectedComponent.type === 'do' || selectedComponent.type === 'get'">
+            <info-controller
+                    [controller]="selectedComponent"
+                    [fetch_error]="fetch_error"
+                    [selected_package]="selectedComponent.package ? selectedComponent.package : ''"
+                    [moving]="true"
+                    (goto)="goTo({name:$event})">
+            </info-controller>
         </ng-container>
 
     </div>
