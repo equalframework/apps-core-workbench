@@ -25,7 +25,7 @@ export class InfoMenuComponent implements OnInit {
     }
 
     public onclickEdit() {
-        this.router.navigate(['/package/'+this.selected_package+'/menu/'+this.menu.name]);
+        this.router.navigate(['/package/'+this.selected_package+'/menu/'+this.menu.name+'/edit']);
     }
 
 

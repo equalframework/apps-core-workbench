@@ -31,6 +31,8 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
 
     @Input() package_init_list:string[];
 
+    @Input() key: string;
+
     @Output() onModelClick = new EventEmitter<void>();
     @Output() onControllerClick = new EventEmitter<void>();
     @Output() onViewClick = new EventEmitter<void>();
@@ -75,7 +77,7 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.resetConsistencyState();
-        this.current_initialized = this.package_init_list.includes(this.package.name);
+        this.current_initialized = Array.isArray(this.package_init_list) && this.package_init_list.includes(this.package.name);
         this.loadPackage(this.package.name)
     }
 
@@ -97,7 +99,7 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
         this.error_count = 0;
         this.error_list = [];
         this.consistency_checked = false;
-        this.current_initialized = this.package_init_list.includes(this.package.name);
+        this.current_initialized = Array.isArray(this.package_init_list) && this.package_init_list.includes(this.package.name);
     }
 
     public selectConsistencyResultItem(item: ConsistencyResultItem): void {

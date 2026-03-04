@@ -53,7 +53,6 @@ export class InfoModelComponent implements OnInit, OnChanges {
         ) { }
 
     public ngOnInit() {
-        console.log(this.model);
         this.loading = true;
         this.load();
     }
@@ -65,8 +64,10 @@ export class InfoModelComponent implements OnInit, OnChanges {
     }
 
     private load() {
+        const modelKey = this.model.package_name + '\\' + this.model.name;
         this.loading = true;
-        this.workbenchService.getSchema(this.model.package_name + '\\' + this.model.name).subscribe((data) => {
+        
+        this.workbenchService.getSchema(modelKey).subscribe((data) => {
             this.schema = data;
             this.fields = Object.keys(this.schema['fields']);
             this.loading = false;
@@ -74,7 +75,7 @@ export class InfoModelComponent implements OnInit, OnChanges {
                 { icon: 'description', tooltip: 'File path', value: this.model.file , copyable: true },
                 { icon: 'fork_right', tooltip: 'Extends', value: this.schema['parent'] },
                 { icon: 'grid_on', tooltip: 'DB_table', value: this.schema['table'], copyable: true },
-                ]
+            ]
         });
     }
 
