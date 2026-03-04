@@ -4,6 +4,7 @@ import {STEPPER_GLOBAL_OPTIONS} from '@angular/cdk/stepper';
 import { Router } from '@angular/router';
 
 import { ContextService, ApiService, AuthService, EnvService } from 'sb-shared-lib';
+import { RouterMemory } from 'src/app/_services/routermemory.service';
 
 
 /*
@@ -41,6 +42,7 @@ export class AppRootComponent implements OnInit {
         private api:ApiService,
         private auth:AuthService,
         private env:EnvService,
+        private routerMemory: RouterMemory
     ) {}
 
 
