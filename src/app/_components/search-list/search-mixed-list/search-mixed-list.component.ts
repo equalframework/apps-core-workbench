@@ -1,3 +1,4 @@
+import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, SimpleChanges, ViewEncapsulation } from '@angular/core';
 import { FormControl } from '@angular/forms';
@@ -74,7 +75,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     // value part of the search bar field (parsed in onSearch() method)
     public search_value: string = '';
     // type part of the search bar field (is parsed in onSearch() method)
-    public search_scope: string = "package";
+    public search_scope: string = "";
 
     // used to render info about components present in filteredData (or data)
     public type_dict: { [id: string]: { icon: string, disp: string } } = ItemTypes.typeDict;
@@ -83,13 +84,13 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
 
     public editingNode: EqualComponentDescriptor;
     public editedNode: EqualComponentDescriptor;
-
     constructor(
         private dialog: MatDialog,
         private provider: EqualComponentsProviderService,
         private notificationService: NotificationService,
-        private workbenchService:WorkbenchService,
+        private workbenchService: WorkbenchService,
         private router: Router,
+        private location: Location
     ) { }
 
 
@@ -142,10 +143,10 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
             else{
             this.provider.equalComponents$
                 .pipe(takeUntil(this.destroy$))
-                .subscribe(
-                    components => this.handleComponents(components),
-                    error => this.handleError(error)
-                );
+                .subscribe({
+                    next: (components: EqualComponentDescriptor[]) => this.handleComponents(components),
+                    error: (error: any) => this.handleError(error)
+                });
             }
         }
     }
@@ -202,7 +203,6 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
      * This method synchronize the search input with the search select
      */
     public selectSearchScope() {
-        console.log('selectSearchScope', this.search_scope);
         this.searchScopeChange.emit(this.search_scope);
         this.onSearch();
     }
@@ -334,7 +334,6 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     }
 
     public areNodesEqual(node1?: EqualComponentDescriptor, node2?: EqualComponentDescriptor) {
-        // console.log('comparing', node1, node2);
         return (node1?.package_name === node2?.package_name &&
             node1?.name === node2?.name &&
             node1?.type === node2?.type);
@@ -394,7 +393,6 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
      * @param node name of the node which is edited
      */
     public onEditNode(node: EqualComponentDescriptor) {
-        console.log('onEditNode clicked', node);
         this.editingNode = this.cloneNode(node);
         this.editedNode = this.cloneNode(node);
     }
@@ -410,17 +408,55 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
      * @param node value of the node which is clicked on
      */
     public onclickSelect(node: EqualComponentDescriptor) {
-        console.log('onclickSelect called with node:', node);
-        console.log('Current node_selected:', this.node_selected);
-        console.log('Are they equal?', this.areNodesEqual(this.node_selected, node));
         if (this.node_selected && this.areNodesEqual(this.node_selected, node)) {
-            console.log('Node is already selected, deselecting.');
             this.node_selected = undefined;
             this.selectNode.emit(undefined);
+            this.updateUrlForSelectedNode(undefined);
         } else {
         this.node_selected = node;
         this.selectNode.emit(node);
+        this.updateUrlForSelectedNode(node);
         }
+    }
+
+    /**
+     * Handles the URI path update when a node is selected, ensuring the URL reflects the current selection for better navigation and bookmarking.
+     * Updates the URL without navigating to a new component.
+     * 
+     * @param node The node that has been selected, containing its package name, type, and name to construct the URL.
+     */
+    private updateUrlForSelectedNode(node: EqualComponentDescriptor | undefined) {
+        let url = '';
+        console.log("Updating URL for selected node:", node);
+        console.log("Current type and name:", node?.type, node?.name);
+        console.log("Correct path format should be: /package/{package_name}/{type}/{name}");
+        console.log(``)
+
+        // Packages
+        if (node && node.type === 'package') {
+            url = `/package/${node.name}`;
+        }
+        // Models
+        else if (node && node.type === 'class') {
+            url = `/package/${node.package_name}/model/${node.name}`;
+        }
+        // Controllers (get/do)
+        else if (node && (node.type === 'get' || node.type === 'do')) {
+            url = `/package/${node.package_name}/controller/${node.type}/${node.name}`;
+        }
+        // Views (list/form)
+        else if (node && (node.type === 'view')) {
+            const [model, rest] = node.name.split(':');
+            const [type, view] = rest.split('.');
+            url = `/package/${node.package_name}/entity/${model}/view/${view}/type/${type}`;
+        }
+        // Menus
+        else if (node && node.type === 'menu') {
+            url = `/package/${node.package_name}/menu/${node.name}`;
+        }
+
+        // Defaults to package view if no specific type matches
+        this.location.go(url);
     }
 
     /**
