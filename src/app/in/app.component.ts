@@ -1,7 +1,8 @@
 import { Component, OnInit, ViewEncapsulation} from '@angular/core';
 import { WorkbenchService } from './_services/workbench.service'
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
-import {Router } from '@angular/router';
+import {Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 
 
 @Component({
@@ -11,7 +12,6 @@ import {Router } from '@angular/router';
     encapsulation : ViewEncapsulation.Emulated,
 })
 export class AppComponent implements OnInit {
-
     public child_loaded = false;
     public selectedComponent: EqualComponentDescriptor | undefined;
     public classes_for_selected_package: string[] = [];
@@ -39,25 +39,78 @@ export class AppComponent implements OnInit {
     }
 
     public async ngOnInit() {
-        let restored = history.state?.selectedComponent;
 
-        if (!restored) {
-            const fromStorage = sessionStorage.getItem('selectedComponent');
-            if (fromStorage) {
-                try {
-                    restored = JSON.parse(fromStorage);
-                } catch (e) {
-                    console.warn('Impossible to parse from sessionStorage');
-                }
+        // Listen to route changes and update selectedComponent
+        this.router.events
+            .pipe(filter(event => event instanceof NavigationEnd))
+            .subscribe(() => {
+                this.restoreSelectedComponentFromUrl();
+            });
+
+        // Initial restore
+        this.restoreSelectedComponentFromUrl();
+
+        await this.init();
+    }
+
+    private restoreSelectedComponentFromUrl() {
+        const fromUrl = this.router.parseUrl(this.router.url);
+        let restored: EqualComponentDescriptor | undefined;
+
+        if (fromUrl.root.children['primary'] && fromUrl.root.children['primary'].segments.length > 0) {
+            const segments = fromUrl.root.children['primary'].segments;
+            console.log('URL segments:', segments);
+            //TODO: add Routes
+                // Menu
+            if (segments.length === 4 && segments[0].path === 'package' && segments[2].path === 'menu') {
+                restored = {
+                    package_name: segments[1].path,
+                    name: segments[3].path,
+                    type: 'menu'
+                } as EqualComponentDescriptor;
+            } else
+                // Controller
+            if (segments.length === 5 && segments[0].path === 'package' && segments[2].path === 'controller') {
+                restored = {
+                    package_name: segments[1].path,
+                    name: segments[4].path,
+                    type: segments[3].path
+                } as EqualComponentDescriptor;
+            } else
+                // Model
+            if (segments.length === 4 && segments[0].path === 'package' && segments[2].path === 'model') {
+                restored = {
+                    package_name: segments[1].path,
+                    name: segments[3].path,
+                    type: 'model'
+                } as EqualComponentDescriptor;
+            } else
+                // View
+            if (segments.length === 8 && segments[2].path === 'entity' && segments[4].path === 'view' && segments[6].path === 'type') {
+                restored = {
+                    package_name: segments[0].path === 'package' ? segments[1].path : '',
+                    name: `${segments[3].path}:${segments[7].path}.${segments[5].path}`,
+                    type: 'view',
+                    item: {
+                        model: segments[3].path,
+                    }
+                } as EqualComponentDescriptor;
+            } else
+                // Package
+            if (segments[0].path === 'package' && segments.length === 2) {
+                restored = {
+                    type: 'package',
+                    name: segments[1].path,
+                    package_name: segments[1].path
+                } as EqualComponentDescriptor;
             }
         }
 
         if (restored) {
-            this.selectedComponent = restored;
-            console.log('Component restored :', this.selectedComponent);
+            this.selectNode(restored);
+            sessionStorage.setItem('selectedComponent', JSON.stringify(this.selectedComponent));
+            console.log('Component restored from URL:', sessionStorage.getItem('selectedComponent'));
         }
-
-        await this.init();
     }
 
     public async refresh() {
@@ -74,9 +127,9 @@ export class AppComponent implements OnInit {
     }
 
     /**
-     * Select a package when user clicks on it.
+     * Select a component
      *
-     * @param eq_package the package that the user has selected
+     * @param equalComponent the component to select
      */
     public selectNode(equalComponent: EqualComponentDescriptor) {
         console.log('selectNode', equalComponent);
@@ -87,6 +140,7 @@ export class AppComponent implements OnInit {
             this.selectedComponent = equalComponent;
             history.replaceState({ ...history.state, selectedComponent: null }, '');
             sessionStorage.setItem('selectedComponent', JSON.stringify(this.selectedComponent));
+            console.log('selected:', this.selectedComponent);
         }
     }
 
@@ -107,9 +161,9 @@ export class AppComponent implements OnInit {
         //this.api.updatePackage(event.old_node, event.new_node);
     }
 
-
-
-
+    get package_name(): string {
+        return this.selectedComponent?.package_name || this.selectedComponent?.name || '';
+    }
 
     public goTo(ev: any) {
         let els: EqualComponentDescriptor[] = this.elements.filter(el => (el.name === ev.name && (!ev.package || ev.package === el.package)));

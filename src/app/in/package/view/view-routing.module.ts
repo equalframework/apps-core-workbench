@@ -4,10 +4,14 @@ import { PackageViewComponent } from './package-view.component';
 import { ModelTradEditorModule } from '../model/model-trad-editor/model-trad-editor.module';
 
 
-const routes: Routes = [  
+const routes: Routes = [
   {
-      path: '**',
-      component: PackageViewComponent
+    path: 'edit',
+    component: PackageViewComponent,
+  },
+  {
+    path: '**',
+    component: PackageViewComponent
   }
 ];
 

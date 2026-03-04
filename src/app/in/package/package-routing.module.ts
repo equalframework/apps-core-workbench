@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { PackageComponent } from './package.component';
 import { PackageRoutesComponent } from './routes/package-routes.component';
+import { AppComponent } from '../app.component';
 
 
 const routes: Routes = [
@@ -23,8 +24,6 @@ const routes: Routes = [
         path: 'workflow/:package/:model',
         loadChildren: () => import('src/app/in/workflows/workflows.module').then(m => m.WorkflowsModule)
     },
-    */
-   /*
     {
         path: 'view/:view_name',
         loadChildren: () => import('./model/view.module').then(m => m.PackageViewModule)
@@ -36,42 +35,51 @@ const routes: Routes = [
     },
     {
         path: 'views',
-        loadChildren: () => import('./views/views.module').then(m => m.PackageViewsModule)
+        component: AppComponent
     },
     {
         path: 'model/:class_name',
-        loadChildren: () => import('./model/model.module').then(m => m.PackageModelModule)
+        component: AppComponent
     },
     {
         path: 'models',
-        loadChildren: () => import('./models/models.module').then(m => m.PackageModelsModule)
+        component: AppComponent
     },
     {
         path: 'menu/:menu_name',
-        loadChildren: () => import('./menu/menu.module').then(m => m.PackageMenuModule)
+        component: AppComponent
     },
     {
       path: 'controller/:controller_type/:controller_name',
-        loadChildren: () => import('./controller/controller.module').then(m => m.AppInControllerModule)
+      component: AppComponent
     },
     {
         path: 'controllers',
-        loadChildren: () => import('./controllers/controllers.module').then(m => m.AppInControllersModule)
+        component: AppComponent
     },
     {
         path: 'routes',
         component: PackageRoutesComponent
     },
     {
-        path: 'view/:view_name',
+        path: 'package/:package_name',
+        component: PackageComponent
+    },
+    {
+        path: 'entity/:entity_name/view/:view_name/type/:view_type/edit',
         loadChildren: () => import('./view/view.module').then(m => m.PackageViewModule)
     },
+    {
+        path: 'entity/:entity_name/view/:view_name/type/:view_type',
+        component: AppComponent
+    },
+
 
     
     // wildcard route (accept root and any sub route that does not match any of the routes above)
     {
         path: '**',
-        component: PackageComponent
+        component: AppComponent
     },
 
 
