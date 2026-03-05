@@ -53,7 +53,6 @@ export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
 
       private load() {
         this.loading = true;
-        console.log("ITEMS : ", this.view.item);
         if (!this.view || !this.view.package_name || !this.view.item || !this.view.item.model) {
           console.error('Invalid view data:', this.view);
           this.loading = false;
@@ -94,13 +93,15 @@ export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     public onclickEdit() {
-        console.log("view ", this.view);
         this.router.navigate([`/package/${this.view.package_name}/entity/${this.view.item.model}/view/${this.view.name.split(".")[1]}/type/${this.view.name.split(":")[1].split(".")[0]}/edit`]);
     }
 
     public onclickTranslations() {
         // #todo - depends on route assigned to translation
+        console.log('Not implemented yet');
+        /*
         this.router.navigate([`/package/${this.view.package_name}/entity/${this.view.item.model}/view/${this.view.name.split(".")[1]}/type/${this.view.name.split(":")[1].split(".")[0]}/translations`]);
+        */
     }
 
 }

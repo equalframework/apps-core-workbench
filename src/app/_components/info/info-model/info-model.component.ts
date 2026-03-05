@@ -84,8 +84,13 @@ export class InfoModelComponent implements OnInit, OnChanges {
     }
 
     public onclickViews() {
-        this.router.navigate(['/package/' + this.model.package_name+'/model/' + this.model.name + '/views']);
-    }
+        this.router.navigate([`/package/${this.model.package_name}/model/${this.model.name}`], {
+            queryParams: {
+                scope: 'view',
+                filter_package_name: this.model.package_name
+            }
+        });
+}
 
     public onclickTranslations() {
         this.router.navigate(['/package/' + this.model.package_name+'/model/' + this.model.name + '/translations']);

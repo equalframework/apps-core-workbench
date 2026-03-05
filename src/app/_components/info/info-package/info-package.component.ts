@@ -172,19 +172,39 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
     */
 
     public onclickModels() {
-        this.router.navigate(['/package/' + this.package.name+'/models']);
+        this.router.navigate([`/package/${this.package.name}`], {
+            queryParams: {
+                scope: 'class',
+                filter_package_name: this.package.name
+            }
+        });
     }
 
     public onclickControllers() {
-        this.router.navigate(['/package/' + this.package.name+'/controllers']);
+        this.router.navigate([`/package/${this.package.name}`], {
+            queryParams: {
+                scope: 'controller',
+                filter_package_name: this.package.name
+            }
+        });
     }
 
     public onclickViews() {
-        this.router.navigate(['/package/' + this.package.name+'/views']);
+        this.router.navigate([`/package/${this.package.name}`], {
+            queryParams: {
+                scope: 'view',
+                filter_package_name: this.package.name
+            }
+        });
     }
 
     public onclickRoutes() {
-        this.router.navigate(['/package/' + this.package.name+'/routes']);
+        this.router.navigate([`/package/${this.package.name}`], {
+            queryParams: {
+                scope: 'route',
+                filter_package_name: this.package.name
+            }
+        });
     }
 
     public onclickInitData(type: string) {

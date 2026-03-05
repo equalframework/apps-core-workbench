@@ -4,6 +4,9 @@ import { RouterModule, Routes } from '@angular/router';
 import { PackageComponent } from './package.component';
 import { PackageRoutesComponent } from './routes/package-routes.component';
 import { AppComponent } from '../app.component';
+import { ModelTradEditorModule } from './model/model-trad-editor/model-trad-editor.module';
+import { PackageViewComponent } from './view/package-view.component';
+import { PackageMenuComponent } from './menu/package-menu.component';
 
 
 const routes: Routes = [
@@ -34,27 +37,47 @@ const routes: Routes = [
         loadChildren: () => import('./init-data/init-data.module').then(m => m.InitDataModule)
     },
     {
-        path: 'views',
-        component: AppComponent
+        path: 'model/:class_name/fields',
+        loadChildren: () => import('./model/fields/fields.module').then(m => m.PackageModelFieldsModule)
+    },
+    {
+        path: 'model/:class_name/translations',
+        loadChildren: () => import('./model/model-trad-editor/model-trad-editor.module').then(m => m.ModelTradEditorModule)
+    },
+    {
+        path: 'model/:class_name/workflow',
+        loadChildren: () => import('./model/workflow/workflow.module').then(m => m.PackageModelWorkflowModule)
+    },
+    {
+        path: 'model/:class_name/policies',
+        loadChildren: () => import('./model/policies/policies.module').then(m => m.PackageModelPoliciesModule)
+    },
+    {
+        path: 'model/:class_name/actions',
+        loadChildren: () => import('./model/actions/actions.module').then(m => m.PackageModelActionsModule)
+    },
+    {
+        path: 'model/:class_name/roles',
+        loadChildren: () => import('./model/roles/roles.module').then(m => m.PackageModelRolesModule)
     },
     {
         path: 'model/:class_name',
         component: AppComponent
     },
     {
-        path: 'models',
-        component: AppComponent
+        path: 'menu/:menu_name/edit',
+        loadChildren: () => import('./menu/menu.module').then(m => m.PackageMenuModule)
     },
     {
         path: 'menu/:menu_name',
         component: AppComponent
     },
     {
-      path: 'controller/:controller_type/:controller_name',
-      component: AppComponent
+        path: 'controller/:controller_type/:controller_name/params',
+        loadChildren: () => import('./controller/controller.module').then(m => m.AppInControllerModule)
     },
     {
-        path: 'controllers',
+        path: 'controller/:controller_type/:controller_name',
         component: AppComponent
     },
     {
@@ -69,6 +92,12 @@ const routes: Routes = [
         path: 'entity/:entity_name/view/:view_name/type/:view_type/edit',
         loadChildren: () => import('./view/view.module').then(m => m.PackageViewModule)
     },
+    /*
+    {
+        path: 'entity/:entity_name/view/:view_name/type/:view_type/translations',
+        loadChildren: () => import('./view/view-trad-editor/view-trad-editor.module').then(m => m.ViewTradEditorModule)
+    },
+    */
     {
         path: 'entity/:entity_name/view/:view_name/type/:view_type',
         component: AppComponent
