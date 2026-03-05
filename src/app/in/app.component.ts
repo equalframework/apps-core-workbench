@@ -59,8 +59,8 @@ export class AppComponent implements OnInit {
 
         if (fromUrl.root.children['primary'] && fromUrl.root.children['primary'].segments.length > 0) {
             const segments = fromUrl.root.children['primary'].segments;
-            console.log('URL segments:', segments);
             //TODO: add Routes
+
                 // Menu
             if (segments.length === 4 && segments[0].path === 'package' && segments[2].path === 'menu') {
                 restored = {
@@ -109,7 +109,6 @@ export class AppComponent implements OnInit {
         if (restored) {
             this.selectNode(restored);
             sessionStorage.setItem('selectedComponent', JSON.stringify(this.selectedComponent));
-            console.log('Component restored from URL:', sessionStorage.getItem('selectedComponent'));
         }
     }
 
@@ -132,7 +131,6 @@ export class AppComponent implements OnInit {
      * @param equalComponent the component to select
      */
     public selectNode(equalComponent: EqualComponentDescriptor) {
-        console.log('selectNode', equalComponent);
 
         if (this.selectedComponent && this.areNodesEqual(this.selectedComponent, equalComponent)) {
             this.selectedComponent = undefined;
@@ -140,7 +138,6 @@ export class AppComponent implements OnInit {
             this.selectedComponent = equalComponent;
             history.replaceState({ ...history.state, selectedComponent: null }, '');
             sessionStorage.setItem('selectedComponent', JSON.stringify(this.selectedComponent));
-            console.log('selected:', this.selectedComponent);
         }
     }
 

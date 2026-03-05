@@ -85,7 +85,6 @@ export class AppRootComponent implements OnInit {
      * @param item
      */
     public onSelectItem(item:any) {
-        console.log('WorkbenchAppRoot::onSelectItem', item);
         if(item && item.hasOwnProperty('route') && item.route.length) {
             this.router.navigateByUrl(item.route);
         }
