@@ -39,8 +39,8 @@ export class PackageModelPoliciesComponent implements OnInit, OnDestroy {
     }
 
     private handleRouteParams(params: Params): void {
-        this.package_name = params['package_name'];
-        this.model_name = params['class_name'];
+        this.package_name = this.route.parent ? this.route.parent?.snapshot.paramMap.get('package_name') : params['package_name'];
+        this.model_name = this.route.parent ? this.route.parent?.snapshot.paramMap.get('class_name') : params['class_name'];
         this.loadPolicies();
         this.loading = false;
     }

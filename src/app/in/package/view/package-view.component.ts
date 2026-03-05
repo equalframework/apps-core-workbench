@@ -73,34 +73,37 @@ export class PackageViewComponent implements OnInit {
     }
 
     async init() {
-        this.icontype = this.TypeUsage.typeIcon;
-        const currentUrl = window.location.href;
-        const packageNameMatch = currentUrl.match(/\/package\/([^/]+)\//);
-        if (packageNameMatch) {
-            const package_name = packageNameMatch[1];
-            const viewNameParam = this.route.snapshot.paramMap.get("view_name");
-            this.name = viewNameParam ? viewNameParam : "";
-            if (this.name) {
-                const tempsplit = this.name.split(":");
-                this.entity = tempsplit[0];
-                this.view_id = tempsplit[1];
-            }
+        // Extract parameters from the route
+        const package_name = this.route.snapshot.paramMap.get('package_name');
+        const entity_name = this.route.snapshot.paramMap.get('entity_name');
+        const view_type = this.route.snapshot.paramMap.get('view_type');
+        const view_name = this.route.snapshot.paramMap.get('view_name');
 
-            this.provider.getComponent(package_name, 'view', this.entity, this.name).subscribe(async (compo) => {
+        this.icontype = this.TypeUsage.typeIcon;
+        console.log("Route", this.route);
+        console.log("Route params:", { package_name, entity_name, view_type, view_name });
+
+        if (package_name && entity_name && view_type && view_name) {
+            this.name = view_name;
+            this.entity = entity_name;
+            this.view_id = view_type + "." + view_name;
+
+            console.log("Fetching component with parameters:", { view_type, view_name });
+
+            this.provider.getComponent(package_name, 'view', this.entity, (this.entity + ":" + this.view_id)).subscribe(async (compo) => {
                 if (compo) {
                     this.node = compo;
                     try {
                         this.class_scheme = await this.workbenchService.getSchema(`${this.node.package_name}\\${this.entity}`).toPromise() || { fields: {} };
                         this.fields = this.obk(this.class_scheme.fields);
-                        this.view_scheme = (await this.workbenchService.readView(this.node.package_name,this.view_id,this.entity).toPromise());
+                        this.view_scheme = (await this.workbenchService.readView(this.node.package_name, this.view_id, this.entity).toPromise());
                         const nodeNameParts = this.node.name ? this.node.name.split(':') : [];
                         const viewNamePart = (nodeNameParts.length > 1 && nodeNameParts[1])
-                                              ? nodeNameParts[1].split('.')[0]
-                                              : '';
+                            ? nodeNameParts[1].split('.')[0]
+                            : '';
                         this.view_obj = new View(this.view_scheme, viewNamePart);
 
-                        let temp_controller = await this.workbenchService.collectControllers('data',package_name).toPromise();
-                        console.log(temp_controller);
+                        let temp_controller = await this.workbenchService.collectControllers('data', package_name).toPromise();
                         for (let item of temp_controller) {
                             let data = await this.workbenchService.announceController(item).toPromise();
                             if (!data) continue;
@@ -160,7 +163,6 @@ export class PackageViewComponent implements OnInit {
     }
 
     logit() {
-        console.log(this.view_obj);
         this.popup.open(JsonViewerComponent,{data:this.view_obj.export(),width:"70%",height:"85%"});
     }
 
