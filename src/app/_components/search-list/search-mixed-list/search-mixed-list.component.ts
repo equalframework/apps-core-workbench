@@ -107,6 +107,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         this.loading = true;
         this.loadNodesV2();
         this.readQueryParams();
+        this.updateSearchTerms();
     }
 
     public ngOnChanges(changes: SimpleChanges) {
@@ -219,10 +220,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     public onSearch() {
         const input = this.inputControl.value.trim();
         const tokens = input.split(" ");
-        if (input !== '') {
-            ({ filters: this.search_filters, terms: this.search_terms } = this.extractFiltersAndTerms(tokens));
-        }
-        this.search_scope = this.node_type ?? this.search_scope;
+        ({ filters: this.search_filters, terms: this.search_terms } = this.extractFiltersAndTerms(tokens));
         let filtered = this.elements.filter((element: EqualComponentDescriptor) => {
             if (!this.matchesFilters(element, element.name, this.search_filters, this.search_terms)) {
                 return false;
@@ -235,6 +233,38 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         this.filteredData = filtered;
         this.updateUrlForSearch(this.search_filters, this.search_terms);
     }
+
+    /**
+     * Updates the search input field based on the current URL query parameters, ensuring that the search state is reflected in the input for better user experience and consistency with the URL.
+     * 
+     */
+    private updateSearchTerms() {
+        const urlParams = this.route.snapshot.queryParams;
+        const input = this.urlParamsToSearchInput(urlParams).join(' ');
+        this.inputControl.setValue(input);
+    }
+
+    /**
+     * Converts URL query parameters to a format suitable for the search input field.
+     * 
+     * @param params URL query parameters containing search terms and filters
+     * @returns An array of strings representing the search input, including both terms and filters in "key:value" format
+     */
+    private urlParamsToSearchInput(params: any): string[] {
+    const input: string[] = [];
+    // Add terms
+    if (params['terms']) {
+        input.push(...params['terms'].split(' '));
+    }
+    // Add filters as key:value
+    Object.keys(params).forEach(key => {
+        if (key.startsWith('filter_')) {
+            const filterKey = key.replace('filter_', '');
+            input.push(`${filterKey}:${params[key]}`);
+        }
+    });
+    return input;
+}
 
     /**
      * Parses tokens to separate filters (like `package:xyz`) from regular search terms.
@@ -341,30 +371,31 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     }
 
     public oncreateNode() {
+        const prefill = this.getDialogPrefillData();
         this.dialog.open(MixedCreatorDialogComponent, {
-                data: {
-                    node_type: this.search_scope,
-                    lock_type: (this.node_type != ''),
-                    package: this.package_name,
-                    lock_package: (this.package_name != ''),
-                    model: this.model_name,
-                    lock_model: (this.model_name != '')
-                },
-                width: "40em",
-                height: "26em"
-            }).afterClosed().subscribe((result) => {
-                if (result) {
-                    if (result.success) {
-                        this.notificationService.showSuccess(result.message);
-                        this.addToComponents(result.node);
-                        this.provider.reloadComponents(result.node.package_name,result.node.type);
-                        this.selectNode.emit(result.node);
-                    }
-                    else {
-                        this.notificationService.showError(result.message);
-                    }
+            data: {
+                node_type: this.search_scope,
+                lock_type: (this.node_type != ''),
+                package: prefill.package,
+                lock_package: (this.package_name != ''),
+                model: prefill.model,
+                lock_model: (this.model_name != '')
+            },
+            width: "40em",
+            height: "26em"
+        }).afterClosed().subscribe((result) => {
+            if (result) {
+                if (result.success) {
+                    this.notificationService.showSuccess(result.message);
+                    this.addToComponents(result.node);
+                    this.provider.reloadComponents(result.node.package_name,result.node.type);
+                    this.selectNode.emit(result.node);
                 }
-            });
+                else {
+                    this.notificationService.showError(result.message);
+                }
+            }
+        });
     }
 
     private addToComponents(node: EqualComponentDescriptor) {
@@ -561,5 +592,14 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         }
         
         return score;
+    }
+
+    private getDialogPrefillData() {
+        const params = this.route.snapshot.queryParams;
+        return {
+            package: params['filter_package_name'] || this.package_name,
+            model: params['filter_model_name'] || this.model_name,
+            // Add more fields as needed
+        };
     }
 }
