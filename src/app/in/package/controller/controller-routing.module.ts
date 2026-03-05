@@ -6,28 +6,13 @@ import { PackageControllerParamsComponent } from './params/package-controller-pa
 import { PackageControllerReturnComponent } from './return/package-controller-return.component';
 
 const routes: Routes = [
-    // wildcard route (accept root and any sub route that does not match any of the routes above)
     {
-        path: 'params',
-        component: PackageControllerParamsComponent
-    },
-    {
-        path: 'return',
+        path: 'returns',
         component: PackageControllerReturnComponent
     },
-    /*
-    {
-        path: 'return',
-        component: PackageControllersComponent
-    },
-    */
-   {
-        path: 'controller/:type/:name',
-        component: PackageControllersComponent
-   },
     {
         path: '',
-        component: PackageControllersComponent
+        component: PackageControllerParamsComponent
     }
 ];
 

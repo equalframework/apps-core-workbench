@@ -1,10 +1,8 @@
-import { PackageModelActions } from './actions/package-model-actions.component';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 import { PackageModelComponent } from './package-model.component';
 import { ModelTradEditorModule } from './model-trad-editor/model-trad-editor.module';
-import { PackageModelPoliciesModule } from './policies/policies.module';
 
 const routes: Routes = [
     // wildcard route (accept root and any sub route that does not match any of the routes above)
