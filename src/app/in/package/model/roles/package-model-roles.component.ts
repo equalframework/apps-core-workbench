@@ -106,8 +106,8 @@ import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
     private handleRouteParams(): void {
         this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
-          this.package_name = params['package_name'];
-          this.model_name = params['class_name'];
+          this.package_name = this.route.parent ? this.route.parent?.snapshot.paramMap.get('package_name') : params['package_name'];
+          this.model_name = this.route.parent ? this.route.parent?.snapshot.paramMap.get('class_name') : params['class_name'];
           this.loadRoles();
         });
     }
