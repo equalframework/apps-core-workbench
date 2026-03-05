@@ -3,10 +3,20 @@
 </div>
 <div *ngIf="param" class="sidepane">
     <div class="name-container">
-        <mat-form-field class="editname">
-            <mat-label>Parameter</mat-label>
-            <input class="maincolor" matInput [formControl]="nameControl" (blur)="changeName()">
-        </mat-form-field>
+        <div>
+            <label>Parameter </label>
+            <ng-container *ngIf="!nameBeingEdited">
+                <label class="maincolor">{{param.name}}</label>
+                <button mat-icon-button color="primary" (click)="setNameBeingEdited(true)"><mat-icon>edit</mat-icon></button>
+            </ng-container>
+            <ng-container *ngIf="nameBeingEdited">
+                <mat-form-field class="editname">
+                    <input class="maincolor" matInput [formControl]="nameControl">
+                </mat-form-field>
+                <button mat-icon-button color="primary" (click)="setNameBeingEdited(false)"><mat-icon>cancel</mat-icon></button>
+                <button mat-icon-button color="primary" [disabled]="nameControl.invalid" (click)="changeName()"><mat-icon>save</mat-icon></button>
+            </ng-container>
+        </div>
     </div>
     <div class="scrollable content">
         <div>

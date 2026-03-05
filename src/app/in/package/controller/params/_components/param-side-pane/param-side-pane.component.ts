@@ -24,6 +24,8 @@ export class ParamSidePaneComponent implements OnInit, OnChanges {
 
   @Output() CRUD = new EventEmitter<string>();
 
+  protected nameEdit: boolean = false;
+
   foreignControl = new FormControl("", {
     validators : []
   })
@@ -62,16 +64,28 @@ export class ParamSidePaneComponent implements OnInit, OnChanges {
           return { "case": true };
         }
       });    this.foreignControl.setValue(this.param?.foreign_object,{emitEvent : false})
-    this.nameControl.setValue(this.param?.name, {emitEvent: false})
   }
 
+  public setNameBeingEdited(value: boolean) {
+    this.nameEdit = value
+    if (value) {
+      this.nameControl.setValue(this.param?.name)
+    } else {
+      this.nameControl.markAsUntouched()
+    }
+  }
 
+  get nameBeingEdited() {
+    return this.nameEdit
+  }
 
   public changeName() {
-    if (this.param && this.nameControl.valid && this.param.name !== this.nameControl.value) {
+    if (this.param && this.nameControl.valid) {
       let oldname = this.param.name
       this.param.name = this.nameControl.value
       this.CRUD.emit("Renaming "+oldname+" to "+this.param.name)
+      this.setNameBeingEdited(false)
+      this.nameControl.markAsUntouched()
     }
   }
 
