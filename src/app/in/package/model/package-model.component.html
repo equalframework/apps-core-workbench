@@ -1,1 +1,24 @@
-Model component : display single pane with model info
+<div class="app-inner-header">
+    <app-inner-header
+            [customButton]="true"
+            [buttonBack]="true"
+            (onButtonBack)="getBack()">
+        <label class="package-label">{{ package_name }}</label>›<label class="model-label"><mat-icon>data_object</mat-icon>Models</label>
+    </app-inner-header>
+</div>
+
+<div class="app-inner-body">
+
+    <div class="left_pane">
+        <search-mixed-list
+                [node_type]="'class'"
+                [package_name]="package_name"
+                (selectNode)="onSelectNode($event)">
+        </search-mixed-list>
+    </div>
+
+    <div class="right_pane">
+        <info-model *ngIf="selected_class" [model]="selected_class"></info-model>
+        <info-system *ngIf="!selected_class" [component_type]="'class'" [package_name]="package_name"></info-system>
+    </div>
+</div>
