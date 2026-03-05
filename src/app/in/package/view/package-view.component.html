@@ -139,7 +139,6 @@
                             <mat-slide-toggle [(ngModel)]="view_obj._has_header"></mat-slide-toggle>
                             <label [class.toggle-label]="!view_obj._has_header" [style.opacity]="view_obj._has_header ? 1 : 0.6" class="category-title maincolor">Header</label>
                         </div>
-
                         <!--HEADER-->
                         <div *ngIf="view_obj._has_header" class="indent group-spacing">
                             <app-header-editor
@@ -151,7 +150,6 @@
                             >
                             </app-header-editor>
                         </div>
-                        <!--------->
                         <div class="toggle-container">
                             <mat-slide-toggle [(ngModel)]="view_obj._has_filter"></mat-slide-toggle>
                             <label [style.opacity]="view_obj._has_filter ? 1 : 0.6" class="category-title maincolor">Filters </label>

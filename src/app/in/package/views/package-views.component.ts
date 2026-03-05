@@ -30,7 +30,7 @@ export class PackageViewsComponent implements OnInit, OnDestroy {
     public entity: string;
 
     public loading = true;
-
+    public ready = false;
   constructor(
             private route: ActivatedRoute,
             private location: Location
@@ -45,15 +45,26 @@ export class PackageViewsComponent implements OnInit, OnDestroy {
         this.init();
     }
 
-    private init() {
+    private async init() {
         this.loading = true;
-        this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
+        this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe(async (params) => {
             this.package_name = params['package_name'];
+            this.entity = params['entity_name'];
             this.view_name = params['view_name'];
-            // this.loadViews();
-        });
+            this.type = params['view_type'];
+            if (this.entity && this.view_name) {
+                this.onSelectNode(new EqualComponentDescriptor(
+                    this.package_name,
+                    `${this.entity}:${this.type}.${this.view_name}`,
+                    'view',
+                    '',
+                    { model: this.entity }
+                ));
+            }
+            this.loading = false;
+            this.ready = true;
 
-        this.loading = false;
+        });
     }
 
 
