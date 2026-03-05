@@ -1,5 +1,5 @@
 import { Location } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, SimpleChanges, ViewEncapsulation } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -76,6 +76,8 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     public search_value: string = '';
     // type part of the search bar field (is parsed in onSearch() method)
     public search_scope: string = "";
+    public search_filters: { [key: string]: string } = {};
+    public search_terms: string[] = [];
 
     // used to render info about components present in filteredData (or data)
     public type_dict: { [id: string]: { icon: string, disp: string } } = ItemTypes.typeDict;
@@ -90,7 +92,8 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         private notificationService: NotificationService,
         private workbenchService: WorkbenchService,
         private router: Router,
-        private location: Location
+        private location: Location,
+        private route: ActivatedRoute
     ) { }
 
 
@@ -103,6 +106,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     public ngOnInit() {
         this.loading = true;
         this.loadNodesV2();
+        this.readQueryParams();
     }
 
     public ngOnChanges(changes: SimpleChanges) {
@@ -116,6 +120,32 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     }
 
     trackByFn = (index: number, item: EqualComponentDescriptor) => item.name;
+
+    private readQueryParams() {
+        this.route.queryParams.subscribe(params => {
+            if (params['scope']) {
+                this.search_scope = params['scope'];
+            }
+            if (params['terms']) {
+                this.search_terms = params['terms'].split(' ');
+            }
+            Object.keys(params).forEach(key => {
+                if (key.startsWith('filter_')) {
+                    this.search_filters[key.replace('filter_', '')] = params[key];
+                }
+            });
+            let filtered = this.elements.filter((element: EqualComponentDescriptor) => {
+                if (!this.matchesFilters(element, element.name, this.search_filters, this.search_terms)) {
+                    return false;
+                }
+                return this.matchesScope(element);
+            });
+
+            filtered = this.rankResults(filtered, this.search_terms);
+            this.filteredData = filtered;
+            this.updateUrlForSearch(this.search_filters, this.search_terms);
+        });
+    }
 
     private loadNodesV2() {
 
@@ -164,33 +194,6 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         this.loading = false;
     }
 
-    private getSortKey(component: EqualComponentDescriptor): string {
-        let key = component.package_name || '';
-
-        if (component.type === "route") {
-            key += component.more + component.name;
-        } else if (component.type === "class" || component.type === "menu") {
-            key += component.name;
-        } else {
-            key = component.name;
-        }
-        // normalize the key
-        return key.replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase();
-    }
-
-    private sortComponents() {
-        this.elements.sort((a, b) => {
-            let x = this.getSortKey(a);
-            let y = this.getSortKey(b);
-            return x.localeCompare(y);
-        });
-        this.filteredData.sort((a, b) => {
-            let x = this.getSortKey(a);
-            let y = this.getSortKey(b);
-            return x.localeCompare(y);
-        });
-    }
-
 
     public getComponentsTypes() {
         if (!this.node_type || this.node_type == '') {
@@ -204,6 +207,8 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
      */
     public selectSearchScope() {
         this.searchScopeChange.emit(this.search_scope);
+        this.search_filters = {};
+        this.search_terms = [];
         this.onSearch();
     }
 
@@ -214,19 +219,21 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     public onSearch() {
         const input = this.inputControl.value.trim();
         const tokens = input.split(" ");
-
-        const { filters, terms } = this.extractFiltersAndTerms(tokens);
-
+        if (input !== '') {
+            ({ filters: this.search_filters, terms: this.search_terms } = this.extractFiltersAndTerms(tokens));
+        }
         this.search_scope = this.node_type ?? this.search_scope;
-        this.filteredData = this.elements.filter((element: EqualComponentDescriptor) => {
-            if (!this.matchesFilters(element, element.name, filters, terms)) {
+        let filtered = this.elements.filter((element: EqualComponentDescriptor) => {
+            if (!this.matchesFilters(element, element.name, this.search_filters, this.search_terms)) {
                 return false;
             }
-
             return this.matchesScope(element);
         });
 
-        this.sortComponents();
+        filtered = this.rankResults(filtered, this.search_terms);
+
+        this.filteredData = filtered;
+        this.updateUrlForSearch(this.search_filters, this.search_terms);
     }
 
     /**
@@ -238,7 +245,6 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     private extractFiltersAndTerms(tokens: string[]): { filters: { [key: string]: string }, terms: string[] } {
         const filters: { [key: string]: string } = {};
         const terms: string[] = [];
-
         for (const token of tokens) {
             if (token.includes(":")) {
                 const [key, ...valueParts] = token.split(":");
@@ -259,7 +265,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
      * @returns A formatted string representing the element
      */
     private buildDescriptor(element: EqualComponentDescriptor): string {
-       return element.name;
+        return [element.name, element.file].filter(Boolean).join(' ');
     }
 
     /**
@@ -277,31 +283,16 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         filters: { [key: string]: string },
         terms: string[]
     ): boolean {
-        const keyMap: { [key: string]: string } = {
-            package: "package_name",
-            name: "name",
-            type: "type",
-            model: "item.model"
-            };
-
         for (const key of Object.keys(filters)) {
-            const filterValue = filters[key].toLowerCase();
-            const mappedPath = keyMap[key] ?? key;
-            // if propriety exist
-            const elementValue = this.getValueByPath(element, mappedPath)?.toString().toLowerCase();
-
-            // propriety doesn't exist or is not include
-            if (!elementValue || !elementValue.includes(filterValue)) {
-                return false;
-            }
+            const value = this.getValueByPath(element, key);
+            if (typeof value === 'undefined' || value == null) return false;
+            if (!String(value).toLowerCase().includes(filters[key].toLowerCase())) return false;
         }
-
+    
+        const desc = this.buildDescriptor(element).toLowerCase();
         for (const term of terms) {
-            if (!descriptor.toLowerCase().includes(term)) {
-                return false;
-            }
+            if (term && !desc.includes(term)) return false;
         }
-
         return true;
     }
 
@@ -420,46 +411,6 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Handles the URI path update when a node is selected, ensuring the URL reflects the current selection for better navigation and bookmarking.
-     * Updates the URL without navigating to a new component.
-     * 
-     * @param node The node that has been selected, containing its package name, type, and name to construct the URL.
-     */
-    private updateUrlForSelectedNode(node: EqualComponentDescriptor | undefined) {
-        let url = '';
-        console.log("Updating URL for selected node:", node);
-        console.log("Current type and name:", node?.type, node?.name);
-        console.log("Correct path format should be: /package/{package_name}/{type}/{name}");
-        console.log(``)
-
-        // Packages
-        if (node && node.type === 'package') {
-            url = `/package/${node.name}`;
-        }
-        // Models
-        else if (node && node.type === 'class') {
-            url = `/package/${node.package_name}/model/${node.name}`;
-        }
-        // Controllers (get/do)
-        else if (node && (node.type === 'get' || node.type === 'do')) {
-            url = `/package/${node.package_name}/controller/${node.type}/${node.name}`;
-        }
-        // Views (list/form)
-        else if (node && (node.type === 'view')) {
-            const [model, rest] = node.name.split(':');
-            const [type, view] = rest.split('.');
-            url = `/package/${node.package_name}/entity/${model}/view/${view}/type/${type}`;
-        }
-        // Menus
-        else if (node && node.type === 'menu') {
-            url = `/package/${node.package_name}/menu/${node.name}`;
-        }
-
-        // Defaults to package view if no specific type matches
-        this.location.go(url);
-    }
-
-    /**
      * Notify parent component of the updating of a node.
      *
      * @param node value of the node which is updating
@@ -526,5 +477,89 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
             default:
                 return "";
         }
+    }
+
+    
+    /**
+     * Handles the URI path update when a node is selected, ensuring the URL reflects the current selection for better navigation and bookmarking.
+     * Updates the URL without navigating to a new component.
+     * 
+     * @param node The node that has been selected, containing its package name, type, and name to construct the URL.
+     */
+    private updateUrlForSelectedNode(node: EqualComponentDescriptor | undefined) {
+        let url = '';
+
+        // Packages
+        if (node && node.type === 'package') {
+            url = `/package/${node.name}`;
+        }
+        // Models
+        else if (node && node.type === 'class') {
+            url = `/package/${node.package_name}/model/${node.name}`;
+        }
+        // Controllers (get/do)
+        else if (node && (node.type === 'get' || node.type === 'do')) {
+            url = `/package/${node.package_name}/controller/${node.type}/${node.name}`;
+        }
+        // Views
+        else if (node && (node.type === 'view')) {
+            const [model, rest] = node.name.split(':');
+            const [type, view] = rest.split('.');
+            url = `/package/${node.package_name}/entity/${model}/view/${view}/type/${type}`;
+        }
+        // Menus
+        else if (node && node.type === 'menu') {
+            url = `/package/${node.package_name}/menu/${node.name}`;
+        }
+
+        // Defaults to package view if no specific type matches
+        this.location.go(url);
+    }
+
+
+    /** 
+     * Handles the update of the URI when a filter is applied, ensuring the URL reflects the current search scope for better navigation and bookmarking.
+     * 
+     */
+    private updateUrlForSearch(filters: { [key: string]: string }, terms: string[]) {
+        const params = new URLSearchParams();
+        if (this.search_scope) params.set('scope', this.search_scope);
+        Object.entries(filters).forEach(([key, value]) => {
+            if (value) params.append(`filter_${key}`, value);
+        });
+        if (terms.length > 0 && !(terms.length === 1 && terms[0] === '')) params.set('terms', terms.join(' '));
+        let url = this.location.path().split('?')[0];
+        const paramString = params.toString();
+        if (paramString.length > 0) {
+            url += '?' + paramString;
+        }
+        this.location.go(url);
+    }
+
+    private rankResults(elements: EqualComponentDescriptor[], terms: string[]): EqualComponentDescriptor[] {
+        return elements.sort((a, b) => {
+            const scoreA = this.calculateRelevanceScore(a, terms);
+            const scoreB = this.calculateRelevanceScore(b, terms);
+            return scoreB - scoreA;
+        });
+    }
+
+    private calculateRelevanceScore(element: EqualComponentDescriptor, terms: string[]): number {
+        let score = 0;
+        const name = element.name.toLowerCase();
+        const desc = (element.item?.description || '').toLowerCase();
+
+        for (const term of terms) {
+            // Exact name match (highest priority)
+            if (name === term) score += 100;
+            // Name starts with term
+            else if (name.startsWith(term)) score += 50;
+            // Name contains term
+            else if (name.includes(term)) score += 25;
+            // Description contains term
+            else if (desc.includes(term)) score += 10;
+        }
+        
+        return score;
     }
 }
