@@ -193,14 +193,16 @@ export class MixedCreatorDialogComponent implements OnInit, OnDestroy {
             this.subtypeName = 'View Type';
             this.cacheList = [];
             if (this.selectedPackage && this.selectedModel) {
-            const views = await this.workbenchService.collectViews(this.selectedPackage, this.selectedModel).toPromise();
-            views?.filter(item => {
-                const sp = item.split(':');
-                return sp[1].split('.')[0] === this.subtype &&
-                    sp[0] === `${this.selectedPackage}\\${this.selectedModel}`;
-            }).forEach(item => {
-                this.cacheList?.push(item.split(':')[1].split('.')[1]);
-            });
+                const views = await this.workbenchService.collectViews(this.selectedPackage, this.selectedModel).toPromise();
+                if (Array.isArray(views)) {
+                    views.filter(item => {
+                        const sp = item.split(':');
+                        return sp[1].split('.')[0] === this.subtype &&
+                            sp[0] === `${this.selectedPackage}\\${this.selectedModel}`;
+                    }).forEach(item => {
+                        this.cacheList?.push(item.split(':')[1].split('.')[1]);
+                    });
+                }
             }
             break;
         case 'menu':
