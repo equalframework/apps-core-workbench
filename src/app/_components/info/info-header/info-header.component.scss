@@ -1,65 +1,67 @@
 @import '/src/theme.scss';
 
-.header {
+.info-header-section {
     background: white;
-    padding: 16px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    margin-bottom: 12px;
-    width: 70vw;
+    margin-bottom: 1.5em;
+    width: 100%;
+}
 
-    .main {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+.info-header-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.3em;
+    font-weight: bold;
+}
 
-        .title {
-            display: flex;
-            align-items: center;
-            gap: 8px;
+.info-header-label {
+    color: mat-color($maincolor, 700);
+    font-size: 1.1em;
+    margin-right: 0.5em;
+}
 
-            label {
-                font-size: 20px;
-                font-weight: bold;
-            }
+.info-header-main {
+    color: mat-color($accentcolor);
+    font-size: 1.2em;
+}
 
-            .accent {
-                color: mat-color($accentcolor);
-            }
-        }
-    }
+.info-header-description {
+    font-size: 1.05em;
+    color: #666;
+    margin-top: 8px;
+    margin-bottom: 0.5em;
+}
 
-    .description {
-        font-size: 16px;
-        color: #666;
-        margin-top: 8px;
-    }
+.info-header-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2em;
+    margin-top: 12px;
+    font-size: 1em;
+    color: mat-color($maincolor, 700);
+    align-items: center;
+}
 
-    .meta {
-        display: flex;
-        gap: 10%;
-        margin-top: 12px;
-        font-size: 16px;
-        color: #666;
-        align-items: center;
+.info-header-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1em;
+    color: mat-color($maincolor);
+    background: mat-color($maincolor, 5);
+    border-radius: 6px;
+    padding: 0.3em 0.8em;
+}
 
-        .meta-item {
-            display: flex;
-            gap: 10px;
-            font-size: 16px;
-            color: mat-color($maincolor);
+.info-header-meta-item mat-icon {
+    color: mat-color($maincolor);
+    font-size: 1.5em;
+    margin-right: 6px;
+}
 
-            mat-icon {
-                color: mat-color($maincolor);
-                font-size: 2em;
-                margin-right: 8px;
-            }
-
-            .meta-text {
-                display: flex;
-                align-items: center;
-                overflow: hidden;
-            }
-        }
-    }
+.info-header-meta-text {
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    font-weight: 500;
 }

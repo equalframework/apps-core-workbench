@@ -1,22 +1,21 @@
-<div class="header material-style">
-    <div class="main">
-        <div class="title">
-            <label>{{ titleLabel }} :</label>
-            <label class="accent">{{ title }}</label>
-            <copy-button *ngIf="copyText" [text_to_copy]="copyText" tooltip_text="Copy"></copy-button>
-        </div>
+<div class="info-header-section">
+    <div class="info-header-title">
+        <span class="info-header-label">{{ titleLabel }}</span>
+        <span class="info-header-main">{{ title }}</span>
+        <copy-button *ngIf="copyText" [text_to_copy]="copyText" tooltip_text="Copy"></copy-button>
     </div>
-    <div class="description">
-        <p>{{ description || 'No description available' }}</p>
+    <div class="info-header-description">
+        <span>{{ description || 'No description available' }}</span>
     </div>
-    <div class="meta" *ngIf="metaData.length > 0">
-        <div class="meta-item" *ngFor="let item of metaData">
+    <div class="info-header-meta" *ngIf="metaData.length > 0">
+        <div class="info-header-meta-item" *ngFor="let item of metaData">
             <mat-icon matTooltip="{{ item.tooltip }}">{{ item.icon }}</mat-icon>
-            <label matTooltip="{{ item.double_backslash ? (item.value | doubleBackslash) : item.value }}" class="primary meta-text">
-                {{ item.double_backslash ? (item.value | doubleBackslash) : item.value | shortenPath:2}}</label>
+            <span class="info-header-meta-text" matTooltip="{{ item.double_backslash ? (item.value | doubleBackslash) : item.value }}">
+                {{ item.double_backslash ? (item.value | doubleBackslash) : item.value | shortenPath:2}}
+            </span>
             <copy-button *ngIf="item.copyable"
-            [text_to_copy]="item.double_backslash ? (item.value | doubleBackslash) : item.value"
-            tooltip_text="Copy"></copy-button>
+                [text_to_copy]="item.double_backslash ? (item.value | doubleBackslash) : item.value"
+                tooltip_text="Copy"></copy-button>
         </div>
     </div>
 </div>
