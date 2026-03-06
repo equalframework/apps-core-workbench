@@ -2,20 +2,48 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
 
+.editname .mat-form-field-infix {
+    margin: 0;
+    border: 0;
+}
+
+.fieldarea {
+    width: 100%;
+}
+
+.checkboxcontainer {
+    display: flex;
+    align-items: center;
+}
+
+
 :host {
     width: 100%;
     height: 100%;
-}
-
-.scrollable {
-    overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
 }
 
 .sidepane {
     padding: 2em;
-    background-color: whitesmoke;
     border-radius: 1em;
     height: 100%;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09);
+    display: flex;
+    flex-direction: column;
+}
+
+.name-container {
+    display: flex;
+    font-size: 1.5em;
+    height: 60px;
+    align-items: center;
+    margin-bottom: 1em;
+}
+
+.scrollable {
+    overflow-y: auto;
+    flex: 1 1 auto;
 }
 
 .content {
@@ -24,15 +52,8 @@
     margin-bottom: 2em;
 }
 
-.name-container {
-    display: flex;
-    font-size: 1.5em;
-    height: 60px;
-    align-items: center;
-}
-
 .maincolor {
-    color: mat-color($maincolor)
+    color: mat-color($maincolor);
 }
 
 .editname .mat-form-field-infix {
@@ -51,7 +72,7 @@
 
 .thirdfield {
     width: calc(33.3% - 1em);
-    margin-right:1em;
+    margin-right: 1em;
 }
 
 .conditionalcontainer {
@@ -59,7 +80,7 @@
     padding: 1.5em;
     border-radius: 1em;
     border: solid #000 1px;
-
+    background: #fff;
     .title {
         color: mat-color($maincolor);
         display: flex;
@@ -70,25 +91,37 @@
     }
 }
 
-.selection-el {
+.selection-flex {
     display: flex;
-    align-items: center;
     flex-direction: column;
+    gap: 1em;
 }
-
-.t-input-holder{
+.selection-title-flex {
     display: flex;
+    flex-direction: row;
     align-items: center;
+    justify-content: space-between;
+}
+.selection-el-flex {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 0.5em;
+}
+.t-input-holder-flex {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    gap: 1em;
+}
+.t-input-holder-flex app-type-input {
     width: 80%;
-    justify-content: space-around;
-    app-type-input{
-        width: 80%;
-    }
 }
 
 .deps-holder {
     height: 40px;
-
     .dependency-chip {
         display: inline-flex;
         align-items: center;
@@ -97,9 +130,8 @@
         background-color: mat-color($accentcolor,A200);
         color: white;
         margin-right: .5em;
-
         .pseudo-button {
-            cursor:pointer;
+            cursor: pointer;
         }
     }
 }
@@ -107,17 +139,13 @@
 .toggleicon {
     margin-right: 1em;
     transform: scale(1.2) translateY(.1em);
-    -webkit-user-select: none;
-    -ms-user-select: none;
     user-select: none;
-    color : #747474
+    color: #747474;
 }
 
 .toggleicon.on {
-    color : mat-color($accentcolor) !important
+    color: mat-color($accentcolor) !important;
 }
-
-
 
 .mat-expansion-panel-header-description {
     justify-content: space-between;
@@ -125,7 +153,7 @@
 }
 
 .mat-mdc-form-field + .mat-mdc-form-field {
-margin-left: 8px;
+    margin-left: 8px;
 }
 
 .infoBanner {

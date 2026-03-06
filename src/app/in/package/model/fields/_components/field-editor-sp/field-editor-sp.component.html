@@ -163,20 +163,21 @@
                         [disabled]="field.isUneditable"
                     ></type-input>
                 </div>
-                <div *ngIf="field._has_selection && finalTypeDirective['selection']" class="conditionalcontainer">
-                    <div class="title">
+                <div *ngIf="field._has_selection && finalTypeDirective['selection']" class="conditionalcontainer selection-flex">
+                    <div class="title selection-title-flex">
                         <label>Selection</label>
-                        <button mat-button (click)="addToSelection()"><mat-icon>add</mat-icon> Add item</button>
+                        <button mat-button (click)="addToSelection()" [disabled]="field.isUneditable"><mat-icon>add</mat-icon> Add item</button>
                     </div>
-                    <div *ngFor="let item of field.selection; index as index" class="selection-el">
-                        <div class="t-input-holder">
+                    <div *ngFor="let item of field.selection; index as index" class="selection-el selection-el-flex">
+                        <div class="t-input-holder t-input-holder-flex">
                             <type-input
                                 [value]="item"
                                 [type]="field.finalType"
                                 name="option {{index+1}}"
                                 (changed)="changeSelection(index,$event)"
+                                [disabled]="field.isUneditable"
                             ></type-input>
-                            <button mat-icon-button (click)="deleteSelection(index)"><mat-icon>delete</mat-icon></button>
+                            <button mat-icon-button (click)="deleteSelection(index)" [disabled]="field.isUneditable"><mat-icon>delete</mat-icon></button>
                         </div>
                     </div>
                 </div>
