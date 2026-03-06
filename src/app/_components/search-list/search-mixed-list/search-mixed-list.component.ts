@@ -225,6 +225,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         const input = this.inputControl.value.trim();
         const tokens = input.split(" ");
         ({ filters: this.search_filters, terms: this.search_terms } = this.extractFiltersAndTerms(tokens));
+        console.log("About to search through", this.elements);
         let filtered = this.elements.filter((element: EqualComponentDescriptor) => {
             if (!this.matchesFilters(element, element.name, this.search_filters, this.search_terms)) {
                 return false;
@@ -390,10 +391,9 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         }).afterClosed().subscribe((result) => {
             if (result) {
                 if (result.success) {
-                    this.notificationService.showSuccess(result.message);
-                    this.addToComponents(result.node);
-                    this.provider.reloadComponents(result.node.package_name,result.node.type);
                     this.selectNode.emit(result.node);
+                    this.addToComponents(result.node);
+                    this.notificationService.showSuccess(result.message);
                 }
                 else {
                     this.notificationService.showError(result.message);
@@ -451,6 +451,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
      * @param node value of the node which is updating
      */
     public onclickUpdate(node: EqualComponentDescriptor) {
+        console.log("Feature not supported yet: ", node);
         this.updateNode.emit({ old_node: node, new_node: <EqualComponentDescriptor>this.editedNode });
     }
 
@@ -472,11 +473,10 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
                 this.workbenchService.deleteNode(node).pipe(takeUntil(this.destroy$)).subscribe(
                     result => {
                         if(result.success){
+                            this.selectNode.emit(undefined);
                             this.removeFromComponents(node);
                             this.notificationService.showSuccess(result.message);
-                            this.provider.reloadComponents(node.package_name, node.type);
                             this.onSearch();
-                            this.selectNode.emit(undefined);
                         } else {
                             this.notificationService.showError(result.message);
                         }
