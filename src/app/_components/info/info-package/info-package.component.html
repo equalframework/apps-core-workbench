@@ -5,218 +5,174 @@
 </ng-container>
 
 <ng-container *ngIf="!loading && package">
-
-    <div class="header">
-
-        <div class="main">
-            <div class="title">
-                <label>Package :</label>
-                <label class="accent">{{ package.name }}</label>
-                <copy-button [text_to_copy]="package.name"></copy-button>
-            </div>
-            <div class="actions">
-                <button mat-button color="primary" (click)="checkConsistency()">
-                    <mat-icon>rule</mat-icon>
-                    <label>Check consistency</label>
-                </button>
-                <button mat-button color="primary" (click)="initPackage()">
-                    <mat-icon>not_started</mat-icon>
-                    <label>Init package</label>
-                </button>
-            </div>
-        </div>
-        <div class="description">
-            <label></label>
-        </div>
-        <div class="status">
-            <div *ngIf="consistency_loading">
-                <mat-spinner [diameter]="24"></mat-spinner>
-                <label>Testing consistency...</label>
-            </div>
-
-            <ng-container *ngIf="!consistency_loading">
-
-                <div *ngIf="!consistency_checked" class="info">
-                    <mat-icon>info</mat-icon>
-                    <label>No consistency check done</label>
+    <div class="info-package-container">
+        <div class="info-header-section">
+            <div class="main">
+                <div class="title">
+                    <label>Package :</label>
+                    <label class="accent">{{ package.name }}</label>
+                    <copy-button [text_to_copy]="package.name"></copy-button>
                 </div>
-
-                <div *ngIf="consistency_checked && (error_count !== 0 || warn_count !== 0)" class="warn">
+                <div class="actions">
+                    <button mat-flat-button color="primary" class="package-info-button" (click)="checkConsistency()">
+                        <mat-icon>rule</mat-icon>
+                        <label>Check consistency</label>
+                    </button>
+                    <button mat-flat-button color="primary" class="package-info-button" (click)="initPackage()">
+                        <mat-icon>not_started</mat-icon>
+                        <label>Init package</label>
+                    </button>
+                </div>
+            </div>
+            <div class="description">
+                <label></label>
+            </div>
+            <div class="status">
+                <div *ngIf="consistency_loading">
+                    <mat-spinner [diameter]="24"></mat-spinner>
+                    <label>Testing consistency...</label>
+                </div>
+                <ng-container *ngIf="!consistency_loading">
+                    <div *ngIf="!consistency_checked" class="info">
+                        <mat-icon>info</mat-icon>
+                        <label>No consistency check done</label>
+                    </div>
+                    <div *ngIf="consistency_checked && (error_count !== 0 || warn_count !== 0)" class="warn">
+                        <mat-icon>error</mat-icon>
+                        <label class="warn">{{ error_count }} errors and {{ warn_count }} warnings</label>
+                    </div>
+                    <div *ngIf="consistency_checked && error_count === 0 && warn_count === 0" class="new">
+                        <mat-icon>check_circle</mat-icon>
+                        <label>No error or warning on this package</label>
+                    </div>
+                </ng-container>
+                <div *ngIf="!current_initialized">
                     <mat-icon>error</mat-icon>
-                    <label class="warn">{{ error_count }} errors and {{ warn_count }} warnings</label>
+                    <label>This package has not been initialized</label>
                 </div>
-
-                <div *ngIf="consistency_checked && error_count === 0 && warn_count === 0" class="new">
+                <div *ngIf="current_initialized" class="new">
                     <mat-icon>check_circle</mat-icon>
-                    <label>No error or warning on this package</label>
+                    <label>This package has been initialized</label>
                 </div>
-            </ng-container>
-
-            <div *ngIf="!current_initialized">
-                <mat-icon>error</mat-icon>
-                <label>This package has not been initialized</label>
-            </div>
-
-            <div *ngIf="current_initialized" class="new">
-                <mat-icon>check_circle</mat-icon>
-                <label>This package has been initialized</label>
             </div>
         </div>
-
-        <div class="meta">
-        </div>
-    </div>
-
-    <div class="body">
-        <mat-accordion>
-            <mat-expansion-panel [expanded]="!consistency_checked" class="custom-panel">
-                <mat-expansion-panel-header>
-                  <mat-panel-title>
-                    Package Summary
-                  </mat-panel-title>
-                </mat-expansion-panel-header>
-    
-                <div class="summary-container">
-                  <ng-container *ngIf="packageInfos$ | async as packageInfos">
-                    <summary-package [packageInfo]="packageInfos.response" [message]="packageInfos.message"></summary-package>
-                  </ng-container>
-                </div>
-              </mat-expansion-panel>
-            <ng-container *ngIf="!consistency_loading && consistency_checked">
-                <div class="header" [class.items-visible]="info_popup && (error_count !== 0 || warn_count !== 0)">
-                    <div class="filters">
-                        <label class="toggle-chip chip-warning"
+        <div class="info-body-section">
+            <mat-accordion>
+                <mat-expansion-panel [expanded]="!consistency_checked" class="custom-panel">
+                    <mat-expansion-panel-header>
+                        <mat-panel-title>
+                            Package Summary
+                        </mat-panel-title>
+                    </mat-expansion-panel-header>
+                    <div class="summary-container">
+                        <ng-container *ngIf="packageInfos$ | async as packageInfos">
+                            <summary-package [packageInfo]="packageInfos.response" [message]="packageInfos.message"></summary-package>
+                        </ng-container>
+                    </div>
+                </mat-expansion-panel>
+                <ng-container *ngIf="!consistency_loading && consistency_checked">
+                    <div class="header" [class.items-visible]="info_popup && (error_count !== 0 || warn_count !== 0)">
+                        <div class="filters">
+                            <label class="toggle-chip chip-warning"
                                 *ngIf="warn_count > 0"
                                 [class.checked]="show_warnings"
                                 (click)="show_warnings = !show_warnings">
-                            Warnings
-                        </label>
-                        <label class="toggle-chip chip-error"
+                                Warnings
+                            </label>
+                            <label class="toggle-chip chip-error"
                                 *ngIf="error_count > 0"
                                 [class.checked]="show_errors"
                                 (click)="show_errors = !show_errors">
-                            Errors
-                        </label>
-                        <!-- separator -->
-                        <span style="display: inline-block; width: 30px;"></span>
-                        <label class="toggle-chip"
+                                Errors
+                            </label>
+                            <span style="display: inline-block; width: 30px;"></span>
+                            <label class="toggle-chip"
                                 [class.checked]="show_dbms"
                                 (click)="show_dbms = !show_dbms">
-                            DBMS
-                        </label>
-
-                        <label class="toggle-chip"
+                                DBMS
+                            </label>
+                            <label class="toggle-chip"
                                 [class.checked]="show_orm"
                                 (click)="show_orm = !show_orm">
-                            ORM
-                        </label>
-
-                        <label class="toggle-chip"
+                                ORM
+                            </label>
+                            <label class="toggle-chip"
                                 [class.checked]="show_i18n"
                                 (click)="show_i18n = !show_i18n">
-                            I18N
-                        </label>
-
-                        <label class="toggle-chip"
+                                I18N
+                            </label>
+                            <label class="toggle-chip"
                                 [class.checked]="show_gui"
                                 (click)="show_gui = !show_gui">
-                            GUI
-                        </label>
-                        <div class="collapse-btn">
-                            <button class="collapse" mat-icon-button
-                                    *ngIf="error_count > 0 || warn_count > 0"
-                                    (click)="info_popup = !info_popup">
-                                <mat-icon>{{ info_popup ? "expand_less" : "expand_more" }}</mat-icon>
-                            </button>
+                                GUI
+                            </label>
+                            <div class="collapse-btn">
+                                <button class="collapse" mat-icon-button
+                                        *ngIf="error_count > 0 || warn_count > 0"
+                                        (click)="info_popup = !info_popup">
+                                    <mat-icon>{{ info_popup ? "expand_less" : "expand_more" }}</mat-icon>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="items" *ngIf="info_popup && (error_count !== 0 || warn_count !== 0)">
-                    <label *ngFor="let item of filtered_error_list"
-                            class="item"
-                            [class.color-red]="item.type == 2"
-                            [class.color-orange]="item.type == 1"
-                            [class.selected]="item === selectedConsistencyResultItem"
-                            (click)="selectConsistencyResultItem(item)">
-                        {{item.text}}
-                    </label>
-                </div>
-            </ng-container>
-        </mat-accordion>
-    </div>
-
-
-
-    <div class="footer">
-        <mat-grid-list
-                [cols]="4"
-                rowHeight="50%">
-            <mat-grid-tile>
-                <button mat-button
-                        class="package-info-button"
-                        (click)="onclickModels()">
-                    <mat-icon>data_object</mat-icon>
-                    <label>Models</label>
-                </button>
-            </mat-grid-tile>
-
-            <mat-grid-tile>
-                <button mat-button
-                        class="package-info-button"
-                        (click)="onclickControllers()">
-                    <mat-icon>code</mat-icon>
-                    <label>Controllers</label>
-                </button>
-            </mat-grid-tile>
-
-            <mat-grid-tile>
-                <button mat-button
-                        class="package-info-button"
-                        (click)="onclickViews()">
-                    <mat-icon>view_quilt</mat-icon>
-                    <label>Views</label>
-                </button>
-            </mat-grid-tile>
-
-            <mat-grid-tile>
-                <button mat-button
-                        class="package-info-button"
-                        (click)="onclickRoutes()">
-                    <mat-icon>route</mat-icon>
-                    <label>Routes</label>
-                </button>
-            </mat-grid-tile>
-
-            <mat-grid-tile>
-                <button
-                  mat-button
-                  class="package-info-button"
-                  (click)="onclickInitData('init')">
-                    <mat-icon>file_present</mat-icon>
-                    <label>Initial data</label>
-                </button>
-            </mat-grid-tile>
-
-            <mat-grid-tile>
-                <button mat-button
-                        class="package-info-button"
-                        (click)="onclickInitData('demo')">
+                    <div class="items" *ngIf="info_popup && (error_count !== 0 || warn_count !== 0)">
+                        <label *ngFor="let item of filtered_error_list"
+                                class="item"
+                                [class.color-red]="item.type == 2"
+                                [class.color-orange]="item.type == 1"
+                                [class.selected]="item === selectedConsistencyResultItem"
+                                (click)="selectConsistencyResultItem(item)">
+                            {{item.text}}
+                        </label>
+                    </div>
+                </ng-container>
+            </mat-accordion>
+        </div>
+        <div class="info-footer-section">
+            <mat-grid-list [cols]="4" rowHeight="5.5em" class="button-pkg-container">
+                <mat-grid-tile>
+                    <button mat-flat-button class="package-info-button" (click)="onclickModels()">
+                        <mat-icon>data_object</mat-icon>
+                        <label>Models</label>
+                    </button>
+                </mat-grid-tile>
+                <mat-grid-tile>
+                    <button mat-flat-button class="package-info-button" (click)="onclickControllers()">
+                        <mat-icon>code</mat-icon>
+                        <label>Controllers</label>
+                    </button>
+                </mat-grid-tile>
+                <mat-grid-tile>
+                    <button mat-flat-button class="package-info-button" (click)="onclickViews()">
+                        <mat-icon>view_quilt</mat-icon>
+                        <label>Views</label>
+                    </button>
+                </mat-grid-tile>
+                <mat-grid-tile>
+                    <button mat-flat-button class="package-info-button" (click)="onclickRoutes()">
+                        <mat-icon>route</mat-icon>
+                        <label>Routes</label>
+                    </button>
+                </mat-grid-tile>
+                <mat-grid-tile>
+                    <button mat-flat-button class="package-info-button" (click)="onclickInitData('init')">
+                        <mat-icon>file_present</mat-icon>
+                        <label>Initial data</label>
+                    </button>
+                </mat-grid-tile>
+                <mat-grid-tile>
+                    <button mat-flat-button class="package-info-button" (click)="onclickInitData('demo')">
                         <mat-icon>file_present</mat-icon>
                         <label>Demo data</label>
-                </button>
-            </mat-grid-tile>
-
-            <mat-grid-tile>
-                <button mat-button
-                        class="package-info-button"
-                        style="opacity: 0.6;"
-                        disabled>
-                    <mat-icon>apps</mat-icon>
-                    <label>Applications</label>
-                </button>
-            </mat-grid-tile>
-
-        </mat-grid-list>
+                    </button>
+                </mat-grid-tile>
+                <mat-grid-tile>
+                    <button mat-flat-button class="package-info-button" style="opacity: 0.6;" disabled>
+                        <mat-icon>apps</mat-icon>
+                        <label>Applications</label>
+                    </button>
+                </mat-grid-tile>
+            </mat-grid-list>
+        </div>
     </div>
-
 </ng-container>
