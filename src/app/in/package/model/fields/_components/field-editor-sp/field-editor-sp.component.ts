@@ -202,13 +202,15 @@ export class FieldEditorSpComponent implements OnInit {
   }
  
   public addToSelection() {
-    if(this.field) {
+    if(this.field && !this.field.isUneditable) {
       this.field.selection.push(undefined)
     }
   }
 
   public deleteSelection(index:number) {
-    this.field?.selection.splice(index,1)
+    if(this.field && !this.field.isUneditable) {
+      this.field.selection.splice(index,1)
+    }
   }
 
   changeHasDependencies(value :boolean) {
@@ -288,7 +290,7 @@ export class FieldEditorSpComponent implements OnInit {
   }
 
   public changeSelection(index:number,value:any) {
-    if(this.field){
+    if(this.field && !this.field.isUneditable){
       this.field.selection[index] = value
       this.CRUD.emit("changed value of selection")
     }
