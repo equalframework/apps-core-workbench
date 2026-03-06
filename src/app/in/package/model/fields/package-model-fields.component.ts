@@ -84,7 +84,6 @@ export class PackageModelFieldsComponent implements OnInit {
         this.models = await this.workbenchService.collectClasses(true).toPromise();
         Field.type_directives = await this.workbenchService.getTypeDirective();
         this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
-            console.log('package-model-fields::ngOnInit(activatedRoute)', params)
             this.package_name = this.route.parent ? this.route.parent?.snapshot.paramMap.get('package_name') : params['package_name'];
             this.class_name = this.route.parent ? this.route.parent?.snapshot.paramMap.get('class_name') : params['class_name'];
             this.loadFields();
@@ -109,6 +108,10 @@ export class PackageModelFieldsComponent implements OnInit {
         }
         for(let item in this.parent_schema["fields"]) {
             this.parentFieldList.push(new Field(cloneDeep(this.parent_schema["fields"][item]), item));
+        }
+
+        if (this.fieldList.length > 0 || this.parentFieldList.length > 0) {
+            this.selected_index = 0;
         }
 
         this.loading = false;
