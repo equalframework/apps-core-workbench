@@ -20,7 +20,6 @@
                 <mat-icon class="select-icon component-icon component-color-{{search_scope}}">
                     {{type_dict[search_scope]?.icon}}
                 </mat-icon>
-                {{type_dict[search_scope]?.disp}}
             </mat-select-trigger>
             <mat-option *ngFor="let component_type of getComponentsTypes()" [value]="component_type">
                 <mat-icon class="component-icon component-color-{{component_type}}">

@@ -25,7 +25,7 @@
 
         .input-query {
             display: inline-block;
-            width: 50%;
+            width: 80%;
             height: 65px;
             padding: 0px !important;
             margin-bottom: -11px;
@@ -33,7 +33,7 @@
 
         .select-component {
             display: inline-block;
-            width: 50%;
+            width: 20%;
             height: 3em;
             margin-top: -10px;
 
@@ -50,7 +50,7 @@
         border-radius: 8px;
         height: 100%;
         max-height: calc(100% - 56px);
-        background-color: whitesmoke;
+        background-color: white;
         overflow-y: scroll;
         min-width: 340px;
         max-width: 100%;

@@ -122,6 +122,10 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
 
     trackByFn = (index: number, item: EqualComponentDescriptor) => item.name;
 
+
+    /**
+     * Reads the query parameters from the URL to initialize the search filters and terms, and sets up a subscription to update the filtered data whenever the query parameters change. This ensures that the search state is synchronized with the URL.
+     */
     private readQueryParams() {
         this.route.queryParams.subscribe(params => {
             if (params['scope']) {
