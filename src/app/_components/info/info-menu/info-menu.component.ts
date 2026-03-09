@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Router } from '@angular/router';
+import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
 
 @Component({
@@ -13,7 +13,7 @@ export class InfoMenuComponent implements OnInit {
     @Input() selected_package: string;
 
     constructor(
-            private router: Router
+            private router: RouterMemory
         ) { }
 
     public ngOnInit(): void {

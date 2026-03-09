@@ -7,7 +7,7 @@ import { RequestSendingDialogComponent } from 'src/app/_dialogs/request-sending-
 import { TypeUsageService } from 'src/app/_services/type-usage.service';
 import { EnvService } from 'sb-shared-lib';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
-import { Router } from '@angular/router';
+import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 @Component({
@@ -74,7 +74,7 @@ export class InfoControllerComponent implements OnInit, OnChanges {
             private snackBar: MatSnackBar,
             private workbenchService: WorkbenchService,
             public dialog: MatDialog,
-            private router: Router,
+            private router: RouterMemory,
             private clipboard: Clipboard,
             private typeUsage: TypeUsageService,
             private env: EnvService

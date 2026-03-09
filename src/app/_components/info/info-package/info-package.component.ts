@@ -1,5 +1,4 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewEncapsulation, SimpleChanges, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { prettyPrintJson } from 'pretty-print-json';
@@ -9,6 +8,7 @@ import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-des
 import { Observable, of, Subject } from 'rxjs';
 import { catchError, finalize, takeUntil, tap } from 'rxjs/operators';
 import { PackageSummary } from 'src/app/in/_models/package-info.model';
+import {RouterMemory} from 'src/app/_services/routermemory.service';
 
 class ConsistencyResultItem {
     constructor(
@@ -65,9 +65,9 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
 
     constructor(
             private snackBar: MatSnackBar,
-            private router: Router,
             private workbenchService: WorkbenchService,
-            private matDialog: MatDialog
+            private matDialog: MatDialog,
+            private router: RouterMemory
         ) { }
 
     ngOnDestroy(): void {

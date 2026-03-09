@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges, OnDestroy, ViewEncapsulation } from '@angular/core';
-import { Router } from '@angular/router';
+import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
@@ -29,7 +29,7 @@ export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
     public viewSchema: any;
     obk = Object.keys
     constructor(
-        private router: Router,
+        private router: RouterMemory,
         private workbenchService: WorkbenchService) {
     }
     ngOnDestroy(): void {

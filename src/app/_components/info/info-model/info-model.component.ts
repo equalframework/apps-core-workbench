@@ -1,6 +1,6 @@
 import { OnChanges, SimpleChanges, ViewEncapsulation } from '@angular/core';
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
-import { Router } from '@angular/router';
+import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 @Component({
@@ -49,7 +49,7 @@ export class InfoModelComponent implements OnInit, OnChanges {
 
     constructor(
             private workbenchService: WorkbenchService,
-            private router: Router,
+            private router: RouterMemory,
         ) { }
 
     public ngOnInit() {
