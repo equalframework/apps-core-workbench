@@ -4,6 +4,7 @@ import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-des
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Location } from '@angular/common';
+import { RouterMemory } from 'src/app/_services/routermemory.service';
 
 @Component({
     selector: 'package-model-views',
@@ -32,6 +33,7 @@ export class PackageModelViewsComponent implements OnInit {
     constructor(
             private route: ActivatedRoute,
             private location: Location,
+            private routerMemory: RouterMemory,
         ) { }
 
 
@@ -52,7 +54,7 @@ export class PackageModelViewsComponent implements OnInit {
 
 
     public getBack() {
-        this.location.back();
+        this.routerMemory.goBack();
     }
 
     public async selectNode(eq_view: EqualComponentDescriptor) {
