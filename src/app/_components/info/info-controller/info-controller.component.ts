@@ -389,7 +389,7 @@ export class InfoControllerComponent implements OnInit, OnChanges {
     }
 
     public onclickResponseValues() {
-        this.router.navigate(['/package/'+this.controller_package+'/controller/'+this.controller_type+'/'+this.controller_name+'/params/returns']);
+        this.router.navigate(['/package/'+this.controller_package+'/controller/'+this.controller_type+'/'+this.controller_name+'/returns']);
     }
 
     public onclickTranslations() {
