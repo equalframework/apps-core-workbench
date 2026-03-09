@@ -74,7 +74,11 @@ const routes: Routes = [
     },
     {
         path: 'controller/:controller_type/:controller_name/params',
-        loadChildren: () => import('./controller/controller.module').then(m => m.AppInControllerModule)
+        loadChildren: () => import('./controller/params/params.module').then(m => m.PackageControllerParamsModule)
+    },
+    {
+        path: 'controller/:controller_type/:controller_name/returns',
+        loadChildren: () => import('./controller/return/return.module').then(m => m.PackageControllerReturnModule)
     },
     {
         path: 'controller/:controller_type/:controller_name',
