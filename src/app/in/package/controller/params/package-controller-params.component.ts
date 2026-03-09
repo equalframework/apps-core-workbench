@@ -61,6 +61,7 @@ export class PackageControllerParamsComponent implements OnInit {
             private workbenchService: WorkbenchService,
             private location: Location,
             private activatedRoute: ActivatedRoute,
+            private router: RouterMemory,
             private matSnack:MatSnackBar,
             private dialog: MatDialog,
             private snack: MatSnackBar,
@@ -177,7 +178,7 @@ export class PackageControllerParamsComponent implements OnInit {
   }
 
   goBack() {
-    this.location.back()
+    this.router.goBack();
   }
 
 save() {
