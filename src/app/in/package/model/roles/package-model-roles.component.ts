@@ -1,5 +1,6 @@
 import { ButtonStateService } from './../../../_services/button-state.service';
 import { KeyValue, Location } from '@angular/common';
+import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
@@ -30,7 +31,8 @@ import { WorkbenchService } from 'src/app/in/_services/workbench.service';
       private location: Location,
       private matDialog: MatDialog,
       private notificationService: NotificationService,
-      public buttonStateService: ButtonStateService
+      public buttonStateService: ButtonStateService,
+      private routerMemory: RouterMemory
     ) {}
 
     ngOnInit(): void {
@@ -39,7 +41,7 @@ import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 
     goBack(): void {
-      this.location.back();
+      this.routerMemory.goBack();
     }
 
     selectRole(role: RoleItem): void {
