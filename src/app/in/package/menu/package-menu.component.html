@@ -6,10 +6,13 @@
         [customButton]="true"
         [customButtonList]="[{name:'Show JSON',icon:'bug_report',disabled:false}]"
         (onCustomButton)="showJSON()">
-    <label>Menu </label>
-    <label class="package-name">{{package_name}}</label>
-    <label>\</label>
-    <label class="menu-name">{{menu_name}}</label>
+    <div class="header-labels">
+        <label>Menu </label>
+        <label class="component-color-package colorized">{{package_name}}</label>
+        <label class="separator">\</label>
+        <label class="component-color-menu colorized">{{menu_name}}</label>
+    </div> 
+
 </app-inner-header>
 <div class="object-info">
     <mat-form-field class="input-label">
@@ -78,7 +81,7 @@
 
                 <div *ngIf="['entry'].includes(selected_item.type)">
                     <mat-divider></mat-divider>
-                    <label>Context</label>
+                    <label>Context </label>
                     <autocomplete-multi
                             class="input-entity"
                             name="entity"

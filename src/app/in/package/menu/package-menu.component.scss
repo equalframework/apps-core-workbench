@@ -6,7 +6,6 @@
 }
 
 .item-pretty-holder {
-
     width: 100%;
     border-bottom: solid 1px #d3d3d3;
     border-right: solid 1px #d3d3d3;
@@ -39,7 +38,7 @@
     padding: 2em;
     width: 100%;
     height: calc(100% - 1em);
-    background-color: whitesmoke;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     border-radius: 8px;
     overflow-y: scroll;
 }
@@ -48,7 +47,7 @@
     margin: .5em;
     height: calc(100% - 1em);
     width: 100%;
-    background-color: whitesmoke;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     border-radius: 8px;
     padding: 10px 0;
 }
@@ -78,21 +77,23 @@
 }
 
 .object-info {
-    background-color: whitesmoke;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     padding: 10px 1em;
     margin: 0 .5em;
     margin-bottom: .5em;
     border-radius: 8px;
 }
 
-.package-name {
-    background-color: mat-color($package-color,A100);
-    padding: 0 5px;
-    border-radius: 5px;
-}
-
-.menu-name {
-    background-color: mat-color($menu-color,A100);
-    padding: 0 5px;
-    border-radius: 5px;
+.header-labels {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    flex-wrap: wrap;
+  }
+  .separator {
+    font-weight: bold;
+  }
+  .colorized{
+    padding: 0 .3em;
+    border-radius: .2em;
 }
