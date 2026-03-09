@@ -1,40 +1,37 @@
 <div class="item-pretty" [class.selected]="selected_item && selected_item === item" (click)="select.emit(item)">
     <div class="real-holder">
         <mat-icon *ngIf="item.icon" class="item-icon">{{item.icon}}</mat-icon>
-        <label class="item-label" [class.reduce]="item.icon" [class.parent]="['parent'].includes(item.type)">{{item.label}}</label>
-        <mat-icon *ngIf="['parent'].includes(item.type)">expand_more</mat-icon>
+        <div class="item-content">
+            <label class="item-label">{{item.label}}</label>
+            <mat-icon *ngIf="item.type === 'parent'" class="parent-indicator">chevron_right</mat-icon>
+        </div>
     </div>
-    <div class="separator">
-    </div>
-    <div style="background-color: whitesmoke; height: 100%;">
-        <button mat-icon-button color="primary" [mat-menu-trigger-for]="menu"><mat-icon >more_vert</mat-icon></button>
-        <mat-menu #menu="matMenu">
-            <button mat-mini-fab
-                [style.opacity]="item.type !== 'parent' ? 0.6 : 1"
-                [disabled]="item.type !== 'parent'"
-                class="menu-editor-mat-menu-item"
-                (click)="addChild()"
-            >
-                <mat-icon>add</mat-icon> Add child
-            </button>
-            <button mat-mini-fab
-                class="menu-editor-mat-menu-item"
-                (click)="ondelete()"
-            >
-                <mat-icon>delete</mat-icon>Delete
-            </button>
-        </mat-menu>
+    
+    <div class="actions">
+        <button *ngIf="item.type === 'parent'" 
+                mat-icon-button 
+                color="primary" 
+                (click)="addChild(); $event.stopPropagation()"
+                matTooltip="Add child">
+            <mat-icon>add</mat-icon>
+        </button>
+        <button mat-icon-button
+                (click)="ondelete()">
+            <mat-icon>delete</mat-icon>
+        </button>
     </div>
 </div>
-<div *ngIf="item.type === 'parent'" class="indent" [class.selected]="selected_item && selected_item === item"
-    cdkDropList
-    [cdkDropListData]="item.children"
-    (cdkDropListDropped)="drop($event)"
->
-    <app-item-editor cdkDrag  *ngFor="let child of item.children; index as i"
-        [item]="child"
-        [selected_item]="selected_item"
-        (select)="select.emit($event)"
-        (deleteMe)="deleteChild(i)"
-    ></app-item-editor>
+
+<div *ngIf="item.type === 'parent'" 
+     class="indent"
+     cdkDropList
+     [cdkDropListData]="item.children"
+     (cdkDropListDropped)="drop($event)">
+    <app-item-editor cdkDrag  
+                     *ngFor="let child of item.children; index as i"
+                     [item]="child"
+                     [selected_item]="selected_item"
+                     (select)="select.emit($event)"
+                     (deleteMe)="deleteChild(i)">
+    </app-item-editor>
 </div>
