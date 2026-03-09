@@ -78,7 +78,7 @@ export class AppComponent implements OnInit {
             if (segments.length === 5 && segments[0].path === 'package' && segments[2].path === 'controller') {
                 restored = {
                     package_name: segments[1].path,
-                    name: segments[4].path,
+                    name: segments[1].path + '_' + segments[4].path,
                     type: segments[3].path
                 } as EqualComponentDescriptor;
             } else
