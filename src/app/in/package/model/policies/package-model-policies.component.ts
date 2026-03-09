@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Location } from '@angular/common';
+import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { MatDialog } from '@angular/material/dialog';
 import { BehaviorSubject, Observable, Subject, of } from 'rxjs';
 import { catchError, finalize, map, take, takeUntil, tap } from 'rxjs/operators';
@@ -30,7 +31,8 @@ export class PackageModelPoliciesComponent implements OnInit, OnDestroy {
         private location: Location,
         private matDialog: MatDialog,
         private notificationService: NotificationService,
-        public buttonStateService: ButtonStateService
+        public buttonStateService: ButtonStateService,
+        private routerMemory: RouterMemory
     ) {}
 
     ngOnInit(): void {
@@ -65,7 +67,7 @@ export class PackageModelPoliciesComponent implements OnInit, OnDestroy {
 
 
     goBack(): void {
-        this.location.back();
+        this.routerMemory.goBack();
     }
 
     onselectPolicy(policy: PolicyItem): void {
