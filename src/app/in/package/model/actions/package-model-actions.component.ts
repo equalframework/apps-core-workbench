@@ -1,4 +1,5 @@
 import { Location } from '@angular/common';
+import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
@@ -35,7 +36,8 @@ export class PackageModelActions implements OnInit, OnDestroy {
       private location: Location,
       private matDialog: MatDialog,
       private notificationService: NotificationService,
-      public buttonStateService: ButtonStateService
+      public buttonStateService: ButtonStateService,
+      private routerMemory: RouterMemory
     ) {}
 
     ngOnInit(): void {
@@ -93,7 +95,7 @@ export class PackageModelActions implements OnInit, OnDestroy {
       }
 
     goBack(): void {
-        this.location.back();
+      this.routerMemory.goBack();
     }
 
     onselectAction(action: ActionItem): void {
