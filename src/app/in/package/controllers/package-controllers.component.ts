@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewEncapsulation} from '@angular/core';
 import { Location } from '@angular/common';
+import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { prettyPrintJson } from 'pretty-print-json';
 import { ActivatedRoute} from '@angular/router';
 import { EqualComponentDescriptor } from '../../_models/equal-component-descriptor.class';
@@ -40,7 +41,8 @@ export class PackageControllersComponent implements OnInit {
     constructor(
             private route: ActivatedRoute,
             private location: Location,
-            private provider: EqualComponentsProviderService
+            private provider: EqualComponentsProviderService,
+            private routerMemory: RouterMemory
         ) { }
 
     public async ngOnInit() {
@@ -125,7 +127,7 @@ export class PackageControllersComponent implements OnInit {
     }
 
     public getBack() {
-        this.location.back();
+        this.routerMemory.goBack();
     }
 
 }
