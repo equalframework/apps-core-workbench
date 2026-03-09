@@ -546,6 +546,10 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         else if (node && node.type === 'menu') {
             url = `/package/${node.package_name}/menu/${node.name}`;
         }
+        // Routes
+        else if (node && node.type === 'route') {
+            url = `/package/${node.package_name}/route/${node.name}`;
+        }
 
         // Defaults to package view if no specific type matches
         this.location.go(url);
