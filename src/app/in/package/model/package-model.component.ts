@@ -5,6 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Location } from '@angular/common';
+import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { EqualComponentDescriptor } from '../../_models/equal-component-descriptor.class';
 
 @Component({
@@ -41,7 +42,8 @@ export class PackageModelComponent implements OnInit, OnDestroy {
     constructor(
             private route:ActivatedRoute,
             private location: Location,
-            public matDialog:MatDialog
+            public matDialog:MatDialog,
+            private routerMemory: RouterMemory
         ) { }
 
     public async ngOnInit() {
@@ -113,7 +115,7 @@ export class PackageModelComponent implements OnInit, OnDestroy {
 
 
     public getBack() {
-        this.location.back()
+        this.routerMemory.goBack();
     }
 
 
