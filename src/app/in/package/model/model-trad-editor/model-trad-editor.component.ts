@@ -41,7 +41,8 @@ export class ModelTradEditorComponent implements OnInit {
         private location:Location,
         private workbenchService: WorkbenchService,
         private notificationService: NotificationService,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private routerMemory: RouterMemory
     ) {}
 
     async ngOnInit() {
@@ -198,7 +199,7 @@ export class ModelTradEditorComponent implements OnInit {
     }
 
     goBack() {
-        this.location.back();
+        this.routerMemory.goBack();
     }
 
     debugExport() {
