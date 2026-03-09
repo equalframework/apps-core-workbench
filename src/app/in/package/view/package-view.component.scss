@@ -6,23 +6,16 @@
     width: 100%;
     height: 100%;
 
-    .packagename {
-        background-color: rgba(mat-color($package-color, A100), 0.5);
-    }
-
-    .classname {
-        background-color: rgba(mat-color($class-color, A100), 0.5);
-    }
-
-    .controllername {
-        background-color: rgba(mat-color($do-color, A100), 0.5);
-    }
-
-    .viewname {
-        background-color: rgba(mat-color($view-color, A100), 0.5);
-    }
-
-    .names {
+    .header-labels {
+        display: flex;
+        align-items: center;
+        gap: 0.5em;
+        flex-wrap: wrap;
+      }
+      .separator {
+        font-weight: bold;
+      }
+      .colorized{
         padding: 0 .3em;
         border-radius: .2em;
     }
@@ -223,20 +216,28 @@
     }
 
     .filter-field-row {
+        padding: 0 24px 12px 24px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        border-radius: 8px;
         display: flex;
+        flex-direction: column;
         gap: 12px;
+        margin-bottom: 1em;
     }
 
     .filter-inputs {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         gap: 8px;
+        flex-grow: 1;
     }
 
-    .filter-delete-container {
+    .filter-info-container {
         display: flex;
         align-items: center;
         justify-content: center;
+        opacity: 0.7;
+        font-style: italic;
     }
 
     .group-header {
@@ -284,11 +285,8 @@
 
     .addItem {
         margin-left: 1em;
+        width: 40px;
+        height: 40px;
     }
-}
 
-.filters-info {
-    font-style: italic;
-    opacity: 0.7;
-    margin-top: 1em;
 }

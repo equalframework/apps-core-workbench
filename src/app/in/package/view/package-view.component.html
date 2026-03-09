@@ -21,11 +21,13 @@
             [customButton]="true"
             [customButtonList]="[{name:'Show JSON', icon:'bug_report', disabled: false}]"
             (onCustomButton)="handleCustomButton($event)">
-        <label class="packagename names">{{node.package_name}}</label>
-        <label class="header-divider">›</label>
-        <label [class.controllername]="view_obj.type === 'search'" [class.classname]="view_obj.type !== 'search'" class="names">{{node.item.model}}</label>
-        <label class="header-divider">›</label>
-        <label class="viewname names">{{node.name.split(":")[1]}}</label>
+            <div class="header-labels">
+                <label class="component-color-package colorized">{{node.package_name}}</label>
+                <label class="separator">›</label>
+                <label [class.controllername]="view_obj.type === 'search'" [class.classname]="view_obj.type !== 'search'" class="component-color-class colorized">{{node.item.model}}</label>
+                <label class="separator">›</label>
+                <label class="component-color-view colorized">{{node.name.split(":")[1]}}</label>
+            </div>
     </app-inner-header>
     <div class="feature-container">
         <label *ngIf="!idCompliancy.ok" class="error-message">ERROR : {{ (idDoublons.length > 0) ? "Some IDs are duplicated ("+idDoublons+")" : "Some items don't have an ID"}}</label>
@@ -157,33 +159,36 @@
 
                         <div *ngIf="view_obj._has_filter" class="filters-header"> 
                             <label>Edit filters</label>
-                            <button mat-mini-fab color="primary" class="addItem" (click)="addFilter()"><mat-icon>add</mat-icon></button>
+                            <div class="addItem" >
+                                <button mat-mini-fab color="primary" (click)="addFilter()"><mat-icon>add</mat-icon></button>
+                            </div>
+                        
                         </div>
 
                         <div *ngIf="(filter_visible || (view_obj._has_filter && view_obj.filters.length > 0)) && view_obj._has_filter" class="indent">
                             <div class="indent" *ngFor="let filter of view_obj.filters">
                                 <div class="filter-field-row">
-                                    <div class="filter-inputs">
-                                        <div>
-                                            <mat-form-field>
-                                                <input matInput placeholder="filter id" [value]="filter.id" (input)="filter.id = $event.target.value">
-                                            </mat-form-field>
-                                            <mat-form-field>
-                                                <input matInput placeholder="filter label" [value]="filter.label" (input)="filter.label = $event.target.value">
-                                            </mat-form-field>
-                                            <mat-form-field class="inputlong">
-                                                <input matInput placeholder="filter description" [value]="filter.description" (input)="filter.description = $event.target.value">
+                                    <div class="filter-inputs" style="flex-grow: 2;">
+                                        <mat-form-field>
+                                            <input matInput placeholder="filter id" [value]="filter.id" (input)="filter.id = $event.target.value">
+                                        </mat-form-field>
+                                        <mat-form-field>
+                                            <input matInput placeholder="filter label" [value]="filter.label" (input)="filter.label = $event.target.value">
+                                        </mat-form-field>
+                                        <div style="flex-grow: 2;">
+                                            <mat-form-field class="inputlong" >
+                                                <input matInput placeholder="filter description"  [value]="filter.description" (input)="filter.description = $event.target.value">
                                             </mat-form-field>
                                         </div>
-                                        <app-clause-domain-component class="filters-info"
-                                            [value]="filter.clause.arr"
-                                            [name]="'oui'"
-                                            [class]="entity"
-                                            (valueChange)="filter.clause.arr = $event"
-                                        ></app-clause-domain-component>
-                                    </div>
-                                    <div class="filter-delete-container">
                                         <button mat-mini-fab color="primary" (click)="deleteFilter(view_obj.filters.indexOf(filter))"><mat-icon>delete</mat-icon></button>
+                                    </div>
+                                    <div class="filter-info-container">
+                                        <app-clause-domain-component class="filters-info"
+                                        [value]="filter.clause.arr"
+                                        [name]="'oui'"
+                                        [class]="entity"
+                                        (valueChange)="filter.clause.arr = $event"
+                                    ></app-clause-domain-component>
                                     </div>
                                 </div>
                             </div>
