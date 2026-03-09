@@ -1,3 +1,4 @@
+import { query } from '@angular/animations';
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -17,29 +18,36 @@ export class RouterMemory {
         }
     }
 
-    public previous:any[] = []
+    public previous: { url: string, queryParams?: { [key: string]: any } }[] = []
 
     public saved_args: {[route:string]:{[val:string]:any}} = {}
 
     public navigate(command:any[],args:{[val:string]:any}|undefined=undefined) {
-        this.previous.push(this.router.url.replaceAll("%5C","\\"))
-        if(args) {
-            for (let [k, v] of Object.entries(args)) {
-                this.updateArg(k,v)
+        // Support being called with either a raw queryParams object
+        // or an object that wraps them as { queryParams: { ... } }.
+        const queryParams = args && (args as any).queryParams ? (args as any).queryParams : args;
+        // Save the current route (with its current query params) so goBack can restore it.
+        const currentUrl = this.router.url.replaceAll("%5C","\\");
+        const currentQueryParams = this.router.parseUrl(this.router.url).queryParams || {};
+        this.previous.push({ url: currentUrl, queryParams: currentQueryParams });
+        if (queryParams) {
+            for (let [k, v] of Object.entries(queryParams)) {
+                this.updateArg(k, v)
             }
         }
-        this.router.navigate(command)
+
+        this.router.navigate(command, { queryParams: queryParams });
     }
 
     public goBack() {
         let route
         try {
-            route = this.previous.pop()
-            route = route ? route : "/"
+            const prev = this.previous.pop();
+            route = prev && prev.url ? prev.url : "/";
         } catch {
             route = "/"
         }
-        this.router.navigate([route])
+        this.router.navigateByUrl(route)
     }
 
     public retrieveArgs():any {
