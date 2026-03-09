@@ -6,6 +6,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Location } from '@angular/common';
+import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { EqualComponentDescriptor } from '../../_models/equal-component-descriptor.class';
 
 @Component({
@@ -31,10 +32,11 @@ export class PackageViewsComponent implements OnInit, OnDestroy {
 
     public loading = true;
     public ready = false;
-  constructor(
-            private route: ActivatedRoute,
-            private location: Location
-        ) { }
+    constructor(
+                        private route: ActivatedRoute,
+                        private location: Location,
+                        private routerMemory: RouterMemory
+                ) { }
     ngOnDestroy(): void {
         this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
@@ -71,7 +73,7 @@ export class PackageViewsComponent implements OnInit, OnDestroy {
 
 
     public getBack() {
-        this.location.back()
+        this.routerMemory.goBack();
     }
 
 
