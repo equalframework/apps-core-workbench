@@ -1,4 +1,5 @@
 import { Location } from '@angular/common';
+import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { Component, Inject, OnDestroy, OnInit, Optional } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Menu, MenuContext, MenuItem } from './_models/Menu';
@@ -43,6 +44,7 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
             private location: Location,
             private matSnack: MatSnackBar,
             private dialog: MatDialog,
+            private routerMemory: RouterMemory,
         ) { }
 
     public async ngOnInit() {
@@ -98,7 +100,7 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
     }
 
     public goBack() {
-        this.location.back();
+        this.routerMemory.goBack();
     }
 
     public deleteItem(index:number) {
