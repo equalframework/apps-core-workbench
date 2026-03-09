@@ -8,7 +8,9 @@
         [customButton]="!loading"
         [customButtonList]="[{name:'Show JSON', icon:'bug_report', disabled:false}]"
         (onCustomButton)="showJSON()">
-    <label>Fields of </label><label class="component-color-package colorized">{{package_name}}</label><label>\</label><label class="component-color-class colorized">{{class_name}}</label>
+    <div class="header-labels">
+        <label>Fields of </label><label class="component-color-package colorized">{{package_name}}</label><label class="separator">\</label><label class="component-color-class colorized">{{class_name}}</label>
+    </div>
 </app-inner-header>
 <div *ngIf="loading" style="display: flex; align-items: center; justify-content: center; flex-direction: column;" class="full">
     <mat-spinner></mat-spinner>
