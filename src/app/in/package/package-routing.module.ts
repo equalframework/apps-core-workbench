@@ -81,6 +81,10 @@ const routes: Routes = [
         component: AppComponent
     },
     {
+        path: 'route/:route_name',
+        component: AppComponent
+    },
+    {
         path: 'routes',
         component: PackageRoutesComponent
     },

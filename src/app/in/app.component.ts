@@ -59,8 +59,13 @@ export class AppComponent implements OnInit {
 
         if (fromUrl.root.children['primary'] && fromUrl.root.children['primary'].segments.length > 0) {
             const segments = fromUrl.root.children['primary'].segments;
-            //TODO: add Routes
-
+            if (segments.length === 4 && segments[0].path === 'package' && segments[2].path === 'routes') {
+                restored = {
+                    package_name: segments[1].path,
+                    name: segments[3].path,
+                    type: 'route'
+                } as EqualComponentDescriptor;
+            } else
                 // Menu
             if (segments.length === 4 && segments[0].path === 'package' && segments[2].path === 'menu') {
                 restored = {
