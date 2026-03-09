@@ -49,6 +49,7 @@ export class PackageControllerParamsComponent implements OnInit {
     public alert = alert;
 
     public sch:any;
+    public loading: boolean = true;
 
     public type_icon:string;
     public package_icon:string = ItemTypes.getIconForType('package');
@@ -82,6 +83,7 @@ export class PackageControllerParamsComponent implements OnInit {
     }
 
     public async ngOnInit(){
+        this.loading = true;
         this.types = ["array",...(await this.workbenchService.getTypeList())]
         this.usages = await this.workbenchService.getUsageList()
         this.types.sort((p1,p2) => p1.localeCompare(p2))
@@ -107,6 +109,7 @@ export class PackageControllerParamsComponent implements OnInit {
         //this.paramList =  this.paramList.sort((p1,p2) => p1.name.localeCompare(p2.name))
         this.onChange("Opening file");
         this.modelList = await this.workbenchService.collectClasses(true).toPromise();
+        this.loading = false;
     }
 
     public onSelection(index:number){
@@ -114,6 +117,7 @@ export class PackageControllerParamsComponent implements OnInit {
     }
 
   public cancelOneChange() {
+    this.loading = true;
     if(this.lastIndex > 0) {
       let x = this.paramListHistory.pop()
       if(x){
@@ -123,9 +127,11 @@ export class PackageControllerParamsComponent implements OnInit {
       }
     }
     this.toSchema()
+      this.loading = false;
   }
 
   public revertOneChange() {
+    this.loading = true;
     if(this.paramFutureHistory.length > 0) {
       let x = this.paramFutureHistory.pop()
       if(x){
@@ -136,6 +142,7 @@ export class PackageControllerParamsComponent implements OnInit {
 
     }
     this.toSchema()
+    this.loading = false;
   }
 
   public onChange(msg:string) {

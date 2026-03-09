@@ -1,7 +1,6 @@
 <div *ngIf="error">
     Something went wrong...
 </div>
-
 <div class="app-inner-header">
     <app-inner-header
             [buttonBack]="true"
@@ -17,38 +16,37 @@
             [customButton]="true"
             [customButtonList]="[{name:'show JSON', icon:'bug_report', disabled:false}]"
             (onCustomButton)="handleCustomButton($event)">
-        <label>Parameters of </label>
-        <div class="packagename borders">
-            <label>{{controller_name.split("_")[0]}}</label>
-        </div>
-        <label>_</label>
-        <div class="controllername borders">
-            <label>{{ controller_name.split("_").slice(1).join('_') }}</label>
+        <div class="header-labels">
+            <label>Parameters of </label>
+            <div class="component-color-package borders">
+                <label>{{controller_name.split("_")[0]}}</label>
+            </div>
+            <label class="separator">_</label>
+            <div class="component-color-controller borders">
+                <label>{{ controller_name.split("_").slice(1).join('_') }}</label>
+            </div>
         </div>
     </app-inner-header>
 </div>
 
-<div class="app-inner-body">
-
-    <div class="left_pane">
-        <app-param-list
-                [list]="paramList"
-                [selectedIndex]="selectedIndex"
-                (select)="onSelection($event)"
-                (CRUD)="onChange($event)">
-        </app-param-list>
-    </div>
-
-    <div class="right_pane">
-        <app-param-side-pane sidepane
-                [param]="paramList[selectedIndex]"
-                [types]="types"
-                [usages]="usages"
-                [scheme]="sch"
-                [modelList]="modelList"
-                (CRUD)="onChange($event)">
-        </app-param-side-pane>
-    </div>
+<div *ngIf="loading" style="display: flex; align-items: center; justify-content: center; flex-direction: column;" class="full">
+    <mat-spinner></mat-spinner>
+    <label style="font-size: 20px; margin-top: 1em;">Loading...</label>
 </div>
+<app-classic-layout *ngIf="!loading">
+    <app-param-list
+            [list]="paramList"
+            [selectedIndex]="selectedIndex"
+            (select)="onSelection($event)"
+            (CRUD)="onChange($event)">
+    </app-param-list>
 
-
+    <app-param-side-pane sidepane
+            [param]="paramList[selectedIndex]"
+            [types]="types"
+            [usages]="usages"
+            [scheme]="sch"
+            [modelList]="modelList"
+            (CRUD)="onChange($event)">
+    </app-param-side-pane>
+</app-classic-layout>
