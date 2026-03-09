@@ -79,16 +79,18 @@
     }
 }
 
-.package-name {
-    background-color: mat-color($package-color,A100);
-    padding: 0 5px;
-    border-radius: 5px;
-}
-
-.controller-name {
-    background-color: mat-color($get-color,A100);
-    padding: 0 5px;
-    border-radius: 5px;
+.header-labels {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    flex-wrap: wrap;
+  }
+  .separator {
+    font-weight: bold;
+  }
+  .colorized{
+    padding: 0 .3em;
+    border-radius: .2em;
 }
 
 .part {
@@ -96,7 +98,7 @@
     padding : 1em;
     width: calc(100% - 2em);
     //border: solid #ddd 1px;
-    background-color: whitesmoke;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     border-radius: 8px;
 
     .part-title {

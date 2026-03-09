@@ -12,10 +12,12 @@
         [customButton]="true"
         [customButtonList]="[{name:'show JSON',icon:'bug_report',disabled:false}]"
         (onCustomButton)="showJson()">
-    <label>Response of </label>
-    <label class="package-name">{{controller_name.split("_")[0]}}</label>
-    <label>_</label>
-    <label class="controller-name">{{controller_name.split("_").slice(1).join("_")}}</label>
+    <div class="header-labels">
+        <label>Response of </label>
+        <label class="component-color-package colorized">{{controller_name.split("_")[0]}}</label>
+        <label class="separator">_</label>
+        <label class="component-color-controller colorized">{{controller_name.split("_").slice(1).join("_")}}</label>
+    </div>
 </app-inner-header>
 <div class="scrollable-part">
     <div class="part">
