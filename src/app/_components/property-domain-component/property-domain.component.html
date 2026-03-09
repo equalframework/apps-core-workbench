@@ -1,102 +1,145 @@
-<label class="title">Domain</label><button mat-icon-button (click)="viewmode = (viewmode+1)%2"><mat-icon> {{ viewmode=== 0 ? "data_object" : "edit" }}</mat-icon></button>
-<ul *ngIf="viewmode === 0" class="wtree">
-    <ng-container *ngIf="fields">
-        <li *ngFor="let clause of tempValue; index as i">
-        <!-- Remove Clause -->
-        <div class="clause-container">
-            <div>Clause {{i + 1}}</div>
-            <button mat-mini-fab aria-label="Delete clause">
-                <mat-icon class="delete-condition-icon" (click)="removeClause(i)">delete</mat-icon>
-            </button>
-        </div>
-        <ul>
-            <li *ngFor="let condition of clause; index as j" class="condition">
-                <form style="display: flex; align-items: baseline;" class="leaf">
-                    <!-- Operand -->
-                    <app-auto-complete class="operand"
-                        [label]="'Operand'"
-                        [options]="fields?.fields"
-                        [value]="tempValue[i][j][0]"
-                        (updateValue)="updateOperand($event, i, j)">
-                    </app-auto-complete>
-                    <!-- Operator -->
-                    <mat-form-field *ngIf="tempValue[i][j][0] != ''" appearance="fill" class="operator">
-                        <mat-label>Operator</mat-label>
-                        <mat-select [value]="tempValue[i][j][1]" (selectionChange)="selectOperator($event.value, i, j)"
-                            [disabled]="tempValue[i][j][0] == ''">
-                            <mat-option *ngFor="let operator of validOperators?.[getTypeFromField(tempValue[i][j][0])]"
-                                [value]="operator">
-                                {{operator}}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <!-- Value -->
-                    <mat-checkbox *ngIf="can_have_env && fields" class="isenvcheck" [checked]="is_env[i][j]" (change)="changeEnv($event.checked,i,j)">env value</mat-checkbox>
-                    <ng-container *ngIf="!can_have_env || !is_env[i][j]">
-                        <!-- If there is a selection for the field of the operand -->
-                        <ng-container *ngIf="fields && fields.fields[tempValue[i][j][0]]?.selection != undefined">
-                            <app-value-selection class="value"
-                                [operand]="tempValue[i][j][0]"
-                                [type]="getTypeFromField(tempValue[i][j][0])"
-                                [operator]="tempValue[i][j][1]"
-                                [value]="tempValue[i][j][2]" 
-                                [fields]="fields"
-                                (changeValue)="changeValue($event, i, j)">
-                            </app-value-selection>
-                        </ng-container>
-                        <!-- If there is not a selection for the field of the operand -->
-                        <ng-container *ngIf="fields && !fields.fields[tempValue[i][j][0]]?.selection">
-                            <app-value class="value"
-                                [type]="getTypeFromField(tempValue[i][j][0])"
-                                [operator]="tempValue[i][j][1]"
-                                [value]="tempValue[i][j][2]"
-                                (changeValue)="changeValue($event, i, j)">
-                            </app-value>
-                        </ng-container>
-                    </ng-container>
-                    <ng-container *ngIf="can_have_env && is_env[i][j] && fields">
-                        <mat-form-field appearance="fill">
-                            <mat-label>Environment Variable</mat-label>
-                            <mat-select [value]="tempValue[i][j][2].split('.')[0]" (selectionChange)="changeEnvVar($event.value,i,j)">
-                                <mat-option value="object">object</mat-option>
-                                <mat-option value="user">user</mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                        <mat-form-field appearance="fill">
-                            <mat-label>Attribute</mat-label>
-                            <input matInput [value]="tempValue[i][j][2].split('.').slice(1).join('.')" (change)="changeAttribute($event.target.value,i,j)">
-                        </mat-form-field>
-                    </ng-container>
-                    <!-- Delete Condition -->
-                    <div class="delete-condition">
-                        <mat-icon class="pointable delete-condition-icon" (click)="removeCondition(i, j)">
-                            delete
-                        </mat-icon>
-                    </div>
-                </form>
-            </li>
-            <li>
-            <!-- Add Condition -->
-            <button mat-button aria-label="Condition" (click)="addCondition(i)">
-                Add Condition
-            </button>
-            </li>
-        </ul>
-        </li>
-        <li>
-        <!-- Add Clause -->
-        <button mat-button aria-label="Clause " (click)="addClause()">
-            Add Clause
+<div class="domain-container">
+    <div class="domain-header">
+        <label class="title">Domain</label>
+        <button mat-icon-button 
+                (click)="viewmode = (viewmode+1)%2"
+                [matTooltip]="viewmode === 0 ? 'View JSON' : 'View Editor'">
+            <mat-icon>{{ viewmode === 0 ? "code" : "edit" }}</mat-icon>
         </button>
-        </li>
-    </ng-container>
-</ul>
-<div *ngIf="viewmode===1">
-    <pre [innerHTML]="json" class="jsonviewer"></pre>
-</div>
+    </div>
 
-<ng-container *ngIf="!fields">
-        <p *ngIf="class">Invalid entity</p>
-        <p *ngIf="!class">No entity selected</p>
-</ng-container>
+    <!-- Editor View -->
+    <div *ngIf="viewmode === 0" class="editor-view">
+        <ng-container *ngIf="fields">
+            <div class="clauses-container">
+                <div *ngFor="let clause of tempValue; index as i" class="clause">
+                    <div class="clause-header">
+                        <span class="clause-label">Clause {{ i + 1 }}</span>
+                        <button mat-icon-button 
+                                (click)="removeClause(i)"
+                                matTooltip="Delete clause"
+                                class="delete-btn">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </div>
+
+                    <div class="conditions-container">
+                        <div *ngFor="let condition of clause; index as j" class="condition-row">
+                            <!-- Operand -->
+                            <app-auto-complete class="operand-field"
+                                [label]="'Field'"
+                                [options]="fields?.fields"
+                                [value]="tempValue[i][j][0]"
+                                (updateValue)="updateOperand($event, i, j)">
+                            </app-auto-complete>
+
+                            <!-- Operator -->
+                            <mat-form-field *ngIf="tempValue[i][j][0] != ''" 
+                                            appearance="outline" 
+                                            class="operator-field">
+                                <mat-label>Operator</mat-label>
+                                <mat-select [value]="tempValue[i][j][1]" 
+                                            (selectionChange)="selectOperator($event.value, i, j)"
+                                            [disabled]="tempValue[i][j][0] == ''">
+                                    <mat-option *ngFor="let operator of validOperators?.[getTypeFromField(tempValue[i][j][0])]"
+                                        [value]="operator">
+                                        {{operator}}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+
+                            <!-- Value Input -->
+                            <div class="value-section">
+                                <mat-checkbox *ngIf="can_have_env && fields" 
+                                              [checked]="is_env[i][j]" 
+                                              (change)="changeEnv($event.checked,i,j)"
+                                              class="env-toggle">
+                                    Environment
+                                </mat-checkbox>
+
+                                <ng-container *ngIf="!can_have_env || !is_env[i][j]">
+                                    <!-- Selection-based field -->
+                                    <ng-container *ngIf="fields && fields.fields[tempValue[i][j][0]]?.selection != undefined">
+                                        <app-value-selection class="value-field"
+                                            [operand]="tempValue[i][j][0]"
+                                            [type]="getTypeFromField(tempValue[i][j][0])"
+                                            [operator]="tempValue[i][j][1]"
+                                            [value]="tempValue[i][j][2]" 
+                                            [fields]="fields"
+                                            (changeValue)="changeValue($event, i, j)">
+                                        </app-value-selection>
+                                    </ng-container>
+                                    <!-- Free-form field -->
+                                    <ng-container *ngIf="fields && !fields.fields[tempValue[i][j][0]]?.selection">
+                                        <app-value class="value-field"
+                                            [type]="getTypeFromField(tempValue[i][j][0])"
+                                            [operator]="tempValue[i][j][1]"
+                                            [value]="tempValue[i][j][2]"
+                                            (changeValue)="changeValue($event, i, j)">
+                                        </app-value>
+                                    </ng-container>
+                                </ng-container>
+
+                                <!-- Environment Variable Input -->
+                                <ng-container *ngIf="can_have_env && is_env[i][j] && fields">
+                                    <mat-form-field appearance="outline" class="env-type-field">
+                                        <mat-label>Source</mat-label>
+                                        <mat-select [value]="tempValue[i][j][2].split('.')[0]" 
+                                                    (selectionChange)="changeEnvVar($event.value,i,j)">
+                                            <mat-option value="object">Object</mat-option>
+                                            <mat-option value="user">User</mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+                                    <mat-form-field appearance="outline" class="env-attr-field">
+                                        <mat-label>Property</mat-label>
+                                        <input matInput 
+                                               [value]="tempValue[i][j][2].split('.').slice(1).join('.')" 
+                                               (change)="changeAttribute($event.target.value,i,j)">
+                                    </mat-form-field>
+                                </ng-container>
+                            </div>
+
+                            <!-- Delete Condition -->
+                            <button mat-icon-button 
+                                    (click)="removeCondition(i, j)"
+                                    matTooltip="Delete condition"
+                                    class="delete-condition-btn">
+                                <mat-icon>close</mat-icon>
+                            </button>
+                        </div>
+
+                        <!-- Add Condition Button -->
+                        <button mat-stroked-button 
+                                (click)="addCondition(i)"
+                                class="add-condition-btn">
+                            <mat-icon>add</mat-icon>
+                            Add Condition
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Add Clause Button -->
+                <button mat-stroked-button 
+                        (click)="addClause()"
+                        class="add-clause-btn">
+                    <mat-icon>add</mat-icon>
+                    Add Clause
+                </button>
+            </div>
+        </ng-container>
+
+        <ng-container *ngIf="!fields">
+            <div class="empty-state">
+                <mat-icon>info</mat-icon>
+                <p *ngIf="class">Invalid entity</p>
+                <p *ngIf="!class">No entity selected</p>
+            </div>
+        </ng-container>
+    </div>
+
+    <!-- JSON View -->
+    <div *ngIf="viewmode === 1" class="json-view">
+        <pre [innerHTML]="json" class="jsonviewer"></pre>
+    </div>
+</div>
 

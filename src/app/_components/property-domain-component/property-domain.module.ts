@@ -10,7 +10,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
-
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { AutoCompleteComponent } from './_components/auto-complete/auto-complete.component';
 import { ValueComponent } from './_components/value/value.component';
@@ -36,7 +36,8 @@ import { PropertyDomainComponent } from './property-domain.component'
     ReactiveFormsModule,
     MatButtonModule,
     MatInputModule,
-    MatIconModule
+    MatIconModule,
+    MatTooltipModule
   ],
   exports : [
     PropertyDomainComponent

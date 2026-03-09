@@ -1,91 +1,214 @@
-#container {
-    display: flex;
-    flex-direction: row;
-}
-#container > div {
+.domain-container {
     display: flex;
     flex-direction: column;
-    padding: 5px;
-}
-
-
-// tree view inspired https://codepen.io/willpower/pen/pJKdej?editors=1100
-$border: #ddd;
-$ident: 20px;
-$left: -($ident);
-
-.wtree {
-    margin: 10px;
     padding: 16px;
-    padding-top: 0px;
-    margin-right: 0px;
-    padding-right: 0px;
-    .clause-container {
-        display: flex;
-        align-items: center;
-        transform: translateY(-5px);
+    gap: 16px;
+    height: 100%;
+}
+
+.domain-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 12px;
+
+    .title {
+        font-size: 16px;
+        font-weight: 500;
+        color: #212121;
     }
-    .condition{
-        width: calc(100% - 40px);
-        .operand {
-            width: 25%;
-        }
-        .operator{
-            width: 18%;
-        }
-        .value{
-            width: 47%;
-        }
-        .delete-condition {
-            width: 10%;
-            .delete-condition-icon{
-                height: 20px;
-            }
-        }
+}
+
+.editor-view {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.clauses-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.clause {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 16px;
+    background-color: #fafafa;
+    transition: all 0.2s ease;
+
+    &:hover {
+        border-color: #bdbdbd;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
-    li {
-        list-style-type: none;
-        margin:10px 0 10px 0px;
-        position: relative;
-        &:before {
-            content: "";
-            position: absolute;
-            top: 0px;
-            left:$left;
-            border-left: 1px solid $border;
-            border-bottom:1px solid $border;
-            width:$ident;
-            height:15px;
-        }
-        &:after {
-            position:absolute;
-        content:"";
-            top:15px;
-            left:$left;
-            border-left: 1px solid $border;
-            border-top:1px solid $border;
-            width:$ident;
-            height:100%;
-        }
-        &:last-child:after {
-            display:none;
+}
+
+.clause-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e0e0e0;
+
+    .clause-label {
+        font-weight: 600;
+        color: #424242;
+        font-size: 14px;
+    }
+
+    .delete-btn {
+        color: #d32f2f;
+        
+        &:hover {
+            background-color: rgba(211, 47, 47, 0.1);
         }
     }
 }
 
-.isenvcheck{
-    display: inline-block;
-    padding: 1em 1em;
-    background-color: #EEEEF5;
-    transform: translateY(-0.6em);
-    border-bottom: solid 1px rgba(0, 0, 0, 0.87);
+.conditions-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.condition-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 12px;
+    background-color: white;
+    border-radius: 6px;
+    border: 1px solid #eeeeee;
+    transition: border-color 0.2s ease;
+
+    &:hover {
+        border-color: #e0e0e0;
+    }
+}
+
+.operand-field {
+    flex: 1;
+    min-width: 200px;
+}
+
+.operator-field {
+    flex: 0 0 150px;
+}
+
+.value-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+
+    .env-toggle {
+        flex-shrink: 0;
+    }
+
+    .value-field {
+        flex: 1;
+        min-width: 150px;
+    }
+
+    .env-type-field,
+    .env-attr-field {
+        flex: 1;
+        min-width: 120px;
+    }
+}
+
+.delete-condition-btn {
+    flex-shrink: 0;
+    color: #d32f2f;
+
+    &:hover {
+        background-color: rgba(211, 47, 47, 0.1);
+    }
+}
+
+.add-condition-btn,
+.add-clause-btn {
+    align-self: flex-start;
+    color: #1976d2;
+    border-color: #1976d2;
+
+    &:hover {
+        background-color: rgba(25, 118, 210, 0.1);
+    }
+
+    mat-icon {
+        margin-right: 8px;
+    }
+}
+
+.add-clause-btn {
+    margin-top: 8px;
+    align-self: center;
+}
+
+.json-view {
+    flex: 1;
+    overflow: auto;
 }
 
 .jsonviewer {
     margin: 0;
-    padding: 10px;
-    background-color: whitesmoke; 
+    padding: 16px;
+    background-color: #f5f5f5;
     border-radius: 8px;
-    border: 1px #dddddd solid;
-    max-width: 30em;
+    border: 1px solid #e0e0e0;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    overflow-x: auto;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 32px;
+    color: #757575;
+    text-align: center;
+
+    mat-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        opacity: 0.5;
+    }
+
+    p {
+        margin: 0;
+        font-size: 14px;
+    }
+}
+
+// Responsive layout
+@media (max-width: 1024px) {
+    .condition-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .operand-field,
+    .operator-field,
+    .value-field {
+        width: 100% !important;
+        min-width: unset;
+    }
+
+    .value-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
 }
