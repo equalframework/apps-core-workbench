@@ -230,7 +230,7 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
     }
 
     public goBack() {
-        this.location.back();
+        this.router.goBack();
     }
 
     public export() {
