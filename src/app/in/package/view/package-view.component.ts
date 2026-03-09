@@ -65,7 +65,8 @@ export class PackageViewComponent implements OnInit {
         private TypeUsage: TypeUsageService,
         private location: Location,
         private provider:EqualComponentsProviderService,
-        private notificationService: NotificationService
+        private notificationService: NotificationService,
+        private routerMemory: RouterMemory
     ) { }
 
     async ngOnInit() {
@@ -171,7 +172,7 @@ export class PackageViewComponent implements OnInit {
     }
 
     goBack() {
-        this.location.back();
+        this.routerMemory.goBack();
     }
 
     deleteGroup(index:number){
