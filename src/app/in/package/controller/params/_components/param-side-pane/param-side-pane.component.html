@@ -6,15 +6,12 @@
         <div>
             <label>Parameter </label>
             <ng-container *ngIf="!nameBeingEdited">
-                <label class="maincolor">{{param.name}}</label>
-                <button mat-icon-button color="primary" (click)="setNameBeingEdited(true)"><mat-icon>edit</mat-icon></button>
+                <label class="maincolor" (click)="setNameBeingEdited(true)">{{param.name}}</label>
             </ng-container>
             <ng-container *ngIf="nameBeingEdited">
                 <mat-form-field class="editname">
-                    <input class="maincolor" matInput [formControl]="nameControl">
+                    <input class="maincolor" matInput [formControl]="nameControl" (blur)="changeName()" (keydown.enter)="changeName()">
                 </mat-form-field>
-                <button mat-icon-button color="primary" (click)="setNameBeingEdited(false)"><mat-icon>cancel</mat-icon></button>
-                <button mat-icon-button color="primary" [disabled]="nameControl.invalid" (click)="changeName()"><mat-icon>save</mat-icon></button>
             </ng-container>
         </div>
     </div>

@@ -24,7 +24,8 @@ export class ParamSidePaneComponent implements OnInit, OnChanges {
 
   @Output() CRUD = new EventEmitter<string>();
 
-  protected nameEdit: boolean = false;
+  protected nameEdit: boolean = true;
+  
 
   foreignControl = new FormControl("", {
     validators : []
@@ -53,6 +54,16 @@ export class ParamSidePaneComponent implements OnInit, OnChanges {
       this.changeForeign()
       this.filteredModelList = this.modelList.filter( (item:string) => item.toLowerCase().includes(value.toLowerCase())).sort((p1:string,p2:string) => p1.localeCompare(p2))
     })
+
+    // auto-save name as the user types (keeps behavior consistent with other editable fields)
+    this.nameControl.valueChanges.subscribe((value:string) => {
+      if (!this.param) return
+      if (this.nameControl.valid && value !== this.param.name) {
+        const oldname = this.param.name
+        this.param.name = value
+        this.CRUD.emit('Renaming '+oldname+' to '+this.param.name)
+      }
+    })
   }
 
   ngOnChanges() {
@@ -63,7 +74,10 @@ export class ParamSidePaneComponent implements OnInit, OnChanges {
         } else {
           return { "case": true };
         }
-      });    this.foreignControl.setValue(this.param?.foreign_object,{emitEvent : false})
+      });
+    this.foreignControl.setValue(this.param?.foreign_object,{emitEvent : false})
+    // keep name input in sync when the param changes without triggering valueChanges
+    this.nameControl.setValue(this.param?.name,{emitEvent: false})
   }
 
   public setNameBeingEdited(value: boolean) {
@@ -84,7 +98,6 @@ export class ParamSidePaneComponent implements OnInit, OnChanges {
       let oldname = this.param.name
       this.param.name = this.nameControl.value
       this.CRUD.emit("Renaming "+oldname+" to "+this.param.name)
-      this.setNameBeingEdited(false)
       this.nameControl.markAsUntouched()
     }
   }
