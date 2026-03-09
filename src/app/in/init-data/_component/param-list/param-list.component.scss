@@ -6,7 +6,7 @@
 }
 
 .list {
-    background-color: whitesmoke;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09);
     border-radius: 1em;
     padding: .5em;
     width : 100%;
@@ -19,10 +19,8 @@
 }
 
 .name {
-    width: calc( 100% - 80px);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: no-wrap;
+    padding: 0 2em;
+    width: calc( 100% - max(2em,10%) );
 }
 
 .item {
@@ -31,15 +29,14 @@
     align-items: center;
     cursor : pointer;
     border-radius: .5em;
+    &:hover {
+        background-color: #ebebeb !important;
+    }
 }
 
 .filterinput {
     margin-right: 10px;
     width : 100%
-}
-
-.button {
-    width: 80px
 }
 
 .creator {
@@ -50,7 +47,7 @@
     justify-content: space-between;
     padding: 0 1em;
     border-radius: 1em;
-    background-color: whitesmoke;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09);
 
     .buttoncreate {
         display: flex;
