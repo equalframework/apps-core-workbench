@@ -11,6 +11,7 @@ import { prettyPrintJson } from 'pretty-print-json';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Location } from '@angular/common';
+import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
 
@@ -62,7 +63,8 @@ export class PackageControllerReturnComponent implements OnInit {
             private matSnack: MatSnackBar,
             private route: ActivatedRoute,
             private dialog: MatDialog,
-            private location: Location
+            private location: Location,
+            private routerMemory: RouterMemory
         ) { }
 
     public async ngOnInit() {
@@ -266,7 +268,7 @@ export class PackageControllerReturnComponent implements OnInit {
     }
 
     public goBack() {
-        this.location.back();
+        this.routerMemory.goBack();
     }
 
     public showJson() {
