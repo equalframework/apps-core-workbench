@@ -1,5 +1,5 @@
 import { Location } from '@angular/common';
-import { Router, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, SimpleChanges, ViewEncapsulation } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -14,6 +14,7 @@ import { EqualComponentsProviderService } from 'src/app/in/_services/equal-compo
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { NotificationService } from 'src/app/in/_services/notification.service';
+import { el } from 'date-fns/locale';
 
 /**
  * This component is used to display the list of all object you recover in package.component.ts
@@ -91,7 +92,6 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         private provider: EqualComponentsProviderService,
         private notificationService: NotificationService,
         private workbenchService: WorkbenchService,
-        private router: Router,
         private location: Location,
         private route: ActivatedRoute
     ) { }
@@ -104,6 +104,9 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
 
 
     public ngOnInit() {
+        this.route.queryParams.subscribe(params => {
+            console.log("Initializing SearchMixed with URL query params:", params, "and URL path:", this.route.snapshot.url);
+        });
         this.loading = true;
         this.loadNodesV2();
         this.readQueryParams();
@@ -127,6 +130,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
      * Reads the query parameters from the URL to initialize the search filters and terms, and sets up a subscription to update the filtered data whenever the query parameters change. This ensures that the search state is synchronized with the URL.
      */
     private readQueryParams() {
+        console.log("Reading query params for search initialization");
         this.route.queryParams.subscribe(params => {
             if (params['scope']) {
                 this.search_scope = params['scope'];
@@ -148,6 +152,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
 
             filtered = this.rankResults(filtered, this.search_terms);
             this.filteredData = filtered;
+            console.log("Updated filtered data based on URL query params:", this.search_scope, this.search_filters, this.search_terms);
             this.updateUrlForSearch(this.search_filters, this.search_terms);
         });
     }
@@ -225,7 +230,6 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         const input = this.inputControl.value.trim();
         const tokens = input.split(" ");
         ({ filters: this.search_filters, terms: this.search_terms } = this.extractFiltersAndTerms(tokens));
-        console.log("About to search through", this.elements);
         let filtered = this.elements.filter((element: EqualComponentDescriptor) => {
             if (!this.matchesFilters(element, element.name, this.search_filters, this.search_terms)) {
                 return false;
