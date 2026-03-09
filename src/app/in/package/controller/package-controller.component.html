@@ -1,0 +1,12 @@
+<div *ngIf="error" class="error-container">
+    <p>Error: Unable to load controller details</p>
+</div>
+
+<div *ngIf="loading" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <label>Loading...</label>
+</div>
+
+<div *ngIf="!loading && !error" class="controller-container">
+    <router-outlet></router-outlet>
+</div>

@@ -1,0 +1,26 @@
+.error-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    padding: 2rem;
+}
+
+.loading-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    height: 100vh;
+    padding: 2rem;
+
+    label {
+        font-size: 20px;
+        margin-top: 1rem;
+    }
+}
+
+.controller-container {
+    width: 100%;
+    height: 100%;
+}
