@@ -106,7 +106,10 @@ export class InfoControllerComponent implements OnInit, OnChanges {
         this.loading = true;
         try {
             const operation_name = this.controller.name;
-            const response = await this.workbenchService.announceController(this.controller.type, operation_name).toPromise();
+            console.log('fetching announce for controller', operation_name);
+            const response = await this.workbenchService.announceController(this.controller.type, this.controller_package + '_' + operation_name).toPromise();
+            console.log('response announce', response);
+
             this.announcement = response?.announcement;
             this.schema = this.announcement?.params ?? {};
             this.initialization();
