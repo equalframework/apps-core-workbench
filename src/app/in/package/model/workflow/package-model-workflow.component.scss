@@ -55,6 +55,20 @@
     margin-left: 10px;
 }
 
+.colorized{
+    padding: 0 .3em;
+    border-radius: .2em;
+}
+.header-labels {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    flex-wrap: wrap;
+  }
+  .separator {
+    font-weight: bold;
+  }
+
 .title-holder {
     display: inline-flex;
     align-items: center;

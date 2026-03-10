@@ -10,8 +10,10 @@
 [customButton]="true"
 [customButtonList]="[{icon:'bug_report', name:'Show JSON', disabled:false}]"
 (onCustomButton)="customButtonBehavior($event)">
-    <label>Roles of </label><label>{{ package_name }}</label><label>\</label><label>{{ model_name }}</label>
-  </app-inner-header>
+<div class="header-labels">
+  <label>Workflow of </label><label class="component-color-package colorized">{{package_name}}</label><label class="separator">\</label><label class="component-color-class colorized">{{model_name}}</label>
+</div>
+</app-inner-header>
 
   <app-classic-layout>
 

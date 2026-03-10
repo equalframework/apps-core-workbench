@@ -8,7 +8,9 @@
         [customButton]="true"
         [customButtonList]="[{icon:'bug_report', name:'Show JSON', disabled:false},{icon:'bug_report', name:'Show JSON meta data', disabled:false}]"
         (onCustomButton)="customButtonBehavior($event)">
-    <label>Workflow of </label><label>{{package}}</label><label>\</label><label>{{model}}</label>
+    <div class="header-labels">
+        <label>Workflow of </label><label class="component-color-package colorized">{{package}}</label><label class="separator">\</label><label class="component-color-class colorized">{{model}}</label>
+    </div>
     <div *ngIf="need_save" class="title-holder">
         <mat-icon class="warn-icon" >error</mat-icon>
         <label>This workflow is malformed, save it from Workbench to fix it.</label>
