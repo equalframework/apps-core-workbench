@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, SimpleChanges, ViewEncapsulation } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ItemTypes } from 'src/app/in/_models/item-types.class';
 
 import { MixedCreatorDialogComponent } from 'src/app/_dialogs/mixed-creator-dialog/mixed-creator-dialog.component';
@@ -93,7 +94,8 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         private notificationService: NotificationService,
         private workbenchService: WorkbenchService,
         private location: Location,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        private sanitizer: DomSanitizer
     ) { }
 
 
@@ -613,5 +615,39 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
             model: params['filter_model_name'] || this.model_name,
             // Add more fields as needed
         };
+    }
+
+    /**
+     * Highlights search terms in the given text by wrapping them in a <span class="highlight-term"> tag.
+     * This enables visual feedback when searching for nodes.
+     *
+     * @param text The text to highlight
+     * @param terms The search terms to highlight
+     * @returns SafeHtml containing the highlighted text
+     */
+    public getHighlightedName(text: string, terms: string[]): SafeHtml {
+        if (!text || !terms || terms.length === 0) {
+            return this.sanitizer.sanitize(1, text) || '';
+        }
+        
+        let highlighted = text;
+        for (const term of terms) {
+            if (term && term.length > 0) {
+                const regex = new RegExp(`(${this.escapeRegex(term)})`, 'gi');
+                highlighted = highlighted.replace(regex, '<span class="highlight-term">$1</span>');
+            }
+        }
+        
+        return this.sanitizer.bypassSecurityTrustHtml(highlighted);
+    }
+
+    /**
+     * Escapes special regex characters in a string to prevent regex errors.
+     *
+     * @param str The string to escape
+     * @returns The escaped string safe for use in a regex
+     */
+    private escapeRegex(str: string): string {
+        return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 }

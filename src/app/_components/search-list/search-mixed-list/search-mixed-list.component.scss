@@ -149,6 +149,8 @@
                         min-width: 0;
                         text-overflow: ellipsis;
                         max-width: 100%;
+
+
                     }
 
                     .node-icon {
@@ -198,5 +200,11 @@
         font-size: 14px;
       }
 
+      ::ng-deep .highlight-term {
+        color: mat-color($maincolor);
+        font-weight: bold;
+        border-radius: 2px;
+        padding: 0 2px;
+    }
 }
 
