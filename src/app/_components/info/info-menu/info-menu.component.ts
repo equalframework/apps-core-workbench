@@ -20,6 +20,11 @@ export class InfoMenuComponent implements OnInit {
         this.selected_package = this.menu.package_name;
     }
 
+    public ngOnChanges(): void {
+        this.selected_package = this.menu.package_name;
+        console.log('Menu changed: ', this.selected_package);
+    }
+
     public onclickTranslations() {
         console.log('Not implemented yet');
         /*
