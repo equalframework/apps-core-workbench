@@ -70,3 +70,15 @@
         background: rgba(0,0,0,0.06);
     }
 }
+
+.view-info-button.disabled {
+    background: rgba(0, 0, 0, 0.10) !important;
+    color: rgba(0,0,0,0.03) !important;
+    cursor: not-allowed !important;
+    mat-icon {
+        color: rgba(0,0,0,0.03);
+    }
+    label {
+        color: rgba(0,0,0,0.03);
+    }
+}
