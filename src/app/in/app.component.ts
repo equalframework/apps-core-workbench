@@ -59,11 +59,15 @@ export class AppComponent implements OnInit {
 
         if (fromUrl.root.children['primary'] && fromUrl.root.children['primary'].segments.length > 0) {
             const segments = fromUrl.root.children['primary'].segments;
-            if (segments.length === 4 && segments[0].path === 'package' && segments[2].path === 'routes') {
+            console.log('URL segments for restoring selected component:', segments);
+                // Route
+            if (segments.length >= 4 && segments[0].path === 'package' && segments[2].path === 'route') {
+                // Collect all segments from index 3 onwards to handle routes like '/auth/pwd'
+                const routeSegments = segments.slice(3).map(seg => seg.path).join('/');
                 restored = {
                     package_name: segments[1].path,
-                    name: segments[3].path,
-                    type: 'route'
+                    name: routeSegments,
+                    type: 'route',
                 } as EqualComponentDescriptor;
             } else
                 // Menu
