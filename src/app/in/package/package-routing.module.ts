@@ -89,9 +89,15 @@ const routes: Routes = [
         component: AppComponent
     },
     {
+        path: 'route/**',
+        component: AppComponent
+    },
+    /*
+    {
         path: 'routes',
         component: PackageRoutesComponent
     },
+    */
     {
         path: 'package/:package_name',
         component: PackageComponent
