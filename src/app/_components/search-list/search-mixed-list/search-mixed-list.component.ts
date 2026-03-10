@@ -113,6 +113,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         this.loadNodesV2();
         this.readQueryParams();
         this.updateSearchTerms();
+        this.loading = false;
     }
 
     public ngOnChanges(changes: SimpleChanges) {
@@ -197,8 +198,6 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         this.elements = [...components];
         this.filteredData = this.elements;
         this.onSearch();
-        this.loading = false;
-
     }
 
     private handleError(error: any) {
