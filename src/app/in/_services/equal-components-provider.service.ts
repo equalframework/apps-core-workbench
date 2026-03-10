@@ -77,11 +77,9 @@ export class EqualComponentsProviderService {
             return of(foundComponent);
         }
         }
-
         // If not found in the cache, retrieve via the API
         return this.fetchComponents(package_name, component_type, class_name).pipe(
         map(components => {
-            console.log("Components retrieved:", components);
             return components.find(comp => comp.name === component_name) || null;
         }),
         catchError(response => {
@@ -124,12 +122,9 @@ export class EqualComponentsProviderService {
         );
         return of(components && components.length > 0 ? components : []);
         }
-        console.log("class name : ", class_name);
-        console.log("bon bah go dans l'api hn");
         // If not found in cache, retrieve via the API
         return this.fetchComponents(package_name, component_type, class_name).pipe(
         map(newComponents => {
-            console.log("components : ", newComponents)
             // Optionally, update the cache here
             if (!cacheMap.has(package_name)) {
             cacheMap.set(package_name, new Map<string, EqualComponentDescriptor[]>());
@@ -169,7 +164,6 @@ export class EqualComponentsProviderService {
         if(component_type ==='do' || component_type ==='get'){
             component_type = 'controller'
         }
-
         switch (component_type) {
             case 'class':
                 return this.retrieveClasses([packageComponent]);
@@ -199,10 +193,7 @@ export class EqualComponentsProviderService {
         .pipe(take(1))
         .subscribe({
             next: (packages: EqualComponentDescriptor[]) => {
-                console.log(
-                `Reloading components. Provided package: ${package_name ? package_name : 'all'}, component type: ${component_type ? component_type : 'all'}. Packages loaded:`,
-                packages
-                );
+
                 this.updatePackagesMap(packages)
                 const currentCacheMap = this.componentsCacheMapSubject.getValue();
                 let updatedCacheMap = new Map<string, Map<string, EqualComponentDescriptor[]>>(currentCacheMap);
@@ -211,11 +202,9 @@ export class EqualComponentsProviderService {
                     const isPackageValid = packages.some(packageComponent => packageKey === packageComponent.name);
 
                     if (!isPackageValid) {
-                        console.log(`Removing package from cache: ${packageKey}`);
                         updatedCacheMap.delete(packageKey);
                     }else{
                         if (!updatedCacheMap.has(packageKey)) {
-                            console.log(`Adding package to cache: ${packageKey}`);
                             updatedCacheMap.set(packageKey, new Map());
                         }
                     }
@@ -282,14 +271,12 @@ export class EqualComponentsProviderService {
 
 
     if (apiCalls.length === 0) {
-        console.log("No components selected for preloading.");
         return;
     }
 
     forkJoin(apiCalls).subscribe({
         next: (results: EqualComponentDescriptor[][]) => {
             const allComponents = results.flat();
-            console.log("all component : ", allComponents)
             if (allComponents.length > 0) {
                 this.refreshComponentsMapFromPackage(packages[0].name, allComponents);
             }
@@ -375,9 +362,7 @@ export class EqualComponentsProviderService {
           .subscribe({
               next: (packages: EqualComponentDescriptor[]) => {
                 this.updatePackagesMap(packages);
-                console.log('Packages loaded:', packages);
                 this.preloadComponentsForPackages(packages);
-                console.log("Updated map:", this.componentsCacheMapSubject.getValue());
               },
               error: (response) => {
                   console.error('Error loading components:', response);
@@ -419,14 +404,12 @@ export class EqualComponentsProviderService {
 
 
     if (apiCalls.length === 0) {
-        console.log("No components selected for preloading.");
         return;
     }
 
     forkJoin(apiCalls).subscribe({
         next: (results: EqualComponentDescriptor[][]) => {
             const allComponents = results.flat();
-            console.log("all component : ", allComponents)
             if (allComponents.length > 0) {
                 this.updateComponentsMap(allComponents);
             }
@@ -467,7 +450,6 @@ export class EqualComponentsProviderService {
 
     private updateComponentsMap(components: EqualComponentDescriptor[]): void {
         const cacheMap = this.componentsCacheMapSubject.getValue();
-        console.log("map before : ", cacheMap);
         components.forEach(component => {
             const pkg = component.package_name;
             const type = component.type;
@@ -496,7 +478,6 @@ export class EqualComponentsProviderService {
 
         // Update the BehaviorSubject with the modified map
         this.componentsCacheMapSubject.next(cacheMap);
-        console.log("this.componentsCachemap : ", this.componentsCacheMapSubject.getValue())
         // Flatten the map to update `equalComponentsSubject`, including a package entry for each package
         const allComponentsArray: EqualComponentDescriptor[] = [];
         cacheMap.forEach((pkgMap, pkgName) => {
@@ -507,7 +488,6 @@ export class EqualComponentsProviderService {
             allComponentsArray.push(...componentsArray);
             });
         });
-        console.log("AllComponentsArray : ", allComponentsArray)
         this.equalComponentsSubject.next(allComponentsArray);
     }
 
@@ -605,7 +585,6 @@ export class EqualComponentsProviderService {
             rawData.forEach(item => {
                 item.views = this.filterViews(item.views, class_name);
             });
-            console.log("rawData", rawData);
             return this.formatViews(rawData,class_name)})
        )
     }
@@ -683,6 +662,7 @@ export class EqualComponentsProviderService {
     }
 
     private collectRoutes(packages: EqualComponentDescriptor[]): Observable<Array<{ package: EqualComponentDescriptor, routesData: any }>> {
+
         return forkJoin(
             packages.map(packageComponent =>
             this.collectRoutesFromPackage(packageComponent.name).pipe(
@@ -921,7 +901,6 @@ export class EqualComponentsProviderService {
               });
             });
         });
-        console.log("resultat : ", result)
         return result;
       }
 
