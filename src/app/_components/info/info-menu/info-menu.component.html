@@ -1,14 +1,14 @@
 
 <div class="info-view-container">
-    <div class="info-header-section">
-        <app-info-header
+    <app-info-header
             [titleLabel]="'Menu'"
             [title]="menu.name"
             [copyText]="menu.package_name + '\\' + menu.name"
             [description]="menu.description"
-            [metaData]="[]">
+            [metaData]="[]"
+            (editClick)="onclickEdit()"
+            (translationClick)="onclickTranslations()">
         </app-info-header>
-    </div>
     <div class="info-body-section">
         <div class="menu-details">
             <p><strong>Menu:</strong> <span class="menu-name">{{ menu.name }}</span></p>
@@ -16,6 +16,7 @@
             <p *ngIf="menu.description"><strong>Description:</strong> {{ menu.description }}</p>
         </div>
     </div>
+    <!--
     <div class="info-footer-section">
         <mat-grid-list [cols]="4" rowHeight="5.5em" class="button-pkg-container">
             <mat-grid-tile>
@@ -32,4 +33,5 @@
             </mat-grid-tile>
         </mat-grid-list>
     </div>
+    -->
 </div>
