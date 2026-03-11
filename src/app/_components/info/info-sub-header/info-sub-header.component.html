@@ -1,0 +1,43 @@
+<div class="info-footer">
+
+  <div class="footer-inner">
+    <section class="navigation-section" *ngIf="navigationButtons?.length">
+      <div class="section-label">Navigation</div>
+      <div class="nav-scroll">
+        <button
+          *ngFor="let btn of navigationButtons"
+          class="nav-btn"
+          [disabled]="btn.disabled"
+          (click)="onButtonClick(btn)">
+          <div class="btn-top">
+            <mat-icon class="icon" *ngIf="btn.icon">{{ btn.icon }}</mat-icon>
+            <span class="btn-count" *ngIf="btn.count !== undefined">{{ btn.count }}</span>
+          </div>
+          <div class="btn-bottom">
+            <span class="label">{{ btn.label }}</span>
+          </div>
+        </button>
+      </div>
+    </section>
+
+    <section class="actions-section" *ngIf="actionButtons?.length">
+      <div class="section-label">Actions</div>
+      <div class="actions-scroll">
+        <button
+          *ngFor="let a of actionButtons"
+          class="action-btn"
+          [disabled]="a.disabled"
+          (click)="onButtonClick(a)">
+          <div class="btn-top">
+            <mat-icon class="icon" *ngIf="a.icon">{{ a.icon }}</mat-icon>
+            <span class="btn-count" *ngIf="a.count !== undefined">{{ a.count }}</span>
+          </div>
+          <div class="btn-bottom">
+            <span class="label">{{ a.label }}</span>
+          </div>
+        </button>
+      </div>
+    </section>
+  </div>
+
+</div>
