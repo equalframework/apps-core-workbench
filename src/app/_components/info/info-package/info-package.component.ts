@@ -65,7 +65,7 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
     public selectedConsistencyResultItem: ConsistencyResultItem | null = null;
     public navigationButtons: InfoSubHeaderButton[] = [];
     public actionButtons: InfoSubHeaderButton[] = [];
-    public headerExtraInfo: { label: string, value: string }[] = [];
+    public headerExtraInfo: { label: string, value: string, icon?: string }[] = [];
 
     public get headerStatus(): { icon?: string, tooltip?: string, label: string, value: string }[] {
         const consistencyLabel = this.consistency_loading ? 'Checking...' : (this.consistency_checked ? `${this.error_count} errors, ${this.warn_count} warnings` : 'Not checked');
@@ -128,8 +128,8 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
 
     private buildHeaderExtraInfo(): void {
         this.headerExtraInfo = [
-            { label: 'Check consistency', value: '' },
-            { label: 'Init package', value: '' }
+            { label: 'Check consistency', value: 'fact_check' },
+            { label: 'Init package', value: 'file_present' }
         ];
     }
 

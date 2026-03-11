@@ -22,8 +22,8 @@
             <mat-menu #extraMenu="matMenu">
                 <ng-container *ngIf="hasExtraInfo; else noExtra">
                     <button mat-menu-item *ngFor="let ex of extraInfo" (click)="extraClick.emit(ex)">
-                        <span class="extra-label">{{ ex.label }}:</span>
-                        <span class="extra-value">{{ ex.value }}</span>
+                        <mat-icon class="extra-value">{{ ex.value }}</mat-icon>
+                        <span class="extra-label">{{ ex.label }}</span>
                     </button>
                 </ng-container>
                 <ng-template #noExtra>
