@@ -8,11 +8,11 @@
         </div>
 
         <div class="info-header-right">
-            <button mat-icon-button class="icon-btn" aria-label="Edit" (click)="editClick.emit()">
+            <button *ngIf="showEditTranslationButtons" mat-icon-button class="icon-btn" aria-label="Edit" (click)="editClick.emit()">
                 <mat-icon>edit</mat-icon>
             </button>
 
-            <button mat-icon-button class="icon-btn" aria-label="Translations" (click)="translationClick.emit()">
+            <button *ngIf="showEditTranslationButtons" mat-icon-button class="icon-btn" aria-label="Translations" (click)="translationClick.emit()">
                 <mat-icon>translate</mat-icon>
             </button>
 
