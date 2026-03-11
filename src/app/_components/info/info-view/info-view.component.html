@@ -1,17 +1,18 @@
 
 <div *ngIf="viewSchema" class="info-view-container">
-    <div class="info-header-section">
-        <app-info-header
+    <app-info-header
             [titleLabel]="'View'"
             [title]="viewSchema['name'] || view.name"
             [copyText]="viewSchema['name'] || view.name"
             [description]="viewSchema['description']"
-            [metaData]="metaData">
+            [metaData]="metaData"
+            (editClick)="onclickEdit()"
+            (translationClick)="onclickTranslations()">
         </app-info-header>
-    </div>
     <div class="info-body-section">
         <hierarchical-overview [viewSchema]="viewSchema"></hierarchical-overview>
     </div>
+    <!--
     <div class="info-footer-section">
         <mat-grid-list [cols]="4" rowHeight="5.5em" class="button-pkg-container">
             <mat-grid-tile>
@@ -28,4 +29,5 @@
             </mat-grid-tile>
         </mat-grid-list>
     </div>
+    -->
 </div>
