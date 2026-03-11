@@ -1,5 +1,4 @@
-import { Location } from '@angular/common';
-import { Component, Inject, OnInit, Optional } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { ActivatedRoute } from '@angular/router';
 import { Param } from '../../../_models/Params';
@@ -7,11 +6,12 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { cloneDeep } from 'lodash';
 import { ItemTypes } from 'src/app/in/_models/item-types.class';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { prettyPrintJson } from 'pretty-print-json';
 import { NotificationService } from 'src/app/in/_services/notification.service';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
+import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
 import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
-
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 
 /**
  * Component used to display the component of a package (using `/package/:package_name/controller/:controller_type/:controller_name/params` route)
@@ -35,6 +35,7 @@ export class PackageControllerParamsComponent implements OnInit {
     public paramFutureHistory:{param:Param[],message:string}[] = [];
 
     public scheme:any;
+    public controller_package:string = '';
     public controller_name:string = '';
     public controller_type:string = '';
     public selectedIndex = -1;
@@ -54,20 +55,28 @@ export class PackageControllerParamsComponent implements OnInit {
     public type_icon:string;
     public package_icon:string = ItemTypes.getIconForType('package');
 
+    private ngUnsubscribe: Subject<void> = new Subject<void>();
+
     get lastIndex():number {
         return this.paramListHistory.length - 1;
     }
 
     constructor(
-            private workbenchService: WorkbenchService,
-            private location: Location,
-            private activatedRoute: ActivatedRoute,
-            private router: RouterMemory,
-            private matSnack:MatSnackBar,
-            private dialog: MatDialog,
-            private snack: MatSnackBar,
-            private notificationService: NotificationService
-        ) { }
+        private workbenchService: WorkbenchService,
+        private activatedRoute: ActivatedRoute,
+        private router: RouterMemory,
+        private matSnack:MatSnackBar,
+        private dialog: MatDialog,
+        private snack: MatSnackBar,
+        private notificationService: NotificationService,
+        private route: ActivatedRoute,
+        private provider: EqualComponentsProviderService
+      ) { }
+
+      public ngOnDestroy(): void {
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
+      }
 
     public onKeydown(event: KeyboardEvent) {
         if( event.key === "z" && event.ctrlKey) {
@@ -94,22 +103,53 @@ export class PackageControllerParamsComponent implements OnInit {
         else {
             this.error = true;
         }
-        a = this.activatedRoute.snapshot.paramMap.get('controller_type');
+        a = this.activatedRoute.snapshot.paramMap.get('controller_type')
         if(a) {
             this.controller_type = a;
         }
         else {
             this.error = true;
         }
+        this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
+        this.controller_package = this.route.parent ? this.route.parent?.snapshot.paramMap.get('package_name') : params['package_name'];
+
         this.type_icon = ItemTypes.getIconForType(this.controller_type);
-        this.scheme = await this.workbenchService.announceController(this.controller_type,this.controller_name).toPromise();
-        for(let key in this.scheme["announcement"]["params"]) {
-            this.paramList.push(new Param(key,cloneDeep(this.scheme["announcement"]["params"][key])));
+        let comp: any = null;
+        try {
+          comp = await this.provider.getComponent(this.controller_package, 'controller', '', this.controller_name).toPromise();
+        } catch (err) {
+          console.error('Error fetching component descriptor', err);
+        }
+        let originalName = this.controller_package + '_' + this.controller_name;
+        if (comp && comp.file) {
+          const parts = comp.file.split('/');
+          originalName = parts[parts.length - 1].replace('.php', '');
+        }
+        try {
+          this.scheme = await this.workbenchService.announceController(this.controller_type, originalName).toPromise();
+        } catch (err) {
+          console.error('Failed to fetch announceController', err);
+          this.notificationService && this.notificationService.showError
+            ? this.notificationService.showError('Failed to fetch controller announcement. Check CORS or server.')
+            : this.matSnack.open('Failed to fetch controller announcement','ERROR');
+          this.loading = false;
+          return;
+        }
+
+        if (!this.scheme || !this.scheme.announcement || !this.scheme.announcement.params) {
+          console.warn('No announcement params for', originalName, this.scheme);
+          this.loading = false;
+          return;
+        }
+
+        for (let key in this.scheme['announcement']['params']) {
+          this.paramList.push(new Param(key, cloneDeep(this.scheme['announcement']['params'][key])));
         }
         //this.paramList =  this.paramList.sort((p1,p2) => p1.name.localeCompare(p2.name))
         this.onChange("Opening file");
         this.modelList = await this.workbenchService.collectClasses(true).toPromise();
         this.loading = false;
+      });
     }
 
     public onSelection(index:number){
@@ -146,7 +186,6 @@ export class PackageControllerParamsComponent implements OnInit {
   }
 
   public onChange(msg:string) {
-    console.log("called!")
     //this.paramList =  this.paramList.sort((p1,p2) => p1.name.localeCompare(p2.name))
     this.paramListHistory.push({param : cloneDeep(this.paramList), message:msg})
     this.paramFutureHistory = []
@@ -177,7 +216,6 @@ export class PackageControllerParamsComponent implements OnInit {
   }
 
   handleCustomButton(name:string) {
-    console.log(name)
     if(name === "show JSON") {
       this.showJson()
       return
