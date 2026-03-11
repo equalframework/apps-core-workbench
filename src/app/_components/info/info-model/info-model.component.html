@@ -8,18 +8,25 @@
 
 <ng-container *ngIf="!loading && model">
     <div class="info-view-container">
-        <div class="info-header-section">
-            <app-info-header
-                [titleLabel]="'Class'"
-                [title]="model.name"
-                [copyText]="model.package_name + '\\' + model.name | doubleBackslash"
-                [description]="schema['description']"
-                [metaData]="metaData">
-            </app-info-header>
-            <div class="field-counter">
-                <h3><span class="primary">{{ fieldNumber }}</span> Fields</h3>
-            </div>
+        <app-info-header
+            [titleLabel]="'Class'"
+            [title]="model.name"
+            [copyText]="model.package_name + '\\' + model.name | doubleBackslash"
+            [description]="schema['description']"
+            [metaData]="metaData"
+            (editClick)="onclickFields()"
+            (translationClick)="onclickTranslations()">
+        </app-info-header>
+        <!--
+        <div class="field-counter">
+            <h3><span class="primary">{{ fieldNumber }}</span> Fields</h3>
         </div>
+        -->
+        <app-info-sub-header
+            [navigationButtons]="navigationButtons"
+            [actionButtons]="actionButtons"
+            (navigationClick)="onSubHeaderNavigation($event)">
+        </app-info-sub-header>
         <div class="info-body-section">
             <mat-accordion>
                 <mat-expansion-panel *ngFor="let field of fields">
@@ -61,51 +68,6 @@
                 </mat-expansion-panel>
             </mat-accordion>
         </div>
-        <div class="info-footer-section">
-            <mat-grid-list [cols]="4" rowHeight="5.5em" class="button-pkg-container">
-                <mat-grid-tile>
-                    <button mat-flat-button class="view-info-button" (click)="onclickFields()">
-                        <mat-icon>text_format</mat-icon>
-                        <label>Fields</label>
-                    </button>
-                </mat-grid-tile>
-                <mat-grid-tile>
-                    <button mat-flat-button class="view-info-button" (click)="onclickViews()">
-                        <mat-icon>view_quilt</mat-icon>
-                        <label>Views</label>
-                    </button>
-                </mat-grid-tile>
-                <mat-grid-tile>
-                    <button mat-flat-button class="view-info-button" (click)="onclickTranslations()">
-                        <mat-icon>translate</mat-icon>
-                        <label>Translations</label>
-                    </button>
-                </mat-grid-tile>
-                <mat-grid-tile>
-                    <button mat-flat-button class="view-info-button" (click)="onclickWorkflow()">
-                        <mat-icon>call_split</mat-icon>
-                        <label>Workflows</label>
-                    </button>
-                </mat-grid-tile>
-                <mat-grid-tile>
-                    <button mat-flat-button class="view-info-button" (click)="onclickRoles()">
-                        <mat-icon>question_mark</mat-icon>
-                        <label>Roles</label>
-                    </button>
-                </mat-grid-tile>
-                <mat-grid-tile>
-                    <button mat-flat-button class="view-info-button" (click)="onclickPolicies()">
-                        <mat-icon>policy</mat-icon>
-                        <label>Policies</label>
-                    </button>
-                </mat-grid-tile>
-                <mat-grid-tile>
-                    <button mat-flat-button class="view-info-button" (click)="onclickActions()">
-                        <mat-icon>shortcut</mat-icon>
-                        <label>Actions</label>
-                    </button>
-                </mat-grid-tile>
-            </mat-grid-list>
-        </div>
+        <!-- Footer buttons replaced by app-info-sub-header above -->
     </div>
 </ng-container>

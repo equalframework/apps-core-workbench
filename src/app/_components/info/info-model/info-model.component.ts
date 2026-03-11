@@ -2,6 +2,7 @@ import { OnChanges, SimpleChanges, ViewEncapsulation } from '@angular/core';
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
+import { InfoSubHeaderButton } from '../info-sub-header/info-sub-header.component';
 
 @Component({
     selector: 'info-model',
@@ -44,6 +45,9 @@ export class InfoModelComponent implements OnInit, OnChanges {
     };
 
     public obk = Object.keys;
+    
+    public navigationButtons: InfoSubHeaderButton[] = [];
+    public actionButtons: InfoSubHeaderButton[] = [];
 
     public good_field:any;
 
@@ -55,11 +59,55 @@ export class InfoModelComponent implements OnInit, OnChanges {
     public ngOnInit() {
         this.loading = true;
         this.load();
+        this.buildNavigationButtons();
     }
 
     public ngOnChanges(changes: SimpleChanges) {
         if(changes.model) {
             this.load();
+            this.buildNavigationButtons();
+        }
+    }
+
+    private buildNavigationButtons(): void {
+        const pkg = this.model?.package_name || '';
+        this.navigationButtons = [
+            { label: 'Views', icon: 'view_quilt' }
+        ];
+        this.actionButtons = [
+            { label: 'Workflows', icon: 'call_split' },
+            { label: 'Roles', icon: 'question_mark' },
+            { label: 'Policies', icon: 'policy' },
+            { label: 'Actions', icon: 'shortcut' }
+        ];
+    }
+
+    public onSubHeaderNavigation(btn: InfoSubHeaderButton) {
+        const label = (btn && btn.label) || '';
+        switch (label) {
+            case 'Fields':
+                this.onclickFields();
+                break;
+            case 'Views':
+                this.onclickViews();
+                break;
+            case 'Translations':
+                this.onclickTranslations();
+                break;
+            case 'Workflows':
+                this.onclickWorkflow();
+                break;
+            case 'Roles':
+                this.onclickRoles();
+                break;
+            case 'Policies':
+                this.onclickPolicies();
+                break;
+            case 'Actions':
+                this.onclickActions();
+                break;
+            default:
+                break;
         }
     }
 
@@ -72,7 +120,7 @@ export class InfoModelComponent implements OnInit, OnChanges {
             this.fields = Object.keys(this.schema['fields']);
             this.loading = false;
             this.metaData =[
-                { icon: 'description', tooltip: 'File path', value: this.model.file , copyable: true },
+                { icon: 'description', tooltip: 'File path', value: '../classes/' + this.model.name + '.php' , copyable: true },
                 { icon: 'fork_right', tooltip: 'Extends', value: this.schema['parent'] },
                 { icon: 'grid_on', tooltip: 'DB_table', value: this.schema['table'], copyable: true },
             ]
