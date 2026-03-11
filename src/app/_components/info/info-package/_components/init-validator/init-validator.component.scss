@@ -1,0 +1,41 @@
+@import '/src/theme.scss';
+
+.info-header-section {
+	background: white;
+	padding: 1.0em 1.2em;
+	border-radius: 8px;
+}
+
+.info-header-left .info-header-label {
+	color: mat-color($maincolor,700);
+	font-size: 1.0em;
+	margin-right: 0.5em;
+}
+
+.info-header-left .info-header-main {
+	color: mat-color($accentcolor);
+	font-size: 1.05em;
+	font-weight: 600;
+}
+
+.info-header-description .warning {
+	color: orangered;
+	margin-bottom: 0.5em;
+}
+
+.checkbox-block {
+	margin-top: 8px;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.checkbox-row {
+	display:flex;
+	align-items:center;
+}
+
+/* Keep dialog actions compact */
+.mat-dialog-actions {
+	padding: 0;
+}
