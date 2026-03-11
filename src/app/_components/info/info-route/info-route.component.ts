@@ -25,7 +25,16 @@ export class InfoRouteComponent implements OnInit, OnChanges, OnDestroy {
 
     public isLive: boolean = false;
 
+    public routeMeta: { icon: string, tooltip: string, value: string, copyable?: boolean, double_backslash?: boolean }[] = [];
+
     private destroy$ = new Subject<void>();
+
+    public get headerStatus(): { icon?: string, tooltip?: string, label: string, value: string }[] {
+        const consistencyLabel = this.isRouteLive() ? 'This route is live.' : 'This route is not active.';
+        return [
+            { label: 'Consistency', value: consistencyLabel, icon: this.isRouteLive() ? 'check_circle' : 'error' },
+        ];
+    }
 
     constructor(
             public dialog: MatDialog,
@@ -52,20 +61,21 @@ export class InfoRouteComponent implements OnInit, OnChanges, OnDestroy {
         this.provider.getComponent(this.route.package_name, 'route', '', this.route.name)
                     .pipe(takeUntil(this.destroy$))
                     .subscribe(
-                      (data) => {
-                        if (data) {
-                            this.route = data;
-                            this.isRouteLive();
-                            console.log('Route details loaded:', this.route);
+                                            (data) => {
+                                                if (data) {
+                                                        this.route = data;
+                                                        this.isRouteLive();
+                                                        this.routeMeta = [{ icon: 'folder', tooltip: 'Declared in', value: this.route.file || '', copyable: true }];
+                                                        console.log('Route details loaded:', this.route);
 
-                            for (const method in this.route.item) {
-                                if (!this.methods.includes(method)) {
-                                    this.methods.push(method);
-                                }
-                            }
-                        } else {
-                          console.warn('No routes data received:', data);
-                        }
+                                                        for (const method in this.route.item) {
+                                                                if (!this.methods.includes(method)) {
+                                                                        this.methods.push(method);
+                                                                }
+                                                        }
+                                                } else {
+                                                    console.warn('No routes data received:', data);
+                                                }
                       },
                       (error) => {
                         console.error('Error loading routes details:', error);
