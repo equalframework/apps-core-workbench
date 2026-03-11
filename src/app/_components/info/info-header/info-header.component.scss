@@ -4,14 +4,37 @@
     background: white;
     margin-bottom: 1.5em;
     width: 100%;
+    padding: 1.5em 2em 1em 2em;
+    border-radius: 8px;
 }
 
-.info-header-title {
+.info-header-row {
+    width: 100%;
+}
+
+.info-header-top-row {
     display: flex;
+    justify-content: space-between;
     align-items: center;
     gap: 12px;
     font-size: 1.3em;
     font-weight: bold;
+}
+
+.info-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.info-header-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.icon-btn mat-icon.disabled {
+    color: #bdbdbd;
 }
 
 .info-header-label {
@@ -53,6 +76,34 @@
     padding: 0.3em 0.8em;
 }
 
+.info-header-status {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1em;
+    margin-top: 12px;
+    align-items: center;
+}
+
+.info-header-status-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95em;
+    color: mat-color($maincolor, 800);
+    background: mat-color($maincolor, 5);
+    border-radius: 6px;
+    padding: 0.25em 0.6em;
+}
+
+.info-header-status-item mat-icon {
+    font-size: 1.2em;
+}
+
+.status-label {
+    font-weight: 600;
+    margin-right: 0.25em;
+}
+
 .info-header-meta-item mat-icon {
     color: mat-color($maincolor);
     font-size: 1.5em;
@@ -64,4 +115,17 @@
     align-items: center;
     overflow: hidden;
     font-weight: 500;
+}
+
+/* Conditional coloring for status items */
+.info-header-status-item.status-error,
+.info-header-status-item.status-error mat-icon,
+.info-header-status-item.status-error .status-label {
+    color: mat-color($route-color) !important;
+}
+
+.info-header-status-item.status-ok,
+.info-header-status-item.status-ok mat-icon,
+.info-header-status-item.status-ok .status-label {
+    color: mat-color($package-color) !important;
 }

@@ -1,13 +1,46 @@
 <div class="info-header-section">
-    <div class="info-header-title">
-        <span class="info-header-label">{{ titleLabel }}</span>
-        <span class="info-header-main">{{ title }}</span>
-        <copy-button *ngIf="copyText" [text_to_copy]="copyText" tooltip_text="Copy"></copy-button>
+    <!-- Row 1: left = title + copy, right = icon buttons -->
+    <div class="info-header-row info-header-top-row">
+        <div class="info-header-left">
+            <span class="info-header-label">{{ titleLabel }} :</span>
+            <span class="info-header-main">{{ title }}</span>
+            <copy-button *ngIf="copyText" [text_to_copy]="copyText" tooltip_text="Copy"></copy-button>
+        </div>
+
+        <div class="info-header-right">
+            <button mat-icon-button class="icon-btn" aria-label="Edit" (click)="editClick.emit()">
+                <mat-icon>edit</mat-icon>
+            </button>
+
+            <button mat-icon-button class="icon-btn" aria-label="Translations" (click)="translationClick.emit()">
+                <mat-icon>translate</mat-icon>
+            </button>
+
+            <button mat-icon-button class="icon-btn" [matMenuTriggerFor]="extraMenu" [disabled]="!hasExtraInfo" aria-label="More">
+                <mat-icon [class.disabled]="!hasExtraInfo">more_vert</mat-icon>
+            </button>
+            <mat-menu #extraMenu="matMenu">
+                <ng-container *ngIf="hasExtraInfo; else noExtra">
+                    <button mat-menu-item *ngFor="let ex of extraInfo" (click)="extraClick.emit(ex)">
+                        <span class="extra-label">{{ ex.label }}:</span>
+                        <span class="extra-value">{{ ex.value }}</span>
+                    </button>
+                </ng-container>
+                <ng-template #noExtra>
+                    <button mat-menu-item disabled>No extra information</button>
+                </ng-template>
+            </mat-menu>
+        </div>
     </div>
-    <div class="info-header-description">
-        <span>{{ description || 'No description available' }}</span>
+
+    <!-- Row 2: description -->
+    <div class="info-header-row info-header-description">
+        <ng-content select="[description]"></ng-content>
+        <span *ngIf="!hasProjectedDescription">{{ description }}</span>
     </div>
-    <div class="info-header-meta" *ngIf="metaData.length > 0">
+
+    <!-- Row 3: meta header -->
+    <div class="info-header-row info-header-meta" *ngIf="metaData.length > 0">
         <div class="info-header-meta-item" *ngFor="let item of metaData">
             <mat-icon matTooltip="{{ item.tooltip }}">{{ item.icon }}</mat-icon>
             <span class="info-header-meta-text" matTooltip="{{ item.double_backslash ? (item.value | doubleBackslash) : item.value }}">
@@ -16,6 +49,16 @@
             <copy-button *ngIf="item.copyable"
                 [text_to_copy]="item.double_backslash ? (item.value | doubleBackslash) : item.value"
                 tooltip_text="Copy"></copy-button>
+        </div>
+    </div>
+
+    <!-- Row 4: optional status row (consistency / initialized / counts) -->
+    <div class="info-header-row info-header-status" *ngIf="statusInfo && statusInfo.length > 0">
+        <div class="info-header-status-item" *ngFor="let s of statusInfo"
+             [ngClass]="{'status-error': s.icon === 'error', 'status-ok': s.icon === 'check_circle'}">
+            <mat-icon *ngIf="s.icon" matTooltip="{{ s.tooltip }}">{{ s.icon }}</mat-icon>
+            <span class="status-label">{{ s.label }}:</span>
+            <span class="status-value">{{ s.value }}</span>
         </div>
     </div>
 </div>
