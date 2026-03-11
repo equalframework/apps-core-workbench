@@ -8,25 +8,16 @@
 
 <ng-container *ngIf="!loading && controller">
     <div class="info-view-container">
-        <div class="info-header-section">
-            <app-info-header
-                [titleLabel]="'Controller'"
-                [title]="controller.name + ' (' + controller.type.toUpperCase() + ')'"
-                [copyText]="controller.name"
-                [description]="announcement?.description"
-                [metaData]="[]">
-            </app-info-header>
-            <div class="status">
-                <div *ngIf="announcement?.deprecated" class="warn">
-                    <mat-icon class="warnicon">info</mat-icon>
-                    <label>This controller is marked as deprecated, and shouldn't be used anymore.</label>
-                </div>
-                <div *ngIf="announcement?.access?.visibility == 'private'" class="new">
-                    <mat-icon class="warnicon">info</mat-icon>
-                    <label>This controller has its visibility set to "private" or you don't have the rights to invoke it.</label>
-                </div>
-            </div>
-        </div>
+        <app-info-header
+            [titleLabel]="'Controller'"
+            [title]="controller.name + ' (' + controller.type.toUpperCase() + ')'"
+            [copyText]="controller.name"
+            [description]="announcement?.description"
+            [metaData]="metaData"
+            [statusInfo]="headerStatus"
+            (editClick)="onclickRequestParams()"
+            (translationClick)="onclickTranslations()">
+        </app-info-header>
         <div class="info-body-section">
             <div class="info-section-card" *ngIf="getAccessString().length">
                 <div class="info-section-header">
@@ -155,6 +146,7 @@
                 </div>
             </div>
         </div>
+        <!--
         <div class="info-footer-section">
             <mat-grid-list [cols]="3" rowHeight="5.5em" class="button-pkg-container">
                 <mat-grid-tile>
@@ -177,5 +169,6 @@
                 </mat-grid-tile>
             </mat-grid-list>
         </div>
+        -->
     </div>
 </ng-container>

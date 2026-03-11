@@ -52,6 +52,13 @@ export class InfoControllerComponent implements OnInit, OnChanges {
 
     public announcement: any = {};
     public schema: any = {};
+    public metaData: {
+        icon: string;
+        tooltip: string;
+        value: string;
+        copyable?: boolean;
+        double_backslash?:boolean
+      }[];
 
     public loading: boolean = true;
 
@@ -69,6 +76,22 @@ export class InfoControllerComponent implements OnInit, OnChanges {
     public obk = Object.keys;
 
     private environment: any;
+
+    public get headerStatus(): { icon?: string, tooltip?: string, label: string, value: string }[] {
+        const deprecatedLabel = this.announcement?.deprecated ? 'This controller is marked as deprecated, and shouldn\'t be used anymore.' : '';
+        const visibilityLabel = this.announcement?.access?.visibility === 'private' ? 'This controller has its visibility set to "private" or you don\'t have the rights to invoke it.' : '';
+        if (!deprecatedLabel && !visibilityLabel) {
+            return [];
+        } else if (deprecatedLabel && !visibilityLabel) {
+            return [{ label: 'Deprecated', value: deprecatedLabel, icon: 'warning' }];
+        } else if (!deprecatedLabel && visibilityLabel) {
+            return [{ label: 'Visibility', value: visibilityLabel, icon: this.announcement?.access?.visibility === 'private' ? 'lock' : 'public' }];
+        } else {
+        return [
+            { label: 'Deprecated', value: deprecatedLabel, icon: this.announcement?.deprecated ? 'warning' : '' },
+            { label: 'Visibility', value: visibilityLabel, icon: this.announcement?.access?.visibility === 'private' ? 'lock' : 'public' }
+        ];}
+    }
 
     constructor(
             private snackBar: MatSnackBar,
@@ -88,6 +111,7 @@ export class InfoControllerComponent implements OnInit, OnChanges {
         this.iconType = this.typeUsage.typeIcon;
         this.environment = await this.env.getEnv();
         this.load();
+
     }
 
     public async ngOnChanges(changes: SimpleChanges) {
@@ -106,10 +130,11 @@ export class InfoControllerComponent implements OnInit, OnChanges {
         this.loading = true;
         try {
             const operation_name = this.controller.name;
-            console.log('fetching announce for controller', operation_name);
             const response = await this.workbenchService.announceController(this.controller.type, this.controller_package + '_' + operation_name).toPromise();
-            console.log('response announce', response);
 
+            this.metaData =[
+                { icon: 'key', tooltip: 'ID', value: this.controller_name, copyable:true },
+                ]
             this.announcement = response?.announcement;
             this.schema = this.announcement?.params ?? {};
             this.initialization();
@@ -208,7 +233,7 @@ export class InfoControllerComponent implements OnInit, OnChanges {
      */
     get cliCommand(): string {
         let controllerNameUnderscore = this.controller_name.replace('\\', '_');
-        let stringParams = './equal.run --' + this.controller_type + "=" + controllerNameUnderscore;
+        let stringParams = './equal.run --' + this.controller_type + "=" + this.controller_package + '_' + controllerNameUnderscore;
         for (let key in this.paramsValue) {
             if (Array.isArray(this.paramsValue[key])) {
                 let arrayString = (JSON.stringify(this.paramsValue[key])).replaceAll('"', '');
@@ -250,7 +275,7 @@ export class InfoControllerComponent implements OnInit, OnChanges {
         let result = '';
         let controller_name = this.controller?.name.replace('\\', '_');
 
-        result = this.environment.backend_url + '?' + this.controller?.type + "=" + controller_name;
+        result = this.environment.backend_url + '?' + this.controller?.type + "=" + this.controller_package + '_' + controller_name;
         for (let key in this.paramsValue) {
             if(Array.isArray(this.paramsValue[key])) {
                 let arrayString = (JSON.stringify(this.paramsValue[key])).replaceAll('"', '');
@@ -309,7 +334,6 @@ export class InfoControllerComponent implements OnInit, OnChanges {
      * @param params_name field to update
      */
     public updateParamsValue(new_value: any, params_name: any) {
-        console.log(new_value)
         if (new_value === undefined || new_value === "") {
             delete this.paramsValue[params_name];
             if (this.announcement['params'][params_name]['required']) {
@@ -323,7 +347,6 @@ export class InfoControllerComponent implements OnInit, OnChanges {
             }
         }
 
-        console.warn(this.paramsValue);
         this.updateCanSubmit();
     }
 
