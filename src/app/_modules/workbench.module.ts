@@ -31,6 +31,7 @@ import { InfoViewComponent } from '../_components/info/info-view/info-view.compo
 import { InfoRouteComponent } from '../_components/info/info-route/info-route.component';
 import { InfoModelComponent } from '../_components/info/info-model/info-model.component';
 import { InfoControllerComponent } from '../_components/info/info-controller/info-controller.component';
+import { InfoSubHeaderComponent } from '../_components/info/info-sub-header/info-sub-header.component';
 
 import { EditorAccessComponent } from '../_components/editor-access/editor-access.component';
 
@@ -79,6 +80,7 @@ const sharedComponents = [
     RequestSendingDialogComponent,
 
     InfoPackageComponent,
+    InfoSubHeaderComponent,
     InitValidatorComponent,
     InfoMenuComponent,
     InfoViewComponent,
@@ -154,6 +156,7 @@ export {
     DeleteConfirmationDialogComponent,
     RequestSendingDialogComponent,
     InfoPackageComponent,
+    InfoSubHeaderComponent,
     InfoMenuComponent,
     InfoViewComponent,
     InfoRouteComponent,
