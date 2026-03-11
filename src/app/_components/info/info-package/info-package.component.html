@@ -6,27 +6,17 @@
 
 <ng-container *ngIf="!loading && package">
     <div class="info-package-container">
-        <div class="info-header-section">
-            <div class="main">
-                <div class="title">
-                    <label>Package :</label>
-                    <label class="accent">{{ package.name }}</label>
-                    <copy-button [text_to_copy]="package.name"></copy-button>
-                </div>
-                <div class="actions">
-                    <button mat-flat-button color="primary" class="package-info-button" (click)="checkConsistency()">
-                        <mat-icon>rule</mat-icon>
-                        <label>Check consistency</label>
-                    </button>
-                    <button mat-flat-button color="primary" class="package-info-button" (click)="initPackage()">
-                        <mat-icon>not_started</mat-icon>
-                        <label>Init package</label>
-                    </button>
-                </div>
-            </div>
-            <div class="description">
-                <label></label>
-            </div>
+        <app-info-header
+            [titleLabel]="'Package'"
+            [title]="package.name"
+            [copyText]="package.name"
+            [description]="''"
+            [extraInfo]="headerExtraInfo"
+            [statusInfo]="headerStatus"
+            (extraClick)="onHeaderExtraClick($event)">
+        </app-info-header>
+
+            <!--
             <div class="status">
                 <div *ngIf="consistency_loading">
                     <mat-spinner [diameter]="24"></mat-spinner>
@@ -55,7 +45,13 @@
                     <label>This package has been initialized</label>
                 </div>
             </div>
-        </div>
+            -->
+        <app-info-sub-header
+            [navigationButtons]="navigationButtons"
+            [actionButtons]="actionButtons"
+            [showManagement]="true"
+            (navigationClick)="onSubHeaderNavigation($event)">
+        </app-info-sub-header>
         <div class="info-body-section">
             <mat-accordion>
                 <mat-expansion-panel [expanded]="!consistency_checked" class="custom-panel">
@@ -127,52 +123,6 @@
                     </div>
                 </ng-container>
             </mat-accordion>
-        </div>
-        <div class="info-footer-section">
-            <mat-grid-list [cols]="4" rowHeight="5.5em" class="button-pkg-container">
-                <mat-grid-tile>
-                    <button mat-flat-button class="package-info-button" (click)="onclickModels()">
-                        <mat-icon>data_object</mat-icon>
-                        <label>Models</label>
-                    </button>
-                </mat-grid-tile>
-                <mat-grid-tile>
-                    <button mat-flat-button class="package-info-button" (click)="onclickControllers()">
-                        <mat-icon>code</mat-icon>
-                        <label>Controllers</label>
-                    </button>
-                </mat-grid-tile>
-                <mat-grid-tile>
-                    <button mat-flat-button class="package-info-button" (click)="onclickViews()">
-                        <mat-icon>view_quilt</mat-icon>
-                        <label>Views</label>
-                    </button>
-                </mat-grid-tile>
-                <mat-grid-tile>
-                    <button mat-flat-button class="package-info-button" (click)="onclickRoutes()">
-                        <mat-icon>route</mat-icon>
-                        <label>Routes</label>
-                    </button>
-                </mat-grid-tile>
-                <mat-grid-tile>
-                    <button mat-flat-button class="package-info-button" (click)="onclickInitData('init')">
-                        <mat-icon>file_present</mat-icon>
-                        <label>Initial data</label>
-                    </button>
-                </mat-grid-tile>
-                <mat-grid-tile>
-                    <button mat-flat-button class="package-info-button" (click)="onclickInitData('demo')">
-                        <mat-icon>file_present</mat-icon>
-                        <label>Demo data</label>
-                    </button>
-                </mat-grid-tile>
-                <mat-grid-tile>
-                    <button mat-flat-button class="package-info-button" style="opacity: 0.6;" disabled>
-                        <mat-icon>apps</mat-icon>
-                        <label>Applications</label>
-                    </button>
-                </mat-grid-tile>
-            </mat-grid-list>
         </div>
     </div>
 </ng-container>

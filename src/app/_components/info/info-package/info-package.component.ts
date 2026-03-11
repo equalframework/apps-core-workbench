@@ -1,4 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewEncapsulation, SimpleChanges, OnDestroy } from '@angular/core';
+import { InfoSubHeaderButton } from '../info-sub-header/info-sub-header.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { prettyPrintJson } from 'pretty-print-json';
@@ -62,6 +63,18 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
     public show_gui: boolean = true;
 
     public selectedConsistencyResultItem: ConsistencyResultItem | null = null;
+    public navigationButtons: InfoSubHeaderButton[] = [];
+    public actionButtons: InfoSubHeaderButton[] = [];
+    public headerExtraInfo: { label: string, value: string }[] = [];
+
+    public get headerStatus(): { icon?: string, tooltip?: string, label: string, value: string }[] {
+        const consistencyLabel = this.consistency_loading ? 'Checking...' : (this.consistency_checked ? `${this.error_count} errors, ${this.warn_count} warnings` : 'Not checked');
+        const initializedLabel = Array.isArray(this.package_init_list) && this.package_init_list.includes(this.package.name) ? 'Yes' : 'No';
+        return [
+            { label: 'Consistency', value: consistencyLabel, icon: this.consistency_checked ? 'check_circle' : (this.consistency_loading ? 'hourglass_top' : 'info') },
+            { label: 'Initialized', value: initializedLabel, icon: Array.isArray(this.package_init_list) && this.package_init_list.includes(this.package.name) ? 'check_circle' : 'error' }
+        ];
+    }
 
     constructor(
             private snackBar: MatSnackBar,
@@ -79,6 +92,8 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
         this.resetConsistencyState();
         this.current_initialized = Array.isArray(this.package_init_list) && this.package_init_list.includes(this.package.name);
         this.loadPackage(this.package.name)
+        this.buildNavigationButtons();
+        this.buildHeaderExtraInfo();
     }
 
     loadPackage(packageName: string) {
@@ -90,6 +105,45 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
             this.resetConsistencyState();
             this.loadPackage(this.package.name)
             this.destroy$.next()
+            this.buildNavigationButtons();
+            this.buildHeaderExtraInfo();
+        }
+    }
+
+    private buildNavigationButtons(): void {
+        const pkgName = this.package?.name || '';
+        this.navigationButtons = [
+            { label: 'Models', icon: 'data_object' },
+            { label: 'Controllers', icon: 'code' },
+            { label: 'Views', icon: 'view_quilt' },
+            { label: 'Routes', icon: 'route' },
+            { label: 'Applications', icon: 'apps', disabled: true }
+        ];
+        this.actionButtons = [
+            { label: 'Initial data', icon: 'file_present' },
+            { label: 'Demo data', icon: 'file_present' }
+        ];
+
+    }
+
+    private buildHeaderExtraInfo(): void {
+        this.headerExtraInfo = [
+            { label: 'Check consistency', value: '' },
+            { label: 'Init package', value: '' }
+        ];
+    }
+
+    public onHeaderExtraClick(item: any): void {
+        if (!item || !item.label) return;
+        switch (item.label) {
+            case 'Check consistency':
+                this.checkConsistency();
+                break;
+            case 'Init package':
+                this.initPackage();
+                break;
+            default:
+                break;
         }
     }
 
@@ -113,7 +167,6 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
             takeUntil(this.destroy$),
             tap((result: any) => {
                 if(result.success){
-                    console.log('Received consistency data:', result.response);
                     this.package_consistency = result.response;
                     this.processConsistencyResults();
                     return result.response;
@@ -209,6 +262,32 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
 
     public onclickInitData(type: string) {
         this.router.navigate(['/package/' + this.package.name + '/init-data/'+ type]);
+    }
+
+    public onSubHeaderNavigation(btn: InfoSubHeaderButton) {
+        const label = (btn && btn.label) || '';
+        switch (label) {
+            case 'Models':
+                this.onclickModels();
+                break;
+            case 'Controllers':
+                this.onclickControllers();
+                break;
+            case 'Views':
+                this.onclickViews();
+                break;
+            case 'Routes':
+                this.onclickRoutes();
+                break;
+            case 'Initial data':
+                this.onclickInitData('init');
+                break;
+            case 'Demo data':
+                this.onclickInitData('demo');
+                break;
+            default:
+                break;
+        }
     }
 
     public consitencyPrint():any {
