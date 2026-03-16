@@ -100,7 +100,7 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
     }
 
     public goBack() {
-        this.routerMemory.goBack();
+        this.location.back();
     }
 
     public deleteItem(index:number) {

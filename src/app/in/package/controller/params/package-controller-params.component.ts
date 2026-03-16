@@ -12,6 +12,7 @@ import { EqualComponentsProviderService } from 'src/app/in/_services/equal-compo
 import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
+import { Location } from '@angular/common';
 
 /**
  * Component used to display the component of a package (using `/package/:package_name/controller/:controller_type/:controller_name/params` route)
@@ -70,7 +71,8 @@ export class PackageControllerParamsComponent implements OnInit {
         private snack: MatSnackBar,
         private notificationService: NotificationService,
         private route: ActivatedRoute,
-        private provider: EqualComponentsProviderService
+        private provider: EqualComponentsProviderService,
+        private location: Location
       ) { }
 
       public ngOnDestroy(): void {
@@ -223,7 +225,7 @@ export class PackageControllerParamsComponent implements OnInit {
   }
 
   goBack() {
-    this.router.goBack();
+    this.location.back();
   }
 
 save() {

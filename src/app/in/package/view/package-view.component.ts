@@ -172,7 +172,7 @@ export class PackageViewComponent implements OnInit {
     }
 
     goBack() {
-        this.routerMemory.goBack();
+        this.location.back();
     }
 
     deleteGroup(index:number){

@@ -100,7 +100,7 @@ export class PackageRoutesComponent implements OnInit {
     }
 
     public getBack() {
-        this.routerMemory.goBack();
+        this.location.back();
     }
 
 }

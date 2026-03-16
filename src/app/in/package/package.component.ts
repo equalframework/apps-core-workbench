@@ -6,6 +6,7 @@ import { ActivatedRoute} from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { Location } from '@angular/common';
 
 @Component({
     selector: 'app-package',
@@ -40,6 +41,7 @@ export class PackageComponent implements OnInit, OnDestroy {
 
     constructor(
             private route: ActivatedRoute,
+            private location: Location
         ) { }
 
     public async ngOnInit() {
@@ -118,6 +120,7 @@ export class PackageComponent implements OnInit, OnDestroy {
 
     public getBack() {
         // this.route.goBack()
+        this.location.back();
 
     }
 

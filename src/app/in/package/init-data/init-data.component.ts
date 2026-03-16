@@ -149,7 +149,7 @@ export class InitDataComponent implements OnInit, OnDestroy {
      * Navigates back to the previous location using RouterMemory.
      */
     public goBack(): void {
-        this.routerMemory.goBack();
+        this.location.back();
     }
 
     async cancel() {

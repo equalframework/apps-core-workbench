@@ -41,7 +41,7 @@ import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 
     goBack(): void {
-      this.routerMemory.goBack();
+      this.location.back();
     }
 
     selectRole(role: RoleItem): void {

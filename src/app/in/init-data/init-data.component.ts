@@ -93,7 +93,7 @@ export class InitDataComponent implements OnInit {
     }
 
     public goBack() {
-        this.routerMemory.goBack();
+        this.location.back();
     }
 
 }

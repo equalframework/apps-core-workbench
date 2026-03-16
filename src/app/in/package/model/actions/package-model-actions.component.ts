@@ -95,7 +95,7 @@ export class PackageModelActions implements OnInit, OnDestroy {
       }
 
     goBack(): void {
-      this.routerMemory.goBack();
+        this.location.back();
     }
 
     onselectAction(action: ActionItem): void {

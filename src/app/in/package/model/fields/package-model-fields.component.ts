@@ -170,7 +170,7 @@ export class PackageModelFieldsComponent implements OnInit {
     }
 
     public goBack() {
-        this.router.goBack();
+        this.location.back();
     }
 
     public isInherited(field: Field): boolean {

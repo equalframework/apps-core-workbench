@@ -67,7 +67,7 @@ export class PackageModelPoliciesComponent implements OnInit, OnDestroy {
 
 
     goBack(): void {
-        this.routerMemory.goBack();
+        this.location.back();
     }
 
     onselectPolicy(policy: PolicyItem): void {

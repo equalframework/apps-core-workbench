@@ -115,7 +115,7 @@ export class PackageModelComponent implements OnInit, OnDestroy {
 
 
     public getBack() {
-        this.routerMemory.goBack();
+        this.location.back();
     }
 
 
