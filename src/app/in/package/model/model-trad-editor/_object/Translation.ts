@@ -50,14 +50,12 @@ export class Translator {
         this.name = new Translation(values["name"])
         this.description = new Translation(values["description"])
         this.plural = new Translation(values["plural"])
-        console.log("model")
         if(values["model"]){
             for(let item in values["model"]) {
                 if(!this.model[item]) continue
                 this.model[item].fill(values["model"][item])
             }
         }
-        console.log("view")
         if(values["view"]) {
             for(let item in values["view"]) {
                 if(!this.view[item]){
@@ -67,11 +65,9 @@ export class Translator {
                 this.view[item].fill(values["view"][item])
             }
         }
-        console.log("error")
         if(values["error"]) {
             this.error.fill(values["error"])
         }
-        console.log("finished")
     }
 
     export() {
@@ -282,7 +278,6 @@ export class ErrorItemTranslator {
 
     fill(values:any) {
         if(values)
-            console.log(values)
             this._val = new Translation(values)
             this.is_active = true
     }

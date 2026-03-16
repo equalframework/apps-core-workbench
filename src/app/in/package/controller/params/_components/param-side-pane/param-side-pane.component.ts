@@ -43,10 +43,8 @@ export class ParamSidePaneComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     let x = new Usage("aaaaa/b.c:d.k{e,f}")
-    console.log(x)
     this.filteredModelList = this.modelList
     this.foreignControl.valueChanges.subscribe( (value:string) => {
-      //console.log('VALUE : '+value)
       if(!value) {
         this.filteredModelList = this.modelList
         return
@@ -103,7 +101,6 @@ export class ParamSidePaneComponent implements OnInit, OnChanges {
   }
 
   changeTypeValue(value: string) {
-    console.log(value)
     if (this.param) {
       this.param.type = value
       this.param.default = undefined
@@ -166,8 +163,6 @@ export class ParamSidePaneComponent implements OnInit, OnChanges {
 
   public changeVisible_Domain(domain:any) {
     if(this.param) {
-      console.log("DOMAIN CHANGED")
-      console.log(domain)
       this.param.visible_domain = domain
       this.CRUD.emit("Changed domain of "+this.param.name)
     }
@@ -216,7 +211,6 @@ export class ParamSidePaneComponent implements OnInit, OnChanges {
   }
 
   noCancel(event: KeyboardEvent) {
-    console.log(event)
     if( event.key === "z" && event.ctrlKey) {
       event.preventDefault()
       event.stopImmediatePropagation()
