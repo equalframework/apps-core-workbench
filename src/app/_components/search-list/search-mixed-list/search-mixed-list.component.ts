@@ -542,7 +542,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         else if (node && (node.type === 'view')) {
             const [model, rest] = node.name.split(':');
             const [type, view] = rest.split('.');
-            url = `/package/${node.package_name}/entity/${model}/view/${view}/type/${type}`;
+            url = `/package/${node.package_name}/view/${model}:${view}.${type}`;
         }
         // Menus
         else if (node && node.type === 'menu') {

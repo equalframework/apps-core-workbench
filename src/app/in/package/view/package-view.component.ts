@@ -22,12 +22,12 @@ import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer
 })
 export class PackageViewComponent implements OnInit {
 
-    view_id: string;
+    viewId: string;
     entity: string;
 
-    view_scheme: any;
+    viewScheme: any;
     obk = Object.keys;
-    view_obj: View = new View({ layout: { items: [] }, operations: [], groupBy: { items: [] } }, '');
+    viewObj: View = new View({ layout: { items: [] }, operations: [], groupBy: { items: [] } }, '');
     name: string = "";
     node: EqualComponentDescriptor;
 
@@ -40,15 +40,15 @@ export class PackageViewComponent implements OnInit {
 
     compliancy_cache: { ok: boolean, id_list: string[] };
 
-    domain_visible = false;
-    filter_visible = false;
-    layout_visible = true;
-    header_visible = false;
-    header_action_visible = false;
-    header_selection_action_visible = false;
-    actions_visible = false;
-    routes_visible = false;
-    access_visible = false;
+    isDomainVisible = false;
+    isFilterVisible = false;
+    isLayoutVisible = true;
+    isHeaderVisible = false;
+    isHeaderActionVisible = false;
+    isHeaderSelectionActionVisible = false;
+    isActionsVisible = false;
+    isRoutesVisible = false;
+    isAccessVisible = false;
 
     groups: string[] = [];
 
@@ -76,33 +76,33 @@ export class PackageViewComponent implements OnInit {
     async init() {
         // Extract parameters from the route
         const package_name = this.route.snapshot.paramMap.get('package_name');
-        const entity_name = this.route.snapshot.paramMap.get('entity_name');
-        const view_type = this.route.snapshot.paramMap.get('view_type');
-        const view_name = this.route.snapshot.paramMap.get('view_name');
+        const entityView = this.route.snapshot.params['entity_view'];
+        const [entityName, rest] = entityView.split(':');   // ['Post', 'default.form']
+        const [viewName, viewType] = rest.split('.');        // ['default', 'form']
 
         this.icontype = this.TypeUsage.typeIcon;
         console.log("Route", this.route);
-        console.log("Route params:", { package_name, entity_name, view_type, view_name });
+        console.log("Route params:", { package_name, entityName, viewType, viewName });
 
-        if (package_name && entity_name && view_type && view_name) {
-            this.name = view_name;
-            this.entity = entity_name;
-            this.view_id = view_type + "." + view_name;
+        if (package_name && entityName && viewType && viewName) {
+            this.name = viewName;
+            this.entity = entityName;
+            this.viewId = viewType + "." + viewName;
 
-            console.log("Fetching component with parameters:", { view_type, view_name });
+            console.log("Fetching component with parameters:", { viewType, viewName });
 
-            this.provider.getComponent(package_name, 'view', this.entity, (this.entity + ":" + this.view_id)).subscribe(async (compo) => {
+            this.provider.getComponent(package_name, 'view', this.entity, (this.entity + ":" + this.viewId)).subscribe(async (compo) => {
                 if (compo) {
                     this.node = compo;
                     try {
                         this.class_scheme = await this.workbenchService.getSchema(`${this.node.package_name}\\${this.entity}`).toPromise() || { fields: {} };
                         this.fields = this.obk(this.class_scheme.fields);
-                        this.view_scheme = (await this.workbenchService.readView(this.node.package_name, this.view_id, this.entity).toPromise());
+                        this.viewScheme = (await this.workbenchService.readView(this.node.package_name, this.viewId, this.entity).toPromise());
                         const nodeNameParts = this.node.name ? this.node.name.split(':') : [];
                         const viewNamePart = (nodeNameParts.length > 1 && nodeNameParts[1])
                             ? nodeNameParts[1].split('.')[0]
                             : '';
-                        this.view_obj = new View(this.view_scheme, viewNamePart);
+                        this.viewObj = new View(this.viewScheme, viewNamePart);
 
                         let temp_controller = await this.workbenchService.collectControllers('data', package_name).toPromise();
                         for (let item of temp_controller) {
@@ -136,7 +136,7 @@ export class PackageViewComponent implements OnInit {
 
     // Call id_compliant method on view_obj and cache it
     get idCompliancy():{ok:boolean,id_list:string[]} {
-        this.compliancy_cache =  this.view_obj.id_compliant([]);
+        this.compliancy_cache =  this.viewObj.id_compliant([]);
         return this.compliancy_cache;
     }
 
@@ -147,28 +147,28 @@ export class PackageViewComponent implements OnInit {
     }
 
     addItemLayout() {
-        this.view_obj.layout.newViewItem();
+        this.viewObj.layout.newViewItem();
     }
 
     addFilter() {
-        this.view_obj.addFilter();
-        this.filter_visible = true;
+        this.viewObj.addFilter();
+        this.isFilterVisible = true;
     }
 
     deleteItemLayout(index:number) {
-        this.view_obj.layout.deleteItem(index);
+        this.viewObj.layout.deleteItem(index);
     }
 
     deleteFilter(index:number) {
-        this.view_obj.deleteFilter(index);
+        this.viewObj.deleteFilter(index);
     }
 
     logit() {
-        this.popup.open(JsonViewerComponent,{data:this.view_obj.export(),width:"70%",height:"85%"});
+        this.popup.open(JsonViewerComponent,{data:this.viewObj.export(),width:"70%",height:"85%"});
     }
 
     addGroup() {
-        this.view_obj.layout.groups.push(new ViewGroup({"label":"New Group"}));
+        this.viewObj.layout.groups.push(new ViewGroup({"label":"New Group"}));
     }
 
     goBack() {
@@ -176,15 +176,15 @@ export class PackageViewComponent implements OnInit {
     }
 
     deleteGroup(index:number){
-        this.view_obj.layout.groups.splice(index,1);
+        this.viewObj.layout.groups.splice(index,1);
     }
 
     addSection(index:number) {
-        this.view_obj.layout.groups[index].sections.push(new ViewSection({"label":"new section"}));
+        this.viewObj.layout.groups[index].sections.push(new ViewSection({"label":"new section"}));
     }
 
     save() {
-        this.workbenchService.saveView(this.view_obj.export(),this.node.package_name, this.entity,this.view_id).subscribe((result )=>{
+        this.workbenchService.saveView(this.viewObj.export(),this.node.package_name, this.entity,this.viewId).subscribe((result )=>{
             if(result.success){
                 this.notificationService.showSuccess(result.message);
             }else{
@@ -239,11 +239,11 @@ export class PackageViewComponent implements OnInit {
     }
 
     addOperation() {
-        this.view_obj.operations.push(new ViewOperation({},""));
+        this.viewObj.operations.push(new ViewOperation({},""));
     }
 
     addOp(index:number) {
-        this.view_obj.operations[index].ops.push({
+        this.viewObj.operations[index].ops.push({
             name : "",
             usage: new Usage(""),
             operation: "COUNT",
@@ -254,19 +254,19 @@ export class PackageViewComponent implements OnInit {
     }
 
     delOperation(index:number) {
-        this.view_obj.operations.splice(index,1);
+        this.viewObj.operations.splice(index,1);
     }
 
     delOp(index:number,jndex:number) {
-        this.view_obj.operations[index].ops.splice(jndex,1);
+        this.viewObj.operations[index].ops.splice(jndex,1);
     }
 
     addNewGroupBy() {
-        this.view_obj.groupBy.items.push(new ViewGroupByItem());
+        this.viewObj.groupBy.items.push(new ViewGroupByItem());
     }
 
     deleteGroupBy(index:number) {
-        this.view_obj.groupBy.items.splice(index,1);
+        this.viewObj.groupBy.items.splice(index,1);
     }
 
     ToNameDisp(name:string):string {

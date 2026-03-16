@@ -93,7 +93,7 @@ export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     public onclickEdit() {
-        this.router.navigate([`/package/${this.view.package_name}/entity/${this.view.item.model}/view/${this.view.name.split(".")[1]}/type/${this.view.name.split(":")[1].split(".")[0]}/edit`]);
+        this.router.navigate([`/package/${this.view.package_name}/view/${this.view.item.model}:${this.view.name.split(".")[1]}.${this.view.name.split(":")[1].split(".")[0]}/edit`]);
     }
 
     public onclickTranslations() {
