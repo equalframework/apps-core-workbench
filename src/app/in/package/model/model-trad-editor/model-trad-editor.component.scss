@@ -1,7 +1,15 @@
 @import "/src/theme.scss";
 
-$bordercolor: #666;
-$inactive-bg: #f5f5f5;
+$border-color: #d0d0d0;
+$border-light: #e8e8e8;
+$bg-inactive: #fafafa;
+$bg-hover: #f0f7ff;
+$bg-section: #f5f9fc;
+$bg-table-header: #37474f;
+$text-primary: #1a1a1a;
+$text-secondary: #666666;
+$accent-color: mat-color($maincolor);
+$transition-standard: 0.2s ease-out;
 
 :host {
   display: flex;
@@ -10,6 +18,7 @@ $inactive-bg: #f5f5f5;
   height: 100%;
   padding: 0;
   box-sizing: border-box;
+
 }
 
 .app-holder {
@@ -17,12 +26,26 @@ $inactive-bg: #f5f5f5;
   flex-direction: column;
   width: 100%;
   height: 100%;
-  overflow: hidden;
+
 }
 
 app-inner-header {
   flex-shrink: 0;
   z-index: 10;
+}
+
+.colorized{
+  padding: 0 .3em;
+  border-radius: .2em;
+}
+.header-labels {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  flex-wrap: wrap;
+}
+.separator {
+  font-weight: bold;
 }
 
 mat-card.translation-card {
@@ -32,10 +55,11 @@ mat-card.translation-card {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 
   mat-card-content {
     flex: 1;
-    overflow: hidden;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
     padding: 0;
@@ -48,203 +72,337 @@ mat-card.translation-card {
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 1em;
-  padding: 1em;
-  background-color: white;
-  border-bottom: 1px solid #ddd;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  border-bottom: 2px solid $border-light;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+
+  mat-form-field {
+    margin: 0;
+  }
+}
+
+.info-left {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  flex: 1 1 auto;
+}
+
+.lang-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+
+  button {
+    white-space: nowrap;
+  }
+}
+
+mat-form-field {
+  max-width: 320px;
+
+  // Outline styling
+  ::ng-deep {
+    .mat-form-field-outline {
+      color: $border-color !important;
+      top: 1.25em !important;
+    }
+
+    .mat-form-field-outline-focus {
+      color: $accent-color !important;
+    }
+
+    .mat-form-field-infix {
+      padding-top: 0.75em !important;
+      padding-bottom: 0.75em !important;
+    }
+
+    .mat-input-element {
+      color: $text-primary;
+      font-size: 14px;
+      padding: 0.5em 0;
+    }
+
+    .mat-form-field-label {
+      color: $text-secondary;
+      font-size: 13px;
+    }
+
+    .mdc-text-field--filled {
+      background-color: transparent !important;
+    }
+  }
+
+  &.nameinput {
+    max-width: 100%;
+  }
+
+  &.descinput {
+    max-width: 100%;
+  }
 }
 
 mat-tab-group {
   flex: 1;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
 
-  ::ng-deep .mat-tab-labels {
-    flex-shrink: 0;
-  }
+  ::ng-deep {
+    .mat-tab-labels {
+      flex-shrink: 0;
+      background-color: #fafbfc;
+      border-bottom: 2px solid $border-light;
+      margin: 0;
+      padding: 0;
 
-  ::ng-deep .mat-tab-body-wrapper {
-    flex: 1;
-    overflow: hidden;
-  }
+      .mat-tab-label {
+        min-width: 140px !important;
+        padding: 0 2rem !important;
+        height: 48px !important;
+        font-weight: 500;
+        font-size: 13px;
+        color: $text-secondary;
+        transition: all $transition-standard;
 
-  ::ng-deep .mat-tab-body {
-    overflow: hidden !important;
+        &:hover {
+          background-color: rgba($accent-color, 0.04);
+          color: $text-primary;
+        }
+
+        &.mat-tab-label-active {
+          color: $accent-color !important;
+          background-color: rgba($accent-color, 0.08);
+
+          .mat-tab-label-content {
+            font-weight: 600;
+          }
+        }
+      }
+
+      .mat-ripple-element {
+        display: none;
+      }
+    }
+
+    .mat-tab-body-wrapper {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .mat-tab-body {
+      overflow: hidden !important;
+    }
+
+    .mat-tab-body-content {
+      overflow-y: auto;
+    }
   }
 }
 
 .tab-content {
   width: 100%;
   height: 100%;
-  overflow-y: auto;
-  padding: 1em;
+  padding: 1.5rem;
   box-sizing: border-box;
+  background-color: #ffffff;
+
+  // Scrollbar styling
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $border-light;
+    border-radius: 4px;
+
+    &:hover {
+      background: $border-color;
+    }
+  }
 }
 
-/* Remove scrollbars from nested grid lists */
 .model-items {
   max-height: none;
-  overflow: visible;
   border: none;
   background-color: transparent;
-  margin-top: 0;
+  margin: 1.5rem 0 0 0;
   padding: 0;
-}
 
-mat-grid-list {
-  width: 100%;
-  max-width: 100%;
-  overflow: visible !important;
-  margin-bottom: 1em;
-}
-
-mat-grid-tile {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5em;
-}
-
-.header-tile {
-  font-weight: bold;
-  text-align: center;
-  background-color: mat-color($maincolor);
-  border-radius: 4px;
-  box-sizing: border-box;
-  color: white;
-}
-
-.placeholder {
-  background-color: #e0e0e09d;
-  border: 1px dashed $bordercolor;
-}
-
-.editable-cell {
-  background-color: $inactive-bg;
-  transition: background-color 0.3s ease;
-
-  input {
-    width: 100%;
-    border: none;
-    padding: 0.25em;
-    box-sizing: border-box;
+  app-translation-grid {
+    display: block;
+    margin-bottom: 1rem;
   }
-
-  &:hover {
-    background-color: mat-color($editedcolor, 50);
-  }
-}
-
-.fieldnamelabel {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .error-section {
-  margin-bottom: 1.5em;
-  padding: 1em;
-  border: 1px solid $bordercolor;
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  border: 2px solid #ffc066;
   border-radius: 4px;
-  background-color: #fff8e1;
+  background: linear-gradient(135deg, #fff8e1 0%, #fffbf0 100%);
+
+  &:first-child {
+    margin-top: 0;
+  }
 }
 
 .error-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1em;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #ffe0b2;
+
+  .error-type {
+    font-weight: 600;
+    color: #e65100;
+    font-size: 14px;
+  }
+
+  mat-checkbox {
+    margin: 0;
+  }
 }
 
 .error-list {
   width: 100%;
+  margin-top: 1rem;
+
+  app-translation-grid {
+    margin-top: 1rem;
+  }
 }
 
 .loading-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-grow: 1;
+  flex: 1;
+  min-height: 200px;
+
+  mat-spinner {
+    margin: 0 auto;
+  }
 }
 
 .no-translation-card {
-  margin: 1em;
-  padding: 2em;
+  margin: 2rem;
+  padding: 2rem;
   text-align: center;
-  background-color: #fff3e0;
-  color: #bf360c;
+  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+  color: #d84315;
+  border: 2px solid #ffb74d;
+  border-radius: 4px;
   flex-shrink: 0;
-}
-
-.header-labels {
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
-  flex-wrap: wrap;
-}
-
-.packagename {
-  background-color: mat-color($package-color, A100);
-  padding: 0 .3em;
-  border-radius: .2em;
-}
-
-.modelname,
-.controllername,
-.menuname {
-  padding: 0 .3em;
-  border-radius: .2em;
-}
-
-.modelname {
-  background-color: mat-color($class-color, A100);
-}
-
-.controllername {
-  background-color: mat-color($do-color, A100);
-}
-
-.menuname {
-  background-color: mat-color($menu-color, A100);
-}
-
-.separator {
-  font-weight: bold;
-}
-
-.nameinput,
-.descinput {
-  width: 100%;
-  max-width: 300px;
-  margin-bottom: 1em;
-  padding-right: 1em;
-}
-
-.descinput {
-  max-width: none;
+  font-weight: 500;
 }
 
 .btn-margin {
   margin-bottom: 1.34375em;
 }
 
-.info-left {
+.form-section {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid $border-light;
+
+  &:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: $text-primary;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid $accent-color;
+  display: inline-block;
+}
+
+.form-group {
   display: flex;
-  align-items: center;
-  gap: 1em;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 1rem;
+
+  &.row {
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    mat-form-field {
+      flex: 1;
+      min-width: 250px;
+    }
+  }
 }
 
-.lang-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
+.add-error-field {
+  margin-bottom: 1rem !important;
 }
 
-mat-form-field {
-  max-width: 300px;
+.no-data-message {
+  color: $text-secondary;
+  font-style: italic;
+  padding: 1.5rem;
+  text-align: center;
+  background-color: $bg-section;
+  border-radius: 4px;
+  margin: 1rem 0;
 }
 
+@media (max-width: 768px) {
+  .lang-selection {
+    gap: 1rem;
+    padding: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .info-left {
+    gap: 1rem;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .lang-actions {
+    width: 100%;
+    flex-direction: row-reverse;
+
+    button {
+      flex: 1;
+      width: 100%;
+    }
+  }
+
+  mat-form-field {
+    max-width: 100%;
+  }
+
+  .tab-content {
+    padding: 1rem;
+  }
+
+  mat-tab-group {
+    ::ng-deep .mat-tab-labels {
+      .mat-tab-label {
+        min-width: 100px !important;
+        padding: 0 1rem !important;
+      }
+    }
+  }
+}
 
 

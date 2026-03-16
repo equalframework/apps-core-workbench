@@ -1,7 +1,7 @@
 import { result } from 'lodash';
 import { Location } from '@angular/common';
-import { Component, OnInit, Optional, Inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, OnInit, Optional, Inject, ChangeDetectorRef } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormControl, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -9,11 +9,12 @@ import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { prettyPrintJson } from 'pretty-print-json';
 
 import { ErrorItemTranslator, Translator } from './_object/Translation';
-import { Menu } from '../../menu/_models/Menu';
 import { View } from '../views/vieweditor/_objects/View';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { NotificationService } from 'src/app/in/_services/notification.service';
 import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
+
+import { TranslationActionField, TranslationErrorField, TranslationLayoutField, TranslationModelField, TranslationValue, FieldColumnConfig, FIELD_CONFIGS } from './_object/translation.types';
 
 @Component({
   selector: 'app-model-trad-editor',
@@ -27,100 +28,331 @@ export class ModelTradEditorComponent implements OnInit {
 
     error = false;
     entitype = 'model';
-    loading = false;
+    loading = true;
     addingLanguage = false;
+    activeTab = 'model';
+    activeView = '';
+    private viewInnerTabs = ['layout', 'actions', 'routes'];
+    viewActiveTab: { [view: string]: string } = {};
+    activeField = '';
+    errorActiveField = '';
 
     adderror = new FormControl('', { validators: [ ModelTradEditorComponent.snakeCaseValidator ] });
     langName = new FormControl('', { validators: [ ModelTradEditorComponent.langCaseValidator ] });
     data: { [id: string]: Translator } = {};
     allLanguages = ['en', 'fr', 'de', 'es', 'it', 'pt', 'nl'];
     availableLanguages: string[] = [];
+    public readonly FIELD_CONFIGS = FIELD_CONFIGS;
+    public readonly TAB_NAMES = ['model', 'view', 'error'];
+
+    private _modelTemplate: { modelFields: string[], views: { name: string, view: View }[] } | null = null;
 
     constructor(
         private route: ActivatedRoute,
+        private router: Router,
         private location:Location,
         private workbenchService: WorkbenchService,
         private notificationService: NotificationService,
         private dialog: MatDialog,
+        private cdr: ChangeDetectorRef,
         private routerMemory: RouterMemory
     ) {}
 
+    get selectedTabIndex(): number {
+        return Math.max(0, this.TAB_NAMES.indexOf(this.activeTab));
+    }
+
     async ngOnInit() {
+        this.loading = true;
         this.allLanguages = await this.workbenchService.collectAllLanguagesCode().toPromise();  // await this.api.collect("core\\pipeline\\Pipeline", [], ['name', 'nodes_ids'])
         const selectedPackage = this.route.parent?.snapshot.paramMap.get('package_name');
         const selectedModel = this.route.snapshot.paramMap.get('class_name');
-        const selectedMenu = this.route.snapshot.paramMap.get('menu_name');
         const type = this.route.snapshot.paramMap.get('type');
         
         if (type) { this.entitype = type; }
-        if (!selectedPackage || (!selectedModel && !selectedMenu)) {
+        if (!selectedPackage || !selectedModel) {
             this.error = true;
             return;
         }
-        if (selectedMenu) {this.entitype = 'menu'; }
 
         this.package_name = selectedPackage;
-        if (this.entitype === 'menu') { 
-            this.model_name = selectedMenu!;
-            await this.initMenu(); }
-        else {
+        this.model_name = selectedModel || '';
+
+        await this.initTranslations();
+
+        // Restore active tab from URL query param
+        const urlTab = this.route.snapshot.queryParamMap.get('tab');
+        if (urlTab && this.TAB_NAMES.includes(urlTab)) {
+            this.activeTab = urlTab;
+        }
+
+        // Restore nested view selection (if any)
+        await this.restoreNestedFromUrl();
+        // Ensure URL only contains validated elements
+        this.loading = false;
+    }
+
+    private async restoreNestedFromUrl(): Promise<void> {
+        const qp = this.route.snapshot.queryParamMap;
+        const urlView = qp.get('view');
+        const urlViewTab = qp.get('viewTab');
+        const urlField = qp.get('field');
+        const urlErrorField = qp.get('errorField');
+        const params: any = {};
+        if (this.lang) { params.lang = this.lang; }
+        params.tab = this.activeTab || 'model';
+
+        let newActiveView = '';
+        let newViewTab: string | undefined;
+        let newActiveField: string | undefined;
+
+        if (this.activeTab === 'view' && this.lang && this.data[this.lang]) {
+            const names = this.obk(this.data[this.lang].view);
+            newActiveView = (urlView && names.includes(urlView)) ? urlView : (names[0] || '');
+            if (newActiveView) { params.view = newActiveView; }
+
+            if (newActiveView && urlViewTab && this.viewInnerTabs.includes(urlViewTab)) {
+                newViewTab = urlViewTab;
+                params.viewTab = newViewTab;
+            }
+
+            if (urlField && this.fieldExists(this.lang, urlField)) {
+                newActiveField = urlField;
+                params.field = newActiveField;
+                this.activeField = urlField;
+            }
+        } else {
+            // Use a separate query param for error-tab field selection to avoid
+            // colliding with model/view `field` usage.
+            if (this.activeTab === 'error') {
+                if (urlErrorField && this.fieldExists(this.lang, urlErrorField)) {
+                    newActiveField = urlErrorField;
+                    params.errorField = newActiveField;
+                    this.errorActiveField = urlErrorField;
+                    this.data[this.lang].error._base[urlErrorField].active = true;
+                }
+            } else if (urlField && this.activeTab !== 'view' && this.fieldExists(this.lang, urlField)) {
+                newActiveField = urlField;
+                params.field = newActiveField;
+                this.activeField = urlField;
+            }
+        }
+
+        const urlTree = this.router.createUrlTree([], { relativeTo: this.route, queryParams: params });
+        // Apply validated state changes in a macrotask to avoid ExpressionChangedAfterItHasBeenCheckedError
+        setTimeout(() => {
+            if (newActiveView) { this.activeView = newActiveView; }
+            if (newViewTab && this.activeView) { this.viewActiveTab[this.activeView] = newViewTab; }
+            this.location.replaceState(this.router.serializeUrl(urlTree));
+            this.updateUrl();
+            try { this.cdr.detectChanges(); } catch (e) { /* ignore detection errors */ }
+        }, 0);
+    }
+
+    private fieldExists(lang: string | null | undefined, field: string): boolean {
+        if (!lang) { return false; }
+        const translator = this.data[lang];
+        if (!translator) { return false; }
+        const urlTab = this.route.snapshot.queryParamMap.get('tab');
+        const urlViewTab = this.route.snapshot.queryParamMap.get('viewTab');
+
+        if (urlTab === 'model') {
+            if (translator.model && typeof translator.model === 'object') {
+                try { return this.obk(translator.model).includes(field); } catch (e) { return false; }
+            }
+            return false;
+        } else if (urlTab === 'view') {
+            try {
+                for (const viewName of this.obk(translator.view || {})) {
+                    const viewObj = translator.view[viewName];
+
+                    if (viewObj) {
+                        if (urlViewTab === 'layout' && viewObj.layout && typeof viewObj.layout === 'object' && this.obk(viewObj.layout).includes(field)) { return true; }
+                        if (urlViewTab === 'actions' && viewObj.actions && typeof viewObj.actions === 'object' && this.obk(viewObj.actions).includes(field)) { return true; }
+                        if (urlViewTab === 'routes' && viewObj.routes && typeof viewObj.routes === 'object' && this.obk(viewObj.routes).includes(field)) { return true; }
+                    }
+
+                }
+            } catch (e) {}
+            return false;
+        } else if (urlTab === 'error') {
+            try {
+                if (translator.error && translator.error._base && typeof translator.error._base === 'object') {
+                    const types = this.obk(translator.error._base);
+                    for (const t of types) {
+                        const valObj = translator.error._base[t] && translator.error._base[t].val;
+                        if (valObj && t === field) { return true; }
+                    }
+                }
+            } catch (e) {}
+            return false;
+        }
+        return false;
+    }
+
+    async initTranslations() {
+        this.loading = true;
+        this.data = {};
+        const allData = await this.workbenchService.getTranslations(this.package_name, this.model_name).toPromise();
+
+        if (!allData) {
+            this.loading = false;
+            this.updateAvailableLanguages();
+            return;
+        }
+
+        const langs = Object.keys(allData);
+        const urlLang = this.route.snapshot.queryParamMap.get('lang');
+        const firstLang = (urlLang && langs.includes(urlLang)) ? urlLang : (langs[0] || null);
+
+        const fillLanguage = async (lang: string) => {
+            const newTranslation = await this.createNewLang();
+            if (!newTranslation.ok) { return null; }
+            this.data[lang] = newTranslation;
+
+            // Try to fetch the existing translation payload for this specific language.
+            // If it contains data, prefer it. Otherwise fall back to the previously fetched `allData`.
+            try {
+                const perLang = await this.workbenchService.getTranslationLanguages(this.package_name, this.model_name, lang).toPromise();
+                if (perLang && Object.keys(perLang).length > 0) {
+                    this.data[lang].fill(perLang);
+                    return this.data[lang];
+                }
+            } catch (e) {
+                // ignore and try fallback
+            }
+
+            if (allData && allData[lang]) {
+                this.data[lang].fill(allData[lang]);
+            }
+            return this.data[lang];
+        };
+
+        if (firstLang) {
+            await fillLanguage(firstLang);
+            this.lang = firstLang;
+            this.loading = false; // reveal UI as soon as first language is ready
+            this.updateAvailableLanguages();
+        } else {
+            this.loading = false;
+            this.updateAvailableLanguages();
+        }
+
+        for (const lang of langs) {
+            if (lang === firstLang) continue;
+            await fillLanguage(lang);
+        }
+    }
+
+    reload(): void {
+        this._modelTemplate = null;
+        this.loading = true;
+        this.initTranslations();
+    }
+
+    onLangChange(lang: string): void {
+        this.lang = lang;
+        this.router.navigate(['../translations'], {
+            relativeTo: this.route,
+            queryParams: { lang },
+            queryParamsHandling: 'merge', // preserve context
+        });
+    }
+
+    onTabChange(index: number): void {
+        this.activeTab = this.TAB_NAMES[index] || 'model';
+        this.activeView = this.activeTab === 'view' ? this.getViewNames()[0] || '' : '';
+        this.activeField = '';
+        this.updateUrl();
+    }
+
+    private updateUrl(): void {
+        const params: any = {};
+        if (this.lang) { params.lang = this.lang; }
+        params.tab = this.activeTab || 'model';
+        if (this.activeTab === 'view' && this.activeView) {
+            params.view = this.activeView;
+            const inner = this.viewActiveTab[this.activeView];
+            if (inner) { params.viewTab = inner; }
+        }
+        if (this.activeTab !== 'error') {
+            params.field = this.activeField;
             
-            this.model_name = selectedModel!;   
-            await this.initModel();
         }
-        this.loading = false;
-    }
-
-    async initMenu() {
-        this.loading = true;
-        const langs = await this.workbenchService.getMenuTranslationsList(this.package_name, `${this.model_name}`).toPromise();
-        for (const lang in langs) {
-        if (langs[lang].length === 0) { continue; }
-        const translationData = await this.workbenchService.getMenuTranslationsList(this.package_name, `${this.model_name}`).toPromise();
-        if (!translationData) { continue; }
-        const newTranslation = await this.createNewMenuLang();
-        if (!newTranslation.ok) { continue; }
-        this.data[lang] = newTranslation;
-        this.data[lang].fill(translationData);
+        if (this.activeTab === 'error') {
+            params.errorField = this.errorActiveField;
         }
-        this.lang = Object.keys(this.data).sort()[0] || '';
-        this.loading = false;
-        this.updateAvailableLanguages();
+        // Replace the query params entirely with the validated set
+        const urlTree = this.router.createUrlTree([], {
+            relativeTo: this.route,
+            queryParams: params,
+        });
+        this.location.replaceState(this.router.serializeUrl(urlTree));
     }
 
-    async initModel() {
-        this.loading = true;
-        const langs = await this.workbenchService.getTranslationsList(this.package_name, this.model_name).toPromise();
-        for (const lang in langs) {
-        const translationData = await this.workbenchService.getTranslations(this.package_name, this.model_name).toPromise();
-        if (!translationData) { continue; }
-        const newTranslation = await this.createNewLang();
-        if (!newTranslation.ok) { continue; }
-        this.data[lang] = newTranslation;
-        this.data[lang].fill(translationData);
-        }
-        this.lang = Object.keys(this.data).sort()[0] || '';
-        this.loading = false;
-        this.updateAvailableLanguages();
+    getViewNames(): string[] {
+        return (this.lang && this.data[this.lang]) ? this.obk(this.data[this.lang].view) : [];
     }
 
-    async createNewMenuLang(): Promise<Translator> {
-        const scheme = await this.workbenchService.readMenu(this.package_name, this.model_name).toPromise();
-        return Translator.MenuConstructor(new Menu(scheme));
+    getSelectedViewIndex(): number {
+        const names = this.getViewNames();
+        const idx = names.indexOf(this.activeView);
+        return Math.max(0, idx);
     }
 
-    async createNewLang(): Promise<Translator> {
+    onViewSelected(index: number): void {
+        const names = this.getViewNames();
+        this.activeView = names[index] || names[0] || '';
+        this.viewActiveTab[this.activeView] = this.viewActiveTab[this.activeView] || '';
+        this.updateUrl();
+    }
+
+    private getVisibleInnerTabs(view: string): string[] {
+        const tabs: string[] = [];
+        const viewObj = (this.lang && this.data[this.lang]) ? this.data[this.lang].view[view] : null;
+        if (!viewObj) { return tabs; }
+        if (viewObj.layout && Object.keys(viewObj.layout).length > 0) { tabs.push('layout'); }
+        if (viewObj.actions && Object.keys(viewObj.actions).length > 0) { tabs.push('actions'); }
+        if (viewObj.routes && Object.keys(viewObj.routes).length > 0) { tabs.push('routes'); }
+        return tabs;
+    }
+
+    getViewInnerIndex(view: string): number {
+        const visible = this.getVisibleInnerTabs(view);
+        const sel = this.viewActiveTab[view] || (visible[0] || 'layout');
+        const idx = visible.indexOf(sel);
+        this.viewActiveTab[view] = sel;
+        return Math.max(0, idx === -1 ? 0 : idx);
+    }
+
+    onViewInnerChange(view: string, index: number): void {
+        const visible = this.getVisibleInnerTabs(view);
+        this.viewActiveTab[view] = visible[index] || visible[0] || 'layout';
+        this.activeField = '';
+        this.updateUrl();
+    }
+
+
+
+    private async _buildModelTemplate(): Promise<void> {
         const scheme = await this.workbenchService.getSchema(`${this.package_name}\\${this.model_name}`).toPromise();
         const modelFields = Object.keys(scheme.fields);
         const viewsList = await this.workbenchService.collectViews(this.package_name, `${this.package_name}\\${this.model_name}`).toPromise();
         const views: { name: string, view: View }[] = [];
         for (const viewStr of viewsList) {
-        const parts = viewStr.split(':');
-        if (!parts[1].includes('list.') && !parts[1].includes('form.') && !parts[1].includes('search.')) { continue; }
-        const viewSchema = await this.workbenchService.getView(parts[0], parts[1]).toPromise();
-        views.push({ name: parts[1], view: new View(viewSchema, parts[1].split('.')[0]) });
+            const parts = viewStr.split(':');
+            if (!parts[1].includes('list.') && !parts[1].includes('form.') && !parts[1].includes('search.')) { continue; }
+            const viewSchema = await this.workbenchService.getView(parts[0], parts[1]).toPromise();
+            views.push({ name: parts[1], view: new View(viewSchema, parts[1].split('.')[0]) });
         }
-        return new Translator(modelFields, views);
+        this._modelTemplate = { modelFields, views };
+    }
+
+    async createNewLang(): Promise<Translator> {
+        if (!this._modelTemplate) {
+            await this._buildModelTemplate();
+        }
+        return new Translator(this._modelTemplate!.modelFields, this._modelTemplate!.views);
     }
 
     obk(object: { [id: string]: any }): string[] {
@@ -153,15 +385,13 @@ export class ModelTradEditorComponent implements OnInit {
           return;
         }
 
-        const newTranslation = this.entitype === 'menu'
-          ? await this.createNewMenuLang()
-          : await this.createNewLang();
+        const newTranslation = await this.createNewLang();
 
         this.data[selectedLang] = newTranslation;
         this.addingLanguage = false;
-        this.lang = selectedLang;
+        this.onLangChange(selectedLang);
         this.langName.setValue('');
-        this.updateAvailableLanguages(); // Pour rafraîchir la liste
+        this.updateAvailableLanguages();
       }
 
       updateAvailableLanguages() {
@@ -198,8 +428,16 @@ export class ModelTradEditorComponent implements OnInit {
         return null;
     }
 
+    changeActive(key: string): void {
+        if (!this.data[this.lang].error._base[key]) return;
+        const item = this.data[this.lang].error._base[key];
+        if (item && typeof item === 'object') {
+          item.active = item.active ? false : true;
+        }
+      }
+
     goBack() {
-        this.routerMemory.goBack();
+        this.location.back();
     }
 
     debugExport() {
@@ -211,16 +449,9 @@ export class ModelTradEditorComponent implements OnInit {
     }
 
     saveAll() {
-        if (this.entitype === 'menu') {
-            //#memo: This cannot be done with the current API, as menu translations do not pass do=core_update-translations/get=core_config_translations because of configuration issues. It would require a specific API endpoint to update menu translations, which is currently not implemented.
-            this.notificationService.showInfo("Saving translations for menus is not implemented.");
-            //this.workbenchService.overwriteTranslations(this.package_name, `menu.${this.model_name}`, this.data).subscribe(()=> {
-            //    this.notificationService.showSuccess("Translations updated");
-            //});
-        } else {
-            this.workbenchService.saveTranslations(this.package_name, this.model_name, this.data).subscribe(()=> {
-                this.notificationService.showSuccess("Translations updated");
-            });
-        }
+        this.workbenchService.saveTranslations(this.package_name, this.model_name, this.data).subscribe(()=> {
+            this.notificationService.showSuccess("Translations updated");
+        });
     }
+    
 }

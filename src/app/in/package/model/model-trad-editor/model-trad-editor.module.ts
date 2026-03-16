@@ -7,9 +7,17 @@ import { ModelTradEditorComponent} from './model-trad-editor.component';
 import { SharedLibModule } from 'sb-shared-lib';
 import { WorkbenchModule } from 'src/app/_modules/workbench.module';
 
+import { TranslationTableComponent } from './_components/translation-table.component';
+import { ScrollIntoViewDirective } from './_components/scroll-into-view.directive';
+import { AutoFocusDirective } from './_components/auto-focus.directive';
+
 @NgModule({
   declarations: [
     ModelTradEditorComponent,
+    TranslationTableComponent
+    ,
+    ScrollIntoViewDirective,
+    AutoFocusDirective
   ],
   imports: [
     CommonModule,
