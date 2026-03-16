@@ -258,7 +258,6 @@ export class PackageControllerReturnComponent implements OnInit {
 
 
     public noCancel(event: KeyboardEvent) {
-        console.log(event);
         if( event.key === "z" && event.ctrlKey) {
         event.preventDefault();
         }
