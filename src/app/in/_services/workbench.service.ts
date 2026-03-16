@@ -99,10 +99,11 @@ export class WorkbenchService {
      */
     public readMenu(package_name: string, menu_name: string): Observable<any> {
         const url = API_ENDPOINTS.menu.read(package_name, menu_name);
-        return this.callApi(url, '').pipe(
-            map(({ response }) => response)
+        return from(this.api.fetch(url)).pipe(
+          tap(raw => console.log('readMenu raw fetch', url, raw)),
+          map((res: any) => res)
         );
-    }
+      }
 
     /**
      * Reads the view configuration for a given package, model, and view name.
@@ -874,6 +875,13 @@ export class WorkbenchService {
         );
     }
 
+    public getTranslationLanguages(package_name: string, entity: string, language: string): Observable<string[]> {
+        const url = `?get=core_config_translation&entity=${package_name}\\${entity}&lang=${language}`;
+        return this.callApi(url, '').pipe(
+            map((response: any) => response.success ? response.response : [])
+        );
+    }
+
 
     /**
      * Fetches a list of available translations for a specific package and entity.
@@ -923,13 +931,14 @@ export class WorkbenchService {
      *
      * @param {string} package_name - The name of the package.
      * @param {string} menu_id - The menu's id within the package.
+     * @param {string} lang The menu's language to fetch.
      *
      * @returns {Observable<{ [id: string]: any } | null>} An observable that emits the translations if available, or `null` if no translations are found.
      */
     //#memo: This method should be updated to handle a list of translations instead of a single one, to be consistent with the other translation methods
-    public getMenuTranslationsList(package_name: string, menu_id: string): Observable<{ [id: string]: string[] }> {
-        console.log("Fetching menu translations for package:", package_name, "and menu_id:", menu_id);
-        const url = `?get=core_config_i18n-menu&package=${package_name}&menu_id=${menu_id}`;
+    public getMenuTranslationsList(package_name: string, menu_id: string, lang: string): Observable<{ [id: string]: string[] }> {
+        console.log("Fetching menu translations for package:", package_name, "and menu_id:", menu_id, 'lang:', lang);
+        const url = `?get=core_config_i18n-menu&package=${package_name}&menu_id=${menu_id}&lang=${lang}`;
         return this.callApi(url, '').pipe(
             map(({ response }) => response ? response : {})
         );
