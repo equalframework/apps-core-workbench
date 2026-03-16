@@ -1,0 +1,114 @@
+
+@import "/src/theme.scss";
+
+:host {
+	display: block;
+
+	.translation-table {
+		width: 100%;
+		table-layout: fixed;
+		border-radius: 4px;
+		overflow: hidden;
+		box-shadow: 0 1px 0 rgba(0,0,0,0.04);
+
+		th.header-tile:first-child,
+		td.checkbox-cell {
+			width: 5%;
+		}
+
+		td.fieldname-cell {
+			width: 10%;
+		}
+
+		td.editable-cell {
+			overflow: hidden;
+		}
+
+		input[matInput] {
+			width: 100%;
+			box-sizing: border-box;
+			display: block;
+		}
+
+		input[matInput]:focus,
+		input[matInput]:active {
+			width: 100%;
+		}
+
+			thead {
+                tr{
+                    th {
+                        padding: 12px 16px;
+                        text-align: left;
+                        font-weight: 600;
+                        font-size: 13px;
+                        color: white;
+                        background: mat-color($maincolor);
+                        border-bottom: 1px solid rgba(0,0,0,0.08);
+                        position: sticky;
+                        top: 0;
+                        z-index: 2;
+                    }
+                }
+
+			}
+
+			tbody {
+				tr {
+					td {
+						padding: 12px 16px;
+						font-size: 14px;
+						color: rgba(0,0,0,0.87);
+						vertical-align: middle;
+						border-bottom: 1px solid rgba(0,0,0,0.06);
+					}
+
+					&:hover {
+						background: rgba(0,0,0,0.02);
+					}
+					&:focus-within {
+						background: rgba(0,0,0,0.04);
+						outline: none;
+						box-shadow: 0 0 0 1px mat-color($maincolor, 200);
+						z-index: 1;
+						position: relative;
+						thead tr {
+							z-index: 3;
+						}
+						tbody tr {
+							z-index: 2;
+						}
+						td {
+							z-index: 4;
+							position: relative;
+						}
+						input[matInput] {
+							z-index: 5;
+							position: relative;
+						}
+
+					}
+				}
+			}
+		}
+
+		.actions {
+			display: flex;
+			gap: 8px;
+			align-items: center;
+
+			button {
+				min-width: 36px;
+				height: 36px;
+				padding: 0 8px;
+			}
+		}
+
+		.empty {
+			padding: 24px;
+			text-align: center;
+			color: rgba(0,0,0,0.54);
+		}
+	}
+
+

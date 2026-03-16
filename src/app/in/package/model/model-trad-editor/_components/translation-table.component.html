@@ -1,0 +1,47 @@
+<table class="translation-table">
+  <thead class="test-header">
+    <tr>
+      <th *ngFor="let col of computedHeaders" [attr.colspan]="col.colspan" class="header-tile">
+        {{ col.label }}
+      </th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr *ngFor="let key of itemKeys" class="translation-row"
+    [scrollIntoView]="items[key].scroll_into_view"
+
+    >
+
+      <td class="checkbox-cell">
+        <mat-checkbox
+          [checked]="items[key].is_active"
+          (change)="changeActive(key)">
+        </mat-checkbox>
+      </td>
+
+      <td class="fieldname-cell" [attr.colspan]="2">
+        <label class="fieldnamelabel">{{ key }}</label>
+      </td>
+
+      <ng-container *ngIf="items[key].is_active">
+        <td *ngFor="let field of fields; let fi = index"
+            class="editable-cell"
+            [attr.colspan]="field.colspan">
+          <input
+            matInput
+            [placeholder]="field.placeholder"
+            [(ngModel)]="items[key][field.key].value"
+            [name]="key + '-' + field.key"
+            [focus]="items[key].scroll_into_view && fi === 0"
+            spellcheck="true">
+        </td>
+      </ng-container>
+
+      <ng-container *ngIf="!items[key].is_active">
+        <td class="placeholder" [attr.colspan]="totalCols - 3"></td>
+      </ng-container>
+
+    </tr>
+  </tbody>
+</table>
