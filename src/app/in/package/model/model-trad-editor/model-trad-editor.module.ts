@@ -6,6 +6,7 @@ import { ModelTradEditorComponent} from './model-trad-editor.component';
 
 import { SharedLibModule } from 'sb-shared-lib';
 import { WorkbenchModule } from 'src/app/_modules/workbench.module';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { TranslationTableComponent } from './_components/translation-table.component';
 import { ScrollIntoViewDirective } from './_components/scroll-into-view.directive';
@@ -24,6 +25,7 @@ import { AutoFocusDirective } from './_components/auto-focus.directive';
     SharedLibModule,
     WorkbenchModule,
     ModelTradEditorRoutingModule,
+    MatTooltipModule,
   ],
 })
 export class ModelTradEditorModule { }

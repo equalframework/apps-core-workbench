@@ -2,13 +2,11 @@
 
 $border-color: #d0d0d0;
 $border-light: #e8e8e8;
-$bg-inactive: #fafafa;
-$bg-hover: #f0f7ff;
 $bg-section: #f5f9fc;
-$bg-table-header: #37474f;
 $text-primary: #1a1a1a;
 $text-secondary: #666666;
 $accent-color: mat-color($maincolor);
+$accent-color-pink: mat-color($accentcolor);
 $transition-standard: 0.2s ease-out;
 
 :host {
@@ -241,45 +239,7 @@ mat-tab-group {
   }
 }
 
-.error-section {
-  margin: 1.5rem 0;
-  padding: 1.5rem;
-  border: 2px solid #ffc066;
-  border-radius: 4px;
-  background: linear-gradient(135deg, #fff8e1 0%, #fffbf0 100%);
 
-  &:first-child {
-    margin-top: 0;
-  }
-}
-
-.error-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #ffe0b2;
-
-  .error-type {
-    font-weight: 600;
-    color: #e65100;
-    font-size: 14px;
-  }
-
-  mat-checkbox {
-    margin: 0;
-  }
-}
-
-.error-list {
-  width: 100%;
-  margin-top: 1rem;
-
-  app-translation-grid {
-    margin-top: 1rem;
-  }
-}
 
 .loading-container {
   display: flex;
@@ -349,10 +309,6 @@ mat-tab-group {
   }
 }
 
-.add-error-field {
-  margin-bottom: 1rem !important;
-}
-
 .no-data-message {
   color: $text-secondary;
   font-style: italic;
@@ -361,6 +317,229 @@ mat-tab-group {
   background-color: $bg-section;
   border-radius: 4px;
   margin: 1rem 0;
+}
+
+// ─── Error Tab Section ────────────────────────────────────────────────────
+
+.error-section {
+  margin: 1rem 0;
+  border: 1px solid rgba($accent-color, 0.3);
+  border-radius: 6px;
+  overflow: hidden;
+  transition: box-shadow $transition-standard;
+  padding: 0 !important;
+
+  &:hover {
+    box-shadow: 0 2px 6px rgba($accent-color, 0.12);
+  }
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+.error-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba($accent-color, 0.2);
+  background-color: mat-color($maincolor);
+  color: white;
+  margin-bottom: 0;
+}
+
+.error-title-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.expand-button {
+  flex-shrink: 0;
+  color: white;
+
+  &:hover {
+    background-color: rgba(white, 0.08);
+  }
+}
+
+.expand-button-wrap {
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hidden {
+  visibility: hidden !important;
+}
+
+.error-field-name {
+  font-weight: 600;
+  color: white;
+  font-size: 15px;
+}
+
+.field-type-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background-color: rgba($accent-color-pink, 0.12);
+  color: $accent-color-pink;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  align-self: center;
+}
+
+.error-checkbox {
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.error-content {
+  padding: 1.5rem;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 1000px;
+  }
+}
+.suggestions-title {
+  font-weight: 600;
+  color: $accent-color;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  display: flex;
+  align-items: center;
+}
+
+
+.suggestions-list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.suggestion-mini-btn {
+  font-size: 11px !important;
+  height: 32px !important;
+  min-width: 80px !important;
+  padding: 0 0.75rem !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background-color: rgba($accent-color, 0.12) !important;
+  color: $accent-color !important;
+  border: 1px solid rgba($accent-color, 0.3) !important;
+  transition: all $transition-standard;
+
+  &:hover {
+    background-color: rgba($accent-color, 0.2) !important;
+    border-color: $accent-color !important;
+    box-shadow: 0 2px 4px rgba($accent-color, 0.15);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+  }
+}
+
+.add-error-container {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: rgba($accent-color, 0.04);
+  border: 1px solid rgba($accent-color, 0.15);
+  border-radius: 4px;
+}
+
+.add-error-actions {
+  display: flex;
+  align-items: center;
+}
+
+.custom-error-input-group {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+.add-error-field {
+  flex: 1;
+  margin-bottom: 0 !important;
+}
+
+.add-error-btn {
+  flex-shrink: 0;
+  background-color: $accent-color !important;
+  color: white !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 24px !important;
+  width: 24px !important;
+  box-shadow: 0 2px 4px rgba($accent-color, 0.25) !important;
+  transition: all $transition-standard;
+
+  &:hover:not(:disabled) {
+    background-color: darken($accent-color, 8%) !important;
+    box-shadow: 0 4px 8px rgba($accent-color, 0.35) !important;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    box-shadow: none !important;
+  }
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.no-errors-message {
+  color: $text-secondary;
+  font-size: 13px;
+  font-style: italic;
+  padding: 1rem;
+  margin: 1rem 0 0 0;
+  text-align: center;
+  background-color: rgba($accent-color, 0.06);
+  border-radius: 4px;
+  border-left: 3px solid $accent-color;
+}
+
+.error-items-title {
+  font-weight: 600;
+  color: $accent-color;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid rgba($accent-color, 0.3);
+}
+
+.error-list {
+  width: 100%;
+  margin-top: 1rem;
 }
 
 @media (max-width: 768px) {
@@ -402,6 +581,51 @@ mat-tab-group {
         padding: 0 1rem !important;
       }
     }
+  }
+
+  .error-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+
+    .error-title-container {
+      width: 100%;
+    }
+  }
+
+  .error-title-container {
+    flex-wrap: wrap;
+  }
+
+  .error-content {
+    padding: 1rem;
+    background-color: white !important;
+  }
+
+  .preset-suggestions {
+    padding: 1rem;
+  }
+
+  .custom-error-input-group {
+    flex-direction: column;
+    align-items: stretch;
+
+    .add-error-field {
+      margin-bottom: 0.75rem !important;
+    }
+
+    .add-error-btn {
+      width: 100% !important;
+    }
+  }
+
+  .suggestions-list {
+    gap: 0.4rem;
+  }
+
+  .suggestion-mini-btn {
+    min-width: 70px !important;
+    font-size: 10px !important;
   }
 }
 

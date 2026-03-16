@@ -36,6 +36,7 @@ export class ModelTradEditorComponent implements OnInit {
     viewActiveTab: { [view: string]: string } = {};
     activeField = '';
     errorActiveField = '';
+    expandedErrorFields: { [key: string]: boolean } = {};
 
     adderror = new FormControl('', { validators: [ ModelTradEditorComponent.snakeCaseValidator ] });
     langName = new FormControl('', { validators: [ ModelTradEditorComponent.langCaseValidator ] });
@@ -45,7 +46,39 @@ export class ModelTradEditorComponent implements OnInit {
     public readonly FIELD_CONFIGS = FIELD_CONFIGS;
     public readonly TAB_NAMES = ['model', 'view', 'error'];
 
-    private _modelTemplate: { modelFields: string[], views: { name: string, view: View }[] } | null = null;
+    // Field type metadata and error type mappings
+    private fieldTypeMap: { [key: string]: string } = {};
+    public readonly ERROR_TYPE_DESCRIPTIONS: { [key: string]: { description: string, severity: 'info' | 'warning' | 'error' } } = {
+        'missing_mandatory': { description: 'Field is null/empty and required', severity: 'error' },
+        'non_nullable': { description: 'Attempted to set to null when marked required', severity: 'error' },
+        'size_exceeded': { description: 'String/data length exceeds maximum limit', severity: 'error' },
+        'too_short': { description: 'Value is shorter than minimum length requirement', severity: 'error' },
+        'too_long': { description: 'Value is longer than maximum length requirement', severity: 'error' },
+        'pattern_mismatch': { description: 'Value does not match required pattern/format', severity: 'warning' },
+        'invalid_choice': { description: 'Value not in allowed selection list', severity: 'error' },
+        'invalid_type': { description: 'Value is not of the correct data type', severity: 'error' },
+        'invalid_date': { description: 'Value is not a valid date/time', severity: 'error' },
+        'broken_usage': { description: 'Invalid format for specialized field usage', severity: 'warning' },
+        'unique_constraint_failed': { description: 'Value must be unique but duplicate exists', severity: 'error' },
+        'invalid_email': { description: 'Email address format is invalid', severity: 'warning' },
+        'invalid_phone': { description: 'Phone number format is invalid', severity: 'warning' },
+        'invalid_url': { description: 'URL format is invalid', severity: 'warning' }
+    };
+
+    public readonly FIELD_TYPE_ERRORS: { [type: string]: string[] } = {
+        'string': ['missing_mandatory', 'non_nullable', 'size_exceeded', 'pattern_mismatch', 'invalid_choice'],
+        'text': ['missing_mandatory', 'non_nullable', 'size_exceeded', 'broken_usage', 'pattern_mismatch', 'invalid_choice'],
+        'date': ['missing_mandatory', 'non_nullable', 'invalid_type', 'invalid_date', 'pattern_mismatch'],
+        'integer': ['missing_mandatory', 'non_nullable', 'invalid_type', 'pattern_mismatch'],
+        'float': ['missing_mandatory', 'non_nullable', 'invalid_type', 'pattern_mismatch'],
+        'boolean': ['missing_mandatory', 'non_nullable', 'invalid_type'],
+        'email': ['missing_mandatory', 'non_nullable', 'invalid_email', 'pattern_mismatch'],
+        'phone': ['missing_mandatory', 'non_nullable', 'invalid_phone', 'pattern_mismatch'],
+        'uri': ['missing_mandatory', 'non_nullable', 'invalid_url', 'pattern_mismatch'],
+        'computed': []
+    };
+
+    private _modelTemplate: { modelFields: string[], views: { name: string, view: View }[], errors: { [field: string]: { fieldType: string, errorTypes: string[] } } } | null = null;
 
     constructor(
         private route: ActivatedRoute,
@@ -90,6 +123,7 @@ export class ModelTradEditorComponent implements OnInit {
         await this.restoreNestedFromUrl();
         // Ensure URL only contains validated elements
         this.loading = false;
+
     }
 
     private async restoreNestedFromUrl(): Promise<void> {
@@ -210,12 +244,17 @@ export class ModelTradEditorComponent implements OnInit {
             if (!newTranslation.ok) { return null; }
             this.data[lang] = newTranslation;
 
+            // Ensure error._base contains entries for all model fields according to the model template
+            this.ensureErrorBase(lang);
+
             // Try to fetch the existing translation payload for this specific language.
             // If it contains data, prefer it. Otherwise fall back to the previously fetched `allData`.
             try {
                 const perLang = await this.workbenchService.getTranslationLanguages(this.package_name, this.model_name, lang).toPromise();
                 if (perLang && Object.keys(perLang).length > 0) {
                     this.data[lang].fill(perLang);
+                    // Ensure any missing error entries are present after filling
+                    this.ensureErrorBase(lang);
                     return this.data[lang];
                 }
             } catch (e) {
@@ -242,6 +281,40 @@ export class ModelTradEditorComponent implements OnInit {
             if (lang === firstLang) continue;
             await fillLanguage(lang);
         }
+    }
+
+    /**
+     * Ensure that `data[lang].error._base` contains an entry for every model field
+     * defined by the built `_modelTemplate`. If an entry is missing we create a
+     * minimal one so the template can safely bind to it.
+     */
+    private ensureErrorBase(lang: string | null | undefined): void {
+        if (!lang) { return; }
+        const translator = this.data[lang];
+        if (!translator) { return; }
+        if (!translator.error) { translator.error = { _base: {} } as any; }
+        if (!translator.error._base) { translator.error._base = {}; }
+        if (!this._modelTemplate) { return; }
+
+        for (const field of this._modelTemplate.modelFields) {
+            if (!translator.error._base[field]) {
+                translator.error._base[field] = { active: false, val: {} };
+            }
+        }
+    }
+
+    /**
+     * Return the list of error field names to display. Prefer the model template
+     * modelFields when available, otherwise fall back to the translator data keys.
+     */
+    getErrorFieldNames(lang: string | null | undefined): string[] {
+        if (this._modelTemplate && Array.isArray(this._modelTemplate.modelFields) && this._modelTemplate.modelFields.length > 0) {
+            return this._modelTemplate.modelFields.slice().sort((a, b) => a.localeCompare(b));
+        }
+        if (lang && this.data[lang] && this.data[lang].error && this.data[lang].error._base) {
+            return this.obk(this.data[lang].error._base);
+        }
+        return [];
     }
 
     reload(): void {
@@ -336,6 +409,7 @@ export class ModelTradEditorComponent implements OnInit {
 
     private async _buildModelTemplate(): Promise<void> {
         const scheme = await this.workbenchService.getSchema(`${this.package_name}\\${this.model_name}`).toPromise();
+        console.log('Fetched schema for model template:', scheme);
         const modelFields = Object.keys(scheme.fields);
         const viewsList = await this.workbenchService.collectViews(this.package_name, `${this.package_name}\\${this.model_name}`).toPromise();
         const views: { name: string, view: View }[] = [];
@@ -345,7 +419,17 @@ export class ModelTradEditorComponent implements OnInit {
             const viewSchema = await this.workbenchService.getView(parts[0], parts[1]).toPromise();
             views.push({ name: parts[1], view: new View(viewSchema, parts[1].split('.')[0]) });
         }
-        this._modelTemplate = { modelFields, views };
+        const errors: { [field: string]: { fieldType: string; errorTypes: string[] } } = {};
+        for (const field of modelFields) {
+            const fieldType = scheme.fields[field].type || 'string';
+            errors[field] = {
+                fieldType,
+                errorTypes: this.FIELD_TYPE_ERRORS[fieldType] || []
+            };
+        }
+
+        this._modelTemplate = { modelFields, views, errors};
+        console.log('Model template built:', this._modelTemplate);
     }
 
     async createNewLang(): Promise<Translator> {
@@ -435,6 +519,59 @@ export class ModelTradEditorComponent implements OnInit {
           item.active = item.active ? false : true;
         }
       }
+
+    toggleErrorFieldExpansion(fieldName: string): void {
+        this.expandedErrorFields[fieldName] = !this.expandedErrorFields[fieldName];
+    }
+
+    isErrorFieldExpanded(fieldName: string): boolean {
+        if (this.expandedErrorFields[fieldName] === undefined) {
+            this.expandedErrorFields[fieldName] = true;
+        }
+        return this.expandedErrorFields[fieldName] !== false;
+    }
+
+    getFieldType(fieldName: string): string {
+        if (this._modelTemplate && this._modelTemplate.errors && this._modelTemplate.errors[fieldName]) {
+            return this._modelTemplate.errors[fieldName].fieldType || 'string';
+        }
+        if (this.fieldTypeMap[fieldName]) { return this.fieldTypeMap[fieldName]; }
+        return 'string';
+    }
+
+    getSuggestedErrorsForField(fieldName: string): string[] {
+        // Prefer suggested errors provided by the model template for the field
+        if (this._modelTemplate && this._modelTemplate.errors && this._modelTemplate.errors[fieldName]) {
+            return this._modelTemplate.errors[fieldName].errorTypes || [];
+        }
+        const fieldType = this.getFieldType(fieldName);
+        return this.FIELD_TYPE_ERRORS[fieldType] || [];
+    }
+
+    getSuggestedErrorsNotAdded(fieldName: string, lang: string): string[] {
+        const suggested = this.getSuggestedErrorsForField(fieldName);
+        const added = (this.data[lang] && this.data[lang].error && this.data[lang].error._base && this.data[lang].error._base[fieldName])
+            ? Object.keys(this.data[lang].error._base[fieldName].val || {})
+            : [];
+        return suggested.filter(err => !added.includes(err));
+    }
+
+    addPresetError(fieldName: string, errorType: string, lang: string): void {
+        if (!this.data[lang]?.error._base[fieldName]) return;
+        if (this.data[lang].error._base[fieldName].val[errorType]) return;
+        this.data[lang].error._base[fieldName].val[errorType] = new ErrorItemTranslator();
+        this.data[lang].error._base[fieldName].val[errorType].is_active = true;
+        // Auto-activate the error field section
+        this.data[lang].error._base[fieldName].active = true;
+    }
+
+    getErrorDescription(errorType: string): string {
+        return this.ERROR_TYPE_DESCRIPTIONS[errorType]?.description || '';
+    }
+
+    getErrorSeverity(errorType: string): 'info' | 'warning' | 'error' {
+        return this.ERROR_TYPE_DESCRIPTIONS[errorType]?.severity || 'info';
+    }
 
     goBack() {
         this.location.back();

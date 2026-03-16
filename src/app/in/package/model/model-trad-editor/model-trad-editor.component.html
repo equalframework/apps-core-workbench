@@ -172,37 +172,80 @@
           </div>
         </mat-tab>
 
-        <mat-tab label="Error" *ngIf="entitype !== 'menu'">
+        <mat-tab label="Error">
           <div class="tab-content">
             <div class="section-title">Error Messages</div>
-            <div *ngFor="let errType of obk(data[lang].error._base)" class="error-section">
+            
+            <div *ngFor="let errType of getErrorFieldNames(lang)" class="error-section">
 
               <div class="error-header">
-                <label class="error-type">{{ errType }}</label>
+                <div class="error-title-container">
+                  <div class="expand-button-wrap">
+                    <button mat-icon-button class="expand-button"
+                      (click)="toggleErrorFieldExpansion(errType)"
+                      [disabled]="!data[lang].error._base[errType].active"
+                      [class.hidden]="!data[lang].error._base[errType].active">
+                      <mat-icon>{{ isErrorFieldExpanded(errType) ? 'expand_less' : 'expand_more' }}</mat-icon>
+                    </button>
+                  </div>
+                  <span class="error-field-name">{{ errType }}</span>
+                  <span class="field-type-badge">{{ getFieldType(errType) }}</span>
+                </div>
                 <mat-checkbox
                   [checked]="data[lang].error._base[errType].active"
-                  (change)="changeActive(errType)">
+                  (change)="changeActive(errType)"
+                  class="error-checkbox">
                   Active
                 </mat-checkbox>
               </div>
 
-              <div *ngIf="data[lang].error._base[errType].active">
-                <mat-form-field appearance="outline" class="add-error-field">
-                  <mat-label>New error</mat-label>
-                  <input matInput [formControl]="adderror">
-                  <button mat-icon-button matSuffix
-                    [disabled]="adderror.invalid || !adderror.value"
-                    (click)="createError(lang, errType)">
-                    <mat-icon>add</mat-icon>
-                  </button>
-                </mat-form-field>
+              <div class="error-content" *ngIf="isErrorFieldExpanded(errType) && data[lang].error._base[errType].active">
+                
+                <!-- Preset error suggestions (compact buttons) -->
+                <div class="add-error-container" *ngIf="getSuggestedErrorsNotAdded(errType, lang).length > 0">
+                    <div class="suggestions-title" >Suggested errors</div>
+                    <div class="suggestions-list">
+                      <button mat-mini-button 
+                        *ngFor="let suggestedErr of getSuggestedErrorsNotAdded(errType, lang)"
+                        class="suggestion-mini-btn"
+                        [matTooltip]="getErrorDescription(suggestedErr)"
+                        matTooltipPosition="above"
+                        (click)="addPresetError(errType, suggestedErr, lang)"
+                        [title]="suggestedErr">
+                        {{ suggestedErr }}
+                      </button>
+                  </div>
+                </div>
 
-                <div class="error-list">
+                <!-- Add custom error field (redesigned) -->
+                <div class="add-error-container">
+                    <mat-form-field appearance="outline" class="add-error-field">
+                      <mat-label>Custom error</mat-label>
+                      <input matInput [formControl]="adderror" placeholder="e.g., custom_validation">
+                    </mat-form-field>
+                    <div class="add-error-actions">
+                      <button mat-fab mini 
+                      [disabled]="adderror.invalid || !adderror.value"
+                      (click)="createError(lang, errType)"
+                      class="add-error-btn">
+                      <mat-icon>add</mat-icon>
+                      </button>
+                    </div>
+
+                </div>
+
+                <!-- Error translations table -->
+                <div class="error-list" *ngIf="data[lang].error._base[errType].active && obk(data[lang].error._base[errType].val).length > 0">
+                  <div class="error-items-title">Error Translations</div>
                   <app-translation-table
                     [items]="data[lang].error._base[errType].val"
                     [fields]="FIELD_CONFIGS.error"
                     [selectedField]="errorActiveField">
                   </app-translation-table>
+                </div>
+
+                <div class="error-list" *ngIf="data[lang].error._base[errType].active && obk(data[lang].error._base[errType].val).length === 0">
+                  <p class="no-errors-message">No error translations yet. Add one from suggestions or create a custom error.</p>
                 </div>
 
               </div>
