@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, OnDestroy, ElementRef } from '@angular/core';
 import { ViewAction } from '../../_objects/View';
 import { MatDialog } from '@angular/material/dialog';
 import { PopupParamsComponent } from './_components/popup-params/popup-params.component';
@@ -9,29 +9,25 @@ import { PopupParamsComponent } from './_components/popup-params/popup-params.co
   styleUrls: ['./action-editor.component.scss']
 })
 export class ActionEditorComponent implements OnInit {
-
-  @Input() obj:ViewAction
-  @Input() controllers:string[]
-  @Input() groups:string[] = []
-  @Input() entity:string
+  @Input() obj: ViewAction
+  @Input() controllers: string[]
+  @Input() groups: string[] = []
+  @Input() entity: string
+  @Input() actionIndex: number = 0
 
   @Output() delete = new EventEmitter<void>()
-  
   big_disp = false
-
   input = ""
-  
-
   filteredOptions: string[]
-
   filteredGroups: string[]
 
   constructor(
-    private matdialog:MatDialog
+    private matdialog: MatDialog,
   ) {}
 
-  ngOnInit(){
-    this.filteredOptions = ['',...this.controllers]
+  ngOnInit() {
+    this.filteredOptions = ['', ...this.controllers]
+    
   }
 
   deleteme() {
