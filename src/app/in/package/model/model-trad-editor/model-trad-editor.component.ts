@@ -1,11 +1,12 @@
 import { result } from 'lodash';
-import { Location } from '@angular/common';
 import { Component, OnInit, Optional, Inject, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormControl, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { QueryParamNavigatorService } from 'src/app/_services/query-param-navigator.service';
+import { QueryParamActivatorRegistry, QueryParamCustomActivator } from 'src/app/_services/query-param-activator.registry';
 import { prettyPrintJson } from 'pretty-print-json';
 
 import { ErrorItemTranslator, Translator } from './_object/Translation';
@@ -46,6 +47,21 @@ export class ModelTradEditorComponent implements OnInit {
     public readonly FIELD_CONFIGS = FIELD_CONFIGS;
     public readonly TAB_NAMES = ['model', 'view', 'error'];
 
+    // Tab navigation mappings
+    private readonly tabNameToIndexMap: { [key: string]: number } = {
+        'model': 0,
+        'view': 1,
+        'error': 2
+    };
+    private readonly viewTabNameToIndexMap: { [key: string]: number } = {
+        'layout': 0,
+        'actions': 1,
+        'routes': 2
+    };
+
+    selectedTabIndex: number = 0;
+    selectedViewTabIndex: { [view: string]: number } = {};
+
     // Field type metadata and error type mappings
     private fieldTypeMap: { [key: string]: string } = {};
     public readonly ERROR_TYPE_DESCRIPTIONS: { [key: string]: { description: string, severity: 'info' | 'warning' | 'error' } } = {
@@ -79,25 +95,124 @@ export class ModelTradEditorComponent implements OnInit {
     };
 
     private _modelTemplate: { modelFields: string[], views: { name: string, view: View }[], errors: { [field: string]: { fieldType: string, errorTypes: string[] } } } | null = null;
+    private activatorRegistry: QueryParamActivatorRegistry;
 
     constructor(
         private route: ActivatedRoute,
         private router: Router,
-        private location:Location,
         private workbenchService: WorkbenchService,
         private notificationService: NotificationService,
         private dialog: MatDialog,
         private cdr: ChangeDetectorRef,
-        private routerMemory: RouterMemory
-    ) {}
+        private routerMemory: RouterMemory,
+        private queryParamNavigator: QueryParamNavigatorService
+    ) {
+        this.activatorRegistry = new QueryParamActivatorRegistry();
+    }
 
-    get selectedTabIndex(): number {
-        return Math.max(0, this.TAB_NAMES.indexOf(this.activeTab));
+    /**
+     * Initialise les activateurs de queryParams pour la navigation
+     */
+    private initializeFragmentNavigation(): void {
+        // Activateur pour les tabs principales (model, view, error)
+        const tabActivator = {
+            type: 'tab',
+            queryParamKeys: ['tab'],
+            canHandle: (key: string, value: any) => {
+                return key === 'tab' && this.TAB_NAMES.includes(value);
+            },
+            activate: async (key: string, value: any, context: any) => {
+                if (this.TAB_NAMES.includes(value)) {
+                    context.activeTab = value;
+                    context.selectedTabIndex = context.tabNameToIndexMap[value] || 0;
+                    if (value === 'view' && this.getViewNames().length > 0) {
+                        context.activeView = context.activeView || this.getViewNames()[0];
+                    } else if (value !== 'view') {
+                        context.activeView = '';
+                    }
+                    context.activeField = '';
+                    context.errorActiveField = '';
+                    await new Promise(resolve => setTimeout(resolve, 0));
+                }
+            }
+        };
+        this.activatorRegistry.register(tabActivator);
+
+        // Activateur pour la sélection de vue
+        const viewActivator = {
+            type: 'view',
+            queryParamKeys: ['view'],
+            canHandle: (key: string, value: any) => {
+                if (key !== 'view' || !this.lang || !this.data[this.lang]) return false;
+                return this.getViewNames().includes(value);
+            },
+            activate: async (key: string, value: any, context: any) => {
+                if (this.getViewNames().includes(value)) {
+                    context.activeView = value;
+                    context.viewActiveTab[value] = context.viewActiveTab[value] || '';
+                    context.activeField = '';
+                    await new Promise(resolve => setTimeout(resolve, 0));
+                }
+            }
+        };
+        this.activatorRegistry.register(viewActivator);
+
+        // Activateur pour les tabs internes de vue (layout, actions, routes)
+        const viewTabActivator = {
+            type: 'viewTab',
+            queryParamKeys: ['viewTab'],
+            canHandle: (key: string, value: any) => {
+                return this.viewInnerTabs.includes(value) && value !== null && value !== undefined;
+            },
+            activate: async (key: string, value: any, context: any) => {
+               
+                if (this.viewInnerTabs.includes(value)) {
+                    // Si on n'a pas de vue active et qu'on est sur l'onglet view, sélectionner la première vue
+                    if (!context.activeView && context.activeTab === 'view' && this.getViewNames().length > 0) {
+                        context.activeView = this.getViewNames()[0];
+                    }
+                    if (context.activeView) {
+                        context.viewActiveTab[context.activeView] = value;
+                        context.selectedViewTabIndex[context.activeView] = context.viewTabNameToIndexMap[value] || 0;
+                    }
+                    context.activeField = '';
+                    await new Promise(resolve => setTimeout(resolve, 0));
+                }
+            }
+        };
+        this.activatorRegistry.register(viewTabActivator);
+
+        // Activateur pour les champs (gère 'element' et 'field' comme aliases)
+        const fieldActivator = {
+            type: 'field',
+            queryParamKeys: ['element', 'field'],
+            canHandle: (key: string, value: any) => {
+                if (!this.lang || !this.data[this.lang] || !['element', 'field'].includes(key)) return false;
+                return this.fieldExists(this.lang, value);
+            },
+            activate: async (key: string, value: any, context: any) => {
+                if (this.fieldExists(this.lang, value)) {
+                    if (context.activeTab === 'error') {
+                        context.errorActiveField = value;
+                        if (context.data[context.lang] && context.data[context.lang].error && context.data[context.lang].error._base[value]) {
+                            context.data[context.lang].error._base[value].active = true;
+                            // Ensure the error section is expanded for scrolling
+                            context.expandedErrorFields[value] = true;
+                        }
+                    } else {
+                        context.activeField = value;
+                    }
+                    // Additional delay to allow DOM to render the expanded section
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+            }
+        };
+        this.activatorRegistry.register(fieldActivator);
     }
 
     async ngOnInit() {
         this.loading = true;
-        this.allLanguages = await this.workbenchService.collectAllLanguagesCode().toPromise();  // await this.api.collect("core\\pipeline\\Pipeline", [], ['name', 'nodes_ids'])
+        this.allLanguages = await this.workbenchService.collectAllLanguagesCode().toPromise();
         const selectedPackage = this.route.parent?.snapshot.paramMap.get('package_name');
         const selectedModel = this.route.snapshot.paramMap.get('class_name');
         const type = this.route.snapshot.paramMap.get('type');
@@ -113,103 +228,49 @@ export class ModelTradEditorComponent implements OnInit {
 
         await this.initTranslations();
 
-        // Restore active tab from URL query param
-        const urlTab = this.route.snapshot.queryParamMap.get('tab');
-        if (urlTab && this.TAB_NAMES.includes(urlTab)) {
-            this.activeTab = urlTab;
-        }
+        // Initialiser la navigation par queryParams
+        this.initializeFragmentNavigation();
 
-        // Restore nested view selection (if any)
-        await this.restoreNestedFromUrl();
-        // Ensure URL only contains validated elements
+        // Souscrire aux changements de queryParams
+        this.route.queryParams.subscribe(params => {
+            if (Object.keys(params).length > 0) {
+                this.queryParamNavigator.handleQueryParams(params, {
+                    activators: this.activatorRegistry,
+                    context: this,
+                    elementKeys: ['element', 'field'],
+                    scrollDelay: 100
+                });
+            }
+        });
+
         this.loading = false;
-
-    }
-
-    private async restoreNestedFromUrl(): Promise<void> {
-        const qp = this.route.snapshot.queryParamMap;
-        const urlView = qp.get('view');
-        const urlViewTab = qp.get('viewTab');
-        const urlField = qp.get('field');
-        const urlErrorField = qp.get('errorField');
-        const params: any = {};
-        if (this.lang) { params.lang = this.lang; }
-        params.tab = this.activeTab || 'model';
-
-        let newActiveView = '';
-        let newViewTab: string | undefined;
-        let newActiveField: string | undefined;
-
-        if (this.activeTab === 'view' && this.lang && this.data[this.lang]) {
-            const names = this.obk(this.data[this.lang].view);
-            newActiveView = (urlView && names.includes(urlView)) ? urlView : (names[0] || '');
-            if (newActiveView) { params.view = newActiveView; }
-
-            if (newActiveView && urlViewTab && this.viewInnerTabs.includes(urlViewTab)) {
-                newViewTab = urlViewTab;
-                params.viewTab = newViewTab;
-            }
-
-            if (urlField && this.fieldExists(this.lang, urlField)) {
-                newActiveField = urlField;
-                params.field = newActiveField;
-                this.activeField = urlField;
-            }
-        } else {
-            // Use a separate query param for error-tab field selection to avoid
-            // colliding with model/view `field` usage.
-            if (this.activeTab === 'error') {
-                if (urlErrorField && this.fieldExists(this.lang, urlErrorField)) {
-                    newActiveField = urlErrorField;
-                    params.errorField = newActiveField;
-                    this.errorActiveField = urlErrorField;
-                    this.data[this.lang].error._base[urlErrorField].active = true;
-                }
-            } else if (urlField && this.activeTab !== 'view' && this.fieldExists(this.lang, urlField)) {
-                newActiveField = urlField;
-                params.field = newActiveField;
-                this.activeField = urlField;
-            }
-        }
-
-        const urlTree = this.router.createUrlTree([], { relativeTo: this.route, queryParams: params });
-        // Apply validated state changes in a macrotask to avoid ExpressionChangedAfterItHasBeenCheckedError
-        setTimeout(() => {
-            if (newActiveView) { this.activeView = newActiveView; }
-            if (newViewTab && this.activeView) { this.viewActiveTab[this.activeView] = newViewTab; }
-            this.location.replaceState(this.router.serializeUrl(urlTree));
-            this.updateUrl();
-            try { this.cdr.detectChanges(); } catch (e) { /* ignore detection errors */ }
-        }, 0);
     }
 
     private fieldExists(lang: string | null | undefined, field: string): boolean {
         if (!lang) { return false; }
         const translator = this.data[lang];
         if (!translator) { return false; }
-        const urlTab = this.route.snapshot.queryParamMap.get('tab');
-        const urlViewTab = this.route.snapshot.queryParamMap.get('viewTab');
 
-        if (urlTab === 'model') {
+        if (this.activeTab === 'model') {
             if (translator.model && typeof translator.model === 'object') {
                 try { return this.obk(translator.model).includes(field); } catch (e) { return false; }
             }
             return false;
-        } else if (urlTab === 'view') {
+        } else if (this.activeTab === 'view') {
             try {
                 for (const viewName of this.obk(translator.view || {})) {
                     const viewObj = translator.view[viewName];
+                    const viewTab = this.viewActiveTab[this.activeView];
 
                     if (viewObj) {
-                        if (urlViewTab === 'layout' && viewObj.layout && typeof viewObj.layout === 'object' && this.obk(viewObj.layout).includes(field)) { return true; }
-                        if (urlViewTab === 'actions' && viewObj.actions && typeof viewObj.actions === 'object' && this.obk(viewObj.actions).includes(field)) { return true; }
-                        if (urlViewTab === 'routes' && viewObj.routes && typeof viewObj.routes === 'object' && this.obk(viewObj.routes).includes(field)) { return true; }
+                        if (viewTab === 'layout' && viewObj.layout && typeof viewObj.layout === 'object' && this.obk(viewObj.layout).includes(field)) { return true; }
+                        if (viewTab === 'actions' && viewObj.actions && typeof viewObj.actions === 'object' && this.obk(viewObj.actions).includes(field)) { return true; }
+                        if (viewTab === 'routes' && viewObj.routes && typeof viewObj.routes === 'object' && this.obk(viewObj.routes).includes(field)) { return true; }
                     }
-
                 }
             } catch (e) {}
             return false;
-        } else if (urlTab === 'error') {
+        } else if (this.activeTab === 'error') {
             try {
                 if (translator.error && translator.error._base && typeof translator.error._base === 'object') {
                     const types = this.obk(translator.error._base);
@@ -236,8 +297,7 @@ export class ModelTradEditorComponent implements OnInit {
         }
 
         const langs = Object.keys(allData);
-        const urlLang = this.route.snapshot.queryParamMap.get('lang');
-        const firstLang = (urlLang && langs.includes(urlLang)) ? urlLang : (langs[0] || null);
+        const firstLang = langs[0] || null;
 
         const fillLanguage = async (lang: string) => {
             const newTranslation = await this.createNewLang();
@@ -325,42 +385,19 @@ export class ModelTradEditorComponent implements OnInit {
 
     onLangChange(lang: string): void {
         this.lang = lang;
-        this.router.navigate(['../translations'], {
-            relativeTo: this.route,
-            queryParams: { lang },
-            queryParamsHandling: 'merge', // preserve context
-        });
+        this.activeField = '';
+        this.errorActiveField = '';
+        this.cdr.detectChanges(); // ensure UI updates before any fragment activation
+        // Language change is persisted without URL manipulation
     }
 
     onTabChange(index: number): void {
         this.activeTab = this.TAB_NAMES[index] || 'model';
+        this.selectedTabIndex = index;
         this.activeView = this.activeTab === 'view' ? this.getViewNames()[0] || '' : '';
         this.activeField = '';
-        this.updateUrl();
-    }
-
-    private updateUrl(): void {
-        const params: any = {};
-        if (this.lang) { params.lang = this.lang; }
-        params.tab = this.activeTab || 'model';
-        if (this.activeTab === 'view' && this.activeView) {
-            params.view = this.activeView;
-            const inner = this.viewActiveTab[this.activeView];
-            if (inner) { params.viewTab = inner; }
-        }
-        if (this.activeTab !== 'error') {
-            params.field = this.activeField;
-            
-        }
-        if (this.activeTab === 'error') {
-            params.errorField = this.errorActiveField;
-        }
-        // Replace the query params entirely with the validated set
-        const urlTree = this.router.createUrlTree([], {
-            relativeTo: this.route,
-            queryParams: params,
-        });
-        this.location.replaceState(this.router.serializeUrl(urlTree));
+        this.errorActiveField = '';
+        // Fragment navigation is handled by the subscription in ngOnInit
     }
 
     getViewNames(): string[] {
@@ -377,7 +414,9 @@ export class ModelTradEditorComponent implements OnInit {
         const names = this.getViewNames();
         this.activeView = names[index] || names[0] || '';
         this.viewActiveTab[this.activeView] = this.viewActiveTab[this.activeView] || '';
-        this.updateUrl();
+        this.selectedViewTabIndex[this.activeView] = this.selectedViewTabIndex[this.activeView] || 0;
+        this.activeField = '';
+        // Fragment navigation is handled by the subscription in ngOnInit
     }
 
     private getVisibleInnerTabs(view: string): string[] {
@@ -395,14 +434,16 @@ export class ModelTradEditorComponent implements OnInit {
         const sel = this.viewActiveTab[view] || (visible[0] || 'layout');
         const idx = visible.indexOf(sel);
         this.viewActiveTab[view] = sel;
+        this.selectedViewTabIndex[view] = idx === -1 ? 0 : idx;
         return Math.max(0, idx === -1 ? 0 : idx);
     }
 
     onViewInnerChange(view: string, index: number): void {
         const visible = this.getVisibleInnerTabs(view);
         this.viewActiveTab[view] = visible[index] || visible[0] || 'layout';
+        this.selectedViewTabIndex[view] = index;
         this.activeField = '';
-        this.updateUrl();
+        // Fragment navigation is handled by the subscription in ngOnInit
     }
 
 
@@ -573,8 +614,11 @@ export class ModelTradEditorComponent implements OnInit {
         return this.ERROR_TYPE_DESCRIPTIONS[errorType]?.severity || 'info';
     }
 
-    goBack() {
-        this.location.back();
+    /**
+     * Navigue vers le parent (package)
+     */
+    goBack(): void {
+        this.router.navigate(['../..'], { relativeTo: this.route });
     }
 
     debugExport() {

@@ -176,7 +176,7 @@
           <div class="tab-content">
             <div class="section-title">Error Messages</div>
             
-            <div *ngFor="let errType of getErrorFieldNames(lang)" class="error-section">
+            <div *ngFor="let errType of getErrorFieldNames(lang)" class="error-section" [appScrollTarget]="errType">
 
               <div class="error-header">
                 <div class="error-title-container">
