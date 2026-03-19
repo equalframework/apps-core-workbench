@@ -65,6 +65,10 @@ const routes: Routes = [
         component: AppComponent
     },
     {
+        path: 'menu/:menu_name/translations',
+        loadChildren: () => import('./menu/menu-trad-editor/menu-trad-editor.module').then(m => m.MenuTradEditorModule)
+    },
+    {
         path: 'menu/:menu_name/edit',
         loadChildren: () => import('./menu/menu.module').then(m => m.PackageMenuModule)
     },
@@ -103,7 +107,7 @@ const routes: Routes = [
         component: PackageComponent
     },
     {
-        path: 'entity/:entity_name/view/:view_name/type/:view_type/edit',
+        path: 'view/:entity_view/edit',
         loadChildren: () => import('./view/view.module').then(m => m.PackageViewModule)
     },
     /*
@@ -113,7 +117,7 @@ const routes: Routes = [
     },
     */
     {
-        path: 'entity/:entity_name/view/:view_name/type/:view_type',
+        path: 'view/:entity_view',
         component: AppComponent
     },
 
