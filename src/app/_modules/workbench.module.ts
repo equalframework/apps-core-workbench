@@ -58,6 +58,8 @@ import { InfoGenericComponent } from '../_components/info/info-generic/info-gene
 import { ChipsAutocompleteComponent } from '../_components/chips-auto-complete/chips-auto-complete.component';
 import { CheckboxListComponent } from '../_components/checkbox-list/checkbox-list.component';
 import { ItemDisplayComponent } from '../_components/item-display/item-display.component';
+import { ScrollTargetDirective } from 'src/app/_directives/scroll-target.directive';
+
 const sharedComponents = [
 
 
@@ -105,7 +107,7 @@ const sharedComponents = [
     InfoGenericComponent,
     ChipsAutocompleteComponent,
     CheckboxListComponent,
-    ItemDisplayComponent
+    ItemDisplayComponent,
 ];
 
 const sharedPipes = [
@@ -117,7 +119,8 @@ const sharedPipes = [
 @NgModule({
     declarations: [
         ...sharedComponents,
-        ...sharedPipes
+        ...sharedPipes,
+        ScrollTargetDirective
     ],
     imports: [
         SharedLibModule,
@@ -132,7 +135,8 @@ const sharedPipes = [
         PropertyDomainModule,
         AutocompleteModule,
         ...sharedComponents,
-        ...sharedPipes
+        ...sharedPipes,
+        ScrollTargetDirective
     ],
 
     // other module metadata
