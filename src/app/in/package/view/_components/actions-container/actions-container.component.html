@@ -11,6 +11,8 @@
             (delete)="del(action)"
             [groups]="groups"
             [entity]="entity"
+            [actionIndex]="acts.indexOf(action)"
+            appScrollTarget="{{action.id}}"
         ></app-action-editor>
         <div class="spacepls"></div>
     </div>
