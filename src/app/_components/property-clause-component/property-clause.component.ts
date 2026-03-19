@@ -19,6 +19,7 @@ export class PropertyClauseComponent implements OnInit {
     constructor(private workbenchService: WorkbenchService) {}
 
     async ngOnInit() {
+        console.log('Initializing PropertyClauseComponent with value:', this.value, 'name:', this.name, 'class:', this.class);
         this.transformDomain();
         this.validOperators = await this.workbenchService.getValidOperators().toPromise();
         this.getSchema();

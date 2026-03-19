@@ -1,3 +1,5 @@
+@import 'src/styles';
+
 #container {
     display: flex;
     flex-direction: row;
@@ -10,65 +12,111 @@
 
 
 // tree view inspired https://codepen.io/willpower/pen/pJKdej?editors=1100
-$border: #ddd;
+$border: #d0d0d0;
 $ident: 20px;
 $left: -($ident);
 
 .wtree {
-    margin: 10px;
-    padding: 16px;
-    padding-top: 0px;
+    margin: 8px 0;
+    padding: 0;
     margin-right: 0px;
     padding-right: 0px;
+    
     .clause-container {
         display: flex;
         align-items: center;
-        transform: translateY(-5px);
+        transform: translateY(0);
+        padding: 0 0 12px 0;
+        font-weight: 500;
+        color: rgba(0, 0, 0, 0.87);
+        font-size: 0.9em;
+        letter-spacing: 0.5px;
     }
-    .condition{
-        width: calc(100% - 40px);
+    
+    .condition {
+        width: 100%;
+        display: flex;
+        align-items: flex-start;
+        
         .operand {
-            width: 25%;
+            flex: 0 0 22%;
+            min-width: 120px;
         }
-        .operator{
-            width: 18%;
+        
+        .operator {
+            flex: 0 0 16%;
+            min-width: 90px;
+            margin: 0 8px;
         }
-        .value{
-            width: 47%;
+        
+        .value {
+            flex: 1;
+            min-width: 150px;
         }
+        
         .delete-condition {
-            width: 10%;
-            .delete-condition-icon{
+            flex: 0 0 auto;
+            margin-left: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            
+            .delete-condition-icon {
                 height: 20px;
+                width: 20px;
+                cursor: pointer;
+                color: rgba(0, 0, 0, 0.6);
+                transition: all 0.2s ease;
+                
+                &:hover {
+                    color: #f44336;
+                    transform: scale(1.1);
+                }
             }
         }
     }
+    
     li {
         list-style-type: none;
-        margin:10px 0 10px 0px;
+        margin: 12px 0;
         position: relative;
+        
         &:before {
             content: "";
             position: absolute;
             top: 0px;
-            left:$left;
+            left: $left;
             border-left: 1px solid $border;
-            border-bottom:1px solid $border;
-            width:$ident;
-            height:15px;
+            border-bottom: 1px solid $border;
+            width: $ident;
+            height: 15px;
         }
+        
         &:after {
-            position:absolute;
-        content:"";
-            top:15px;
-            left:$left;
+            position: absolute;
+            content: "";
+            top: 15px;
+            left: $left;
             border-left: 1px solid $border;
-            border-top:1px solid $border;
-            width:$ident;
-            height:100%;
+            border-top: 1px solid $border;
+            width: $ident;
+            height: 100%;
         }
+        
         &:last-child:after {
-            display:none;
+            display: none;
+        }
+    }
+    
+    button[mat-button] {
+        margin-top: 8px;
+        color: mat-color($maincolor);
+        font-weight: 500;
+        transition: all 0.2s ease;
+        
+        &:hover {
+            background-color: rgba(63, 81, 181, 0.08);
         }
     }
 }
+
