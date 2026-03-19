@@ -68,7 +68,7 @@ export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
             { icon: 'key', tooltip: 'ID', value: this.view_name, copyable:true },
             {icon: 'category',tooltip: 'entity/model', value:`${this.view.package_name}\\${this.view.item.model}`, copyable:true, double_backslash:true}
             ]
-          this.workbenchService.readView(packageName, this.view_name, model_name)
+          this.workbenchService.readView(packageName, this.view_name.split(".")[1], model_name)
             .pipe(takeUntil(this.destroy$))
             .subscribe(
               (data) => {

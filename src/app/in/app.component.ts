@@ -59,6 +59,7 @@ export class AppComponent implements OnInit {
 
         if (fromUrl.root.children['primary'] && fromUrl.root.children['primary'].segments.length > 0) {
             const segments = fromUrl.root.children['primary'].segments;
+            console.log('URL segments for restoration:', segments);
                 // Route
             if (segments.length >= 4 && segments[0].path === 'package' && segments[2].path === 'route') {
                 // Collect all segments from index 3 onwards to handle routes like '/auth/pwd'
@@ -94,13 +95,14 @@ export class AppComponent implements OnInit {
                 } as EqualComponentDescriptor;
             } else
                 // View
-            if (segments.length === 8 && segments[2].path === 'entity' && segments[4].path === 'view' && segments[6].path === 'type') {
+            if (segments.length === 4 && segments[2].path === 'view') {
+                console.log('Restoring view with segments:', segments);
                 restored = {
                     package_name: segments[0].path === 'package' ? segments[1].path : '',
-                    name: `${segments[3].path}:${segments[7].path}.${segments[5].path}`,
+                    name: segments[3].path,
                     type: 'view',
                     item: {
-                        model: segments[3].path,
+                        model: segments[3].path.split(':')[0],
                     }
                 } as EqualComponentDescriptor;
             } else
