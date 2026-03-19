@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, EventEmitter, Output } from '@angular/core';
+import { Component, Input, OnInit, EventEmitter, Output, OnDestroy, ElementRef } from '@angular/core';
 import { ViewItem } from '../../_objects/View';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
@@ -27,10 +27,17 @@ export class ItemEditorComponent implements OnInit {
 
     public scheme: any;
 
-    constructor(
-        private workbenchService: WorkbenchService) {
-
+    get isReadonly(): boolean {
+        if (this.item?.readonly) return true;
+        if (!this.scheme || !this.scheme.fields || !this.item?.value) return false;
+        return !!this.scheme.fields[this.item.value]?.readonly;
     }
+
+    constructor(
+        private workbenchService: WorkbenchService,
+        private elementRef: ElementRef,
+    ) {}
+
 
     async ngOnInit() {
         const currentUrl = window.location.href;
