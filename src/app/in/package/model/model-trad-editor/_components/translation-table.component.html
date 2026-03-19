@@ -9,8 +9,7 @@
 
   <tbody>
     <tr *ngFor="let key of itemKeys" class="translation-row"
-    [scrollIntoView]="items[key].scroll_into_view"
-
+    [appScrollTarget]="key"
     >
 
       <td class="checkbox-cell">
@@ -28,12 +27,11 @@
         <td *ngFor="let field of fields; let fi = index"
             class="editable-cell"
             [attr.colspan]="field.colspan">
-          <input
+          <input appScrollTarget="{{key}}"
             matInput
             [placeholder]="field.placeholder"
             [(ngModel)]="items[key][field.key].value"
             [name]="key + '-' + field.key"
-            [focus]="items[key].scroll_into_view && fi === 0"
             spellcheck="true">
         </td>
       </ng-container>

@@ -50,8 +50,7 @@ export class TranslationTableComponent {
     const item = this.items[key];
     if (item && typeof item === 'object') {
       item.is_active = item.is_active ? false : true;
-      this.selectedField = !item.is_active && key === this.selectedField ? undefined : this.selectedField;
-      item.scroll_into_view = false;
+      //this.selectedField = !item.is_active && key === this.selectedField ? undefined : this.selectedField;
     }
   }
 
@@ -62,9 +61,7 @@ export class TranslationTableComponent {
       const item = this.items[k];
       if (item && typeof item === 'object' && k === this.selectedField) {
         item.is_active = true;
-        item.scroll_into_view = true;
       }
-    
     }
     return keys;
   }
