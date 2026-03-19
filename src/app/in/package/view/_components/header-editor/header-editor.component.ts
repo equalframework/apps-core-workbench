@@ -30,8 +30,11 @@ export class HeaderEditorComponent implements OnInit {
   }
 
   private updateSelectionActionVisibility() {
-    if (this.obj.selection && this.obj.selection.actions && this.obj.selection.actions.length > 0) {
+    if (this.obj.selection.predef_actions._has_selection_actions) {
       this.header_selection_action_visible = true;
+    }
+    if (this.obj._has_actions) {
+      this.header_action_visible = true;
     }
   }
 }

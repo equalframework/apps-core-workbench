@@ -7,7 +7,7 @@
         [disabled]="!obj._has_actions">
     </app-toggling-button>
     <mat-slide-toggle [(ngModel)]="obj._has_actions" (change)="header_action_visible = obj._has_actions"></mat-slide-toggle>
-    <label [style.opacity]="obj._has_actions ? 1 : 0.6" class="category-title maincolor">Actions </label>
+    <label [style.opacity]="obj._has_actions ? 1 : 0.6" class="category-title maincolor" appScrollTarget="list-actions">Actions </label>
 
 </div>
 
@@ -25,14 +25,14 @@
         <app-toggling-button
             [enabledIcon]="'expand_less'"
             [disabledIcon]="'expand_more'"
-            [baseState]="header_selection_action_visible"
+            [baseState]="obj.selection._has_selection_actions"
             (toggle)="header_selection_action_visible = $event"
             [disabled]="!obj.selection._has_selection_actions"
         ></app-toggling-button>
         <mat-slide-toggle [(ngModel)]="obj.selection._has_selection_actions" (change)="header_selection_action_visible = obj.selection._has_selection_actions"></mat-slide-toggle>
-        <label [style.opacity]="obj.selection._has_selection_actions ? 1 : 0.6" class="category-title maincolor">Selection Actions</label>
+        <label [style.opacity]="obj.selection._has_selection_actions ? 1 : 0.6" class="category-title maincolor" appScrollTarget="list-selection-actions">Selection Actions</label>
     </div>
-    <div *ngIf="header_selection_action_visible" class="indent">
+    <div *ngIf="obj.selection._has_selection_actions" class="indent">
         <mat-checkbox [(ngModel)]="obj.selection.default">Default controller</mat-checkbox>
         <br>
         <div *ngIf="obj.selection.default" class="predef-actions-list">
