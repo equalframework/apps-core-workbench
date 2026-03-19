@@ -1,7 +1,11 @@
 import { Location } from '@angular/common';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit, ViewChild, ElementRef, ViewContainerRef, AfterViewInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { QueryParamNavigatorService } from 'src/app/_services/query-param-navigator.service';
+import { QueryParamActivatorRegistry, QueryParamTabActivator } from 'src/app/_services/query-param-activator.registry';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { View, ViewGroup, ViewGroupByItem, ViewItem, ViewOperation, ViewSection } from './_objects/View';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { prettyPrintJson } from 'pretty-print-json';
@@ -24,6 +28,7 @@ export class PackageViewComponent implements OnInit {
 
     viewId: string;
     entity: string;
+    private componentId = 'view-layout-tab-layout-editor';
 
     viewScheme: any;
     obk = Object.keys;
@@ -39,23 +44,24 @@ export class PackageViewComponent implements OnInit {
     fields: string[] = [];
 
     compliancy_cache: { ok: boolean, id_list: string[] };
-
-    isDomainVisible = false;
-    isFilterVisible = false;
-    isLayoutVisible = true;
-    isHeaderVisible = false;
-    isHeaderActionVisible = false;
-    isHeaderSelectionActionVisible = false;
-    isActionsVisible = false;
-    isRoutesVisible = false;
-    isAccessVisible = false;
-
     groups: string[] = [];
-
     icontype: { [id: string]: string };
 
     collect_controller: string[] = ["core_model_collect"];
     action_controllers: string[];
+    
+    // Tab management
+    selectedTabIndex: number = 0;
+    private tabNameToIndexMap: { [key: string]: number } = {
+      'layout': 0,
+      'header': 1,
+      'actions': 2,
+      'routes': 3,
+      'advanced': 4
+    };
+    
+    // Fragment Navigation
+    private queryParamActivatorRegistry: QueryParamActivatorRegistry;
 
     constructor(
         private route: ActivatedRoute,
@@ -66,10 +72,15 @@ export class PackageViewComponent implements OnInit {
         private location: Location,
         private provider:EqualComponentsProviderService,
         private notificationService: NotificationService,
-        private routerMemory: RouterMemory
+        private routerMemory: RouterMemory,
+        private queryParamNavigator: QueryParamNavigatorService,
     ) { }
 
     async ngOnInit() {
+        // Initialiser le registre des activateurs pour la navigation par fragment
+        this.initializeFragmentNavigation();
+        
+        // Charger les données de la view
         await this.init();
     }
 
@@ -103,7 +114,7 @@ export class PackageViewComponent implements OnInit {
                             ? nodeNameParts[1].split('.')[0]
                             : '';
                         this.viewObj = new View(this.viewScheme, viewNamePart);
-
+                        console.log("View object initialized:", this.class_scheme, this.fields, this.viewObj);
                         let temp_controller = await this.workbenchService.collectControllers('data', package_name).toPromise();
                         for (let item of temp_controller) {
                             let data = await this.workbenchService.announceController(item).toPromise();
@@ -118,6 +129,18 @@ export class PackageViewComponent implements OnInit {
                                 this.groups.push(data[key]['name']);
                             }
                         });
+
+                        // Handle URL query parameters for deep linking to specific tabs or sections
+                        this.route.queryParams.subscribe(params => {
+                            if (Object.keys(params).length > 0 && this.queryParamActivatorRegistry) {
+                                this.queryParamNavigator.handleQueryParams(params, {
+                                    activators: this.queryParamActivatorRegistry,
+                                    context: this,
+                                    elementKeys: ['element', 'field'],
+                                    scrollDelay: 100
+                                });
+                            }
+                        });
                         this.loading = false;
                     } catch (err) {
                         this.error = true;
@@ -129,9 +152,15 @@ export class PackageViewComponent implements OnInit {
                 }
             });
         }
+
     }
 
-    ngOnChanges() {
+    /**
+     * Handle view object changes from child tab components
+     * Called when any tab component modifies the view object
+     */
+    onViewObjChange(view: View): void {
+        this.viewObj = view;
     }
 
     // Call id_compliant method on view_obj and cache it
@@ -146,41 +175,12 @@ export class PackageViewComponent implements OnInit {
         return filtered.join(",");
     }
 
-    addItemLayout() {
-        this.viewObj.layout.newViewItem();
-    }
-
-    addFilter() {
-        this.viewObj.addFilter();
-        this.isFilterVisible = true;
-    }
-
-    deleteItemLayout(index:number) {
-        this.viewObj.layout.deleteItem(index);
-    }
-
-    deleteFilter(index:number) {
-        this.viewObj.deleteFilter(index);
-    }
-
     logit() {
         this.popup.open(JsonViewerComponent,{data:this.viewObj.export(),width:"70%",height:"85%"});
     }
 
-    addGroup() {
-        this.viewObj.layout.groups.push(new ViewGroup({"label":"New Group"}));
-    }
-
     goBack() {
         this.location.back();
-    }
-
-    deleteGroup(index:number){
-        this.viewObj.layout.groups.splice(index,1);
-    }
-
-    addSection(index:number) {
-        this.viewObj.layout.groups[index].sections.push(new ViewSection({"label":"new section"}));
     }
 
     save() {
@@ -211,20 +211,6 @@ export class PackageViewComponent implements OnInit {
         });
     }
 
-    drop_item(event: CdkDragDrop<ViewItem[]>) {
-        console.log(event);
-        if (event.previousContainer === event.container) {
-            moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-        } else {
-            transferArrayItem(
-                event.previousContainer.data,
-                event.container.data,
-                event.previousIndex,
-                event.currentIndex,
-            );
-        }
-    }
-
     handleCustomButton(name:string) {
         if(name === "Show JSON"){
             this.logit();
@@ -232,41 +218,19 @@ export class PackageViewComponent implements OnInit {
         }
     }
 
-    fieldList(operation:ViewOperation,field:string):string[] {
-        let b:string[] = [field];
-        b.push(...Object.keys(this.class_scheme.fields).filter( (item:string) => !operation.fieldTaken.includes(item)));
-        return b;
-    }
-
-    addOperation() {
-        this.viewObj.operations.push(new ViewOperation({},""));
-    }
-
-    addOp(index:number) {
-        this.viewObj.operations[index].ops.push({
-            name : "",
-            usage: new Usage(""),
-            operation: "COUNT",
-            prefix: "",
-            suffix: "",
-            leftover: {},
-        });
-    }
-
-    delOperation(index:number) {
-        this.viewObj.operations.splice(index,1);
-    }
-
-    delOp(index:number,jndex:number) {
-        this.viewObj.operations[index].ops.splice(jndex,1);
-    }
-
-    addNewGroupBy() {
-        this.viewObj.groupBy.items.push(new ViewGroupByItem());
-    }
-
-    deleteGroupBy(index:number) {
-        this.viewObj.groupBy.items.splice(index,1);
+    /**
+     * Initialise le registre des activateurs pour la navigation par queryParams
+     * Configure les activateurs disponibles (tabs, menus, etc.)
+     */
+    private initializeFragmentNavigation(): void {
+        this.queryParamActivatorRegistry = new QueryParamActivatorRegistry();
+        
+        // Enregistrer l'activateur de tabs
+        const tabActivator = new QueryParamTabActivator(this.tabNameToIndexMap, 'selectedTabIndex');
+        this.queryParamActivatorRegistry.register(tabActivator);
+        
+        // Les autres activateurs (menus, expansibles) peuvent être enregistrés
+        // par les sous-composants via une injection du registre
     }
 
     ToNameDisp(name:string):string {
@@ -275,4 +239,5 @@ export class PackageViewComponent implements OnInit {
         return b.join(" ");
     }
 }
+
 

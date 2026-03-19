@@ -1,0 +1,229 @@
+<div class="tab-item indent" #advancedTabContainer>
+  <div>
+    <mat-form-field class="inputlong tab-header">
+      <mat-label>controller</mat-label>
+      <mat-select [(value)]="viewObj.controller">
+        <mat-option *ngFor="let item of collect_controller" value="{{item}}">
+          {{item === "core_model_collect" ? "core_model_collect (default)":item}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="toggle-container tab-header">
+    <mat-slide-toggle [(ngModel)]="viewObj._has_access"></mat-slide-toggle>
+    <label [style.opacity]="viewObj._has_access ? 1 : 0.6" class="category-title maincolor">Access</label>
+  </div>
+
+  <div class="indent tab-content" *ngIf="viewObj._has_access">
+    <editor-access
+      [obj]="viewObj.access"
+      [groups]="groups">
+    </editor-access>
+  </div>
+
+  <mat-divider style="margin: 1em -1em;" *ngIf="viewObj._has_access"></mat-divider>
+
+  <mat-accordion class="tab-content">
+    <!-- Limit Section (List views only) -->
+    <mat-expansion-panel *ngIf="['list'].includes(viewObj.type)">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>format_list_numbered</mat-icon>
+          <label>Limit</label>
+        </mat-panel-title>
+        <mat-panel-description>
+          Sets the limit of object queried by the view
+        </mat-panel-description>
+        <mat-icon
+          class="toggleicon"
+          [class.on]="viewObj._has_limit"
+          (click)="$event.stopPropagation(); viewObj._has_limit = !viewObj._has_limit"
+        >
+          {{viewObj._has_limit?"toggle_on":"toggle_off"}}
+        </mat-icon>
+      </mat-expansion-panel-header>
+      <div>
+        <mat-form-field *ngIf="viewObj._has_limit">
+          <mat-label>Limit</mat-label>
+          <input matInput type="number" [(ngModel)]="viewObj.limit" (change)="onViewObjChange()">
+        </mat-form-field>
+      </div>
+    </mat-expansion-panel>
+
+    <!-- Sorting Section (List views only) -->
+    <mat-expansion-panel *ngIf="['list'].includes(viewObj.type)">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>sort</mat-icon>
+          <label>Sorting</label>
+        </mat-panel-title>
+        <mat-panel-description>
+          Sets the default sorting mode of the view
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+      <div>
+        <mat-form-field class="sort-field">
+          <mat-label>Order</mat-label>
+          <mat-select [(value)]="viewObj.order" (change)="onViewObjChange()">
+            <mat-option value=''></mat-option>
+            <mat-option value='asc'>asc</mat-option>
+            <mat-option value='desc'>desc</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field class="sort-field" *ngIf="viewObj">
+          <mat-label>sort</mat-label>
+          <mat-select [(value)]="viewObj.sort" (change)="onViewObjChange()">
+            <mat-option value=''></mat-option>
+            <mat-option *ngFor="let field of obk(class_scheme.fields)" [value]="field">{{field}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </mat-expansion-panel>
+
+    <!-- Group By Section (List views only) -->
+    <mat-expansion-panel *ngIf="['list'].includes(viewObj.type)">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>group_work</mat-icon>
+          <label>Group By</label>
+        </mat-panel-title>
+        <mat-panel-description>
+          Groups item by attribute
+        </mat-panel-description>
+        <mat-icon
+          class="toggleicon"
+          [class.on]="viewObj._has_group_by"
+          (click)="$event.stopPropagation(); viewObj._has_group_by = !viewObj._has_group_by"
+        >
+          {{viewObj._has_group_by?"toggle_on":"toggle_off"}}
+        </mat-icon>
+      </mat-expansion-panel-header>
+      <div>
+        <button mat-button color="primary" (click)="addNewGroupBy()"><mat-icon>add</mat-icon> Group</button>
+        <div [class.tree]="index !== 0" [style.margin-left]="index*2+'em'"  
+             [style.width]="'calc(100% - '+index*2+'em)'" class="tree-item" 
+             *ngFor="let item of viewObj.groupBy.items; index as index">
+          <div>
+            <mat-form-field>
+              <mat-label>field</mat-label>
+              <mat-select [(value)]="item.field" (change)="onViewObjChange()">
+                <mat-option *ngFor="let field of obk(class_scheme.fields)" [value]="field">{{field}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field class="operation-field">
+              <mat-label>Field</mat-label>
+              <mat-select [(value)]="item.operation.operator" (change)="onViewObjChange()">
+                <mat-option value=""></mat-option>
+                <mat-option value="SUM">SUM</mat-option>
+                <mat-option value="COUNT">COUNT</mat-option>
+                <mat-option value="MIN">MIN</mat-option>
+                <mat-option value="MAX">MAX</mat-option>
+                <mat-option value="AVG">AVG</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Operand</mat-label>
+              <mat-select [value]="item.operation.operand.split('.').pop()" 
+                          (valueChange)="item.operation.operand = 'object.'+$event; onViewObjChange()">
+                <mat-option *ngFor="let field of obk(class_scheme.fields)" [value]="field">{{field}}</mat-option>
+              </mat-select>
+              <label matPrefix>object.</label>
+            </mat-form-field>
+          </div>
+          <div>
+            <button mat-mini-fab color="primary" (click)="deleteGroupBy(index)"><mat-icon>delete</mat-icon></button>
+          </div>
+        </div>
+      </div>
+    </mat-expansion-panel>
+
+    <!-- Operations Section (List views only) -->
+    <mat-expansion-panel *ngIf="['list'].includes(viewObj.type)">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>calculate</mat-icon>
+          <label>Operations</label>
+        </mat-panel-title>
+        <mat-panel-description>
+          Add operation on fetched item
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+      <div>
+        <button mat-button color="primary" (click)="addOperation()"><mat-icon>add</mat-icon> Operation</button>
+        <div class="indent" *ngFor="let operation of viewObj.operations; index as i">
+          <mat-form-field>
+            <mat-label>Operation name</mat-label>
+            <input matInput [(ngModel)]="operation.name" (change)="onViewObjChange()">
+          </mat-form-field>
+          <button mat-mini-fab color="primary" (click)="addOp(i)"><mat-icon>add</mat-icon></button>
+          <button mat-mini-fab (click)="delOperation(i)"><mat-icon>delete</mat-icon></button>
+          <div class="indent" *ngFor="let op of operation.ops; index as j">
+            <mat-form-field>
+              <mat-label>Field</mat-label>
+              <mat-select [(value)]="op.name" (change)="onViewObjChange()">
+                <mat-option *ngFor="let item of fieldList(operation,op.name)" [value]="item">{{item}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Operations</mat-label>
+              <mat-select [(value)]="op.operation" (change)="onViewObjChange()">
+                <mat-option value="SUM">SUM</mat-option>
+                <mat-option value="COUNT">COUNT</mat-option>
+                <mat-option value="MIN">MIN</mat-option>
+                <mat-option value="MAX">MAX</mat-option>
+                <mat-option value="AVG">AVG</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Prefix</mat-label>
+              <input matInput [(ngModel)]="op.prefix" (change)="onViewObjChange()">
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Suffix</mat-label>
+              <input matInput [(ngModel)]="op.suffix" (change)="onViewObjChange()">
+            </mat-form-field>
+            <button mat-mini-fab (click)="delOp(i,j)"><mat-icon>delete</mat-icon></button>
+            <br>
+            <app-usages
+              [type]="op.operation==='COUNT' ? 'integer' : 'float'"
+              [usage]="op.usage"
+            >
+            </app-usages>
+          </div>
+        </div>
+      </div>
+    </mat-expansion-panel>
+
+    <!-- Domain Section (List views only) -->
+    <mat-expansion-panel *ngIf="['list'].includes(viewObj.type)">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>filter_alt</mat-icon>
+          <label>Domain</label>
+        </mat-panel-title>
+        <mat-panel-description>
+          Domain applied on to select item to show in the view
+        </mat-panel-description>
+        <mat-icon
+          class="toggleicon"
+          [class.on]="viewObj._has_domain"
+          (click)="$event.stopPropagation(); viewObj._has_domain = !viewObj._has_domain"
+        >
+          {{viewObj._has_domain?"toggle_on":"toggle_off"}}
+        </mat-icon>
+      </mat-expansion-panel-header>
+      <div *ngIf="viewObj._has_domain" class="indent">
+        <app-property-domain-component
+          [value]="viewObj.domain.dom"
+          [name]="'oui'"
+          [class]="entity"
+          (valueChange)="viewObj.domain.dom = $event; onViewObjChange()"
+        >
+        </app-property-domain-component>
+      </div>
+    </mat-expansion-panel>
+  </mat-accordion>
+
+  <div class="margin-spacer"></div>
+</div>

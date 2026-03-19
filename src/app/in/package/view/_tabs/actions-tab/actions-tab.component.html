@@ -1,0 +1,16 @@
+<div class="tab-item indent" #actionsTabContainer>
+  <div class="toggle-container tab-header">
+    <mat-slide-toggle [(ngModel)]="viewObj._has_actions"></mat-slide-toggle>
+    <label [style.opacity]="viewObj._has_actions ? 1 : 0.6" class="category-title maincolor">Actions </label>
+  </div>
+  <div *ngIf="viewObj._has_actions" class="indent tab-content">
+    <app-actions-container
+      [label]="'Edit actions'"
+      [acts]="viewObj.actions"
+      [controllers]="action_controllers"
+      [groups]="groups"
+      [entity]="entity"
+      [domainLabels]="true"
+    ></app-actions-container>
+  </div>
+</div>

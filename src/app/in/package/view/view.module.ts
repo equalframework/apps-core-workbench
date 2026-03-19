@@ -37,6 +37,13 @@ import { RouteEditComponent } from './_components/route-editor/route-edit/route-
 import { PopupLayoutModule } from 'src/app/in/popup-layout/popup-layout.module';
 import { UsagesModule } from 'src/app/in/usages/usages.module';
 
+// Tab components
+import { LayoutTabComponent } from './_tabs/layout-tab/layout-tab.component';
+import { HeaderTabComponent } from './_tabs/header-tab/header-tab.component';
+import { ActionsTabComponent } from './_tabs/actions-tab/actions-tab.component';
+import { RoutesTabComponent } from './_tabs/routes-tab/routes-tab.component';
+import { AdvancedTabComponent } from './_tabs/advanced-tab/advanced-tab.component';
+
 
 @NgModule({
   declarations: [
@@ -59,6 +66,11 @@ import { UsagesModule } from 'src/app/in/usages/usages.module';
     PreDefActionEditorComponent,
     RouteEditorComponent,
     RouteEditComponent,
+    LayoutTabComponent,
+    HeaderTabComponent,
+    ActionsTabComponent,
+    RoutesTabComponent,
+    AdvancedTabComponent
   ],
   imports: [
     CommonModule,
@@ -70,7 +82,9 @@ import { UsagesModule } from 'src/app/in/usages/usages.module';
     HttpClientModule,
     RouterModule,
     PopupLayoutModule,
-    UsagesModule
+    UsagesModule,
+    PropertyDomainModule,
+    PropertyClauseModule
   ],
   exports : [
 

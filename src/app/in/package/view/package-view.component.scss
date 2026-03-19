@@ -2,7 +2,7 @@
 @import "./_components/group-editor/_components/edit-item-form/edit-item-form.component.scss";
 
 :host {
-    overflow-y: hidden;
+    overflow-y: scroll;
     width: 100%;
     height: 100%;
 
@@ -21,42 +21,36 @@
     }
 
     .feature-container {
-        overflow-x: scroll ;
+        overflow-y: visible;
         height: calc(100% - 80px);
         padding: 0 24px 12px 24px;
+
+        /* Allow tab internal bodies to overflow and rely on the parent scrollbar */
+        .mat-tab-body-wrapper,
+        ::ng-deep .mat-tab-body-wrapper {
+            overflow: visible !important;
+            height: auto !important;
+            max-height: none !important;
+        }
+
+        .mat-tab-body,
+        ::ng-deep .mat-tab-body {
+            overflow-y: visible !important;
+            height: auto !important;
+            max-height: none !important;
+        }
     }
 
     .page-title {
         font-size: 1.5em;
     }
 
-    .category-title {
-        font-size: 1.3em;
-        margin-left: 12px;
-    }
-
-    .maincolor {
-        color : mat-color($maincolor)
-    }
-
-    .accentcolor {
-        color : mat-color($accentcolor)
-    }
-
     .flex {
         display: flex;
     }
 
-    .indent {
-        margin: 0 2em;
-    }
-
     .textarealong {
         width: 70em !important;
-    }
-
-    .addItem {
-        transform: scale(.7);
     }
 
     .loader {
@@ -128,165 +122,17 @@
     .tab-group {
         height: calc(100% - 65px);
         margin-top: 24px;
-
-        .tab-item {
-            margin-top: 24px;
-            .section-add-btn {
-                transform: scale(0.7);
-            }
-        }
     }
 
     .name {
         margin: 0;
     }
 
-    .toggleicon {
-        margin-right: 1em;
-        transform: scale(1.2) translateY(.1em);
-        -webkit-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-        color : #747474
-    }
-
-    .toggleicon.on {
-        color : mat-color($accentcolor) !important
-    }
-
-    .itemprez {
-        display: flex;
-        align-items: center;
-
-        .typeicon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: mat-color($maincolor,A100);
-            border-radius: 8px;
-            padding: 0 .5em;
-            margin-right: 10px;
-        }
-    }
-
-    .property-icon-holder {
-        margin-right: 10px;
-
-        .property-icon {
-            margin: 0 5px;
-        }
-    }
-
-    $border: #949494;
-    $ident: 20px;
-    $left: -($ident);
-
-    .tree {
-        list-style-type: none;
-        padding-left: 10px;
-        position: relative;
-        &:before {
-            content: "";
-            position: absolute;
-            top: -10px;
-            left:$left;
-            border-left: 1.5px solid $border;
-            border-bottom:1.5px solid $border;
-            width:$ident;
-            height:35px;
-        }
-    }
-
-    /* Toggle and header styling */
-    .toggle-container {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 16px;
-    }
-
-    .toggle-label {
-        &[data-disabled="true"] {
-            opacity: 0.6;
-        }
-    }
-
     .header-divider {
         margin: 0 5px;
-    }
-
-    .filter-field-row {
-        padding: 0 24px 12px 24px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        border-radius: 8px;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        margin-bottom: 1em;
-    }
-
-    .filter-inputs {
-        display: flex;
-        flex-direction: row;
-        gap: 8px;
-        flex-grow: 1;
-    }
-
-    .filter-info-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0.7;
-        font-style: italic;
-    }
-
-    .group-header {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .operation-field {
-        margin-left: 10px;
-    }
-
-    .tree-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        
-        &:not(:first-child) {
-            border-left: 1.5px solid $border;
-        }
-    }
-
-    .group-spacing {
-        margin-bottom: 24px;
     }
 
     .error-message {
         color: red;
     }
-
-    .sort-field {
-        margin-left: 10px;
-    }
-
-    .margin-spacer {
-        height: 1em;
-    }
-}
-
-.filters-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1em;
-
-    .addItem {
-        margin-left: 1em;
-        width: 40px;
-        height: 40px;
-    }
-
 }

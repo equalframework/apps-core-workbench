@@ -1,0 +1,59 @@
+@import '/src/styles.scss';
+
+:host {
+	display: block;
+	box-sizing: border-box;
+	padding-top: 16px;
+}
+
+.tab-item {
+	margin-top: 24px;
+}
+
+.indent {
+	margin: 0 2em;
+}
+
+.toggle-container {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 16px;
+}
+
+.category-title {
+	font-size: 1.3em;
+	margin-left: 12px;
+}
+
+.maincolor {
+	color: mat-color($maincolor);
+}
+
+.accentcolor {
+	color: mat-color($accentcolor);
+}
+
+.addItem {
+	transform: scale(.7);
+}
+
+.tab-header {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding-bottom: 12px;
+	border-bottom: 1px solid rgba(0,0,0,0.06);
+	margin-bottom: 12px;
+}
+
+.tab-content {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+@media (max-width: 600px) {
+	:host { padding: 12px; }
+	.tab-header { flex-direction: column; align-items: flex-start; }
+}
