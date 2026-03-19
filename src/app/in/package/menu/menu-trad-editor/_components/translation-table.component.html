@@ -1,0 +1,71 @@
+<table class="translation-table">
+  <thead class="test-header">
+    <tr>
+      <th *ngFor="let col of computedHeaders" [attr.colspan]="col.colspan" class="header-tile">
+        {{ col.label }}
+      </th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr *ngFor="let key of itemKeys" class="translation-row"
+    [appScrollTarget]="key"
+    [class.depth-0]="getDepth(key) === 0"
+    [class.depth-1]="getDepth(key) === 1"
+    [class.depth-2]="getDepth(key) === 2"
+    [class.depth-3]="getDepth(key) === 3"
+    [class.depth-4]="getDepth(key) === 4"
+    [class.has-children]="hasChildren(key)"
+    >
+
+      <!-- Active checkbox -->
+      <td class="checkbox-cell">
+        <mat-checkbox
+          [checked]="items[key].is_active"
+          (change)="changeActive(key)">
+        </mat-checkbox>
+      </td>
+
+      <!-- Field name with hierarchy visualization -->
+      <td class="fieldname-cell" [attr.colspan]="2">
+        <div class="fieldname-wrapper" [style.padding-left.rem]="getDepth(key) * 1.5">
+          <!-- Custom icon from menu schema if available -->
+          <mat-icon *ngIf="getItemIcon(key)" class="hierarchy-icon custom-icon">
+            {{ getItemIcon(key) }}
+          </mat-icon>
+          
+          <!-- Icons for visual hierarchy (fallback when no custom icon) -->
+          <mat-icon *ngIf="!getItemIcon(key) && hasChildren(key)" class="hierarchy-icon parent-icon">folder_open</mat-icon>
+          <mat-icon *ngIf="!getItemIcon(key) && !hasChildren(key)" class="hierarchy-icon entry-icon">label</mat-icon>
+          
+          <!-- Display name -->
+          <label class="fieldnamelabel" appScrollTarget="{{key}}">{{ getDisplayName(key) }}</label>
+          
+          <!-- Breadcrumb removed per UX request -->
+        </div>
+      </td>
+
+      <!-- Active: render inputs per field -->
+      <ng-container *ngIf="items[key].is_active">
+        <td *ngFor="let field of fields; let fi = index"
+            class="editable-cell"
+            [attr.colspan]="field.colspan">
+          <input
+            matInput
+            [placeholder]="field.placeholder"
+            [ngModel]="getFieldValue(key, field.key)"
+            (ngModelChange)="setFieldValue(key, field.key, $event)"
+            [name]="key + '-' + field.key"
+            [focus]="fi === 0"
+            spellcheck="true">
+        </td>
+      </ng-container>
+
+      <!-- Inactive: placeholder spanning remaining columns -->
+      <ng-container *ngIf="!items[key].is_active">
+        <td class="placeholder" [attr.colspan]="totalCols - 3"></td>
+      </ng-container>
+
+    </tr>
+  </tbody>
+</table>
