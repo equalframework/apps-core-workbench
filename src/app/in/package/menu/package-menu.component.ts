@@ -12,6 +12,8 @@ import { Subject } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
 import { WorkbenchService } from '../../_services/workbench.service';
 import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
+import { QueryParamNavigatorService } from 'src/app/_services/query-param-navigator.service';
+import { QueryParamActivatorRegistry, IQueryParamActivator } from 'src/app/_services/query-param-activator.registry';
 
 @Component({
     selector: 'package-menu',
@@ -38,6 +40,8 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
     public selected_item: MenuItem;
     public entity_fields: string[] = [];
 
+    private queryParamActivatorRegistry: QueryParamActivatorRegistry;
+
     constructor(
             private route: ActivatedRoute,
             private workbenchService: WorkbenchService,
@@ -45,9 +49,32 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
             private matSnack: MatSnackBar,
             private dialog: MatDialog,
             private routerMemory: RouterMemory,
+            private queryParamNavigator: QueryParamNavigatorService
         ) { }
 
     public async ngOnInit() {
+        // Initialize the query param activators registry
+        this.queryParamActivatorRegistry = new QueryParamActivatorRegistry();
+        
+        // Register activators for menu navigation
+        const fieldActivator = {
+            type: 'field',
+            queryParamKeys: ['element', 'field'],
+            canHandle: (key: string, value: any) => {
+                return ['element', 'field'].includes(key);
+            },
+            activate: async (key: string, value: any, context: any) => {
+                if (value && context.object && context.object.layout && context.object.layout.items) {
+                    // Find the menu item with matching ID and select it
+                    const menuItem = this.findMenuItemById(value, context.object.layout.items);
+                    if (menuItem) {
+                        context.selected_item = menuItem;
+                        context.updateEntityDependentFields();
+                    }
+                }
+            }
+        };
+        this.queryParamActivatorRegistry.register(fieldActivator);
 
         this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
             this.menu_name = params['menu_name'];
@@ -57,6 +84,7 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
                 this.menuSchema = menuSchema;
                 // Parsing the json as an Menu object
             // #memo - we clone the schema to avoid the Menu constructor to destroy the original copy
+            console.log("Menu schema : ", this.menuSchema);
             this.object = new Menu(cloneDeep(this.menuSchema));
             this.entities['model'] = await this.workbenchService.collectClasses(true).toPromise();
             this.entities['data'] = await this.workbenchService.collectControllers('data').toPromise();
@@ -64,6 +92,18 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
                 for(let key in data) {
                     this.groups.push(data[key]['name'])
                 }
+                // Handle URL query parameters for deep linking to specific tabs or sections
+                this.route.queryParams.subscribe(params => {
+                    if (Object.keys(params).length > 0 && this.queryParamActivatorRegistry) {
+                        this.queryParamNavigator.handleQueryParams(params, {
+                            activators: this.queryParamActivatorRegistry,
+                            context: this,
+                            elementKeys: ['element', 'field'],
+                            scrollDelay: 0,
+                            scrollOptions: { behavior: 'smooth', block: 'center' }
+                        });
+                    }
+                });
             });
             })
 
@@ -84,6 +124,16 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
         console.log(this.selected_item);
         this.updateEntityDependentFields();
         console.log(this.viewList);
+    }
+
+    /**
+     * Find a menu item by ID/label in the flat item list
+     * @param id The ID/label to search for
+     * @param items The array of menu items to search in
+     * @returns The found MenuItem or undefined
+     */
+    private findMenuItemById(id: string, items: MenuItem[]): MenuItem | undefined {
+        return items.find(item => item.label === id);
     }
 
     async updateEntityDependentFields() {
