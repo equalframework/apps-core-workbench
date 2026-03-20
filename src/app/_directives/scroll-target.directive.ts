@@ -35,7 +35,6 @@ export class ScrollTargetDirective implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    console.log('Registering scroll target:', this.targetId, this.elementRef.nativeElement);
     if (!this.targetId) {
       console.warn('appScrollTarget: ID not provided', this.elementRef.nativeElement);
       return;
