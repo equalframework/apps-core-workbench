@@ -1,4 +1,7 @@
-<div class="item-pretty" [class.selected]="selected_item && selected_item === item" (click)="select.emit(item)">
+<button class="item-pretty" 
+        [class.selected]="selected_item && selected_item === item" 
+        (click)="select.emit(item)"
+        appFocusableField="button-{{item.id}}">
     <div class="real-holder">
         <mat-icon *ngIf="item.icon" class="item-icon">{{item.icon}}</mat-icon>
         <div class="item-content">
@@ -20,18 +23,18 @@
             <mat-icon>delete</mat-icon>
         </button>
     </div>
-</div>
+</button>
 
 <div *ngIf="item.type === 'parent'" 
      class="indent"
      cdkDropList
      [cdkDropListData]="item.children"
-     (cdkDropListDropped)="drop($event)" appScrollTarget="{{item.id}}">
+     (cdkDropListDropped)="drop($event)" appScrollTarget="{{item.id}}" appFocusableField="menu-{{item.id}}-sidebar">
     <app-item-editor cdkDrag  
                      *ngFor="let child of item.children; index as i"
                      [item]="child"
                      [selected_item]="selected_item"
                      (select)="select.emit($event)"
-                     (deleteMe)="deleteChild(i)" appScrollTarget="{{child.id}}">
+                     (deleteMe)="deleteChild(i)" appScrollTarget="{{child.id}}" appFocusableField="menu-{{child.id}}-sidebar">
     </app-item-editor>
 </div>
