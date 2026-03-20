@@ -89,7 +89,7 @@ export class PackageViewComponent implements OnInit {
         const package_name = this.route.snapshot.paramMap.get('package_name');
         const entityView = this.route.snapshot.params['entity_view'];
         const [entityName, rest] = entityView.split(':');   // ['Post', 'default.form']
-        const [viewName, viewType] = rest.split('.');        // ['default', 'form']
+        const [viewType, viewName] = rest.split('.');        // ['default', 'form']
 
         this.icontype = this.TypeUsage.typeIcon;
         console.log("Route", this.route);
@@ -136,7 +136,7 @@ export class PackageViewComponent implements OnInit {
                                 this.queryParamNavigator.handleQueryParams(params, {
                                     activators: this.queryParamActivatorRegistry,
                                     context: this,
-                                    elementKeys: ['element', 'field'],
+                                    elementKeys: ['element'],
                                     scrollDelay: 100
                                 });
                             }
