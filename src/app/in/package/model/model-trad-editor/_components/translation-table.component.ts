@@ -35,6 +35,7 @@ export class TranslationTableComponent {
   @Input() selectedField?: string;
   @Input() headers?: GridHeaderColumn[];
   @Input() totalCols = 16;
+  @Input() tabName = '';
 
   get computedHeaders(): GridHeaderColumn[] {
     if (this.headers) return this.headers;
