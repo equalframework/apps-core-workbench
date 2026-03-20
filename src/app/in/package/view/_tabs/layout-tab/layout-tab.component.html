@@ -10,10 +10,12 @@
          #groupElement>
       <div class="group-header" appScrollTarget="{{group.id}}">
         <mat-form-field>
-          <input matInput placeholder="Group name" [value]="group.label==='' ? 'UNNAMED' : group.label" (change)="group.label = $event.target.value==='UNNAMED' ? '' : $event.target.value">
+          <input matInput appFocusableField="{{'group-' + group.id + '-name'}}"
+          placeholder="Group name" [value]="group.label==='' ? 'UNNAMED' : group.label" (change)="group.label = $event.target.value==='UNNAMED' ? '' : $event.target.value">
         </mat-form-field>
         <mat-form-field>
-          <input matInput placeholder="Group.id" [value]="group.id" (input)="group.id = $event.target.value">
+          <input matInput appFocusableField="{{'group-' + group.id + '-id'}}"
+          placeholder="Group.id" [value]="group.id" (input)="group.id = $event.target.value">
         </mat-form-field>
         <button mat-mini-fab color="primary" class="section-add-btn" (click)="deleteGroup(viewObj.layout.groups.indexOf(group))"><mat-icon>delete</mat-icon></button>
       </div>

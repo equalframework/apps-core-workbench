@@ -1,6 +1,6 @@
 <div class="tab-item indent" #advancedTabContainer>
-  <div>
-    <mat-form-field class="inputlong tab-header">
+  <div class="tab-header">
+    <mat-form-field class="inputlong">
       <mat-label>controller</mat-label>
       <mat-select [(value)]="viewObj.controller">
         <mat-option *ngFor="let item of collect_controller" value="{{item}}">
