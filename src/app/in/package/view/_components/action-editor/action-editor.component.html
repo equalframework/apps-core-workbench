@@ -10,18 +10,18 @@
         ></app-toggling-button>
         
         <mat-form-field class="flex-small">
-            <input matInput placeholder="id" [value]="obj.id" (change)="obj.id = $event.target.value">
+            <input matInput appFocusableField="action-{{obj.id}}-id" placeholder="id" [value]="obj.id" (change)="obj.id = $event.target.value">
         </mat-form-field>
         
         <mat-form-field class="flex-medium">
-            <input matInput placeholder="label" [value]="obj.label" (keyup)="obj.label = $event.target.value">
+            <input matInput appFocusableField="action-{{obj.id}}-label" placeholder="label" [value]="obj.label" (keyup)="obj.label = $event.target.value">
         </mat-form-field>
         <div class="icon-preview">
             <mat-icon>{{obj.icon}}</mat-icon>
         </div>
         
         <mat-form-field class="flex-small">
-            <input matInput placeholder="icon" [value]="obj.icon" (keyup)="obj.icon = $event.target.value">
+            <input matInput appFocusableField="action-{{obj.id}}-icon" placeholder="icon" [value]="obj.icon" (keyup)="obj.icon = $event.target.value">
             <a matSuffix href="https://fonts.google.com/icons?icon.set=Material+Icons" target="_blank">
                 <mat-icon class="help-icon">help</mat-icon>
             </a>
@@ -30,7 +30,7 @@
 
     <div class="content-row">
         <mat-form-field class="flex-small">
-            <input matInput placeholder="controller"
+            <input matInput appFocusableField="action-{{obj.id}}-controller" placeholder="controller"
             [(ngModel)]="obj.controller"
             (keyup)="tap($event.target.value)"
             [matAutocomplete]="auto">
@@ -42,7 +42,7 @@
         </mat-form-field>
         
         <mat-form-field class="flex-large">
-            <input matInput placeholder="description" [value]="obj.description" (keyup)="obj.description = $event.target.value">
+            <input matInput appFocusableField="action-{{obj.id}}-description" placeholder="description" [value]="obj.description" (keyup)="obj.description = $event.target.value">
         </mat-form-field>
     </div>
 
