@@ -61,6 +61,11 @@ export class QueryParamNavigatorService {
   // Mapping global of elementId -> elements with appScrollTarget
   private scrollTargets: Map<string, HTMLElement> = new Map();
 
+  // Mapping of fieldId -> input/select/button elements that can receive focus or be clicked
+  private focusableFields: Map<string, HTMLElement> = new Map();
+
+  private focusableFieldTags = ['INPUT', 'SELECT', 'TEXTAREA', 'BUTTON']; // Allow custom components like app-item-editor as focusable fields
+
   // Default scroll options if not provided in config
   private defaultScrollOptions: ScrollIntoViewOptions = {
     behavior: 'smooth',
@@ -68,7 +73,7 @@ export class QueryParamNavigatorService {
   };
 
   // Keys to identify the final element to scroll to (can be overridden in config)
-  private defaultElementKeys = ['element', 'field'];
+  private defaultElementKeys = ['element'];
 
   constructor(
     private router: Router,
@@ -96,7 +101,32 @@ export class QueryParamNavigatorService {
   }
 
   /**
+   * Registers a focusable field element by its ID, called by the appFocusableField directive
+   * @param fieldId Unique identifier for the field (e.g. 'item-1-value', 'customer-id-input', 'submit-button')
+   * @param element The input/select/button element that can receive focus or be clicked
+   */
+  registerFocusableField(fieldId: string, element: HTMLElement): void {
+    console.log('Tags for focusable field element:', element.tagName);
+    if (this.focusableFieldTags.includes((element as any).tagName)) {
+      this.focusableFields.set(fieldId, element);
+    } else {
+      console.warn(`Element with appFocusableField="${fieldId}" is not a focusable input/select/textarea/button`, element);
+    }
+  }
+
+  /**
+   * Unregisters a focusable field (e.g. when destroyed), called by the appFocusableField directive
+   */
+  unregisterFocusableField(fieldId: string): void {
+    this.focusableFields.delete(fieldId);
+  }
+
+  /**
    * Navigates to the element specified in the queryParams, activating intermediate components as needed based on the provided activators.
+   * 
+   * Handles both 'element' and 'field' query parameters:
+   * - 'element': Scrolls to an element
+   * - 'field': Scrolls to the element containing the field AND focuses the field
    * 
    * @param queryParams Object of queryParams (e.g. {tab: 'actions', element: 'field-customer'})
    * @param config Specific configuration for this component
@@ -107,7 +137,8 @@ export class QueryParamNavigatorService {
    *     this.queryParamNavigator.handleQueryParams(params, {
    *       activators: this.activatorRegistry,
    *       context: this,
-   *       elementKeys: ['element', 'field']
+   *       elementKeys: ['element'],
+   *       scrollDelay: 100
    *     });
    *   }
    * });
@@ -117,11 +148,17 @@ export class QueryParamNavigatorService {
     config: QueryParamNavigationConfig
   ): Promise<void> {
     const elementKeys = config.elementKeys || this.defaultElementKeys;
+    const fieldKey = 'field';
+    
+    // Check if we have a field parameter
+    const hasFieldParam = fieldKey in queryParams;
+    const fieldId = hasFieldParam ? queryParams[fieldKey] : undefined;
     
     // Iterate over queryParams and activate intermediate components (tabs, views, etc.) using the activators
     for (const [key, value] of Object.entries(queryParams)) {
-      // Ignore the keys that are meant to identify the final element to scroll to
-      if (elementKeys.includes(key)) {
+      // Ignore the keys that are meant to identify the final element or field to focus
+      if (elementKeys.includes(key) || key === fieldKey) {
+        console.log(`Skipping key "${key}" for intermediate activation, reserved for final element/field targeting`);
         continue;
       }
 
@@ -140,10 +177,36 @@ export class QueryParamNavigatorService {
       }
     }
 
-    // After activating all intermediate components, scroll to the final element if specified in queryParams
+    // After activating all intermediate components, handle element and field parameters
     const elementId = this.findElementInParams(queryParams, elementKeys);
-    if (elementId) {
+    
+    // If we have both element and field, scroll to element first then focus field
+    if (elementId && hasFieldParam) {
+      console.log(`Handling both element "${elementId}" and field "${fieldId}" parameters`);
       await this.scrollToElement(elementId, config);
+      await this.focusField(fieldId, config);
+    }
+    // If we have only element, just scroll
+    else if (elementId) {
+      console.log(`Handling element "${elementId}" parameter`);
+      await this.scrollToElement(elementId, config);
+    }
+    // If we have only field, scroll to the field's element (the parent containing the focusable field)
+    else if (hasFieldParam) {
+      console.log(`Handling field "${fieldId}" parameter`);
+      // Try to find the element containing this field
+      const fieldElement = this.focusableFields.get(fieldId);
+      if (fieldElement) {
+        // Find the closest scroll target parent
+        let parent = fieldElement.closest('[appScrollTarget]');
+        if (parent) {
+          const parentId = parent.getAttribute('appScrollTarget');
+          if (parentId) {
+            await this.scrollToElement(parentId, config);
+          }
+        }
+      }
+      await this.focusField(fieldId, config);
     }
   }
 
@@ -180,7 +243,6 @@ export class QueryParamNavigatorService {
     if (delay > 0) {
       await new Promise(resolve => setTimeout(resolve, delay));
     }
-
     const element = this.scrollTargets.get(elementId);
     
     if (element) {
@@ -195,6 +257,62 @@ export class QueryParamNavigatorService {
       console.warn(
         `Element with appScrollTarget="${elementId}" not found. ` +
         `Available targets: ${Array.from(this.scrollTargets.keys()).join(', ')}`
+      );
+    }
+  }
+
+  /**
+   * Focuses a specific field element or clicks a button
+   * 
+   * @param fieldId ID of the field or button (must have appFocusableField)
+   * @param config Configuration for the operation
+   */
+  async focusField(
+    fieldId: string,
+    config: Omit<QueryParamNavigationConfig, 'context'>
+  ): Promise<void> {
+    console.log(`Attempting to focus/click field: "${fieldId}"`);
+    console.log(`Registered focusable fields: ${Array.from(this.focusableFields.keys()).join(', ')}`);
+    const delay = config.scrollDelay || 0;
+    if (delay > 0) {
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+
+    const fieldElement = this.focusableFields.get(fieldId);
+    console.log(`Found field element for "${fieldId}":`, fieldElement);
+    
+    if (fieldElement) {
+      const tagName = (fieldElement as any).tagName;
+      // For button elements, click them
+      if (tagName === 'BUTTON') {
+        console.log(`Clicking button element:`, fieldElement);
+        (fieldElement as any).click();
+        console.log(`Clicked button: "${fieldId}"`);
+      }
+      // For native HTML form elements (input, select, textarea), focus them
+      else if (['INPUT', 'SELECT', 'TEXTAREA'].includes(tagName)) {
+        console.log(`Focusing field element:`, fieldElement);
+        (fieldElement as any).focus();
+        console.log(`Focused field: "${fieldId}"`);
+      } else {
+        // For other elements, try to find an input/select/textarea/button inside
+        const focusableChild = fieldElement.querySelector('input, select, textarea, button') as HTMLElement;
+        if (focusableChild) {
+          if ((focusableChild as any).tagName === 'BUTTON') {
+            (focusableChild as any).click();
+            console.log(`Clicked nested button in: "${fieldId}"`);
+          } else {
+            focusableChild.focus();
+            console.log(`Focused nested field in: "${fieldId}"`);
+          }
+        } else {
+          console.warn(`Field with appFocusableField="${fieldId}" has no focusable child element`);
+        }
+      }
+    } else {
+      console.warn(
+        `Field with appFocusableField="${fieldId}" not found. ` +
+        `Available fields: ${Array.from(this.focusableFields.keys()).join(', ')}`
       );
     }
   }
