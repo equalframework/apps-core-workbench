@@ -113,7 +113,7 @@ export class ModelTradEditorComponent implements OnInit {
     /**
      * Initialise les activateurs de queryParams pour la navigation
      */
-    private initializeFragmentNavigation(): void {
+    private initializeNavigation(): void {
         // Activateur pour les tabs principales (model, view, error)
         const tabActivator = {
             type: 'tab',
@@ -229,7 +229,7 @@ export class ModelTradEditorComponent implements OnInit {
         await this.initTranslations();
 
         // Initialiser la navigation par queryParams
-        this.initializeFragmentNavigation();
+        this.initializeNavigation();
 
         // Souscrire aux changements de queryParams
         this.route.queryParams.subscribe(params => {
@@ -237,13 +237,16 @@ export class ModelTradEditorComponent implements OnInit {
                 this.queryParamNavigator.handleQueryParams(params, {
                     activators: this.activatorRegistry,
                     context: this,
-                    elementKeys: ['element', 'field'],
-                    scrollDelay: 100
+                    elementKeys: ['element'],
+                    // Wait a bit before scrolling to ensure the DOM has updated with any changes (e.g. expanded sections)
+                    scrollDelay: 100,
+                    scrollOptions: { behavior: 'smooth', block: 'start' }
                 });
             }
         });
 
         this.loading = false;
+        console.log('Data loaded and component initialized:', this.data);
     }
 
     private fieldExists(lang: string | null | undefined, field: string): boolean {
@@ -387,7 +390,7 @@ export class ModelTradEditorComponent implements OnInit {
         this.lang = lang;
         this.activeField = '';
         this.errorActiveField = '';
-        this.cdr.detectChanges(); // ensure UI updates before any fragment activation
+        this.cdr.detectChanges();
         // Language change is persisted without URL manipulation
     }
 
@@ -397,7 +400,6 @@ export class ModelTradEditorComponent implements OnInit {
         this.activeView = this.activeTab === 'view' ? this.getViewNames()[0] || '' : '';
         this.activeField = '';
         this.errorActiveField = '';
-        // Fragment navigation is handled by the subscription in ngOnInit
     }
 
     getViewNames(): string[] {
@@ -416,7 +418,6 @@ export class ModelTradEditorComponent implements OnInit {
         this.viewActiveTab[this.activeView] = this.viewActiveTab[this.activeView] || '';
         this.selectedViewTabIndex[this.activeView] = this.selectedViewTabIndex[this.activeView] || 0;
         this.activeField = '';
-        // Fragment navigation is handled by the subscription in ngOnInit
     }
 
     private getVisibleInnerTabs(view: string): string[] {
@@ -443,7 +444,6 @@ export class ModelTradEditorComponent implements OnInit {
         this.viewActiveTab[view] = visible[index] || visible[0] || 'layout';
         this.selectedViewTabIndex[view] = index;
         this.activeField = '';
-        // Fragment navigation is handled by the subscription in ngOnInit
     }
 
 

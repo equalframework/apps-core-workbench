@@ -92,6 +92,7 @@
                 Field Translations
               </div>
               <app-translation-table
+                [tabName]="'model'"
                 [items]="data[lang].model"
                 [fields]="FIELD_CONFIGS.model"
                 [selectedField]="activeField">
@@ -134,6 +135,7 @@
                       <div class="tab-content">
                         <div class="section-title">Layout Components</div>
                         <app-translation-table
+                          [tabName] = "'layout'"
                           [items]="data[lang].view[view].layout"
                           [fields]="FIELD_CONFIGS.layout"
                           [selectedField]="activeField">
@@ -146,6 +148,7 @@
                       <div class="tab-content">
                         <div class="section-title">View Actions</div>
                         <app-translation-table
+                          [tabName] = "'actions'"
                           [items]="data[lang].view[view].actions"
                           [fields]="FIELD_CONFIGS.actions"
                           [selectedField]="activeField">
@@ -158,6 +161,7 @@
                       <div class="tab-content">
                         <div class="section-title">View Routes</div>
                         <app-translation-table
+                          [tabName] = "'routes'"
                           [items]="data[lang].view[view].routes"
                           [fields]="FIELD_CONFIGS.actions"
                           [selectedField]="activeField">
@@ -176,7 +180,7 @@
           <div class="tab-content">
             <div class="section-title">Error Messages</div>
             
-            <div *ngFor="let errType of getErrorFieldNames(lang)" class="error-section" [appScrollTarget]="errType">
+            <div *ngFor="let errType of getErrorFieldNames(lang)" class="error-section" appScrollTarget="error-{{errType}}">
 
               <div class="error-header">
                 <div class="error-title-container">
@@ -191,7 +195,7 @@
                   <span class="error-field-name">{{ errType }}</span>
                   <span class="field-type-badge">{{ getFieldType(errType) }}</span>
                 </div>
-                <mat-checkbox
+                <mat-checkbox appFocusableField="error-{{errType}}-checkbox"
                   [checked]="data[lang].error._base[errType].active"
                   (change)="changeActive(errType)"
                   class="error-checkbox">
@@ -238,6 +242,7 @@
                 <div class="error-list" *ngIf="data[lang].error._base[errType].active && obk(data[lang].error._base[errType].val).length > 0">
                   <div class="error-items-title">Error Translations</div>
                   <app-translation-table
+                    [tabName]="'suberror'"
                     [items]="data[lang].error._base[errType].val"
                     [fields]="FIELD_CONFIGS.error"
                     [selectedField]="errorActiveField">
