@@ -49,7 +49,7 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
     public error_count: number;
 
     public error_list: ConsistencyResultItem[];
-    public info_popup = true;
+    public info_popup = false;
     public consistency_loading = false;
     public consistency_checked = false;
     public loading: boolean = false;
@@ -178,6 +178,7 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
                 }
             }),
             finalize(() => {
+                this.info_popup = true;
                 this.consistency_loading = false;
                 this.consistency_checked = true;
             })
