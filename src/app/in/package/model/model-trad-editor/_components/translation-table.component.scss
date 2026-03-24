@@ -51,6 +51,19 @@
                     }
                 }
 
+				th.header-tile:first-child {
+					align-items: center;
+					justify-content: center;
+				}
+
+				th.header-tile:first-child mat-icon {
+					display: flex;
+					align-items: center;
+					font-size: 13px;
+					color: inherit;
+					line-height: 1;
+				}
+
 			}
 
 			tbody {
