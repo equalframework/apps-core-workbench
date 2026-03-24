@@ -12,6 +12,7 @@ export class RouteEditorComponent implements OnInit {
 
   @Input() obj: ViewRoute[]
   @Input() entity: string
+  @Input() package_name: string
 
   entity_list:string[]
 

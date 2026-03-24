@@ -9,6 +9,7 @@ import { View } from '../../_objects/View';
 export class RoutesTabComponent implements OnInit {
   @Input() viewObj: View;
   @Input() entity: string;
+  @Input() package_name: string;
   
   @Output() viewObjChange = new EventEmitter<View>();
 
@@ -20,13 +21,5 @@ export class RoutesTabComponent implements OnInit {
 
   ngOnInit(): void {
     // Initialization
-  }
-
-  private onSelect(): void {
-    console.log('Routes tab selected');
-  }
-
-  private onFocus(): void {
-    console.log('Routes tab focused');
   }
 }

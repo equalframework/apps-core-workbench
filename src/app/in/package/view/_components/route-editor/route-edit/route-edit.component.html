@@ -72,7 +72,7 @@
             <app-property-domain-component
                 [value]="route.visible.dom"
                 [name]="'oui'"
-                [class]="entity"
+                [class]="package_name + '\\' + entity"
                 (valueChange)="route.visible.dom = $event">
             </app-property-domain-component>
         </div>
@@ -86,10 +86,9 @@
                     <input matInput
                            [matAutocomplete]="auto"
                            [(ngModel)]="route.context.entity"
-                           (keyup)="updateAutocomplete(route.context.entity)"
-                           (change)="refreshViewList()" />
-                    <mat-autocomplete #auto="matAutocomplete">
-                        <mat-option *ngFor="let model of filtered_model_list">
+                           (keyup)="updateAutocomplete(route.context.entity)" />
+                    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="refreshViewList($event.option.value)">
+                        <mat-option *ngFor="let model of filtered_model_list" [value]="model">
                             {{ model }}
                         </mat-option>
                     </mat-autocomplete>
@@ -97,7 +96,7 @@
 
                 <mat-form-field class="longlongfield">
                     <mat-label>View</mat-label>
-                    <mat-select [(ngModel)]="route.context.view">
+                    <mat-select [(ngModel)]="route.context.view" [disabled]="ext_entity_view_list.length === 0">
                         <mat-option *ngFor="let view of ext_entity_view_list" 
                                    [value]="view.split(':')[1]">
                             {{ view }}
@@ -119,7 +118,7 @@
                 <app-property-domain-component
                     [value]="route.context.domain.dom"
                     [name]="'oui'"
-                    [class]="entity"
+                    [class]="package_name + '\\' + entity"
                     (valueChange)="route.context.domain.dom = $event">
                 </app-property-domain-component>
             </div>
