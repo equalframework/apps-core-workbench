@@ -20,7 +20,6 @@ export class EditSectionComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log(this.data)
   }
 
 }

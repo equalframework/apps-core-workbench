@@ -22,7 +22,6 @@ export class EditItemFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log(this.data)
   }
 
 }

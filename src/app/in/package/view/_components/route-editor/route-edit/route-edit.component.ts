@@ -28,7 +28,6 @@ export class RouteEditComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    console.log(this.route)
     this.filtered_model_list = this.model_list || []
 
     const defaultEntity = (this.package_name && this.entity) ? `${this.package_name}\\${this.entity}` : undefined
@@ -54,9 +53,7 @@ export class RouteEditComponent implements OnInit {
 
   async refreshViewList(class_name?: string) {
     this.equalComponentsProviderService.getComponents(class_name ? class_name.split('\\')[0] : this.package_name, 'view', class_name?.split('\\')[class_name?.split('\\').length - 1]).subscribe(views => {
-      console.log('Views:', views)
       this.ext_entity_view_list = (views || []).map(v => `${v.package_name}:${v.name}`)
-      console.log('Filtered Views:', this.ext_entity_view_list)
     });
   }
 

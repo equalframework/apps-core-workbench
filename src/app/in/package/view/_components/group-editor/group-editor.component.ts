@@ -146,7 +146,6 @@ class GroupEditorComponent implements OnInit,OnChanges {
   }
 
   drop_col(event: CdkDragDrop<ViewColumn[]>) {
-    console.log(event)
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     } else {
@@ -160,19 +159,15 @@ class GroupEditorComponent implements OnInit,OnChanges {
   }
 
   drag_item(event:any) {
-    console.log(event)
   }
 
   drop_item(event:any) {
-    console.log(event)
   }
 
   allowDrop(event:any) {
-    console.log(event)
   }
 
   updateDragged(item:ViewItem|undefined) {
-    console.log(item ? "drag" : "drop")
     this.dragged = item
   }
 

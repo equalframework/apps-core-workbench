@@ -124,7 +124,6 @@ export class ItemEditorComponent implements OnInit {
 
     async getlistOptions4View() {
         if (this.item.viewtype !== 1) return;
-        console.log(this.scheme['fields'][this.item.value]['foreign_object'] === this.cachelist.foreign);
         if (this._has_viewEnabled && this.scheme['fields'][this.item.value]['foreign_object'] === this.cachelist.foreign) {
             return;
         }

@@ -22,7 +22,6 @@ export class EditColComponent implements OnInit {
   parseInt = parseInt
     
   ngOnInit(): void {
-    console.log(this.data)
   }
 
 }
