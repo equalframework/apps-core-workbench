@@ -93,7 +93,7 @@
             <br>
             <app-property-domain-component *ngIf="param._visibility_is_domain"
                 [value]="param.visible_domain"
-                [class]="scheme"
+                [class]="package+ '\\' + entityName.split('_')[0] + '/' + entityName.split('_')[1]"
                 (valueChange)="changeVisible_Domain($event)">
             </app-property-domain-component>
             <mat-checkbox *ngIf="!param._visibility_is_domain" [checked]="param.visible_bool" (change)="changeVisible_bool($event.checked)">visible</mat-checkbox>
@@ -103,7 +103,7 @@
                 <label>Domain</label>
             </div>
             <app-property-domain-component
-                    [class]="param.foreign_object"
+                    [class]="package+ '\\' + param.foreign_object"
                     [value]="param.domain"
                 ></app-property-domain-component>
         </div>

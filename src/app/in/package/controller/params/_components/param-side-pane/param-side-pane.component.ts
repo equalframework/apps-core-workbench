@@ -16,6 +16,8 @@ export class ParamSidePaneComponent implements OnInit, OnChanges {
   @Input() usages: string[];
   @Input() scheme:{[id:string]:any};
   @Input() modelList:string[] = [];
+  @Input() package:string = ''
+  @Input() entityName:string = ''
 
   filteredModelList:string[];
 
