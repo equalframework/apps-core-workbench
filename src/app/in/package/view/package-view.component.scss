@@ -115,13 +115,10 @@
         margin-right: .5em;
     }
 
-    .tab-label-icon {
-        margin-right: .5em;
-    }
-
     .tab-group {
         height: calc(100% - 65px);
         margin-top: 24px;
+        // Tab styling unified in global styles.scss
     }
 
     .name {
