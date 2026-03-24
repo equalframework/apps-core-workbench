@@ -2,22 +2,19 @@
     width: 100%;
     height: 100%;
 
+    .list {
+      width: 360px;
+    }
 
-    .header-labels {
-        display: flex;
-        align-items: center;
-        gap: 0.5em;
-        flex-wrap: wrap;
+    ::ng-deep .right_pane {
+      display: flex;
+      flex-direction: column;
+      overflow: auto;
 
-      .borders{
-        padding: 0 .3em;
-        border-radius: .2em;
+      > div {
+        flex: 1;
+        height: 100%;
+        width: 100%;
       }
-
-      .separator {
-        font-weight: bold;
-      }
-      }
-
-    
+    }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { ActivatedRoute } from '@angular/router';
 import { Param } from '../../../_models/Params';
@@ -15,7 +15,8 @@ import { Subject } from 'rxjs';
 import { Location } from '@angular/common';
 
 /**
- * Component used to display the component of a package (using `/package/:package_name/controller/:controller_type/:controller_name/params` route)
+ * Component used to display the params of a controller
+ * Can be used standalone via routing or as a tab component with @Input properties
  * This component has an action historic built in.
  * Be careful if you add an element that alter the structure, you need to call onChange for the historic to work
  *
@@ -28,7 +29,12 @@ import { Location } from '@angular/common';
     "(body:keydown)" : "onKeydown($event)"
   }
 })
-export class PackageControllerParamsComponent implements OnInit {
+export class PackageControllerParamsComponent implements OnInit, OnDestroy {
+
+    // @Input properties for tab-based usage
+    @Input() controllerName: string = '';
+    @Input() controllerType: string = '';
+    @Input() controllerPackage: string = '';
 
     public error:boolean = false;
 
@@ -98,23 +104,39 @@ export class PackageControllerParamsComponent implements OnInit {
         this.types = ["array",...(await this.workbenchService.getTypeList())]
         this.usages = await this.workbenchService.getUsageList()
         this.types.sort((p1,p2) => p1.localeCompare(p2))
-        let a = this.activatedRoute.snapshot.paramMap.get('controller_name')
-        if(a) {
-            this.controller_name = a;
+        console.log('This controllerName: ', this.controllerName);
+        console.log('This controllerType: ', this.controllerType);
+        console.log('This controllerPackage: ', this.controllerPackage);
+        
+        // Use @Input properties if provided, otherwise get from ActivatedRoute
+        if (this.controllerName) {
+            this.controller_name = this.controllerName;
+            this.controller_type = this.controllerType;
+            this.controller_package = this.controllerPackage;
+            await this.initializeController();
+        } else {
+            let a = this.activatedRoute.snapshot.paramMap.get('controller_name')
+            if(a) {
+                this.controller_name = a;
+            }
+            else {
+                this.error = true;
+            }
+            a = this.activatedRoute.snapshot.paramMap.get('controller_type')
+            if(a) {
+                this.controller_type = a;
+            }
+            else {
+                this.error = true;
+            }
+            this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
+                this.controller_package = this.route.parent ? this.route.parent?.snapshot.paramMap.get('package_name') : params['package_name'];
+                await this.initializeController();
+            });
         }
-        else {
-            this.error = true;
-        }
-        a = this.activatedRoute.snapshot.paramMap.get('controller_type')
-        if(a) {
-            this.controller_type = a;
-        }
-        else {
-            this.error = true;
-        }
-        this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
-        this.controller_package = this.route.parent ? this.route.parent?.snapshot.paramMap.get('package_name') : params['package_name'];
+    }
 
+    private async initializeController() {
         this.type_icon = ItemTypes.getIconForType(this.controller_type);
         let comp: any = null;
         try {
@@ -151,7 +173,6 @@ export class PackageControllerParamsComponent implements OnInit {
         this.onChange("Opening file");
         this.modelList = await this.workbenchService.collectClasses(true).toPromise();
         this.loading = false;
-      });
     }
 
     public onSelection(index:number){

@@ -1,52 +1,33 @@
 <div *ngIf="error">
     Something went wrong...
 </div>
-<div class="app-inner-header">
-    <app-inner-header
-            [buttonBack]="true"
-            (onButtonBack)="goBack()"
-            [buttonCancelOne]="true"
-            [buttonCancelOneDisabled]="paramListHistory.length < 2"
-            (onButtonCancelOne)="cancelOneChange()"
-            [buttonRevertOne]="true"
-            [buttonRevertOneDisabled]="paramFutureHistory.length === 0"
-            (onButtonRevertOne)="revertOneChange()"
-            [buttonSave]="true"
-            (onButtonSave)="save()"
-            [customButton]="true"
-            [customButtonList]="[{name:'show JSON', icon:'bug_report', disabled:false}]"
-            (onCustomButton)="handleCustomButton($event)">
-        <div class="header-labels">
-            <label>Parameters of </label>
-            <div class="component-color-package borders">
-                <label>{{controller_package}}</label>
-            </div>
-            <label class="separator">_</label>
-            <div class="component-color-controller borders">
-                <label>{{ controller_name }}</label>
-            </div>
-        </div>
-    </app-inner-header>
-</div>
 
 <div *ngIf="loading" style="display: flex; align-items: center; justify-content: center; flex-direction: column;" class="full">
     <mat-spinner></mat-spinner>
     <label style="font-size: 20px; margin-top: 1em;">Loading...</label>
 </div>
-<app-classic-layout *ngIf="!loading">
-    <app-param-list
+<app-classic-layout *ngIf="!loading" style="height: 100% !important;">
+    <app-param-list class="list"
             [list]="paramList"
             [selectedIndex]="selectedIndex"
             (select)="onSelection($event)"
             (CRUD)="onChange($event)">
     </app-param-list>
 
-    <app-param-side-pane sidepane
-            [param]="paramList[selectedIndex]"
-            [types]="types"
-            [usages]="usages"
-            [scheme]="sch"
-            [modelList]="modelList"
-            (CRUD)="onChange($event)">
-    </app-param-side-pane>
+    <div sidepane>
+        <app-param-side-pane *ngIf="paramList && paramList.length > 0"
+                [param]="paramList[selectedIndex]"
+                [types]="types"
+                [usages]="usages"
+                [scheme]="sch"
+                [package]="controllerPackage"
+                [entityName]="controllerName"
+                [modelList]="modelList"
+                (CRUD)="onChange($event)">
+        </app-param-side-pane>
+        
+        <div *ngIf="!paramList || paramList.length === 0" style="display: flex; align-items: center; justify-content: center; height: 100%; color: #999;">
+            <p>No parameters available</p>
+        </div>
+    </div>
 </app-classic-layout>
