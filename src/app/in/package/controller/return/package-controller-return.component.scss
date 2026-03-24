@@ -1,132 +1,206 @@
 @import "src/theme.scss";
 
+// Design tokens
+$border-radius: 8px;
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 12px;
+$spacing-lg: 16px;
+$spacing-xl: 24px;
+$border-color: #e0e0e0;
+$bg-light: #fafbfc;
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+$shadow-md: 0 2px 8px rgba(0, 0, 0, 0.06);
+$text-secondary: #666666;
+
 :host {
     width: 100%;
     height: 100%;
     overflow: hidden;
     box-sizing: border-box;
+    display: flex;
+}
 
-    .app-inner-header {
-        height: 80px;
+.app-inner-body {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+}
 
-        .model-label {
-            background-color: mat-color($get-color,A100);
-            margin-left: 0;
-            padding: 0 .3em;
-            border-radius: .2em;
+.left_pane {
+    flex: 0 1 360px;
+    height: 100%;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
 
-            mat-icon {
-                margin-right: .1em;
-                transform: scale(1.1) translateY(.15em);
-            }
+.right_pane {
+    flex: 1;
+    height: 100%;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
 
-        }
+/* ─── Scrollable Content Container ────────────────────────────────────── */
+.scrollable-part {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
 
-        .package-label {
-            background-color: mat-color($package-color,A100);
-            margin-left: 0;
-            padding: 0 .3em;
-            border-radius: .2em;
-        }
+/* ─── Section Cards ───────────────────────────────────────────────────── */
+.part {
+    margin: $spacing-md $spacing-lg;
+    padding: $spacing-lg;
+    background-color: white;
+    border-radius: $border-radius;
+    box-shadow: $shadow-md;
+    border: 1px solid #f0f0f0;
+    transition: box-shadow 0.2s ease;
+    width: calc(100% - 2 * #{$spacing-lg});
+    box-sizing: border-box;
 
-    }
-
-    .app-inner-body {
-        height: calc(100% - 80px);
-        display: flex;
-        flex-direction: row;
-
-        .left_pane, .right_pane {
-            padding: 8px;
-            height: 100%;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        .left_pane {
-            flex: 0 1 400px;
-            max-width: 400px;
-        }
-
-        .right_pane {
-            flex: 1;
-        }
-
+    &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
 }
 
+.part-title {
+    font-size: 1.2em;
+    font-weight: 600;
+    margin-bottom: $spacing-md;
+    color: mat-color($maincolor);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+}
+
+.part-content {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    padding: 0;
+    width: 100%;
+}
+
+/* ─── Nested Subsections ──────────────────────────────────────────────── */
+.subpart {
+    padding: $spacing-lg;
+    background-color: $bg-light;
+    border: 1px solid $border-color;
+    border-radius: $border-radius;
+}
+
+.subpart-title {
+    font-size: 1em;
+    font-weight: 600;
+    margin-bottom: $spacing-md;
+    color: $text-secondary;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+/* ─── Type Information Badge ──────────────────────────────────────────── */
 .typeinfo {
     display: inline-flex;
     align-items: center;
-    padding: 0 .5em;
-    border-radius: 8px;
-    background-color: mat-color($maincolor,A100);
-    margin-right: .5em;
+    justify-content: center;
+    padding: $spacing-xs $spacing-sm;
+    border-radius: $border-radius;
+    background-color: mat-color($maincolor, A100);
+    color: mat-color($maincolor);
+    font-size: 0.9em;
+    font-weight: 500;
+    flex-shrink: 0;
+    margin-right: $spacing-sm;
+
+    mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+    }
 }
 
-
+/* ─── Delete Action Button ────────────────────────────────────────────── */
 .deletebuttoncontainer {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    margin-right: .5em;
+    margin-right: $spacing-sm;
     border-radius: 50%;
-    padding: 1px;
+    padding: $spacing-xs;
+    transition: all 0.2s ease;
+    cursor: pointer;
 
-    .deletebutton {
-        color : mat-color($accentcolor);
+    &:hover {
+        background-color: rgba(244, 67, 54, 0.08);
+    }
 
+    &:active {
+        transform: scale(0.95);
     }
 }
 
-.header-labels {
+.deletebutton {
+    color: mat-color($accentcolor);
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    &:hover {
+        color: darken(mat-color($accentcolor), 10%);
+    }
+}
+
+/* ─── Utility Classes for Common Patterns ──────────────────────────────── */
+
+/* Form field groups */
+.form-row {
+    display: flex;
+    gap: $spacing-md;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    margin-bottom: $spacing-md;
+
+    &.compact {
+        gap: $spacing-sm;
+    }
+}
+
+/* Fixed-width form fields */
+.field-width-20 {
+    width: 20em;
+}
+
+.field-width-50 {
+    width: 50em;
+}
+
+/* Inline form field styling */
+.field-inline {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Spacing utilities */
+.mb-1 { margin-bottom: $spacing-lg; }
+.ml-1 { margin-left: $spacing-lg; }
+.mt-2 { margin-top: $spacing-md; }
+.gap-x-1 { gap: $spacing-lg; }
+
+/* Flex helpers */
+.flex-center {
     display: flex;
     align-items: center;
-    gap: 0.5em;
-    flex-wrap: wrap;
-  }
-  .separator {
-    font-weight: bold;
-  }
-  .colorized{
-    padding: 0 .3em;
-    border-radius: .2em;
-}
-
-.part {
-    margin: .5em 1em;
-    padding : 1em;
-    width: calc(100% - 2em);
-    //border: solid #ddd 1px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    border-radius: 8px;
-
-    .part-title {
-        font-size: 1.3em;
-        margin-bottom: 1em;
-        color: mat-color($maincolor);
-    }
-
-    .part-content {
-        display: inline-block;
-        padding: 0 2em;
-        width: calc(100%);
-    }
-
-    .subpart {
-        padding: 1em;
-        border: solid #ddd 1px;
-        border-radius: 8px;
-
-        .subpart-title {
-            font-size: 1.1em;
-            margin-bottom: 1em;
-        }
-    }
-    
+    justify-content: center;
+    height: 100%;
 }
 
 .scrollable-part {
     overflow-y: scroll;
-    height: calc(100% - 80px);
 }

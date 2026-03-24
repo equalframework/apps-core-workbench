@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, Optional } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, Optional, Input } from '@angular/core';
 import { Form, FormControl } from '@angular/forms';
 import { ReturnFormatItem, ReturnValue } from './_objects/ReturnValue';
 import { TypeUsageService } from 'src/app/_services/type-usage.service';
@@ -16,8 +16,8 @@ import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
 
 /**
- * Component used to display the component of a package (using `/package/:package_name/controller/:controller_type/:controller_name/return` route)
- *
+ * Component used to display the response of a controller
+ * Can be used standalone via routing or as a tab component with @Input properties
  */
 @Component({
     selector: 'package-controller-return',
@@ -27,7 +27,12 @@ import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer
         "(body:keydown)" : "onKeydown($event)"
     }
 })
-export class PackageControllerReturnComponent implements OnInit {
+export class PackageControllerReturnComponent implements OnInit, OnDestroy {
+
+    // @Input properties for tab-based usage
+    @Input() controllerName: string = '';
+    @Input() controllerType: string = '';
+    @Input() controllerPackage: string = '';
 
     // rx subject for unsubscribing subscriptions on destroy
     private ngUnsubscribe = new Subject<void>();
@@ -40,6 +45,7 @@ export class PackageControllerReturnComponent implements OnInit {
 
     public controller_name:string;
     public controller_type:string;
+    public package_name:string;
 
     public entities:string[];
 
@@ -68,20 +74,21 @@ export class PackageControllerReturnComponent implements OnInit {
         ) { }
 
     public async ngOnInit() {
+        // Use @Input properties if provided, otherwise get from ActivatedRoute
+        if (this.controllerName && this.controllerType) {
+            this.controller_name = this.controllerName;
+            this.controller_type = this.controllerType;
+            this.package_name = this.controllerPackage;
+            await this.initializeController();
+        } else {
+            this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
+                this.controller_type = this.route.parent ? this.route.parent?.snapshot.paramMap.get('package_name') : params['package_name']
+                this.controller_name = this.route.parent ? this.route.parent?.snapshot.paramMap.get('controller_name') : params['controller_name']
+                this.package_name = params['package_name'];
 
-        this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
-            this.controller_type = params['controller_type'];
-            this.controller_name = params['controller_name'];
-            this.scheme = await this.workbenchService.announceController(this.controller_type, this.controller_name).toPromise();
-            this.object = new ReturnValue(cloneDeep(this.scheme.announcement.response));
-            this.typeControl.setValue(this.object.type)
-            this.typeControl.valueChanges.subscribe(value => {
-                    this.filtered_types_regular = this._filter(value, 'types_regular');
-                    this.filtered_types_custom = this._filter(value, 'types_custom');
-                    this.changeType(value);
-                });
-
-        });
+                await this.initializeController();
+            });
+        }
 
         this.typeIconList = this.TypeUsage.typeIcon;
         this.types_regular = await this.workbenchService.getTypeList();
@@ -89,7 +96,22 @@ export class PackageControllerReturnComponent implements OnInit {
 
         this.filtered_types_regular = this._filter('', 'types_regular');
         this.filtered_types_custom = this._filter('', 'types_custom');
+    }
 
+    private async initializeController() {
+        this.scheme = await this.workbenchService.announceController(this.controller_type, this.controller_name).toPromise();
+        this.object = new ReturnValue(cloneDeep(this.scheme.announcement.response));
+        this.typeControl.setValue(this.object.type)
+        this.typeControl.valueChanges.subscribe(value => {
+                this.filtered_types_regular = this._filter(value, 'types_regular');
+                this.filtered_types_custom = this._filter(value, 'types_custom');
+                this.changeType(value);
+            });
+    }
+
+    public ngOnDestroy() {
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
     }
 
     private getRouteParamsFromSnapshot(routeSnapshot: ActivatedRouteSnapshot): { [key: string]: any } {
