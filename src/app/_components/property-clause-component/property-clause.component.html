@@ -7,7 +7,7 @@
         </div>
         <ul>
             <li *ngFor="let condition of tempValue; index as j" class="condition">
-                <div style="display: flex; align-items: center; width: 100%; gap: 8px;">
+                <div style="display: flex; align-items: center; width: 100%; gap: 8px; border: 1px solid rgb(0, 0, 0, 0.2); border-radius: 6px;">
                     <!-- Operand -->
                     <app-auto-complete class="operand"
                         [label]="'Operand'"
@@ -50,7 +50,7 @@
                     <!-- Delete Condition -->
                     <div class="delete-condition">
                         <mat-icon class="pointable delete-condition-icon" (click)="removeCondition(j)" [attr.aria-label]="'Delete condition ' + j">
-                            Delete Condition
+                            delete
                         </mat-icon>
                     </div>
                 </div>

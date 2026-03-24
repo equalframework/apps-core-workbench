@@ -55,8 +55,8 @@ $left: -($ident);
         }
         
         .delete-condition {
+            padding-right: 8px;
             flex: 0 0 auto;
-            margin-left: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -120,3 +120,8 @@ $left: -($ident);
     }
 }
 
+::ng-deep .condition mat-form-field {
+    &.mat-form-field-appearance-fill .mat-form-field-underline {
+      display: none;
+    }
+  }

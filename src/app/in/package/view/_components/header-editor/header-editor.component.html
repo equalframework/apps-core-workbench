@@ -33,7 +33,7 @@
         <label [style.opacity]="obj.selection._has_selection_actions ? 1 : 0.6" class="category-title maincolor" appScrollTarget="list-selection-actions">Selection Actions</label>
     </div>
     <div *ngIf="obj.selection._has_selection_actions" class="indent">
-        <mat-checkbox [(ngModel)]="obj.selection.default">Default controller</mat-checkbox>
+        <mat-checkbox [(ngModel)]="obj.selection.default" class="custom-actions-label">Default controller</mat-checkbox>
         <br>
         <div *ngIf="obj.selection.default" class="predef-actions-list">
             <label class="custom-actions-label">Default Actions</label>
