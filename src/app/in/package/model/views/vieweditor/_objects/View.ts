@@ -294,7 +294,6 @@ class ViewGroupBy extends ViewElement {
     public items:ViewGroupByItem[]  = []
     constructor(scheme:any[]=[]) {
         super()
-        console.log(scheme)
         for(let item of scheme) {
             this.items.push(new ViewGroupByItem(item))
         }
@@ -1015,16 +1014,12 @@ class ViewSelection extends ViewElement {
     constructor(scheme:any={}) {
         super()
         if (scheme['default'] !== undefined) {
-            console.log("default catched")
             this.default = scheme['default']
             delete scheme['default']
-            console.log("next...")
             this._has_selection_actions = true
         }
         if (scheme['actions']) {
-            console.log("actions catched")
             this._has_selection_actions = true
-            console.log(scheme["actions"])
             scheme['actions'].forEach((action: any) => {
                 if( Object.keys(this.predef_actions).includes(action.id)) {
                     this.predef_actions[action.id].visible = action.visible
@@ -1035,7 +1030,6 @@ class ViewSelection extends ViewElement {
             delete scheme['actions']
         }
         if (scheme['default'] !== undefined || scheme['actions'])
-            console.log("selection parsing finished")
         this.leftover = scheme
     }
  
@@ -1101,7 +1095,6 @@ class ViewHeader extends ViewElement {
         if (scheme['actions']) {
             this._has_actions = true
             for (let key in this.actions) {
-                console.log( scheme['actions'][key])
                 // This is done to differenciate undefined value of false value (dynamic typing sucks)
                 if (typeof (scheme["actions"][key]) !== typeof (undefined)) {
                     if (typeof (scheme["actions"][key]) === typeof (true)) {
@@ -1125,8 +1118,6 @@ class ViewHeader extends ViewElement {
             }
         }
         if (scheme['selection']) {
-            console.log("selection detected")
-            console.log(scheme['selection'])
             this.selection = new ViewSelection(scheme['selection'])
             delete scheme['selection']
         }

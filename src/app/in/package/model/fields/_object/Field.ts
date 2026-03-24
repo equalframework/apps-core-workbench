@@ -131,7 +131,6 @@ function compareDictRecursif(dict1:any, dict2:any):number {
         if(dict2[item] === undefined) return 1;
         res = compareDictRecursif(dict1[item],dict2[item]);
         if(res !== 0){
-            console.log(item);
             return 1;
         }
     }
@@ -139,7 +138,6 @@ function compareDictRecursif(dict1:any, dict2:any):number {
         if(dict1[item] === undefined) return 1;
         res = compareDictRecursif(dict1[item], dict2[item]);
         if(res !== 0) {
-            console.log(item);
             return -1;
         }
     }

@@ -48,18 +48,13 @@ export class FieldEditorListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log("=============")
     this.filteredList = this._filter("")
-    console.log(this.filteredList)
     this.filterControl.valueChanges.subscribe(data => {
-      console.log("RTIO")
       this.filteredList = this._filter(data)
     })
   }
 
   ngOnChanges(): void {
-    console.log("----")
-    console.log(this.list)
     this.filteredList = this._filter(this.filterControl.value)
   }
 

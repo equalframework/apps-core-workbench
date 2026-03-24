@@ -28,7 +28,6 @@ export class WorkflowNodeComponent implements OnInit, AfterViewChecked {
   }
 
   ngAfterViewChecked(): void {
-    console.log()
     this.node.height = this.body.nativeElement.getBoundingClientRect().height
     this.node.width = this.body.nativeElement.getBoundingClientRect().width
   }

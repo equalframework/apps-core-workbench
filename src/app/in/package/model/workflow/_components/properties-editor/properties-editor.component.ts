@@ -43,7 +43,6 @@
                 console.warn('model_schema ou model_schema["fields"] est undefined ou null');
             }
             } else if (this.selectedLink >= 0) {
-            console.log("this .selecteLink ", this.selectedLink)
             this.updateACField();
         }
         else {

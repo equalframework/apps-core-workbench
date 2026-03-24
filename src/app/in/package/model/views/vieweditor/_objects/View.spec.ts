@@ -36,7 +36,6 @@ describe("View",() => {
                 ]
             },
         }, "form")
-        console.log(item.export())
         expect(item.id_compliant([]).ok).toBeTrue()
     })
 
@@ -46,8 +45,6 @@ describe("View",() => {
         item = new View(t2,"list")
         expect(compareDictRecursif(item.export(),t2)).toBe(0)
         item = new View(t3,"form")
-        console.log(t3)
-        console.log(item.export())
         expect(compareDictRecursifForm(item.export(),t3)).toBe(0)
         item = new View(t4,"list")
         expect(compareDictRecursif(item.export(),rt4)).toBe(0)
@@ -107,7 +104,6 @@ function compareDictRecursifForm(dict1:any, dict2:any):number {
             if(res !== 0) return -1
         }
     } catch {
-        console.log("returning 0 by error")
         return 0
     }
     return 0

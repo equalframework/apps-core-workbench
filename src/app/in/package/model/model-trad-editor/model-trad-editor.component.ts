@@ -246,7 +246,6 @@ export class ModelTradEditorComponent implements OnInit {
         });
 
         this.loading = false;
-        console.log('Data loaded and component initialized:', this.data);
     }
 
     private fieldExists(lang: string | null | undefined, field: string): boolean {
@@ -450,7 +449,6 @@ export class ModelTradEditorComponent implements OnInit {
 
     private async _buildModelTemplate(): Promise<void> {
         const scheme = await this.workbenchService.getSchema(`${this.package_name}\\${this.model_name}`).toPromise();
-        console.log('Fetched schema for model template:', scheme);
         const modelFields = Object.keys(scheme.fields);
         const viewsList = await this.workbenchService.collectViews(this.package_name, `${this.package_name}\\${this.model_name}`).toPromise();
         const views: { name: string, view: View }[] = [];
@@ -470,7 +468,6 @@ export class ModelTradEditorComponent implements OnInit {
         }
 
         this._modelTemplate = { modelFields, views, errors};
-        console.log('Model template built:', this._modelTemplate);
     }
 
     async createNewLang(): Promise<Translator> {

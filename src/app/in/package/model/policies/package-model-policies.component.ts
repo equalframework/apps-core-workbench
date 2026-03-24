@@ -72,7 +72,6 @@ export class PackageModelPoliciesComponent implements OnInit, OnDestroy {
 
     onselectPolicy(policy: PolicyItem): void {
         this.selectedPolicy = policy;
-        console.log('Policy:', this.selectedPolicy);
     }
 
     ngOnDestroy(): void {

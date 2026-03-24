@@ -50,7 +50,6 @@ export class PackageModelActions implements OnInit, OnDestroy {
         this.loadPolicies();
       });
 
-      console.log("Package and model:", this.package_name + "\\" + this.model_name);
     }
 
     /**

@@ -27,7 +27,6 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
     public models: string[] = [];
     public state: string = 'normal';
 
-    public log = console.log;
 
     public nodes: WorkflowNode[] = [];
     public links: WorkflowLink[] = [];
@@ -148,7 +147,6 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
 
     public changeState(state: string) {
         if (this.state !== state) {
-            console.log(`Changement d'état de ${this.state} vers ${state}`);
             this.state = state;
             if (!["linking-to"].includes(this.state)) {
                 this.selectedNode = -1;
@@ -175,7 +173,6 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
     }
 
     public ngOnChanges() {
-        console.log("ngOnChanges appelé");
     }
 
     public deleteLink() {
@@ -194,7 +191,6 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
     }
 
     public dragoff(event: CdkDragEnd) {
-        console.log('Drag ended:', event);
     }
 
     public requestLinkFrom() {
@@ -263,7 +259,6 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
 
 
     public save() {
-        console.log('Starting workflow save process...');
         if (!this.exists) {
             this.workbenchService.createWorkflow(this.package, this.model).subscribe((create) => {
                 if (!create) {
@@ -279,7 +274,6 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
 
     private saveWorkflowWithMetaData() {
         const workflowJSON = JSON.stringify(this.export());
-        console.log('Sending workflow data for saving:', workflowJSON);
         this.workbenchService.saveWorkflow(this.package, this.model, workflowJSON)
             .subscribe((ret: any) => {
                 if (!ret) {

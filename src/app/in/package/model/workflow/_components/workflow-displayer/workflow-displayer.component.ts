@@ -29,7 +29,6 @@
 
     anchor = Anchor
 
-    log = console.log
 
 
     offset = {x : 0, y :0}
@@ -59,7 +58,6 @@
     mouseDown() {
         if(['create-node'].includes(this.state)){
             const pos =  {x : this.mouse_pos.position.x - this.offset.x, y: this.mouse_pos.position.y - this.offset.y}
-            console.log(pos)
         this.nodes.push(new WorkflowNode('new_node',{position : pos}))
         }
         else {

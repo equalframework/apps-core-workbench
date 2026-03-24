@@ -38,7 +38,6 @@ export class FieldAutocompleteComponent implements OnInit {
   }
 
   checkvalue() {
-    console.log("checked")
     if(this.values.includes(this.valueControl.value) && (this.value !== this.valueControl.value))
       this.valueChange.emit(this.valueControl.value)
   }
@@ -48,7 +47,6 @@ export class FieldAutocompleteComponent implements OnInit {
   }
 
   noCancel(event: KeyboardEvent) {
-    console.log(event)
     if( event.key === "z" && event.ctrlKey) {
       event.preventDefault()
       event.stopImmediatePropagation()

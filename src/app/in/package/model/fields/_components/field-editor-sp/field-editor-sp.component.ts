@@ -61,7 +61,6 @@ export class FieldEditorSpComponent implements OnInit {
   }
 
   changeTypeValue(value: string) {
-    console.log(value)
     if (this.field) {
       this.field.type = value
       this.field.default = undefined
