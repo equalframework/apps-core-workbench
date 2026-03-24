@@ -1,18 +1,21 @@
 :host {
+    width: 100%;
     height: calc(100% - 80px);
     display: flex;
     flex-direction: row;
 
     div {
-        padding: 20px 20px 20px 20px;
+        padding: 8px;
         height: 100%;
         width: 100%;
         box-sizing: border-box;
     }
 
     .left_pane {
-        flex: 0 1 400px;
-        max-width: 400px;
+        flex: 0 1 360px;
+        max-width: 360px;
+        padding: 8px;
+
     }
 
     .right_pane {
