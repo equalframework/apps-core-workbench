@@ -86,4 +86,12 @@ export class ParamListComponent implements OnInit, OnChanges {
     this.filteredList = this._filter(this.filterControl.value)
   }
 
+  clearFilter() {
+    this.filterControl.setValue("")
+  }
+
+  trackByFn(index: number, item: Params) {
+    return index;
+  }
+
 }

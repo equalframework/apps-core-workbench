@@ -1,81 +1,139 @@
 @import "src/theme.scss";
 
 :host {
-    width : 100%;
-    height : 100%;
-}
-
-.list {
-    box-shadow: 0 1px 4px rgba(0,0,0,0.09);
-    border-radius: 1em;
-    padding: .5em;
-    width : 100%;
-    height : calc(90% - 35px - 1em);
-    overflow-y: scroll;
-}
-
-.selected {
-    background-color: #dddddd;
-}
-
-.icon {
-    display : flex;
-    justify-content: center;
-    align-items: center;
-    background-color: mat-color($maincolor,A100) ;
-    min-width: 3em;
-    width: 10%;
-    height: 2em;
-    border-radius: 1em;
-}
-
-.name {
-    padding: 0 2em;
-    width: calc( 100% - max(2em,10%) );
-}
-
-.item {
     width: 100%;
-    height: 3em;
-    align-items: center;
-    cursor : pointer;
-    border-radius: .5em;
-    &:hover {
-        background-color: #ebebeb !important;
-    }
-}
-
-.filterinput {
-    margin-right: 10px;
-    width : 100%
-}
-
-.creator {
-    margin-top: .5em;
-    height: calc(10% - 30px + .5em);
+    height: 100%;
+    position: relative;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 1em;
-    border-radius: 1em;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.09);
+    flex-direction: column;
 
-    .buttoncreate {
+    .searchbar {
+        height: 54px;
+        width: 100%;
+
+        .input-query {
+            display: inline-block;
+            width: 90%;
+            height: 65px;
+            padding: 0px !important;
+            margin-bottom: -11px;
+        }
+    }
+
+    .list {
+        border-radius: 8px;
+        height: 100%;
+        max-height: calc(100% - 56px - 66px);
+        background-color: white;
+        overflow-y: scroll;
+        min-width: 340px;
+        max-width: 100%;
+        width: 100%;
+        box-sizing: border-box;
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #c0b5b5;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #656161;
+        }
+
+        ::ng-deep .mat-list-item-content {
+            padding: 5px 5px 0 5px !important;
+        }
+
+        .item {
+            width: 100%;
+            min-height: 50px;
+        }
+
+        .item_display {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            min-width: 320px;
+            max-width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            user-select: none;
+            box-sizing: border-box;
+
+            &.hover:hover {
+                background-color: #ebebeb !important;
+            }
+
+            &.selected {
+                background-color: #dbdbdb !important;
+            }
+
+            .inner {
+                height: 100%;
+                width: 100%;
+                display: flex;
+                align-items: center;
+                cursor: pointer;
+
+                .item-actions {
+                    width: 80px;
+                    display: flex;
+                    justify-content: flex-end;
+                    padding-right: 10px;
+                }
+
+                .item-text {
+                    flex: 1;
+                    height: 100%;
+                    width: 100%;
+                    padding-left: 10px;
+                    display: flex;
+                    align-items: center;
+                    max-width: calc(100% - 80px);
+                    min-width: 0;
+
+                    .item-name {
+                        overflow: hidden;
+                        white-space: nowrap;
+                        display: inline-block;
+                        width: 80%;
+                        min-width: 0;
+                        text-overflow: ellipsis;
+                        max-width: 100%;
+                    }
+                    .component-colored {
+                        background-color: mat-color($maincolor, A100);
+                    }
+
+                    .item-icon {
+                        display: inline-block;
+                        width: 10%;
+                        text-align: center;
+                        margin-right: 5%;
+
+
+                        mat-icon {
+                            transform: scale(.8) translateY(.2em);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .adder {
+        height: 56px;
+        margin-top: 10px;
+        background-color: mat-color($maincolor);
+        color: white;
+        border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 16px;
-        height: 70%;
-        background-color: mat-color($maincolor);
-        border: none;
-        color: white;
-        border-radius: 1em;
-        padding: 0 1em;
-    }
-
-    .fieldcreate {
-        width: 100%;
-        margin-right: 1em;
-        margin-top: .5em;
+        cursor: pointer;
     }
 }

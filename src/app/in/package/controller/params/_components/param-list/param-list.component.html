@@ -1,26 +1,37 @@
-<div>
-    <mat-form-field class="filterinput">
+<div class="searchbar">
+    <mat-form-field class="input-query">
         <mat-icon matPrefix>filter_list</mat-icon>
-        <mat-label>Filter</mat-label>
-        <input matInput [formControl]="filterControl">
+        <input matInput placeholder="Filter" [formControl]="filterControl">
+        <button *ngIf="filterControl.value && filterControl.value !== ''"
+                matSuffix
+                mat-icon-button
+                aria-label="Clear"
+                (click)="clearFilter()">
+            <mat-icon>close</mat-icon>
+        </button>
     </mat-form-field>
 </div>
+
 <mat-list class="list">
-    <mat-list-item *ngFor="let item of filteredList" class="item" (click)="onClickItem(list.indexOf(item))" [class.selected]="this.selectedIndex === list.indexOf(item)">
-        <div class="icon">
-            <mat-icon>{{iconList[item.type]}}</mat-icon>
-        </div>
-        <div class="name">
-            <label>{{item.name}}</label>
-        </div>
-        <div class="button">
-            <button mat-icon-button (click)="deleteItem(list.indexOf(item))"><mat-icon>delete</mat-icon></button>
+    <mat-list-item *ngFor="let item of filteredList; trackBy: trackByFn" class="item">
+        <div class="item_display"
+                [class.hover]="selectedIndex !== list.indexOf(item)"
+                [class.selected]="selectedIndex === list.indexOf(item)">
+            <div class="inner" (click)="onClickItem(list.indexOf(item))">
+                <div class="item-text">
+                    <label class="item-icon component-icon component-colored"><mat-icon>{{iconList[item.type]}}</mat-icon></label>
+                    <label class="item-name">{{item.name}}</label>
+                </div>
+                <div class="item-actions">
+                    <button mat-icon-button aria-label="Delete item button">
+                        <mat-icon (click)="deleteItem(list.indexOf(item))">delete</mat-icon>
+                    </button>
+                </div>
+            </div>
         </div>
     </mat-list-item>
 </mat-list>
-<div class="creator">
-    <mat-form-field class="fieldcreate">
-        <input matInput [formControl]="createControl" (keydown.enter)="createItem()">
-    </mat-form-field>
-    <button class="buttoncreate" (click)="createItem()"><mat-icon>add</mat-icon> Param</button>
+
+<div class="adder" (click)="createItem()">
+    <mat-icon style="margin-right: 1em;">add</mat-icon> Create new param
 </div>
