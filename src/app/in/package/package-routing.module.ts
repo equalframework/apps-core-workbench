@@ -4,9 +4,8 @@ import { RouterModule, Routes } from '@angular/router';
 import { PackageComponent } from './package.component';
 import { PackageRoutesComponent } from './routes/package-routes.component';
 import { AppComponent } from '../app.component';
-import { ModelTradEditorModule } from './model/model-trad-editor/model-trad-editor.module';
-import { PackageViewComponent } from './view/package-view.component';
-import { PackageMenuComponent } from './menu/package-menu.component';
+
+
 
 
 const routes: Routes = [
@@ -77,12 +76,8 @@ const routes: Routes = [
         component: AppComponent
     },
     {
-        path: 'controller/:controller_type/:controller_name/params',
-        loadChildren: () => import('./controller/params/params.module').then(m => m.PackageControllerParamsModule)
-    },
-    {
-        path: 'controller/:controller_type/:controller_name/returns',
-        loadChildren: () => import('./controller/return/return.module').then(m => m.PackageControllerReturnModule)
+        path: 'controller/:controller_type/:controller_name/edit',
+        loadChildren: () => import('./controller/controller.module').then(m => m.AppInControllerModule)
     },
     {
         path: 'controller/:controller_type/:controller_name',

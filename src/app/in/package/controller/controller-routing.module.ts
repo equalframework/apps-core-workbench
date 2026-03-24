@@ -4,13 +4,8 @@ import { PackageControllerComponent } from './package-controller.component';
 
 const routes: Routes = [
     {
-        path: 'returns',
-        loadChildren: () => import('./return/return.module').then(m => m.PackageControllerReturnModule)
-    },
-    {
-        path: 'params',
-        loadChildren: () => import('./params/params.module').then(m => m.PackageControllerParamsModule)
-
+        path: '',
+        component: PackageControllerComponent
     }
 ];
 
