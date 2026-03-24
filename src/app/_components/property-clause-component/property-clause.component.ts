@@ -33,7 +33,7 @@ export class PropertyClauseComponent implements OnInit {
     async getSchema() {
         this.workbenchService.getSchema(this.class)
             .subscribe(schema => {
-                this.fields = schema.fields;
+                this.fields = schema;
             });
     }
 
@@ -52,7 +52,6 @@ export class PropertyClauseComponent implements OnInit {
 
     public getTypeFromField(value:string) {
         if(this.fields.fields[value]){
-            console.log(this.fields.fields[value].type)
             if(this.fields.fields[value].type === "computed"){
                 console.log(this.fields.fields[value].result_type)
                 return this.fields.fields[value].result_type
