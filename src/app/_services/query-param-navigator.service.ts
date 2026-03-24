@@ -106,7 +106,6 @@ export class QueryParamNavigatorService {
    * @param element The input/select/button element that can receive focus or be clicked
    */
   registerFocusableField(fieldId: string, element: HTMLElement): void {
-    console.log('Tags for focusable field element:', element.tagName);
     if (this.focusableFieldTags.includes((element as any).tagName)) {
       this.focusableFields.set(fieldId, element);
     } else {
