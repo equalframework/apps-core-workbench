@@ -36,11 +36,9 @@ export class FieldEditorSpComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    console.log(Field.type_directives)
   }
 
   async ngOnChanges() {
-    console.log("refreshed")
     if(this.field)
       try {
         if(this.oldfobj !== this.field.foreign_object) {

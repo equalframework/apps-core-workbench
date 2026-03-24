@@ -273,7 +273,7 @@
                             <mat-icon class="toggleicon" [class.on]="field._has_visible" (click)="$event.stopPropagation();changeHasVisible(!field._has_visible)">{{field._has_visible?"toggle_on":"toggle_off"}}</mat-icon>
                         </mat-expansion-panel-header>
                         <app-property-domain-component *ngIf="field._has_visible"
-                            [class]="dummyscheme"
+                            [class]="field.foreign_object"
                             [value]="field.visible"
                             (valueChange)="changeVisible($event)">
                         </app-property-domain-component>
