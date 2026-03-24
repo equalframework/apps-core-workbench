@@ -14,6 +14,7 @@ export class ActionEditorComponent implements OnInit {
   @Input() groups: string[] = []
   @Input() entity: string
   @Input() actionIndex: number = 0
+  @Input() package_name: string
 
   @Output() delete = new EventEmitter<void>()
   big_disp = false

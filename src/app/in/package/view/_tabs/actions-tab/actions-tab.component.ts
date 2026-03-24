@@ -11,6 +11,7 @@ export class ActionsTabComponent implements OnInit {
   @Input() action_controllers: string[] = [];
   @Input() groups: string[] = [];
   @Input() entity: string;
+  @Input() package_name: string;
   
   @Output() viewObjChange = new EventEmitter<View>();
 

@@ -15,6 +15,7 @@ export class ActionsContainerComponent implements OnInit {
   @Input() groups:string[]
   @Input() entity:string
   @Input() domainLabels:boolean = false
+  @Input() package_name:string
 
 
   constructor(

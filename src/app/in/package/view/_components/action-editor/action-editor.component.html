@@ -72,7 +72,7 @@
             <app-property-domain-component
                 [value]="obj.visible.dom"
                 [name]="'oui'"
-                [class]="entity"
+                [class]="package_name + '\\' + entity"
                 (valueChange)="obj.visible.dom = $event"
             ></app-property-domain-component>
         </div>

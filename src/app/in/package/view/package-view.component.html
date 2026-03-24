@@ -14,7 +14,7 @@
             [buttonBack]="true"
             (onButtonBack)="goBack()"
             [buttonSave]="true"
-            [buttonSaveDisabled]="!idCompliancy.ok"
+            [buttonSaveDisabled]="!idCompliancy.ok || isSaving"
             (onButtonSave)="save()"
             [buttonCancel]="true"
             (onButtonCancel)="cancel()"
@@ -29,7 +29,7 @@
                 <label class="component-color-view colorized">{{node.name.split(":")[1]}}</label>
             </div>
     </app-inner-header>
-    <div class="feature-container">
+    <div class="feature-container" >
         <label *ngIf="!idCompliancy.ok" class="error-message">ERROR : {{ (idDoublons.length > 0) ? "Some IDs are duplicated ("+idDoublons+")" : "Some items don't have an ID"}}</label>
         <div class="name">
             <mat-form-field class="inputlong">
@@ -59,6 +59,7 @@
                     [entity]="entity"
                     [fields]="fields"
                     [groups]="groups"
+                    [package_name]="this.node.package_name"
                     [action_controllers]="action_controllers"
                     [class_scheme]="class_scheme"
                     [iconType]="icontype"
@@ -92,6 +93,7 @@
                         [viewObj]="viewObj"
                         [action_controllers]="action_controllers"
                         [groups]="groups"
+                        [package_name]="node.package_name"
                         [entity]="entity"
                         (viewObjChange)="onViewObjChange($event)"
                     ></app-actions-tab>
@@ -106,6 +108,7 @@
                     <app-routes-tab
                         [viewObj]="viewObj"
                         [entity]="entity"
+                        [package_name]="node.package_name"
                         (viewObjChange)="onViewObjChange($event)"
                     ></app-routes-tab>
                 </mat-tab>
