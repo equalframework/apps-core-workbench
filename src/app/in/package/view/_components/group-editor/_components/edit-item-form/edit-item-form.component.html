@@ -7,7 +7,7 @@
     <app-item-editor
     [item]="editingItem"
     [fields]="data.fields"
-    [entity]="data.entity"
+    [entity]="data.package + '\\' + data.entity"
     [types]="types"
     [groups]="data.groups"
     [action_controllers]="data.action_controllers"

@@ -14,7 +14,7 @@ export class EditColComponent implements OnInit {
 
   constructor(
     @Optional() public dialogRef: MatDialogRef<GroupEditorComponent>,
-    @Optional() @Inject(MAT_DIALOG_DATA) public data:{col:ViewColumn,entity:string}
+    @Optional() @Inject(MAT_DIALOG_DATA) public data:{col:ViewColumn,entity:string, package:string}
   ) {
     this.editingCol = cloneDeep(data.col);
   }

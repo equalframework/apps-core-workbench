@@ -16,7 +16,7 @@ export class EditItemFormComponent implements OnInit {
 
   constructor(
     @Optional() public dialogRef: MatDialogRef<GroupEditorComponent>,
-    @Optional() @Inject(MAT_DIALOG_DATA) public data:{item:ViewItem,entity:string,fields:string[],groups:string[],action_controllers:string[]}
+    @Optional() @Inject(MAT_DIALOG_DATA) public data:{item:ViewItem,entity:string,fields:string[],groups:string[],action_controllers:string[], package:string}
   ) {
     this.editingItem = cloneDeep(data.item);
   }

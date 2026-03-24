@@ -21,6 +21,7 @@ class GroupEditorComponent implements OnInit,OnChanges {
   selected_index:number = -1
   @Input() group_obj:ViewSection[]
   @Input() entity:string
+  @Input() package:string
   @Input() fields:string[]
   @Output() onChange = new EventEmitter<ViewSection[]>()
   @Input() groups:string[]
@@ -52,7 +53,7 @@ class GroupEditorComponent implements OnInit,OnChanges {
   }
   
   editSection(el:ViewSection) {
-    this.matDialog.open(EditSectionComponent,{data:{section:el,entity:this.entity}}).afterClosed().subscribe((result) => {
+    this.matDialog.open(EditSectionComponent,{data:{section:el,entity:this.entity, package:this.package}}).afterClosed().subscribe((result) => {
       if (result) {
         // Find and update the section in group_obj
         const index = this.group_obj.indexOf(el);
@@ -76,7 +77,7 @@ class GroupEditorComponent implements OnInit,OnChanges {
   }
 
   editRow(row:ViewRow) {
-    this.matDialog.open(EditRowComponent,{data:{row:row,entity:this.entity}}).afterClosed().subscribe((result) => {
+    this.matDialog.open(EditRowComponent,{data:{row:row,entity:this.entity,package:this.package}}).afterClosed().subscribe((result) => {
       if (result) {
         // Find and update the row in selected?.rows
         const index = this.selected?.rows.indexOf(row);
@@ -96,7 +97,7 @@ class GroupEditorComponent implements OnInit,OnChanges {
   }
 
   editColumn(col:ViewColumn) {
-    this.matDialog.open(EditColComponent,{data:{col:col,entity:this.entity}}).afterClosed().subscribe((result) => {
+    this.matDialog.open(EditColComponent,{data:{col:col,entity:this.entity,package:this.package}}).afterClosed().subscribe((result) => {
       if (result) {
         // Find and update the column in selected?.rows
         const index = this.selected?.rows.findIndex(row => row.columns.includes(col));
@@ -112,7 +113,7 @@ class GroupEditorComponent implements OnInit,OnChanges {
   }
   
   editItem(item:ViewItem) {
-    this.matDialog.open(EditItemFormComponent,{data:{item:item,entity:this.entity,fields:this.fields,groups:this.groups,action_controllers :this.action_controllers}}).afterClosed().subscribe((result) => {
+    this.matDialog.open(EditItemFormComponent,{data:{item:item,entity:this.entity,fields:this.fields,groups:this.groups,action_controllers :this.action_controllers, package:this.package}}).afterClosed().subscribe((result) => {
       if (result) {
         // Find and update the item in selected?.rows
         const index = this.selected?.rows.findIndex(row => row.columns.some(col => col.items.includes(item)));

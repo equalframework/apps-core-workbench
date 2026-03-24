@@ -20,7 +20,7 @@
         <app-property-domain-component
             [value]="editingCol.visible.dom"
             [name]="'oui'"
-            [class]="data.entity"
+            [class]="data.package + '\\' + data.entity"
             (valueChange)="editingCol.visible.dom = $event"
         >
         </app-property-domain-component>

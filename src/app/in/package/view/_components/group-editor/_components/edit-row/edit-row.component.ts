@@ -14,7 +14,7 @@ export class EditRowComponent implements OnInit {
 
   constructor(
     @Optional() public dialogRef: MatDialogRef<GroupEditorComponent>,
-    @Optional() @Inject(MAT_DIALOG_DATA) public data:{row:ViewRow,entity:string}
+    @Optional() @Inject(MAT_DIALOG_DATA) public data:{row:ViewRow,entity:string, package:string}
   ) {
     this.editingRow = cloneDeep(data.row);
   }

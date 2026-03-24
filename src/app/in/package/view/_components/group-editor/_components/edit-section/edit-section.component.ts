@@ -14,7 +14,7 @@ export class EditSectionComponent implements OnInit {
 
   constructor(
     @Optional() public dialogRef: MatDialogRef<GroupEditorComponent>,
-    @Optional() @Inject(MAT_DIALOG_DATA) public data:{section:ViewSection,entity:string}
+    @Optional() @Inject(MAT_DIALOG_DATA) public data:{section:ViewSection,entity:string, package:string}
   ) {
     this.editingSection = cloneDeep(data.section);
   }
