@@ -56,7 +56,6 @@ export class PackageControllerComponent implements OnInit, OnDestroy {
 
     private async init() {
         this.loading = true;
-        console.log('PackageControllerComponent::init');
 
         this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
             this.package_name = params['package_name'];

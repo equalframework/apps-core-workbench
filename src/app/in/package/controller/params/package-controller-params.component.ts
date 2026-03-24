@@ -104,9 +104,6 @@ export class PackageControllerParamsComponent implements OnInit, OnDestroy {
         this.types = ["array",...(await this.workbenchService.getTypeList())]
         this.usages = await this.workbenchService.getUsageList()
         this.types.sort((p1,p2) => p1.localeCompare(p2))
-        console.log('This controllerName: ', this.controllerName);
-        console.log('This controllerType: ', this.controllerType);
-        console.log('This controllerPackage: ', this.controllerPackage);
         
         // Use @Input properties if provided, otherwise get from ActivatedRoute
         if (this.controllerName) {
