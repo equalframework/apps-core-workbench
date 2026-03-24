@@ -15,6 +15,7 @@ export class ItemEditorComponent implements OnInit {
     @Input() displayDelete: boolean = false;
     @Input() groups: string[];
     @Input() action_controllers: string[];
+    @Input() package_name: string;
 
     protected widget_types: { [id: string]: string[] };
     public filtered_equal_usage: string[];

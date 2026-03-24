@@ -15,6 +15,7 @@ export class LayoutTabComponent implements OnInit {
   @Input() action_controllers: string[] = [];
   @Input() class_scheme: any = {fields : {}};
   @Input() iconType: { [id: string]: string };
+  @Input() package_name: string;
 
 
   @Output() viewObjChange = new EventEmitter<View>();

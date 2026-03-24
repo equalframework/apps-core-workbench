@@ -61,7 +61,7 @@
                 </mat-form-field>
             </div>
             <div  class="flex">
-                <mat-checkbox [checked]="item.readonly" (change)="item.readonly = $event.checked" [disabled]="isReadonly">readonly</mat-checkbox>
+                <mat-checkbox [checked]="item.readonly" (change)="item.readonly = $event.checked">readonly</mat-checkbox>
                 <mat-checkbox
                     title="Add a boolean or a domain that tell if this item is displayed or not"
                     [checked]="item.has_domain"
@@ -227,7 +227,7 @@
             <app-property-domain-component
             [value]="item.visible.dom"
             [name]="'oui'"
-            [class]="entity"
+            [class]="package_name + '\\' + entity"
             (valueChange)="item.visible.dom = $event"
             >
             </app-property-domain-component>
