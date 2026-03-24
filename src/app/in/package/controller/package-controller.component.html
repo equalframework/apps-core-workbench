@@ -8,5 +8,58 @@
 </div>
 
 <div *ngIf="!loading && !error" class="controller-container">
-    <router-outlet></router-outlet>
+    <!-- Header placed above tabs -->
+    <div class="app-inner-header-wrapper">
+        <app-inner-header
+                [buttonBack]="true"
+                (onButtonBack)="onHeaderButtonBack()"
+                [buttonCancelOne]="true"
+                [buttonCancelOneDisabled]="!canCancelOne"
+                (onButtonCancelOne)="onHeaderButtonCancelOne()"
+                [buttonRevertOne]="true"
+                [buttonRevertOneDisabled]="!canRevertOne"
+                (onButtonRevertOne)="onHeaderButtonRevertOne()"
+                [buttonSave]="true"
+                (onButtonSave)="onHeaderButtonSave()"
+                [customButton]="true"
+                [customButtonList]="[{name:'show JSON', icon:'bug_report', disabled:false}]"
+                (onCustomButton)="onHeaderCustomButton($event)">
+            <div class="header-labels">
+                <label *ngIf="selectedTabIndex === 0">Parameters of </label>
+                <label *ngIf="selectedTabIndex === 1">Response of </label>
+                <div class="component-color-package borders">
+                    <label>{{package_name}}</label>
+                </div>
+                <label class="separator">_</label>
+                <div class="component-color-controller borders">
+                    <label>{{ controller_name }}</label>
+                </div>
+            </div>
+        </app-inner-header>
+    </div>
+
+    <!-- Tabs below header -->
+    <mat-tab-group [(selectedIndex)]="selectedTabIndex" (selectedIndexChange)="onTabChange($event)" class="controller-tabs">
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <span>Parameters</span>
+            </ng-template>
+            <package-controller-params 
+                [controllerName]="controller_name"
+                [controllerType]="controller_type"
+                [controllerPackage]="package_name">
+            </package-controller-params>
+        </mat-tab>
+        
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <span>Response</span>
+            </ng-template>
+            <package-controller-return
+                [controllerName]="controller_name"
+                [controllerType]="controller_type"
+                [controllerPackage]="package_name">
+            </package-controller-return>
+        </mat-tab>
+    </mat-tab-group>
 </div>
