@@ -16,23 +16,35 @@
         </app-info-header>
 
         <div class="info-body-section">
-            <div class="header">
-                <div>
-                    <label class="primary">{{methods.length}} </label><label>Method(s)</label>
-                </div>
-            </div>
-            <div class="items">
-                <div *ngFor="let method of methods" class="item container-method-{{method}}">
-                    <div class="title">
-                        <label class="http-method-{{method}}">{{method}}</label>
+            <div class="methods-container">
+                <div class="methods-header">
+                    <div class="backend-url-config">
+                        <mat-form-field appearance="outline" class="backend-url-field">
+                            <mat-label>Backend URL</mat-label>
+                            <input matInput [(ngModel)]="backendUrl" (change)="setBackendUrl(backendUrl)" placeholder="http://equal.local/">
+                        </mat-form-field>
                     </div>
-                    <div class="indent">
-                        <div class="desc-method">
-                            <label><strong>description : </strong>{{route.item[method]['description']}}</label>
+                    <div class="method-count">
+                        <span class="count">{{methods.length}}</span>
+                        <span class="label">Method{{ methods.length !== 1 ? 's' : '' }}</span>
+                    </div>
+                </div>
+                <div class="methods-list">
+                    <div *ngFor="let method of methods" class="method-card">
+                        <div class="method-badge" [class]="'method-' + method">
+                            {{method}}
                         </div>
-                        <div class="spacer"></div>
-                        <div class="desc-method">
-                            <label><strong>Uses : </strong><a (click)="sendTo(route.item[method]['operation'])">{{route.item[method]['operation']}}</a></label>
+                        <div class="method-content">
+                            <div class="method-description">
+                                <span class="label">Description</span>
+                                <p>{{route.item[method]['description']}}</p>
+                            </div>
+                            <div class="method-operation">
+                                <span class="label">Operation</span>
+                                <a class="operation-link" (click)="sendTo(route.item[method]['operation'])" [class]="'method-' + method">
+                                    {{route.item[method]['operation']}}
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>

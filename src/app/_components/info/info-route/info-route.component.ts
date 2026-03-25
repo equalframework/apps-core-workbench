@@ -27,6 +27,8 @@ export class InfoRouteComponent implements OnInit, OnChanges, OnDestroy {
 
     public routeMeta: { icon: string, tooltip: string, value: string, copyable?: boolean, double_backslash?: boolean }[] = [];
 
+    public backendUrl: string = 'http://equal.local/';
+
     private destroy$ = new Subject<void>();
 
     public get headerStatus(): { icon?: string, tooltip?: string, label: string, value: string }[] {
@@ -43,6 +45,11 @@ export class InfoRouteComponent implements OnInit, OnChanges, OnDestroy {
         ) { }
 
     public async ngOnInit() {
+        // Load backend URL from localStorage, default to 'http://equal.local/'
+        const storedUrl = localStorage.getItem('routeBackendUrl');
+        if (storedUrl) {
+            this.backendUrl = storedUrl;
+        }
         this.liveRoutes = await this.workbenchService.getRoutesLive().toPromise();
         this.load();
     }
@@ -102,8 +109,14 @@ export class InfoRouteComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     public sendTo(value:string) {
-        let x = value.split('=')[1].split("&")[0];
-        this.redirect.emit(x);
+        const fullUrl = this.backendUrl + value;
+        console.log('Redirecting to:', fullUrl);
+        window.open(fullUrl, '_blank');
+    }
+
+    public setBackendUrl(url: string): void {
+        this.backendUrl = url.endsWith('/') ? url : url + '/';
+        localStorage.setItem('routeBackendUrl', this.backendUrl);
     }
 
     public ngOnDestroy() {

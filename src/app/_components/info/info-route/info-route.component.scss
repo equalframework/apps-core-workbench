@@ -102,105 +102,178 @@
         }
     }
 
-    .body {
-        position: relative;
-        width: 100%;
-        height: calc(75% - 110px);
+    .info-body-section {
+        flex: 1 1 auto;
+        background: white;
+        border-radius: 8px;
+        padding: 1.5em 2em;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
 
-        .header {
-            position: absolute;
-            top: 0;
-            z-index: 1;
-            height: 64px;
-            width: 100%;;
-            background-color: white;
-            border-top-right-radius: 20px;
-            border-top-left-radius: 20px;
-            padding: 16px;
+        .methods-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5em;
 
-            label {
-                font-weight: bold;
-            }
-        }
+            .methods-header {
+                padding-bottom: 1em;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 
-        .items {
-            position: absolute;
-            overflow-y: scroll;
-            height: calc(100% - 50px);
-            top: 50px;
-            z-index: 1;
-            width: 100%;
+                .backend-url-config {
+                    display: flex;
+                    align-items: center;
+                    margin-bottom: 1em;
+                    gap: 1em;
 
-            background-color: white;
-            border-radius: 20px;
-            padding: 16px;
+                    .backend-url-field {
+                        max-width: 400px;
+                        width: 100%;
 
-            ::-webkit-scrollbar {
-                width: 8px;
-                background: transparent;
-            }
-
-            ::-webkit-scrollbar-track:hover {
-                background: #eaeaea;
-            }
-
-            ::-webkit-scrollbar-thumb {
-                background: var(--mdc-theme-primary, #6200ee);
-                border-radius: 8px;
-            }
-
-            .item {
-                padding: 1em;
-                border-radius: .75em;
-                margin-bottom: 1em;
-                display: flex;
-
-                &.container-method-GET {
-                    background-color: $getdiluted;
-                }
-
-                &.container-method-POST {
-                    background-color: $postdiluted;
-                }
-
-                &.container-method-DELETE {
-                    background-color: $deletediluted;
-                }
-
-                &.container-method-PUT {
-                    background-color: $putdiluted;
-                }
-
-                .title {
-                    width: 110px;
-                    margin-bottom: 15px;
-
-                    label {
-                        padding: .25em .75em;
-                        width: auto;
-                        font-size: 1.3em;
-                        border-radius: .5em;
+                        ::ng-deep .mdc-text-field {
+                            font-size: 0.9em;
+                        }
                     }
                 }
 
-                .indent {
-                    margin-left: 2em;
-                    .desc-method {
-                        font-size: 1.1em;
+                .method-count {
+                    display: flex;
+                    align-items: baseline;
+                    gap: 0.5em;
 
-                        a {
-                            cursor: help;
+                    .count {
+                        font-size: 2em;
+                        font-weight: 600;
+                        color: mat-color($maincolor);
+                    }
+
+                    .label {
+                        font-size: 1em;
+                        color: rgba(0, 0, 0, 0.6);
+                    }
+                }
+            }
+
+            .methods-list {
+                display: flex;
+                flex-direction: column;
+                gap: 1em;
+
+                .method-card {
+                    display: flex;
+                    gap: 1.5em;
+                    padding: 1.5em;
+                    border: 1px solid rgba(0, 0, 0, 0.06);
+                    border-radius: 8px;
+                    transition: all 0.2s ease;
+
+                    &:hover {
+                        background: rgba(0, 0, 0, 0.04);
+                        border-color: rgba(0, 0, 0, 0.08);
+                    }
+
+                    .method-badge {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        min-width: 70px;
+                        height: 70px;
+                        font-weight: 700;
+                        font-size: 0.85em;
+                        border-radius: 6px;
+                        color: white;
+                        flex-shrink: 0;
+
+                        &.method-GET {
+                            background-color: $http-get-color;
                         }
 
+                        &.method-POST {
+                            background-color: $http-post-color;
+                        }
+
+                        &.method-PUT {
+                            background-color: $http-put-color;
+                        }
+
+                        &.method-DELETE {
+                            background-color: $http-delete-color;
+                        }
+
+                        &.method-PATCH {
+                            background-color: $http-patch-color;
+                        }
                     }
-                    .spacer {
-                        height: 1em;
+
+                    .method-content {
+                        flex: 1;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 1em;
+
+                        .method-description,
+                        .method-operation {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 0.5em;
+
+                            .label {
+                                font-size: 0.85em;
+                                font-weight: 600;
+                                color: mat-color($maincolor);
+                                text-transform: uppercase;
+                                letter-spacing: 0.5px;
+                            }
+
+                            p {
+                                margin: 0;
+                                font-size: 0.95em;
+                                color: rgba(0, 0, 0, 0.8);
+                                line-height: 1.5;
+                            }
+
+                            .operation-link {
+                                font-family: 'Courier New', monospace;
+                                font-size: 0.9em;
+                                color: mat-color($maincolor);
+                                padding: 0.5em 0.75em;
+                                background: mat-color($maincolor, A100);
+                                border-radius: 4px;
+                                cursor: pointer;
+                                transition: all 0.2s ease;
+                                display: inline-block;
+                                width: fit-content;
+
+                                &:hover {
+                                    background: mat-color($maincolor, 200);
+                                    color: mat-color($maincolor, 900);
+                                }
+
+                                &.method-GET {
+                                    background-color: $http-get-color;
+                                }
+        
+                                &.method-POST {
+                                    background-color: $http-post-color;
+                                }
+        
+                                &.method-PUT {
+                                    background-color: $http-put-color;
+                                }
+        
+                                &.method-DELETE {
+                                    background-color: $http-delete-color;
+                                }
+        
+                                &.method-PATCH {
+                                    background-color: $http-patch-color;
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
-
-
     }
 
     .footer {
