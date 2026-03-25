@@ -229,7 +229,10 @@ export class QueryParamExpandableActivator implements IQueryParamActivator {
   canHandle(key: string, value: any): boolean {
     // This activator is generally not based on a specific queryParam key,
     // but rather on the value format (e.g. element IDs starting with 'section-' or 'panel-').
-    return value && this.elementIdPrefixes.some(prefix => 
+    if (!value) {
+      return false;
+    }
+    return this.elementIdPrefixes.some(prefix => 
       String(value).startsWith(prefix)
     );
   }

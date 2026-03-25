@@ -36,6 +36,10 @@ export class TypeUsageService {
                 this.scheme = data
                 console.log(this.scheme)
             }
+        ).catch(
+            error => {
+                console.error('Failed to fetch config usages:', error)
+            }
         )
     }
 
