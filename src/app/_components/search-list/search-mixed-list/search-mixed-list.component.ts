@@ -329,7 +329,9 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         terms: string[]
     ): boolean {
         for (const key of Object.keys(filters)) {
-            const value = this.getValueByPath(element, key);
+            const actualKey = key === 'package' ? 'package_name' : key;
+            const value = this.getValueByPath(element, actualKey);
+            console.log(`Filtering on ${key} with value "${filters[key]}": element value is "${value}"`);
             if (typeof value === 'undefined' || value == null) return false;
             if (!String(value).toLowerCase().includes(filters[key].toLowerCase())) return false;
         }

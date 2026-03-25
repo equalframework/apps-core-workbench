@@ -37,7 +37,6 @@ export class AppComponent implements OnInit {
 
     handleSearchScopeChange(newScope: string): void {
         this.search_scope = newScope;
-        console.log('Received new search scope:', this.search_scope);
     }
 
     handleSearchFiltersChange(filters: { [key: string]: string }): void {
@@ -193,7 +192,6 @@ export class AppComponent implements OnInit {
      * @returns The display name
      */
     getComponentTypeName(type: string): string {
-        console.log('Getting display name for type:', type);
         const typeNames: { [key: string]: string } = {
             'package': 'packages',
             'class': 'models',
@@ -262,7 +260,7 @@ export class AppComponent implements OnInit {
      * @returns The class string or empty string if not a valid type
      */
     getFilterValueClass(value: string): string {
-        const validTypes = ['package_name', 'class', 'model', 'get', 'do', 'route', 'view', 'menu', 'list', 'form'];
+        const validTypes = ['package_name', 'package', 'class', 'model', 'get', 'do', 'route', 'view', 'menu', 'list', 'form'];
         if (validTypes.includes(value.toLowerCase())) {
             if (value.toLowerCase() === 'controller') {
                 return 'component-color-get colorized';

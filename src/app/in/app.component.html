@@ -23,7 +23,7 @@
                     <span *ngIf="!last">,</span>
                 </span>
             </ng-container>
-            <span *ngIf="search_terms.length">
+            <span *ngIf="search_terms[0] && search_terms[0].trim() !== ''">
                 matching <span class="search-term-highlight">{{ search_terms.join(', ') }}</span>
             </span>
         </div>
