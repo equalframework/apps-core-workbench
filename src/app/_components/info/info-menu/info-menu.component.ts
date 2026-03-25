@@ -26,10 +26,7 @@ export class InfoMenuComponent implements OnInit {
     }
 
     public onclickTranslations() {
-        console.log('Not implemented yet');
-        /*
         this.router.navigate(['/package/'+this.selected_package+'/menu/'+this.menu.name+'/translations']);
-        */
     }
 
     public onclickEdit() {
