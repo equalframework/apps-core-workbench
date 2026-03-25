@@ -84,7 +84,6 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
                 this.menuSchema = menuSchema;
                 // Parsing the json as an Menu object
             // #memo - we clone the schema to avoid the Menu constructor to destroy the original copy
-            console.log("Menu schema : ", this.menuSchema);
             this.object = new Menu(cloneDeep(this.menuSchema));
             this.entities['model'] = await this.workbenchService.collectClasses(true).toPromise();
             this.entities['data'] = await this.workbenchService.collectControllers('data').toPromise();
@@ -123,7 +122,6 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
         this.selected_item = event;
         console.log(this.selected_item);
         this.updateEntityDependentFields();
-        console.log(this.viewList);
     }
 
     /**
@@ -137,7 +135,7 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
     }
 
     async updateEntityDependentFields() {
-        if(this.selected_item) {
+        if(this.selected_item && this.selected_item.context && this.selected_item.context.entity) {
             this.viewList =   ((await this.workbenchService.collectViews(this.package_name,this.selected_item.context.entity).toPromise()).map((value => value.split(":").slice(1).join(':'))))
             this.workbenchService.getSchema(this.selected_item.context.entity.replaceAll("_", "\\"))
             .pipe(
@@ -172,9 +170,6 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
     }
 
     public async save() {
-        console.log("package_name : ", this.package_name);
-        console.log("menu_name : ", this.menu_name);
-        console.log("Object exporte : ", this.object.export());
         let result = await this.workbenchService.saveView(this.object.export(),this.package_name,"\\menu",this.menu_name.trim()).toPromise();
         if(result) {
             this.matSnack.open("Saved successfully","INFO");
