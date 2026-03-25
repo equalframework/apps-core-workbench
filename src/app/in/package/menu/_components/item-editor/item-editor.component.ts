@@ -23,7 +23,7 @@ export class ItemEditorComponent implements OnInit {
     }
 
     public ngOnChanges() {
-        console.log(this.selected_item);
+        // console.log(this.selected_item);
     }
 
     public addChild() {
