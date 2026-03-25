@@ -109,7 +109,7 @@ export class QueryParamNavigatorService {
     if (this.focusableFieldTags.includes((element as any).tagName)) {
       this.focusableFields.set(fieldId, element);
     } else {
-      console.warn(`Element with appFocusableField="${fieldId}" is not a focusable input/select/textarea/button`, element);
+      // console.warn(`Element with appFocusableField="${fieldId}" is not a focusable input/select/textarea/button`, element);
     }
   }
 

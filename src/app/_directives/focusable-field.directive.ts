@@ -43,7 +43,6 @@ export class FocusableFieldDirective implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    console.log('Registering focusable field:', this.fieldId, this.elementRef.nativeElement);
     if (!this.fieldId) {
       console.warn('appFocusableField: ID not provided', this.elementRef.nativeElement);
       return;
