@@ -1,6 +1,7 @@
 import { GroupsViewerComponent } from 'src/app/_components/groups-viewer/groups-viewer.component';
 import { ItemViewerComponent } from 'src/app/_components/item-viewer/item-viewer.component';
 import { NgModule} from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 
 
@@ -59,6 +60,7 @@ import { ChipsAutocompleteComponent } from '../_components/chips-auto-complete/c
 import { CheckboxListComponent } from '../_components/checkbox-list/checkbox-list.component';
 import { ItemDisplayComponent } from '../_components/item-display/item-display.component';
 import { ScrollTargetDirective } from 'src/app/_directives/scroll-target.directive';
+import { FocusableFieldDirective } from 'src/app/_directives/focusable-field.directive';
 
 const sharedComponents = [
 
@@ -120,7 +122,8 @@ const sharedPipes = [
     declarations: [
         ...sharedComponents,
         ...sharedPipes,
-        ScrollTargetDirective
+        ScrollTargetDirective,
+        FocusableFieldDirective
     ],
     imports: [
         SharedLibModule,
@@ -129,6 +132,7 @@ const sharedPipes = [
         AutocompleteModule,
         MatTooltipModule,
         ClipboardModule,
+        FormsModule,
     ],
     exports: [
         PropertyClauseModule,
@@ -136,7 +140,8 @@ const sharedPipes = [
         AutocompleteModule,
         ...sharedComponents,
         ...sharedPipes,
-        ScrollTargetDirective
+        ScrollTargetDirective,
+        FocusableFieldDirective
     ],
 
     // other module metadata
