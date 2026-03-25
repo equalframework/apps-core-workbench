@@ -149,57 +149,7 @@ mat-tab-group {
   flex: 1;
   display: flex;
   flex-direction: column;
-
-  ::ng-deep {
-    .mat-tab-labels {
-      flex-shrink: 0;
-      background-color: #fafbfc;
-      border-bottom: 2px solid $border-light;
-      margin: 0;
-      padding: 0;
-
-      .mat-tab-label {
-        min-width: 140px !important;
-        padding: 0 2rem !important;
-        height: 48px !important;
-        font-weight: 500;
-        font-size: 13px;
-        color: $text-secondary;
-        transition: all $transition-standard;
-
-        &:hover {
-          background-color: rgba($accent-color, 0.04);
-          color: $text-primary;
-        }
-
-        &.mat-tab-label-active {
-          color: $accent-color !important;
-          background-color: rgba($accent-color, 0.08);
-
-          .mat-tab-label-content {
-            font-weight: 600;
-          }
-        }
-      }
-
-      .mat-ripple-element {
-        display: none;
-      }
-    }
-
-    .mat-tab-body-wrapper {
-      flex: 1;
-      overflow: hidden;
-    }
-
-    .mat-tab-body {
-      overflow: hidden !important;
-    }
-
-    .mat-tab-body-content {
-      overflow-y: auto;
-    }
-  }
+  // Tab styling unified in global styles.scss - all Material tab components are styled globally
 }
 
 .tab-content {

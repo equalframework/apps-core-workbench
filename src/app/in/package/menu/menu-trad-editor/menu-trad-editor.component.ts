@@ -57,12 +57,8 @@ export class MenuTradEditorComponent implements OnInit {
         this.activatorRegistry = new QueryParamActivatorRegistry();
     }
 
-    /**
-     * Initialise les activateurs de queryParams pour la navigation
-     */
-    private initializeFragmentNavigation(): void {
-        // Activateur pour les onglets
-        // On n'a qu'une seule tab 'menu', donc on crée un activateur simple qui valide et active
+
+    private initializeNavigation(): void {
         const allTabs = this.TAB_NAMES;
         const tabActivator = {
             type: 'tab',
@@ -71,32 +67,27 @@ export class MenuTradEditorComponent implements OnInit {
                 return key === 'tab' && allTabs.includes(value);
             },
             activate: async (key: string, value: any, context: any) => {
-                // Vérifier que la valeur est un nom de tab valide
                 if (allTabs.includes(value)) {
                     context.activeTab = value;
-                    // Attendre le rendu de la tab
                     await new Promise(resolve => setTimeout(resolve, 100));
                 }
             }
         };
         this.activatorRegistry.register(tabActivator);
 
-        // Activateur pour les champs/items
         const fieldActivator = {
             type: 'field',
             queryParamKeys: ['element', 'field'],
             canHandle: (key: string, value: any) => {
-                // Vérifier si la valeur est un champ valide (on le saura après avoir chargé les données)
-                if (!this.lang || !['element', 'field'].includes(key)) return false;
-                return this.fieldExists(this.lang, value);
+                if (!['element', 'field'].includes(key)) return false;
+                // Don't check fieldExists here - we'll validate in activate phase if needed
+                return true;
             },
             activate: async (key: string, value: any, context: any) => {
-                // Activer le champ spécifié
-                if (this.fieldExists(this.lang, value)) {
-                    context.activeField = value;
-                    // Attendre le rendu du champ
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                }
+                context.activeField = value;
+
+                // Wait longer for template to render the table rows with appScrollTarget
+                await new Promise(resolve => setTimeout(resolve, 200));
             }
         };
         this.activatorRegistry.register(fieldActivator);
@@ -125,19 +116,39 @@ export class MenuTradEditorComponent implements OnInit {
 
         await this.initTranslations();
 
-        // Initialiser la navigation par queryParams
-        this.initializeFragmentNavigation();
+        // Initialize navigation activators
+        this.initializeNavigation();
 
-        // Souscrire aux changements de queryParams
-        this.route.queryParams.subscribe(params => {
-            if (Object.keys(params).length > 0) {
-                this.queryParamNavigator.handleQueryParams(params, {
-                    activators: this.activatorRegistry,
-                    context: this,
-                    elementKeys: ['element', 'field'],
-                    scrollDelay: 100
-                });
+        // Subscribe to queryParams changes
+        this.route.queryParams.subscribe(async params => {
+            if (Object.keys(params).length === 0) {
+                return;
             }
+
+            // Handle tab parameter (set default to 'menu' if not present)
+            if (params['tab']) {
+                this.activeTab = params['tab'];
+            } else if (params['element'] || params['field']) {
+                // If element/field params are present, auto-activate the menu tab
+                this.activeTab = 'menu';
+            }
+
+            // Handle element/field parameters - set activeField directly before calling navigator
+            if (params['field']) {
+                this.activeField = params['field'].split('-')[1];
+            } else if (params['element']) {
+                this.activeField = params['element'];
+            }
+
+            // Now use the navigator service to handle scroll and focus
+            // This will respect the activeTab and activeField we just set
+            await this.queryParamNavigator.handleQueryParams(params, {
+                activators: this.activatorRegistry,
+                context: this,
+                elementKeys: ['element', 'field'],
+                scrollDelay: 100,
+                scrollOptions: { behavior: 'smooth', block: 'center' }
+            });
         });
 
         this.loading = false;
@@ -367,6 +378,8 @@ export class MenuTradEditorComponent implements OnInit {
         this._menuMetadata.clear();
         this.loading = true;
         this.initTranslations();
+        this.loadMenuSchemaAndMetadata();
+
     }
 
     onLangChange(lang: string): void {

@@ -8,13 +8,11 @@ import { SharedLibModule } from 'sb-shared-lib';
 import { WorkbenchModule } from 'src/app/_modules/workbench.module';
 
 import { TranslationTableComponent } from './_components/translation-table.component';
-import { AutoFocusDirective } from './_components/auto-focus.directive';
 
 @NgModule({
   declarations: [
     MenuTradEditorComponent,
     TranslationTableComponent,
-    AutoFocusDirective
     ],
   imports: [
     CommonModule,
