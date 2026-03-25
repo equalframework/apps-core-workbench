@@ -18,7 +18,7 @@ describe('EditRowComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(EditRowComponent);
     component = fixture.componentInstance;
-    component.data = {row:new ViewRow(),entity:"core\\User"}
+    component.data = {row:new ViewRow(),entity:"core\\User", package:"core"}
     fixture.detectChanges();
   });
 

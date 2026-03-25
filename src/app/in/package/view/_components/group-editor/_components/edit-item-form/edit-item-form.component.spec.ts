@@ -23,7 +23,8 @@ describe('EditItemFormComponent', () => {
       fields: ["id","created"],
       groups:["users","admins"],
       action_controllers:["core_user_create"],
-      entity:"core\\User"
+      entity:"core\\User",
+      package:"core"
     }
     fixture.detectChanges();
   });
