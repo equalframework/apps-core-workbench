@@ -19,132 +19,143 @@
             (translationClick)="onclickTranslations()">
         </app-info-header>
         <div class="info-body-section">
-            <div class="info-section-card" *ngIf="getAccessString().length">
-                <div class="info-section-header">
-                    <mat-icon>lock</mat-icon>
-                    <span>Access</span>
-                </div>
-                <div class="info-section-content">
-                    <pre class="content-desc" [innerHTML]="getAccessString()"></pre>
-                </div>
+            <!-- View Mode Toggle -->
+            <div class="view-mode-toggle">
+                <mat-slide-toggle 
+                    [checked]="viewMode === 'json'"
+                    (change)="toggleViewMode($event.checked ? 'json' : 'edit')"
+                    class="view-mode-switch">
+                </mat-slide-toggle>
+                <mat-icon *ngIf="viewMode === 'edit'" class="toggle-label">edit_note</mat-icon>
+                <mat-icon *ngIf="viewMode === 'json'" class="toggle-label">code</mat-icon>
             </div>
-            <div class="info-section-card">
-                <div class="info-section-header">
-                    <mat-icon>assignment</mat-icon>
-                    <span>Response header</span>
-                </div>
-                <div class="info-section-content">
-                    <pre class="content-desc" [innerHTML]="getRequestString()"></pre>
-                </div>
-            </div>
-            <div class="info-section-card params" *ngIf="announcement?.params && obk(announcement.params).length">
-                <div class="info-section-header">
-                    <mat-icon>tune</mat-icon>
-                    <span>Params</span>
-                </div>
-                <div class="info-section-content">
-                    <mat-accordion>
-                        <mat-expansion-panel *ngFor="let param of obk(announcement.params)" class="params-mat-card">
-                            <mat-expansion-panel-header>
-                                <mat-panel-title>
-                                    <div class="paneltitle">
-                                        <mat-icon>{{iconType[getType(param)]}}</mat-icon>
-                                        <label>{{param}} <strong *ngIf="isRequired(param)">(required)</strong></label>
-                                    </div>
-                                </mat-panel-title>
-                                <mat-panel-description>
-                                    <label>{{getDescription(param)}}</label>
-                                </mat-panel-description>
-                                <div class="valuewrapper">
-                                    <label class="valuedisplayer" [style.opacity]="getParamsValue(param) ? 1 : 0.6">
-                                        {{getParamsValue(param) ? "value :" : "(no value)"}} {{ getType(param) !== "array" ? getParamsValue(param) : tojsonstring(getParamsValue(param))}}
+
+            <!-- EDIT VIEW -->
+            <ng-container *ngIf="viewMode === 'edit'">
+                <div class="info-section-card params" *ngIf="announcement?.params && obk(announcement.params).length">
+                    <div class="info-section-header">
+                        <mat-icon>tune</mat-icon>
+                        <span>Parameters</span>
+                    </div>
+                    <div class="info-section-content params-form">
+                        <div class="params-grid">
+                            <div *ngFor="let param of obk(announcement.params)" class="param-field">
+                                <div class="param-label-row">
+                                    <label class="param-label">
+                                        <mat-icon class="param-icon" [title]="getType(param)">{{iconType[getType(param)]}}</mat-icon>
+                                        <span class="param-name">{{param}}</span>
+                                        <span class="param-required" *ngIf="isRequired(param)" title="This field is required">*</span>
                                     </label>
+                                    <span class="param-description" *ngIf="getDescription(param)">{{getDescription(param)}}</span>
                                 </div>
-                            </mat-expansion-panel-header>
-                            <div class="card-content2">
-                                <type-input *ngIf="!getUsage(param).startsWith('array/domain') || !getEntity()"
-                                    [type]="getType(param)"
-                                    [name]="getParamName(param)"
-                                    [value]="getParamsValue(param)"
-                                    (changed)="updateParamsValue($event, param)">
-                                </type-input>
-                                <ng-container *ngIf="getUsage(param).startsWith('array/domain') && getEntity()">
+                                <div class="param-input-wrapper">
+                                    <type-input 
+                                        *ngIf="!getUsage(param).startsWith('array/domain') || !getEntity()"
+                                        [type]="getType(param)"
+                                        [name]="getParamName(param)"
+                                        [value]="getParamsValue(param)"
+                                        (changed)="updateParamsValue($event, param)"
+                                        class="param-input">
+                                    </type-input>
                                     <app-property-domain-component
+                                        *ngIf="getUsage(param).startsWith('array/domain') && getEntity()"
                                         [value]="getParamsValue(param)"
                                         [class]="getEntity()"
-                                        (valueChange)="updateParamsValue($event, param)">
+                                        (valueChange)="updateParamsValue($event, param)"
+                                        class="param-input">
                                     </app-property-domain-component>
-                                </ng-container>
+                                </div>
                             </div>
-                        </mat-expansion-panel>
-                    </mat-accordion>
-                    <div class="params-action-row">
-                        <button mat-flat-button class="view-info-button" (click)="submit()" [disabled]="!canSubmit">
-                            <mat-icon class="icon">upload</mat-icon>
-                            <label>Submit action</label>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="info-section-card">
-                <div class="info-section-header">
-                    <mat-icon>terminal</mat-icon>
-                    <span>CLI command</span>
-                </div>
-                <div class="info-section-content">
-                    <div class="content-container">
-                        <pre class="content-desc" [innerHTML]="cliCommand" style="padding-right: 40px;"></pre>
-                        <div class="content-action">
-                            <button mat-icon-button aria-label="Copy cli" title="Copy cli" (click)="cpyCLI()">
-                                <mat-icon>content_copy</mat-icon>
+                        </div>
+                        <div class="params-action-row">
+                            <button mat-flat-button class="view-info-button submit-btn" (click)="submit()" [disabled]="!canSubmit">
+                                <mat-icon class="icon">upload</mat-icon>
+                                <span>Submit action</span>
                             </button>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="info-section-card">
-                <div class="info-section-header">
-                    <mat-icon>link</mat-icon>
-                    <span>Backend URL</span>
+
+                <div class="info-section-card">
+                    <div class="info-section-header">
+                        <mat-icon>terminal</mat-icon>
+                        <span>CLI command</span>
+                    </div>
+                    <div class="info-section-content">
+                        <div class="content-container">
+                            <pre class="content-desc" [innerHTML]="cliCommand" style="padding-right: 40px;"></pre>
+                            <div class="content-action">
+                                <button mat-icon-button aria-label="Copy cli" title="Copy cli" (click)="cpyCLI()">
+                                    <mat-icon>content_copy</mat-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="info-section-content">
-                    <div class="content-container">
-                        <pre class="content-desc" [innerHTML]="getBaseRoute()"></pre>
-                        <div class="content-action">
-                            <a mat-icon-button [href]="getBaseRoute()" target="_blank" title="Open in new tab">
-                                <mat-icon>open_in_new</mat-icon>
+
+                <div class="info-section-card">
+                    <div class="info-section-header">
+                        <mat-icon>link</mat-icon>
+                        <span>Backend URL</span>
+                    </div>
+                    <div class="info-section-content">
+                        <div class="content-container">
+                            <pre class="content-desc" [innerHTML]="getBaseRoute()"></pre>
+                            <div class="content-action">
+                                <a mat-icon-button [href]="getBaseRoute()" target="_blank" title="Open in new tab">
+                                    <mat-icon>open_in_new</mat-icon>
+                                </a>
+                                <button mat-icon-button aria-label="Copy HTTP request" title="Copy HTTP request" (click)="cpyRequest()">
+                                    <mat-icon>content_copy</mat-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-section-card" *ngIf="obk(filtered_routes).length">
+                    <div class="info-section-header">
+                        <mat-icon>alt_route</mat-icon>
+                        <span>Live routes</span>
+                    </div>
+                    <div class="info-section-content">
+                        <div *ngFor="let item of obk(filtered_routes)">
+                            <a class="cr-click" [class.clickable]="moving" (click)="sendTo(item)">
+                                <div *ngFor="let method of obk(filtered_routes[item]['methods'])" class="controller_cr {{method}}">
+                                    <div class="controller_cr_el controller_cr_method {{method}}">
+                                        {{method}}
+                                    </div>
+                                    <div class="controller_cr_el controller_cr_path">
+                                        {{item}}
+                                    </div>
+                                    <div class="controller_cr_el controller_cr_desc">
+                                        {{filtered_routes[item]['methods'][method]['description']}}
+                                    </div>
+                                </div>
                             </a>
-                            <button mat-icon-button aria-label="Copy HTTP request" title="Copy HTTP request" (click)="cpyRequest()">
+                            <br>
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
+
+            <!-- JSON VIEW -->
+            <ng-container *ngIf="viewMode === 'json'">
+                <div class="info-section-card json-view">
+                    <div class="info-section-header">
+                        <mat-icon>data_object</mat-icon>
+                        <span>Controller Configuration</span>
+                    </div>
+                    <div class="info-section-content json-content">
+                        <pre class="content-desc" [innerHTML]="getControllerJson()"></pre>
+                        <div class="json-action-row">
+                            <button mat-icon-button aria-label="Copy JSON" title="Copy JSON configuration" (click)="cpyControllerJson()">
                                 <mat-icon>content_copy</mat-icon>
                             </button>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="info-section-card" *ngIf="obk(filtered_routes).length">
-                <div class="info-section-header">
-                    <mat-icon>alt_route</mat-icon>
-                    <span>Live routes</span>
-                </div>
-                <div class="info-section-content">
-                    <div *ngFor="let item of obk(filtered_routes)">
-                        <a class="cr-click" [class.clickable]="moving" (click)="sendTo(item)">
-                            <div *ngFor="let method of obk(filtered_routes[item]['methods'])" class="controller_cr {{method}}">
-                                <div class="controller_cr_el controller_cr_method {{method}}">
-                                    {{method}}
-                                </div>
-                                <div class="controller_cr_el controller_cr_path">
-                                    {{item}}
-                                </div>
-                                <div class="controller_cr_el controller_cr_desc">
-                                    {{filtered_routes[item]['methods'][method]['description']}}
-                                </div>
-                            </div>
-                        </a>
-                        <br>
-                    </div>
-                </div>
-            </div>
+            </ng-container>
         </div>
         <!--
         <div class="info-footer-section">

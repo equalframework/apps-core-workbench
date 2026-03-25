@@ -75,6 +75,8 @@ export class InfoControllerComponent implements OnInit, OnChanges {
     public tojsonstring = JSON.stringify;
     public obk = Object.keys;
 
+    public viewMode: 'json' | 'edit' = 'edit';
+
     private environment: any;
 
     public get headerStatus(): { icon?: string, tooltip?: string, label: string, value: string }[] {
@@ -414,14 +416,38 @@ export class InfoControllerComponent implements OnInit, OnChanges {
         this.router.navigate(['/package/'+this.controller_package+'/controller/'+this.controller_type+'/'+this.controller_name+'/edit']);
     }
 
-    public onclickResponseValues() {
-        this.router.navigate(['/package/'+this.controller_package+'/controller/'+this.controller_type+'/'+this.controller_name+'/returns']);
-    }
-
     public onclickTranslations() {
         console.log('Not implemented yet');
         /*
         this.router.navigate(['/package/'+this.controller_package+'/controller/'+this.controller_type+'/'+this.controller_name+'/translations']);
         */
+    }
+
+    public toggleViewMode(mode: 'json' | 'edit') {
+        this.viewMode = mode;
+    }
+
+    public getControllerJson() {
+        return prettyPrintJson.toHtml({
+            name: this.controller_name,
+            type: this.controller_type,
+            package: this.controller_package,
+            access: this.announcement?.access,
+            response: this.announcement?.response,
+            params: this.announcement?.params
+        });
+    }
+
+    public cpyControllerJson() {
+        const jsonObj = {
+            name: this.controller_name,
+            type: this.controller_type,
+            package: this.controller_package,
+            access: this.announcement?.access,
+            response: this.announcement?.response,
+            params: this.announcement?.params
+        };
+        let success = this.clipboard.copy(JSON.stringify(jsonObj, null, 2));
+        this.successCopyClipboard(success);
     }
 }
