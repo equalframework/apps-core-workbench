@@ -2,7 +2,31 @@
 <div class="app-inner-header">
     <app-inner-header
             [customButton]="true">
-        <label class="solo">All components</label>
+        <div class="header-labels">
+            <span *ngIf=" !hasAnyFilters() && !search_terms.length">
+                All components
+            </span>
+            <span *ngIf="search_scope || hasAnyFilters() || search_terms.length">
+                All
+                <span *ngIf="search_scope" 
+                      [class]="'component-color-' + getScopeComponentType() + ' colorized'">
+                    {{ getComponentTypeName(search_scope) }}
+                </span>
+                <span *ngIf="!search_scope">components</span>
+            </span>
+            <ng-container *ngIf="hasAnyFilters()">
+                from
+                <span *ngFor="let filterKey of getFilterKeys(); let last = last" class="filter-item">
+                    <span [class]="getFilterValueClass(filterKey)">
+                        {{ search_filters[filterKey] }}
+                    </span>
+                    <span *ngIf="!last">,</span>
+                </span>
+            </ng-container>
+            <span *ngIf="search_terms.length">
+                matching <span class="search-term-highlight">{{ search_terms.join(', ') }}</span>
+            </span>
+        </div>
     </app-inner-header>
 </div>
 
@@ -16,7 +40,9 @@
                 [node_selected]="selectedComponent"
                 (selectNode)="selectNode($event)"
                 (refresh)="refresh()"
-                (searchScopeChange)="handleSearchScopeChange($event)">
+                (searchScopeChange)="handleSearchScopeChange($event)"
+                (searchFiltersChange)="handleSearchFiltersChange($event)"
+                (searchTermsChange)="handleSearchTermsChange($event)">
         </search-mixed-list>
 
     </div>

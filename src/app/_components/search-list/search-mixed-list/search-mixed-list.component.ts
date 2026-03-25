@@ -18,7 +18,7 @@ import { NotificationService } from 'src/app/in/_services/notification.service';
 import { el } from 'date-fns/locale';
 
 /**
- * This component is used to display the list of all object you recover in package.component.ts
+ * This component is used to display the list of all object
  *
  * If you need to add a new type, you just have to add it in type_dict and create the css rules for the icon in search-mixed-list.component.scss
  * You can also describe the spelling rule of the name in search-mixed-list.component.html
@@ -63,6 +63,8 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     @Output() selectNode = new EventEmitter<EqualComponentDescriptor>();
     @Output() updateNode = new EventEmitter<{ old_node: EqualComponentDescriptor, new_node: EqualComponentDescriptor }>();
     @Output() searchScopeChange = new EventEmitter<string>();
+    @Output() searchFiltersChange = new EventEmitter<{ [key: string]: string }>();
+    @Output() searchTermsChange = new EventEmitter<string[]>();
 
     // event for notifying parent that the list has been updated and needs to be refreshed
     @Output() updated = new EventEmitter();
@@ -216,8 +218,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     public selectSearchScope() {
         this.searchScopeChange.emit(this.search_scope);
         this.search_filters = {};
-        this.search_terms = [];
-        this.onSearch();
+        this.search_terms = [];        this.onSearch();
     }
 
     /**
@@ -239,6 +240,9 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
 
         this.filteredData = filtered;
         this.updateUrlForSearch(this.search_filters, this.search_terms);
+        this.searchScopeChange.emit(this.search_scope);
+        this.searchFiltersChange.emit(this.search_filters);
+        this.searchTermsChange.emit(this.search_terms);
     }
 
     /**
@@ -249,6 +253,10 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         const urlParams = this.route.snapshot.queryParams;
         const input = this.urlParamsToSearchInput(urlParams).join(' ');
         this.inputControl.setValue(input);
+        console.log('Updated search input from URL params:', input);
+        this.searchScopeChange.emit(this.search_scope);
+        this.searchFiltersChange.emit(this.search_filters);
+        this.searchTermsChange.emit(this.search_terms);
     }
 
     /**

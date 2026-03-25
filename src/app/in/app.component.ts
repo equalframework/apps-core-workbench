@@ -25,6 +25,8 @@ export class AppComponent implements OnInit {
     public fetch_error:boolean = false;
     public route_list:any = {};
     search_scope ='package'
+    search_filters: { [key: string]: string } = {};
+    search_terms: string[] = [];
     public loading: boolean = false;
 
     constructor(
@@ -36,6 +38,14 @@ export class AppComponent implements OnInit {
     handleSearchScopeChange(newScope: string): void {
         this.search_scope = newScope;
         console.log('Received new search scope:', this.search_scope);
+    }
+
+    handleSearchFiltersChange(filters: { [key: string]: string }): void {
+        this.search_filters = filters;
+    }
+
+    handleSearchTermsChange(terms: string[]): void {
+        this.search_terms = terms;
     }
 
     public async ngOnInit() {
@@ -177,7 +187,99 @@ export class AppComponent implements OnInit {
         this.selectNode(els[0]);
     }
 
+    /**
+     * Get the human-readable name for a component type
+     * @param type The component type (package, class, get, do, route, view, menu, model)
+     * @returns The display name
+     */
+    getComponentTypeName(type: string): string {
+        console.log('Getting display name for type:', type);
+        const typeNames: { [key: string]: string } = {
+            'package': 'packages',
+            'class': 'models',
+            'get': 'data providers',
+            'do': 'action handlers',
+            'route': 'routes',
+            'view': 'views',
+            'menu': 'menus',
+            'model': 'models',
+            'list': 'lists',
+            'form': 'forms',
+            'data-provider': 'data providers',
+            'controller': 'controllers'
+        };
+        return typeNames[type] || type;
+    }
 
+    /**
+     * Convert filter key to display name
+     * @param key The filter key (filter_package_name, filter_type, etc.)
+     * @returns The display name for the filter
+     */
+    getFilterDisplayName(key: string): string {
+        const filterNames: { [key: string]: string } = {
+            'package_name': 'package',
+            'name': 'name',
+            'type': 'type',
+            'file': 'file',
+            'item': 'item'
+        };
+        return filterNames[key] || key;
+    }
+
+    /**
+     * Get the component type for styling from the search scope
+     * @returns The component type or empty string for 'all'
+     */
+    getScopeComponentType(): string {
+        // Handle special cases where scope is a grouping
+        if (this.search_scope === 'controller') {
+            return 'get'; // Use 'get' for styling purposes
+        }
+        if (this.search_scope === 'view') {
+            return 'view';
+        }
+        return this.search_scope;
+    }
+
+    /**
+     * Check if there are any active filters
+     */
+    hasAnyFilters(): boolean {
+        return Object.keys(this.search_filters).length > 0;
+    }
+
+    /**
+     * Get the keys of the active filters
+     */
+    getFilterKeys(): string[] {
+        return Object.keys(this.search_filters);
+    }
+
+    /**
+     * Get the CSS class for a filter value if it's a valid component type
+     * @param value The filter value to check
+     * @returns The class string or empty string if not a valid type
+     */
+    getFilterValueClass(value: string): string {
+        const validTypes = ['package_name', 'class', 'model', 'get', 'do', 'route', 'view', 'menu', 'list', 'form'];
+        if (validTypes.includes(value.toLowerCase())) {
+            if (value.toLowerCase() === 'controller') {
+                return 'component-color-get colorized';
+            }
+            if (value.toLowerCase() === 'list' || value.toLowerCase() === 'form') {
+                return 'component-color-view colorized';
+            }
+            if (value.toLowerCase() === 'model') {
+                return 'component-color-class colorized';
+            }
+            if (value.toLowerCase() === 'package_name') {
+                return 'component-color-package colorized';
+            }
+            return `component-color-${value.toLowerCase()} colorized`;
+        }
+        return '';
+    }
 
 }
 
