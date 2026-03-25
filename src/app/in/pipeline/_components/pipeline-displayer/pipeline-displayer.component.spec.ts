@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { WorkflowDisplayerComponent } from './pipeline-displayer.component';
+import { PipelineDisplayerComponent } from './pipeline-displayer.component';
 
-describe('WorkflowDisplayerComponent', () => {
-  let component: WorkflowDisplayerComponent;
-  let fixture: ComponentFixture<WorkflowDisplayerComponent>;
+describe('PipelineDisplayerComponent', () => {
+  let component: PipelineDisplayerComponent;
+  let fixture: ComponentFixture<PipelineDisplayerComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [WorkflowDisplayerComponent]
+      declarations: [PipelineDisplayerComponent]
     })
       .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(WorkflowDisplayerComponent);
+    fixture = TestBed.createComponent(PipelineDisplayerComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
