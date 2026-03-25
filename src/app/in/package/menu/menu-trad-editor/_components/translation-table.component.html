@@ -1,8 +1,13 @@
 <table class="translation-table">
   <thead class="test-header">
     <tr>
-      <th *ngFor="let col of computedHeaders" [attr.colspan]="col.colspan" class="header-tile">
-        {{ col.label }}
+      <th *ngFor="let col of computedHeaders; let i = index" [attr.colspan]="col.colspan" class="header-tile">
+        <ng-container *ngIf="i === 0">
+          <mat-icon aria-hidden="false" aria-label="Translate">translate</mat-icon>
+        </ng-container>
+        <ng-container *ngIf="i !== 0">
+          {{ col.label }}
+        </ng-container>
       </th>
     </tr>
   </thead>
@@ -52,11 +57,11 @@
             [attr.colspan]="field.colspan">
           <input
             matInput
+            appFocusableField="field-{{key}}-label"
             [placeholder]="field.placeholder"
             [ngModel]="getFieldValue(key, field.key)"
             (ngModelChange)="setFieldValue(key, field.key, $event)"
             [name]="key + '-' + field.key"
-            [focus]="fi === 0"
             spellcheck="true">
         </td>
       </ng-container>
