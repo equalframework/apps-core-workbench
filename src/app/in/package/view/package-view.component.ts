@@ -61,6 +61,7 @@ export class PackageViewComponent implements OnInit {
     };
     
     // Fragment Navigation
+    // Navigation
     private queryParamActivatorRegistry: QueryParamActivatorRegistry;
 
     constructor(
@@ -79,6 +80,7 @@ export class PackageViewComponent implements OnInit {
     async ngOnInit() {
         // Initialiser le registre des activateurs pour la navigation par fragment
         this.initializeFragmentNavigation();
+        this.initializeNavigation();
         
         // Charger les données de la view
         await this.init();
@@ -221,11 +223,14 @@ export class PackageViewComponent implements OnInit {
     /**
      * Initialise le registre des activateurs pour la navigation par queryParams
      * Configure les activateurs disponibles (tabs, menus, etc.)
+     * Initialize the registry of activators for query param navigation
      */
     private initializeFragmentNavigation(): void {
+    private initializeNavigation(): void {
         this.queryParamActivatorRegistry = new QueryParamActivatorRegistry();
         
         // Enregistrer l'activateur de tabs
+        // Register a tab activator that listens to 'selectedTab' query param and activates the corresponding tab
         const tabActivator = new QueryParamTabActivator(this.tabNameToIndexMap, 'selectedTabIndex');
         this.queryParamActivatorRegistry.register(tabActivator);
         
