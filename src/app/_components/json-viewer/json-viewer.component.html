@@ -1,8 +1,9 @@
-<close-button (close)="this.dialogRef.close()"></close-button>
-
 <div class="overlay">
     <div class="jsonator-container">
-      <copy-button [text_to_copy]="rawData"></copy-button>
+      <div class="button-bar">
+        <copy-button [text_to_copy]="rawData"></copy-button>
+        <close-button (close)="this.dialogRef.close()"></close-button>
+      </div>
       <div class="json-content">
         <pre [innerHTML]="formattedJson"></pre>
       </div>
