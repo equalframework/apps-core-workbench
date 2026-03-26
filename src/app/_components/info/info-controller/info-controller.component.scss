@@ -1,391 +1,397 @@
 @import '/src/theme.scss';
 
-.info-view-container {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.03);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  padding: 2em;
-  overflow-y: auto;
-
-}
-
-.info-header-section {
-  margin-bottom: 1.5em;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
-  padding: 1.5em 2em 1em 2em;
-
-  .controller-type-label {
-    font-size: 1.1em;
-    color: mat-color($maincolor);
-    margin-top: 0.5em;
-    .accent {
-      color: mat-color($accentcolor);
-      font-weight: bold;
-    }
-  }
-}
-
-.status {
-  font-size: 16px;
-  margin-top: 8px;
-  div {
+:host {
+  .loader {
     display: flex;
     align-items: center;
-    mat-icon {
-      margin-right: .25em;
-    }
+    justify-content: center;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    z-index: 10;
   }
-  .warn {
-    color: mat-color($warncolor);
+
+  .no-selection {
+    padding: 2em;
+    text-align: center;
+    color: mat-color($maincolor, 700);
   }
-  .new {
-    color: mat-color($newcolor);
-  }
-}
 
-
-
-.info-section-header {
-  display: flex;
-  align-items: center;
-  font-size: 24px;
-}
-
-.info-body-section {
-  flex: 1 1 auto;
-  background: white;
-  border-radius: 8px;
-  margin-bottom: 1.5em;
-  padding: 1.5em 2em;
-  display: flex;
-  flex-direction: column;
-
-  .view-mode-toggle {
+  .info-view-container {
     display: flex;
-    align-items: center;
-    justify-content: end;
-    gap: 0.75em;
-    padding: 0.75em;
-    margin-bottom: 1em;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.03);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    padding: 2em;
+    overflow-y: auto;
 
-    .toggle-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 32px;
-      height: 32px;
-      color: rgba(0, 0, 0, 0.4);
-      transition: color 0.2s ease;
-      cursor: pointer;
+    app-info-header {
+      .info-header-section {
+        margin-bottom: 1.5em;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+        padding: 1.5em 2em 1em 2em;
 
-      mat-icon {
-        font-size: 1.2em;
-        width: 1.2em;
-        height: 1.2em;
-      }
+        .controller-type-label {
+          font-size: 1.1em;
+          color: mat-color($maincolor);
+          margin-top: 0.5em;
 
-      &:hover {
-        color: rgba(0, 0, 0, 0.7);
-      }
-
-      &.active {
-        color: mat-color($maincolor);
-      }
-    }
-
-    .view-mode-switch {
-      margin: 0;
-      
-      ::ng-deep {
-        .mat-slide-toggle-label {
-          margin: 0;
+          .accent {
+            color: mat-color($accentcolor);
+            font-weight: bold;
+          }
         }
-        
-        .mdc-switch {
-          &.mdc-switch--selected {
-            .mdc-switch__track {
-              background-color: mat-color($maincolor, 300);
+      }
+
+      .status {
+        font-size: 16px;
+        margin-top: 8px;
+
+        div {
+          display: flex;
+          align-items: center;
+
+          mat-icon {
+            margin-right: .25em;
+          }
+        }
+
+        .warn {
+          color: mat-color($warncolor);
+        }
+
+        .new {
+          color: mat-color($newcolor);
+        }
+      }
+    }
+
+    .info-body-section {
+      flex: 1 1 auto;
+      background: white;
+      border-radius: 8px;
+      margin-bottom: 1.5em;
+      padding: 1.5em 2em;
+      display: flex;
+      flex-direction: column;
+
+      .view-mode-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: end;
+        gap: 0.75em;
+        padding: 0.75em;
+        margin-bottom: 1em;
+
+        .toggle-icon {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 32px;
+          height: 32px;
+          color: rgba(0, 0, 0, 0.4);
+          transition: color 0.2s ease;
+          cursor: pointer;
+
+          mat-icon {
+            font-size: 1.2em;
+            width: 1.2em;
+            height: 1.2em;
+          }
+
+          &:hover {
+            color: rgba(0, 0, 0, 0.7);
+          }
+
+          &.active {
+            color: mat-color($maincolor);
+          }
+        }
+
+        .view-mode-switch {
+          margin: 0;
+
+          ::ng-deep {
+            .mat-slide-toggle-label {
+              margin: 0;
+            }
+
+            .mdc-switch {
+              &.mdc-switch--selected {
+                .mdc-switch__track {
+                  background-color: mat-color($maincolor, 300);
+                }
+              }
+            }
+          }
+        }
+      }
+
+      .info-section-header {
+        display: flex;
+        align-items: center;
+        font-size: 24px;
+      }
+
+      .info-section-content {
+        padding: 0.5em 0.5em;
+        margin: 0.5em 0.5em;
+        border: rgba(0,0,0,0.06) solid 1px;
+        border-radius: 8px;
+
+        .valuewrapper {
+          padding-right : 1em;
+        }
+      }
+
+      .section {
+        margin-bottom: 1.5em;
+      }
+
+      .paneltitle {
+        display: none;
+      }
+
+      .params {
+        .info-section-content.params-form {
+          padding: 1.5em;
+
+          .params-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.25em;
+            margin-bottom: 1.5em;
+          }
+
+          .param-field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5em;
+            padding: 1em;
+            background: rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 6px;
+            transition: all 0.2s ease;
+
+            &:hover {
+              background: rgba(0, 0, 0, 0.04);
+              border-color: rgba(0, 0, 0, 0.08);
+            }
+
+            .param-label-row {
+              display: flex;
+              flex-direction: column;
+              gap: 0.35em;
+
+              .param-label {
+                display: flex;
+                align-items: center;
+                gap: 0.6em;
+                font-weight: 500;
+                font-size: 0.95em;
+                color: rgba(0, 0, 0, 0.87);
+
+                .param-icon {
+                  background-color: mat-color($maincolor, A100);
+                  border-radius: 4px;
+                  font-size: 1.2em;
+                  width: 28px;
+                  height: 28px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  color: mat-color($maincolor, 600);
+                  flex-shrink: 0;
+                }
+
+                .param-name {
+                  font-family: 'Courier New', monospace;
+                  letter-spacing: 0.3px;
+                }
+
+                .param-required {
+                  color: mat-color($warncolor);
+                  font-weight: bold;
+                  font-size: 1.1em;
+                  margin-left: 0.2em;
+                }
+              }
+
+              .param-description {
+                font-size: 0.85em;
+                color: rgba(0, 0, 0, 0.6);
+                line-height: 1.4;
+                margin-left: 2.4em;
+                font-style: italic;
+              }
+            }
+
+            .param-input-wrapper {
+              margin-left: 2.4em;
+              margin-top: 0.25em;
+
+              ::ng-deep type-input,
+              ::ng-deep app-property-domain-component {
+                width: 100%;
+              }
+
+              ::ng-deep type-input input,
+              ::ng-deep type-input select,
+              ::ng-deep type-input textarea {
+                font-size: 0.95em;
+              }
+            }
+          }
+
+          .params-action-row {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+            padding-top: 0.75em;
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
+
+            .submit-btn {
+              min-width: 180px;
+              height: 2.75em;
+              font-size: 1em;
+              border-radius: 6px;
+              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+              transition: all 0.2s ease;
+              background-color: mat-color($maincolor);
+              color: white;
+
+              mat-icon {
+                margin-right: 0.6em;
+                font-size: 1.1em;
+              }
+
+              &:hover:not(:disabled) {
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+                transform: translateY(-1px);
+              }
+
+              &:disabled {
+                background-color: rgba(0, 0, 0, 0.12);
+                color: rgba(0, 0, 0, 0.38);
+                cursor: not-allowed;
+              }
+            }
+          }
+        }
+      }
+
+      .json-view {
+        .json-content {
+          border: none !important;
+          padding: 1.5em !important;
+          margin: 0 !important;
+          position: relative;
+
+          pre.content-desc {
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 6px;
+            padding: 1.5em;
+            font-size: 0.9em;
+            line-height: 1.6;
+            overflow: visible;
+            margin: 0;
+            padding-right: 2.5em;
+          }
+
+          .json-action-row {
+            position: absolute;
+            top: 1.8em;
+            right: 1.8em;
+            z-index: 10;
+
+            button {
+              background: white;
+              border: 1px solid rgba(0, 0, 0, 0.08);
+              border-radius: 4px;
+              transition: all 0.2s ease;
+
+              &:hover {
+                background: rgba(0, 0, 0, 0.02);
+                border-color: mat-color($maincolor, 300);
+                color: mat-color($maincolor);
+              }
             }
           }
         }
       }
     }
-  }
 
-  .info-section-content {
-    padding: 0.5em 0.5em;
-    margin: 0.5em 0.5em;
-    border: rgba(0,0,0,0.06) solid 1px;
-    border-radius: 8px;
-
-    .valuewrapper {
-      padding-right : 1em;
-    }
-  }
-
-  .section {
-    margin-bottom: 1.5em;
-  }
-
-  .paneltitle {
-    display: none;
-  }
-}
-
-
-
-.params {
-  .info-section-content.params-form {
-    padding: 1.5em;
-    
-    .params-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1.25em;
-      margin-bottom: 1.5em;
-    }
-
-    .param-field {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5em;
-      padding: 1em;
-      background: rgba(0, 0, 0, 0.02);
-      border: 1px solid rgba(0, 0, 0, 0.06);
-      border-radius: 6px;
-      transition: all 0.2s ease;
-
-      &:hover {
-        background: rgba(0, 0, 0, 0.04);
-        border-color: rgba(0, 0, 0, 0.08);
-      }
-
-      .param-label-row {
-        display: flex;
-        flex-direction: column;
-        gap: 0.35em;
-
-        .param-label {
-          display: flex;
-          align-items: center;
-          gap: 0.6em;
-          font-weight: 500;
-          font-size: 0.95em;
-          color: rgba(0, 0, 0, 0.87);
-
-          .param-icon {
-            background-color: mat-color($maincolor, A100);
-            border-radius: 4px;
-            font-size: 1.2em;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: mat-color($maincolor, 600);
-            flex-shrink: 0;
-          }
-
-          .param-name {
-            font-family: 'Courier New', monospace;
-            letter-spacing: 0.3px;
-          }
-
-          .param-required {
-            color: mat-color($warncolor);
-            font-weight: bold;
-            font-size: 1.1em;
-            margin-left: 0.2em;
-          }
-        }
-
-        .param-description {
-          font-size: 0.85em;
-          color: rgba(0, 0, 0, 0.6);
-          line-height: 1.4;
-          margin-left: 2.4em;
-          font-style: italic;
-        }
-      }
-
-      .param-input-wrapper {
-        margin-left: 2.4em;
-        margin-top: 0.25em;
-
-        ::ng-deep type-input,
-        ::ng-deep app-property-domain-component {
-          width: 100%;
-        }
-
-        ::ng-deep type-input input,
-        ::ng-deep type-input select,
-        ::ng-deep type-input textarea {
-          font-size: 0.95em;
-        }
-      }
-    }
-
-    .params-action-row {
+    .info-footer-section {
+      background: transparent;
       display: flex;
       align-items: center;
-      justify-content: flex-end;
-      gap: 12px;
-      padding-top: 0.75em;
-      border-top: 1px solid rgba(0, 0, 0, 0.06);
+      justify-content: flex-start;
+      min-height: 7em;
 
-      .submit-btn {
-        min-width: 180px;
-        height: 2.75em;
-        font-size: 1em;
-        border-radius: 6px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-        transition: all 0.2s ease;
-        background-color: mat-color($maincolor);
-        color: white;
+      &.disabled {
+        background: rgba(0, 0, 0, 0.10) !important;
+        color: rgba(0,0,0,0.03) !important;
+        cursor: not-allowed !important;
 
         mat-icon {
-          margin-right: 0.6em;
+          color: rgba(0,0,0,0.03);
+        }
+
+        label {
+          color: rgba(0,0,0,0.03);
+        }
+      }
+
+      .button-pkg-container {
+        width: 100%;
+
+        .mat-grid-tile {
+          display: flex;
+          align-items: center;
+          justify-content: flex-start;
+        }
+
+        .view-info-button {
+          min-width: 16em;
+          height: 3em;
           font-size: 1.1em;
-        }
+          border-radius: 8px;
+          box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+          margin-right: 1.5em;
+          transition: background 0.2s;
+          color: rgba(0,0,0,0.06);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          width: 90%;
+          padding: 10px;
 
-        &:hover:not(:disabled) {
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
-          transform: translateY(-1px);
-        }
+          label {
+            font-size: 1.1em;
+            margin-left: 0.5em;
+            color: mat-color($maincolor);
+          }
 
-        &:disabled {
-          background-color: rgba(0, 0, 0, 0.12);
-          color: rgba(0, 0, 0, 0.38);
-          cursor: not-allowed;
-        }
-      }
-    }
-  }
-}
+          mat-icon {
+            margin-right: 0.7em;
+            transform: scale(1.2);
+            color: mat-color($maincolor);
+          }
 
-.json-view {
-  .json-content {
-    border: none !important;
-    padding: 1.5em !important;
-    margin: 0 !important;
-    position: relative;
-
-    pre.content-desc {
-      background: white;
-      border: 1px solid rgba(0, 0, 0, 0.08);
-      border-radius: 6px;
-      padding: 1.5em;
-      font-size: 0.9em;
-      line-height: 1.6;
-      overflow: visible;
-      margin: 0;
-      padding-right: 2.5em;
-    }
-
-    .json-action-row {
-      position: absolute;
-      top: 1.8em;
-      right: 1.8em;
-      z-index: 10;
-
-      button {
-        background: white;
-        border: 1px solid rgba(0, 0, 0, 0.08);
-        border-radius: 4px;
-        transition: all 0.2s ease;
-
-        &:hover {
-          background: rgba(0, 0, 0, 0.02);
-          border-color: mat-color($maincolor, 300);
-          color: mat-color($maincolor);
+          &:hover {
+            background: rgba(0,0,0,0.06);
+          }
         }
       }
     }
-  }
-}
-
-
-.info-footer-section {
-  background: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  min-height: 7em;
-}
-
-.button-pkg-container {
-  width: 100%;
-  .mat-grid-tile {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-  }
-}
-
-.view-info-button {
-  min-width: 16em;
-  height: 3em;
-  font-size: 1.1em;
-  border-radius: 8px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-  margin-right: 1.5em;
-  transition: background 0.2s;
-  color: rgba(0,0,0,0.06);
-
-  label {
-    font-size: 1.1em;
-    margin-left: 0.5em;
-    color: mat-color($maincolor);
-  }
-  mat-icon {
-    margin-right: 0.7em;
-    transform: scale(1.2);
-    color: mat-color($maincolor);
-  }
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 90%;
-  padding: 10px;
-
-  &:hover {
-    background: rgba(0,0,0,0.06);
-  }
-}
-
-// Loader
-.loader {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  background: rgba(255, 255, 255, 0.8);
-  z-index: 10;
-}
-
-.no-selection {
-  padding: 2em;
-  text-align: center;
-  color: mat-color($maincolor, 700);
-}
-
-.info-footer-section.disabled {
-  background: rgba(0, 0, 0, 0.10) !important;
-  color: rgba(0,0,0,0.03) !important;
-  cursor: not-allowed !important;
-  mat-icon {
-      color: rgba(0,0,0,0.03);
-  }
-  label {
-      color: rgba(0,0,0,0.03);
   }
 }
