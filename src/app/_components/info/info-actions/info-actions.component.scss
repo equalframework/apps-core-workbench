@@ -1,4 +1,5 @@
-.action-container {
+:host {
+  .action-container {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     padding: 2em;
     background-color: whitesmoke;
@@ -19,10 +20,8 @@
     font-size: 16px;
     background-color: #f9f9f9;
     cursor: pointer;
-
     transition: border-color 0.3s ease, background-color 0.3s ease;
   }
-
 
   textarea:focus, input:focus {
     border-color: #1976d2;
@@ -55,12 +54,13 @@
 
   mat-select {
     cursor: pointer;
+
+    &:hover {
+      border-color: #1976d2;
+    }
   }
 
-  mat-select:hover {
-    border-color: #1976d2;
+  .actions-policies {
+    overflow-y: scroll;
   }
-
-  .actions-policies{
-    overflow-y:scroll;
-  }
+}
