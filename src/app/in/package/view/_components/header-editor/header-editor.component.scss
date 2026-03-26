@@ -1,43 +1,57 @@
-.key-header-selection-actions {
-    display: inline-block;
-    width: 15em;
-}
-
-.selection-actions-section {
-    margin-top: 0.75em;
-    padding-top: 0.75em;
-    border-top: 2px solid #e0e0e0;
-}
-
-.header {
-    display: flex;
-    align-items: center;
-    gap: 1em;
-    margin-bottom: 1em;
-}
-
-.predef-actions-list {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    border-left: 3px solid #1976d2;
-    padding: 1em;
-    border-radius: 4px;
-    margin-bottom: 1em;
-}
-
-.predef-action-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.5em 0;
-    
-    &:not(:last-child) {
-        border-bottom: 1px solid #efefef;
+:host {
+    .header {
+        display: flex;
+        align-items: center;
+        gap: 1em;
+        margin-bottom: 1em;
     }
-}
 
-.custom-actions-label {
-    font-weight: 500;
-    margin-top: 1em;
-    margin-bottom: 0.75em;
-    color: #1976d2;
+    .indent {
+    }
+
+    .selection-actions-section {
+        margin-top: 0.75em;
+        padding-top: 0.75em;
+        border-top: 2px solid #e0e0e0;
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 1em;
+            margin-bottom: 1em;
+        }
+
+        .indent {
+            .predef-actions-list {
+                box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+                border-left: 3px solid #1976d2;
+                padding: 1em;
+                border-radius: 4px;
+                margin-bottom: 1em;
+
+                .predef-action-item {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 0.5em 0;
+
+                    &:not(:last-child) {
+                        border-bottom: 1px solid #efefef;
+                    }
+                }
+
+                .key-header-selection-actions {
+                    display: inline-block;
+                    width: 15em;
+                }
+            }
+
+            .custom-actions-label {
+                font-weight: 500;
+                margin-top: 1em;
+                margin-bottom: 0.75em;
+                color: #1976d2;
+            }
+        }
+    }
 }
