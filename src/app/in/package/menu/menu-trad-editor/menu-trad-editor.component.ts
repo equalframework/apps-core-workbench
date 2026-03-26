@@ -625,8 +625,10 @@ export class MenuTradEditorComponent implements OnInit {
     }
 
     debugExport() {
+        const sanitizedData = this.sanitizeTranslationData(this.local_schema);
+
         this.dialog.open(JsonViewerComponent, {
-            data: this.local_schema[this.lang] ? this.local_schema[this.lang].export() : {},
+            data: sanitizedData,
             height: '80%',
             width: '80%'
         });
