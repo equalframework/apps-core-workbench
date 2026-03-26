@@ -882,6 +882,13 @@ export class WorkbenchService {
         );
     }
 
+    public getTranslationLanguagesByPackage(package_name: string): Observable<{ [entity: string]: string[] }> {
+        const url = `?get=core_config_translations&package=${package_name}`;
+        return this.callApi(url, '').pipe(
+            map((response: any) => response.success ? response.response : {})
+        );
+    }
+
 
     /**
      * Fetches a list of available translations for a specific package and entity.
