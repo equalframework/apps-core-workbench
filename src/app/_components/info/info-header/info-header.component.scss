@@ -1,131 +1,132 @@
 @import '/src/theme.scss';
 
-.info-header-section {
+:host {
+  .info-header-section {
     background: white;
     margin-bottom: 1.5em;
     width: 100%;
     padding: 1.5em 2em 1em 2em;
     border-radius: 8px;
-}
 
-.info-header-row {
-    width: 100%;
-}
+    .info-header-row {
+      width: 100%;
+    }
 
-.info-header-top-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    font-size: 1.3em;
-    font-weight: bold;
-}
+    .info-header-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.3em;
+      font-weight: bold;
 
-.info-header-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
+      .info-header-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
 
-.info-header-right {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
+        .info-header-label {
+          color: mat-color($maincolor, 700);
+          font-size: 1.1em;
+          margin-right: 0.5em;
+        }
 
-.icon-btn mat-icon.disabled {
-    color: #bdbdbd;
-}
+        .info-header-main {
+          color: mat-color($accentcolor);
+          font-size: 1.2em;
+        }
+      }
 
-.info-header-label {
-    color: mat-color($maincolor, 700);
-    font-size: 1.1em;
-    margin-right: 0.5em;
-}
+      .info-header-right {
+        display: flex;
+        align-items: center;
+        gap: 6px;
 
-.info-header-main {
-    color: mat-color($accentcolor);
-    font-size: 1.2em;
-}
+        .icon-btn mat-icon.disabled {
+          color: #bdbdbd;
+        }
+      }
+    }
 
-.info-header-description {
-    font-size: 1.05em;
-    color: #666;
-    margin-top: 8px;
-    margin-bottom: 0.5em;
-}
+    .info-header-description {
+      font-size: 1.05em;
+      color: #666;
+      margin-top: 8px;
+      margin-bottom: 0.5em;
+    }
 
-.info-header-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2em;
-    margin-top: 12px;
-    font-size: 1em;
-    color: mat-color($maincolor, 700);
-    align-items: center;
-}
+    .info-header-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2em;
+      margin-top: 12px;
+      font-size: 1em;
+      color: mat-color($maincolor, 700);
+      align-items: center;
 
-.info-header-meta-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 1em;
-    color: mat-color($maincolor);
-    background: mat-color($maincolor, 5);
-    border-radius: 6px;
-    padding: 0.3em 0.8em;
-}
+      .info-header-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1em;
+        color: mat-color($maincolor);
+        background: mat-color($maincolor, 5);
+        border-radius: 6px;
+        padding: 0.3em 0.8em;
 
-.info-header-status {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1em;
-    margin-top: 12px;
-    align-items: center;
-}
+        mat-icon {
+          color: mat-color($maincolor);
+          font-size: 1.5em;
+          margin-right: 6px;
+        }
 
-.info-header-status-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.95em;
-    color: mat-color($maincolor, 800);
-    background: mat-color($maincolor, 5);
-    border-radius: 6px;
-    padding: 0.25em 0.6em;
-}
+        .info-header-meta-text {
+          display: flex;
+          align-items: center;
+          overflow: hidden;
+          font-weight: 500;
+        }
+      }
+    }
 
-.info-header-status-item mat-icon {
-    font-size: 1.2em;
-}
+    .info-header-status {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1em;
+      margin-top: 12px;
+      align-items: center;
 
-.status-label {
-    font-weight: 600;
-    margin-right: 0.25em;
-}
+      .info-header-status-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.95em;
+        color: mat-color($maincolor, 800);
+        background: mat-color($maincolor, 5);
+        border-radius: 6px;
+        padding: 0.25em 0.6em;
 
-.info-header-meta-item mat-icon {
-    color: mat-color($maincolor);
-    font-size: 1.5em;
-    margin-right: 6px;
-}
+        mat-icon {
+          font-size: 1.2em;
+        }
 
-.info-header-meta-text {
-    display: flex;
-    align-items: center;
-    overflow: hidden;
-    font-weight: 500;
-}
+        .status-label {
+          font-weight: 600;
+          margin-right: 0.25em;
+        }
 
-/* Conditional coloring for status items */
-.info-header-status-item.status-error,
-.info-header-status-item.status-error mat-icon,
-.info-header-status-item.status-error .status-label {
-    color: mat-color($route-color) !important;
-}
+        &.status-error,
+        &.status-error mat-icon,
+        &.status-error .status-label {
+          color: mat-color($route-color) !important;
+        }
 
-.info-header-status-item.status-ok,
-.info-header-status-item.status-ok mat-icon,
-.info-header-status-item.status-ok .status-label {
-    color: mat-color($package-color) !important;
+        &.status-ok,
+        &.status-ok mat-icon,
+        &.status-ok .status-label {
+          color: mat-color($package-color) !important;
+        }
+      }
+    }
+  }
 }
