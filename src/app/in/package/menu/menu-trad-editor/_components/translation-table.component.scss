@@ -14,7 +14,6 @@
 		/* Force first logical column (checkbox) */
 		th.header-tile:first-child,
 		td.checkbox-cell {
-			width: 5%;
 		}
 
 		/* Ensure second logical column (menu item) takes at least half the table */
@@ -43,7 +42,11 @@
 
 		thead {
 			tr{
+				th.header-tile {
+					border-left: 3px solid rgb(126 134 178);
+				}
 				th.header-tile:first-child {
+					display: flex;
 					align-items: center;
 					justify-content: center;
 				}
