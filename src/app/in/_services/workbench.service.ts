@@ -976,6 +976,33 @@ export class WorkbenchService {
     }
 
     /**
+     * Saves translations for a specific package, menu, and language dictionary.
+     *
+     * This method overwrites translations for a given package and menu for each language in the dictionary.
+     *
+     * @param {string} package_name - The name of the package.
+     * @param {string} menu_name - The menu within the package.
+     * @param {any} dict - The translation dictionary, where keys are language codes and values are translation data.
+     *
+     * @returns {Observable<void>} An observable that emits when all translation updates have been completed.
+     */
+    public overwriteMenuTranslations(package_name: string, menu_name: string, dict: any): Observable<void> {
+        const requests = Object.keys(dict).map((lang) => {
+            // Handle both Translator instances and plain objects
+            const payload = dict[lang].export ? dict[lang].export() : dict[lang];
+            console.log(`Overwriting with payload:`, payload);
+            const url = `?do=core_config_generate-menu-i18n&package=${package_name}&menu_name=${menu_name.split('.')[0]}&menu_type=${menu_name.split('.')[1]}&overwrite=true&lang=${lang}&create_lang=true&payload=${JSON.stringify(payload)}`;
+            return this.callApi(url, 'Translation updated').pipe(
+                catchError((err) => {
+                    console.error(`Error saving translation for ${lang}:`, err);
+                    return of(null); // Continue even if there's an error
+                })
+            );
+        });
+        return forkJoin(requests).pipe(map(() => {})); // Wait for all the requests to finish
+    }
+
+
     /**
     * @deprecated
     * @todo for a better centralized logic, try to use equalComponentProviderService
