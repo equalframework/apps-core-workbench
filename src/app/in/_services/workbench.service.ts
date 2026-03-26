@@ -976,6 +976,7 @@ export class WorkbenchService {
     }
 
     /**
+    /**
     * @deprecated
     * @todo for a better centralized logic, try to use equalComponentProviderService
     * @tag EqualComponentProvider to use
