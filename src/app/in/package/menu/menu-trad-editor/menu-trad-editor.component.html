@@ -16,24 +16,24 @@
     </div>
   </app-inner-header>
 
-  <div *ngIf="loading && obk(data).length === 0" class="loading-container">
+  <div *ngIf="loading && obk(local_schema).length === 0" class="loading-container">
     <mat-spinner></mat-spinner>
   </div>
 
-  <mat-card *ngIf="!loading && obk(data).length === 0" class="no-translation-card">
+  <mat-card *ngIf="!loading && obk(local_schema).length === 0" class="no-translation-card">
     <mat-card-content>No translation available for this menu.</mat-card-content>
   </mat-card>
 
-  <mat-card *ngIf="obk(data).length > 0" class="translation-card">
+  <mat-card *ngIf="obk(local_schema).length > 0" class="translation-card">
     <mat-card-content>
 
-      <!-- 📌 LANGUAGE SELECTION & MANAGEMENT -->
-      <div class="lang-selection" *ngIf="!addingLanguage && obk(data).length > 0" appScrollTarget="lang-selection">
+      <!--  LANGUAGE SELECTION & MANAGEMENT -->
+      <div class="lang-selection" *ngIf="!addingLanguage && obk(local_schema).length > 0" appScrollTarget="lang-selection">
         <div class="info-left">
           <mat-form-field appearance="outline">
             <mat-label>Translated language</mat-label>
             <mat-select [value]="lang" (selectionChange)="onLangChange($event.value)">
-              <mat-option *ngFor="let lg of obk(data)" [value]="lg">{{ lg }}</mat-option>
+              <mat-option *ngFor="let lg of obk(local_schema)" [value]="lg">{{ lg }}</mat-option>
             </mat-select>
           </mat-form-field>
           <button mat-flat-button color="primary" class="btn-margin" (click)="startAddingLanguage()">
@@ -42,7 +42,7 @@
         </div>
       </div>
 
-      <div class="lang-selection" *ngIf="addingLanguage || obk(data).length === 0">
+      <div class="lang-selection" *ngIf="addingLanguage || obk(local_schema).length === 0">
         <mat-form-field appearance="outline">
           <mat-label>Language</mat-label>
           <mat-select [formControl]="langName">
@@ -59,8 +59,8 @@
         </div>
       </div>
 
-      <!-- 📌 MENU TRANSLATIONS TAB -->
-      <mat-tab-group *ngIf="obk(data).length > 0 && lang && data[lang]" animationDuration="0ms"
+      <!--  MENU TRANSLATIONS TAB -->
+      <mat-tab-group *ngIf="obk(local_schema).length > 0 && lang && local_schema[lang]" animationDuration="0ms"
         [selectedIndex]="selectedTabIndex"
         (selectedIndexChange)="onTabChange($event)">
 
@@ -71,16 +71,19 @@
           <div class="tab-content">
             <div class="section-title">Menu Item Translations</div>
 
-            <div *ngIf="obk(data[lang].view).length === 0" class="no-data-message">
+            <div *ngIf="obk(local_schema[lang].view).length === 0" class="no-data-message">
               <p>No menu items available for translation.</p>
             </div>
 
-            <div *ngIf="obk(data[lang].view).length > 0" class="menu-items">
+            <div *ngIf="obk(local_schema[lang].view).length > 0" class="menu-items">
               <app-translation-table
                 [items]="getTableItems()"
                 [fields]="FIELD_CONFIGS.menuItem"
                 [selectedField]="activeField"
                 [metadata]="getMenuItemMetadata.bind(this)"
+                [getDepthCallback]="getItemDepth.bind(this)"
+                [hasChildrenCallback]="itemHasChildren.bind(this)"
+                [getParentIdCallback]="getItemParentId.bind(this)"
                 (itemChange)="onTranslationItemChange($event)">
               </app-translation-table>
             </div>

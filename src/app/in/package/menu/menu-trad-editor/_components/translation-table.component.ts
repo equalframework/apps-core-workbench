@@ -35,6 +35,9 @@ export class TranslationTableComponent implements OnChanges {
   @Input() headers?: GridHeaderColumn[];
   @Input() totalCols = 16;
   @Input() metadata?: (itemId: string) => any; // Optional callback to get item metadata
+  @Input() getDepthCallback?: (itemId: string) => number; // Optional callback to get item depth
+  @Input() hasChildrenCallback?: (itemId: string) => boolean; // Optional callback to check if item has children
+  @Input() getParentIdCallback?: (itemId: string) => string | null; // Optional callback to get parent ID
   @Output() itemChange = new EventEmitter<{ key: string; changes: Record<string, any> }>();
 
   private allItems: Record<string, any> = {};
@@ -70,8 +73,12 @@ export class TranslationTableComponent implements OnChanges {
     ];
   }
 
-  /** Calculate hierarchy depth from dot notation in key */
+  /** Calculate hierarchy depth - uses callback if provided, otherwise falls back to dot notation */
   getDepth(key: string): number {
+    if (this.getDepthCallback) {
+      return this.getDepthCallback(key);
+    }
+    // Fallback: infer from dot notation in key
     return (key.match(/\./g) || []).length;
   }
 
@@ -79,6 +86,21 @@ export class TranslationTableComponent implements OnChanges {
   getDisplayName(key: string): string {
     const meta = this.getItemMetadata(key);
     if (meta && meta.label) return meta.label;
+    
+    // Try to get parent ID using callback
+    if (this.getParentIdCallback) {
+      // If there's a parent, just show the item's own label from metadata
+      // Otherwise show the last segment
+      const parentId = this.getParentIdCallback(key);
+      if (parentId === null && meta && meta.label) {
+        return meta.label;
+      }
+      if (meta && meta.label) {
+        return meta.label;
+      }
+    }
+    
+    // Fallback: extract from dot notation
     const parts = key.split('.');
     return parts[parts.length - 1];
   }
@@ -106,15 +128,23 @@ export class TranslationTableComponent implements OnChanges {
     try { this.itemChange.emit({ key: itemKey, changes: { [fieldKey]: item[fieldKey] } }); } catch (e) { /* noop */ }
   }
 
-  /** Get parent ID for navigation/visual purposes */
+  /** Get parent ID for navigation/visual purposes - uses callback if provided */
   getParentId(key: string): string | null {
+    if (this.getParentIdCallback) {
+      return this.getParentIdCallback(key);
+    }
+    // Fallback: infer from dot notation
     const parts = key.split('.');
     if (parts.length <= 1) return null;
     return parts.slice(0, -1).join('.');
   }
 
-  /** Check if this key has children (by checking if other keys start with this key) */
+  /** Check if this key has children - uses callback if provided */
   hasChildren(key: string): boolean {
+    if (this.hasChildrenCallback) {
+      return this.hasChildrenCallback(key);
+    }
+    // Fallback: infer from dot notation in other keys
     return Object.keys(this.allItems || {}).some(k => k.startsWith(key + '.'));
   }
 
@@ -154,7 +184,6 @@ export class TranslationTableComponent implements OnChanges {
         item.is_active = true;
       }
     }
-    console.log('Computed item keys:', keys);
     return keys;
   }
 

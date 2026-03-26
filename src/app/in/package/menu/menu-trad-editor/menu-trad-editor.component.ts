@@ -15,6 +15,7 @@ import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer
 
 import { MenuTranslationValue, MenuTranslationField, MenuFieldColumnConfig, MENU_FIELD_CONFIGS } from './_object/menu-translation.types';
 import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
+import { ca } from 'date-fns/locale';
 
 @Component({
   selector: 'app-menu-trad-editor',
@@ -33,7 +34,8 @@ export class MenuTradEditorComponent implements OnInit {
     activeField = '';
 
     langName = new FormControl('', { validators: [ MenuTradEditorComponent.langCaseValidator ] });
-    data: { [id: string]: Translator } = {};
+    local_schema: { [id: string]: Translator } = {};
+    checkedItems: { [lang: string]: Set<string> } = {}; // Tracks which items are checked (editable) per language
     allLanguages = ['en', 'fr', 'de', 'es', 'it', 'pt', 'nl'];
     availableLanguages: string[] = [];
     public readonly FIELD_CONFIGS = MENU_FIELD_CONFIGS;
@@ -41,6 +43,8 @@ export class MenuTradEditorComponent implements OnInit {
 
     private _menuScheme: Menu | null = null;
     private _menuMetadata: Map<string, any> = new Map(); // Maps menu item IDs to their metadata (type, icon, etc.)
+    private _hierarchyMap: Map<string, string | null> = new Map(); // Maps item ID to parent ID (null for root items)
+    private _childrenMap: Map<string, string[]> = new Map(); // Maps parent ID to array of children IDs
     private activatorRegistry: QueryParamActivatorRegistry;
 
     constructor(
@@ -156,7 +160,7 @@ export class MenuTradEditorComponent implements OnInit {
 
     private fieldExists(lang: string | null | undefined, field: string): boolean {
         if (!lang) { return false; }
-        const translator = this.data[lang];
+        const translator = this.local_schema[lang];
         if (!translator) { return false; }
 
         try {
@@ -181,6 +185,9 @@ export class MenuTradEditorComponent implements OnInit {
                 this._menuScheme = new Menu(raw || {});
             }
             if (this._menuScheme && this._menuScheme.layout && this._menuScheme.layout.items) {
+                // Clear hierarchy maps before rebuilding
+                this._hierarchyMap.clear();
+                this._childrenMap.clear();
                 this._buildMenuMetadata(this._menuScheme.layout.items as any[]);
             }
         } catch (e) {
@@ -191,15 +198,14 @@ export class MenuTradEditorComponent implements OnInit {
     /**
      * Recursively builds metadata for all menu items from the menu schema
      * Maps item IDs to their properties (type, icon, label, etc.)
+     * Also builds hierarchy maps that track parent-child relationships based on the children property
      */
-    private _buildMenuMetadata(items: any[], parentPath: string = ''): void {
+    private _buildMenuMetadata(items: any[], parentId: string | null = null): void {
         if (!Array.isArray(items)) return;
 
         items.forEach(item => {
             if (item.id) {
-                    // If the schema `id` already contains a dot, treat it as an absolute id and use it as-is.
-                    // Otherwise prefix with `parentPath` when present.
-                    const itemId = (item.id && item.id.indexOf('.') !== -1) ? item.id : (parentPath ? `${parentPath}.${item.id}` : item.id);
+                const itemId = item.id;
                 
                 this._menuMetadata.set(itemId, {
                     id: itemId,
@@ -211,7 +217,19 @@ export class MenuTradEditorComponent implements OnInit {
                     route: item.route || null
                 });
 
-                // Recursively process children
+                // Build hierarchy map: track parent and children relationships
+                this._hierarchyMap.set(itemId, parentId);
+                
+                if (parentId) {
+                    // Add to parent's children list
+                    const children = this._childrenMap.get(parentId) || [];
+                    if (!children.includes(itemId)) {
+                        children.push(itemId);
+                        this._childrenMap.set(parentId, children);
+                    }
+                }
+
+                // Recursively process children (if any)
                 if (item.children && Array.isArray(item.children)) {
                     this._buildMenuMetadata(item.children, itemId);
                 }
@@ -227,9 +245,47 @@ export class MenuTradEditorComponent implements OnInit {
     }
 
     /**
+     * Get the parent ID of an item (based on children property, not dot notation)
+     */
+    getItemParentId(itemId: string): string | null {
+        return this._hierarchyMap.get(itemId) || null;
+    }
+
+    /**
+     * Get all children IDs for a parent item
+     */
+    getItemChildren(parentId: string): string[] {
+        return this._childrenMap.get(parentId) || [];
+    }
+
+    /**
+     * Calculate hierarchy depth based on actual parent-child relationships
+     */
+    getItemDepth(itemId: string): number {
+        let depth = 0;
+        let currentId: string | null = itemId;
+        
+        while (currentId) {
+            currentId = this._hierarchyMap.get(currentId) || null;
+            if (currentId) {
+                depth++;
+            }
+        }
+        
+        return depth;
+    }
+
+    /**
+     * Check if an item has children based on actual children relationships
+     */
+    itemHasChildren(itemId: string): boolean {
+        return (this._childrenMap.get(itemId)?.length || 0) > 0;
+    }
+
+    /**
      * Build table items from the menu schema and match with current language translations.
      * This ensures all schema items are displayed, whether or not they have translations.
-     * For each schema item, retrieves its translation value from data[lang].view['menu'].layout[itemId]
+     * For each schema item, retrieves its translation value from local_schema[lang].view['menu'].layout[itemId]
      */
     getTableItems(): Record<string, any> {
         const items: Record<string, any> = {};
@@ -243,8 +299,9 @@ export class MenuTradEditorComponent implements OnInit {
         this._buildTableItemsFromSchema(
             this._menuScheme.layout.items,
             items,
-            ''
+            null
         );
+
 
         return items;
     }
@@ -252,27 +309,27 @@ export class MenuTradEditorComponent implements OnInit {
     /**
      * Recursively builds table items from schema items.
      * For each schema item, creates an entry in the items record with translation data from current language.
+     * Hierarchy is preserved via the _hierarchyMap and _childrenMap built during metadata construction.
      */
     private _buildTableItemsFromSchema(
         schemaItems: any[],
         items: Record<string, any>,
-        parentPath: string
+        parentId: string | null = null
     ): void {
         if (!Array.isArray(schemaItems)) return;
 
         schemaItems.forEach(schemaItem => {
             if (schemaItem.id) {
-                // If the schema `id` already contains a dot, treat it as absolute and use it as-is.
-                // Otherwise prefix with `parentPath` when present.
-                const itemId = (schemaItem.id && schemaItem.id.indexOf('.') !== -1) ? schemaItem.id : (parentPath ? `${parentPath}.${schemaItem.id}` : schemaItem.id);
-                
+                const itemId = schemaItem.id;
+
                 // Get translation for this item from current language
                 const translationData = this.getTranslationForItem(itemId);
-                
+
                 // Create item object combining schema info with translation
                 items[itemId] = {
                     ...schemaItem,
-                    ...translationData
+                    ...translationData,
+                    _parentId: parentId // Store parent reference for hierarchy navigation
                 };
 
                 // Recursively process children
@@ -285,19 +342,19 @@ export class MenuTradEditorComponent implements OnInit {
 
     /**
      * Get translation data for a specific menu item ID from the current language.
-     * Returns translation field values from data[lang].view['menu'].layout[itemId]
+     * Returns translation field values from local_schema[lang].view['menu'].layout[itemId]
+     * Also includes is_active flag based on checkedItems.
      */
     private getTranslationForItem(itemId: string): any {
         const translation: Record<string, any> = {};
 
-        if (!this.lang || !this.data[this.lang]) {
+        if (!this.lang || !this.local_schema[this.lang]) {
             return translation;
         }
 
         try {
-            const languageData = this.data[this.lang];
-            const menuLayout = languageData?.view?.['menu']?.layout;
-
+            const languageData = this.local_schema[this.lang];
+            const menuLayout = languageData?.view.menu.layout;
             if (menuLayout && menuLayout[itemId]) {
                 const itemTranslation = menuLayout[itemId] as any;
                 
@@ -305,43 +362,100 @@ export class MenuTradEditorComponent implements OnInit {
                 if (itemTranslation.label) {
                     translation['label'] = itemTranslation.label;
                 }
-                
-                // Include is_active flag
-                if (itemTranslation.is_active !== undefined) {
-                    translation['is_active'] = itemTranslation.is_active;
-                }
             }
         } catch (e) {
             console.warn(`Failed to get translation for item ${itemId}:`, e);
         }
+
+        // Set is_active based on checkedItems (used by child component to show/hide editable fields)
+        translation['is_active'] = this.isItemChecked(itemId);
 
         return translation;
     }
 
     async initTranslations() {
         this.loading = true;
-        this.data = {};
-
-        // fetch existing partial translations for each available language
-        for (const lang of this.allLanguages) {
+        this.local_schema = {};
+        this.checkedItems = {};
+        // Fetch existing languages
+        try {
+            const translationsByPackage = await this.workbenchService.getTranslationLanguagesByPackage(this.package_name).toPromise();
+            for (const lang in translationsByPackage) {
+                if (translationsByPackage[lang].includes(`${this.package_name}_menu.${this.menu_name}`)) {
+                    this.availableLanguages.push(lang);
+                }
+            }
+        } catch (e) {
+            console.warn('Failed to fetch available translation languages for package:', e);
+            this.availableLanguages = [];
+        }
+        // Fetch existing partial translations for each available language
+        for (const lang of this.availableLanguages) {
             try {
                 const partialData: any = await this.workbenchService.getMenuTranslationsList(this.package_name, this.menu_name, lang).toPromise();
+                
+                // Create a fresh Translator with all schema items
+                const translator = await this.createNewMenuLang();
+                if (!translator.ok) {
+                    console.warn(`Translator not OK for language ${lang}`);
+                    continue;
+                }
+
+                // Merge partial translations into the fresh translator (making a local schema)
                 if (partialData) {
-                    // Create a Translator instance and merge partial data into it so this.data[lang] always holds a Translator
-                    const translator = await this.createNewMenuLang();
                     try {
-                        Object.assign(translator, partialData);
+                        // Fill name and description from partial data
+                        if (partialData.name) {
+                            translator.name.value = partialData.name;
+                        }
+                        if (partialData.description) {
+                            translator.description.value = partialData.description;
+                        }
+
+                // Manually merge view labels from partial data into translator's view.menu.layout
+                        if (partialData.view && translator.view && translator.view['menu'] && translator.view['menu'].layout) {
+                            const partialView = partialData.view;
+                            const translatorLayout = translator.view['menu'].layout;
+                            
+                            const mergedItems: string[] = [];
+                            const skippedItems: string[] = [];
+                            
+                            // For each item in the partial data, merge its label into the translator
+                            for (const itemId in partialView) {
+                                if (partialView[itemId]?.label) {
+                                    // Update the label value if the item exists in translator layout
+                                    if (translatorLayout[itemId] && translatorLayout[itemId].label) {
+                                        translatorLayout[itemId].label.value = partialView[itemId].label;
+                                        mergedItems.push(itemId);
+                                    } else {
+                                        skippedItems.push(itemId);
+                                    }
+                                }
+                            }
+                            
+                            if (skippedItems.length > 0) {
+                                console.warn(`For language ${lang}, skipped merging ${skippedItems.length} items not found in translator layout:`, skippedItems);
+                                console.warn(`Available items in translator layout:`, Object.keys(translatorLayout));
+                            }
+                        }
                     } catch (e) {
                         console.warn(`Failed to merge partial translation for ${lang}:`, e);
                     }
-                    this.data[lang] = translator;
                 }
+
+                // Initialize checked items set for this language
+                this.checkedItems[lang] = new Set<string>();
+                
+                // Mark items as checked if they have a translation value
+                this._markCheckedItemsForLanguage(lang, translator);
+
+                this.local_schema[lang] = translator;
             } catch (e) {
                 console.warn(`Failed to load translations for language ${lang}:`, e);
             }
         }
 
-        if (!this.data || Object.keys(this.data).length === 0) {
+        if (!this.local_schema || Object.keys(this.local_schema).length === 0) {
             this.loading = false;
             this.updateAvailableLanguages();
             return;
@@ -349,44 +463,30 @@ export class MenuTradEditorComponent implements OnInit {
 
         const firstLang = this.allLanguages[0] || null;
 
-        const fillLanguage = async (lang: string) => {
-            const newTranslation = await this.createNewMenuLang();
-            if (!newTranslation.ok) { return null; }
-            this.data[lang] = newTranslation;
-
-            return this.data[lang];
-        };
-
         if (firstLang) {
-            await fillLanguage(firstLang);
             this.lang = firstLang;
-            this.loading = false; // reveal UI as soon as first language is ready
+            this.loading = false; // Reveal UI as soon as first language is ready
             this.updateAvailableLanguages();
         } else {
             this.loading = false;
             this.updateAvailableLanguages();
-        }
-
-        for (const lang of this.allLanguages) {
-            if (lang === firstLang) continue;
-            await fillLanguage(lang);
         }
     }
 
     reload(): void {
         this._menuScheme = null;
         this._menuMetadata.clear();
+        this._hierarchyMap.clear();
+        this._childrenMap.clear();
         this.loading = true;
         this.initTranslations();
         this.loadMenuSchemaAndMetadata();
-
     }
 
     onLangChange(lang: string): void {
         this.lang = lang;
         this.activeField = '';
-        // La sélection de langue n'a pas besoin d'être dans l'URL puisqu'il n'y a
-        // qu'une seule vue avec le dropdown de langue visible
+        this.cdr.detectChanges();
     }
 
     onTabChange(index: number): void {
@@ -400,7 +500,64 @@ export class MenuTradEditorComponent implements OnInit {
             const raw = await this.workbenchService.readMenu(this.package_name, this.menu_name).toPromise();
             this._menuScheme = new Menu(raw || {});
         }
-        return Translator.MenuConstructor(new Menu(this._menuScheme.export()));
+        const translator = Translator.MenuConstructor(new Menu(this._menuScheme.export()));
+        return translator;
+    }
+
+    /**
+     * Marks items as "checked" (editable) for a language if they have translation values.
+     * Items with translations are those that have a non-empty label value.
+     */
+    private _markCheckedItemsForLanguage(lang: string, translator: Translator): void {
+        if (!this.checkedItems[lang]) {
+            this.checkedItems[lang] = new Set<string>();
+        }
+
+        if (translator.view && translator.view['menu'] && translator.view['menu'].layout) {
+            const layout = translator.view['menu'].layout;
+            let checkedCount = 0;
+            const itemsWithLabels: { [key: string]: string } = {};
+            const itemsWithoutLabels: string[] = [];
+            
+            for (const itemId in layout) {
+                const item = layout[itemId];
+                // Mark item as checked if it has a translation value (non-empty label)
+                const labelValue = item?.label?.value;
+                if (labelValue && typeof labelValue === 'string' && labelValue.trim() !== '') {
+                    this.checkedItems[lang].add(itemId);
+                    itemsWithLabels[itemId] = labelValue;
+                    checkedCount++;
+                } else {
+                    itemsWithoutLabels.push(itemId);
+                }
+            }
+
+        }
+    }
+
+    /**
+     * Marks an item as checked for a language (making it editable).
+     * Called when user starts editing an item or when navigation activates an item.
+     */
+    private setItemChecked(lang: string, itemId: string, checked: boolean): void {
+        if (!this.checkedItems[lang]) {
+            this.checkedItems[lang] = new Set<string>();
+        }
+        if (checked) {
+            this.checkedItems[lang].add(itemId);
+        } else {
+            this.checkedItems[lang].delete(itemId);
+        }
+    }
+
+    /**
+     * Gets whether an item is checked (editable) for the current language.
+     */
+    isItemChecked(itemId: string): boolean {
+        if (!this.lang || !this.checkedItems[this.lang]) {
+            return false;
+        }
+        return this.checkedItems[this.lang].has(itemId);
     }
 
     obk(object: { [id: string]: any }): string[] {
@@ -420,13 +577,14 @@ export class MenuTradEditorComponent implements OnInit {
 
         if (!selectedLang) return;
 
-        if (this.data[selectedLang]) {
+        if (this.local_schema[selectedLang]) {
             this.notificationService.showError('This menu already has a translation for this language.', 'ERROR');
             return;
         }
 
         const newTranslation = await this.createNewMenuLang();
-        this.data[selectedLang] = newTranslation;
+        this.local_schema[selectedLang] = newTranslation;
+        this.checkedItems[selectedLang] = new Set<string>();
         this.addingLanguage = false;
         this.onLangChange(selectedLang);
         this.langName.setValue('');
@@ -434,7 +592,7 @@ export class MenuTradEditorComponent implements OnInit {
     }
 
     updateAvailableLanguages() {
-        const existingLangs = Object.keys(this.data || {});
+        const existingLangs = Object.keys(this.local_schema || {});
         this.availableLanguages = this.allLanguages.filter(lang => !existingLangs.includes(lang));
     }
 
@@ -467,45 +625,113 @@ export class MenuTradEditorComponent implements OnInit {
     }
 
     debugExport() {
-
         this.dialog.open(JsonViewerComponent, {
-            data: this.data[this.lang] ? this.data[this.lang].export() : {},
+            data: this.local_schema[this.lang] ? this.local_schema[this.lang].export() : {},
             height: '80%',
             width: '80%'
         });
     }
 
     saveAll() {
-        console.log('Saving menu translations:', this.data);
-        /*
-        this.workbenchService.saveTranslations(this.package_name, 'menu.' + this.menu_name, this.data).subscribe(()=> {
-
+        // Sanitize data to ensure it matches the expected structure
+        // All fields are included (even unedited ones) to prevent data loss on overwrite
+        const sanitizedData = this.sanitizeTranslationData(this.local_schema);
+        
+        this.workbenchService.overwriteMenuTranslations(this.package_name, this.menu_name, sanitizedData).subscribe(()=> {
             this.notificationService.showSuccess("Translations updated")
         });
-        */
-        // TODO: Implement menu translation saving once the API endpoint is available
-        this.notificationService.showInfo("Menu translations saving is not yet implemented.");
+    }
+
+    /**
+     * Sanitizes translation data to match the expected backend structure.
+     * Transforms nested view.menu.layout to flat view structure.
+     * Ensures all items have label, description, help, and layout fields.
+     * 
+     * All items from local_schema are included (even unedited ones) to preserve data.
+     * 
+     * Input format:
+     * {
+     *   name: "", description: "", plural: "",
+     *   view: { menu: { layout: { item_id: { label: Translation } } } }
+     * }
+     * 
+     * Output format:
+     * {
+     *   name: "", description: "",
+     *   view: { item_id: { label: "", description: "", help: "", layout: "" } }
+     * }
+     */
+    private sanitizeTranslationData(data: { [lang: string]: Translator }): { [lang: string]: any } {
+        const sanitized: { [lang: string]: any } = {};
+
+        for (const lang in data) {
+            const translator = data[lang];
+            if (!translator) continue;
+
+            // Start with root-level fields
+            const sanitizedLang: any = {
+                name: translator.name?.value || '',
+                description: translator.description?.value || ''
+                // Note: plural is intentionally excluded
+            };
+
+            // Transform view structure - include all items from local_schema
+            const viewLayout = translator?.view?.['menu']?.layout || {};
+            const viewObj: any = {};
+
+            for (const itemId in viewLayout) {
+                const item = viewLayout[itemId];
+                
+                // Include all items, even if not checked (unedited)
+                // Empty translations are stored as empty strings
+                viewObj[itemId] = {
+                    label: item?.label?.value || '',
+                    description: '',
+                    help: '',
+                    layout: ''
+                };
+            }
+
+            // Only add view if it has items
+            if (Object.keys(viewObj).length > 0) {
+                sanitizedLang.view = viewObj;
+            }
+
+            sanitized[lang] = sanitizedLang;
+        }
+
+        return sanitized;
     }
 
     /**
      * Persist a single item change coming from the translation table.
      * The translation table emits normalized pieces (e.g. { label: { value: '...' } }).
+     * Also marks the item as checked (editable) when changes are made.
+     */
+    /**
+     * Persist a single item change coming from the translation table.
+     * The translation table emits normalized pieces (e.g. { label: { value: '...' } }).
+     * Also marks the item as checked (editable) when changes are made.
      */
     onTranslationItemChange(event: { key: string; changes: Record<string, any> }): void {
         if (!this.lang) return;
-        const translator = this.data[this.lang];
+        const translator = this.local_schema[this.lang];
         if (!translator || !translator.view || !translator.view['menu'] || !translator.view['menu'].layout) return;
 
         const layout = translator.view['menu'].layout as Record<string, any>;
         const item = layout[event.key] = layout[event.key] || {};
 
+        // Apply changes
         for (const k of Object.keys(event.changes)) {
             const v = event.changes[k];
             if (k === 'is_active') {
-                item.is_active = !!v;
+                // Track checked state when user toggles the checkbox
+                this.setItemChecked(this.lang, event.key, !!v);
             } else {
-                // Assign field value/object directly (child normalizes to object shape)
+                // Assign field value/object directly (e.g., label, description)
                 item[k] = v;
+                // When user edits a field, automatically mark the item as checked
+                this.setItemChecked(this.lang, event.key, true);
             }
         }
 
