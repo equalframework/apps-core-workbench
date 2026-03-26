@@ -1,300 +1,206 @@
 @import '/src/theme.scss';
 
 :host {
-    .info-package-container {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.03);
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        padding: 2em;
-        overflow-y: auto;
-      }
+  .loader {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    z-index: 2;
+    background-color: white;
 
-    .loader {
-        position: absolute;
-        height: 100%;
-        width: 100%;
-        z-index: 2;
-        background-color: white;
-
-        .mat-spinner {
-            margin: auto;
-            margin-top: 33%;
-        }
+    mat-spinner {
+      margin: auto;
+      margin-top: 33%;
     }
+  }
 
-    .header {
-        height: 110px;
-        width: 100%;
+  .info-package-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    padding: 2em;
+    overflow-y: auto;
 
-        .main {
-            display : flex;
-            align-items: center;
-            justify-content: space-between;
-
-            .title {
-                flex: 1;
-                max-width: 80%;
-                overflow: hidden;
-                white-space: nowrap;
-
-                label {
-                    margin-right: 0.5em;
-                    font-size: 24px;
-
-                    &.accent {
-                        color: mat-color($accentcolor);
-                    }
-                }
-            }
-
-            .actions {
-                margin-left: auto;
-
-            }
-        }
-
-        .status {
-            font-size: 16px;
-
-            div {
-                display: flex;
-                align-content: center;
-                align-items: center;
-
-                mat-icon {
-                    margin-right: 5px;
-                }
-            }
-
-            .edited {
-                color : mat-color($editedcolor)
-            }
-
-            .warn {
-                color: mat-color($warncolor)
-            }
-
-            .new {
-                color: mat-color($newcolor)
-            }
-        }
-
-        .meta {
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            font-size: 18px;
-
-            .primary {
-                color: mat-color($maincolor)
-            }
-
-            div {
-                display: inline-block;
-                white-space: nowrap;
-                margin-right: 20px;
-            }
-
-        }
+    app-info-header {
+      margin-bottom: 1.5em;
     }
 
     .info-body-section {
-        flex: 1 1 auto;
-        background: white;
-        border-radius: 8px;
-        padding: 1.5em 2em;
+      flex: 1 1 auto;
+      background: white;
+      border-radius: 8px;
+      padding: 1.5em 2em;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+
+      .methods-container {
         display: flex;
         flex-direction: column;
-        overflow-y: auto;
+        gap: 1.5em;
 
-        .methods-container {
+        .methods-header {
+          padding-bottom: 1em;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+
+          .backend-url-config {
             display: flex;
-            flex-direction: column;
-            gap: 1.5em;
+            align-items: center;
+            margin-bottom: 1em;
+            gap: 1em;
 
-            .methods-header {
-                padding-bottom: 1em;
-                border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            .backend-url-field {
+              max-width: 400px;
+              width: 100%;
 
-                .backend-url-config {
-                    display: flex;
-                    align-items: center;
-                    margin-bottom: 1em;
-                    gap: 1em;
+              ::ng-deep .mdc-text-field {
+                font-size: 0.9em;
+              }
+            }
+          }
 
-                    .backend-url-field {
-                        max-width: 400px;
-                        width: 100%;
+          .method-count {
+            display: flex;
+            align-items: baseline;
+            gap: 0.5em;
 
-                        ::ng-deep .mdc-text-field {
-                            font-size: 0.9em;
-                        }
-                    }
-                }
-
-                .method-count {
-                    display: flex;
-                    align-items: baseline;
-                    gap: 0.5em;
-
-                    .count {
-                        font-size: 2em;
-                        font-weight: 600;
-                        color: mat-color($maincolor);
-                    }
-
-                    .label {
-                        font-size: 1em;
-                        color: rgba(0, 0, 0, 0.6);
-                    }
-                }
+            .count {
+              font-size: 2em;
+              font-weight: 600;
+              color: mat-color($maincolor);
             }
 
-            .methods-list {
+            .label {
+              font-size: 1em;
+              color: rgba(0, 0, 0, 0.6);
+            }
+          }
+        }
+
+        .methods-list {
+          display: flex;
+          flex-direction: column;
+          gap: 1em;
+
+          .method-card {
+            display: flex;
+            gap: 1.5em;
+            padding: 1.5em;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+
+            &:hover {
+              background: rgba(0, 0, 0, 0.04);
+              border-color: rgba(0, 0, 0, 0.08);
+            }
+
+            .method-badge {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              min-width: 70px;
+              height: 70px;
+              font-weight: 700;
+              font-size: 0.85em;
+              border-radius: 6px;
+              color: white;
+              flex-shrink: 0;
+
+              &.method-GET {
+                background-color: $http-get-color;
+              }
+
+              &.method-POST {
+                background-color: $http-post-color;
+              }
+
+              &.method-PUT {
+                background-color: $http-put-color;
+              }
+
+              &.method-DELETE {
+                background-color: $http-delete-color;
+              }
+
+              &.method-PATCH {
+                background-color: $http-patch-color;
+              }
+            }
+
+            .method-content {
+              flex: 1;
+              display: flex;
+              flex-direction: column;
+              gap: 1em;
+
+              .method-description,
+              .method-operation {
                 display: flex;
                 flex-direction: column;
-                gap: 1em;
+                gap: 0.5em;
 
-                .method-card {
-                    display: flex;
-                    gap: 1.5em;
-                    padding: 1.5em;
-                    border: 1px solid rgba(0, 0, 0, 0.06);
-                    border-radius: 8px;
-                    transition: all 0.2s ease;
-
-                    &:hover {
-                        background: rgba(0, 0, 0, 0.04);
-                        border-color: rgba(0, 0, 0, 0.08);
-                    }
-
-                    .method-badge {
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        min-width: 70px;
-                        height: 70px;
-                        font-weight: 700;
-                        font-size: 0.85em;
-                        border-radius: 6px;
-                        color: white;
-                        flex-shrink: 0;
-
-                        &.method-GET {
-                            background-color: $http-get-color;
-                        }
-
-                        &.method-POST {
-                            background-color: $http-post-color;
-                        }
-
-                        &.method-PUT {
-                            background-color: $http-put-color;
-                        }
-
-                        &.method-DELETE {
-                            background-color: $http-delete-color;
-                        }
-
-                        &.method-PATCH {
-                            background-color: $http-patch-color;
-                        }
-                    }
-
-                    .method-content {
-                        flex: 1;
-                        display: flex;
-                        flex-direction: column;
-                        gap: 1em;
-
-                        .method-description,
-                        .method-operation {
-                            display: flex;
-                            flex-direction: column;
-                            gap: 0.5em;
-
-                            .label {
-                                font-size: 0.85em;
-                                font-weight: 600;
-                                color: mat-color($maincolor);
-                                text-transform: uppercase;
-                                letter-spacing: 0.5px;
-                            }
-
-                            p {
-                                margin: 0;
-                                font-size: 0.95em;
-                                color: rgba(0, 0, 0, 0.8);
-                                line-height: 1.5;
-                            }
-
-                            .operation-link {
-                                font-family: 'Courier New', monospace;
-                                font-size: 0.9em;
-                                color: mat-color($maincolor);
-                                padding: 0.5em 0.75em;
-                                background: mat-color($maincolor, A100);
-                                border-radius: 4px;
-                                cursor: pointer;
-                                transition: all 0.2s ease;
-                                display: inline-block;
-                                width: fit-content;
-
-                                &:hover {
-                                    background: mat-color($maincolor, 200);
-                                    color: mat-color($maincolor, 900);
-                                }
-
-                                &.method-GET {
-                                    background-color: $http-get-color;
-                                }
-        
-                                &.method-POST {
-                                    background-color: $http-post-color;
-                                }
-        
-                                &.method-PUT {
-                                    background-color: $http-put-color;
-                                }
-        
-                                &.method-DELETE {
-                                    background-color: $http-delete-color;
-                                }
-        
-                                &.method-PATCH {
-                                    background-color: $http-patch-color;
-                                }
-                            }
-                        }
-                    }
+                .label {
+                  font-size: 0.85em;
+                  font-weight: 600;
+                  color: mat-color($maincolor);
+                  text-transform: uppercase;
+                  letter-spacing: 0.5px;
                 }
+
+                p {
+                  margin: 0;
+                  font-size: 0.95em;
+                  color: rgba(0, 0, 0, 0.8);
+                  line-height: 1.5;
+                }
+
+                .operation-link {
+                  font-family: 'Courier New', monospace;
+                  font-size: 0.9em;
+                  color: mat-color($maincolor);
+                  padding: 0.5em 0.75em;
+                  background: mat-color($maincolor, A100);
+                  border-radius: 4px;
+                  cursor: pointer;
+                  transition: all 0.2s ease;
+                  display: inline-block;
+                  width: fit-content;
+
+                  &:hover {
+                    background: mat-color($maincolor, 200);
+                    color: mat-color($maincolor, 900);
+                  }
+
+                  &.method-GET {
+                    background-color: $http-get-color;
+                  }
+
+                  &.method-POST {
+                    background-color: $http-post-color;
+                  }
+
+                  &.method-PUT {
+                    background-color: $http-put-color;
+                  }
+
+                  &.method-DELETE {
+                    background-color: $http-delete-color;
+                  }
+
+                  &.method-PATCH {
+                    background-color: $http-patch-color;
+                  }
+                }
+              }
             }
+          }
         }
+      }
     }
-
-    .footer {
-        height: 25%;
-
-        .package-info-button {
-            color : mat-color($maincolor) !important;
-            background-color:  #e4e4e4 !important;
-            width: 80%;
-            overflow: hidden;
-            height: 56px;
-
-            label {
-                font-size: 1.1em;
-            }
-
-            mat-icon {
-                margin-right: 1em;
-                transform: scale(1.2);
-            }
-        }
-
-    }
+  }
 }
