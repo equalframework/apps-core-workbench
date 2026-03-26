@@ -1,135 +1,188 @@
 @import "src/theme.scss";
-@import "./_components/group-editor/_components/edit-item-form/edit-item-form.component.scss";
 
 :host {
-    overflow-y: scroll;
+  overflow-y: scroll;
+  width: 100%;
+  height: 100%;
+
+  .loader {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+
+    mat-spinner {
+      margin: auto;
+    }
+
+    label {
+      margin: 1em 0;
+      font-size: 1.1em;
+    }
+
+    button {
+      margin-top: 1em;
+    }
+  }
+
+  .full {
+    display: flex;
+    flex-direction: column;
     width: 100%;
     height: 100%;
 
-    .header-labels {
+    app-inner-header {
+      flex-shrink: 0;
+
+      .header-labels {
         display: flex;
         align-items: center;
         gap: 0.5em;
         flex-wrap: wrap;
+
+        .colorized {
+          padding: 0 0.3em;
+          border-radius: 0.2em;
+        }
+
+        .component-color-package {
+          background-color: mat-color($package-color, A100);
+          color: mat-color($package-color, 800);
+        }
+
+        .component-color-class {
+          background-color: mat-color($maincolor, A100);
+          color: mat-color($maincolor, 800);
+        }
+
+        .component-color-view {
+          background-color: mat-color($accentcolor, A100);
+          color: mat-color($accentcolor, 800);
+        }
+
+        .separator {
+          font-weight: bold;
+        }
+
+        .controllername {
+          font-style: italic;
+        }
+
+        .classname {
+          font-weight: 500;
+        }
       }
-      .separator {
-        font-weight: bold;
-      }
-      .colorized{
-        padding: 0 .3em;
-        border-radius: .2em;
     }
 
     .feature-container {
-        overflow-y: visible;
-        height: calc(100% - 80px);
-        padding: 0 24px 12px 24px;
+      overflow-y: visible;
+      flex: 1;
+      height: calc(100% - 80px);
+      padding: 0 24px 12px 24px;
 
-        /* Allow tab internal bodies to overflow and rely on the parent scrollbar */
-        .mat-tab-body-wrapper,
-        ::ng-deep .mat-tab-body-wrapper {
-            overflow: visible !important;
-            height: auto !important;
-            max-height: none !important;
+      .mat-tab-body-wrapper,
+      ::ng-deep .mat-tab-body-wrapper {
+        overflow: visible !important;
+        height: auto !important;
+        max-height: none !important;
+      }
+
+      .mat-tab-body,
+      ::ng-deep .mat-tab-body {
+        overflow-y: visible !important;
+        height: auto !important;
+        max-height: none !important;
+      }
+
+      .error-message {
+        color: red;
+        margin-bottom: 1em;
+        display: block;
+      }
+
+      .name {
+        margin: 0 0 1em 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1em;
+        align-items: flex-start;
+
+        mat-form-field {
+          &.inputlong {
+            width: 20em;
+            margin-right: 0.5em;
+          }
+
+          &.inputlonglong {
+            width: 30em;
+            margin-right: 0.5em;
+          }
         }
+      }
 
-        .mat-tab-body,
-        ::ng-deep .mat-tab-body {
-            overflow-y: visible !important;
-            height: auto !important;
-            max-height: none !important;
-        }
-    }
-
-    .page-title {
-        font-size: 1.5em;
-    }
-
-    .flex {
-        display: flex;
-    }
-
-    .textarealong {
-        width: 70em !important;
-    }
-
-    .loader {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-    }
-
-    .item-drag-container {
-        background-color: #F8F8FF;
-        padding: 1em;
-        border-radius: 1em;
-        margin: .5em 0;
-    }
-
-    .item-drag-container-label {
-        font-size: 1.2em;
-        color: mat-color($maincolor)
-    }
-
-    .flexcenter {
-        display: flex;
-        align-items: center;
-    }
-
-    //DRAGPART
-
-    .cdk-drag-preview {
-        box-sizing: border-box;
-        border-radius: 4px;
-        box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
-                    0 8px 10px 1px rgba(0, 0, 0, 0.14),
-                    0 3px 14px 2px rgba(0, 0, 0, 0.12);
-        background-color: white;
-    }
-
-    .cdk-drag-placeholder {
-        opacity: 0;
-    }
-
-    .cdk-drag-animating {
-        transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
-    }
-
-    .example-list.cdk-drop-list-dragging .example-box:not(.cdk-drag-placeholder) {
-        transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
-    }
-
-    .grabable {
-        cursor: grab;
-    }
-
-    .inputlong {
-        width: 20em;
-        margin-right: .5em;
-    }
-
-    .inputlonglong {
-        width: 30em;
-        margin-right: .5em;
-    }
-
-    .tab-group {
+      .tab-group {
         height: calc(100% - 65px);
         margin-top: 24px;
-        // Tab styling unified in global styles.scss
-    }
 
-    .name {
-        margin: 0;
+        .tab-label-icon {
+          margin-right: 0.5em;
+        }
+      }
     }
+  }
 
-    .header-divider {
-        margin: 0 5px;
-    }
+  .page-title {
+    font-size: 1.5em;
+  }
 
-    .error-message {
-        color: red;
-    }
+  .flex {
+    display: flex;
+  }
+
+  .flexcenter {
+    display: flex;
+    align-items: center;
+  }
+
+  .textarealong {
+    width: 70em !important;
+  }
+
+  .item-drag-container {
+    background-color: #F8F8FF;
+    padding: 1em;
+    border-radius: 1em;
+    margin: 0.5em 0;
+  }
+
+  .item-drag-container-label {
+    font-size: 1.2em;
+    color: mat-color($maincolor);
+  }
+
+  .cdk-drag-preview {
+    box-sizing: border-box;
+    border-radius: 4px;
+    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+                0 8px 10px 1px rgba(0, 0, 0, 0.14),
+                0 3px 14px 2px rgba(0, 0, 0, 0.12);
+    background-color: white;
+  }
+
+  .cdk-drag-placeholder {
+    opacity: 0;
+  }
+
+  .cdk-drag-animating {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  }
+
+  .example-list.cdk-drop-list-dragging .example-box:not(.cdk-drag-placeholder) {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  }
+
+  .grabable {
+    cursor: grab;
+  }
 }
