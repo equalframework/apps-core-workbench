@@ -1,139 +1,129 @@
 @import "src/theme.scss";
 
-.holder {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75em;
-    padding: 0.75em 1.5em;
-    border-radius: 0.5em;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    margin-bottom: 1em;
-}
-
-// Flex utility classes
-.flex-small {
-    flex: 0 1 120px;
-}
-
-.flex-medium {
-    flex: 0 1 180px;
-}
-
-.flex-large {
-    flex: 1 1 250px;
-    min-width: 200px;
-}
-
-// Row containers with horizontal flex layout
-.header-row,
-.icon-row,
-.content-row,
-.checkbox-row,
-.actions-row {
-    display: flex;
-    align-items: center;
-    gap: 0.75em;
-    flex-wrap: wrap;
-}
-
-// Header row styling
-.header-row {
-    align-items: center;
-}
-
-// Icon row styling
-.icon-row {
-    align-items: flex-end;
-}
-
-.icon-preview {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.5em;
-    height: 2.5em;
-    flex-shrink: 0;
-}
-
-.icon-preview mat-icon {
-    font-size: 1.5em;
-}
-
-.help-icon {
-    transform: scale(0.8);
-}
-
-// Content row styling
-.content-row {
-    align-items: flex-start;
-}
-
-// Checkbox row styling
-.checkbox-row {
-    gap: 1.5em;
-}
-
-mat-checkbox {
-    flex-shrink: 0;
-}
-
-// Actions row styling
-.actions-row {
-    justify-content: flex-start;
-    gap: 0.5em;
-}
-
-button[mat-mini-fab] {
-    flex-shrink: 0;
-}
-
-// Expanded content section
-.expanded-content {
-    display: flex;
-    flex-direction: column;
-    gap: 1em;
-    margin-top: 0.75em;
-    padding-top: 0.75em;
-    border-top: 1px solid #ddd;
-}
-
-.section {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5em;
-}
-
-// Form fields
-mat-form-field {
-    width: 100%;
-}
-
-// Spacer class
-.spacer {
-    flex: 1;
-}
-
-// Responsive adjustments
-@media (max-width: 1024px) {
-    .content-row {
+:host {
+    .holder {
+        display: flex;
         flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .flex-large {
-        flex: 1 1 100%;
-    }
-}
+        gap: 0.75em;
+        padding: 0.75em 1.5em;
+        border-radius: 0.5em;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        margin-bottom: 1em;
 
-@media (max-width: 768px) {
-    .header-row,
-    .icon-row,
-    .checkbox-row {
-        flex-direction: column;
-        align-items: stretch;
+        .header-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75em;
+            flex-wrap: wrap;
+
+            mat-form-field {
+                &.flex-small {
+                    flex: 0 1 120px;
+                }
+
+                &.flex-medium {
+                    flex: 0 1 180px;
+                }
+            }
+
+            .icon-preview {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 2.5em;
+                height: 2.5em;
+                flex-shrink: 0;
+
+                mat-icon {
+                    font-size: 1.5em;
+                }
+            }
+
+            a {
+                mat-icon.help-icon {
+                    transform: scale(0.8);
+                }
+            }
+        }
+
+        .content-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75em;
+            flex-wrap: wrap;
+
+            mat-form-field {
+                &.flex-small {
+                    flex: 0 1 120px;
+                }
+
+                &.flex-large {
+                    flex: 1 1 250px;
+                    min-width: 200px;
+                }
+            }
+        }
+
+        .actions-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5em;
+            flex-wrap: wrap;
+
+            mat-checkbox {
+                flex-shrink: 0;
+                gap: 1.5em;
+            }
+
+            .spacer {
+                flex: 1;
+            }
+
+            button[mat-mini-fab] {
+                flex-shrink: 0;
+            }
+        }
+
+        .expanded-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1em;
+            margin-top: 0.75em;
+            padding-top: 0.75em;
+            border-top: 1px solid #ddd;
+
+            .section {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5em;
+            }
+        }
     }
-    
-    .icon-preview {
-        align-self: flex-start;
+
+    @media (max-width: 1024px) {
+        .holder {
+            .content-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            mat-form-field.flex-large {
+                flex: 1 1 100%;
+            }
+        }
+    }
+
+    @media (max-width: 768px) {
+        .holder {
+            .header-row,
+            .actions-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .icon-preview {
+                align-self: flex-start;
+            }
+        }
     }
 }
