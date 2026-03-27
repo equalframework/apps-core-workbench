@@ -10,6 +10,7 @@
     color: inherit;
     background: none;
     cursor: pointer;
+    border-left: 3px solid transparent;
 
     // Button layout styles
     min-width: 240px;
@@ -113,7 +114,6 @@
 .selected {
     background-color: #E8EAF6 !important;
     border-left: 3px solid mat-color($maincolor);
-    padding-left: 13px; // Compensate for border
 
     &:hover {
         background-color: #E8EAF6 !important;
