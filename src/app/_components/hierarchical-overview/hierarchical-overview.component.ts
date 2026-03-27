@@ -34,9 +34,7 @@ export class HierarchicalOverviewComponent implements OnInit {
     return !this.isGroupedLayout(this.viewSchema) ? this.viewSchema : null;
   }
 
-  getTotalSections(): number {
-    return this.groupedLayout?.layout?.groups?.reduce((acc, group) => acc + (group.sections?.length || 0), 0) || 0;
-  }
+
 
   getSectionItems(section: any): any[] {
     return section.rows
@@ -44,9 +42,6 @@ export class HierarchicalOverviewComponent implements OnInit {
       .flatMap((column: { items: any; }) => column.items || []) || [];
   }
 
-  getTotalItemsSection(section:any){
-    return this.getSectionItems(section).length
-  }
 
 
 }

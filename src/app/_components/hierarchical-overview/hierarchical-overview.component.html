@@ -1,88 +1,84 @@
 <div class="dashboard-container">
 
-    <!-- Grouped Layout -->
-    <div class="dashboard-card" *ngIf="groupedLayout">
-      <h2><mat-icon>layers</mat-icon> Groupes ({{ groupedLayout.layout.groups?.length || 0 }})</h2>
-      <mat-accordion class="accordion">
-        <mat-expansion-panel [expanded]="true">
-          <mat-expansion-panel-header>
-            <mat-panel-title> Groupes </mat-panel-title>
-          </mat-expansion-panel-header>
-          <div *ngFor="let group of groupedLayout.layout.groups; let i = index">
-            <p><strong>Groupe {{ i + 1 }}</strong></p>
-          </div>
-        </mat-expansion-panel>
-      </mat-accordion>
-    </div>
+  <ng-container *ngIf="groupedLayout">
+    <div class="layout-root">
 
-    <!-- Sections -->
-    <div class="dashboard-card" *ngIf="groupedLayout">
-      <h2><mat-icon>view_list</mat-icon> Sections ({{ getTotalSections() }})</h2>
-      <mat-accordion class="accordion">
-        <mat-expansion-panel [expanded]="true">
-          <mat-expansion-panel-header>
-            <mat-panel-title> Sections </mat-panel-title>
-          </mat-expansion-panel-header>
-          <div *ngFor="let group of groupedLayout.layout.groups; let indexGroup = index">
-            <p><strong>Groupe {{ indexGroup + 1 }}</strong></p>
-            <div *ngFor="let section of group.sections; let indexSection = index">
-              <p class="section-header">Section {{ indexSection+1 }} : {{ section.label || 'No name' }}</p>
-            </div>
-          </div>
-        </mat-expansion-panel>
-      </mat-accordion>
-    </div>
+        <div class="group-block" *ngFor="let group of groupedLayout.layout.groups; let gi = index">
 
-   <!-- Items per Section -->
-<div class="dashboard-card" *ngIf="groupedLayout">
-    <h2><mat-icon>inventory</mat-icon> Items per section</h2>
-    <mat-accordion class="accordion">
-      <mat-expansion-panel [expanded]="true">
-        <mat-expansion-panel-header>
-          <mat-panel-title> Details </mat-panel-title>
-        </mat-expansion-panel-header>
+            <!-- Single section: display content without tabs -->
+            <ng-container *ngIf="group.sections && group.sections.length === 1">
+                <div class="section-body" *ngFor="let section of group.sections">
+                    <div class="row-wrap" *ngFor="let row of section.rows">
+                        <div class="col-wrap" 
+                             [style.flex-basis]="col.width"
+                             [style.text-align]="col.align"
+                             *ngFor="let col of row.columns">
+                            <div class="item-wrap" 
+                                 [style.width]="item.width"
+                                 *ngFor="let item of col.items">
+                                <span class="item-type type-{{ item.type }}">{{ item.type }}</span>
+                                <span class="item-value">{{ item.value }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
 
-        <div *ngFor="let group of groupedLayout.layout.groups; let indexGroup = index">
-          <p><strong>Groupe {{ indexGroup + 1 }}</strong></p>
+            <!-- Multiple sections: display as tabs -->
+            <mat-tab-group class="sections-tab-group" *ngIf="group.sections && group.sections.length > 1">
+                <mat-tab *ngFor="let section of group.sections; let si = index">
+                    <ng-template mat-tab-label>
+                        {{ section.label || 'Section ' + (si + 1) }}
+                    </ng-template>
 
-          <div *ngFor="let section of group.sections; let indexSection = index">
-            <p class="section-header">Section {{ indexSection + 1 }} : {{ section.label || 'No name' }} ({{getTotalItemsSection(section)}})</p>
+                    <!-- Rows → columns → items with proper width -->
+                    <div class="section-body">
+                        <div class="row-wrap" *ngFor="let row of section.rows">
+                            <div class="col-wrap" 
+                                 [style.flex-basis]="col.width"
+                                 [style.text-align]="col.align"
+                                 *ngFor="let col of row.columns">
+                                <div class="item-wrap" 
+                                     [style.width]="item.width"
+                                     *ngFor="let item of col.items">
+                                    <span class="item-type type-{{ item.type }}">{{ item.type }}</span>
+                                    <span class="item-value">{{ item.value }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </mat-tab>
+            </mat-tab-group>
 
-            <div class="items-list">
-              <div class="item" *ngFor="let item of getSectionItems(section)">
-                <span class="item-type">{{ item.type }}</span> -
-                <span class="item-value">{{ item.value }}</span>
-              </div>
-            </div>
-
-          </div>
         </div>
 
-      </mat-expansion-panel>
-    </mat-accordion>
-  </div>
-
-
-    <!-- Simple Layout -->
-    <div class="dashboard-card" *ngIf="simpleLayout">
-      <h2><mat-icon>assignment</mat-icon> Items ({{ simpleLayout.layout.items?.length || 0 }})</h2>
-      <mat-accordion class="accordion">
-        <mat-expansion-panel [expanded]="true">
-          <mat-expansion-panel-header>
-            <mat-panel-title> Items </mat-panel-title>
-          </mat-expansion-panel-header>
-          <table>
-            <tr>
-              <th>Type</th>
-              <th>Value</th>
-            </tr>
-            <tr *ngFor="let item of simpleLayout.layout.items">
-              <td>{{ item.type }}</td>
-              <td>{{ item.value }}</td>
-            </tr>
-          </table>
-        </mat-expansion-panel>
-      </mat-accordion>
     </div>
+</ng-container>
+
+<ng-container *ngIf="simpleLayout">
+    <div class="layout-root simple-layout">
+        <div class="group-block">
+            <div class="sections-wrap">
+                <div class="section-block">
+                    <div class="section-header">
+                        <span class="section-label">{{ simpleLayout.name }}</span>
+                    </div>
+
+                    <div class="section-body simple-grid">
+                        <div class="item-wrap simple-item" *ngFor="let item of simpleLayout.layout.items">
+                            <span class="item-type type-{{ item.type }}">{{ item.type }}</span>
+                            <span class="item-value">{{ item.value }}</span>
+                            <div class="item-meta">
+                                <span class="item-width" *ngIf="item.width">{{ item.width }}</span>
+                                <span class="item-property" *ngIf="item.widget?.link" title="Link field">🔗</span>
+                                <span class="item-property" *ngIf="item.widget?.boolean" title="Boolean field">✓</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-container>
 
   </div>
