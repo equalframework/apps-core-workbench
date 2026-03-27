@@ -127,9 +127,11 @@
           &.type-many2one  { background: #EEEDFE; color: #3C3489; }
           &.type-one2one   { background: #EEEDFE; color: #3C3489; }
           &.type-one2many  { background: #EAF3DE; color: #27500A; }
+          &.type-many2many { background: #EAF3DE; color: #27500A; }
           &.type-computed  { background: #FAECE7; color: #712B13; }
           &.type-datetime  { background: #FBEAF0; color: #72243E; }
           &.type-alias     { background: #E1F5EE; color: #085041; }
+          &.type-text       { background: #E1F5EE; color: #085041; }
 
       }
   
