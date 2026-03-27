@@ -36,15 +36,21 @@ export class AppComponent implements OnInit {
         ) { }
 
     handleSearchScopeChange(newScope: string): void {
-        this.search_scope = newScope;
+        setTimeout(() => {
+            this.search_scope = newScope;
+        }, 0);
     }
 
     handleSearchFiltersChange(filters: { [key: string]: string }): void {
-        this.search_filters = filters;
+        setTimeout(() => {
+            this.search_filters = filters;
+        }, 0);
     }
 
     handleSearchTermsChange(terms: string[]): void {
-        this.search_terms = terms;
+        setTimeout(() => {
+            this.search_terms = terms;
+        }, 0);
     }
 
     public async ngOnInit() {
@@ -245,6 +251,13 @@ export class AppComponent implements OnInit {
      */
     hasAnyFilters(): boolean {
         return Object.keys(this.search_filters).length > 0;
+    }
+
+    /**
+     * Check if there are any search terms entered
+     */
+    hasAnySearchTerms(): boolean {
+        return this.search_terms.length > 0;
     }
 
     /**

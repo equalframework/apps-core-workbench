@@ -3,7 +3,7 @@
     <app-inner-header
             [customButton]="true">
         <div class="header-labels">
-            <span *ngIf=" !hasAnyFilters() && !search_terms.length">
+            <span *ngIf=" !hasAnyFilters() && !hasAnySearchTerms()">
                 All components
             </span>
             <span *ngIf="search_scope || hasAnyFilters() || search_terms.length">
