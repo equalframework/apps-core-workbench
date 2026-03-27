@@ -33,7 +33,6 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
 
 import { InnerHeaderComponent } from '../../_components/inner-header/inner-header.component';
-import { SearchMixedListComponent } from '../../_components/search-list/search-mixed-list/search-mixed-list.component';
 
 
 
@@ -46,7 +45,6 @@ import { SearchMixedListComponent } from '../../_components/search-list/search-m
 @NgModule({
     declarations: [
         InnerHeaderComponent,
-        SearchMixedListComponent,
     ],
     imports: [
         CommonModule,
@@ -58,7 +56,6 @@ import { SearchMixedListComponent } from '../../_components/search-list/search-m
     ],
     exports : [
         InnerHeaderComponent,
-        SearchMixedListComponent,
     ]
 })
 export class WorkbenchSharedModule { }
@@ -68,6 +65,6 @@ export class WorkbenchSharedModule { }
     // #memo - this is mandatory for other modules to be able to load Components from this one
 */
 export {
-    InnerHeaderComponent, SearchMixedListComponent,
+    InnerHeaderComponent,
  };
 
