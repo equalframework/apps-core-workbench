@@ -58,7 +58,7 @@ export class InfoModelComponent implements OnInit, OnChanges {
 
     public ngOnInit() {
         this.loading = true;
-        this.load();
+        // this.load();
         this.buildNavigationButtons();
     }
 
