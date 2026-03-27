@@ -43,124 +43,130 @@
       background: white;
       border-radius: 8px;
       margin-bottom: 1.5em;
-      padding: 1.5em 2em;
-
-      mat-accordion {
-        mat-expansion-panel {
-          margin-bottom: 8px;
-
-          mat-expansion-panel-header {
-            .paneltitle {
-              display: inline-flex;
-              align-items: center;
-              width: auto;
-              gap: 8px;
-
-              label {
-                margin-left: 0.5em;
-                font-size: 1.1em;
+      padding: 1em 2em;
+  
+      .field-table {
+          width: 100%;
+          border-collapse: collapse;
+  
+          thead tr {
+              border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  
+              th {
+                  text-align: left;
+                  padding: 10px 14px;
+                  font-size: 0.9em;
+                  font-weight: 600;
+                  text-transform: uppercase;
+                  letter-spacing: 0.06em;
+                  color: black;
+                  white-space: nowrap;
               }
-
-              mat-icon {
-                padding: 0.3em 0.5em;
-                background-color: mat-color($maincolor, A100);
-                width: 70%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                border-radius: 8px;
-                font-size: 1.8em;
-              }
-            }
-
-            .field-prop-container {
-              display: flex;
-              margin-left: auto;
-              margin-right: 1em;
-              height: 20px;
-              align-items: center;
-
-              .field-prop {
-                display: flex;
-                border-radius: 8px;
-                justify-content: center;
-                padding: 0 3px;
-                width: 30px;
-                height: 100%;
-                margin-left: 4px;
-                background-color: mat-color($accentcolor, A100);
-
-                &.unique {
-                  font-size: 100%;
-
-                  label {
-                    font-weight: 800;
-                  }
-                }
-
-                .material-icons {
-                  transform: scale(0.8);
-                }
-              }
-            }
           }
-        }
+  
+          tbody tr {
+              border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+              transition: background 0.1s;
+  
+              &:last-child { border-bottom: none; }
+              &:hover { background: rgba(0, 0, 0, 0.02); }
+  
+              td {
+                  padding: 9px 14px;
+                  vertical-align: middle;
+              }
+          }
       }
+  
+      .field-name-cell {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+  
+          mat-icon {
+              font-size: 16px;
+              width: 16px;
+              height: 16px;
+              color: mat-color($maincolor, 400);
+          }
+  
+          .field-name {
+              font-weight: 500;
+              color: mat-color($maincolor, 900);
+              white-space: nowrap;
+          }
+      }
+  
+      .field-desc {
+          color: rgba(0, 0, 0, 0.55);
+      }
+  
+      .field-usage {
+          color: rgba(0, 0, 0, 0.4);
+          font-style: italic;
+      }
+  
+      .field-foreign {
+          color: rgba(0, 0, 0, 0.4);
+          font-style: italic;
+      }
+  
+      .type-badge {
+          display: inline-block;
+          padding: 2px 8px;
+          border-radius: 4px;
+          font-size: 0.9em;
+          font-weight: 500;
+          white-space: nowrap;
+  
+          &.type-string    { background: #E1F5EE; color: #085041; }
+          &.type-integer   { background: #FAEEDA; color: #633806; }
+          &.type-float     { background: #FAEEDA; color: #633806; }
+          &.type-boolean   { background: #E6F1FB; color: #0C447C; }
+          &.type-date      { background: #FBEAF0; color: #72243E; }
+          &.type-many2one  { background: #EEEDFE; color: #3C3489; }
+          &.type-one2one   { background: #EEEDFE; color: #3C3489; }
+          &.type-one2many  { background: #EAF3DE; color: #27500A; }
+          &.type-computed  { background: #FAECE7; color: #712B13; }
+          &.type-datetime  { background: #FBEAF0; color: #72243E; }
+          &.type-alias     { background: #E1F5EE; color: #085041; }
+
+      }
+  
+      .prop-icons {
+          display: flex;
+          gap: 4px;
+          align-items: center;
+  
+          .prop-icon {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              width: 22px;
+              height: 22px;
+              border-radius: 4px;
+  
+              mat-icon {
+                  font-size: 14px;
+                  width: 14px;
+                  height: 14px;
+              }
+  
+              &.prop-required { background: #993C1D; color: #FFFFFF; }
+              &.prop-readonly { background:  mat-color($accentcolor); color: #FFFFFF; }
+              &.prop-multilang { background: #534AB7; color: #FFFFFF; }
+              &.prop-unique {
+                  background: #3B6D11;
+                  color: #FFFFFF;
+                  font-size: 11px;
+                  font-weight: 800;
+              }
+          }
+      }
+  }
 
       .field-details {
         background: mat-color($maincolor, 10);
       }
     }
-
-    .info-footer-section {
-      background: transparent;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: 7em;
-
-      .button-pkg-container {
-        width: 100%;
-
-        .mat-grid-tile {
-          display: flex;
-          align-items: center;
-          justify-content: flex-start;
-        }
-
-        .view-info-button {
-          min-width: 16em;
-          height: 3em;
-          font-size: 1.1em;
-          border-radius: 8px;
-          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-          margin-right: 1.5em;
-          transition: background 0.2s;
-          color: rgba(0, 0, 0, 0.06);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          width: 90%;
-          padding: 10px;
-
-          label {
-            font-size: 1.1em;
-            margin-left: 0.5em;
-            color: mat-color($maincolor);
-          }
-
-          mat-icon {
-            margin-right: 0.7em;
-            transform: scale(1.2);
-            color: mat-color($maincolor);
-          }
-
-          &:hover {
-            background: rgba(0, 0, 0, 0.06);
-          }
-        }
-      }
-    }
-  }
 }

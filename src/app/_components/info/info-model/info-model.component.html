@@ -28,45 +28,71 @@
             (navigationClick)="onSubHeaderNavigation($event)">
         </app-info-sub-header>
         <div class="info-body-section">
-            <mat-accordion>
-                <mat-expansion-panel *ngFor="let field of fields">
-                    <mat-expansion-panel-header>
-                        <mat-panel-title>
-                            <div class="paneltitle">
+            <table class="field-table">
+                <thead>
+                    <tr>
+                        <th>Field</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                        <th>Usage</th>
+                        <th>Foreign object</th>
+                        <th>Properties</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let field of fields">
+                        <td>
+                            <div class="field-name-cell">
                                 <mat-icon>{{iconList[schema['fields'][field]['type']]}}</mat-icon>
-                                <label>{{field}}</label>
+                                <span class="field-name">{{field}}</span>
                             </div>
-                        </mat-panel-title>
-                        <mat-panel-description>
+                        </td>
+                        <td>
+                            <span class="type-badge type-{{schema['fields'][field]['type']}}">
+                                {{schema['fields'][field]['type']}}
+                            </span>
+                        </td>
+                        <td class="field-desc">
                             {{schema['fields'][field]['description']}}
-                        </mat-panel-description>
-                        <div *ngIf="fieldHasProp(field)" class="field-prop-container">
-                            <span *ngIf="schema['fields'][field]['required']" class="field-prop" matTooltip="{{field}} is required">
-                                <span class="material-icons">priority_high</span>
-                            </span>
-                            <span *ngIf="schema['fields'][field]['readonly']" class="field-prop" matTooltip="{{field}} is readonly">
-                                <span class="material-icons">do_not_touch</span>
-                            </span>
-                            <span *ngIf="schema['fields'][field]['multilang']" class="field-prop" matTooltip="{{field}} is multilang">
-                                <span class="material-icons">translate</span>
-                            </span>
-                            <div *ngIf="schema['fields'][field]['unique']" class="field-prop unique" matTooltip="{{field}} is unique">
-                                <label class="pre-label-bold">1</label>
+                        </td>
+                        <td class="field-usage">
+                            {{schema['fields'][field]['usage'] ? schema['fields'][field]['usage'] : ' '}}
+                        </td>
+                        <td class="field-foreign">
+                            <ng-container *ngIf="['many2one','one2one','one2many'].includes(schema['fields'][field]['type'])">
+                                {{schema['fields'][field]['foreign_object']}}
+                            </ng-container>
+                            <ng-container *ngIf="!['many2one','one2one','one2many'].includes(schema['fields'][field]['type'])">
+                                
+                            </ng-container>
+                        </td>
+                        <td>
+                            <div class="prop-icons" *ngIf="fieldHasProp(field)">
+                                <span *ngIf="schema['fields'][field]['required']"
+                                      class="prop-icon prop-required"
+                                      matTooltip="{{field}} is required">
+                                    <mat-icon>priority_high</mat-icon>
+                                </span>
+                                <span *ngIf="schema['fields'][field]['readonly']"
+                                      class="prop-icon prop-readonly"
+                                      matTooltip="{{field}} is readonly">
+                                    <mat-icon>do_not_touch</mat-icon>
+                                </span>
+                                <span *ngIf="schema['fields'][field]['multilang']"
+                                      class="prop-icon prop-multilang"
+                                      matTooltip="{{field}} is multilang">
+                                    <mat-icon>translate</mat-icon>
+                                </span>
+                                <span *ngIf="schema['fields'][field]['unique']"
+                                      class="prop-icon prop-unique"
+                                      matTooltip="{{field}} is unique">
+                                    <strong>1</strong>
+                                </span>
                             </div>
-                        </div>
-                    </mat-expansion-panel-header>
-                    <div class="field-details">
-                        <p><strong>Type :</strong> {{ schema["fields"][field]["type"] }}</p>
-                        <p *ngIf="['computed'].includes(schema['fields'][field]['type'])">
-                            <strong>Result type :</strong> {{ schema["fields"][field]["result_type"] }}
-                        </p>
-                        <p><strong>Usage :</strong> {{ schema["fields"][field]["usage"] ? schema["fields"][field]["usage"] : "none" }}</p>
-                        <p *ngIf="['many2one','one2one','one2many'].includes(schema['fields'][field]['type'])">
-                            <strong>Foreign object :</strong> {{ schema["fields"][field]["foreign_object"] }}
-                        </p>
-                    </div>
-                </mat-expansion-panel>
-            </mat-accordion>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
         <!-- Footer buttons replaced by app-info-sub-header above -->
     </div>
