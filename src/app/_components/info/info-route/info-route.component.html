@@ -45,7 +45,7 @@
                                     {{route.item[method]['operation'] + (operationParams[method] ? ('&' + operationParams[method]) : '')}}
                                 </a>
                             </div>
-                            <div class="method-params" *ngIf="method !== 'GET'">
+                            <div class="method-params">
                                 <span class="label">Query Parameters (optional)</span>
                                 <mat-form-field appearance="outline" class="params-input">
                                     <input matInput [(ngModel)]="operationParams[method]" (change)="setOperationParams(method, operationParams[method])" placeholder="key=value&key2=value2">
