@@ -991,7 +991,7 @@ export class WorkbenchService {
             // Handle both Translator instances and plain objects
             const payload = dict[lang].export ? dict[lang].export() : dict[lang];
             console.log(`Overwriting with payload:`, payload);
-            const url = `?do=core_config_generate-menu-i18n&package=${package_name}&menu_name=${menu_name.split('.')[0]}&menu_type=${menu_name.split('.')[1]}&overwrite=true&lang=${lang}&create_lang=true&payload=${JSON.stringify(payload)}`;
+            const url = `?do=core_config_generate-menu-i18n&package=${package_name}&menu_name=${menu_name}&overwrite=true&lang=${lang}&create_lang=true&payload=${JSON.stringify(payload)}`;
             return this.callApi(url, 'Translation updated').pipe(
                 catchError((err) => {
                     console.error(`Error saving translation for ${lang}:`, err);
