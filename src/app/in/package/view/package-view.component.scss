@@ -45,22 +45,6 @@
           padding: 0 0.3em;
           border-radius: 0.2em;
         }
-
-        .component-color-package {
-          background-color: mat-color($package-color, A100);
-          color: mat-color($package-color, 800);
-        }
-
-        .component-color-class {
-          background-color: mat-color($maincolor, A100);
-          color: mat-color($maincolor, 800);
-        }
-
-        .component-color-view {
-          background-color: mat-color($accentcolor, A100);
-          color: mat-color($accentcolor, 800);
-        }
-
         .separator {
           font-weight: bold;
         }
@@ -76,7 +60,6 @@
     }
 
     .feature-container {
-      overflow-y: visible;
       flex: 1;
       height: calc(100% - 80px);
       padding: 0 24px 12px 24px;
