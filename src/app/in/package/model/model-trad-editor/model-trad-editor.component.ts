@@ -4,7 +4,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormControl, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { QueryParamNavigatorService } from 'src/app/_services/query-param-navigator.service';
 import { QueryParamActivatorRegistry, QueryParamCustomActivator } from 'src/app/_services/query-param-activator.registry';
 import { prettyPrintJson } from 'pretty-print-json';
@@ -14,6 +13,7 @@ import { View } from '../views/vieweditor/_objects/View';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { NotificationService } from 'src/app/in/_services/notification.service';
 import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
+import { Location } from '@angular/common';
 
 import { TranslationActionField, TranslationErrorField, TranslationLayoutField, TranslationModelField, TranslationValue, FieldColumnConfig, FIELD_CONFIGS } from './_object/translation.types';
 
@@ -103,8 +103,8 @@ export class ModelTradEditorComponent implements OnInit {
         private workbenchService: WorkbenchService,
         private notificationService: NotificationService,
         private dialog: MatDialog,
+        private location: Location,
         private cdr: ChangeDetectorRef,
-        private routerMemory: RouterMemory,
         private queryParamNavigator: QueryParamNavigatorService
     ) {
         this.activatorRegistry = new QueryParamActivatorRegistry();
@@ -615,7 +615,7 @@ export class ModelTradEditorComponent implements OnInit {
      * Navigue vers le parent (package)
      */
     goBack(): void {
-        this.router.navigate(['../..'], { relativeTo: this.route });
+        this.location.back();
     }
 
     debugExport() {
