@@ -586,6 +586,13 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     }
 
     private rankResults(elements: EqualComponentDescriptor[], terms: string[]): EqualComponentDescriptor[] {
+        console.log('Ranking results for terms:', terms);
+        
+        // If terms is only empty string, sort alphabetically
+        if (terms.length === 1 && terms[0] === '') {
+            return elements.sort((a, b) => a.name.localeCompare(b.name));
+        }
+        
         return elements.sort((a, b) => {
             const scoreA = this.calculateRelevanceScore(a, terms);
             const scoreB = this.calculateRelevanceScore(b, terms);
