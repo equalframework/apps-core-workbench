@@ -16,6 +16,7 @@ import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer
 import { MenuTranslationValue, MenuTranslationField, MenuFieldColumnConfig, MENU_FIELD_CONFIGS } from './_object/menu-translation.types';
 import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
 import { ca } from 'date-fns/locale';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-menu-trad-editor',
@@ -55,7 +56,7 @@ export class MenuTradEditorComponent implements OnInit {
         private provider: EqualComponentsProviderService,
         private dialog: MatDialog,
         private cdr: ChangeDetectorRef,
-        private routerMemory: RouterMemory,
+        private location: Location,
         private queryParamNavigator: QueryParamNavigatorService
     ) {
         this.activatorRegistry = new QueryParamActivatorRegistry();
@@ -461,8 +462,7 @@ export class MenuTradEditorComponent implements OnInit {
             return;
         }
 
-        const firstLang = this.allLanguages[0] || null;
-
+        const firstLang = this.availableLanguages[0] || null;
         if (firstLang) {
             this.lang = firstLang;
             this.loading = false; // Reveal UI as soon as first language is ready
@@ -621,7 +621,7 @@ export class MenuTradEditorComponent implements OnInit {
      */
     goBack(): void {
         // Naviguer vers le parent de la route actuelle
-        this.router.navigate(['../..'], { relativeTo: this.route });
+        this.location.back();
     }
 
     debugExport() {
