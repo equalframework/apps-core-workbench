@@ -29,6 +29,8 @@ export class InfoRouteComponent implements OnInit, OnChanges, OnDestroy {
 
     public backendUrl: string = 'http://equal.local/';
 
+    public operationParams: { [method: string]: string } = {};
+
     private destroy$ = new Subject<void>();
 
     public get headerStatus(): { icon?: string, tooltip?: string, label: string, value: string }[] {
@@ -49,6 +51,10 @@ export class InfoRouteComponent implements OnInit, OnChanges, OnDestroy {
         const storedUrl = localStorage.getItem('routeBackendUrl');
         if (storedUrl) {
             this.backendUrl = storedUrl;
+        }
+        const storedParams = localStorage.getItem('routeOperationParams');
+        if (storedParams) {
+            this.operationParams = JSON.parse(storedParams);
         }
         this.liveRoutes = await this.workbenchService.getRoutesLive().toPromise();
         this.load();
@@ -108,8 +114,14 @@ export class InfoRouteComponent implements OnInit, OnChanges, OnDestroy {
         // return Object.keys(this.route_info['methods']);
     }
 
-    public sendTo(value:string) {
-        const fullUrl = this.backendUrl + value;
+    public sendTo(method: string, operation: string) {
+        let fullUrl = this.backendUrl + operation;
+        // Append operation params if provided
+        const params = this.operationParams[method];
+        if (params && params.trim()) {
+            const separator = operation.includes('?') ? '&' : '?';
+            fullUrl += separator + params;
+        }
         console.log('Redirecting to:', fullUrl);
         window.open(fullUrl, '_blank');
     }
@@ -117,6 +129,11 @@ export class InfoRouteComponent implements OnInit, OnChanges, OnDestroy {
     public setBackendUrl(url: string): void {
         this.backendUrl = url.endsWith('/') ? url : url + '/';
         localStorage.setItem('routeBackendUrl', this.backendUrl);
+    }
+
+    public setOperationParams(method: string, params: string): void {
+        this.operationParams[method] = params;
+        localStorage.setItem('routeOperationParams', JSON.stringify(this.operationParams));
     }
 
     public ngOnDestroy() {

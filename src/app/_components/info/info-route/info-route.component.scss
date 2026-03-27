@@ -197,6 +197,31 @@
                   }
                 }
               }
+
+              .method-params {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5em;
+                padding-top: 1em;
+                border-top: 1px solid rgba(0, 0, 0, 0.06);
+
+                .label {
+                  font-size: 0.85em;
+                  font-weight: 600;
+                  color: mat-color($maincolor);
+                  text-transform: uppercase;
+                  letter-spacing: 0.5px;
+                }
+
+                .params-input {
+                  width: 100%;
+                  max-width: 400px;
+
+                  ::ng-deep .mdc-text-field {
+                    font-size: 0.9em;
+                  }
+                }
+              }
             }
           }
         }

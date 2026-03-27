@@ -41,9 +41,15 @@
                             </div>
                             <div class="method-operation">
                                 <span class="label">Operation</span>
-                                <a class="operation-link" (click)="sendTo(route.item[method]['operation'])" [class]="'method-' + method">
-                                    {{route.item[method]['operation']}}
+                                <a class="operation-link" (click)="sendTo(method, route.item[method]['operation'])" [class]="'method-' + method">
+                                    {{route.item[method]['operation'] + (operationParams[method] ? ('&' + operationParams[method]) : '')}}
                                 </a>
+                            </div>
+                            <div class="method-params" *ngIf="method !== 'GET'">
+                                <span class="label">Query Parameters (optional)</span>
+                                <mat-form-field appearance="outline" class="params-input">
+                                    <input matInput [(ngModel)]="operationParams[method]" (change)="setOperationParams(method, operationParams[method])" placeholder="key=value&key2=value2">
+                                </mat-form-field>
                             </div>
                         </div>
                     </div>
