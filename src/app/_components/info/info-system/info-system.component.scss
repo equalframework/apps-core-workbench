@@ -1,190 +1,131 @@
 @import '/src/theme.scss';
 
 :host {
-  display: block;
-  width: 100%;
-  height: 100%;
-
-  .loader {
-    position: absolute;
-    height: 100%;
+    display: block;
     width: 100%;
-    z-index: 2;
-    background-color: white;
-
-    mat-spinner {
-      margin: auto;
-      margin-top: 33%;
-    }
-  }
-
-  .full.margin-container {
-    padding: 20px;
-    background-color: #f9fafc;
-    border-radius: 8px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
-    overflow: auto;
     height: 100%;
-    display: flex;
-    flex-direction: column;
 
-    .controller-container-top {
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      margin-bottom: 20px;
-
-      h2.viewname {
-        font-size: 22px;
-        font-weight: bold;
-        color: #2c3e50;
-        text-align: left;
-      }
-
-      .flex-labels {
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        gap: 10px;
-        margin-top: 10px;
-        padding: 10px 20px;
-        background: #ffffff;
-        border-radius: 8px;
-        box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
-
-        .viewname {
-          font-size: 22px;
-          font-weight: bold;
-          color: #2c3e50;
-          text-align: left;
-          margin-right: 0.5em;
-
-          &.accent {
-            font-size: 26px;
-            font-weight: bold;
-            color: #1976d2;
-            background: #e3f2fd;
-            padding: 8px 15px;
-            border-radius: 5px;
-            box-shadow: 0px 2px 4px rgba(25, 118, 210, 0.3);
-          }
-        }
-      }
-    }
-
-    .info-section {
-      margin-top: 20px;
-      background: #ffffff;
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.05);
-      width: 100%;
-      flex: 1;
-      overflow: auto;
-      max-height: 550px;
-
-      mat-accordion {
+    .loader {
+        position: absolute;
+        height: 100%;
         width: 100%;
+        z-index: 2;
+        background-color: white;
 
-        mat-expansion-panel {
-          margin-bottom: 10px;
-          border-radius: 8px;
-          box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
-          margin: 0 auto;
-
-          mat-expansion-panel-header {
-            background-color: #f1f1f1;
-            color: #2c3e50;
-          }
-
-          .info-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            margin: 20px;
-            padding: 10px;
-            background: #fff;
-            border-radius: 5px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-
-            .variable {
-              font-weight: bold;
-              font-size: 1.1em;
-              color: #2c3e50;
-              flex: 0 0 40%;
-            }
-
-            .value {
-              font-size: 1em;
-              color: #444;
-              flex: 1;
-              text-align: right;
-
-              a {
-                color: #1a73e8;
-                text-decoration: none;
-
-                &:hover {
-                  text-decoration: underline;
-                }
-              }
-            }
-
-            copy-button {
-              pointer-events: auto;
-              z-index: 9999;
-            }
-          }
+        mat-spinner {
+            margin: auto;
+            margin-top: 33%;
         }
-      }
     }
 
-    .app-logo {
-      margin-top: 20px;
-      text-align: center;
-
-      img {
-        max-width: 150px;
-        height: auto;
+    .full.margin-container {
+        padding: 20px;
+        background-color: #f9fafc;
         border-radius: 8px;
-        box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
-      }
-    }
-
-    .footer {
-      margin-top: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-
-      .package-info-button {
-        background-color: #e4e4e4;
-        padding: 10px 20px;
-        border-radius: 5px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
+        overflow: auto;
+        height: 100%;
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-        width: 200px;
-        cursor: pointer;
-        text-align: center;
-        transition: background-color 0.3s ease;
+        flex-direction: column;
 
-        &:hover {
-          background-color: #ddd;
+        .controller-container-top {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+
+            h2.viewname {
+                font-weight: 600;
+                color: #2c3e50;
+            }
+
+            .flex-labels {
+                display: inline-flex;
+                align-items: center;
+                gap: 10px;
+                padding: 8px 14px;
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.07);
+                align-self: flex-start;
+
+                .viewname {
+                    font-weight: 500;
+                    color: rgba(0, 0, 0, 0.55);
+
+                    &.accent {
+                        font-weight: 600;
+                        color: mat-color($maincolor);
+                        background: rgba(63, 81, 181, 0.08);
+                        padding: 2px 12px;
+                        border-radius: 6px;
+                    }
+                }
+            }
         }
 
-        mat-icon {
-          margin-right: 8px;
-        }
+        .info-section {
+            background: white;
+            border-radius: 8px;
+            padding: 16px 20px;
+            box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.05);
+            flex: 1;
 
-        label {
-          font-size: 1.1em;
-          color: mat-color($maincolor);
+            .section-label {
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.06em;
+                margin-bottom: 12px;
+            }
+
+            .env-table {
+                width: 100%;
+                border-collapse: collapse;
+
+                tr {
+                    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+                    &:last-child { border-bottom: none; }
+                    &:hover { background: rgba(0, 0, 0, 0.02); }
+                }
+
+                td {
+                    padding: 9px 8px;
+                    vertical-align: middle;
+                }
+
+                .env-key {
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    letter-spacing: 0.04em;
+                    color: rgba(0, 0, 0, 0.35);
+                    white-space: nowrap;
+                    width: 200px;
+                    padding-right: 2em;
+                }
+
+                .env-value {
+                    color: rgba(0, 0, 0, 0.75);
+                    word-break: break-all;
+
+                    a {
+                        color: mat-color($maincolor);
+                        text-decoration: none;
+
+                        &:hover { text-decoration: underline; }
+                    }
+                }
+
+                .env-copy {
+                    width: 36px;
+                    text-align: right;
+                    padding-left: 8px;
+
+                    copy-button {
+                        display: inline-flex;
+                    }
+                }
+            }
         }
-      }
     }
-  }
 }
-
-
