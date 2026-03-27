@@ -160,6 +160,7 @@
 
       .params {
         .info-section-content.params-form {
+          border: 0;
           padding: 1.5em;
 
           .params-grid {
@@ -174,7 +175,6 @@
             flex-direction: column;
             gap: 0.5em;
             padding: 1em;
-            background: rgba(0, 0, 0, 0.02);
             border: 1px solid rgba(0, 0, 0, 0.06);
             border-radius: 6px;
             transition: all 0.2s ease;
@@ -211,7 +211,6 @@
                 }
 
                 .param-name {
-                  font-family: 'Courier New', monospace;
                   letter-spacing: 0.3px;
                 }
 
