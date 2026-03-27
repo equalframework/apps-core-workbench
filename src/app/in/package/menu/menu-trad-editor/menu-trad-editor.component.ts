@@ -674,7 +674,6 @@ export class MenuTradEditorComponent implements OnInit {
             const sanitizedLang: any = {
                 name: translator.name?.value || '',
                 description: translator.description?.value || ''
-                // Note: plural is intentionally excluded
             };
 
             // Transform view structure - include all items from local_schema
@@ -686,12 +685,14 @@ export class MenuTradEditorComponent implements OnInit {
                 
                 // Include all items, even if not checked (unedited)
                 // Empty translations are stored as empty strings
-                viewObj[itemId] = {
-                    label: item?.label?.value || '',
-                    description: '',
-                    help: '',
-                    layout: ''
-                };
+                if (item && item.label && typeof item.label.value === 'string' && item.label.value.trim() !== '' && this.checkedItems[lang]?.has(itemId)) {
+                    viewObj[itemId] = {
+                        label: item?.label?.value || '',
+                        description: '',
+                        help: '',
+                        layout: ''
+                    };
+                }
             }
 
             // Only add view if it has items
