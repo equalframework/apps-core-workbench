@@ -253,7 +253,6 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         const urlParams = this.route.snapshot.queryParams;
         const input = this.urlParamsToSearchInput(urlParams).join(' ');
         this.inputControl.setValue(input);
-        console.log('Updated search input from URL params:', input);
         this.searchScopeChange.emit(this.search_scope);
         this.searchFiltersChange.emit(this.search_filters);
         this.searchTermsChange.emit(this.search_terms);
@@ -331,7 +330,6 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         for (const key of Object.keys(filters)) {
             const actualKey = key === 'package' ? 'package_name' : key;
             const value = this.getValueByPath(element, actualKey);
-            console.log(`Filtering on ${key} with value "${filters[key]}": element value is "${value}"`);
             if (typeof value === 'undefined' || value == null) return false;
             if (!String(value).toLowerCase().includes(filters[key].toLowerCase())) return false;
         }
