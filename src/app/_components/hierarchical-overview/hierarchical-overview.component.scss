@@ -16,11 +16,16 @@
         border-radius: 8px;
     }
 
+    div:has(.sections-wrap){
+            border: none;
+            border-radius: 0;
+        }
+
     // ── Tabbed sections ──────────────────────────────────
     .sections-tab-group {
         ::ng-deep {
             .mat-tab-header {
-                background-color: #fafbfc !important;
+                background-color: mat-color($maincolor) !important;
                 border-bottom: 2px solid #e8e8e8 !important;
             }
 
@@ -28,21 +33,20 @@
                 min-width: 120px !important;
                 padding: 0 1.5rem !important;
                 height: 48px !important;
-                font-weight: 500 !important;
-                color: #666666 !important;
+                color: #FFFFFF !important;
                 transition: all 0.2s ease-out !important;
+                font-size: 1rem !important;
 
                 &:hover {
-                    background-color: rgba(63, 81, 181, 0.04) !important;
+                    background-color: mat-color($maincolor, 200) !important;
                     color: #1a1a1a !important;
                 }
 
                 &.mat-tab-label-active {
-                    color: mat-color($maincolor) !important;
-                    background-color: rgba(63, 81, 181, 0.08) !important;
+                    background-color: mat-color($maincolor, 500) !important;
 
                     .mat-tab-label-content {
-                        font-weight: 600 !important;
+                        font-weight: 500 !important;
                     }
                 }
             }
@@ -59,7 +63,7 @@
         flex-direction: column;
         background: white;
         border: 1px solid rgba(0, 0, 0, 0.08);
-        border-radius: 8px;
+        border-radius: 0 0 8px 8px;
         overflow: auto;
     }
 
