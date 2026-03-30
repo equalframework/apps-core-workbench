@@ -13,7 +13,7 @@
 </div>
 
 <mat-list class="list">
-    <mat-list-item *ngFor="let item of filteredList; trackBy: trackByFn" class="item">
+    <mat-list-item *ngFor="let item of filteredList; trackBy: trackByFn" class="item" [appScrollTarget]="item.name" (click)="onClickItem(list.indexOf(item))">
         <div class="item_display"
                 [class.hover]="selectedIndex !== list.indexOf(item)"
                 [class.selected]="selectedIndex === list.indexOf(item)">

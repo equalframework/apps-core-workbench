@@ -7,14 +7,14 @@
         </div>
         <div class="part-content">
             <div class="form-row">
-                <type-input 
+                <type-input [appFocusableField]="'param-header-content_type'"
                     class="field-width-20"
                     type="string"
                     name="content-type"
                     [value]="object.contentType"
                     (changed)="changeContentType($event)">
                 </type-input>
-                <type-input 
+                <type-input [appFocusableField]="'param-header-charset'"
                     class="field-width-20"
                     type="string"
                     name="charset"
@@ -22,7 +22,7 @@
                     (changed)="changeCharset($event)">
                 </type-input>
             </div>
-            <type-input
+            <type-input [appFocusableField]="'param-header-accept_origin'"
                 type="array"
                 name="accept-origin"
                 [value]="object.acceptOrigin"
