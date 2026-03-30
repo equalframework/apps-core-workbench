@@ -28,19 +28,19 @@
             (navigationClick)="onSubHeaderNavigation($event)">
         </app-info-sub-header>
         <div class="info-body-section">
-            <table class="field-table">
+            <table class="field-table" matSort (matSortChange)="sortData($event)">
                 <thead>
                     <tr>
-                        <th>Field</th>
-                        <th>Type</th>
-                        <th>Description</th>
-                        <th>Usage</th>
-                        <th>Foreign object</th>
+                        <th mat-sort-header="name">Field</th>
+                        <th mat-sort-header="type">Type</th>
+                        <th mat-sort-header="description">Description</th>
+                        <th mat-sort-header="usage">Usage</th>
+                        <th mat-sort-header="foreign_object">Foreign object</th>
                         <th>Properties</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let field of fields">
+                    <tr *ngFor="let field of sortedFields">
                         <td>
                             <div class="field-name-cell">
                                 <mat-icon>{{iconList[schema['fields'][field]['type']]}}</mat-icon>

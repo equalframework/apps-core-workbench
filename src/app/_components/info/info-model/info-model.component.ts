@@ -1,8 +1,9 @@
-import { OnChanges, SimpleChanges, ViewEncapsulation } from '@angular/core';
+import { OnChanges, SimpleChanges, ViewEncapsulation, ViewChild } from '@angular/core';
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { InfoSubHeaderButton } from '../info-sub-header/info-sub-header.component';
+import { MatSort, Sort } from '@angular/material/sort';
 
 @Component({
     selector: 'info-model',
@@ -23,8 +24,11 @@ export class InfoModelComponent implements OnInit, OnChanges {
 
     public loading: boolean = true;
 
+    @ViewChild(MatSort) sort: MatSort;
+
     public schema:any = {};
     public fields: string[] = [];
+    public sortedFields: string[] = [];
     metaData: any;
     public iconList: { [id: string]: string } = {
         'string':       'format_quote',
@@ -118,6 +122,7 @@ export class InfoModelComponent implements OnInit, OnChanges {
         this.workbenchService.getSchema(modelKey).subscribe((data) => {
             this.schema = data;
             this.fields = Object.keys(this.schema['fields']);
+            this.sortedFields = [...this.fields];
             this.loading = false;
             this.metaData =[
                 { icon: 'description', tooltip: 'File path', value: '../classes/' + this.model.name + '.php' , copyable: true },
@@ -125,6 +130,30 @@ export class InfoModelComponent implements OnInit, OnChanges {
                 { icon: 'grid_on', tooltip: 'DB_table', value: this.schema['table'], copyable: true },
             ]
         });
+    }
+
+    public sortData(sort: Sort): void {
+        if (!sort.active || sort.direction === '') {
+            this.sortedFields = [...this.fields];
+            return;
+        }
+        this.sortedFields = [...this.fields].sort((a, b) => {
+            const isAsc = sort.direction === 'asc';
+            const fa = this.schema['fields'][a];
+            const fb = this.schema['fields'][b];
+            switch (sort.active) {
+                case 'name':           return this.compare(a, b, isAsc);
+                case 'type':           return this.compare(fa['type'] || '', fb['type'] || '', isAsc);
+                case 'description':    return this.compare(fa['description'] || '', fb['description'] || '', isAsc);
+                case 'usage':          return this.compare(fa['usage'] || '', fb['usage'] || '', isAsc);
+                case 'foreign_object': return this.compare(fa['foreign_object'] || '', fb['foreign_object'] || '', isAsc);
+                default: return 0;
+            }
+        });
+    }
+
+    private compare(a: string, b: string, isAsc: boolean): number {
+        return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
     }
 
     public onclickFields() {

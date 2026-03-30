@@ -41,6 +41,7 @@ import { InfoSystemComponent } from '../_components/info/info-system/info-system
 import { ExplorerDialogComponent } from '../_dialogs/explorer-dialog/explorer-dialog.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatSortModule } from '@angular/material/sort';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { ShortenPathPipe } from '../_pipes/shorten-path.pipe';
 import { CopyButtonComponent } from '../_components/buttons/copy-button/copy-button.component';
@@ -133,6 +134,7 @@ const sharedPipes = [
         AutocompleteModule,
         MatTooltipModule,
         MatTabsModule,
+        MatSortModule,
         ClipboardModule,
         FormsModule,
     ],
