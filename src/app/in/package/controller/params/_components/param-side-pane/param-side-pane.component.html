@@ -19,7 +19,7 @@
         <div>
             <mat-form-field>
                 <mat-label>Type</mat-label>
-                <mat-select [value]="param.type" (valueChange)="changeTypeValue($event)">
+                <mat-select [value]="param.type" (valueChange)="changeTypeValue($event)" [appFocusableField]="'field-' + param.name + '-type'">
                     <mat-option *ngFor="let type of types" [value]="type">{{type}}</mat-option>
                 </mat-select>
             </mat-form-field>
@@ -34,7 +34,7 @@
                 <mat-icon style="transform: translateY(.3em);">arrow_right</mat-icon>
                 <mat-form-field class="longfield">
                     <mat-label>Foreign object</mat-label>
-                    <input matInput [formControl]="foreignControl" (keydown)="noCancel($event)" [matAutocomplete]="autoFor" >
+                    <input matInput [formControl]="foreignControl" (keydown)="noCancel($event)" [matAutocomplete]="autoFor" [appFocusableField]="'field-' + param.name + '-foreign_object'">
                     <mat-autocomplete autoActiveFirstOption #autoFor>
                         <mat-option *ngFor="let opt of filteredModelList" [value]="opt">{{opt}}</mat-option>
                     </mat-autocomplete>
@@ -44,15 +44,15 @@
         <div>
             <mat-form-field class="desc">
                 <mat-label>Description</mat-label>
-                <textarea matInput [value]="param.description" (keydown)="noCancel($event)" (change)="changeDesc($event.target.value)"></textarea>
+                <textarea matInput [value]="param.description" (keydown)="noCancel($event)" (change)="changeDesc($event.target.value)" [appFocusableField]="'field-' + param.name + '-description'"></textarea>
             </mat-form-field>
         </div>
         <div class="checkboxdiv">
-            <mat-checkbox [checked]="param.required" (change)="changeRequired($event.checked)">Required</mat-checkbox>
-            <mat-checkbox [checked]="param._has_default" (change)="change_has_default($event.checked)">Default</mat-checkbox>
-            <mat-checkbox [checked]="param._visibility" (change)="change_visibility($event.checked)">Visibility</mat-checkbox>
-            <mat-checkbox [checked]="param._has_selection" (change)="change_has_selection($event.checked)">Selection</mat-checkbox>
-            <mat-checkbox [disabled]="param.type !== 'one2one' && param.type !== 'many2one' && param.type !== 'many2many'" [checked]="param._has_domain" (change)="change_has_domain($event.checked)">Domain</mat-checkbox>
+            <mat-checkbox [checked]="param.required" (change)="changeRequired($event.checked)" [appFocusableField]="'field-' + param.name + '-required'">Required</mat-checkbox>
+            <mat-checkbox [checked]="param._has_default" (change)="change_has_default($event.checked)" [appFocusableField]="'field-' + param.name + '-has_default'">Default</mat-checkbox>
+            <mat-checkbox [checked]="param._visibility" (change)="change_visibility($event.checked)" [appFocusableField]="'field-' + param.name + '-visibility'">Visibility</mat-checkbox>
+            <mat-checkbox [checked]="param._has_selection" (change)="change_has_selection($event.checked)" [appFocusableField]="'field-' + param.name + '-has_selection'">Selection</mat-checkbox>
+            <mat-checkbox [disabled]="param.type !== 'one2one' && param.type !== 'many2one' && param.type !== 'many2many'" [checked]="param._has_domain" (change)="change_has_domain($event.checked)" [appFocusableField]="'field-' + param.name + '-has_domain'">Domain</mat-checkbox>
         </div>
         <div *ngIf="param._has_default" class="conditionalcontainer">
             <div class="title">

@@ -34,6 +34,12 @@ export class PackageControllerReturnComponent implements OnInit, OnDestroy {
     @Input() controllerType: string = '';
     @Input() controllerPackage: string = '';
 
+    // @Input properties for data from parent component
+    @Input() types: string[] = [];
+    @Input() entities: string[] = [];
+    @Input() returnScheme: any = null;
+    @Input() dataReady: boolean = false;
+
     // rx subject for unsubscribing subscriptions on destroy
     private ngUnsubscribe = new Subject<void>();
 
@@ -46,8 +52,6 @@ export class PackageControllerReturnComponent implements OnInit, OnDestroy {
     public controller_name:string;
     public controller_type:string;
     public package_name:string;
-
-    public entities:string[];
 
     public objectHistory:{value : ReturnValue, message:string}[] = [];
     public objectFutureHistory:{value : ReturnValue, message:string}[] = [];
@@ -73,40 +77,29 @@ export class PackageControllerReturnComponent implements OnInit, OnDestroy {
             private routerMemory: RouterMemory
         ) { }
 
-    public async ngOnInit() {
-        // Use @Input properties if provided, otherwise get from ActivatedRoute
-        if (this.controllerName && this.controllerType) {
-            this.controller_name = this.controllerName;
-            this.controller_type = this.controllerType;
-            this.package_name = this.controllerPackage;
-            await this.initializeController();
-        } else {
-            this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
-                this.controller_type = this.route.parent ? this.route.parent?.snapshot.paramMap.get('package_name') : params['package_name']
-                this.controller_name = this.route.parent ? this.route.parent?.snapshot.paramMap.get('controller_name') : params['controller_name']
-                this.package_name = params['package_name'];
-
-                await this.initializeController();
-            });
-        }
+    public ngOnInit() {
+        // Use @Input properties from parent component (required)
+        this.controller_name = this.controllerName;
+        this.controller_type = this.controllerType;
+        this.package_name = this.controllerPackage;
 
         this.typeIconList = this.TypeUsage.typeIcon;
-        this.types_regular = await this.workbenchService.getTypeList();
-        this.entities = await this.workbenchService.collectClasses(true).toPromise();
+        this.types_regular = this.types;
 
-        this.filtered_types_regular = this._filter('', 'types_regular');
-        this.filtered_types_custom = this._filter('', 'types_custom');
-    }
-
-    private async initializeController() {
-        this.scheme = await this.workbenchService.announceController(this.controller_type, this.controller_name).toPromise();
-        this.object = new ReturnValue(cloneDeep(this.scheme.announcement.response));
-        this.typeControl.setValue(this.object.type)
-        this.typeControl.valueChanges.subscribe(value => {
+        // Initialize object from scheme if provided
+        if (this.returnScheme && this.returnScheme.announcement && this.returnScheme.announcement.response) {
+            this.scheme = this.returnScheme;
+            this.object = new ReturnValue(cloneDeep(this.scheme.announcement.response));
+            this.typeControl.setValue(this.object.type);
+            this.typeControl.valueChanges.subscribe(value => {
                 this.filtered_types_regular = this._filter(value, 'types_regular');
                 this.filtered_types_custom = this._filter(value, 'types_custom');
                 this.changeType(value);
             });
+        }
+
+        this.filtered_types_regular = this._filter('', 'types_regular');
+        this.filtered_types_custom = this._filter('', 'types_custom');
     }
 
     public ngOnDestroy() {

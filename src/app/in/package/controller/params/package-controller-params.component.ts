@@ -13,6 +13,7 @@ import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { Location } from '@angular/common';
+import { QueryParamActivatorRegistry, QueryParamTabActivator } from 'src/app/_services/query-param-activator.registry';
 
 /**
  * Component used to display the params of a controller
@@ -36,6 +37,13 @@ export class PackageControllerParamsComponent implements OnInit, OnDestroy {
     @Input() controllerType: string = '';
     @Input() controllerPackage: string = '';
 
+    // @Input properties for data from parent component
+    @Input() types: string[] = [];
+    @Input() usages: string[] = [];
+    @Input() paramsScheme: any = null;
+    @Input() modelList: string[] = [];
+    @Input() dataReady: boolean = false;
+
     public error:boolean = false;
 
     public paramListHistory:{param:Param[],message:string}[] = [];
@@ -47,12 +55,7 @@ export class PackageControllerParamsComponent implements OnInit, OnDestroy {
     public controller_type:string = '';
     public selectedIndex = -1;
 
-    public modelList:string[];
-
     public paramList:Param[] = [];
-
-    public types:string[] = [];
-    public usages:string[] = [];
 
     public alert = alert;
 
@@ -99,76 +102,30 @@ export class PackageControllerParamsComponent implements OnInit, OnDestroy {
         }
     }
 
-    public async ngOnInit(){
-        this.loading = true;
-        this.types = ["array",...(await this.workbenchService.getTypeList())]
-        this.usages = await this.workbenchService.getUsageList()
-        this.types.sort((p1,p2) => p1.localeCompare(p2))
-        
-        // Use @Input properties if provided, otherwise get from ActivatedRoute
-        if (this.controllerName) {
-            this.controller_name = this.controllerName;
-            this.controller_type = this.controllerType;
-            this.controller_package = this.controllerPackage;
-            await this.initializeController();
-        } else {
-            let a = this.activatedRoute.snapshot.paramMap.get('controller_name')
-            if(a) {
-                this.controller_name = a;
-            }
-            else {
-                this.error = true;
-            }
-            a = this.activatedRoute.snapshot.paramMap.get('controller_type')
-            if(a) {
-                this.controller_type = a;
-            }
-            else {
-                this.error = true;
-            }
-            this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
-                this.controller_package = this.route.parent ? this.route.parent?.snapshot.paramMap.get('package_name') : params['package_name'];
-                await this.initializeController();
-            });
-        }
-    }
-
-    private async initializeController() {
+    public ngOnInit(){
+        // Use @Input properties from parent component (required)
+        this.controller_name = this.controllerName;
+        this.controller_type = this.controllerType;
+        this.controller_package = this.controllerPackage;
         this.type_icon = ItemTypes.getIconForType(this.controller_type);
-        let comp: any = null;
-        try {
-          comp = await this.provider.getComponent(this.controller_package, 'controller', '', this.controller_name).toPromise();
-        } catch (err) {
-          console.error('Error fetching component descriptor', err);
-        }
-        let originalName = this.controller_package + '_' + this.controller_name;
-        if (comp && comp.file) {
-          const parts = comp.file.split('/');
-          originalName = parts[parts.length - 1].replace('.php', '');
-        }
-        try {
-          this.scheme = await this.workbenchService.announceController(this.controller_type, originalName).toPromise();
-        } catch (err) {
-          console.error('Failed to fetch announceController', err);
-          this.notificationService && this.notificationService.showError
-            ? this.notificationService.showError('Failed to fetch controller announcement. Check CORS or server.')
-            : this.matSnack.open('Failed to fetch controller announcement','ERROR');
-          this.loading = false;
-          return;
+
+        // Initialize from parent-provided data
+        if (this.types.length > 0) {
+            // Ensure 'array' is first if not already present
+            if (!this.types.includes('array')) {
+                this.types.unshift('array');
+            }
         }
 
-        if (!this.scheme || !this.scheme.announcement || !this.scheme.announcement.params) {
-          console.warn('No announcement params for', originalName, this.scheme);
-          this.loading = false;
-          return;
+        // Initialize paramList from scheme if provided
+        if (this.paramsScheme && this.paramsScheme.announcement && this.paramsScheme.announcement.params) {
+            for (let key in this.paramsScheme.announcement.params) {
+                this.paramList.push(new Param(key, cloneDeep(this.paramsScheme.announcement.params[key])));
+            }
+            this.scheme = this.paramsScheme;
+            this.onChange("Opening file");
         }
 
-        for (let key in this.scheme['announcement']['params']) {
-          this.paramList.push(new Param(key, cloneDeep(this.scheme['announcement']['params'][key])));
-        }
-        //this.paramList =  this.paramList.sort((p1,p2) => p1.name.localeCompare(p2.name))
-        this.onChange("Opening file");
-        this.modelList = await this.workbenchService.collectClasses(true).toPromise();
         this.loading = false;
     }
 

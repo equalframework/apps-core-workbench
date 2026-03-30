@@ -7,6 +7,11 @@ import { Location } from '@angular/common';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { PackageControllerParamsComponent } from './params/package-controller-params.component';
 import { PackageControllerReturnComponent } from './return/package-controller-return.component';
+import { QueryParamNavigatorService } from 'src/app/_services/query-param-navigator.service';
+import { QueryParamActivatorRegistry } from 'src/app/_services/query-param-activator.registry';
+import { QueryParamTabActivator } from 'src/app/_services/query-param-activator.registry';
+import { WorkbenchService } from 'src/app/in/_services/workbench.service';
+import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
 
 /**
  * Main container component for controller management
@@ -29,9 +34,26 @@ export class PackageControllerComponent implements OnInit, OnDestroy {
     public package_name: string = '';
     public loading = true;
     public error = false;
-    
+
     // Tab management
     public selectedTabIndex = 0;
+
+    // Query parameter navigation
+    private tabNameToIndexMap: { [key: string]: number } = {
+        'parameters': 0,
+        'response': 1
+    };
+    private queryParamActivatorRegistry: QueryParamActivatorRegistry;
+
+    // Shared data for child components
+    public types: string[] = [];
+    public usages: string[] = [];
+    public paramsScheme: any = null;
+    public returnScheme: any = null;
+    public modelList: string[] = [];
+    public entities: string[] = [];
+    public componentDescriptor: any = null;
+    public dataLoaded: boolean = false;
 
     // ViewChild references to child components for delegating header button actions
     @ViewChild(PackageControllerParamsComponent) paramsComponent: PackageControllerParamsComponent;
@@ -41,32 +63,103 @@ export class PackageControllerComponent implements OnInit, OnDestroy {
             private route: ActivatedRoute,
             private location: Location,
             public matDialog: MatDialog,
-            private routerMemory: RouterMemory
+            private routerMemory: RouterMemory,
+            private queryParamNavigator: QueryParamNavigatorService,
+            private workbenchService: WorkbenchService,
+            private provider: EqualComponentsProviderService
         ) { }
 
     public async ngOnInit() {
+        this.initializeNavigation();
+
         this.init();
     }
 
-    public ngOnDestroy() {
-        console.debug('PackageControllerComponent::ngOnDestroy');
-        this.ngUnsubscribe.next();
-        this.ngUnsubscribe.complete();
-    }
-
-    private async init() {
+    private init() {
         this.loading = true;
+        this.dataLoaded = false;
 
         this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
             this.package_name = params['package_name'];
             this.controller_type = params['controller_type'];
             this.controller_name = params['controller_name'];
-            
+
             if (!this.controller_name || !this.controller_type) {
                 this.error = true;
+                this.loading = false;
+                return;
             }
+
+            // Fetch all data before allowing query param navigation
+            await this.fetchControllerData();
+            this.dataLoaded = true;
             this.loading = false;
+            
+        // Subscribe to query parameters for URL-based navigation
+        this.route.queryParams.pipe(takeUntil(this.ngUnsubscribe)).subscribe(params => {
+            // Only handle query params after data is loaded
+            if (Object.keys(params).length > 0 && this.queryParamActivatorRegistry && this.dataLoaded) {
+                this.queryParamNavigator.handleQueryParams(params, {
+                    activators: this.queryParamActivatorRegistry,
+                    context: this,
+                    elementKeys: ['element'],
+                    scrollDelay: 100
+                });
+            }
         });
+        });
+
+    }
+
+    private async fetchControllerData(): Promise<void> {
+        try {
+            // Fetch shared type and model lists
+            this.types = ['array', ...(await this.workbenchService.getTypeList())];
+            this.types.sort((p1, p2) => p1.localeCompare(p2));
+
+            this.usages = await this.workbenchService.getUsageList();
+
+            this.modelList = await this.workbenchService.collectClasses(true).toPromise();
+            this.entities = this.modelList; // entities is the same as modelList for controller return
+
+            // Fetch component descriptor to get original controller name
+            try {
+                this.componentDescriptor = await this.provider.getComponent(this.package_name, 'controller', '', this.controller_name).toPromise();
+            } catch (err) {
+                console.error('Error fetching component descriptor', err);
+            }
+
+            let originalName = this.package_name + '_' + this.controller_name;
+            if (this.componentDescriptor && this.componentDescriptor.file) {
+                const parts = this.componentDescriptor.file.split('/');
+                originalName = parts[parts.length - 1].replace('.php', '');
+            }
+
+            // Fetch controller scheme/announcement
+            try {
+                const scheme = await this.workbenchService.announceController(this.controller_type, originalName).toPromise();
+                this.paramsScheme = scheme;
+                this.returnScheme = scheme;
+            } catch (err) {
+                console.error('Failed to fetch controller announcement', err);
+                throw err;
+            }
+        } catch (err) {
+            console.error('Error fetching controller data', err);
+            this.error = true;
+            throw err;
+        }
+    }
+
+    private initializeNavigation(): void {
+        this.queryParamActivatorRegistry = new QueryParamActivatorRegistry();
+        const tabActivator = new QueryParamTabActivator(this.tabNameToIndexMap, 'selectedTabIndex');
+        this.queryParamActivatorRegistry.register(tabActivator);
+    }
+
+    public ngOnDestroy() {
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
     }
 
     public getBack() {

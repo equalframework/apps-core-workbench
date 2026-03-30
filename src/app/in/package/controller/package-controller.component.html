@@ -44,13 +44,18 @@
             <ng-template mat-tab-label>
                 <span>Parameters</span>
             </ng-template>
-            <package-controller-params 
+            <package-controller-params
                 [controllerName]="controller_name"
                 [controllerType]="controller_type"
-                [controllerPackage]="package_name">
+                [controllerPackage]="package_name"
+                [types]="types"
+                [usages]="usages"
+                [paramsScheme]="paramsScheme"
+                [modelList]="modelList"
+                [dataReady]="dataLoaded">
             </package-controller-params>
         </mat-tab>
-        
+
         <mat-tab>
             <ng-template mat-tab-label>
                 <span>Response</span>
@@ -58,7 +63,11 @@
             <package-controller-return
                 [controllerName]="controller_name"
                 [controllerType]="controller_type"
-                [controllerPackage]="package_name">
+                [controllerPackage]="package_name"
+                [types]="types"
+                [entities]="entities"
+                [returnScheme]="returnScheme"
+                [dataReady]="dataLoaded">
             </package-controller-return>
         </mat-tab>
     </mat-tab-group>
