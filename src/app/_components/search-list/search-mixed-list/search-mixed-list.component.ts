@@ -111,7 +111,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         this.route.queryParams.subscribe(params => {
         });
         this.loading = true;
-        this.loadNodesV2();
+        this.loadNodes();
         this.readQueryParams();
         this.updateSearchTerms();
         this.loading = false;
@@ -121,10 +121,12 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         if (changes['node_selected']) {
             console.log('node_selected changed to:', changes['node_selected'].currentValue);
         }
-        if (changes.node_type && this.node_type) {
-            this.selectSearchScope();
+        if (changes['node_type'] && this.node_type) {
+            this.search_filters = {};
+            this.search_terms = [];
+            this.searchScopeChange.emit(this.search_scope);
         }
-        this.onSearch();
+        this.applyFilters();
     }
 
     trackByFn = (index: number, item: EqualComponentDescriptor) => item.name;
@@ -155,11 +157,10 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
 
             filtered = this.rankResults(filtered, this.search_terms);
             this.filteredData = filtered;
-            this.updateUrlForSearch(this.search_filters, this.search_terms);
         });
     }
 
-    private loadNodesV2() {
+    private loadNodes() {
 
         if (this.package_name) {
             if (this.node_type) {
@@ -196,7 +197,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     private handleComponents(components: any[]) {
         this.elements = [...components];
         this.filteredData = this.elements;
-        this.onSearch();
+        this.applyFilters();
     }
 
     private handleError(error: any) {
@@ -218,14 +219,15 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     public selectSearchScope() {
         this.searchScopeChange.emit(this.search_scope);
         this.search_filters = {};
-        this.search_terms = [];        this.onSearch();
+        this.search_terms = [];        
+        this.onSearch();
     }
 
     /**
      * Parse the search input and filter object to display the search result
      *
      */
-    public onSearch() {
+    private applyFilters() {
         const input = this.inputControl.value.trim();
         const tokens = input.split(" ");
         ({ filters: this.search_filters, terms: this.search_terms } = this.extractFiltersAndTerms(tokens));
@@ -235,14 +237,16 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
             }
             return this.matchesScope(element);
         });
-
         filtered = this.rankResults(filtered, this.search_terms);
-
         this.filteredData = filtered;
-        this.updateUrlForSearch(this.search_filters, this.search_terms);
         this.searchScopeChange.emit(this.search_scope);
         this.searchFiltersChange.emit(this.search_filters);
         this.searchTermsChange.emit(this.search_terms);
+    }
+
+    public onSearch() {
+        this.applyFilters();
+        this.updateUrlForSearch(this.search_filters, this.search_terms);
     }
 
     /**
@@ -577,17 +581,13 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
             if (value) params.append(`filter_${key}`, value);
         });
         if (terms.length > 0 && !(terms.length === 1 && terms[0] === '')) params.set('terms', terms.join(' '));
-        let url = this.location.path().split('?')[0];
-        const paramString = params.toString();
-        if (paramString.length > 0) {
-            url += '?' + paramString;
-        }
-        this.location.go(url);
+        const path = this.location.path().split('?')[0];
+        const queryString = params.toString();
+
+        this.location.replaceState(path, queryString);
     }
 
     private rankResults(elements: EqualComponentDescriptor[], terms: string[]): EqualComponentDescriptor[] {
-        console.log('Ranking results for terms:', terms);
-        
         if (terms.length === 0) {
             terms = [''];
         }
