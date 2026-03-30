@@ -64,7 +64,7 @@ export class QueryParamNavigatorService {
   // Mapping of fieldId -> input/select/button elements that can receive focus or be clicked
   private focusableFields: Map<string, HTMLElement> = new Map();
 
-  private focusableFieldTags = ['INPUT', 'SELECT', 'TEXTAREA', 'BUTTON', 'MAT-CHECKBOX']; // Allow custom components like app-item-editor as focusable fields
+  private focusableFieldTags = ['INPUT', 'SELECT', 'TEXTAREA', 'BUTTON', 'MAT-CHECKBOX', 'TYPE-INPUT', 'MAT-SELECT']; // Allow custom components like app-item-editor as focusable fields
 
   // Default scroll options if not provided in config
   private defaultScrollOptions: ScrollIntoViewOptions = {
@@ -90,7 +90,11 @@ export class QueryParamNavigatorService {
    * Registers a scroll target element by its ID, called by the appScrollTarget directive
    */
   registerScrollTarget(id: string, element: HTMLElement): void {
-    this.scrollTargets.set(id, element);
+    if (!this.scrollTargets.get(id)) {
+      this.scrollTargets.set(id, element);
+    } else {
+      console.warn(`${id} already has an entry in scroll with ${this.scrollTargets.get(id)} and not ${element}`)
+    }
   }
 
   /**
@@ -109,7 +113,7 @@ export class QueryParamNavigatorService {
     if (this.focusableFieldTags.includes((element as any).tagName)) {
       this.focusableFields.set(fieldId, element);
     } else {
-      // console.warn(`Element with appFocusableField="${fieldId}" is not a focusable input/select/textarea/button`, element);
+      console.warn(`Element with appFocusableField="${fieldId}" is not a focusable input/select/textarea/button`, element);
     }
   }
 
@@ -157,19 +161,18 @@ export class QueryParamNavigatorService {
     for (const [key, value] of Object.entries(queryParams)) {
       // Ignore the keys that are meant to identify the final element or field to focus
       if (elementKeys.includes(key) || key === fieldKey) {
-        console.log(`Skipping key "${key}" for intermediate activation, reserved for final element/field targeting`);
+        //console.log(`Skipping key "${key}" for intermediate activation, reserved for final element/field targeting`);
         continue;
       }
 
-      console.log(`Handling query param "${key}=${value}"`);
+      //console.log(`Handling query param "${key}=${value}"`);
       
       const activator = config.activators.findActivatorByKey(key);
-      console.log(`Found activator for "${key}":`, activator);
       
       if (activator) {
         try {
           await activator.activate(key, value, config.context);
-          console.log(`Activated "${key}=${value}" successfully`);
+          //console.log(`Activated "${key}=${value}" successfully`);
         } catch (error) {
           console.error(`Error activating "${key}=${value}":`, error);
         }
@@ -181,18 +184,15 @@ export class QueryParamNavigatorService {
     
     // If we have both element and field, scroll to element first then focus field
     if (elementId && hasFieldParam) {
-      console.log(`Handling both element "${elementId}" and field "${fieldId}" parameters`);
       await this.scrollToElement(elementId, config);
       await this.focusField(fieldId, config);
     }
     // If we have only element, just scroll
     else if (elementId) {
-      console.log(`Handling element "${elementId}" parameter`);
       await this.scrollToElement(elementId, config);
     }
     // If we have only field, scroll to the field's element (the parent containing the focusable field)
     else if (hasFieldParam) {
-      console.log(`Handling field "${fieldId}" parameter`);
       // Try to find the element containing this field
       const fieldElement = this.focusableFields.get(fieldId);
       if (fieldElement) {
@@ -247,6 +247,13 @@ export class QueryParamNavigatorService {
     if (element) {
       const scrollOptions = config.scrollOptions || this.defaultScrollOptions;
       element.scrollIntoView(scrollOptions);
+      //console.log(`Scrolled to element with appScrollTarget="${elementId}"`, element);
+
+      if (element.classList.contains('mat-list-item') || element.className.match('item-pretty')) {
+        // If it's a mat-list-item/item-pretty (exclusive to menus), select it to enable selection of sub-menu items
+        element.focus(); // Focus to trigger :focus styles
+        element.click(); // Trigger click to activate any hover effects
+      }
 
       // Optional callback after scrolling (e.g. to update URL, log analytics, etc.)
       if (config.onScroll) {
@@ -270,23 +277,18 @@ export class QueryParamNavigatorService {
     fieldId: string,
     config: Omit<QueryParamNavigationConfig, 'context'>
   ): Promise<void> {
-    console.log(`Attempting to focus/click field: "${fieldId}"`);
-    console.log(`Registered focusable fields: ${Array.from(this.focusableFields.keys()).join(', ')}`);
     const delay = config.scrollDelay || 0;
     if (delay > 0) {
       await new Promise(resolve => setTimeout(resolve, delay));
     }
 
     const fieldElement = this.focusableFields.get(fieldId);
-    console.log(`Found field element for "${fieldId}":`, fieldElement);
     
     if (fieldElement) {
       const tagName = (fieldElement as any).tagName;
       // For button elements, click them
-      if (tagName === 'BUTTON') {
-        console.log(`Clicking button element:`, fieldElement);
+      if (tagName === 'BUTTON' || tagName === 'MAT-SELECT') {
         (fieldElement as any).click();
-        console.log(`Clicked button: "${fieldId}"`);
       }
       else if (tagName === 'MAT-CHECKBOX') {
         const innerInput = fieldElement.querySelector('input[type="checkbox"]') as HTMLElement;
@@ -297,19 +299,15 @@ export class QueryParamNavigatorService {
       }
       // For native HTML form elements (input, select, textarea), focus them
       else if (['INPUT', 'SELECT', 'TEXTAREA'].includes(tagName)) {
-        console.log(`Focusing field element:`, fieldElement);
         (fieldElement as any).focus();
-        console.log(`Focused field: "${fieldId}"`);
       } else {
         // For other elements, try to find an input/select/textarea/button inside
         const focusableChild = fieldElement.querySelector('input, select, textarea, button') as HTMLElement;
         if (focusableChild) {
           if ((focusableChild as any).tagName === 'BUTTON') {
             (focusableChild as any).click();
-            console.log(`Clicked nested button in: "${fieldId}"`);
           } else {
             focusableChild.focus();
-            console.log(`Focused nested field in: "${fieldId}"`);
           }
         } else {
           console.warn(`Field with appFocusableField="${fieldId}" has no focusable child element`);
