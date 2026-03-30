@@ -64,7 +64,7 @@ export class QueryParamNavigatorService {
   // Mapping of fieldId -> input/select/button elements that can receive focus or be clicked
   private focusableFields: Map<string, HTMLElement> = new Map();
 
-  private focusableFieldTags = ['INPUT', 'SELECT', 'TEXTAREA', 'BUTTON']; // Allow custom components like app-item-editor as focusable fields
+  private focusableFieldTags = ['INPUT', 'SELECT', 'TEXTAREA', 'BUTTON', 'MAT-CHECKBOX']; // Allow custom components like app-item-editor as focusable fields
 
   // Default scroll options if not provided in config
   private defaultScrollOptions: ScrollIntoViewOptions = {
@@ -287,6 +287,13 @@ export class QueryParamNavigatorService {
         console.log(`Clicking button element:`, fieldElement);
         (fieldElement as any).click();
         console.log(`Clicked button: "${fieldId}"`);
+      }
+      else if (tagName === 'MAT-CHECKBOX') {
+        const innerInput = fieldElement.querySelector('input[type="checkbox"]') as HTMLElement;
+        if (innerInput) {
+          innerInput.focus();
+          innerInput.click();
+        }
       }
       // For native HTML form elements (input, select, textarea), focus them
       else if (['INPUT', 'SELECT', 'TEXTAREA'].includes(tagName)) {
