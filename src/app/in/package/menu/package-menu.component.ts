@@ -97,8 +97,16 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
                         this.queryParamNavigator.handleQueryParams(params, {
                             activators: this.queryParamActivatorRegistry,
                             context: this,
-                            elementKeys: ['element', 'field'],
+                            elementKeys: ['element'],
                             scrollDelay: 0,
+                            scrollOptions: { behavior: 'smooth', block: 'center' }
+                        });
+                        // Delayed treatment of fields to wait selection
+                        this.queryParamNavigator.handleQueryParams(params, {
+                            activators: this.queryParamActivatorRegistry,
+                            context: this,
+                            elementKeys: ['field'],
+                            scrollDelay: 100,
                             scrollOptions: { behavior: 'smooth', block: 'center' }
                         });
                     }
