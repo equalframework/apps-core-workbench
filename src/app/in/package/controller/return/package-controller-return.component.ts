@@ -292,7 +292,7 @@ export class PackageControllerReturnComponent implements OnInit, OnDestroy {
     public save() {
         let payload = cloneDeep(this.scheme);
         payload.announcement.response = this.object.export();
-        this.workbenchService.updateController(this.controller_name, this.controller_type, payload.announcement);
+        this.workbenchService.updateController(this.package_name, this.controller_name, this.controller_type, payload.announcement);
     }
 
 }

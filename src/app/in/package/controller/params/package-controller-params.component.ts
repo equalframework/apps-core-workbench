@@ -205,7 +205,7 @@ export class PackageControllerParamsComponent implements OnInit, OnDestroy {
 
 save() {
     this.snack.open("Saving...","INFO")
-    this.workbenchService.updateController(this.controller_name, this.controller_type, this.export()).subscribe((result) => {
+    this.workbenchService.updateController(this.controller_package, this.controller_name, this.controller_type, this.export()).subscribe((result) => {
             if(result.success){
                     this.notificationService.showSuccess(result.message)
             } else{

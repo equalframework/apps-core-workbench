@@ -201,8 +201,8 @@ export class WorkbenchService {
      * @param payload The payload containing the data to update the controller.
      * @returns Observable indicating the success of the update operation.
      */
-    public updateController(controller_name: string, controller_type: string, payload: { [id: string]: any }): Observable<any> {
-        const url = API_ENDPOINTS.controller.update(controller_name, controller_type, payload);
+    public updateController(package_name: string, controller_name: string, controller_type: string, payload: { [id: string]: any }): Observable<any> {
+        const url = API_ENDPOINTS.controller.update(package_name, controller_name, controller_type, payload);
         const successfullyMessage = `${controller_name} has been updated`;
         return this.callApi(url, successfullyMessage);
     }
