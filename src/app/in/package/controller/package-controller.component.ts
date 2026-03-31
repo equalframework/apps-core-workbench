@@ -93,7 +93,6 @@ export class PackageControllerComponent implements OnInit, OnDestroy {
             // Fetch all data before allowing query param navigation
             await this.fetchControllerData();
             this.dataLoaded = true;
-            this.loading = false;
             
         // Subscribe to query parameters for URL-based navigation
         this.route.queryParams.pipe(takeUntil(this.ngUnsubscribe)).subscribe(params => {
@@ -112,43 +111,47 @@ export class PackageControllerComponent implements OnInit, OnDestroy {
     }
 
     private async fetchControllerData(): Promise<void> {
+        // Phase 1 : Load controller announcement for basic info and params/return scheme
+        let originalName = this.package_name + '_' + this.controller_name;
+        if (this.componentDescriptor?.file) {
+            const parts = this.componentDescriptor.file.split('/');
+            originalName = parts[parts.length - 1].replace('.php', '');
+        }
+
         try {
-            // Phase 1 : chargements indépendants en parallèle
-            const [types, usages, modelList, componentDescriptor] = await Promise.all([
-                this.workbenchService.getTypeList(),
-                this.workbenchService.getUsageList(),
-                this.workbenchService.collectClasses(true).toPromise(),
-                this.provider.getComponent(this.package_name, 'controller', '', this.controller_name).toPromise()
-                    .catch(err => { console.error('Error fetching component descriptor', err); return null; })
-            ]);
-
-            this.types = ['array', ...types];
-            this.types.sort((p1, p2) => p1.localeCompare(p2));
-            this.usages = usages;
-            this.modelList = modelList;
-            this.entities = modelList;
-            this.componentDescriptor = componentDescriptor;
-
-            // Phase 2 : announceController dépend du descripteur
-            let originalName = this.package_name + '_' + this.controller_name;
-            if (this.componentDescriptor?.file) {
-                const parts = this.componentDescriptor.file.split('/');
-                originalName = parts[parts.length - 1].replace('.php', '');
-            }
-
+            const scheme = await this.workbenchService.announceController(this.controller_type, originalName).toPromise();
+            this.paramsScheme = scheme;
+            this.returnScheme = scheme;
+            this.loading = false;
             try {
-                const scheme = await this.workbenchService.announceController(this.controller_type, originalName).toPromise();
-                this.paramsScheme = scheme;
-                this.returnScheme = scheme;
+                // Phase 2 : Load additional data needed for full app
+                const [types, usages, modelList, componentDescriptor] = await Promise.all([
+                    this.workbenchService.getTypeList(),
+                    this.workbenchService.getUsageList(),
+                    this.workbenchService.collectClasses(true).toPromise(),
+                    this.provider.getComponent(this.package_name, 'controller', '', this.controller_name).toPromise()
+                        .catch(err => { console.error('Error fetching component descriptor', err); return null; })
+                ]);
+                this.types = ['array', ...types];
+                this.types.sort((p1, p2) => p1.localeCompare(p2));
+                this.usages = usages;
+                this.modelList = modelList;
+                this.entities = modelList;
+                this.componentDescriptor = componentDescriptor;
+        
+    
             } catch (err) {
-                console.error('Failed to fetch controller announcement', err);
+                console.error('Error fetching controller data', err);
+                this.error = true;
                 throw err;
             }
+
         } catch (err) {
-            console.error('Error fetching controller data', err);
-            this.error = true;
+            console.error('Failed to fetch controller announcement', err);
+            this.loading = false;
             throw err;
         }
+
     }
 
     private initializeNavigation(): void {

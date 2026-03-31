@@ -8,12 +8,16 @@ import {
 import { Observable } from 'rxjs';
 import { shareReplay } from 'rxjs/operators';
 
+/**
+  * This interceptor caches GET requests to 'userinfo' endpoint to prevent multiple identical requests,
+  * Especially during app initialization when sb-shared-lib's AuthService makes a userinfo request to check authentication status.
+  */
 @Injectable()
 export class CacheInterceptor implements HttpInterceptor {
   private requestCache = new Map<string, Observable<HttpEvent<any>>>();
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<any>> {
-    // Only cache GET requests to userinfo
+    // Only cache get requests to userinfo
     if (request.method !== 'GET' || !request.url.includes('userinfo')) {
       return next.handle(request);
     }
