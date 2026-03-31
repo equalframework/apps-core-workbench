@@ -78,6 +78,7 @@ export class InfoControllerComponent implements OnInit, OnChanges {
     public viewMode: 'json' | 'edit' = 'edit';
 
     private environment: any;
+    private lastLoadedController: string;
 
     public get headerStatus(): { icon?: string, tooltip?: string, label: string, value: string }[] {
         const deprecatedLabel = this.announcement?.deprecated ? 'This controller is marked as deprecated, and shouldn\'t be used anymore.' : '';
@@ -112,7 +113,6 @@ export class InfoControllerComponent implements OnInit, OnChanges {
     public async ngOnInit() {
         this.iconType = this.typeUsage.typeIcon;
         this.environment = await this.env.getEnv();
-        this.load();
 
     }
 
@@ -129,6 +129,15 @@ export class InfoControllerComponent implements OnInit, OnChanges {
         if(!this.controller) {
             return;
         }
+
+        const controllerKey = `${this.controller.package_name}_${this.controller.name}_${this.controller.type}`;
+
+        // Skip if we just loaded this same controller
+        if(controllerKey === this.lastLoadedController) {
+            return;
+        }
+
+        this.lastLoadedController = controllerKey;
         this.loading = true;
         try {
             const operation_name = this.controller.name;

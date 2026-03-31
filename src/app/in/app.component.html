@@ -104,16 +104,6 @@
             </info-model>
         </ng-container>
 
-        <ng-container *ngIf="selectedComponent.type === 'do' || selectedComponent.type === 'get'">
-            <info-controller
-                    [controller]="selectedComponent"
-                    [fetch_error]="fetch_error"
-                    [selected_package]="selectedComponent.package ? selectedComponent.package : ''"
-                    [moving]="true"
-                    (goto)="goTo({name:$event})">
-            </info-controller>
-        </ng-container>
-
     </div>
 
 </div>
