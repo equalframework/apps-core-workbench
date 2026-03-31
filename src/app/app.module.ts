@@ -17,6 +17,7 @@ import { WorkbenchModule } from 'src/app/_modules/workbench.module';
 
 /* HTTP requests interception dependencies */
 import { HTTP_INTERCEPTORS, HttpClient, HttpClientModule } from '@angular/common/http';
+import { CacheInterceptor } from './_interceptors/cache.interceptor';
 
 import { registerLocaleData } from '@angular/common';
 import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar';
@@ -77,6 +78,7 @@ const sharedComponents = [
         RouterModule
     ],
     providers: [
+        { provide: HTTP_INTERCEPTORS, useClass: CacheInterceptor, multi: true },
         // add HTTP interceptor to inject AUTH header to any outgoing request
         { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptorService, multi: true },
         { provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: { duration: 4000, horizontalPosition: 'start' } },
