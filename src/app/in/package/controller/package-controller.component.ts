@@ -113,29 +113,29 @@ export class PackageControllerComponent implements OnInit, OnDestroy {
 
     private async fetchControllerData(): Promise<void> {
         try {
-            // Fetch shared type and model lists
-            this.types = ['array', ...(await this.workbenchService.getTypeList())];
+            // Phase 1 : chargements indépendants en parallèle
+            const [types, usages, modelList, componentDescriptor] = await Promise.all([
+                this.workbenchService.getTypeList(),
+                this.workbenchService.getUsageList(),
+                this.workbenchService.collectClasses(true).toPromise(),
+                this.provider.getComponent(this.package_name, 'controller', '', this.controller_name).toPromise()
+                    .catch(err => { console.error('Error fetching component descriptor', err); return null; })
+            ]);
+
+            this.types = ['array', ...types];
             this.types.sort((p1, p2) => p1.localeCompare(p2));
+            this.usages = usages;
+            this.modelList = modelList;
+            this.entities = modelList;
+            this.componentDescriptor = componentDescriptor;
 
-            this.usages = await this.workbenchService.getUsageList();
-
-            this.modelList = await this.workbenchService.collectClasses(true).toPromise();
-            this.entities = this.modelList; // entities is the same as modelList for controller return
-
-            // Fetch component descriptor to get original controller name
-            try {
-                this.componentDescriptor = await this.provider.getComponent(this.package_name, 'controller', '', this.controller_name).toPromise();
-            } catch (err) {
-                console.error('Error fetching component descriptor', err);
-            }
-
+            // Phase 2 : announceController dépend du descripteur
             let originalName = this.package_name + '_' + this.controller_name;
-            if (this.componentDescriptor && this.componentDescriptor.file) {
+            if (this.componentDescriptor?.file) {
                 const parts = this.componentDescriptor.file.split('/');
                 originalName = parts[parts.length - 1].replace('.php', '');
             }
 
-            // Fetch controller scheme/announcement
             try {
                 const scheme = await this.workbenchService.announceController(this.controller_type, originalName).toPromise();
                 this.paramsScheme = scheme;
