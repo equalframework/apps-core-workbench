@@ -5,7 +5,7 @@
     <div class="name-container">
         <mat-form-field>
             <mat-label>Field</mat-label>
-            <input matInput [disabled]="inherited || field.isUneditable" [value]="field.name" (keydown)="noCancel($event)" (change)="changeName($event.target.value)">
+            <input matInput [disabled]="inherited || field.isUneditable" [value]="field.name" (keydown)="noCancel($event)" (change)="changeName($event.target.value)" [appFocusableField]="'field-' + field.name + '-name'">
         </mat-form-field>
     </div>
     <div class="bannerholder">
@@ -25,7 +25,7 @@
                 <div>
                     <mat-form-field *ngIf="typeDirective['type']">
                         <mat-label>Type</mat-label>
-                        <mat-select [disabled]="field.isUneditable" [value]="field.type" (valueChange)="changeTypeValue($event)">
+                        <mat-select [disabled]="field.isUneditable" [value]="field.type" (valueChange)="changeTypeValue($event)" [appFocusableField]="'field-' + field.name + '-type'">
                             <mat-option *ngFor="let type of types" [value]="type">{{type}}</mat-option>
                         </mat-select>
                     </mat-form-field>
@@ -33,14 +33,14 @@
                         <mat-icon style="transform: translateY(.3em);">arrow_right</mat-icon>
                         <mat-form-field>
                             <mat-label>Function</mat-label>
-                            <input matInput [disabled]="field.isUneditable" [value]="field.function" (keydown)="noCancel($event)" (change)="changeFunction($event.target.value)">
+                            <input matInput [disabled]="field.isUneditable" [value]="field.function" (keydown)="noCancel($event)" (change)="changeFunction($event.target.value)" [appFocusableField]="'field-' + field.name + '-function'">
                         </mat-form-field>
                     </ng-container>
                     <ng-container *ngIf="typeDirective['result_type']">
                         <br>
                         <mat-form-field *ngIf="typeDirective['type']">
                             <mat-label>Result type</mat-label>
-                            <mat-select [disabled]="field.isUneditable" [value]="field.result_type" (valueChange)="changeResultType($event)">
+                            <mat-select [disabled]="field.isUneditable" [value]="field.result_type" (valueChange)="changeResultType($event)" [appFocusableField]="'field-' + field.name + '-result_type'">
                                 <mat-option *ngFor="let type of types" [value]="type">{{type}}</mat-option>
                             </mat-select>
                         </mat-form-field>
@@ -61,6 +61,7 @@
                             [values]="models"
                             (valueChange)="changeForeignObject($event)"
                             [disabled]="field.isUneditable"
+                            [appFocusableField]="'field-' + field.name + '-foreign_object'"
                             width="15em"
                         >
                         </app-field-autocomplete>
@@ -73,6 +74,7 @@
                             [values]="ffields"
                             (valueChange)="changeForeignField($event)"
                             [disabled]="field.isUneditable"
+                            [appFocusableField]="'field-' + field.name + '-foreign_field'"
                             width="15em"
                         >
                         </app-field-autocomplete>
@@ -85,6 +87,7 @@
                             [values]="fields"
                             (valueChange)="changeAlias($event)"
                             [disabled]="field.isUneditable"
+                            [appFocusableField]="'field-' + field.name + '-alias'"
                         >
                         </app-field-autocomplete>
                     </ng-container>
@@ -92,62 +95,62 @@
                 <div>
                     <mat-form-field *ngIf="finalTypeDirective['rel_table']" class="thirdfield">
                         <mat-label>rel_table</mat-label>
-                        <input matInput [disabled]="field.isUneditable" [value]="field.rel_table" (keydown)="noCancel($event)" (change)="changeRelTable($event.target.value)">
+                        <input matInput [disabled]="field.isUneditable" [value]="field.rel_table" (keydown)="noCancel($event)" (change)="changeRelTable($event.target.value)" [appFocusableField]="'field-' + field.name + '-rel_table'">
                     </mat-form-field>
                     <mat-form-field *ngIf="finalTypeDirective['rel_local_key']" class="thirdfield">
                         <mat-label>rel_local_key</mat-label>
-                        <input matInput [disabled]="field.isUneditable" [value]="field.rel_local_key" (keydown)="noCancel($event)" (change)="changeRelLocalKey($event.target.value)">
+                        <input matInput [disabled]="field.isUneditable" [value]="field.rel_local_key" (keydown)="noCancel($event)" (change)="changeRelLocalKey($event.target.value)" [appFocusableField]="'field-' + field.name + '-rel_local_key'">
                     </mat-form-field>
                     <mat-form-field *ngIf="finalTypeDirective['rel_foreign_key']" class="thirdfield">
                         <mat-label>rel_foreign_key</mat-label>
-                        <input matInput [disabled]="field.isUneditable" [value]="field.rel_foreign_key" (keydown)="noCancel($event)" (change)="changeRelForeignKey($event.target.value)">
+                        <input matInput [disabled]="field.isUneditable" [value]="field.rel_foreign_key" (keydown)="noCancel($event)" (change)="changeRelForeignKey($event.target.value)" [appFocusableField]="'field-' + field.name + '-rel_foreign_key'">
                     </mat-form-field>
                 </div>
                 <div *ngIf="finalTypeDirective['description']">
                     <mat-form-field class="fieldarea">
                         <mat-label>Description</mat-label>
-                        <textarea matInput [disabled]="field.isUneditable" [value]="field.description" (keydown)="noCancel($event)" (change)="changeDesc($event.target.value)"></textarea>
+                        <textarea matInput [disabled]="field.isUneditable" [value]="field.description" (keydown)="noCancel($event)" (change)="changeDesc($event.target.value)" [appFocusableField]="'field-' + field.name + '-description'"></textarea>
                     </mat-form-field>
                 </div> 
                 <mat-grid-list rowHeight="3em" cols="4">
                     <mat-grid-tile *ngIf="typeDirective['readonly']">
                         <div class="full checkboxcontainer">
-                            <mat-checkbox [disabled]="field.isUneditable" [checked]="field.readonly" (change)="changeReadonly($event.checked)">readonly</mat-checkbox>
+                            <mat-checkbox [disabled]="field.isUneditable" [checked]="field.readonly" (change)="changeReadonly($event.checked)" [appFocusableField]="'field-' + field.name + '-readonly'">readonly</mat-checkbox>
                         </div>
                     </mat-grid-tile>
                     <mat-grid-tile *ngIf="typeDirective['required']">
                         <div class="full checkboxcontainer">
-                            <mat-checkbox [disabled]="field.isUneditable" [checked]="field.required" (change)="changeRequired($event.checked)">required</mat-checkbox>
+                            <mat-checkbox [disabled]="field.isUneditable" [checked]="field.required" (change)="changeRequired($event.checked)" [appFocusableField]="'field-' + field.name + '-required'">required</mat-checkbox>
                         </div>
                     </mat-grid-tile>
                     <mat-grid-tile *ngIf="typeDirective['multilang']">
                         <div class="full checkboxcontainer">
-                            <mat-checkbox [disabled]="field.isUneditable" [checked]="field.multilang" (change)="changeMultilang($event.checked)">multilang</mat-checkbox>
+                            <mat-checkbox [disabled]="field.isUneditable" [checked]="field.multilang" (change)="changeMultilang($event.checked)" [appFocusableField]="'field-' + field.name + '-multilang'">multilang</mat-checkbox>
                         </div>
                     </mat-grid-tile>
                     <mat-grid-tile *ngIf="typeDirective['unique']">
                         <div class="full checkboxcontainer">
-                            <mat-checkbox [disabled]="field.isUneditable" [checked]="field.unique" (change)="changeUnique($event.checked)">unique</mat-checkbox>
+                            <mat-checkbox [disabled]="field.isUneditable" [checked]="field.unique" (change)="changeUnique($event.checked)" [appFocusableField]="'field-' + field.name + '-unique'">unique</mat-checkbox>
                         </div>
                     </mat-grid-tile>
                     <mat-grid-tile *ngIf="typeDirective['store']">
                         <div class="full checkboxcontainer">
-                            <mat-checkbox [disabled]="field.isUneditable" [checked]="field.store" (change)="changeStore($event.checked)">store</mat-checkbox>
+                            <mat-checkbox [disabled]="field.isUneditable" [checked]="field.store" (change)="changeStore($event.checked)" [appFocusableField]="'field-' + field.name + '-store'">store</mat-checkbox>
                         </div>
                     </mat-grid-tile>
                     <mat-grid-tile *ngIf="typeDirective['instant']">
                         <div class="full checkboxcontainer">
-                            <mat-checkbox [disabled]="field.isUneditable" [checked]="field.instant" (change)="changeInstant($event.checked)">instant</mat-checkbox>
+                            <mat-checkbox [disabled]="field.isUneditable" [checked]="field.instant" (change)="changeInstant($event.checked)" [appFocusableField]="'field-' + field.name + '-instant'">instant</mat-checkbox>
                         </div>
                     </mat-grid-tile>
                     <mat-grid-tile *ngIf="typeDirective['default']">
                         <div class="full checkboxcontainer">
-                            <mat-checkbox [disabled]="field.isUneditable" [checked]="field._has_default" (change)="changeHasDefault($event.checked)">default value</mat-checkbox>
+                            <mat-checkbox [disabled]="field.isUneditable" [checked]="field._has_default" (change)="changeHasDefault($event.checked)" [appFocusableField]="'field-' + field.name + '-has_default'">default value</mat-checkbox>
                         </div>
                     </mat-grid-tile>
                     <mat-grid-tile *ngIf="typeDirective['selection']">
                         <div class="full checkboxcontainer">
-                            <mat-checkbox [disabled]="field.isUneditable" [checked]="field._has_selection" (change)="changeHasSelection($event.checked)">selection</mat-checkbox>
+                            <mat-checkbox [disabled]="field.isUneditable" [checked]="field._has_selection" (change)="changeHasSelection($event.checked)" [appFocusableField]="'field-' + field.name + '-has_selection'">selection</mat-checkbox>
                         </div>
                     </mat-grid-tile>
                 </mat-grid-list>
@@ -161,12 +164,13 @@
                         name="default"
                         (changed)="changeDefault($event)"
                         [disabled]="field.isUneditable"
+                        [appFocusableField]="'field-' + field.name + '-default'"
                     ></type-input>
                 </div>
                 <div *ngIf="field._has_selection && finalTypeDirective['selection']" class="conditionalcontainer selection-flex">
                     <div class="title selection-title-flex">
                         <label>Selection</label>
-                        <button mat-button (click)="addToSelection()" [disabled]="field.isUneditable"><mat-icon>add</mat-icon> Add item</button>
+                        <button mat-button (click)="addToSelection()" [disabled]="field.isUneditable" [appFocusableField]="'field-' + field.name + '-selection-add'"><mat-icon>add</mat-icon> Add item</button>
                     </div>
                     <div *ngFor="let item of field.selection; index as index" class="selection-el selection-el-flex">
                         <div class="t-input-holder t-input-holder-flex">
@@ -176,6 +180,7 @@
                                 name="option {{index+1}}"
                                 (changed)="changeSelection(index,$event)"
                                 [disabled]="field.isUneditable"
+                                [appFocusableField]="'field-' + field.name + '-selection-' + index"
                             ></type-input>
                             <button mat-icon-button (click)="deleteSelection(index)" [disabled]="field.isUneditable"><mat-icon>delete</mat-icon></button>
                         </div>

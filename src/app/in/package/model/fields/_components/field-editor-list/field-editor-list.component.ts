@@ -11,7 +11,6 @@ import { cloneDeep } from 'lodash';
 export class FieldEditorListComponent implements OnInit {
   @Input() list: Field[]
   @Input() parentList: Field[]
-  @Input() selectedIndex: number
 
   @Output() select = new EventEmitter<number>();
   @Output() CRUD = new EventEmitter<string>();
@@ -58,9 +57,13 @@ export class FieldEditorListComponent implements OnInit {
     this.filteredList = this._filter(this.filterControl.value)
   }
 
+  trackByFieldName(index: number, item: Field): string {
+    return item.name
+  }
+
 
   private _filter(value: string): Field[] {
-    const filterValue = value.toLowerCase();
+    const filterValue = (value || '').toLowerCase();
     return this.list.filter(option => option.name.toLowerCase().includes(filterValue)).sort((p1, p2) => {
       let p1Inherited = this.isInherited(p1)
       let p2Inherited = this.isInherited(p2)
