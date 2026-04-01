@@ -1,6 +1,6 @@
 import { Location } from '@angular/common';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
-import { Component, Inject, OnDestroy, OnInit, Optional } from '@angular/core';
+import { Component, Inject, Injector, OnDestroy, OnInit, Optional } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Menu, MenuContext, MenuItem } from './_models/Menu';
 import { cloneDeep } from 'lodash';
@@ -9,11 +9,12 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dial
 import { prettyPrintJson } from 'pretty-print-json';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Subject } from 'rxjs';
-import { map, takeUntil } from 'rxjs/operators';
+import { map, take, takeUntil } from 'rxjs/operators';
 import { WorkbenchService } from '../../_services/workbench.service';
 import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
 import { QueryParamNavigatorService } from 'src/app/_services/query-param-navigator.service';
 import { QueryParamActivatorRegistry, IQueryParamActivator } from 'src/app/_services/query-param-activator.registry';
+import { EqualComponentsProviderService } from '../../_services/equal-components-provider.service';
 
 @Component({
     selector: 'package-menu',
@@ -39,8 +40,12 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
 
     public selected_item: MenuItem;
     public entity_fields: string[] = [];
+    public isLoadingEntityData: boolean = false;
+    public isRightPaneLoading: boolean = false;
+    private backgroundPreloadStarted: boolean = false;
 
     private queryParamActivatorRegistry: QueryParamActivatorRegistry;
+    private provider: EqualComponentsProviderService | null = null;
 
     constructor(
             private route: ActivatedRoute,
@@ -49,13 +54,94 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
             private matSnack: MatSnackBar,
             private dialog: MatDialog,
             private routerMemory: RouterMemory,
-            private queryParamNavigator: QueryParamNavigatorService
+            private queryParamNavigator: QueryParamNavigatorService,
+            private injector: Injector
+            
         ) { }
 
     public async ngOnInit() {
+        this.initializeNavigation();
+
+        this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe(async (params) => {
+            this.menu_name = params['menu_name'];
+            this.package_name = params['package_name'];
+
+            await this.fetchMenuData();
+            void this.fetchBackgroundData();
+        });
+    }
+    
+    private async fetchBackgroundData(): Promise<void> {
+        if (this.backgroundPreloadStarted) {
+            return;
+        }
+
+        this.backgroundPreloadStarted = true;
+
+        try {
+            // Lazy-resolve provider so its constructor-triggered preload starts only in phase 3.
+            if (!this.provider) {
+                this.provider = this.injector.get(EqualComponentsProviderService);
+            }
+        } catch (err) {
+            console.error('Error during background data fetching', err);
+
+        }
+    }
+
+
+    private async fetchMenuData(): Promise<void> {
+        try {
+            const [menuResult, coreGroupsResult] = await Promise.all([
+                this.workbenchService.readMenu(this.package_name, this.menu_name).pipe(take(1), takeUntil(this.ngUnsubscribe)).toPromise(),
+                this.workbenchService.getCoreGroups().pipe(take(1), takeUntil(this.ngUnsubscribe)).toPromise()
+            ]);
+
+            this.menuSchema = menuResult;
+            const coreGroups = coreGroupsResult;
+
+            this.object = new Menu(cloneDeep(this.menuSchema));
+            this.groups = coreGroups.map((group: any) => group['name']);
+
+            const modelList = await this.workbenchService.collectClasses(true).pipe(take(1), takeUntil(this.ngUnsubscribe)).toPromise();
+
+            await this.handleQueryParamsOnce(['element'], 0);
+
+            this.isRightPaneLoading = true;
+
+            const dataControllers = await this.workbenchService.collectControllers('data').pipe(take(1), takeUntil(this.ngUnsubscribe)).toPromise();
+
+            const modelEntities = modelList.map((item: string) => item.split(':')[0]);
+            const dataEntities = dataControllers.map((item: string) => item.split(':')[0]);
+            this.entities['model'] = modelEntities;
+            this.entities['data'] = dataEntities;
+
+            await this.handleQueryParamsOnce(['field'], 100);
+            this.isRightPaneLoading = false;
+        } catch (err) {
+            this.isRightPaneLoading = false;
+            console.error(`[MENU] Error in fetchMenuData`, err);
+        }
+    }
+
+    private async handleQueryParamsOnce(elementKeys: string[], scrollDelay: number): Promise<void> {
+        const queryParams = await this.route.queryParams.pipe(take(1), takeUntil(this.ngUnsubscribe)).toPromise();
+        if (Object.keys(queryParams).length === 0 || !this.queryParamActivatorRegistry) {
+            return;
+        }
+        this.queryParamNavigator.handleQueryParams(queryParams, {
+            activators: this.queryParamActivatorRegistry,
+            context: this,
+            elementKeys,
+            scrollDelay,
+            scrollOptions: { behavior: 'smooth', block: 'center' }
+        });
+    }
+
+    private initializeNavigation(): void {
         // Initialize the query param activators registry
         this.queryParamActivatorRegistry = new QueryParamActivatorRegistry();
-        
+
         // Register activators for menu navigation
         const fieldActivator = {
             type: 'field',
@@ -75,60 +161,15 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
             }
         };
         this.queryParamActivatorRegistry.register(fieldActivator);
-
-        this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
-            this.menu_name = params['menu_name'];
-            this.package_name = params['package_name'];
-            // Getting the menu as a view json
-            this.workbenchService.readMenu(this.package_name,this.menu_name).subscribe(async menuSchema => {
-                this.menuSchema = menuSchema;
-                // Parsing the json as an Menu object
-            // #memo - we clone the schema to avoid the Menu constructor to destroy the original copy
-            this.object = new Menu(cloneDeep(this.menuSchema));
-            this.entities['model'] = await this.workbenchService.collectClasses(true).toPromise();
-            this.entities['data'] = await this.workbenchService.collectControllers('data').toPromise();
-            this.workbenchService.getCoreGroups().toPromise().then(data => {
-                for(let key in data) {
-                    this.groups.push(data[key]['name'])
-                }
-                // Handle URL query parameters for deep linking to specific tabs or sections
-                this.route.queryParams.subscribe(params => {
-                    if (Object.keys(params).length > 0 && this.queryParamActivatorRegistry) {
-                        this.queryParamNavigator.handleQueryParams(params, {
-                            activators: this.queryParamActivatorRegistry,
-                            context: this,
-                            elementKeys: ['element'],
-                            scrollDelay: 0,
-                            scrollOptions: { behavior: 'smooth', block: 'center' }
-                        });
-                        // Delayed treatment of fields to wait selection
-                        this.queryParamNavigator.handleQueryParams(params, {
-                            activators: this.queryParamActivatorRegistry,
-                            context: this,
-                            elementKeys: ['field'],
-                            scrollDelay: 100,
-                            scrollOptions: { behavior: 'smooth', block: 'center' }
-                        });
-                    }
-                });
-            });
-            })
-
-
-        });
-
-
     }
 
     public ngOnDestroy() {
-        console.debug('PackageMenuComponent::ngOnDestroy');
         this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
     }
 
     public select(event:MenuItem) {
         this.selected_item = event;
-        console.log(this.selected_item);
         this.updateEntityDependentFields();
     }
 
