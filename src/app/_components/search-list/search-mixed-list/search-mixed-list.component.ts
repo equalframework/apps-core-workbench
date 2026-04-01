@@ -1,6 +1,6 @@
 import { Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, SimpleChanges, ViewEncapsulation } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, SimpleChanges, ViewChildren, ViewEncapsulation } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -32,6 +32,7 @@ import { el } from 'date-fns/locale';
 })
 export class SearchMixedListComponent implements OnInit, OnDestroy {
     private destroy$: Subject<boolean> = new Subject<boolean>();
+    @ViewChildren('nodeDisplay') private nodeDisplayElements!: QueryList<ElementRef<HTMLElement>>;
 
     // Selected node of the list (consistent with node_type, if provided): parent might force the selection of a node (goto)
     @Input() node_selected?: EqualComponentDescriptor;
@@ -120,6 +121,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     public ngOnChanges(changes: SimpleChanges) {
         if (changes['node_selected']) {
             console.log('node_selected changed to:', changes['node_selected'].currentValue);
+            setTimeout(() => this.scrollSelectedNodeIntoView(), 0);
         }
         if (changes['node_type'] && this.node_type) {
             this.search_filters = {};
@@ -157,6 +159,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
 
             filtered = this.rankResults(filtered, this.search_terms);
             this.filteredData = filtered;
+            setTimeout(() => this.scrollSelectedNodeIntoView(), 0);
         });
     }
 
@@ -198,6 +201,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         this.elements = [...components];
         this.filteredData = this.elements;
         this.applyFilters();
+        setTimeout(() => this.scrollSelectedNodeIntoView(), 0);
     }
 
     private handleError(error: any) {
@@ -242,6 +246,23 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         this.searchScopeChange.emit(this.search_scope);
         this.searchFiltersChange.emit(this.search_filters);
         this.searchTermsChange.emit(this.search_terms);
+        setTimeout(() => this.scrollSelectedNodeIntoView(), 0);
+    }
+
+    private scrollSelectedNodeIntoView(): void {
+        if (!this.node_selected || !this.filteredData?.length || !this.nodeDisplayElements) {
+            return;
+        }
+        const selectedIndex = this.filteredData.findIndex(node => this.areNodesEqual(node, this.node_selected));
+        if (selectedIndex < 0) {
+            return;
+        }
+        const nodeElement = this.nodeDisplayElements.toArray()[selectedIndex]?.nativeElement;
+        if (!nodeElement) {
+            return;
+        }
+
+        nodeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     public onSearch() {
@@ -374,6 +395,9 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     }
 
     public areNodesEqual(node1?: EqualComponentDescriptor, node2?: EqualComponentDescriptor) {
+        if (node1?.type === 'model') {
+            node1.type = 'class';
+        }
         return (node1?.package_name === node2?.package_name &&
             node1?.name === node2?.name &&
             node1?.type === node2?.type);

@@ -68,6 +68,7 @@
 -->
         <ng-template #displayMode>
             <div class="node_display"
+                #nodeDisplay
                     [class.hover]="!areNodesEqual(node_selected, node)"
                     [class.selected]="areNodesEqual(node_selected, node)"
                     [title]="getTitle(node)"
