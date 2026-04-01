@@ -1,5 +1,5 @@
 import { result } from 'lodash';
-import { Component, Inject, OnInit, Optional } from '@angular/core';
+import { Component, Inject, OnInit, Optional, Injector } from '@angular/core';
 import { Location } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
@@ -10,9 +10,12 @@ import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { prettyPrintJson } from 'pretty-print-json';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, take } from 'rxjs/operators';
 import { NotificationService } from 'src/app/in/_services/notification.service';
 import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
+import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
+import { QueryParamActivatorRegistry, IQueryParamActivator } from 'src/app/_services/query-param-activator.registry';
+import { QueryParamNavigatorService } from 'src/app/_services/query-param-navigator.service';
 
 @Component({
     selector: 'package-model-fields',
@@ -48,6 +51,10 @@ export class PackageModelFieldsComponent implements OnInit {
     public fieldList: Field[] = [];
     public fieldListHistory:{field: Field[], message: string}[] = [];
     public fieldFutureHistory:{field: Field[], message: string}[] = [];
+    
+    private backgroundPreloadStarted: boolean = false;
+    private provider: EqualComponentsProviderService | null = null;
+    private queryParamActivatorRegistry: QueryParamActivatorRegistry;
 
     public fieldName: string[] = [];
     public computeds: string[] = [];
@@ -65,7 +72,10 @@ export class PackageModelFieldsComponent implements OnInit {
         private workbenchService: WorkbenchService,
         private dialog: MatDialog,
         private location: Location,
-        private notificationService:NotificationService
+        private notificationService:NotificationService,
+        private injector: Injector,
+        private queryParamNavigator: QueryParamNavigatorService,
+    
     ) { }
 
     public onKeydown(event: KeyboardEvent) {
@@ -81,14 +91,53 @@ export class PackageModelFieldsComponent implements OnInit {
         }
     }
     public async ngOnInit() {
+        this.initializeNavigation();
         this.models = await this.workbenchService.collectClasses(true).toPromise();
         Field.type_directives = await this.workbenchService.getTypeDirective();
         this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
             this.package_name = this.route.parent ? this.route.parent?.snapshot.paramMap.get('package_name') : params['package_name'];
             this.class_name = this.route.parent ? this.route.parent?.snapshot.paramMap.get('class_name') : params['class_name'];
-            this.loadFields();
+            await this.loadFields();
+            void this.fetchBackgroundData();
+
         });
 
+    }
+
+    private initializeNavigation(): void {
+        this.queryParamActivatorRegistry = new QueryParamActivatorRegistry();
+    }
+
+    private async handleQueryParams(elementKeys: string[], scrollDelay: number): Promise<void> {
+        const queryParams = await this.route.queryParams.pipe(take(1), takeUntil(this.ngUnsubscribe)).toPromise();
+        if (Object.keys(queryParams).length === 0 || !this.queryParamActivatorRegistry) {
+            return;
+        }
+        this.queryParamNavigator.handleQueryParams(queryParams, {
+            activators: this.queryParamActivatorRegistry,
+            context: this,
+            elementKeys,
+            scrollDelay,
+            scrollOptions: { behavior: 'smooth', block: 'center' }
+        });
+    }
+
+    private async fetchBackgroundData(): Promise<void> {
+        if (this.backgroundPreloadStarted) {
+            return;
+        }
+
+        this.backgroundPreloadStarted = true;
+
+        try {
+            // Lazy-resolve provider so its constructor-triggered preload starts only in phase 3.
+            if (!this.provider) {
+                this.provider = this.injector.get(EqualComponentsProviderService);
+            }
+        } catch (err) {
+            console.error('Error during background data fetching', err);
+
+        }
     }
 
     private async loadFields() {
@@ -110,11 +159,8 @@ export class PackageModelFieldsComponent implements OnInit {
             this.parentFieldList.push(new Field(cloneDeep(this.parent_schema["fields"][item]), item));
         }
 
-        if (this.fieldList.length > 0 || this.parentFieldList.length > 0) {
-            this.selected_index = 0;
-        }
-
         this.loading = false;
+        await this.handleQueryParams(['element'], 100);
     }
 
     public cancelOneChange() {
