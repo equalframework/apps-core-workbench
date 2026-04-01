@@ -1,5 +1,5 @@
 import { result } from 'lodash';
-import { Component, OnInit, Optional, Inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, Optional, Inject, ChangeDetectorRef, Injector } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormControl, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -12,6 +12,7 @@ import { ErrorItemTranslator, Translator } from './_object/Translation';
 import { View } from '../views/vieweditor/_objects/View';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { NotificationService } from 'src/app/in/_services/notification.service';
+import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
 import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
 import { Location } from '@angular/common';
 
@@ -64,6 +65,9 @@ export class ModelTradEditorComponent implements OnInit {
 
     // Field type metadata and error type mappings
     private fieldTypeMap: { [key: string]: string } = {};
+    private backgroundTranslationsLoadStarted = false;
+    private backgroundPreloadStarted = false;
+    private provider: EqualComponentsProviderService | null = null;
     public readonly ERROR_TYPE_DESCRIPTIONS: { [key: string]: { description: string, severity: 'info' | 'warning' | 'error' } } = {
         'missing_mandatory': { description: 'Field is null/empty and required', severity: 'error' },
         'non_nullable': { description: 'Attempted to set to null when marked required', severity: 'error' },
@@ -105,7 +109,8 @@ export class ModelTradEditorComponent implements OnInit {
         private dialog: MatDialog,
         private location: Location,
         private cdr: ChangeDetectorRef,
-        private queryParamNavigator: QueryParamNavigatorService
+        private queryParamNavigator: QueryParamNavigatorService,
+        private injector: Injector
     ) {
         this.activatorRegistry = new QueryParamActivatorRegistry();
     }
@@ -138,7 +143,7 @@ export class ModelTradEditorComponent implements OnInit {
         };
         this.activatorRegistry.register(tabActivator);
 
-        // Activateur pour la sélection de vue
+        // Activator for views (e.g. ?view=list.form)
         const viewActivator = {
             type: 'view',
             queryParamKeys: ['view'],
@@ -157,7 +162,7 @@ export class ModelTradEditorComponent implements OnInit {
         };
         this.activatorRegistry.register(viewActivator);
 
-        // Activateur pour les tabs internes de vue (layout, actions, routes)
+        // Activator for internal view tabs (layout, actions, routes)
         const viewTabActivator = {
             type: 'viewTab',
             queryParamKeys: ['viewTab'],
@@ -182,7 +187,7 @@ export class ModelTradEditorComponent implements OnInit {
         };
         this.activatorRegistry.register(viewTabActivator);
 
-        // Activateur pour les champs (gère 'element' et 'field' comme aliases)
+        // Activator for fields (handles 'element' and 'field' as aliases)
         const fieldActivator = {
             type: 'field',
             queryParamKeys: ['element', 'field'],
@@ -228,10 +233,9 @@ export class ModelTradEditorComponent implements OnInit {
 
         await this.initTranslations();
 
-        // Initialiser la navigation par queryParams
+        // Initialize navigation activators after data is loaded to ensure they have the necessary context for validation and activation logic
         this.initializeNavigation();
 
-        // Souscrire aux changements de queryParams
         this.route.queryParams.subscribe(params => {
             if (Object.keys(params).length > 0) {
                 this.queryParamNavigator.handleQueryParams(params, {
@@ -246,6 +250,24 @@ export class ModelTradEditorComponent implements OnInit {
         });
 
         this.loading = false;
+        void this.fetchBackgroundData();
+    }
+
+    private async fetchBackgroundData(): Promise<void> {
+        if (this.backgroundPreloadStarted) {
+            return;
+        }
+
+        this.backgroundPreloadStarted = true;
+
+        try {
+            // Lazy-resolve provider so constructor-triggered preload starts only after critical editor data is ready.
+            if (!this.provider) {
+                this.provider = this.injector.get(EqualComponentsProviderService);
+            }
+        } catch (err) {
+            console.error('Error during background data fetching', err);
+        }
     }
 
     private fieldExists(lang: string | null | undefined, field: string): boolean {
@@ -289,6 +311,7 @@ export class ModelTradEditorComponent implements OnInit {
 
     async initTranslations() {
         this.loading = true;
+        this.backgroundTranslationsLoadStarted = false;
         this.data = {};
         const allData = await this.workbenchService.getTranslations(this.package_name, this.model_name).toPromise();
 
@@ -301,48 +324,63 @@ export class ModelTradEditorComponent implements OnInit {
         const langs = Object.keys(allData);
         const firstLang = langs[0] || null;
 
-        const fillLanguage = async (lang: string) => {
-            const newTranslation = await this.createNewLang();
-            if (!newTranslation.ok) { return null; }
-            this.data[lang] = newTranslation;
-
-            // Ensure error._base contains entries for all model fields according to the model template
-            this.ensureErrorBase(lang);
-
-            // Try to fetch the existing translation payload for this specific language.
-            // If it contains data, prefer it. Otherwise fall back to the previously fetched `allData`.
-            try {
-                const perLang = await this.workbenchService.getTranslationLanguages(this.package_name, this.model_name, lang).toPromise();
-                if (perLang && Object.keys(perLang).length > 0) {
-                    this.data[lang].fill(perLang);
-                    // Ensure any missing error entries are present after filling
-                    this.ensureErrorBase(lang);
-                    return this.data[lang];
-                }
-            } catch (e) {
-                // ignore and try fallback
-            }
-
-            if (allData && allData[lang]) {
-                this.data[lang].fill(allData[lang]);
-            }
-            return this.data[lang];
-        };
-
         if (firstLang) {
-            await fillLanguage(firstLang);
+            await this.fillLanguage(firstLang, allData);
             this.lang = firstLang;
             this.loading = false; // reveal UI as soon as first language is ready
             this.updateAvailableLanguages();
+
+            // Non-critical languages are loaded in background and do not block initialization.
+            void this.fetchRemainingTranslationsInBackground(langs, firstLang, allData);
         } else {
             this.loading = false;
             this.updateAvailableLanguages();
         }
+    }
+
+    private async fillLanguage(lang: string, allData: { [key: string]: any } | null | undefined): Promise<Translator | null> {
+        const newTranslation = await this.createNewLang();
+        if (!newTranslation.ok) { return null; }
+        this.data[lang] = newTranslation;
+
+        // Ensure error._base contains entries for all model fields according to the model template
+        this.ensureErrorBase(lang);
+
+        // Try to fetch the existing translation payload for this specific language.
+        // If it contains data, prefer it. Otherwise fall back to the previously fetched `allData`.
+        try {
+            const perLang = await this.workbenchService.getTranslationLanguages(this.package_name, this.model_name, lang).toPromise();
+            if (perLang && Object.keys(perLang).length > 0) {
+                this.data[lang].fill(perLang);
+                // Ensure any missing error entries are present after filling
+                this.ensureErrorBase(lang);
+                return this.data[lang];
+            }
+        } catch (e) {
+            // ignore and try fallback
+        }
+
+        if (allData && allData[lang]) {
+            this.data[lang].fill(allData[lang]);
+        }
+
+        return this.data[lang];
+    }
+
+    private async fetchRemainingTranslationsInBackground(langs: string[], firstLang: string | null, allData: { [key: string]: any } | null | undefined): Promise<void> {
+        if (this.backgroundTranslationsLoadStarted) {
+            return;
+        }
+
+        this.backgroundTranslationsLoadStarted = true;
 
         for (const lang of langs) {
-            if (lang === firstLang) continue;
-            await fillLanguage(lang);
+            if (lang === firstLang) { continue; }
+            await this.fillLanguage(lang, allData);
+            this.updateAvailableLanguages();
         }
+
+        this.cdr.detectChanges();
     }
 
     /**
