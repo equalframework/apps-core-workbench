@@ -15,7 +15,6 @@ import { EqualComponentsProviderService } from 'src/app/in/_services/equal-compo
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { NotificationService } from 'src/app/in/_services/notification.service';
-import { el } from 'date-fns/locale';
 
 /**
  * This component is used to display the list of all object
@@ -201,6 +200,8 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         this.elements = [...components];
         this.filteredData = this.elements;
         this.applyFilters();
+        console.log('Loaded components:', this.elements);
+        console.log('Selected node:', this.node_selected);
         setTimeout(() => this.scrollSelectedNodeIntoView(), 0);
     }
 
@@ -394,13 +395,17 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         this.onSearch();
     }
 
+    private normalizeNodeType(type?: string): string | undefined {
+        return type === 'model' ? 'class' : type;
+    }
+
     public areNodesEqual(node1?: EqualComponentDescriptor, node2?: EqualComponentDescriptor) {
-        if (node1?.type === 'model') {
-            node1.type = 'class';
-        }
+        const node1Type = this.normalizeNodeType(node1?.type);
+        const node2Type = this.normalizeNodeType(node2?.type);
+
         return (node1?.package_name === node2?.package_name &&
             node1?.name === node2?.name &&
-            node1?.type === node2?.type);
+            node1Type === node2Type);
     }
 
     public cloneNode(node: EqualComponentDescriptor): EqualComponentDescriptor {
