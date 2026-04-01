@@ -25,6 +25,7 @@ export class AppComponent implements OnInit {
     public fetch_error:boolean = false;
     public route_list:any = {};
     search_scope ='package'
+    search_scope ='all';
     search_filters: { [key: string]: string } = {};
     search_terms: string[] = [];
     public loading: boolean = false;
