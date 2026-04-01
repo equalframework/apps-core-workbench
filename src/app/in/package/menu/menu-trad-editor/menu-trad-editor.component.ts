@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, Injector } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormControl, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -46,6 +46,9 @@ export class MenuTradEditorComponent implements OnInit {
     private _menuMetadata: Map<string, any> = new Map(); // Maps menu item IDs to their metadata (type, icon, etc.)
     private _hierarchyMap: Map<string, string | null> = new Map(); // Maps item ID to parent ID (null for root items)
     private _childrenMap: Map<string, string[]> = new Map(); // Maps parent ID to array of children IDs
+    private backgroundTranslationsLoadStarted = false;
+    private backgroundPreloadStarted = false;
+    private provider: EqualComponentsProviderService | null = null;
     private activatorRegistry: QueryParamActivatorRegistry;
 
     constructor(
@@ -53,11 +56,11 @@ export class MenuTradEditorComponent implements OnInit {
         private router: Router,
         private workbenchService: WorkbenchService,
         private notificationService: NotificationService,
-        private provider: EqualComponentsProviderService,
         private dialog: MatDialog,
         private cdr: ChangeDetectorRef,
         private location: Location,
-        private queryParamNavigator: QueryParamNavigatorService
+        private queryParamNavigator: QueryParamNavigatorService,
+        private injector: Injector
     ) {
         this.activatorRegistry = new QueryParamActivatorRegistry();
     }
@@ -157,6 +160,24 @@ export class MenuTradEditorComponent implements OnInit {
         });
 
         this.loading = false;
+        void this.fetchBackgroundData();
+    }
+
+    private async fetchBackgroundData(): Promise<void> {
+        if (this.backgroundPreloadStarted) {
+            return;
+        }
+
+        this.backgroundPreloadStarted = true;
+
+        try {
+            // Lazy-resolve provider so constructor-triggered preload starts only after critical editor data is ready.
+            if (!this.provider) {
+                this.provider = this.injector.get(EqualComponentsProviderService);
+            }
+        } catch (err) {
+            console.error('Error during background data fetching', err);
+        }
     }
 
     private fieldExists(lang: string | null | undefined, field: string): boolean {
@@ -376,101 +397,122 @@ export class MenuTradEditorComponent implements OnInit {
 
     async initTranslations() {
         this.loading = true;
+        this.backgroundTranslationsLoadStarted = false;
         this.local_schema = {};
         this.checkedItems = {};
+        const existingTranslationLanguages: string[] = [];
+
         // Fetch existing languages
         try {
             const translationsByPackage = await this.workbenchService.getTranslationLanguagesByPackage(this.package_name).toPromise();
             for (const lang in translationsByPackage) {
                 if (translationsByPackage[lang].includes(`${this.package_name}_menu.${this.menu_name}`)) {
-                    this.availableLanguages.push(lang);
+                    existingTranslationLanguages.push(lang);
                 }
             }
         } catch (e) {
             console.warn('Failed to fetch available translation languages for package:', e);
-            this.availableLanguages = [];
-        }
-        // Fetch existing partial translations for each available language
-        for (const lang of this.availableLanguages) {
-            try {
-                const partialData: any = await this.workbenchService.getMenuTranslationsList(this.package_name, this.menu_name, lang).toPromise();
-                
-                // Create a fresh Translator with all schema items
-                const translator = await this.createNewMenuLang();
-                if (!translator.ok) {
-                    console.warn(`Translator not OK for language ${lang}`);
-                    continue;
-                }
-
-                // Merge partial translations into the fresh translator (making a local schema)
-                if (partialData) {
-                    try {
-                        // Fill name and description from partial data
-                        if (partialData.name) {
-                            translator.name.value = partialData.name;
-                        }
-                        if (partialData.description) {
-                            translator.description.value = partialData.description;
-                        }
-
-                // Manually merge view labels from partial data into translator's view.menu.layout
-                        if (partialData.view && translator.view && translator.view['menu'] && translator.view['menu'].layout) {
-                            const partialView = partialData.view;
-                            const translatorLayout = translator.view['menu'].layout;
-                            
-                            const mergedItems: string[] = [];
-                            const skippedItems: string[] = [];
-                            
-                            // For each item in the partial data, merge its label into the translator
-                            for (const itemId in partialView) {
-                                if (partialView[itemId]?.label) {
-                                    // Update the label value if the item exists in translator layout
-                                    if (translatorLayout[itemId] && translatorLayout[itemId].label) {
-                                        translatorLayout[itemId].label.value = partialView[itemId].label;
-                                        mergedItems.push(itemId);
-                                    } else {
-                                        skippedItems.push(itemId);
-                                    }
-                                }
-                            }
-                            
-                            if (skippedItems.length > 0) {
-                                console.warn(`For language ${lang}, skipped merging ${skippedItems.length} items not found in translator layout:`, skippedItems);
-                                console.warn(`Available items in translator layout:`, Object.keys(translatorLayout));
-                            }
-                        }
-                    } catch (e) {
-                        console.warn(`Failed to merge partial translation for ${lang}:`, e);
-                    }
-                }
-
-                // Initialize checked items set for this language
-                this.checkedItems[lang] = new Set<string>();
-                
-                // Mark items as checked if they have a translation value
-                this._markCheckedItemsForLanguage(lang, translator);
-
-                this.local_schema[lang] = translator;
-            } catch (e) {
-                console.warn(`Failed to load translations for language ${lang}:`, e);
-            }
-        }
-
-        if (!this.local_schema || Object.keys(this.local_schema).length === 0) {
             this.loading = false;
             this.updateAvailableLanguages();
             return;
         }
 
-        const firstLang = this.availableLanguages[0] || null;
+        if (existingTranslationLanguages.length === 0) {
+            this.loading = false;
+            this.updateAvailableLanguages();
+            return;
+        }
+
+        const firstLang = existingTranslationLanguages[0] || null;
         if (firstLang) {
+            await this.loadSingleLanguageTranslation(firstLang);
             this.lang = firstLang;
             this.loading = false; // Reveal UI as soon as first language is ready
             this.updateAvailableLanguages();
+            void this.fetchRemainingTranslationsInBackground(existingTranslationLanguages, firstLang);
         } else {
             this.loading = false;
             this.updateAvailableLanguages();
         }
+    }
+
+    private async loadSingleLanguageTranslation(lang: string): Promise<void> {
+        try {
+            const partialData: any = await this.workbenchService.getMenuTranslationsList(this.package_name, this.menu_name, lang).toPromise();
+
+            // Create a fresh Translator with all schema items
+            const translator = await this.createNewMenuLang();
+            if (!translator.ok) {
+                console.warn(`Translator not OK for language ${lang}`);
+                return;
+            }
+
+            // Merge partial translations into the fresh translator (making a local schema)
+            if (partialData) {
+                try {
+                    // Fill name and description from partial data
+                    if (partialData.name) {
+                        translator.name.value = partialData.name;
+                    }
+                    if (partialData.description) {
+                        translator.description.value = partialData.description;
+                    }
+
+                    // Manually merge view labels from partial data into translator's view.menu.layout
+                    if (partialData.view && translator.view && translator.view['menu'] && translator.view['menu'].layout) {
+                        const partialView = partialData.view;
+                        const translatorLayout = translator.view['menu'].layout;
+
+                        const skippedItems: string[] = [];
+
+                        // For each item in the partial data, merge its label into the translator
+                        for (const itemId in partialView) {
+                            if (partialView[itemId]?.label) {
+                                // Update the label value if the item exists in translator layout
+                                if (translatorLayout[itemId] && translatorLayout[itemId].label) {
+                                    translatorLayout[itemId].label.value = partialView[itemId].label;
+                                } else {
+                                    skippedItems.push(itemId);
+                                }
+                            }
+                        }
+
+                        if (skippedItems.length > 0) {
+                            console.warn(`For language ${lang}, skipped merging ${skippedItems.length} items not found in translator layout:`, skippedItems);
+                            console.warn('Available items in translator layout:', Object.keys(translatorLayout));
+                        }
+                    }
+                } catch (e) {
+                    console.warn(`Failed to merge partial translation for ${lang}:`, e);
+                }
+            }
+
+            // Initialize checked items set for this language
+            this.checkedItems[lang] = new Set<string>();
+
+            // Mark items as checked if they have a translation value
+            this._markCheckedItemsForLanguage(lang, translator);
+
+            this.local_schema[lang] = translator;
+        } catch (e) {
+            console.warn(`Failed to load translations for language ${lang}:`, e);
+        }
+    }
+
+    private async fetchRemainingTranslationsInBackground(langs: string[], firstLang: string | null): Promise<void> {
+        if (this.backgroundTranslationsLoadStarted) {
+            return;
+        }
+
+        this.backgroundTranslationsLoadStarted = true;
+
+        for (const lang of langs) {
+            if (lang === firstLang) { continue; }
+            await this.loadSingleLanguageTranslation(lang);
+            this.updateAvailableLanguages();
+        }
+
+        this.cdr.detectChanges();
     }
 
     reload(): void {
