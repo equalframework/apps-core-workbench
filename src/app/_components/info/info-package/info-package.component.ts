@@ -7,9 +7,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { InitValidatorComponent } from './_components/init-validator/init-validator.component';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
 import { Observable, of, Subject } from 'rxjs';
-import { catchError, finalize, takeUntil, tap } from 'rxjs/operators';
+import { catchError, finalize, shareReplay, takeUntil, tap } from 'rxjs/operators';
 import { PackageSummary } from 'src/app/in/_models/package-info.model';
 import {RouterMemory} from 'src/app/_services/routermemory.service';
+import { JsonValidationService, ValidationStatusInfo } from 'src/app/in/_services/json-validation.service';
 
 class ConsistencyResultItem {
     constructor(
@@ -66,12 +67,14 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
     public navigationButtons: InfoSubHeaderButton[] = [];
     public actionButtons: InfoSubHeaderButton[] = [];
     public headerExtraInfo: { label: string, value: string, icon?: string }[] = [];
+    public validationStatus: ValidationStatusInfo[] = [];
 
     public get headerStatus(): { icon?: string, tooltip?: string, label: string, value: string }[] {
         const consistencyLabel = this.consistency_loading ? 'Checking...' : (this.consistency_checked ? `${this.error_count} errors, ${this.warn_count} warnings` : 'Not checked');
         const initializedLabel = Array.isArray(this.package_init_list) && this.package_init_list.includes(this.package.name) ? 'Yes' : 'No';
         return [
             { label: 'Consistency', value: consistencyLabel, icon: this.consistency_checked ? 'check_circle' : (this.consistency_loading ? 'hourglass_top' : 'info') },
+            ...this.validationStatus,
             { label: 'Initialized', value: initializedLabel, icon: Array.isArray(this.package_init_list) && this.package_init_list.includes(this.package.name) ? 'check_circle' : 'error' }
         ];
     }
@@ -80,7 +83,8 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
             private snackBar: MatSnackBar,
             private workbenchService: WorkbenchService,
             private matDialog: MatDialog,
-            private router: RouterMemory
+            private router: RouterMemory,
+            private jsonValidationService: JsonValidationService
         ) { }
 
     ngOnDestroy(): void {
@@ -90,21 +94,69 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.resetConsistencyState();
-        this.current_initialized = Array.isArray(this.package_init_list) && this.package_init_list.includes(this.package.name);
-        this.loadPackage(this.package.name)
+        // TODO: fetch initialized packages and set current_initialized accordingly
+        this.loadInitializedPackages().subscribe((initializedPackages) => {
+            this.current_initialized = Array.isArray(initializedPackages) && initializedPackages.includes(this.package.name);
+            this.package_init_list = initializedPackages; // Store the list for future reference
+        });
+        console.log('Initializing InfoPackageComponent with package:', this.package, 'and init list:', this.package_init_list);
+        this.loadPackage();
         this.buildNavigationButtons();
         this.buildHeaderExtraInfo();
     }
 
-    loadPackage(packageName: string) {
-        this.packageInfos$ = this.workbenchService.readPackage(packageName);
+    loadInitializedPackages(): Observable<string[]> {
+        return this.workbenchService.getInitializedPackages().pipe(
+            takeUntil(this.destroy$),
+            catchError((error) => {
+                console.error('Error fetching initialized packages:', error);
+                this.snackBar.open('Error fetching initialized packages', 'Close', { duration: 3000 });
+                return of([]); // Return an empty array on error
+            }),
+            shareReplay(1)
+        );
+    }
+
+    loadPackage() {
+        console.log('Loading package info for:', this.package.name);
+        this.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', null, true);
+        this.packageInfos$ = this.workbenchService.readPackage(this.package.name).pipe(
+            shareReplay(1),
+            takeUntil(this.destroy$)
+        );
+        this.packageInfos$.subscribe({
+            next: (payload) => {
+                console.log('Package info loaded:', payload);
+                this.jsonValidationService.validate(
+                    payload.response,
+                    'urn:equal:json-schema:core:package',
+                    this.package.name
+                ).pipe(takeUntil(this.destroy$)).subscribe({
+                    next: (result) => {
+                        this.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', result);
+                    },
+                    error: () => {
+                        this.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', null, false, 'Unable to validate package');
+                    }
+                });
+            },
+            error: () => {
+                this.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', null, false, 'Unable to load package');
+            }
+        });
     }
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes.package) {
+            if (changes.package.firstChange) {
+                return;
+            }
+
+            console.log('Package input changed:', this.package?.name);
+            // Cancel previous in-flight requests before starting new package load.
+            this.destroy$.next();
             this.resetConsistencyState();
-            this.loadPackage(this.package.name)
-            this.destroy$.next()
+            this.loadPackage();
             this.buildNavigationButtons();
             this.buildHeaderExtraInfo();
         }
@@ -153,7 +205,9 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
         this.error_count = 0;
         this.error_list = [];
         this.consistency_checked = false;
-        this.current_initialized = Array.isArray(this.package_init_list) && this.package_init_list.includes(this.package.name);
+        this.loadInitializedPackages().subscribe((initializedPackages) => {
+            this.current_initialized = Array.isArray(initializedPackages) && initializedPackages.includes(this.package.name);
+        });
     }
 
     public selectConsistencyResultItem(item: ConsistencyResultItem): void {
@@ -181,7 +235,7 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
                 this.info_popup = true;
                 this.consistency_loading = false;
                 this.consistency_checked = true;
-            })
+            }),
         ).subscribe();
     }
 
