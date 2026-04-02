@@ -49,7 +49,7 @@ export class PackageViewComponent implements OnInit {
 
     collect_controller: string[] = ["core_model_collect"];
     action_controllers: string[];
-    
+
     // Tab management
     selectedTabIndex: number = 0;
     private tabNameToIndexMap: { [key: string]: number } = {
@@ -60,7 +60,6 @@ export class PackageViewComponent implements OnInit {
       'advanced': 4
     };
     
-    // Fragment Navigation
     // Navigation
     private queryParamActivatorRegistry: QueryParamActivatorRegistry;
 
@@ -78,83 +77,104 @@ export class PackageViewComponent implements OnInit {
     ) { }
 
     async ngOnInit() {
-        // Initialiser le registre des activateurs pour la navigation par fragment
-        this.initializeFragmentNavigation();
         this.initializeNavigation();
         
-        // Charger les données de la view
         await this.init();
     }
 
     async init() {
-        // Extract parameters from the route
+        this.loading = true;
+        this.error = false;
+        this.collect_controller = ["core_model_collect"];
+        this.action_controllers = [];
+        this.groups = [];
+
         const package_name = this.route.snapshot.paramMap.get('package_name');
         const entityView = this.route.snapshot.params['entity_view'];
-        const [entityName, rest] = entityView.split(':');   // ['Post', 'default.form']
-        const [viewType, viewName] = rest.split('.');        // ['default', 'form']
+        const [entityName, rest] = entityView.split(':');
+        const [viewType, viewName] = rest.split('.');
 
         this.icontype = this.TypeUsage.typeIcon;
-        console.log("Route", this.route);
-        console.log("Route params:", { package_name, entityName, viewType, viewName });
 
-        if (package_name && entityName && viewType && viewName) {
-            this.name = viewName;
-            this.entity = entityName;
-            this.viewId = viewType + "." + viewName;
+        if (!package_name || !entityName || !viewType || !viewName) return;
 
-            console.log("Fetching component with parameters:", { viewType, viewName });
+        this.name = viewName;
+        this.entity = entityName;
+        this.viewId = viewType + "." + viewName;
 
-            this.provider.getComponent(package_name, 'view', this.entity, (this.entity + ":" + this.viewId)).subscribe(async (compo) => {
-                if (compo) {
-                    this.node = compo;
-                    try {
-                        this.class_scheme = await this.workbenchService.getSchema(`${this.node.package_name}\\${this.entity}`).toPromise() || { fields: {} };
-                        this.fields = this.obk(this.class_scheme.fields);
-                        this.viewScheme = (await this.workbenchService.readView(this.node.package_name, this.viewId, this.entity).toPromise());
-                        const nodeNameParts = this.node.name ? this.node.name.split(':') : [];
-                        const viewNamePart = (nodeNameParts.length > 1 && nodeNameParts[1])
-                            ? nodeNameParts[1].split('.')[0]
-                            : '';
-                        this.viewObj = new View(this.viewScheme, viewNamePart);
-                        console.log("View object initialized:", this.class_scheme, this.fields, this.viewObj);
-                        let temp_controller = await this.workbenchService.collectControllers('data', package_name).toPromise();
-                        for (let item of temp_controller) {
-                            let data = await this.workbenchService.announceController(item).toPromise();
-                            if (!data) continue;
-                            if (!data["announcement"]["extends"] || data["announcement"]["extends"] !== "core_model_collect") continue;
-                            this.collect_controller.push(item);
-                        }
+        try {
+            // Phase 1 : données essentielles chargées en parallèle
+            const [compo, schema, viewScheme] = await Promise.all([
+                this.provider.getComponent(package_name, 'view', this.entity, (this.entity + ":" + this.viewId)).toPromise(),
+                this.workbenchService.getSchema(`${package_name}\\${entityName}`).toPromise(),
+                this.workbenchService.readView(package_name, this.viewId, entityName).toPromise()
+            ]);
 
-                        this.action_controllers = await this.workbenchService.collectControllers('actions').toPromise();
-                        this.workbenchService.getCoreGroups().toPromise().then(data => {
-                            for (let key in data) {
-                                this.groups.push(data[key]['name']);
-                            }
-                        });
+            if (!compo) {
+                console.warn('Component not found.');
+                this.loading = false;
+                return;
+            }
 
-                        // Handle URL query parameters for deep linking to specific tabs or sections
-                        this.route.queryParams.subscribe(params => {
-                            if (Object.keys(params).length > 0 && this.queryParamActivatorRegistry) {
-                                this.queryParamNavigator.handleQueryParams(params, {
-                                    activators: this.queryParamActivatorRegistry,
-                                    context: this,
-                                    elementKeys: ['element'],
-                                    scrollDelay: 100
-                                });
-                            }
-                        });
-                        this.loading = false;
-                    } catch (err) {
-                        this.error = true;
-                        this.loading = false;
-                    }
-                } else {
-                    console.warn('Component not found.');
-                    this.loading = false;
+            this.node = compo;
+            this.class_scheme = schema || { fields: {} };
+            this.fields = this.obk(this.class_scheme.fields);
+            this.viewScheme = viewScheme;
+
+            const nodeNameParts = this.node.name ? this.node.name.split(':') : [];
+            const viewNamePart = (nodeNameParts.length > 1 && nodeNameParts[1])
+                ? nodeNameParts[1].split('.')[0]
+                : '';
+            this.viewObj = new View(this.viewScheme, viewNamePart);
+
+            // Afficher l'UI dès que les données essentielles sont prêtes
+            this.loading = false;
+
+            // Souscription aux query params (après chargement)
+            this.route.queryParams.subscribe(params => {
+                if (Object.keys(params).length > 0 && this.queryParamActivatorRegistry) {
+                    this.queryParamNavigator.handleQueryParams(params, {
+                        activators: this.queryParamActivatorRegistry,
+                        context: this,
+                        elementKeys: ['element'],
+                        scrollDelay: 100
+                    });
                 }
             });
-        }
 
+            // Phase 2 : données secondaires chargées en arrière-plan (non bloquant)
+            this.loadSecondaryData(package_name);
+        } catch (err) {
+            this.error = true;
+            this.loading = false;
+        }
+    }
+
+    private async loadSecondaryData(package_name: string): Promise<void> {
+        try {
+            const [temp_controllers, action_controllers, groupsData] = await Promise.all([
+                this.workbenchService.collectControllers('data', package_name).toPromise(),
+                this.workbenchService.collectControllers('actions').toPromise(),
+                this.workbenchService.getCoreGroups().toPromise()
+            ]);
+
+            const announcements = await Promise.all(
+                temp_controllers.map(item => this.workbenchService.announceController(item).toPromise())
+            );
+            for (let i = 0; i < temp_controllers.length; i++) {
+                const data = announcements[i];
+                if (!data) continue;
+                if (!data["announcement"]["extends"] || data["announcement"]["extends"] !== "core_model_collect") continue;
+                this.collect_controller.push(temp_controllers[i]);
+            }
+
+            this.action_controllers = action_controllers;
+            for (const key in groupsData) {
+                this.groups.push(groupsData[key]['name']);
+            }
+        } catch (err) {
+            console.warn('Failed to load secondary data:', err);
+        }
     }
 
     /**
@@ -192,7 +212,7 @@ export class PackageViewComponent implements OnInit {
             }else{
                 this.notificationService.showError(result.message);
             }
-        });
+        );
     }
 
     cancel() {
@@ -200,17 +220,8 @@ export class PackageViewComponent implements OnInit {
             await this.init();
             this.snackBar.open("Changes canceled", '', {
                 duration: 1000,
-                horizontalPosition: 'left',
-                verticalPosition: 'bottom'
             });
-        }, 1500);
-        this.snackBar.open("Canceling...", 'Cancel', {
-            duration: 1500,
-            horizontalPosition: 'left',
-            verticalPosition: 'bottom'
-        }).onAction().subscribe(() => {
-            clearTimeout(timerId);
-        });
+        }, 0);
     }
 
     handleCustomButton(name:string) {
@@ -221,21 +232,15 @@ export class PackageViewComponent implements OnInit {
     }
 
     /**
-     * Initialise le registre des activateurs pour la navigation par queryParams
-     * Configure les activateurs disponibles (tabs, menus, etc.)
      * Initialize the registry of activators for query param navigation
+     * Configure the available activators (tabs, menus, etc.)
      */
-    private initializeFragmentNavigation(): void {
     private initializeNavigation(): void {
         this.queryParamActivatorRegistry = new QueryParamActivatorRegistry();
         
-        // Enregistrer l'activateur de tabs
         // Register a tab activator that listens to 'selectedTab' query param and activates the corresponding tab
         const tabActivator = new QueryParamTabActivator(this.tabNameToIndexMap, 'selectedTabIndex');
         this.queryParamActivatorRegistry.register(tabActivator);
-        
-        // Les autres activateurs (menus, expansibles) peuvent être enregistrés
-        // par les sous-composants via une injection du registre
     }
 
     ToNameDisp(name:string):string {

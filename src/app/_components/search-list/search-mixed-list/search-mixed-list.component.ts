@@ -12,9 +12,10 @@ import { DeleteConfirmationDialogComponent } from 'src/app/_dialogs/delete-confi
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
 import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
-import { Subject } from 'rxjs';
+import { fromEvent, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { NotificationService } from 'src/app/in/_services/notification.service';
+import { buildNodeIdentifier, reducePathIteratively } from './search-mixed-list-label.util';
 
 /**
  * This component is used to display the list of all object
@@ -32,6 +33,7 @@ import { NotificationService } from 'src/app/in/_services/notification.service';
 export class SearchMixedListComponent implements OnInit, OnDestroy {
     private destroy$: Subject<boolean> = new Subject<boolean>();
     @ViewChildren('nodeDisplay') private nodeDisplayElements!: QueryList<ElementRef<HTMLElement>>;
+    @ViewChildren('nodeName') private nodeNameElements!: QueryList<ElementRef<HTMLElement>>;
 
     // Selected node of the list (consistent with node_type, if provided): parent might force the selection of a node (goto)
     @Input() node_selected?: EqualComponentDescriptor;
@@ -82,6 +84,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     public search_scope: string = "";
     public search_filters: { [key: string]: string } = {};
     public search_terms: string[] = [];
+    public reducedNodeLabels: { [key: string]: string } = {};
 
     // used to render info about components present in filteredData (or data)
     public type_dict: { [id: string]: { icon: string, disp: string } } = ItemTypes.typeDict;
@@ -158,6 +161,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
 
             filtered = this.rankResults(filtered, this.search_terms);
             this.filteredData = filtered;
+            this.refreshReducedNodeLabels();
             setTimeout(() => this.scrollSelectedNodeIntoView(), 0);
         });
     }
@@ -200,7 +204,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         this.elements = [...components];
         this.filteredData = this.elements;
         this.applyFilters();
-        console.log('Loaded components:', this.elements);
+        this.refreshReducedNodeLabels();
         console.log('Selected node:', this.node_selected);
         setTimeout(() => this.scrollSelectedNodeIntoView(), 0);
     }
@@ -244,10 +248,23 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         });
         filtered = this.rankResults(filtered, this.search_terms);
         this.filteredData = filtered;
+        this.refreshReducedNodeLabels();
         this.searchScopeChange.emit(this.search_scope);
         this.searchFiltersChange.emit(this.search_filters);
         this.searchTermsChange.emit(this.search_terms);
         setTimeout(() => this.scrollSelectedNodeIntoView(), 0);
+    }
+
+    ngAfterViewInit(): void {
+        this.nodeNameElements.changes
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(() => this.refreshReducedNodeLabels());
+
+        fromEvent(window, 'resize')
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(() => this.refreshReducedNodeLabels());
+
+        setTimeout(() => this.refreshReducedNodeLabels(), 0);
     }
 
     private scrollSelectedNodeIntoView(): void {
@@ -552,6 +569,8 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
                 return "View - packages/" + node.package_name + "/views/" + splitted_name.slice(1).join("/").replace(":", ".");
             case "route":
                 return "Route - packages/" + node.package_name + node.file;
+            case "menu":
+                return "Menu - packages/" + node.package_name + "/menus/" + node.name;
             default:
                 return "";
         }
@@ -631,6 +650,40 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
             const scoreB = this.calculateRelevanceScore(b, terms);
             return scoreB - scoreA;
         });
+    }
+
+    public getNodeDisplayLabel(node: EqualComponentDescriptor, index: number): string {
+        const key = this.getNodeKey(node);
+        const existing = this.reducedNodeLabels[key];
+        if (existing) {
+            return existing;
+        }
+
+        const hostElement = this.nodeNameElements?.toArray?.()[index]?.nativeElement;
+        const reduced = reducePathIteratively(buildNodeIdentifier(node), hostElement, node.name);
+        this.reducedNodeLabels[key] = reduced;
+        return reduced;
+    }
+
+    private refreshReducedNodeLabels(): void {
+        if (!this.filteredData?.length) {
+            this.reducedNodeLabels = {};
+            return;
+        }
+
+        const nextLabels: { [key: string]: string } = {};
+        const nameElements = this.nodeNameElements?.toArray?.() ?? [];
+
+        this.filteredData.forEach((node, index) => {
+            const hostElement = nameElements[index]?.nativeElement;
+            nextLabels[this.getNodeKey(node)] = reducePathIteratively(buildNodeIdentifier(node), hostElement, node.name);
+        });
+
+        this.reducedNodeLabels = nextLabels;
+    }
+
+    private getNodeKey(node: EqualComponentDescriptor): string {
+        return `${node.package_name || ''}|${node.type || ''}|${node.name || ''}`;
     }
 
     private calculateRelevanceScore(element: EqualComponentDescriptor, terms: string[]): number {
