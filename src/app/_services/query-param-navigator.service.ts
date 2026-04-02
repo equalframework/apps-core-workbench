@@ -65,6 +65,7 @@ export class QueryParamNavigatorService {
   private focusableFields: Map<string, HTMLElement> = new Map();
 
   private focusableFieldTags = ['INPUT', 'SELECT', 'TEXTAREA', 'BUTTON', 'MAT-CHECKBOX', 'TYPE-INPUT', 'MAT-SELECT']; // Allow custom components like app-item-editor as focusable fields
+  private focusableFieldTags = ['INPUT', 'SELECT', 'TEXTAREA', 'BUTTON', 'MAT-CHECKBOX', 'TYPE-INPUT', 'MAT-SELECT', 'APP-FIELD-AUTOCOMPLETE']; // Allow custom components hosts that expose focusable children
 
   // Default scroll options if not provided in config
   private defaultScrollOptions: ScrollIntoViewOptions = {
