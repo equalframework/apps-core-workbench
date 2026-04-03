@@ -354,6 +354,7 @@ export class WorkbenchService {
                 const packageInfo: PackageInfos = response;
 
                 const transformedResponse: PackageSummary = {
+                    name: packageInfo.name,
                     description: packageInfo.description,
                     version: packageInfo.version,
                     authors: packageInfo.authors,
