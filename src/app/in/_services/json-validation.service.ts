@@ -3,6 +3,7 @@ import { Observable, of, throwError } from 'rxjs';
 import { map, catchError, shareReplay } from 'rxjs/operators';
 import { ApiService } from 'sb-shared-lib';
 import { API_ENDPOINTS } from '../_models/api-endpoints';
+import { NotificationService } from './notification.service';
 
 /**
  * JSON Schema Validation Service
@@ -40,7 +41,52 @@ export type SchemaType = 'view' | 'field' | 'action' | 'policy' | 'role' | 'work
 })
 export class JsonValidationService {
 
-    constructor(private api: ApiService) { }
+    constructor(private api: ApiService, private notificationService: NotificationService) { }
+
+    /**
+     * Validate JSON against a schema, then call a save function if valid.
+     * Handles isSaving state, notifications on success/failure/error.
+     *
+     * @param validate$ - Observable from any validateXxx() method
+     * @param saveFn - Factory returning the save Observable (called only if validation passes)
+     * @param setIsSaving - Callback to toggle the component's isSaving flag
+     */
+    public validateAndSave(
+        validate$: Observable<ValidationResult>,
+        saveFn: () => Observable<{ success: boolean; message: string }>,
+        setIsSaving: (saving: boolean) => void
+    ): void {
+        setIsSaving(true);
+        validate$.subscribe(
+            (validationResult) => {
+                if (validationResult.valid) {
+                    saveFn().subscribe(
+                        (result) => {
+                            setIsSaving(false);
+                            if (result.success) {
+                                this.notificationService.showSuccess(result.message);
+                            } else {
+                                this.notificationService.showError(result.message);
+                            }
+                        },
+                        (error) => {
+                            setIsSaving(false);
+                            this.notificationService.showError('Save error: ' + (error.message || 'Unknown error'));
+                        }
+                    );
+                } else {
+                    setIsSaving(false);
+                    const summary = this.getErrorSummary(validationResult);
+                    const details = this.formatErrorsForDisplay(validationResult.errors);
+                    this.notificationService.showError(summary + '\n\n' + details);
+                }
+            },
+            (error) => {
+                setIsSaving(false);
+                this.notificationService.showError('Validation error: ' + (error.message || 'Failed to validate'));
+            }
+        );
+    }
 
     /**
      * Validate JSON against a schema
