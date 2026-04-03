@@ -24,7 +24,6 @@ export class AppComponent implements OnInit {
     public selected_type_controller:string = '';
     public fetch_error:boolean = false;
     public route_list:any = {};
-    search_scope ='package'
     search_scope ='all';
     search_filters: { [key: string]: string } = {};
     search_terms: string[] = [];
