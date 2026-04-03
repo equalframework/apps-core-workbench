@@ -9,6 +9,8 @@ import { EnvService } from 'sb-shared-lib';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
+import { JsonValidationService, ValidationStatusInfo } from 'src/app/in/_services/json-validation.service';
+import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
 
 @Component({
     selector: 'info-controller',
@@ -52,6 +54,7 @@ export class InfoControllerComponent implements OnInit, OnChanges {
 
     public announcement: any = {};
     public schema: any = {};
+    private controllerProperties: EqualComponentDescriptor | null = null;
     public metaData: {
         icon: string;
         tooltip: string;
@@ -59,6 +62,8 @@ export class InfoControllerComponent implements OnInit, OnChanges {
         copyable?: boolean;
         double_backslash?:boolean
       }[];
+
+        public validationStatus: ValidationStatusInfo[] = [];
 
     public loading: boolean = true;
 
@@ -96,14 +101,27 @@ export class InfoControllerComponent implements OnInit, OnChanges {
         ];}
     }
 
+    public get combinedStatus(): { icon?: string, tooltip?: string, label: string, value: string }[] {
+        const hasSchema = !!this.schema && Object.keys(this.schema).length > 0;
+        if ([...this.headerStatus, ...this.validationStatus].length === 1 && !hasSchema) {
+            return [{ icon: 'error', label: 'Error fetching', value: 'Unknown error occurred', tooltip: 'An error occurred while fetching the controller information. This might be due to restricted visibility or an unexpected issue.' }];
+        }
+        if (!hasSchema) {
+            return this.headerStatus;
+        }
+        return [...this.headerStatus, ...this.validationStatus];
+    }
+
     constructor(
             private snackBar: MatSnackBar,
             private workbenchService: WorkbenchService,
+            private jsonValidationService: JsonValidationService,
             public dialog: MatDialog,
             private router: RouterMemory,
             private clipboard: Clipboard,
             private typeUsage: TypeUsageService,
-            private env: EnvService
+            private env: EnvService,
+            private provider: EqualComponentsProviderService
         ) { }
 
     private isObject(value: any): value is object {
@@ -141,20 +159,46 @@ export class InfoControllerComponent implements OnInit, OnChanges {
         this.loading = true;
         try {
             const operation_name = this.controller.name;
-            const response = await this.workbenchService.announceController(this.controller.type, this.controller_package + '_' + operation_name).toPromise();
-
+            const [response, properties] = await Promise.all([
+                this.workbenchService.announceController(this.controller.type, this.controller_package + '_' + operation_name).toPromise(),
+                this.provider.getComponent(this.controller_package, 'controller', '', this.controller.name).toPromise()
+            ]);
+            this.controllerProperties = properties ?? this.controller ?? null;
             this.metaData =[
                 { icon: 'key', tooltip: 'ID', value: this.controller_name, copyable:true },
                 ]
             this.announcement = response?.announcement;
-            this.schema = this.announcement?.params ?? {};
+
+            this.schema = this.announcement ?? {};
+            this.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', null, true);
             this.initialization();
+            if (this.announcement) {
+                this.validateSchema();
+            }
         }
         catch(response) {
-            console.log('unexpected error - restricted visibility?', response);
+            this.announcement = null;
+            this.controllerProperties = null;
+            this.schema = null;
+            this.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', null, false, 'Unable to load controller schema');
         }
         // #memo - all controllers are expected to be open source, so there is no point in rejecting announce for private controllers
         this.loading = false;
+    }
+
+    private validateSchema(): void {
+        const controllerDocument = this.getControllerDocument();
+        if (!controllerDocument) {
+            this.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', null, false, 'Unable to build controller payload');
+            return;
+        }
+        this.jsonValidationService.validate(
+            controllerDocument,
+            'urn:equal:json-schema:core:controller',
+            this.controller_package
+        ).subscribe((result) => {
+            this.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', result);
+        });
     }
 
     /**
@@ -436,26 +480,23 @@ export class InfoControllerComponent implements OnInit, OnChanges {
         this.viewMode = mode;
     }
 
+    private getControllerDocument(): any | null {
+        if (!this.controllerProperties || !this.announcement) {
+            return null;
+        }
+
+        return {
+            ...this.controllerProperties,
+            announcement: this.announcement
+        };
+    }
+
     public getControllerJson() {
-        return prettyPrintJson.toHtml({
-            name: this.controller_name,
-            type: this.controller_type,
-            package: this.controller_package,
-            access: this.announcement?.access,
-            response: this.announcement?.response,
-            params: this.announcement?.params
-        });
+        return prettyPrintJson.toHtml(this.getControllerDocument() ?? {});
     }
 
     public cpyControllerJson() {
-        const jsonObj = {
-            name: this.controller_name,
-            type: this.controller_type,
-            package: this.controller_package,
-            access: this.announcement?.access,
-            response: this.announcement?.response,
-            params: this.announcement?.params
-        };
+        const jsonObj = this.getControllerDocument() ?? {};
         let success = this.clipboard.copy(JSON.stringify(jsonObj, null, 2));
         this.successCopyClipboard(success);
     }
