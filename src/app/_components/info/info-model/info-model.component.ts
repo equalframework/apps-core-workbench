@@ -4,6 +4,7 @@ import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { InfoSubHeaderButton } from '../info-sub-header/info-sub-header.component';
 import { MatSort, Sort } from '@angular/material/sort';
+import { JsonValidationService, ValidationStatusInfo } from 'src/app/in/_services/json-validation.service';
 
 @Component({
     selector: 'info-model',
@@ -30,6 +31,7 @@ export class InfoModelComponent implements OnInit, OnChanges {
     public fields: string[] = [];
     public sortedFields: string[] = [];
     metaData: any;
+    public validationStatus: ValidationStatusInfo[] = [];
     public iconList: { [id: string]: string } = {
         'string':       'format_quote',
         'integer':      '123',
@@ -58,6 +60,7 @@ export class InfoModelComponent implements OnInit, OnChanges {
     constructor(
             private workbenchService: WorkbenchService,
             private router: RouterMemory,
+            private jsonValidationService: JsonValidationService,
         ) { }
 
     public ngOnInit() {
@@ -123,12 +126,24 @@ export class InfoModelComponent implements OnInit, OnChanges {
             this.schema = data;
             this.fields = Object.keys(this.schema['fields']);
             this.sortedFields = [...this.fields];
+            this.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', null, true);
+            this.validateSchema();
             this.loading = false;
             this.metaData =[
                 { icon: 'description', tooltip: 'File path', value: '../classes/' + this.model.name + '.php' , copyable: true },
                 { icon: 'fork_right', tooltip: 'Extends', value: this.schema['parent'] },
                 { icon: 'grid_on', tooltip: 'DB_table', value: this.schema['table'], copyable: true },
             ]
+        });
+    }
+
+    private validateSchema(): void {
+        this.jsonValidationService.validate(
+            this.schema,
+            'urn:equal:json-schema:core:model',
+            this.model?.package_name
+        ).subscribe((result) => {
+            this.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', result);
         });
     }
 
