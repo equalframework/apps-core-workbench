@@ -6,6 +6,7 @@
             [copyText]="viewSchema['name'] || view.name"
             [description]="viewSchema['description']"
             [metaData]="metaData"
+            [statusInfo]="validationStatus"
             (editClick)="onclickEdit()"
             (translationClick)="onclickTranslations()">
         </app-info-header>
