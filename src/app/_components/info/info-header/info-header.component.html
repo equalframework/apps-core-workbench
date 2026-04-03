@@ -56,9 +56,21 @@
     <div class="info-header-row info-header-status" *ngIf="statusInfo && statusInfo.length > 0">
         <div class="info-header-status-item" *ngFor="let s of statusInfo"
              [ngClass]="{'status-error': s.icon === 'error', 'status-ok': s.icon === 'check_circle'}">
-            <mat-icon *ngIf="s.icon" matTooltip="{{ s.tooltip }}">{{ s.icon }}</mat-icon>
-            <span class="status-label">{{ s.label }}:</span>
-            <span class="status-value">{{ s.value }}</span>
+            <div class="status-left">
+                <mat-icon *ngIf="s.icon" matTooltip="{{ s.tooltip }}">{{ s.icon }}</mat-icon>
+                <span class="status-label">{{ s.label }}:</span>
+                <span class="status-value">{{ s.value }}</span>
+            </div>
+            <div class="status-errors-col" *ngIf="s.code?.length">
+                <ng-container *ngFor="let code of s.code; let i = index" >
+                    <div class="status-errors-row">
+                        <div *ngIf="s.code?.[i]" class="detail status-code">{{ s.code?.[i] }}</div>
+                        <div *ngIf="s.field?.[i]" class="detail status-field">{{ s.field?.[i] }}</div>
+                        <div *ngIf="s.message?.[i]" class="detail status-message">{{ s.message?.[i] }}</div>
+                        <div *ngIf="s.path?.[i]" class="detail status-path">{{ s.path?.[i] }}</div>
+                    </div>
+                </ng-container>
+            </div>
         </div>
     </div>
 </div>

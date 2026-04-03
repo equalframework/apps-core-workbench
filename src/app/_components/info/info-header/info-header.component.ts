@@ -14,7 +14,7 @@ export class InfoHeaderComponent {
 
   @Input() extraInfo: { label: string, value: string }[] = [];
 
-  @Input() statusInfo: { icon?: string, tooltip?: string, label: string, value: string }[] = [];
+  @Input() statusInfo: { icon?: string, tooltip?: string, label: string, value: string, code?: string[], field?: string[], message?: string[], path?: string[] }[] = [];
   @Input() showEditTranslationButtons: boolean = true;
   @Output() editClick = new EventEmitter<void>();
   @Output() translationClick = new EventEmitter<void>();
