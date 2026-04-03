@@ -5,6 +5,7 @@ import { takeUntil } from 'rxjs/operators';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
+import { JsonValidationService, ValidationStatusInfo } from 'src/app/in/_services/json-validation.service';
 
 @Component({
     selector: 'info-route',
@@ -24,6 +25,7 @@ export class InfoRouteComponent implements OnInit, OnChanges, OnDestroy {
     public liveRoutes: any = {};
 
     public isLive: boolean = false;
+    public validationStatus: ValidationStatusInfo[] = [];
 
     public routeMeta: { icon: string, tooltip: string, value: string, copyable?: boolean, double_backslash?: boolean }[] = [];
 
@@ -37,13 +39,15 @@ export class InfoRouteComponent implements OnInit, OnChanges, OnDestroy {
         const consistencyLabel = this.isRouteLive() ? 'This route is live.' : 'This route is not active.';
         return [
             { label: 'Consistency', value: consistencyLabel, icon: this.isRouteLive() ? 'check_circle' : 'error' },
+            ...this.validationStatus,
         ];
     }
 
     constructor(
             public dialog: MatDialog,
             public workbenchService: WorkbenchService,
-            public provider: EqualComponentsProviderService
+            public provider: EqualComponentsProviderService,
+            private jsonValidationService: JsonValidationService
         ) { }
 
     public async ngOnInit() {
@@ -80,6 +84,8 @@ export class InfoRouteComponent implements OnInit, OnChanges, OnDestroy {
                                                         this.isRouteLive();
                                                         this.routeMeta = [{ icon: 'folder', tooltip: 'Declared in', value: this.route.file || '', copyable: true }];
                                                         console.log('Route details loaded:', this.route);
+                                                        this.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', null, true);
+                                                        this.validateSchema();
 
                                                         for (const method in this.route.item) {
                                                                 if (!this.methods.includes(method)) {
@@ -92,12 +98,23 @@ export class InfoRouteComponent implements OnInit, OnChanges, OnDestroy {
                       },
                       (error) => {
                         console.error('Error loading routes details:', error);
+                                                this.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', null, false, 'Unable to load route schema');
                       },
                       () => {
                       }
                     );
                     this.loading = false;
     }
+
+        private validateSchema(): void {
+                this.jsonValidationService.validate(
+                        this.route?.item ?? this.route,
+                        'urn:equal:json-schema:core:route',
+                        this.route?.package_name
+                ).subscribe((result) => {
+                        this.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', result);
+                });
+        }
 
     //TODO set isLive based on this
     public isRouteLive() {
