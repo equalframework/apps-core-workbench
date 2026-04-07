@@ -11,6 +11,8 @@ import { PolicyItem, PolicyManager, PolicyResponse } from 'src/app/in/_models/po
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { ButtonStateService } from 'src/app/in/_services/button-state.service';
 import { NotificationService } from 'src/app/in/_services/notification.service';
+import { JsonValidationService } from 'src/app/in/_services/json-validation.service';
+import { cloneDeep } from 'lodash';
 
 @Component({
   selector: 'app-policies',
@@ -24,6 +26,7 @@ export class PackageModelPoliciesComponent implements OnInit, OnDestroy {
     loading = false;
     selectedPolicy: PolicyItem | undefined;
     readonly destroy$ = new Subject<void>();
+    public isSaving: boolean = false;
 
     constructor(
         private workbenchService: WorkbenchService,
@@ -32,7 +35,8 @@ export class PackageModelPoliciesComponent implements OnInit, OnDestroy {
         private matDialog: MatDialog,
         private notificationService: NotificationService,
         public buttonStateService: ButtonStateService,
-        private routerMemory: RouterMemory
+        private routerMemory: RouterMemory,
+        private jsonValidationService: JsonValidationService
     ) {}
 
     ngOnInit(): void {
@@ -130,27 +134,33 @@ export class PackageModelPoliciesComponent implements OnInit, OnDestroy {
     }
 
     save(): void {
-        this.buttonStateService.disableButtons();
-        this.notificationService.showInfo('Saving...');
+        this.export().pipe(take(1)).subscribe(exportedPolicies => this.saveExportedPolicies(exportedPolicies));
+    }
 
-        this.export().pipe(take(1)).subscribe(exportedActions => {
-        const jsonData = JSON.stringify(exportedActions);
+    private async saveExportedPolicies(exportedPolicies: PolicyResponse): Promise<void> {
+        const jsonData = JSON.stringify(exportedPolicies);
+        let modelPayloadForValidation: any;
 
-        this.workbenchService.savePolicies(this.package_name, this.model_name, jsonData).pipe(take(1)).subscribe(
-            result => {
-            this.buttonStateService.enableButtons();
-            if (result.success) {
-                this.notificationService.showSuccess(result.message);
-            } else {
-                this.notificationService.showError(result.message);
-            }
-            },
-            () => {
-            this.buttonStateService.enableButtons();
-            this.notificationService.showError('Error when saving');
-            }
+        try {
+            modelPayloadForValidation = await this.buildModelPayloadWithPolicies(exportedPolicies);
+        } catch (error) {
+            this.notificationService.showError('Error while fetching model schema for policies validation.');
+            return;
+        }
+
+        this.jsonValidationService.validateAndSave(
+            this.jsonValidationService.validateBySchemaType(modelPayloadForValidation, 'urn:equal:json-schema:core:model', this.package_name),
+            () => this.workbenchService.savePolicies(this.package_name, this.model_name, jsonData),
+            (saving) => this.isSaving = saving
         );
-        });
+    }
+
+    private async buildModelPayloadWithPolicies(policiesPayload: PolicyResponse): Promise<any> {
+        const entity = `${this.package_name}\\${this.model_name}`;
+        const latestModelSchema = await this.workbenchService.getSchema(entity).toPromise();
+        const modelPayload = cloneDeep(latestModelSchema || {});
+        modelPayload.policies = policiesPayload;
+        return modelPayload;
     }
 
     cancel(): void {
