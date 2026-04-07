@@ -9,11 +9,12 @@ import { ActivatedRoute } from '@angular/router';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { prettyPrintJson } from 'pretty-print-json';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Location } from '@angular/common';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
+import { JsonValidationService } from 'src/app/in/_services/json-validation.service';
 
 @Component({
     selector: 'package-model-workflow',
@@ -38,6 +39,7 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
     public need_save: boolean = false;
     public selected_class: string = "";
     public tabIndex: number = 1;
+    public isSaving: boolean = false;
 
     public color: { type: string, color: string }[] = [];
     public w = 10;
@@ -51,6 +53,8 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
 
     public loading = true;
 
+    private readonly debugPrefix = '[PackageModelWorkflow]';
+
     constructor(
         private workbenchService: WorkbenchService,
         private router: RouterMemory,
@@ -58,6 +62,7 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
         private matDialog: MatDialog,
         private snackBar: MatSnackBar,
         private location: Location,
+        private jsonValidationService: JsonValidationService
     ) { }
 
     public async ngOnInit() {
@@ -66,79 +71,128 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
 
     private async init() {
         this.loading = true;
+        console.log(`${this.debugPrefix} init()`);
         this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe(async (params) => {
             this.package = params['package_name'];
             this.model = params['class_name'];
-            this.loadWorkflow();
+            console.log(`${this.debugPrefix} route params`, {
+                package: this.package,
+                model: this.model
+            });
+            await this.loadWorkflow();
         });
     }
 
     private async loadWorkflow() {
+        this.loading = true;
         this.nodes = [];
         this.links = [];
-        const r = await this.workbenchService.getWorkflow(this.package, this.model).toPromise();
-        if (r.exists !== null && r.exists !== undefined) {
-            this.exists = r.exists;
-            const metadata = await this.workbenchService.fetchMetaData('workflow', this.package + '.' + this.model).toPromise();
-            this.has_meta_data = Object.keys(metadata).length > 0 ? metadata[0].id : undefined;
-            this.model_scheme = await this.workbenchService.getSchema(this.package + "\\" + this.model).toPromise();
-            const res = r.info;
-            let orig = { x: 200, y: 200 };
-            let mdt: any = {};
-            if (this.has_meta_data) {
-                mdt = JSON.parse(metadata[0].value);
-            }
-            let offset_x: number = 0;
-            let offset_y: number = 0;
-            let is_first: boolean = true;
-            for (let node in res) {
-                let pos = (!this.has_meta_data || !mdt || !mdt[node] || !mdt[node].position) ? cloneDeep(orig) : mdt[node].position;
-                if (is_first && pos.x < 200) {
-                    offset_x = -pos.x + 200;
-                }
-                if (is_first && pos.y < 200) {
-                    offset_y = -pos.y + 200;
-                }
-                pos.x += offset_x;
-                pos.y += offset_y;
-                this.nodes.push(new WorkflowNode(node, {
-                    description: res[node].description,
-                    position: pos,
-                    help: res[node].help,
-                    icon: res[node].icon
-                })
-                );
-                orig.y += 100;
-                orig.x += 100;
-                is_first = false;
-            }
-            for (let node in res) {
-                for (let link in res[node].transitions) {
-                    let a = this.getNodeByName(node);
-                    let b = this.getNodeByName(res[node].transitions[link].status);
+        this.need_save = false;
 
-                    if (!b) {
-                        b = new WorkflowNode(res[node].transitions[link].status, { position: cloneDeep(orig) });
-                        this.nodes.push(b);
-                        orig.y += 100;
-                        orig.x += 100;
-                        this.need_save = true;
-                    }
-                    if (a && b) {
-                        const anch1 = (!this.has_meta_data || !mdt || !mdt[a.name] || !mdt[a.name].transitions || !mdt[a.name].transitions[link] || !mdt[a.name].transitions[link].anchorFrom)
-                            ? Anchor.MiddleRight
-                            : mdt[a.name].transitions[link].anchorFrom;
-                        const anch2 = (!this.has_meta_data || !mdt || !mdt[a.name] || !mdt[a.name].transitions || !mdt[a.name].transitions[link] || !mdt[a.name].transitions[link].anchorFrom)
-                            ? Anchor.MiddleLeft
-                            : mdt[a.name].transitions[link].anchorTo;
-                        this.links.push(
-                            new WorkflowLink(a, b, anch1, anch2, Object.assign(res[node].transitions[link], { name: link }))
-                        );
+        console.log(`${this.debugPrefix} loadWorkflow() start`, {
+            package: this.package,
+            model: this.model
+        });
+
+        try {
+            const r = await this.workbenchService.getWorkflow(this.package, this.model).toPromise();
+            console.log(`${this.debugPrefix} workflow API result`, {
+                exists: r?.exists,
+                keys: r?.info ? Object.keys(r.info).length : 0
+            });
+
+            if (r.exists !== null && r.exists !== undefined) {
+                this.exists = r.exists;
+                const metadata = await this.workbenchService.fetchMetaData('workflow', this.package + '.' + this.model).toPromise();
+                this.has_meta_data = Object.keys(metadata).length > 0 ? metadata[0].id : undefined;
+                this.model_scheme = await this.workbenchService.getSchema(this.package + "\\" + this.model).toPromise();
+                const res = r.info;
+                let orig = { x: 200, y: 200 };
+                let mdt: any = {};
+
+                if (this.has_meta_data) {
+                    try {
+                        mdt = JSON.parse(metadata[0].value);
+                    } catch (error) {
+                        console.error(`${this.debugPrefix} invalid metadata JSON`, error);
+                        mdt = {};
                     }
                 }
+
+                let offset_x: number = 0;
+                let offset_y: number = 0;
+                let is_first: boolean = true;
+                for (let node in res) {
+                    let pos = (!this.has_meta_data || !mdt || !mdt[node] || !mdt[node].position) ? cloneDeep(orig) : mdt[node].position;
+                    if (is_first && pos.x < 200) {
+                        offset_x = -pos.x + 200;
+                    }
+                    if (is_first && pos.y < 200) {
+                        offset_y = -pos.y + 200;
+                    }
+                    pos.x += offset_x;
+                    pos.y += offset_y;
+                    this.nodes.push(new WorkflowNode(node, {
+                        description: res[node].description,
+                        position: pos,
+                        help: res[node].help,
+                        icon: res[node].icon
+                    })
+                    );
+                    orig.y += 100;
+                    orig.x += 100;
+                    is_first = false;
+                }
+                for (let node in res) {
+                    for (let link in res[node].transitions) {
+                        let a = this.getNodeByName(node);
+                        let b = this.getNodeByName(res[node].transitions[link].status);
+
+                        if (!b) {
+                            b = new WorkflowNode(res[node].transitions[link].status, { position: cloneDeep(orig) });
+                            this.nodes.push(b);
+                            orig.y += 100;
+                            orig.x += 100;
+                            this.need_save = true;
+                            console.warn(`${this.debugPrefix} transition references missing node, auto-created`, {
+                                from: node,
+                                to: res[node].transitions[link].status,
+                                transition: link
+                            });
+                        }
+                        if (a && b) {
+                            const anch1 = (!this.has_meta_data || !mdt || !mdt[a.name] || !mdt[a.name].transitions || !mdt[a.name].transitions[link] || !mdt[a.name].transitions[link].anchorFrom)
+                                ? Anchor.MiddleRight
+                                : mdt[a.name].transitions[link].anchorFrom;
+                            const anch2 = (!this.has_meta_data || !mdt || !mdt[a.name] || !mdt[a.name].transitions || !mdt[a.name].transitions[link] || !mdt[a.name].transitions[link].anchorFrom)
+                                ? Anchor.MiddleLeft
+                                : mdt[a.name].transitions[link].anchorTo;
+                            this.links.push(
+                                new WorkflowLink(a, b, anch1, anch2, Object.assign(res[node].transitions[link], { name: link }))
+                            );
+                        }
+                    }
+                }
+
+                console.log(`${this.debugPrefix} parsed workflow`, {
+                    exists: this.exists,
+                    hasMetaData: !!this.has_meta_data,
+                    nodes: this.nodes.length,
+                    links: this.links.length,
+                    needSave: this.need_save
+                });
             }
+        } catch (error) {
+            console.error(`${this.debugPrefix} loadWorkflow() failed`, error);
+        } finally {
+            this.loading = false;
+            console.log(`${this.debugPrefix} loadWorkflow() end`, {
+                loading: this.loading,
+                nodes: this.nodes.length,
+                links: this.links.length,
+                exists: this.exists
+            });
         }
-        this.loading = false;
     }
 
     public reset() {
@@ -259,6 +313,7 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
 
 
     public save() {
+
         if (!this.exists) {
             this.workbenchService.createWorkflow(this.package, this.model).subscribe((create) => {
                 if (!create) {
@@ -272,34 +327,72 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
         }
     }
 
-    private saveWorkflowWithMetaData() {
-        const workflowJSON = JSON.stringify(this.export());
-        this.workbenchService.saveWorkflow(this.package, this.model, workflowJSON)
-            .subscribe((ret: any) => {
-                if (!ret) {
-                    console.error("Error while saving the workflow.");
-                    return;
-                }
-                if (this.has_meta_data) {
-                    this.workbenchService.saveMetaData(this.has_meta_data, JSON.stringify(this.exportMetaData()))
-                        .subscribe((result: any) => {
-                            if (!result) {
-                                console.error("Error while saving metadata.");
-                                return;
+    private async saveWorkflowWithMetaData() {
+        const workflowPayload = this.export();
+        const workflowJSON = JSON.stringify(workflowPayload);
+        const metadataJSON = JSON.stringify(this.exportMetaData());
+        let modelPayloadForValidation: any;
+
+        try {
+            modelPayloadForValidation = await this.buildModelPayloadWithWorkflow(workflowPayload);
+        } catch (error) {
+            console.error(`${this.debugPrefix} failed to fetch model schema before validation`, error);
+            this.snackBar.open('Error while fetching model schema for workflow validation.');
+            return;
+        }
+
+        this.jsonValidationService.validateAndSave(
+            this.jsonValidationService.validateBySchemaType(modelPayloadForValidation, 'urn:equal:json-schema:core:model', this.package),
+            () => this.persistWorkflowAndMetaData(workflowJSON, metadataJSON),
+            (saving) => this.isSaving = saving
+        );
+    }
+
+    private async buildModelPayloadWithWorkflow(workflowPayload: any): Promise<any> {
+        const entity = `${this.package}\\${this.model}`;
+        const latestModelSchema = await this.workbenchService.getSchema(entity).toPromise();
+        this.model_scheme = latestModelSchema || {};
+
+        const modelPayload = cloneDeep(this.model_scheme);
+        modelPayload.workflow = workflowPayload;
+        return modelPayload;
+    }
+
+    private persistWorkflowAndMetaData(workflowJSON: string, metadataJSON: string): Observable<{ success: boolean; message: string }> {
+        return new Observable(observer => {
+            this.workbenchService.saveWorkflow(this.package, this.model, workflowJSON).subscribe(
+                (workflowSaved: any) => {
+                    if (!workflowSaved) {
+                        observer.next({ success: false, message: 'Error while saving the workflow.' });
+                        observer.complete();
+                        return;
+                    }
+
+                    const metadata$ = this.has_meta_data
+                        ? this.workbenchService.saveMetaData(this.has_meta_data, metadataJSON)
+                        : this.workbenchService.createMetaData('workflow', `${this.package}.${this.model}`, metadataJSON);
+
+                    metadata$.subscribe(
+                        (metaSaved: any) => {
+                            if (!metaSaved) {
+                                observer.next({ success: false, message: 'Error while saving workflow metadata.' });
+                            } else {
+                                observer.next({ success: true, message: 'Saved successfully' });
                             }
-                            this.snackBar.open("Saved successfully", "INFO");
-                        });
-                } else {
-                    this.workbenchService.createMetaData("workflow", `${this.package}.${this.model}`, JSON.stringify(this.exportMetaData()))
-                        .subscribe((result) => {
-                            if (!result) {
-                                console.error("Error while creating metadata.");
-                                return;
-                            }
-                            this.snackBar.open("Saved successfully", "INFO");
-                        });
+                            observer.complete();
+                        },
+                        () => {
+                            observer.next({ success: false, message: 'Error while saving workflow metadata.' });
+                            observer.complete();
+                        }
+                    );
+                },
+                () => {
+                    observer.next({ success: false, message: 'Error while saving the workflow.' });
+                    observer.complete();
                 }
-            });
+            );
+        });
     }
 
     public showJSON() {
