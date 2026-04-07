@@ -613,8 +613,8 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
             url = `/package/${node.package_name}/route${node.name}`;
         }
 
-        // Defaults to package view if no specific type matches
-        this.location.go(url);
+        // Keep current search scope/filters/terms when switching selected node.
+        this.location.go(url, this.buildSearchQueryString(this.search_filters, this.search_terms));
     }
 
 
@@ -623,16 +623,20 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
      * 
      */
     private updateUrlForSearch(filters: { [key: string]: string }, terms: string[]) {
+        const path = this.location.path().split('?')[0];
+        const queryString = this.buildSearchQueryString(filters, terms);
+
+        this.location.replaceState(path, queryString);
+    }
+
+    private buildSearchQueryString(filters: { [key: string]: string }, terms: string[]): string {
         const params = new URLSearchParams();
         if (this.search_scope) params.set('scope', this.search_scope);
         Object.entries(filters).forEach(([key, value]) => {
             if (value) params.append(`filter_${key}`, value);
         });
         if (terms.length > 0 && !(terms.length === 1 && terms[0] === '')) params.set('terms', terms.join(' '));
-        const path = this.location.path().split('?')[0];
-        const queryString = params.toString();
-
-        this.location.replaceState(path, queryString);
+        return params.toString();
     }
 
     private rankResults(elements: EqualComponentDescriptor[], terms: string[]): EqualComponentDescriptor[] {
