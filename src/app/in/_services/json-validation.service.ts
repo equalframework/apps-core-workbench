@@ -102,8 +102,8 @@ export class JsonValidationService {
         packageName?: string,
         strict?: boolean
     ): Observable<ValidationResult> {
-        console.log('Validating JSON against schema:', schemaId, 'Package:', packageName, 'Strict mode:', strict);
-        const url = API_ENDPOINTS.json.validate(json, schemaId, packageName, strict);
+        const normalizedSchemaId = this.normalizeSchemaId(schemaId);
+        const url = API_ENDPOINTS.json.validate(json, normalizedSchemaId, packageName, strict);
 
         return this.callValidateApi(url);
     }
@@ -116,52 +116,35 @@ export class JsonValidationService {
     }
 
     /**
-     * Validate an Action structure
+     * Validate a structure for a given schema type
      */
-    public validateAction(actionData: any, packageName?: string): Observable<ValidationResult> {
-        return this.validate(actionData, 'action.schema', packageName);
+    public validateBySchemaType(data: any, schemaType: string, packageName?: string): Observable<ValidationResult> {
+        return this.validate(data, schemaType, packageName);
     }
 
-    /**
-     * Validate a Policy structure
-     */
-    public validatePolicy(policyData: any, packageName?: string): Observable<ValidationResult> {
-        return this.validate(policyData, 'policy.schema', packageName);
-    }
+    private normalizeSchemaId(schemaId: string): string {
+        if (!schemaId) {
+            return schemaId;
+        }
 
-    /**
-     * Validate a Field structure
-     */
-    public validateField(fieldData: any, packageName?: string): Observable<ValidationResult> {
-        return this.validate(fieldData, 'field.schema', packageName);
-    }
+        if (schemaId.startsWith('urn:')) {
+            return schemaId;
+        }
 
-    /**
-     * Validate a Menu structure
-     */
-    public validateMenu(menuData: any, packageName?: string): Observable<ValidationResult> {
-        return this.validate(menuData, 'menu.schema', packageName);
-    }
+        const normalizedKey = schemaId.endsWith('.schema')
+            ? schemaId.slice(0, -'.schema'.length)
+            : schemaId;
 
-    /**
-     * Validate a Role structure
-     */
-    public validateRole(roleData: any, packageName?: string): Observable<ValidationResult> {
-        return this.validate(roleData, 'role.schema', packageName);
-    }
+        const mapped: { [id: string]: string } = {
+            model: 'urn:equal:json-schema:core:model',
+            controller: 'urn:equal:json-schema:core:controller',
+            view: 'urn:equal:json-schema:core:view',
+            menu: 'urn:equal:json-schema:core:menu',
+            'model-translations': 'urn:equal:json-schema:core:model-translations',
+            'menu-translations': 'urn:equal:json-schema:core:menu-translations',
+        };
 
-    /**
-     * Validate a Workflow structure
-     */
-    public validateWorkflow(workflowData: any, packageName?: string): Observable<ValidationResult> {
-        return this.validate(workflowData, 'workflow.schema', packageName);
-    }
-
-    /**
-     * Validate a Route structure
-     */
-    public validateRoute(routeData: any, packageName?: string): Observable<ValidationResult> {
-        return this.validate(routeData, 'route.schema', packageName);
+        return mapped[normalizedKey] || schemaId;
     }
 
     /**
