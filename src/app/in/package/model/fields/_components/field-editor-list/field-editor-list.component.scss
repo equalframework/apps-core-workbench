@@ -81,8 +81,13 @@
         background-color: mat-color($maincolor);
         border: none;
         color: white;
-        border-radius: 1em;
+        border-radius: 8px;
         padding: 0 1em;
+
+        .mat-icon {
+            margin-right: 1em;
+
+        }
     }
 
     .fieldcreate {
