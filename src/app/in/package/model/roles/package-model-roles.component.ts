@@ -10,6 +10,8 @@ import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer
 import { RoleItem, RoleManager, Roles } from 'src/app/in/_models/roles.model';
 import { NotificationService } from 'src/app/in/_services/notification.service';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
+import { JsonValidationService } from 'src/app/in/_services/json-validation.service';
+import { cloneDeep } from 'lodash';
 
 @Component({
     selector: 'app-roles',
@@ -24,6 +26,7 @@ import { WorkbenchService } from 'src/app/in/_services/workbench.service';
     loading = false;
     selectedRole?: RoleItem;
     private readonly destroy$ = new Subject<void>();
+    public isSaving: boolean = false;
 
     constructor(
       private workbenchService: WorkbenchService,
@@ -32,7 +35,8 @@ import { WorkbenchService } from 'src/app/in/_services/workbench.service';
       private matDialog: MatDialog,
       private notificationService: NotificationService,
       public buttonStateService: ButtonStateService,
-      private routerMemory: RouterMemory
+      private routerMemory: RouterMemory,
+      private jsonValidationService: JsonValidationService
     ) {}
 
     ngOnInit(): void {
@@ -138,15 +142,30 @@ import { WorkbenchService } from 'src/app/in/_services/workbench.service';
         this.notificationService.showInfo('Saving...');
     }
 
-    private saveExportedActions(exportedActions: any): void {
-        const jsonData = JSON.stringify(exportedActions);
-        this.workbenchService.saveRoles(this.package_name, this.model_name, jsonData).pipe(
-            take(1),
-            finalize(() => this.buttonStateService.enableButtons())
-        ).subscribe({
-            next: (result) => this.handleSaveResponse(result),
-            error: () => this.handleError(),
-        });
+    private async saveExportedActions(exportedActions: any): Promise<void> {
+      const jsonData = JSON.stringify(exportedActions);
+      let modelPayloadForValidation: any;
+
+      try {
+        modelPayloadForValidation = await this.buildModelPayloadWithRoles(exportedActions);
+      } catch (error) {
+        this.notificationService.showError('Error while fetching model schema for roles validation.');
+        return;
+      }
+
+      this.jsonValidationService.validateAndSave(
+        this.jsonValidationService.validateBySchemaType(modelPayloadForValidation, 'urn:equal:json-schema:core:model', this.package_name),
+        () => this.workbenchService.saveRoles(this.package_name, this.model_name, jsonData),
+        (saving) => this.isSaving = saving
+      );
+    }
+
+    private async buildModelPayloadWithRoles(rolesPayload: any): Promise<any> {
+      const entity = `${this.package_name}\\${this.model_name}`;
+      const latestModelSchema = await this.workbenchService.getSchema(entity).toPromise();
+      const modelPayload = cloneDeep(latestModelSchema || {});
+      modelPayload.roles = rolesPayload;
+      return modelPayload;
     }
 
     private handleSaveResponse(result: any): void {
