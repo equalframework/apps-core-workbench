@@ -19,7 +19,6 @@ export class PropertyClauseComponent implements OnInit {
     constructor(private workbenchService: WorkbenchService) {}
 
     async ngOnInit() {
-        console.log('Initializing PropertyClauseComponent with value:', this.value, 'name:', this.name, 'class:', this.class);
         this.transformDomain();
         this.validOperators = await this.workbenchService.getValidOperators().toPromise();
         this.getSchema();
@@ -39,7 +38,6 @@ export class PropertyClauseComponent implements OnInit {
 
     transformDomain() {
         if(this.value) {
-            console.log(this.value)
             this.tempValue = [...this.value];
             if(this.tempValue.length <= 0)
                 this.tempValue = []
@@ -53,7 +51,6 @@ export class PropertyClauseComponent implements OnInit {
     public getTypeFromField(value:string) {
         if(this.fields.fields[value]){
             if(this.fields.fields[value].type === "computed"){
-                console.log(this.fields.fields[value].result_type)
                 return this.fields.fields[value].result_type
             }
             return this.fields.fields[value].type 
@@ -81,11 +78,9 @@ export class PropertyClauseComponent implements OnInit {
             if (!Array.isArray(this.tempValue[j][2])) {
                 this.tempValue[j][2] = [];
             }
-            console.log(new_value);
-            console.log(typeof new_value);
+
             const index = this.tempValue[j][2].indexOf(new_value);
-            console.log(this.tempValue);
-            console.log(index);
+
             if (index >= 0) {
                 this.tempValue[j][2].splice(index, 1);
             } else {

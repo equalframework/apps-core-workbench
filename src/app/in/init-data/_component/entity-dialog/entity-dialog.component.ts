@@ -19,7 +19,6 @@ export class EntityDialogComponent implements OnInit {
   constructor(
         @Optional() public dialogRef:MatDialogRef<EntityDialogComponent>,
         @Optional() @Inject(MAT_DIALOG_DATA) public data:{model:string[], model_taken:string[]}) {
-    console.log(data);
     this.fmodel = this.filteredModel;
   }
 

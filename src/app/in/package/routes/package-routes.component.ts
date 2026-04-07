@@ -63,7 +63,6 @@ export class PackageRoutesComponent implements OnInit {
      * @param eq_route the route that the user has selected
      */
     public async onSelectNode(eq_route: EqualComponentDescriptor) {
-        console.log('Selected route:', eq_route);
         this.selected_route = eq_route;
         this.selected_route.name = "/" + eq_route.name;
     }

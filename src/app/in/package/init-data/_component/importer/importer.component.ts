@@ -45,7 +45,6 @@ export class ImporterComponent implements OnInit {
               this.ItemList.push(InitDataEntityInstance.ImportFromRealData(instance, schema.fields));
           }
   
-          console.log(this.ItemList);
   
           this.page.pageSize = 10;
           this.page.pageIndex = 0;

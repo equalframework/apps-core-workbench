@@ -33,7 +33,6 @@ export class ParamListComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     this.filteredList = this.list.sort((p1, p2) => p1.name.localeCompare(p2.name));
-    console.log(this.filteredList)
     this.filterControl.valueChanges.subscribe(data => {
       this.filteredList = this._filter(data)
     })

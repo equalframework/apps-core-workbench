@@ -83,7 +83,6 @@ export class InfoRouteComponent implements OnInit, OnChanges, OnDestroy {
                                                         this.route = data;
                                                         this.isRouteLive();
                                                         this.routeMeta = [{ icon: 'folder', tooltip: 'Declared in', value: this.route.file || '', copyable: true }];
-                                                        console.log('Route details loaded:', this.route);
                                                         this.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', null, true);
                                                         this.validateSchema();
 
@@ -139,7 +138,6 @@ export class InfoRouteComponent implements OnInit, OnChanges, OnDestroy {
             const separator = operation.includes('?') ? '&' : '?';
             fullUrl += separator + params;
         }
-        console.log('Redirecting to:', fullUrl);
         window.open(fullUrl, '_blank');
     }
 

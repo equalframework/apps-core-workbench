@@ -254,11 +254,9 @@ export class MixedCreatorDialogComponent implements OnInit, OnDestroy {
             if (this.selectedPackage) {
             const routes = await this.workbenchService.getRoutesByPackage(this.selectedPackage).toPromise();
             this.subTypeList = Object.keys(routes);
-            console.log("subtypeList : ", this.subTypeList)
             this.cacheList = [];
             if (routes[this.subtype] && !this.addingState) {
                 for (const key in routes[this.subtype]) {
-                    console.log("key, ", key)
                 this.cacheList.push(key);
                 }
             } else if (this.addingState) {
@@ -276,7 +274,6 @@ export class MixedCreatorDialogComponent implements OnInit, OnDestroy {
               map(response => Object.keys(response))
             )
             .toPromise();
-            console.log("this.cache Liste : ", this.cacheList);
             break;
         case 'role':
             this.needPackage = true;

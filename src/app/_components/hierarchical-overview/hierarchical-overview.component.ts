@@ -13,7 +13,6 @@ export class HierarchicalOverviewComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
-    console.log("viewSchema", this.viewSchema);
   }
 
   // Type guard pour vérifier si c'est un GroupedLayout

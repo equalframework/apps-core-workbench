@@ -36,13 +36,8 @@ export class PropertyDomainComponent implements OnInit {
         this.is_env = []
         for (let i = 0; i < this.tempValue.length; i++) {
             this.is_env.push([])
-            console.log("i : "+i)
-            console.log(this.is_env)
-            console.log(this.tempValue[i])
             let l = this.tempValue[i].length
             for (let j = 0; j < l; j++) {
-                console.log("j : "+j)
-                console.log(this.is_env[i])
                 this.is_env[i].push(
                     this.tempValue[i][j][2] && (this.tempValue[i][j][2].includes("object.") || this.tempValue[i][j][2].includes("user."))
                 )
@@ -52,7 +47,6 @@ export class PropertyDomainComponent implements OnInit {
 
     async ngOnChanges() {
         this.transformDomain();
-        console.log(this.tempValue)
         this.fixdomain()
         this.getSchema()
     }
@@ -121,11 +115,9 @@ export class PropertyDomainComponent implements OnInit {
             if (!Array.isArray(this.tempValue[i][j][2])) {
                 this.tempValue[i][j][2] = [];
             }
-            console.log(new_value);
-            console.log(typeof new_value);
+
             const index = this.tempValue[i][j][2].indexOf(new_value);
-            console.log(this.tempValue);
-            console.log(index);
+
             if (index >= 0) {
                 this.tempValue[i][j][2].splice(index, 1);
             } else {
@@ -144,7 +136,6 @@ export class PropertyDomainComponent implements OnInit {
     }
 
     public changeAttribute(new_value:string, i:number, j:number) {
-        console.log(this.tempValue[i][j][2].split('.')[0] + "." + new_value)
         this.tempValue[i][j][2] = this.tempValue[i][j][2].split('.')[0] + "." + new_value
         this.valueChange.emit(this.tempValue);
     }

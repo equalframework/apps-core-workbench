@@ -34,7 +34,6 @@ export class TypeUsageService {
         this.api.fetch("?get=core_config_usages").then(
             data => {
                 this.scheme = data
-                console.log(this.scheme)
             }
         ).catch(
             error => {

@@ -44,7 +44,6 @@ export class AutocompleteMultiComponent implements OnInit {
   }
 
   checkvalue() {
-    console.log("checked")
     for(let key in this.values) {
       if(this.values[key].includes(this.valueControl.value) && (this.value !== this.valueControl.value)) {
         this.valueChange.emit(this.valueControl.value)
@@ -58,7 +57,6 @@ export class AutocompleteMultiComponent implements OnInit {
   }
 
   noCancel(event: KeyboardEvent) {
-    console.log(event)
     if( event.key === "z" && event.ctrlKey) {
       event.preventDefault()
       event.stopImmediatePropagation()

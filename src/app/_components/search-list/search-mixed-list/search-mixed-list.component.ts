@@ -122,7 +122,6 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes['node_selected']) {
-            console.log('node_selected changed to:', changes['node_selected'].currentValue);
             setTimeout(() => this.scrollSelectedNodeIntoView(), 0);
         }
         if (changes['node_type'] && this.node_type) {
@@ -205,7 +204,6 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         this.filteredData = this.elements;
         this.applyFilters();
         this.refreshReducedNodeLabels();
-        console.log('Selected node:', this.node_selected);
         setTimeout(() => this.scrollSelectedNodeIntoView(), 0);
     }
 
@@ -511,7 +509,6 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
      * @param node value of the node which is updating
      */
     public onclickUpdate(node: EqualComponentDescriptor) {
-        console.log("Feature not supported yet: ", node);
         this.updateNode.emit({ old_node: node, new_node: <EqualComponentDescriptor>this.editedNode });
     }
 

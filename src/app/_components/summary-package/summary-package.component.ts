@@ -11,6 +11,5 @@ export class SummaryPackageComponent implements OnInit {
   @Input() message!: string;
 
   ngOnInit(): void {
-    console.log('SummaryPackageComponent initialized with packageInfo:', this.packageInfo, 'and message:', this.message);
   }
 }

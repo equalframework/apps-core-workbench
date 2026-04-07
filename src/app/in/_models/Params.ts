@@ -212,7 +212,6 @@ export class Usage {
         this._length = undefined
         this._min = undefined
         this._max = undefined
-        console.log(this)
     }
 
     public setLength(value: string) {

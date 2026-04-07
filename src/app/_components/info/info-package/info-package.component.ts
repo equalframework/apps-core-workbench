@@ -99,7 +99,6 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
             this.current_initialized = Array.isArray(initializedPackages) && initializedPackages.includes(this.package.name);
             this.package_init_list = initializedPackages; // Store the list for future reference
         });
-        console.log('Initializing InfoPackageComponent with package:', this.package, 'and init list:', this.package_init_list);
         this.loadPackage();
         this.buildNavigationButtons();
         this.buildHeaderExtraInfo();
@@ -118,7 +117,6 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
     }
 
     loadPackage() {
-        console.log('Loading package info for:', this.package.name);
         this.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', null, true);
         this.packageInfos$ = this.workbenchService.readPackage(this.package.name).pipe(
             shareReplay(1),
@@ -126,7 +124,6 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
         );
         this.packageInfos$.subscribe({
             next: (payload) => {
-                console.log('Package info loaded:', payload);
                 this.jsonValidationService.validate(
                     payload.response,
                     'urn:equal:json-schema:core:package',
@@ -152,7 +149,6 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
                 return;
             }
 
-            console.log('Package input changed:', this.package?.name);
             // Cancel previous in-flight requests before starting new package load.
             this.destroy$.next();
             this.resetConsistencyState();

@@ -16,7 +16,6 @@ export class InitDataFile {
             this.name = name
         }
         for(let entity of schema) {
-            console.log(entity)
             if(entity.name) {
                 if(!this.entities[entity.name]) {
                     try {

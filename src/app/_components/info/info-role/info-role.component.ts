@@ -60,7 +60,6 @@ initializeListFields(): void {
   }
 
   onAddRight(event:(any)) {
-    console.log(event);
     if (event.key ==='value.rights' && !this.role.value.rights.includes(event.value)) {
       this.role.value.rights.push(event.value);
     }
@@ -75,7 +74,6 @@ initializeListFields(): void {
   }
 
   oncreate(type_show:string){
-          console.log(type_show);
       this.matDialog.open(MixedCreatorDialogComponent, {
                       data: {
                           node_type: type_show,

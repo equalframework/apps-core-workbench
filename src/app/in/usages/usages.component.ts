@@ -21,45 +21,36 @@ export class UsagesComponent implements OnInit {
         ) { }
 
     ngOnInit(): void {
-        console.log(this.typeUsage.usages)
     }
 
   public changeUsage(value: string) {
-    console.log("USAGE CHANGED")
     this.usage.setUsage(this.usageForCurrentType?.includes(value) ? value : "")
     this.CRUD.emit(this.usage.usage ? "Changed usage of "+this.name+" to "+this.usage.usage : "removed usage of "+this.name)
   }
 
   public changeSubUsage(value: string) {
-    console.log("SUBUSAGE CHANGED")
     this.usage.setSubUsage(this.possibleSubUsage?.includes(value) ? value : "")
     this.CRUD.emit(this.usage.subusage ? "Changed subusage of "+this.name+" to "+this.usage.subusage : "removed subusage of "+this.name)
   }
 
   public changeVariation(value: string) {
-    console.log("VARIATION CHANGED")
     this.usage.setVariation(this.possibleVariations?.includes(value) ? value : "")
     this.CRUD.emit(this.usage.variation ? "Changed variation of "+this.name+" to "+this.usage.variation : "removed variation of "+this.name)
   }
 
   public changeLength(value: string) {
-    console.log("LENGTH CHANGED")
-    console.log(this.lengthDim)
     // toString() is needed because js is sometime giving a number regardless the ts typing
-    console.log(value.toString().split(".",this.lengthDim).join("."))
     this.usage.setLength(value.toString().split(".",this.lengthDim).join("."))
     this.CRUD.emit(this.usage.length ? "Changed length of "+this.name+" to "+this.usage.length : "removed length of "+this.name)
   }
 
   public changeMin(value: string) {
-    console.log("MIN CHANGED")
     this.usage.setMin(value)
     this.CRUD.emit(this.usage.min ? "Changed min value of "+this.name+" to "+this.usage.min : "Removed min value of "+this.name)
   }
 
 
   public changeMax(value: string) {
-    console.log("Max CHANGED")
     this.usage.setMax(value)
     this.CRUD.emit(this.usage.max ? "Changed max value of "+this.name+" to "+this.usage.max : "Removed max value of "+this.name)
   }
@@ -234,7 +225,6 @@ export class UsagesComponent implements OnInit {
   }
 
   noCancel(event: KeyboardEvent) {
-    console.log(event)
     if( event.key === "z" && event.ctrlKey) {
       event.preventDefault()
     }

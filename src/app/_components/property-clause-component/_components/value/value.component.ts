@@ -22,7 +22,6 @@ export class ValueComponent implements OnInit {
             document.addEventListener('click', (event) => {
                 const target = event.target as HTMLElement;
                 if (!this.elementRef.nativeElement.contains(target) || target === this.elementRef.nativeElement.querySelector('#input')) {
-                    console.log('test');
                     this.showOverlay = false;
                 }
             });

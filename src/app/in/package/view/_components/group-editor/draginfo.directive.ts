@@ -12,7 +12,6 @@ export class DraginfoDirective {
 
   @HostListener("stopdrag")
   StopDrag() {
-    console.log("got-it")
     this.appDraginfo.emit()
   }
 }
