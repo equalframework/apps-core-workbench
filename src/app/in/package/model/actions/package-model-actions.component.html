@@ -2,7 +2,7 @@
 (onButtonBack)="goBack()"
 [buttonSave]="true"
 (onButtonSave)="save()"
-[buttonSaveDisabled]="(buttonStateService.buttonsState$ | async)?.save || false"
+[buttonSaveDisabled]="isSaving"
 [buttonCancel]="true"
 (onButtonCancel)="cancel()"
 [buttonCancelDisabled]="(buttonStateService.buttonsState$ | async)?.cancel || false"

@@ -11,6 +11,8 @@ import { PolicyItem, PolicyResponse } from 'src/app/in/_models/policy.model';
 import { ButtonStateService } from 'src/app/in/_services/button-state.service';
 import { NotificationService } from 'src/app/in/_services/notification.service';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
+import { JsonValidationService } from 'src/app/in/_services/json-validation.service';
+import { cloneDeep } from 'lodash';
 
 @Component({
   selector: 'app-policy',
@@ -24,6 +26,7 @@ export class PackageModelActions implements OnInit, OnDestroy {
     model_name: string = '';
     loading = false;
     selectedAction: ActionItem | undefined;
+    public isSaving: boolean = false;
     private destroy$ = new Subject<void>();
     loadingState = {
         actions: false,
@@ -37,7 +40,8 @@ export class PackageModelActions implements OnInit, OnDestroy {
       private matDialog: MatDialog,
       private notificationService: NotificationService,
       public buttonStateService: ButtonStateService,
-      private routerMemory: RouterMemory
+      private routerMemory: RouterMemory,
+      private jsonValidationService: JsonValidationService
     ) {}
 
     ngOnInit(): void {
@@ -110,17 +114,33 @@ export class PackageModelActions implements OnInit, OnDestroy {
      * Saves the current actions by sending them to the API.
      */
     save(): void {
-        this.buttonStateService.disableButtons();
-        this.notificationService.showInfo("Saving...")
-        this.export().pipe(take(1)).subscribe(exportedActions => {
-            const jsonData = JSON.stringify(exportedActions);
-            this.workbenchService.saveActions(this.package_name, this.model_name, jsonData).pipe(take(1)).subscribe(
-                (result) => {
-                    result.success ? this.notificationService.showSuccess(result.message) : this.notificationService.showError(result.message);
-                    this.buttonStateService.enableButtons()
-                }
-            );
-        });
+      this.export().pipe(take(1)).subscribe(exportedActions => this.saveExportedActions(exportedActions));
+    }
+
+    private async saveExportedActions(exportedActions: Actions): Promise<void> {
+      const jsonData = JSON.stringify(exportedActions);
+      let modelPayloadForValidation: any;
+
+      try {
+        modelPayloadForValidation = await this.buildModelPayloadWithActions(exportedActions);
+      } catch (error) {
+        this.notificationService.showError('Error while fetching model schema for actions validation.');
+        return;
+      }
+
+      this.jsonValidationService.validateAndSave(
+        this.jsonValidationService.validateBySchemaType(modelPayloadForValidation, 'urn:equal:json-schema:core:model', this.package_name),
+        () => this.workbenchService.saveActions(this.package_name, this.model_name, jsonData),
+        (saving) => this.isSaving = saving
+      );
+    }
+
+    private async buildModelPayloadWithActions(actionsPayload: Actions): Promise<any> {
+      const entity = `${this.package_name}\\${this.model_name}`;
+      const latestModelSchema = await this.workbenchService.getSchema(entity).toPromise();
+      const modelPayload = cloneDeep(latestModelSchema || {});
+      modelPayload.actions = actionsPayload;
+      return modelPayload;
     }
 
     /**
