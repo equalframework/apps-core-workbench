@@ -160,7 +160,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
 
             filtered = this.rankResults(filtered, this.search_terms);
             this.filteredData = filtered;
-            this.refreshReducedNodeLabels();
+            this.scheduleReducedNodeLabelsRefresh();
             setTimeout(() => this.scrollSelectedNodeIntoView(), 0);
         });
     }
@@ -203,7 +203,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         this.elements = [...components];
         this.filteredData = this.elements;
         this.applyFilters();
-        this.refreshReducedNodeLabels();
+        this.scheduleReducedNodeLabelsRefresh();
         setTimeout(() => this.scrollSelectedNodeIntoView(), 0);
     }
 
@@ -246,7 +246,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         });
         filtered = this.rankResults(filtered, this.search_terms);
         this.filteredData = filtered;
-        this.refreshReducedNodeLabels();
+        this.scheduleReducedNodeLabelsRefresh();
         this.searchScopeChange.emit(this.search_scope);
         this.searchFiltersChange.emit(this.search_filters);
         this.searchTermsChange.emit(this.search_terms);
@@ -256,13 +256,13 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     ngAfterViewInit(): void {
         this.nodeNameElements.changes
             .pipe(takeUntil(this.destroy$))
-            .subscribe(() => this.refreshReducedNodeLabels());
+            .subscribe(() => this.scheduleReducedNodeLabelsRefresh());
 
         fromEvent(window, 'resize')
             .pipe(takeUntil(this.destroy$))
-            .subscribe(() => this.refreshReducedNodeLabels());
+            .subscribe(() => this.scheduleReducedNodeLabelsRefresh());
 
-        setTimeout(() => this.refreshReducedNodeLabels(), 0);
+        this.scheduleReducedNodeLabelsRefresh();
     }
 
     private scrollSelectedNodeIntoView(): void {
@@ -653,17 +653,12 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         });
     }
 
-    public getNodeDisplayLabel(node: EqualComponentDescriptor, index: number): string {
-        const key = this.getNodeKey(node);
-        const existing = this.reducedNodeLabels[key];
-        if (existing) {
-            return existing;
-        }
+    public getNodeDisplayLabel(node: EqualComponentDescriptor): string {
+        return this.reducedNodeLabels[this.getNodeKey(node)] || node.name;
+    }
 
-        const hostElement = this.nodeNameElements?.toArray?.()[index]?.nativeElement;
-        const reduced = reducePathIteratively(buildNodeIdentifier(node), hostElement, node.name);
-        this.reducedNodeLabels[key] = reduced;
-        return reduced;
+    private scheduleReducedNodeLabelsRefresh(): void {
+        setTimeout(() => this.refreshReducedNodeLabels(), 0);
     }
 
     private refreshReducedNodeLabels(): void {

@@ -34,7 +34,7 @@
 
 <mat-list class="list">
 
-    <mat-list-item *ngFor="let node of filteredData; let i = index; trackBy: trackByFn">
+    <mat-list-item *ngFor="let node of filteredData; trackBy: trackByFn">
         <ng-container *ngIf="areNodesEqual(node, editingNode); else displayMode">
             <div class="node_edit">
                 <mat-form-field class="node-edited">
@@ -76,7 +76,7 @@
                 <div class="inner" (click)="onclickSelect(node)">
                     <div class="node-text">
                         <label class="node-icon component-icon component-color-{{node.type}}"><mat-icon>{{type_dict[node.type].icon}}</mat-icon></label>
-                        <label #nodeName class="node-name" [innerHTML]="getHighlightedName(getNodeDisplayLabel(node, i), search_terms)"></label>
+                        <label #nodeName class="node-name" [innerHTML]="getHighlightedName(getNodeDisplayLabel(node), search_terms)"></label>
                     </div>
                     <div class="node-actions">
                         <button *ngIf="allow_update" mat-icon-button aria-label="Edit node button">
