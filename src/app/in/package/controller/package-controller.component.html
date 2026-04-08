@@ -20,6 +20,7 @@
                 [buttonRevertOneDisabled]="!canRevertOne"
                 (onButtonRevertOne)="onHeaderButtonRevertOne()"
                 [buttonSave]="true"
+                [buttonSaveDisabled]="isSaving"
                 (onButtonSave)="onHeaderButtonSave()"
                 [customButton]="true"
                 [customButtonList]="[{name:'show JSON', icon:'bug_report', disabled:false}]"
@@ -52,7 +53,8 @@
                 [usages]="usages"
                 [paramsScheme]="paramsScheme"
                 [modelList]="modelList"
-                [dataReady]="dataLoaded">
+                [dataReady]="dataLoaded"
+                [isSaving]="isSaving">
             </package-controller-params>
         </mat-tab>
 
@@ -67,7 +69,8 @@
                 [types]="types"
                 [entities]="entities"
                 [returnScheme]="returnScheme"
-                [dataReady]="dataLoaded">
+                [dataReady]="dataLoaded"
+                [isSaving]="isSaving">
             </package-controller-return>
         </mat-tab>
     </mat-tab-group>

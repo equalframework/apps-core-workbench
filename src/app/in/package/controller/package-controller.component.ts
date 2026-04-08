@@ -34,6 +34,7 @@ export class PackageControllerComponent implements OnInit, OnDestroy {
     public package_name: string = '';
     public loading = true;
     public error = false;
+    public isSaving = false;
 
     // Tab management
     public selectedTabIndex = 0;
@@ -66,7 +67,7 @@ export class PackageControllerComponent implements OnInit, OnDestroy {
             private routerMemory: RouterMemory,
             private queryParamNavigator: QueryParamNavigatorService,
             private workbenchService: WorkbenchService,
-            private provider: EqualComponentsProviderService
+            private provider: EqualComponentsProviderService,
         ) { }
 
     public async ngOnInit() {
@@ -124,7 +125,7 @@ export class PackageControllerComponent implements OnInit, OnDestroy {
             this.returnScheme = scheme;
             this.loading = false;
             try {
-                // Phase 2 : Load additional data needed for full app
+                // Phase 2 : Load additional data
                 const [types, usages, modelList, componentDescriptor] = await Promise.all([
                     this.workbenchService.getTypeList(),
                     this.workbenchService.getUsageList(),

@@ -14,6 +14,7 @@ import { Location } from '@angular/common';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
+import { JsonValidationService } from 'src/app/in/_services/json-validation.service';
 
 /**
  * Component used to display the response of a controller
@@ -29,6 +30,17 @@ import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer
 })
 export class PackageControllerReturnComponent implements OnInit, OnDestroy {
 
+    private readonly announcementFieldsToCopy: string[] = [
+        'response',
+        'access',
+        'providers',
+        'constants',
+        'description',
+        'deprecated',
+        'help',
+        'usage'
+    ];
+
     // @Input properties for tab-based usage
     @Input() controllerName: string = '';
     @Input() controllerType: string = '';
@@ -39,6 +51,7 @@ export class PackageControllerReturnComponent implements OnInit, OnDestroy {
     @Input() entities: string[] = [];
     @Input() returnScheme: any = null;
     @Input() dataReady: boolean = false;
+    @Input() isSaving: boolean = false;
 
     // rx subject for unsubscribing subscriptions on destroy
     private ngUnsubscribe = new Subject<void>();
@@ -74,7 +87,8 @@ export class PackageControllerReturnComponent implements OnInit, OnDestroy {
             private route: ActivatedRoute,
             private dialog: MatDialog,
             private location: Location,
-            private routerMemory: RouterMemory
+            private routerMemory: RouterMemory,
+            private jsonValidator: JsonValidationService
         ) { }
 
     public ngOnInit() {
@@ -289,9 +303,31 @@ export class PackageControllerReturnComponent implements OnInit, OnDestroy {
         this.dialog.open(JsonViewerComponent, {data:this.object.export(),width:"75%",height:"85%"});
     }
 
+    public formatJson(json: any): any {
+                const formatted = cloneDeep(json);
+        formatted["name"] = this.controller_name;
+        formatted["type"] = this.controller_type;
+        formatted["package_name"] = this.package_name;
+
+                const announcement = this.scheme?.announcement ?? {};
+                for (const key of this.announcementFieldsToCopy) {
+                    if (announcement[key] !== undefined) {
+                        formatted[key] = announcement[key];
+                    }
+        }
+
+                return formatted;
+      }
+
     public save() {
         let payload = cloneDeep(this.scheme);
         payload.announcement.response = this.object.export();
+        this.jsonValidator.validateAndSave(
+            this.jsonValidator.validateBySchemaType(this.formatJson(payload.announcement), "controller", this.package_name),
+            () =>         this.workbenchService.updateController(this.package_name, this.controller_name, this.controller_type, payload.announcement),
+            (saving) => this.isSaving = saving
+        );
+
         this.workbenchService.updateController(this.package_name, this.controller_name, this.controller_type, payload.announcement);
     }
 

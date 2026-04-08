@@ -3,7 +3,7 @@ import { RouterMemory } from 'src/app/_services/routermemory.service';
 import { ActivatedRoute } from '@angular/router';
 import { Param } from '../../../_models/Params';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, constant } from 'lodash';
 import { ItemTypes } from 'src/app/in/_models/item-types.class';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { NotificationService } from 'src/app/in/_services/notification.service';
@@ -11,9 +11,10 @@ import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
 import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
 import { takeUntil } from 'rxjs/operators';
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { Location } from '@angular/common';
 import { QueryParamActivatorRegistry, QueryParamTabActivator } from 'src/app/_services/query-param-activator.registry';
+import { JsonValidationService } from 'src/app/in/_services/json-validation.service';
 
 /**
  * Component used to display the params of a controller
@@ -32,6 +33,17 @@ import { QueryParamActivatorRegistry, QueryParamTabActivator } from 'src/app/_se
 })
 export class PackageControllerParamsComponent implements OnInit, OnDestroy {
 
+    private readonly announcementFieldsToCopy: string[] = [
+      'response',
+      'access',
+      'providers',
+      'constants',
+      'description',
+      'deprecated',
+      'help',
+      'usage'
+    ];
+
     // @Input properties for tab-based usage
     @Input() controllerName: string = '';
     @Input() controllerType: string = '';
@@ -43,7 +55,7 @@ export class PackageControllerParamsComponent implements OnInit, OnDestroy {
     @Input() paramsScheme: any = null;
     @Input() modelList: string[] = [];
     @Input() dataReady: boolean = false;
-
+    @Input() isSaving: boolean = false;
     public error:boolean = false;
 
     public paramListHistory:{param:Param[],message:string}[] = [];
@@ -81,7 +93,8 @@ export class PackageControllerParamsComponent implements OnInit, OnDestroy {
         private notificationService: NotificationService,
         private route: ActivatedRoute,
         private provider: EqualComponentsProviderService,
-        private location: Location
+        private location: Location,
+        private jsonValidator: JsonValidationService
       ) { }
 
       public ngOnDestroy(): void {
@@ -127,6 +140,17 @@ export class PackageControllerParamsComponent implements OnInit, OnDestroy {
         }
 
         this.loading = false;
+        console.log("Initialized with @Input properties:", {
+            controllerName: this.controller_name,
+            controllerType: this.controller_type,
+            controllerPackage: this.controller_package,
+            scheme: this.scheme,
+            types: this.types,
+            usages: this.usages,
+            modelList: this.modelList,
+            paramsScheme: this.paramsScheme
+        });
+
     }
 
     public onSelection(index:number){
@@ -188,6 +212,22 @@ export class PackageControllerParamsComponent implements OnInit, OnDestroy {
     return result["announcement"]
   }
 
+  public formatJson(json: any): any {
+    const formatted = cloneDeep(json);
+    formatted["name"] = this.controller_name;
+    formatted["type"] = this.controller_type;
+    formatted["package_name"] = this.controller_package;
+
+    const announcement = this.scheme?.announcement ?? {};
+    for (const key of this.announcementFieldsToCopy) {
+      if (announcement[key] !== undefined) {
+        formatted[key] = announcement[key];
+      }
+    }
+
+    return formatted;
+  }
+
   showJson() {
     this.dialog.open(JsonViewerComponent,{data:this.export(),width:"75%",height:"85%"})
   }
@@ -203,16 +243,15 @@ export class PackageControllerParamsComponent implements OnInit, OnDestroy {
     this.location.back();
   }
 
-save() {
-    this.snack.open("Saving...","INFO")
-    this.workbenchService.updateController(this.controller_package, this.controller_name, this.controller_type, this.export()).subscribe((result) => {
-            if(result.success){
-                    this.notificationService.showSuccess(result.message)
-            } else{
-                this.notificationService.showError(result.message);
-            }
-    })
+  public async save() {
 
+
+
+    this.jsonValidator.validateAndSave(
+      this.jsonValidator.validateBySchemaType(this.formatJson(this.export()), "controller", this.controller_package),
+      () => this.workbenchService.updateController(this.controller_package, this.controller_name, this.controller_type, this.export()),
+      (saving) => this.isSaving = saving
+  );
   }
 
 }
