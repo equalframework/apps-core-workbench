@@ -15,6 +15,7 @@ import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer
 import { QueryParamNavigatorService } from 'src/app/_services/query-param-navigator.service';
 import { QueryParamActivatorRegistry, IQueryParamActivator } from 'src/app/_services/query-param-activator.registry';
 import { EqualComponentsProviderService } from '../../_services/equal-components-provider.service';
+import { JsonValidationService } from '../../_services/json-validation.service';
 
 @Component({
     selector: 'package-menu',
@@ -43,21 +44,23 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
     public isLoadingEntityData: boolean = false;
     public isRightPaneLoading: boolean = false;
     private backgroundPreloadStarted: boolean = false;
+    public isSaving: boolean = false;
 
     private queryParamActivatorRegistry: QueryParamActivatorRegistry;
     private provider: EqualComponentsProviderService | null = null;
 
     constructor(
-            private route: ActivatedRoute,
-            private workbenchService: WorkbenchService,
-            private location: Location,
-            private matSnack: MatSnackBar,
-            private dialog: MatDialog,
-            private routerMemory: RouterMemory,
-            private queryParamNavigator: QueryParamNavigatorService,
-            private injector: Injector
+        private route: ActivatedRoute,
+        private workbenchService: WorkbenchService,
+        private location: Location,
+        private matSnack: MatSnackBar,
+        private dialog: MatDialog,
+        private routerMemory: RouterMemory,
+        private queryParamNavigator: QueryParamNavigatorService,
+        private injector: Injector,
+        private jsonValidationService: JsonValidationService
             
-        ) { }
+    ) { }
 
     public async ngOnInit() {
         this.initializeNavigation();
@@ -219,12 +222,11 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
     }
 
     public async save() {
-        let result = await this.workbenchService.saveView(this.object.export(),this.package_name,"\\menu",this.menu_name.trim()).toPromise();
-        if(result) {
-            this.matSnack.open("Saved successfully","INFO");
-            return;
-        }
-        this.matSnack.open("Error during save. make sure that www-data has right on the file.","ERROR");
+        this.jsonValidationService.validateAndSave(
+            this.jsonValidationService.validateBySchemaType(this.object.export(), "menu", this.package_name),
+            () => this.workbenchService.saveView(this.object.export(),this.package_name,"\\menu",this.menu_name.trim()),
+            (saving) => this.isSaving = saving
+        );
     }
 
     public showJSON() {

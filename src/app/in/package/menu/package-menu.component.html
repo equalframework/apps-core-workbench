@@ -2,6 +2,7 @@
         [buttonBack]="true"
         (onButtonBack)="goBack()"
         [buttonSave]="true"
+        [buttonSaveDisabled]="isSaving"
         (onButtonSave)="save()"
         [customButton]="true"
         [customButtonList]="[{name:'Show JSON',icon:'bug_report',disabled:false}]"
