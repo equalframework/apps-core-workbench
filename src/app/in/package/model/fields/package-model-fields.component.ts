@@ -16,6 +16,7 @@ import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer
 import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
 import { QueryParamActivatorRegistry, IQueryParamActivator } from 'src/app/_services/query-param-activator.registry';
 import { QueryParamNavigatorService } from 'src/app/_services/query-param-navigator.service';
+import { JsonValidationService } from 'src/app/in/_services/json-validation.service';
 
 @Component({
     selector: 'package-model-fields',
@@ -33,6 +34,7 @@ export class PackageModelFieldsComponent implements OnInit {
     public package_name: string = "";
     public class_name: string = "";
     public dummySchema: any = {};
+    public isSaving: boolean = false;
 
     public models: string[] = [];
     public get types() {
@@ -75,7 +77,7 @@ export class PackageModelFieldsComponent implements OnInit {
         private notificationService:NotificationService,
         private injector: Injector,
         private queryParamNavigator: QueryParamNavigatorService,
-    
+        private jsonValidationService: JsonValidationService,
     ) { }
 
     public onKeydown(event: KeyboardEvent) {
@@ -260,14 +262,38 @@ export class PackageModelFieldsComponent implements OnInit {
     }
 
     public async savedata() {
-        this.notificationService.showInfo("Saving....");
-        this.workbenchService.updateFieldsFromClass(this.export2JSON(),this.package_name,this.class_name).subscribe((result) => {
-                if(result.success){
-                    this.notificationService.showSuccess(result.message);
-                }else{
-                    this.notificationService.showError(result.message);
-                }
-        });
+        const exportedModel = this.export2JSON();
+        let modelPayloadForValidation: any;
+
+        try {
+            modelPayloadForValidation = await this.buildModelPayloadWithFields(exportedModel);
+        } catch (error) {
+            this.notificationService.showError("Error while fetching model schema for fields validation.");
+            return;
+        }
+
+        this.jsonValidationService.validateAndSave(
+            this.jsonValidationService.validateBySchemaType(modelPayloadForValidation, "urn:equal:json-schema:core:model", this.package_name),
+            () => this.workbenchService.updateFieldsFromClass(exportedModel,this.package_name,this.class_name),
+            (saving) => this.isSaving = saving
+        );
+    }
+
+    private async buildModelPayloadWithFields(exportedModel: any): Promise<any> {
+        const entity = `${this.package_name}\\${this.class_name}`;
+        const latestModelSchema = await this.workbenchService.getSchema(entity).toPromise();
+        const modelPayload = cloneDeep(latestModelSchema || {});
+        const parentFields = cloneDeep(this.parent_schema?.fields || {});
+        const schemaFields = cloneDeep(modelPayload?.fields || {});
+        const exportedFields = cloneDeep(exportedModel?.fields || {});
+
+        // Keep inherited/system fields for validation and overlay current edits on top.
+        modelPayload["fields"] = {
+            ...parentFields,
+            ...schemaFields,
+            ...exportedFields,
+        };
+        return modelPayload;
     }
 
     public navigateToParent() {

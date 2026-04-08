@@ -4,6 +4,7 @@
         [buttonCancel]="true"
         (onButtonCancel)="cancel()"
         [buttonSave]="!loading"
+        [buttonSaveDisabled]="isSaving"
         (onButtonSave)="savedata()"
         [customButton]="!loading"
         [customButtonList]="[{name:'Show JSON', icon:'bug_report', disabled:false}]"
