@@ -17,6 +17,7 @@ import { MenuTranslationValue, MenuTranslationField, MenuFieldColumnConfig, MENU
 import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
 import { ca } from 'date-fns/locale';
 import { Location } from '@angular/common';
+import { JsonValidationService } from 'src/app/in/_services/json-validation.service';
 
 @Component({
   selector: 'app-menu-trad-editor',
@@ -33,6 +34,7 @@ export class MenuTradEditorComponent implements OnInit {
     addingLanguage = false;
     activeTab = 'menu';
     activeField = '';
+    public isSaving: boolean = false;
 
     langName = new FormControl('', { validators: [ MenuTradEditorComponent.langCaseValidator ] });
     local_schema: { [id: string]: Translator } = {};
@@ -60,7 +62,8 @@ export class MenuTradEditorComponent implements OnInit {
         private cdr: ChangeDetectorRef,
         private location: Location,
         private queryParamNavigator: QueryParamNavigatorService,
-        private injector: Injector
+        private injector: Injector,
+        private jsonValidationService: JsonValidationService
     ) {
         this.activatorRegistry = new QueryParamActivatorRegistry();
     }
@@ -680,10 +683,11 @@ export class MenuTradEditorComponent implements OnInit {
         // Sanitize data to ensure it matches the expected structure
         // All fields are included (even unedited ones) to prevent data loss on overwrite
         const sanitizedData = this.sanitizeTranslationData(this.local_schema);
-        
-        this.workbenchService.overwriteMenuTranslations(this.package_name, this.menu_name, sanitizedData).subscribe(()=> {
-            this.notificationService.showSuccess("Translations updated")
-        });
+        this.jsonValidationService.validateAndSave(
+            this.jsonValidationService.validateBySchemaType(sanitizedData, "menu-translations", this.package_name),
+            () => this.workbenchService.overwriteMenuTranslations(this.package_name, this.menu_name, sanitizedData),
+            (saving) => this.isSaving = saving
+        );
     }
 
     /**
