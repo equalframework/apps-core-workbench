@@ -985,19 +985,36 @@ export class WorkbenchService {
      *
      * @returns {Observable<void>} An observable that emits when all translation updates have been completed.
      */
-    public overwriteMenuTranslations(package_name: string, menu_name: string, dict: any): Observable<any> {
-        const requests = Object.keys(dict).map((lang) => {
+    public overwriteMenuTranslations(package_name: string, menu_name: string, dict: any): Observable<{ success: boolean; message: string }> {
+        const requests: Observable<boolean>[] = Object.keys(dict).map((lang) => {
             // Handle both Translator instances and plain objects
             const payload = dict[lang].export ? dict[lang].export() : dict[lang];
             const url = `?do=core_config_generate-menu-i18n&package=${package_name}&menu_name=${menu_name}&overwrite=true&lang=${lang}&create_lang=true&payload=${JSON.stringify(payload)}`;
+
             return this.callApi(url, 'Translation updated').pipe(
+                map((result) => !!result.success),
                 catchError((err) => {
                     console.error(`Error saving translation for ${lang}:`, err);
-                    return of(null); // Continue even if there's an error
+                    return of(false);
                 })
             );
         });
-        return forkJoin(requests).pipe(map(() => {})); // Wait for all the requests to finish
+
+        if (requests.length === 0) {
+            return of({ success: true, message: 'No menu translations to save' });
+        }
+
+        return forkJoin(requests).pipe(
+            map((results) => {
+                const success = results.every((result) => result);
+                return {
+                    success,
+                    message: success
+                        ? 'Menu translations updated'
+                        : 'Some menu translations failed to update'
+                };
+            })
+        );
     }
 
 
