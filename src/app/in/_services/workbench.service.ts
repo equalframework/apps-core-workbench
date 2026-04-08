@@ -100,7 +100,6 @@ export class WorkbenchService {
     public readMenu(package_name: string, menu_name: string): Observable<any> {
         const url = API_ENDPOINTS.menu.read(package_name, menu_name);
         return from(this.api.fetch(url)).pipe(
-          tap(raw => console.log('readMenu raw fetch', url, raw)),
           map((res: any) => res)
         );
       }
@@ -255,7 +254,7 @@ export class WorkbenchService {
      * @param model The model name.
      * @returns An Observable that resolves to a boolean indicating success.
      */
-    public createWorkflow(package_name: string, model: string): Observable<boolean> {
+    public createWorkflow(package_name: string, model: string): Observable<any> {
         const url = API_ENDPOINTS.workflow.create(package_name,model);
         return from(this.api.post(url)).pipe(
             switchMap(() => of(true)),
@@ -292,7 +291,7 @@ export class WorkbenchService {
      * @param payload The payload for the metadata.
      * @returns An Observable that resolves to a boolean indicating success.
      */
-    public createMetaData(code: string, reference: string, payload: string): Observable<boolean> {
+    public createMetaData(code: string, reference: string, payload: string): Observable<any> {
         return from(this.api.post(`?do=core_model_create&entity=core\\Meta`, { fields: { value: payload, code: code, reference: reference } })).pipe(
             switchMap(() => of(true)),
             catchError(e => {
@@ -309,7 +308,7 @@ export class WorkbenchService {
      * @param payload The payload for the metadata.
      * @returns An Observable that resolves to a boolean indicating success.
      */
-    public saveMetaData(id: number, payload: string): Observable<boolean> {
+    public saveMetaData(id: number, payload: string): Observable<any> {
         return from(this.api.post(`?do=core_model_update&entity=core\\Meta&id=${id}`, { fields: { value: payload } })).pipe(
             switchMap(() => of(true)),
             catchError(e => {
@@ -919,7 +918,7 @@ export class WorkbenchService {
      *
      * @returns {Observable<void>} An observable that emits when all translation updates have been completed.
      */
-    public saveTranslations(package_name: string, entity: string, dict: any): Observable<void> {
+    public saveTranslations(package_name: string, entity: string, dict: any): Observable<any> {
         const requests = Object.keys(dict).map((lang) => {
             const url = `?do=core_config_update-translation&package=${package_name}&entity=${entity}&lang=${lang}&create_lang=true&payload=${JSON.stringify(dict[lang].export())}`;
             return this.callApi(url, 'Translation updated').pipe(
@@ -945,7 +944,6 @@ export class WorkbenchService {
      */
     //#memo: This method should be updated to handle a list of translations instead of a single one, to be consistent with the other translation methods
     public getMenuTranslationsList(package_name: string, menu_id: string, lang: string): Observable<{ [id: string]: string[] }> {
-        console.log("Fetching menu translations for package:", package_name, "and menu_id:", menu_id, 'lang:', lang);
         const url = `?get=core_config_i18n-menu&package=${package_name}&menu_id=${menu_id}&lang=${lang}`;
         return this.callApi(url, '').pipe(
             map(({ response }) => response ? response : {})
@@ -987,11 +985,10 @@ export class WorkbenchService {
      *
      * @returns {Observable<void>} An observable that emits when all translation updates have been completed.
      */
-    public overwriteMenuTranslations(package_name: string, menu_name: string, dict: any): Observable<void> {
+    public overwriteMenuTranslations(package_name: string, menu_name: string, dict: any): Observable<any> {
         const requests = Object.keys(dict).map((lang) => {
             // Handle both Translator instances and plain objects
             const payload = dict[lang].export ? dict[lang].export() : dict[lang];
-            console.log(`Overwriting with payload:`, payload);
             const url = `?do=core_config_generate-menu-i18n&package=${package_name}&menu_name=${menu_name}&overwrite=true&lang=${lang}&create_lang=true&payload=${JSON.stringify(payload)}`;
             return this.callApi(url, 'Translation updated').pipe(
                 catchError((err) => {
@@ -1137,9 +1134,7 @@ export class WorkbenchService {
         const url = `?${type_controller}=${name}&announce=true`;
         return this.callApi(url, '').pipe(
             map(({response}) => response),
-            catchError(() => {
-                return of(null);
-            })
+            tap((response) => console.log('announceController response:', response)),
         );
     }
 
