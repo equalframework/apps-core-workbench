@@ -25,7 +25,6 @@ import { MAT_TABS_CONFIG } from '@angular/material/tabs';
 
 // import { PackageModule } from './in/package/package.module';
 
-import { TranslateModule } from '@ngx-translate/core';
 import { RouterModule } from '@angular/router';
 
 
@@ -71,7 +70,6 @@ const sharedComponents = [
         MatNativeDateModule,
         PlatformModule,
         NgxMaterialTimepickerModule.setLocale('fr-BE'),
-        TranslateModule.forRoot(),
         HttpClientModule
     ],
     exports: [
