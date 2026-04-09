@@ -9,43 +9,43 @@ import { PopupParamsComponent } from './_components/popup-params/popup-params.co
   styleUrls: ['./action-editor.component.scss']
 })
 export class ActionEditorComponent implements OnInit {
-  @Input() obj: ViewAction
-  @Input() controllers: string[]
-  @Input() groups: string[] = []
-  @Input() entity: string
-  @Input() actionIndex: number = 0
-  @Input() package_name: string
+  @Input() obj: ViewAction;
+  @Input() controllers: string[];
+  @Input() groups: string[] = [];
+  @Input() entity: string;
+  @Input() actionIndex = 0;
+  @Input() packageName: string;
 
-  @Output() delete = new EventEmitter<void>()
-  big_disp = false
-  input = ""
-  filteredOptions: string[]
-  filteredGroups: string[]
+  @Output() delete = new EventEmitter<void>();
+  bigDisp = false;
+  input = '';
+  filteredOptions: string[];
+  filteredGroups: string[];
 
   constructor(
-    private matdialog: MatDialog,
+    private matDialog: MatDialog,
   ) {}
 
-  ngOnInit() {
-    this.filteredOptions = ['', ...this.controllers]
-    
+  ngOnInit(): void {
+    this.filteredOptions = ['', ...this.controllers];
+
   }
 
-  deleteme() {
-    this.delete.emit()
+  deleteMe(): void {
+    this.delete.emit();
   }
 
-  tap(new_value:string) {
-    this.filteredOptions = ['',...this.controllers.filter((val) => (val.toLowerCase().includes(this.obj.controller)))]
+  tap(newValue: string): void {
+    this.filteredOptions = ['', ...this.controllers.filter((val) => (val.toLowerCase().includes(this.obj.controller)))];
   }
 
-  show_custom_params(){
-    this.matdialog.open(PopupParamsComponent,{data:this.obj})
+  show_custom_params(): void{
+    this.matDialog.open(PopupParamsComponent, {data: this.obj});
   }
 
-  changeBigDispBy(bool:boolean) {
-    if(bool){
-      this.big_disp = true
+  changeBigDispBy(bool: boolean): void {
+    if (bool){
+      this.bigDisp = true;
     }
   }
 }

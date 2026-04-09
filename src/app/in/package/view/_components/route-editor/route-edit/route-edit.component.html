@@ -43,18 +43,18 @@
                 *ngIf="route._has_context || route._has_visible"
                 [enabledIcon]="'expand_less'"
                 [disabledIcon]="'expand_more'"
-                [baseState]="big_disp"
-                (toggle)="big_disp = $event"
+                [baseState]="bigDisp"
+                (toggle)="bigDisp = $event"
                 [disabled]="false">
             </app-toggling-button>
 
             <mat-checkbox [(ngModel)]="route._has_context" 
-                         (change)="big_disp = true">
+                         (change)="bigDisp = true">
                 context
             </mat-checkbox>
 
             <mat-checkbox [(ngModel)]="route._has_visible" 
-                         (change)="big_disp = true">
+                         (change)="bigDisp = true">
                 visibility
             </mat-checkbox>
         </div>
@@ -66,13 +66,13 @@
         </div>
     </div>
 
-    <ng-container *ngIf="big_disp">
+    <ng-container *ngIf="bigDisp">
         <div *ngIf="route._has_visible" class="visible-drawer">
             <label>Visibility</label>
             <app-property-domain-component
                 [value]="route.visible.dom"
                 [name]="'oui'"
-                [class]="package_name + '\\' + entity"
+                [class]="packageName + '\\' + entity"
                 (valueChange)="route.visible.dom = $event">
             </app-property-domain-component>
         </div>
@@ -88,7 +88,7 @@
                            [(ngModel)]="route.context.entity"
                            (keyup)="updateAutocomplete(route.context.entity)" />
                     <mat-autocomplete #auto="matAutocomplete" (optionSelected)="refreshViewList($event.option.value)">
-                        <mat-option *ngFor="let model of filtered_model_list" [value]="model">
+                        <mat-option *ngFor="let model of filteredModelList" [value]="model">
                             {{ model }}
                         </mat-option>
                     </mat-autocomplete>
@@ -96,8 +96,8 @@
 
                 <mat-form-field class="longlongfield">
                     <mat-label>View</mat-label>
-                    <mat-select [(ngModel)]="route.context.view" [disabled]="ext_entity_view_list.length === 0">
-                        <mat-option *ngFor="let view of ext_entity_view_list" 
+                    <mat-select [(ngModel)]="route.context.view" [disabled]="extEntityViewList.length === 0">
+                        <mat-option *ngFor="let view of extEntityViewList" 
                                    [value]="view.split(':')[1]">
                             {{ view }}
                         </mat-option>
@@ -118,7 +118,7 @@
                 <app-property-domain-component
                     [value]="route.context.domain.dom"
                     [name]="'oui'"
-                    [class]="package_name + '\\' + entity"
+                    [class]="packageName + '\\' + entity"
                     (valueChange)="route.context.domain.dom = $event">
                 </app-property-domain-component>
             </div>

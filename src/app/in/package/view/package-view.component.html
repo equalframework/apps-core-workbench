@@ -30,7 +30,7 @@
             </div>
     </app-inner-header>
     <div class="feature-container" >
-        <label *ngIf="!idCompliancy.ok" class="error-message">ERROR : {{ (idDoublons.length > 0) ? "Some IDs are duplicated ("+idDoublons+")" : "Some items don't have an ID"}}</label>
+        <label *ngIf="!idCompliancy.ok" class="error-message">ERROR : {{ (idDuplicates.length > 0) ? "Some IDs are duplicated ("+idDuplicates+")" : "Some items don't have an ID"}}</label>
         <div class="name">
             <mat-form-field class="inputlong">
                 <input matInput placeholder="view name" [value]="viewObj.name"  (input)="viewObj.name = $event.target.value">
@@ -59,10 +59,10 @@
                     [entity]="entity"
                     [fields]="fields"
                     [groups]="groups"
-                    [package_name]="this.node.package_name"
-                    [action_controllers]="action_controllers"
-                    [class_scheme]="class_scheme"
-                    [iconType]="icontype"
+                    [packageName]="this.node.package_name"
+                    [actionControllers]="actionControllers"
+                    [classScheme]="classScheme"
+                    [iconType]="iconType"
                     (viewObjChange)="onViewObjChange($event)"
                 ></app-layout-tab>
             </mat-tab>
@@ -77,7 +77,7 @@
                     <app-header-tab
                         [viewObj]="viewObj"
                         [groups]="groups"
-                        [action_controllers]="action_controllers"
+                        [actionControllers]="actionControllers"
                         [entity]="this.node.package_name + '\\' + entity"
                         (viewObjChange)="onViewObjChange($event)"
                     ></app-header-tab>
@@ -91,9 +91,9 @@
                     </ng-template>
                     <app-actions-tab
                         [viewObj]="viewObj"
-                        [action_controllers]="action_controllers"
+                        [actionControllers]="actionControllers"
                         [groups]="groups"
-                        [package_name]="node.package_name"
+                        [packageName]="node.package_name"
                         [entity]="entity"
                         (viewObjChange)="onViewObjChange($event)"
                     ></app-actions-tab>
@@ -108,7 +108,7 @@
                     <app-routes-tab
                         [viewObj]="viewObj"
                         [entity]="entity"
-                        [package_name]="node.package_name"
+                        [packageName]="node.package_name"
                         (viewObjChange)="onViewObjChange($event)"
                     ></app-routes-tab>
                 </mat-tab>
@@ -122,8 +122,8 @@
                     <app-advanced-tab
                         [viewObj]="viewObj"
                         [entity]="entity"
-                        [collect_controller]="collect_controller"
-                        [class_scheme]="class_scheme"
+                        [collectController]="collectController"
+                        [classScheme]="classScheme"
                         [groups]="groups"
                         (viewObjChange)="onViewObjChange($event)"
                     ></app-advanced-tab>

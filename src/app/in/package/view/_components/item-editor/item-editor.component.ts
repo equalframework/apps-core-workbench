@@ -12,25 +12,25 @@ export class ItemEditorComponent implements OnInit {
     @Input() entity: string;
     @Input() fields: string[];
     @Input() types: string[];
-    @Input() displayDelete: boolean = false;
+    @Input() displayDelete = false;
     @Input() groups: string[];
-    @Input() action_controllers: string[];
-    @Input() package_name: string;
+    @Input() actionControllers: string[];
+    @Input() packageName: string;
 
-    protected widget_types: { [id: string]: string[] };
-    public filtered_equal_usage: string[];
+    protected _widgetTypes: { [id: string]: string[] };
+    public filteredEqualUsage: string[];
 
     @Output() delete = new EventEmitter<void>();
 
     obk = Object.keys;
 
-    public cachelist: { foreign: string, lists: { [key: string]: string } } = { foreign: "", lists: {} };
+    public cacheList: { foreign: string, lists: { [key: string]: string } } = { foreign: '', lists: {} };
 
     public scheme: any;
 
     get isReadonly(): boolean {
-        if (this.item?.readonly) return true;
-        if (!this.scheme || !this.scheme.fields || !this.item?.value) return false;
+        if (this.item?.readonly) { return true; }
+        if (!this.scheme || !this.scheme.fields || !this.item?.value) { return false; }
         return !!this.scheme.fields[this.item.value]?.readonly;
     }
 
@@ -40,107 +40,107 @@ export class ItemEditorComponent implements OnInit {
     ) {}
 
 
-    async ngOnInit() {
+    async ngOnInit(): Promise<void> {
         const currentUrl = window.location.href;
         const packageNameMatch = currentUrl.match(/\/package\/([^/]+)\//);
-        let package_name = '';
+        let packageName = '';
         if (packageNameMatch) {
-            package_name = packageNameMatch[1];
+            packageName = packageNameMatch[1];
         }
         this.workbenchService.getWidgetTypes().subscribe((data) => {
-            this.widget_types = data;
-        })
-       this.workbenchService.getSchema(`${package_name}\\${this.entity}`).subscribe((data) => {
+            this._widgetTypes = data;
+        });
+        this.workbenchService.getSchema(`${packageName}\\${this.entity}`).subscribe((data) => {
         this.scheme = data;
-        })
-        if (this.item.viewtype === 1) {
+        });
+        if (this.item.viewType === 1) {
             this.set_has_view(this.item.widgetForm._has_view);
         }
     }
 
     get widgetTypes(): string[] {
-        if (this.item.type === "label") {
-            return [""];
+        if (this.item.type === 'label') {
+            return [''];
         }
         if (!this.scheme || !this.scheme.fields || !this.scheme.fields[this.item.value]) {
-            return [""];
+            return [''];
         }
         const fieldType = this.scheme.fields[this.item.value].type;
-        if (!Object.keys(this.widget_types).includes(fieldType)) {
-            return [""];
+        if (!Object.keys(this._widgetTypes).includes(fieldType)) {
+            return [''];
         }
-        return ["", ...this.widget_types[fieldType]];
+        return ['', ...this._widgetTypes[fieldType]];
     }
 
-    public onDelete() {
+    public onDelete(): void {
         this.delete.emit();
     }
 
-    public update_has_field() {
+    public update_has_field(): void {
         this.set_has_view(this.item.widgetForm._has_view);
         this.set_has_domain(this.item.widgetForm._has_view);
         this.set_has_header(this.item.widgetForm._has_header);
     }
 
-    public set_has_view($event: boolean) {
-        if (this.item.viewtype !== 1) return;
+    public set_has_view($event: boolean): void {
+        if (this.item.viewType !== 1) { return; }
         this.item.widgetForm._has_view = $event && this._has_viewEnabled;
         if (this.item.widgetForm._has_view) {
-            this.getlistOptions4View();
+            this.getListOptions4View();
         }
     }
 
-    set_has_domain($event: boolean) {
-        if (this.item.viewtype !== 1) return;
+    set_has_domain($event: boolean): void {
+        if (this.item.viewType !== 1) { return; }
         this.item.widgetForm._has_domain = $event && this._has_viewEnabled;
     }
 
-    set_has_header($event: boolean) {
-        if (this.item.viewtype !== 1) return;
+    set_has_header($event: boolean): void {
+        if (this.item.viewType !== 1) { return; }
         this.item.widgetForm._has_header = $event && this._has_viewEnabled;
     }
 
-    get _has_viewEnabled() {
-        if (this.item.viewtype !== 1) return false;
-        return this.item.type === "field" && this.scheme['fields'] && (
-            this.scheme['fields'][this.item.value]['type'] === "many2many" ||
-            this.scheme['fields'][this.item.value]['type'] === "one2many" ||
-            this.scheme['fields'][this.item.value]['type'] === "many2one"
+    get _has_viewEnabled(): boolean {
+        if (this.item.viewType !== 1) { return false; }
+        return this.item.type === 'field' && this.scheme.fields && (
+            this.scheme.fields[this.item.value].type === 'many2many' ||
+            this.scheme.fields[this.item.value].type === 'one2many' ||
+            this.scheme.fields[this.item.value].type === 'many2one'
         );
     }
 
     get fieldType(): string {
-        if (this.item.type === "label") {
-            return "string";
+        if (this.item.type === 'label') {
+            return 'string';
         }
-        if (!this.scheme || !this.scheme['fields'] || !this.scheme['fields'][this.item.value]) {
-            return "string";
+        if (!this.scheme || !this.scheme.fields || !this.scheme.fields[this.item.value]) {
+            return 'string';
         }
-        if (this.scheme['fields'][this.item.value]['type'] === "computed") {
-            return this.scheme['fields'][this.item.value]['result_type'] || "string";
+        if (this.scheme.fields[this.item.value].type === 'computed') {
+            return this.scheme.fields[this.item.value].result_type || 'string';
         }
-        return this.scheme['fields'][this.item.value]['type'] || "string";
+        return this.scheme.fields[this.item.value].type || 'string';
     }
 
-    async getlistOptions4View() {
-        if (this.item.viewtype !== 1) return;
-        if (this._has_viewEnabled && this.scheme['fields'][this.item.value]['foreign_object'] === this.cachelist.foreign) {
+    async getListOptions4View(): Promise<void> {
+        if (this.item.viewType !== 1) { return; }
+        if (this._has_viewEnabled && this.scheme.fields[this.item.value].foreign_object === this.cacheList.foreign) {
             return;
         }
-        let t = this.scheme['fields'][this.item.value]['foreign_object'].split("\\");
-        let x = (await this.workbenchService.collectViews(t[0], t.slice(1).join("\\")).toPromise())?.filter((value) => value.includes('list.'));
+        const t = this.scheme.fields[this.item.value].foreign_object.split('\\');
+        const x = (await this.workbenchService.collectViews(t[0], t.slice(1).join('\\')).toPromise())?.filter((value) => value.includes('list.'));
         if (x) {
-            let r: { [key: string]: string } = {};
-            x.forEach(list => r[list.split(":")[1]] = list);
-            this.cachelist = {
-                foreign: this.scheme['fields'][this.item.value]['foreign_object'],
+            const r: { [key: string]: string } = {};
+            x.forEach(list => r[list.split(':')[1]] = list);
+            this.cacheList = {
+                foreign: this.scheme.fields[this.item.value].foreign_object,
                 lists: r,
             };
             return;
         }
 
-        this.cachelist = {
-            foreign: this.scheme['fields'][this.item.value]['foreign_object'],
+        this.cacheList = {
+            foreign: this.scheme.fields[this.item.value].foreign_object,
             lists: {},
         };
     }

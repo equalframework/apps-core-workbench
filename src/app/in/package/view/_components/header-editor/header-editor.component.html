@@ -2,20 +2,20 @@
     <app-toggling-button
         [enabledIcon]="'expand_less'"
         [disabledIcon]="'expand_more'"
-        [baseState]="header_action_visible"
-        (toggle)="header_action_visible = $event"
+        [baseState]="headerActionVisible"
+        (toggle)="headerActionVisible = $event"
         [disabled]="!obj._has_actions">
     </app-toggling-button>
-    <mat-slide-toggle [(ngModel)]="obj._has_actions" (change)="header_action_visible = obj._has_actions"></mat-slide-toggle>
+    <mat-slide-toggle [(ngModel)]="obj._has_actions" (change)="headerActionVisible = obj._has_actions"></mat-slide-toggle>
     <label [style.opacity]="obj._has_actions ? 1 : 0.6" class="category-title maincolor" appScrollTarget="list-actions">Actions </label>
 
 </div>
 
 
-<div *ngIf="header_action_visible && obj._has_actions" class="indent">
+<div *ngIf="headerActionVisible && obj._has_actions" class="indent">
     <app-header-actions
-        [h_scheme]="obj"
-        [controllers]="action_controllers"
+        [hScheme]="obj"
+        [controllers]="actionControllers"
         [groups]="groups"
         [entity]="entity"
     ></app-header-actions>
@@ -26,10 +26,10 @@
             [enabledIcon]="'expand_less'"
             [disabledIcon]="'expand_more'"
             [baseState]="obj.selection._has_selection_actions"
-            (toggle)="header_selection_action_visible = $event"
+            (toggle)="headerSelectionActionVisible = $event"
             [disabled]="!obj.selection._has_selection_actions"
         ></app-toggling-button>
-        <mat-slide-toggle [(ngModel)]="obj.selection._has_selection_actions" (change)="header_selection_action_visible = obj.selection._has_selection_actions"></mat-slide-toggle>
+        <mat-slide-toggle [(ngModel)]="obj.selection._has_selection_actions" (change)="headerSelectionActionVisible = obj.selection._has_selection_actions"></mat-slide-toggle>
         <label [style.opacity]="obj.selection._has_selection_actions ? 1 : 0.6" class="category-title maincolor" appScrollTarget="list-selection-actions">Selection Actions</label>
     </div>
     <div *ngIf="obj.selection._has_selection_actions" class="indent">
@@ -46,7 +46,7 @@
         <app-actions-container
             [label]="'Edit Selection Actions'"
             [acts]="obj.selection.actions"
-            [controllers]="action_controllers"
+            [controllers]="actionControllers"
             [groups]="groups"
             [entity]="entity"
         ></app-actions-container>

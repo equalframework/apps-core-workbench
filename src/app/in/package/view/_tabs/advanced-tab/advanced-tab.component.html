@@ -3,7 +3,7 @@
     <mat-form-field class="inputlong">
       <mat-label>controller</mat-label>
       <mat-select [(value)]="viewObj.controller">
-        <mat-option *ngFor="let item of collect_controller" value="{{item}}">
+        <mat-option *ngFor="let item of collectController" value="{{item}}">
           {{item === "core_model_collect" ? "core_model_collect (default)":item}}
         </mat-option>
       </mat-select>
@@ -75,7 +75,7 @@
           <mat-label>sort</mat-label>
           <mat-select [(value)]="viewObj.sort" (change)="onViewObjChange()">
             <mat-option value=''></mat-option>
-            <mat-option *ngFor="let field of obk(class_scheme.fields)" [value]="field">{{field}}</mat-option>
+            <mat-option *ngFor="let field of obk(classScheme.fields)" [value]="field">{{field}}</mat-option>
           </mat-select>
         </mat-form-field>
       </div>
@@ -108,7 +108,7 @@
             <mat-form-field>
               <mat-label>field</mat-label>
               <mat-select [(value)]="item.field" (change)="onViewObjChange()">
-                <mat-option *ngFor="let field of obk(class_scheme.fields)" [value]="field">{{field}}</mat-option>
+                <mat-option *ngFor="let field of obk(classScheme.fields)" [value]="field">{{field}}</mat-option>
               </mat-select>
             </mat-form-field>
             <mat-form-field class="operation-field">
@@ -126,7 +126,7 @@
               <mat-label>Operand</mat-label>
               <mat-select [value]="item.operation.operand.split('.').pop()" 
                           (valueChange)="item.operation.operand = 'object.'+$event; onViewObjChange()">
-                <mat-option *ngFor="let field of obk(class_scheme.fields)" [value]="field">{{field}}</mat-option>
+                <mat-option *ngFor="let field of obk(classScheme.fields)" [value]="field">{{field}}</mat-option>
               </mat-select>
               <label matPrefix>object.</label>
             </mat-form-field>

@@ -9,8 +9,8 @@ import { View } from '../../_objects/View';
 export class RoutesTabComponent implements OnInit {
   @Input() viewObj: View;
   @Input() entity: string;
-  @Input() package_name: string;
-  
+  @Input() packageName: string;
+
   @Output() viewObjChange = new EventEmitter<View>();
 
   @ViewChild('routesTabContainer', { read: ElementRef }) routesTabContainer: ElementRef;

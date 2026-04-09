@@ -235,7 +235,7 @@ describe('PackageViewComponent', () => {
       fixture.detectChanges();
 
       // Controllers start with core_model_collect and may be updated
-      expect(component.collect_controller.length).toBeGreaterThan(0);
+      expect(component.collectController.length).toBeGreaterThan(0);
     });
 
     it('should load core groups', async () => {
@@ -251,7 +251,7 @@ describe('PackageViewComponent', () => {
       await component.init();
       await fixture.whenStable();
 
-      expect(component.icontype).toEqual({ 'string': 'text_fields', 'integer': 'numbers' });
+      expect(component.iconType).toEqual({ 'string': 'text_fields', 'integer': 'numbers' });
     });
 
     it('should handle component not found', async () => {
@@ -307,18 +307,18 @@ describe('PackageViewComponent', () => {
 
     it('should identify duplicate IDs', async () => {
       await component.init();
-      component['compliancy_cache'] = { ok: false, id_list: ['id1', 'id2', 'id1'] };
+      component['compliancyCache'] = { ok: false, id_list: ['id1', 'id2', 'id1'] };
 
-      const doublons = component.idDoublons;
+      const doublons = component.idDuplicates;
 
       expect(doublons).toBe('id1');
     });
 
     it('should handle multiple duplicate IDs', async () => {
       await component.init();
-      component['compliancy_cache'] = { ok: false, id_list: ['id1', 'id2', 'id1', 'id2'] };
+      component['compliancyCache'] = { ok: false, id_list: ['id1', 'id2', 'id1', 'id2'] };
 
-      const doublons = component.idDoublons;
+      const doublons = component.idDuplicates;
 
       expect(doublons).toContain('id1');
       expect(doublons).toContain('id2');
@@ -366,7 +366,7 @@ describe('PackageViewComponent', () => {
 
     it('should prevent saving if ID compliance fails', () => {
       spyOnProperty(component, 'idCompliancy', 'get').and.returnValue({ ok: false, id_list: ['id1', 'id1'] });
-      spyOnProperty(component, 'idDoublons', 'get').and.returnValue('id1');
+      spyOnProperty(component, 'idDuplicates', 'get').and.returnValue('id1');
 
       component.save();
 
@@ -474,19 +474,19 @@ describe('PackageViewComponent', () => {
 
   describe('Custom Button Handling', () => {
     it('should open JSON viewer for "Show JSON" button', () => {
-      spyOn(component, 'logit');
+      spyOn(component, 'openJsonViewer');
 
       component.handleCustomButton('Show JSON');
 
-      expect(component.logit).toHaveBeenCalled();
+      expect(component.openJsonViewer).toHaveBeenCalled();
     });
 
     it('should not do anything for unknown buttons', () => {
-      spyOn(component, 'logit');
+      spyOn(component, 'openJsonViewer');
 
       component.handleCustomButton('Unknown Button');
 
-      expect(component.logit).not.toHaveBeenCalled();
+      expect(component.openJsonViewer).not.toHaveBeenCalled();
     });
   });
 
@@ -495,7 +495,7 @@ describe('PackageViewComponent', () => {
       await component.init();
       mockMatDialog.open.and.returnValue({} as MatDialogRef<any>);
 
-      component.logit();
+      component.openJsonViewer();
 
       expect(mockMatDialog.open).toHaveBeenCalled();
     });

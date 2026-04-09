@@ -9,13 +9,13 @@ import { ViewAction } from '../../_objects/View';
 export class ActionsContainerComponent implements OnInit {
   @ViewChild('container', { read: ViewContainerRef }) containerRef!: ViewContainerRef;
 
-  @Input() label:string
-  @Input() acts:ViewAction[]
-  @Input() controllers:string[]
-  @Input() groups:string[]
-  @Input() entity:string
-  @Input() domainLabels:boolean = false
-  @Input() package_name:string
+  @Input() label: string;
+  @Input() acts: ViewAction[];
+  @Input() controllers: string[];
+  @Input() groups: string[];
+  @Input() entity: string;
+  @Input() domainLabels = false;
+  @Input() packageName: string;
 
 
   constructor(
@@ -23,18 +23,18 @@ export class ActionsContainerComponent implements OnInit {
 
 
 
-  ngOnInit() {
+  ngOnInit(): void {
 }
 
-  del(action:ViewAction) {
-    let index = this.acts.indexOf(action)
-    if(index >= 0) {
-      this.acts.splice(index,1)
+  del(action: ViewAction): void {
+    const index = this.acts.indexOf(action);
+    if (index >= 0) {
+      this.acts.splice(index, 1);
     }
   }
 
-  create() {
-    this.acts.push(new ViewAction({},this.domainLabels))
+  create(): void {
+    this.acts.push(new ViewAction({}, this.domainLabels));
   }
 
 }

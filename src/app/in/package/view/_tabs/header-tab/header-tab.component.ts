@@ -9,9 +9,9 @@ import { View } from '../../_objects/View';
 export class HeaderTabComponent implements OnInit {
   @Input() viewObj: View;
   @Input() groups: string[] = [];
-  @Input() action_controllers: string[] = [];
+  @Input() actionControllers: string[] = [];
   @Input() entity: string;
-  
+
   @Output() viewObjChange = new EventEmitter<View>();
   @Output() addFilter = new EventEmitter<void>();
   @Output() deleteFilter = new EventEmitter<number>();
@@ -22,24 +22,24 @@ export class HeaderTabComponent implements OnInit {
   private tabComponentId = 'header';
 
   constructor(
-    
+
   ) {}
 
   ngOnInit(): void {
     // Initialization
   }
 
-  showFilters() {
+  showFilters(): void {
     this.isFilterVisible = true;
   }
 
-  onAddFilter() {
+  onAddFilter(): void {
     this.viewObj.addFilter();
     this.isFilterVisible = true;
     this.viewObjChange.emit(this.viewObj);
   }
 
-  onDeleteFilter(index: number) {
+  onDeleteFilter(index: number): void {
     this.viewObj.deleteFilter(index);
     if (this.viewObj.filters.length === 0) {
       this.isFilterVisible = false;
@@ -47,7 +47,7 @@ export class HeaderTabComponent implements OnInit {
     this.viewObjChange.emit(this.viewObj);
   }
 
-  onFilterChange() {
+  onFilterChange(): void {
     this.viewObjChange.emit(this.viewObj);
   }
 }

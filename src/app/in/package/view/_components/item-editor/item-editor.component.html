@@ -87,7 +87,7 @@
     <!-- WIDGET -->
     <div *ngIf="item.has_widget" class="widget">
         <!-- LIST WIDGET -->
-        <div *ngIf="item.viewtype === 0">
+        <div *ngIf="item.viewType === 0">
             <label class="sup-prop-title">
                 Widget :
             </label>
@@ -124,7 +124,7 @@
             </app-usages>
         </div>
         <!-- FORM WIDGET -->
-        <div *ngIf="item.viewtype === 1">
+        <div *ngIf="item.viewType === 1">
             <label class="sup-prop-title">
                 Widget :
             </label>
@@ -190,7 +190,7 @@
             </label>
             <mat-form-field class="list-selector">
                 <mat-select [(value)]="item.widgetForm.view" (valueChange)="set_has_view(item.widgetForm._has_view)">
-                    <mat-option *ngFor="let key of obk(cachelist.lists)" value="{{key}}">{{cachelist.lists[key]}}</mat-option>
+                    <mat-option *ngFor="let key of obk(cacheList.lists)" value="{{key}}">{{cacheList.lists[key]}}</mat-option>
                 </mat-select>
             </mat-form-field>
         </div>
@@ -200,7 +200,7 @@
                 [type]="'list'"
                 [entity]="this.scheme['fields'][this.item.value]['foreign_object']"
                 [groups]="groups"
-                [action_controllers]="action_controllers"
+                [actionControllers]="actionControllers"
             >
             </app-header-editor>
         </div>
@@ -227,7 +227,7 @@
             <app-property-domain-component
             [value]="item.visible.dom"
             [name]="'oui'"
-            [class]="package_name + '\\' + entity"
+            [class]="packageName + '\\' + entity"
             (valueChange)="item.visible.dom = $event"
             >
             </app-property-domain-component>

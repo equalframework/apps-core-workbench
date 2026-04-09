@@ -12,10 +12,10 @@ export class LayoutTabComponent implements OnInit {
   @Input() entity: string;
   @Input() fields: string[] = [];
   @Input() groups: string[] = [];
-  @Input() action_controllers: string[] = [];
-  @Input() class_scheme: any = {fields : {}};
+  @Input() actionControllers: string[] = [];
+  @Input() classScheme: any = {fields : {}};
   @Input() iconType: { [id: string]: string };
-  @Input() package_name: string;
+  @Input() packageName: string;
 
 
   @Output() viewObjChange = new EventEmitter<View>();
@@ -31,27 +31,27 @@ export class LayoutTabComponent implements OnInit {
     // Initialization
   }
 
-  addGroup() {
+  addGroup(): void {
     this.viewObj.layout.groups.push(new ViewGroup({ label: 'New Group' }));
     this.viewObjChange.emit(this.viewObj);
   }
 
-  deleteGroup(index: number) {
+  deleteGroup(index: number): void {
     this.viewObj.layout.groups.splice(index, 1);
     this.viewObjChange.emit(this.viewObj);
   }
 
-  addItemLayout() {
+  addItemLayout(): void {
     this.viewObj.layout.newViewItem();
     this.viewObjChange.emit(this.viewObj);
   }
 
-  deleteItemLayout(index: number) {
+  deleteItemLayout(index: number): void {
     this.viewObj.layout.deleteItem(index);
     this.viewObjChange.emit(this.viewObj);
   }
 
-  drop_item(event: CdkDragDrop<ViewItem[]>) {
+  drop_item(event: CdkDragDrop<ViewItem[]>): void {
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     } else {

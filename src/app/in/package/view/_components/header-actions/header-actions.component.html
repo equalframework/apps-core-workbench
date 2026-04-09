@@ -1,32 +1,32 @@
-<div *ngFor="let key of obk(h_scheme.actions)" class="action-section">
+<div *ngFor="let key of obk(hScheme.actions)" class="action-section">
     <div class="action-header">
-        <label class="action-title" [class.disabled]="!h_scheme.actions[key].enabled">{{key}}</label>
-        <div class="info-message" *ngIf="h_scheme.actions[key].enabled && h_scheme.actions[key].acts.length === 0">
+        <label class="action-title" [class.disabled]="!hScheme.actions[key].enabled">{{key}}</label>
+        <div class="info-message" *ngIf="hScheme.actions[key].enabled && hScheme.actions[key].acts.length === 0">
             <mat-icon>info</mat-icon>
             <label>Default behavior will be used</label>
         </div>
         <mat-checkbox 
             class="force-disable-checkbox" 
-            [checked]="!h_scheme.actions[key].enabled" 
-            (change)="h_scheme.actions[key].enabled = !$event.checked">
+            [checked]="!hScheme.actions[key].enabled" 
+            (change)="hScheme.actions[key].enabled = !$event.checked">
             Disable
         </mat-checkbox>
         <div class="add-button-container">
-        <button mat-mini-fab color="primary" *ngIf="h_scheme.actions[key].enabled" (click)="create(key)">
+        <button mat-mini-fab color="primary" *ngIf="hScheme.actions[key].enabled" (click)="create(key)">
             <mat-icon>add</mat-icon>
         </button>
         </div>
     </div>
     
-    <div class="action-content" *ngIf="h_scheme.actions[key].enabled && h_scheme.actions[key].acts.length > 0">
-        <div *ngFor="let action of h_scheme.actions[key].acts" class="action-item">
+    <div class="action-content" *ngIf="hScheme.actions[key].enabled && hScheme.actions[key].acts.length > 0">
+        <div *ngFor="let action of hScheme.actions[key].acts" class="action-item">
             <app-predef-action-editor
                 [obj]="action"
                 [controllers]="controllers"
                 [groups]="groups"
                 [entity]="entity"
-                [ids]="h_scheme.actions[key].possible_ids"
-                (delete)="h_scheme.actions[key].acts.splice(h_scheme.actions[key].acts.indexOf(action), 1)"
+                [ids]="hScheme.actions[key].possible_ids"
+                (delete)="hScheme.actions[key].acts.splice(hScheme.actions[key].acts.indexOf(action), 1)"
             ></app-predef-action-editor>
         </div>
     </div>

@@ -8,22 +8,22 @@ import { ViewAction, ViewPreDefAction } from '../../_objects/View';
 })
 export class PreDefActionsContainerComponent implements OnInit {
 
-  @Input() label:string
-  @Input() acts:ViewPreDefAction[]
-  @Input() ids:string[]
-  @Input() controllers:string[]
-  @Input() groups:string[]
-  @Input() entity:string
+  @Input() label: string;
+  @Input() acts: ViewPreDefAction[];
+  @Input() ids: string[];
+  @Input() controllers: string[];
+  @Input() groups: string[];
+  @Input() entity: string;
 
-  del(action:ViewPreDefAction) {
-    let index = this.acts.indexOf(action)
-    if(index >= 0) {
-      this.acts.splice(index,1)
+  del(action: ViewPreDefAction): void {
+    const index = this.acts.indexOf(action);
+    if (index >= 0) {
+      this.acts.splice(index, 1);
     }
   }
 
-  create() {
-    this.acts.push(new ViewPreDefAction({}))
+  create(): void {
+    this.acts.push(new ViewPreDefAction({}));
   }
 
 

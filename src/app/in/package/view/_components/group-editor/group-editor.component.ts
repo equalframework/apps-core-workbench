@@ -14,70 +14,72 @@ import { CdkDragDrop, CdkDragRelease, moveItemInArray, transferArrayItem } from 
   templateUrl: './group-editor.component.html',
   styleUrls: ['./group-editor.component.scss'],
 })
-class GroupEditorComponent implements OnInit,OnChanges {
+class GroupEditorComponent implements OnInit, OnChanges {
 
-  math = Math
-  selected:ViewSection|undefined
-  selected_index:number = -1
-  @Input() group_obj:ViewSection[]
-  @Input() entity:string
-  @Input() package:string
-  @Input() fields:string[]
-  @Output() onChange = new EventEmitter<ViewSection[]>()
-  @Input() groups:string[]
-  @Input() action_controllers:string[]
-  dragged:ViewItem|undefined
+  math = Math;
+  selected: ViewSection|undefined;
+  selectedIndex = -1;
+  @Input() groupObj: ViewSection[];
+  @Input() entity: string;
+  @Input() package: string;
+  @Input() fields: string[];
+  @Output() change = new EventEmitter<ViewSection[]>();
+  @Input() groups: string[];
+  @Input() actionControllers: string[];
+  dragged: ViewItem|undefined;
 
 
-  dragposition = {}
+  dragPosition = {};
 
   constructor(
-    private matDialog:MatDialog,
-    private elementRef:ElementRef
+    private matDialog: MatDialog,
+    private elementRef: ElementRef
   ) { }
 
   ngOnInit(): void {
-    this.selected = this.group_obj[0]
-    this.selected_index = 0
+    this.selected = this.groupObj[0];
+    this.selectedIndex = 0;
   }
 
   ngOnChanges(): void {
-      this.selected_index = this.selected ? 
-        this.group_obj.indexOf(this.selected) : -1
+      this.selectedIndex = this.selected ?
+        this.groupObj.indexOf(this.selected) : -1;
   }
 
-  delSection() {
-    if(this.selected)
-      this.group_obj.splice(this.group_obj.indexOf(this.selected),1)
-    this.selected = this.group_obj[0]
+  delSection(): void {
+    if (this.selected) {
+      this.groupObj.splice(this.groupObj.indexOf(this.selected), 1);
+    }
+    this.selected = this.groupObj[0];
   }
-  
-  editSection(el:ViewSection) {
-    this.matDialog.open(EditSectionComponent,{data:{section:el,entity:this.entity, package:this.package}}).afterClosed().subscribe((result) => {
+
+  editSection(el: ViewSection): void {
+    this.matDialog.open(EditSectionComponent, {data: {section: el, entity: this.entity, package: this.package}})
+    .afterClosed().subscribe((result) => {
       if (result) {
-        // Find and update the section in group_obj
-        const index = this.group_obj.indexOf(el);
+        // Find and update the section in groupObj
+        const index = this.groupObj.indexOf(el);
         if (index >= 0) {
-          this.group_obj[index] = result;
+          this.groupObj[index] = result;
         }
       }
     });
   }
 
-  addSection() {
-    this.group_obj.push(new ViewSection({"label":"New Section"}))
+  addSection(): void {
+    this.groupObj.push(new ViewSection({label: 'New Section'}));
   }
 
-  addRow() {
-    this.selected?.rows.push(new ViewRow({"label":"New Row"}))
+  addRow(): void {
+    this.selected?.rows.push(new ViewRow({label: 'New Row'}));
   }
 
-  delRow(row:ViewRow) {
-    this.selected?.rows.splice(this.selected.rows.indexOf(row),1)
+  delRow(row: ViewRow): void {
+    this.selected?.rows.splice(this.selected.rows.indexOf(row), 1);
   }
 
-  editRow(row:ViewRow) {
-    this.matDialog.open(EditRowComponent,{data:{row:row,entity:this.entity,package:this.package}}).afterClosed().subscribe((result) => {
+  editRow(row: ViewRow): void {
+    this.matDialog.open(EditRowComponent, {data: {row, entity: this.entity, package: this.package}}).afterClosed().subscribe((result) => {
       if (result) {
         // Find and update the row in selected?.rows
         const index = this.selected?.rows.indexOf(row);
@@ -88,32 +90,41 @@ class GroupEditorComponent implements OnInit,OnChanges {
     });
   }
 
-  addCol(row:ViewRow) {
-    row.columns.push(new ViewColumn({"label":"New Column"}))
+  addCol(row: ViewRow): void {
+    row.columns.push(new ViewColumn({label: 'New Column'}));
   }
 
-  delColumn(row:ViewRow,col:ViewColumn) {
-    row.columns.splice(row.columns.indexOf(col),1)
+  delColumn(row: ViewRow, col: ViewColumn): void {
+    row.columns.splice(row.columns.indexOf(col), 1);
   }
 
-  editColumn(col:ViewColumn) {
-    this.matDialog.open(EditColComponent,{data:{col:col,entity:this.entity,package:this.package}}).afterClosed().subscribe((result) => {
+  editColumn(col: ViewColumn): void {
+    this.matDialog.open(EditColComponent, {data: {col, entity: this.entity, package: this.package}}).afterClosed().subscribe((result) => {
       if (result) {
         // Find and update the column in selected?.rows
         const index = this.selected?.rows.findIndex(row => row.columns.includes(col));
         if (index !== undefined && index >= 0) {
-          this.selected?.rows[index].columns.splice(this.selected?.rows[index].columns.indexOf(col),1,result)
+          this.selected?.rows[index].columns.splice(this.selected?.rows[index].columns.indexOf(col), 1, result);
         }
       }
     });
   }
 
-  addItem(col:ViewColumn) {
-    col.items.push(new ViewItem({"value":"New Item","type":"label"},1))
+  addItem(col: ViewColumn): void {
+    col.items.push(new ViewItem({value: 'New Item', type: 'label'}, 1));
   }
-  
-  editItem(item:ViewItem) {
-    this.matDialog.open(EditItemFormComponent,{data:{item:item,entity:this.entity,fields:this.fields,groups:this.groups,action_controllers :this.action_controllers, package:this.package}}).afterClosed().subscribe((result) => {
+
+  editItem(item: ViewItem): void {
+    this.matDialog.open(EditItemFormComponent, {
+      data: {
+        item,
+        entity: this.entity,
+        fields: this.fields,
+        groups: this.groups,
+        action_controllers : this.actionControllers,
+        package: this.package
+      }
+    }).afterClosed().subscribe((result) => {
       if (result) {
         // Find and update the item in selected?.rows
         const index = this.selected?.rows.findIndex(row => row.columns.some(col => col.items.includes(item)));
@@ -129,23 +140,23 @@ class GroupEditorComponent implements OnInit,OnChanges {
     });
   }
 
-  delItem(col:ViewColumn,item:ViewItem) {
-    col.items.splice(col.items.indexOf(item),1)
-  }  
+  delItem(col: ViewColumn, item: ViewItem): void {
+    col.items.splice(col.items.indexOf(item), 1);
+  }
 
-  drop_section(event: CdkDragDrop<ViewSection[]>) {
+  drop_section(event: CdkDragDrop<ViewSection[]>): void {
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     }
   }
 
-  drop_row(event: CdkDragDrop<ViewRow[]>) {
+  drop_row(event: CdkDragDrop<ViewRow[]>): void {
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     }
   }
 
-  drop_col(event: CdkDragDrop<ViewColumn[]>) {
+  drop_col(event: CdkDragDrop<ViewColumn[]>): void {
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     } else {
@@ -158,20 +169,20 @@ class GroupEditorComponent implements OnInit,OnChanges {
     }
   }
 
-  drag_item(event:any) {
+  drag_item(event: any): void {
   }
 
-  drop_item(event:any) {
+  drop_item(event: any): void {
   }
 
-  allowDrop(event:any) {
+  allowDrop(event: any): void {
   }
 
-  updateDragged(item:ViewItem|undefined) {
-    this.dragged = item
+  updateDragged(item: ViewItem|undefined): void {
+    this.dragged = item;
   }
 
 }
 
 
-export {GroupEditorComponent}
+export {GroupEditorComponent};

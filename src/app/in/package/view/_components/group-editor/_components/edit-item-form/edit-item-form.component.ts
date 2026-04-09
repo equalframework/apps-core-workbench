@@ -11,12 +11,18 @@ import { cloneDeep } from 'lodash';
 })
 export class EditItemFormComponent implements OnInit {
 
-  types = ViewItem.typeList
+  types = ViewItem.typeList;
   editingItem: ViewItem;
 
   constructor(
     @Optional() public dialogRef: MatDialogRef<GroupEditorComponent>,
-    @Optional() @Inject(MAT_DIALOG_DATA) public data:{item:ViewItem,entity:string,fields:string[],groups:string[],action_controllers:string[], package:string}
+    @Optional() @Inject(MAT_DIALOG_DATA) public data: {
+      item: ViewItem, 
+      entity: string, 
+      fields: string[], 
+      groups: string[], 
+      action_controllers: string[], 
+      package: string}
   ) {
     this.editingItem = cloneDeep(data.item);
   }

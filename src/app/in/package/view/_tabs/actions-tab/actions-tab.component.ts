@@ -8,16 +8,13 @@ import { View } from '../../_objects/View';
 })
 export class ActionsTabComponent implements OnInit {
   @Input() viewObj: View;
-  @Input() action_controllers: string[] = [];
+  @Input() actionControllers: string[] = [];
   @Input() groups: string[] = [];
   @Input() entity: string;
-  @Input() package_name: string;
-  
+  @Input() packageName: string;
   @Output() viewObjChange = new EventEmitter<View>();
 
   @ViewChild('actionsTabContainer', { read: ElementRef }) actionsTabContainer: ElementRef;
-
-  private tabComponentId = 'actions';
 
   constructor(
 

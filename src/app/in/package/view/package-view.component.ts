@@ -21,7 +21,7 @@ import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer
 import { JsonValidationService } from 'src/app/in/_services/json-validation.service';
 
 @Component({
-    selector: 'package-view',
+    selector: 'app-package-view',
     templateUrl: './package-view.component.html',
     styleUrls: ['./package-view.component.scss']
 })
@@ -29,12 +29,11 @@ export class PackageViewComponent implements OnInit {
 
     viewId: string;
     entity: string;
-    private componentId = 'view-layout-tab-layout-editor';
 
     viewScheme: any;
     obk = Object.keys;
     viewObj: View = new View({ layout: { items: [] }, operations: [], groupBy: { items: [] } }, '');
-    name: string = "";
+    name: string;
     node: EqualComponentDescriptor;
 
     types = ViewItem.typeList;
@@ -42,26 +41,26 @@ export class PackageViewComponent implements OnInit {
     error = false;
     isSaving = false;
 
-    class_scheme: any = { fields: {} };
+    classScheme: any = { fields: {} };
     fields: string[] = [];
 
-    compliancy_cache: { ok: boolean, id_list: string[] };
+    compliancyCache: { ok: boolean, id_list: string[] };
     groups: string[] = [];
-    icontype: { [id: string]: string };
+    iconType: { [id: string]: string };
 
-    collect_controller: string[] = ["core_model_collect"];
-    action_controllers: string[];
+    collectController: string[] = ['core_model_collect'];
+    actionControllers: string[];
 
     // Tab management
-    selectedTabIndex: number = 0;
+    selectedTabIndex: number;
     private tabNameToIndexMap: { [key: string]: number } = {
-      'layout': 0,
-      'header': 1,
-      'actions': 2,
-      'routes': 3,
-      'advanced': 4
+      layout: 0,
+      header: 1,
+      actions: 2,
+      routes: 3,
+      advanced: 4
     };
-    
+
     // Navigation
     private queryParamActivatorRegistry: QueryParamActivatorRegistry;
 
@@ -72,46 +71,46 @@ export class PackageViewComponent implements OnInit {
         private snackBar: MatSnackBar,
         private TypeUsage: TypeUsageService,
         private location: Location,
-        private provider:EqualComponentsProviderService,
+        private provider: EqualComponentsProviderService,
         private notificationService: NotificationService,
         private routerMemory: RouterMemory,
         private queryParamNavigator: QueryParamNavigatorService,
         private jsonValidationService: JsonValidationService
-        
+
     ) { }
 
-    async ngOnInit() {
+    async ngOnInit(): Promise<void> {
         this.initializeNavigation();
-        
+
         await this.init();
     }
 
-    async init() {
+    async init(): Promise<void> {
         this.loading = true;
         this.error = false;
-        this.collect_controller = ["core_model_collect"];
-        this.action_controllers = [];
+        this.collectController = ['core_model_collect'];
+        this.actionControllers = [];
         this.groups = [];
 
-        const package_name = this.route.snapshot.paramMap.get('package_name');
-        const entityView = this.route.snapshot.params['entity_view'];
+        const packageName = this.route.snapshot.paramMap.get('package_name');
+        const entityView = this.route.snapshot.params.entity_view;
         const [entityName, rest] = entityView.split(':');
         const [viewType, viewName] = rest.split('.');
 
-        this.icontype = this.TypeUsage.typeIcon;
+        this.iconType = this.TypeUsage.typeIcon;
 
-        if (!package_name || !entityName || !viewType || !viewName) return;
+        if (!packageName || !entityName || !viewType || !viewName) { return; }
 
         this.name = viewName;
         this.entity = entityName;
-        this.viewId = viewType + "." + viewName;
+        this.viewId = viewType + '.' + viewName;
 
         try {
-            // Phase 1 : données essentielles chargées en parallèle
+            // Phase 1 : essential data loaded
             const [compo, schema, viewScheme] = await Promise.all([
-                this.provider.getComponent(package_name, 'view', this.entity, (this.entity + ":" + this.viewId)).toPromise(),
-                this.workbenchService.getSchema(`${package_name}\\${entityName}`).toPromise(),
-                this.workbenchService.readView(package_name, this.viewId, entityName).toPromise()
+                this.provider.getComponent(packageName, 'view', this.entity, (this.entity + ':' + this.viewId)).toPromise(),
+                this.workbenchService.getSchema(`${packageName}\\${entityName}`).toPromise(),
+                this.workbenchService.readView(packageName, this.viewId, entityName).toPromise()
             ]);
 
             if (!compo) {
@@ -121,8 +120,8 @@ export class PackageViewComponent implements OnInit {
             }
 
             this.node = compo;
-            this.class_scheme = schema || { fields: {} };
-            this.fields = this.obk(this.class_scheme.fields);
+            this.classScheme = schema || { fields: {} };
+            this.fields = this.obk(this.classScheme.fields);
             this.viewScheme = viewScheme;
 
             const nodeNameParts = this.node.name ? this.node.name.split(':') : [];
@@ -131,10 +130,10 @@ export class PackageViewComponent implements OnInit {
                 : '';
             this.viewObj = new View(this.viewScheme, viewNamePart);
 
-            // Afficher l'UI dès que les données essentielles sont prêtes
+            // Display UI as soon as possible, even if some secondary data is still loading in the background
             this.loading = false;
 
-            // Souscription aux query params (après chargement)
+            // Subscribe to query params changes to handle navigation (e.g. activating tabs based on 'selectedTab' query param)
             this.route.queryParams.subscribe(params => {
                 if (Object.keys(params).length > 0 && this.queryParamActivatorRegistry) {
                     this.queryParamNavigator.handleQueryParams(params, {
@@ -146,35 +145,35 @@ export class PackageViewComponent implements OnInit {
                 }
             });
 
-            // Phase 2 : données secondaires chargées en arrière-plan (non bloquant)
-            this.loadSecondaryData(package_name);
+            // Phase 2 : secondary data loaded in the background (non-blocking)
+            this.loadSecondaryData(packageName);
         } catch (err) {
             this.error = true;
             this.loading = false;
         }
     }
 
-    private async loadSecondaryData(package_name: string): Promise<void> {
+    private async loadSecondaryData(packageName: string): Promise<void> {
         try {
-            const [temp_controllers, action_controllers, groupsData] = await Promise.all([
-                this.workbenchService.collectControllers('data', package_name).toPromise(),
+            const [tempControllers, actionControllers, groupsData] = await Promise.all([
+                this.workbenchService.collectControllers('data', packageName).toPromise(),
                 this.workbenchService.collectControllers('actions').toPromise(),
                 this.workbenchService.getCoreGroups().toPromise()
             ]);
 
             const announcements = await Promise.all(
-                temp_controllers.map(item => this.workbenchService.announceController(item).toPromise())
+                tempControllers.map(item => this.workbenchService.announceController(item).toPromise())
             );
-            for (let i = 0; i < temp_controllers.length; i++) {
+            for (let i = 0; i < tempControllers.length; i++) {
                 const data = announcements[i];
-                if (!data) continue;
-                if (!data["announcement"]["extends"] || data["announcement"]["extends"] !== "core_model_collect") continue;
-                this.collect_controller.push(temp_controllers[i]);
+                if (!data) { continue; }
+                if (!data.announcement.extends || data.announcement.extends !== 'core_model_collect') { continue; }
+                this.collectController.push(tempControllers[i]);
             }
 
-            this.action_controllers = action_controllers;
+            this.actionControllers = actionControllers;
             for (const key in groupsData) {
-                this.groups.push(groupsData[key]['name']);
+                this.groups.push(groupsData[key].name);
             }
         } catch (err) {
             console.warn('Failed to load secondary data:', err);
@@ -190,32 +189,32 @@ export class PackageViewComponent implements OnInit {
     }
 
     // Call id_compliant method on view_obj and cache it
-    get idCompliancy():{ok:boolean,id_list:string[]} {
-        this.compliancy_cache =  this.viewObj.id_compliant([]);
-        return this.compliancy_cache;
+    get idCompliancy(): {ok: boolean, id_list: string[]} {
+        this.compliancyCache =  this.viewObj.id_compliant([]);
+        return this.compliancyCache;
     }
 
-    // Look for ids doublons in compliancy_cache
-    get idDoublons() {
-        const filtered = this.compliancy_cache.id_list.filter((item, index) => this.compliancy_cache.id_list.indexOf(item) !== index);
-        return filtered.join(",");
+    // Look for ids duplicates in compliancy_cache
+    get idDuplicates(): string {
+        const filtered = this.compliancyCache.id_list.filter((item, index) => this.compliancyCache.id_list.indexOf(item) !== index);
+        return filtered.join(',');
     }
 
-    logit() {
-        this.popup.open(JsonViewerComponent,{data:this.viewObj.export(),width:"70%",height:"85%"});
+    openJsonViewer(): void {
+        this.popup.open(JsonViewerComponent, {data: this.viewObj.export(), width: '70%', height: '85%'});
     }
 
-    goBack() {
+    goBack(): void {
         this.location.back();
     }
 
-    save() {
-        if (this.isSaving) return;
+    save(): void {
+        if (this.isSaving) { return; }
 
         if (!this.idCompliancy.ok) {
             this.notificationService.showError('Cannot save: ' +
-                (this.idDoublons.length > 0
-                    ? 'Some IDs are duplicated (' + this.idDoublons + ')'
+                (this.idDuplicates.length > 0
+                    ? 'Some IDs are duplicated (' + this.idDuplicates + ')'
                     : 'Some items do not have an ID'));
             return;
         }
@@ -230,18 +229,18 @@ export class PackageViewComponent implements OnInit {
         );
     }
 
-    cancel() {
+    cancel(): void {
         setTimeout(async () => {
             await this.init();
-            this.snackBar.open("Changes canceled", '', {
+            this.snackBar.open('Changes canceled', '', {
                 duration: 1000,
             });
         }, 0);
     }
 
-    handleCustomButton(name:string) {
-        if(name === "Show JSON"){
-            this.logit();
+    handleCustomButton(name: string): void {
+        if (name === 'Show JSON'){
+            this.openJsonViewer();
             return;
         }
     }
@@ -252,16 +251,16 @@ export class PackageViewComponent implements OnInit {
      */
     private initializeNavigation(): void {
         this.queryParamActivatorRegistry = new QueryParamActivatorRegistry();
-        
+
         // Register a tab activator that listens to 'selectedTab' query param and activates the corresponding tab
         const tabActivator = new QueryParamTabActivator(this.tabNameToIndexMap, 'selectedTabIndex');
         this.queryParamActivatorRegistry.register(tabActivator);
     }
 
-    ToNameDisp(name:string):string {
-        const a = name.replaceAll("_"," ");
-        let b = a.split(" ").map(item => {return item.charAt(0).toUpperCase() + item.substr(1)});
-        return b.join(" ");
+    ToNameDisp(name: string): string {
+        const a = name.replaceAll('_', ' ');
+        const b = a.split(' ').map(item => item.charAt(0).toUpperCase() + item.substr(1));
+        return b.join(' ');
     }
 }
 

@@ -2,8 +2,8 @@
     <app-toggling-button
         [enabledIcon]="'expand_less'"
         [disabledIcon]="'expand_more'"
-        [baseState]="big_disp"
-        (toggle)="big_disp = $event"
+        [baseState]="bigDisp"
+        (toggle)="bigDisp = $event"
         [disabled]="false"
     ></app-toggling-button>
     <mat-form-field>
@@ -32,14 +32,15 @@
     <mat-checkbox [(ngModel)]="obj._has_domain" (ngModelChange)="changeBigDispBy(obj._has_domain)">domain</mat-checkbox>
 
 
-    <button mat-icon-button (click)="deleteme()"><mat-icon>delete</mat-icon></button>
+    <button mat-icon-button (click)="deleteMe()"><mat-icon>delete</mat-icon></button>
 
     <!-- CONDITIONAL DISP PART --->
-    <div *ngIf="big_disp">
+    <div *ngIf="bigDisp">
+         <div *ngIf="obj._has_access">
         <div *ngIf="obj._has_access">
             <mat-form-field >
-                <input [value]="input" (keyup.enter)="addgroup()" (keyup)="tap2($event.target.value)"  matInput placeholder="groups" [matAutocomplete]="auto2">
-                <button matSuffix mat-icon-button (click)="addgroup()"><mat-icon class="grpsufix"  >add</mat-icon></button>
+                <input [value]="input" (keyup.enter)="addGroup()" (keyup)="tap2($event.target.value)"  matInput placeholder="groups" [matAutocomplete]="auto2">
+                <button matSuffix mat-icon-button (click)="addGroup()"><mat-icon class="grpsufix"  >add</mat-icon></button>
                 <mat-autocomplete autoActiveFirstOption #auto2="matAutocomplete">
                     <mat-option *ngFor="let option of filteredGroups" [value]="option">
                         {{option}}

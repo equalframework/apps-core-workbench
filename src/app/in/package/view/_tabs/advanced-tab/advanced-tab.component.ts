@@ -10,10 +10,10 @@ import { Usage } from 'src/app/in/_models/Params';
 export class AdvancedTabComponent implements OnInit {
   @Input() viewObj: View;
   @Input() entity: string;
-  @Input() collect_controller: string[] = [];
-  @Input() class_scheme: any = { fields: {} };
+  @Input() collectController: string[] = [];
+  @Input() classScheme: any = { fields: {} };
   @Input() groups: string[] = [];
-  
+
   @Output() viewObjChange = new EventEmitter<View>();
 
   @ViewChild('advancedTabContainer', { read: ElementRef }) advancedTabContainer: ElementRef;
@@ -27,22 +27,22 @@ export class AdvancedTabComponent implements OnInit {
     // Initialization
   }
 
-  addNewGroupBy() {
+  addNewGroupBy(): void {
     this.viewObj.groupBy.items.push(new ViewGroupByItem());
     this.viewObjChange.emit(this.viewObj);
   }
 
-  deleteGroupBy(index: number) {
+  deleteGroupBy(index: number): void {
     this.viewObj.groupBy.items.splice(index, 1);
     this.viewObjChange.emit(this.viewObj);
   }
 
-  addOperation() {
+  addOperation(): void {
     this.viewObj.operations.push(new ViewOperation({}, ''));
     this.viewObjChange.emit(this.viewObj);
   }
 
-  addOp(index: number) {
+  addOp(index: number): void {
     this.viewObj.operations[index].ops.push({
       name: '',
       usage: new Usage(''),
@@ -54,27 +54,27 @@ export class AdvancedTabComponent implements OnInit {
     this.viewObjChange.emit(this.viewObj);
   }
 
-  delOperation(index: number) {
+  delOperation(index: number): void {
     this.viewObj.operations.splice(index, 1);
     this.viewObjChange.emit(this.viewObj);
   }
 
-  delOp(index: number, jndex: number) {
-    this.viewObj.operations[index].ops.splice(jndex, 1);
+  delOp(index: number, jIndex: number): void {
+    this.viewObj.operations[index].ops.splice(jIndex, 1);
     this.viewObjChange.emit(this.viewObj);
   }
 
   fieldList(operation: ViewOperation, field: string): string[] {
-    let b: string[] = [field];
+    const b: string[] = [field];
     b.push(
-      ...Object.keys(this.class_scheme.fields).filter(
+      ...Object.keys(this.classScheme.fields).filter(
         (item: string) => !operation.fieldTaken.includes(item)
       )
     );
     return b;
   }
 
-  onViewObjChange() {
+  onViewObjChange(): void {
     this.viewObjChange.emit(this.viewObj);
   }
 }

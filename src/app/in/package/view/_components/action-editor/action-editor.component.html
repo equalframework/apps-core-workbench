@@ -4,8 +4,8 @@
             *ngIf="obj._has_access || obj._has_domain"
             [enabledIcon]="'expand_less'"
             [disabledIcon]="'expand_more'"
-            [baseState]="big_disp"
-            (toggle)="big_disp = $event"
+            [baseState]="bigDisp"
+            (toggle)="bigDisp = $event"
             [disabled]="false"
         ></app-toggling-button>
         
@@ -56,12 +56,12 @@
         <button mat-mini-fab color="primary" (click)="show_custom_params()" title="Custom parameters">
             <mat-icon>settings</mat-icon>
         </button>
-        <button mat-mini-fab color="primary" (click)="deleteme()" title="Delete action">
+        <button mat-mini-fab color="primary" (click)="deleteMe()" title="Delete action">
             <mat-icon>delete</mat-icon>
         </button>
     </div>
 
-    <div *ngIf="big_disp" class="expanded-content">
+    <div *ngIf="bigDisp" class="expanded-content">
         <div *ngIf="obj._has_access" class="section">
             <editor-access
                 [obj]="obj.access"
@@ -72,7 +72,7 @@
             <app-property-domain-component
                 [value]="obj.visible.dom"
                 [name]="'oui'"
-                [class]="package_name + '\\' + entity"
+                [class]="packageName + '\\' + entity"
                 (valueChange)="obj.visible.dom = $event"
             ></app-property-domain-component>
         </div>

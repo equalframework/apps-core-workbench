@@ -10,55 +10,55 @@ import { EqualComponentsProviderService } from 'src/app/in/_services/equal-compo
 })
 export class RouteEditComponent implements OnInit {
 
-  @Input() route:ViewRoute
-  @Input() entity: string
-  @Input() model_list:string[]
-  @Input() package_name:string
+  @Input() route: ViewRoute;
+  @Input() entity: string;
+  @Input() modelList: string[];
+  @Input() packageName: string;
 
-  @Output() deleteme =  new EventEmitter<void>()
+  @Output() deleteMe =  new EventEmitter<void>();
 
-  filtered_model_list:string[]
+  filteredModelList: string[];
 
-  ext_entity_view_list: string[] = []
+  extEntityViewList: string[] = [];
 
-  big_disp = false
+  bigDisp = false;
 
   constructor(
     private equalComponentsProviderService: EqualComponentsProviderService
   ) { }
 
   ngOnInit(): void {
-    this.filtered_model_list = this.model_list || []
+    this.filteredModelList = this.modelList || [];
 
-    const defaultEntity = (this.package_name && this.entity) ? `${this.package_name}\\${this.entity}` : undefined
+    const defaultEntity = (this.packageName && this.entity) ? `${this.packageName}\\${this.entity}` : undefined;
 
     if (!this.route.context) {
-      (this.route as any).context = { entity: '', view: '' }
+      (this.route as any).context = { entity: '', view: '' };
     }
 
     if (!this.route.context.entity && defaultEntity) {
-      this.route.context.entity = defaultEntity
-      if (!this.filtered_model_list.includes(defaultEntity)) {
-        this.filtered_model_list = [defaultEntity, ...this.filtered_model_list]
+      this.route.context.entity = defaultEntity;
+      if (!this.filteredModelList.includes(defaultEntity)) {
+        this.filteredModelList = [defaultEntity, ...this.filteredModelList];
       }
-      this.refreshViewList(defaultEntity)
+      this.refreshViewList(defaultEntity);
     } else {
-      this.refreshViewList(this.route.context.entity)
+      this.refreshViewList(this.route.context.entity);
     }
   }
 
-  updateAutocomplete(value:string) {
-    this.filtered_model_list = this.model_list.filter(item => item.includes(value))
+  updateAutocomplete(value: string): void {
+    this.filteredModelList = this.modelList.filter(item => item.includes(value));
   }
 
-  async refreshViewList(class_name?: string) {
-    this.equalComponentsProviderService.getComponents(class_name ? class_name.split('\\')[0] : this.package_name, 'view', class_name?.split('\\')[class_name?.split('\\').length - 1]).subscribe(views => {
-      this.ext_entity_view_list = (views || []).map(v => `${v.package_name}:${v.name}`)
+  async refreshViewList(className?: string): Promise<void> {
+    this.equalComponentsProviderService.getComponents(className ? className.split('\\')[0] : this.packageName, 'view', className?.split('\\')[className?.split('\\').length - 1]).subscribe(views => {
+      this.extEntityViewList = (views || []).map(v => `${v.package_name}:${v.name}`);
     });
   }
 
-  onClickDelete() {
-    this.deleteme.emit()
+  onClickDelete(): void {
+    this.deleteMe.emit();
   }
 
 }

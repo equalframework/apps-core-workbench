@@ -9,60 +9,60 @@ import { ViewPreDefAction } from '../../../../_objects/View';
 })
 export class PreDefActionEditorComponent implements OnInit {
 
-  @Input() obj:ViewPreDefAction
-  @Input() controllers:string[]
-  @Input() groups:string[] = []
-  @Input() entity:string
-  @Input() ids:string[]
+  @Input() obj: ViewPreDefAction;
+  @Input() controllers: string[];
+  @Input() groups: string[] = [];
+  @Input() entity: string;
+  @Input() ids: string[];
 
-  @Output() delete = new EventEmitter<void>()
-  
-  big_disp = false
+  @Output() delete = new EventEmitter<void>();
 
-  input = ""
-  
+  bigDisp = false;
 
-  filteredOptions: string[]
+  input = '';
 
-  filteredGroups: string[]
+
+  filteredOptions: string[];
+
+  filteredGroups: string[];
 
   constructor(
-    private matdialog:MatDialog
+    private matDialog: MatDialog
   ) {}
 
-  ngOnInit(){
-    this.filteredOptions = ['',...this.controllers]
+  ngOnInit(): void {
+    this.filteredOptions = ['', ...this.controllers];
   }
 
-  deleteme() {
-    this.delete.emit()
+  deleteMe(): void {
+    this.delete.emit();
   }
 
-  tap(new_value:string) {
-    this.filteredOptions = ['',...this.controllers.filter((val) => (val.toLowerCase().includes(this.obj.controller)))]
+  tap(newValue: string): void {
+    this.filteredOptions = ['', ...this.controllers.filter((val) => (val.toLowerCase().includes(this.obj.controller)))];
   }
 
-  tap2(new_value:string) {
-    this.input = new_value
-    this.filteredGroups = this.groups.filter((val) => (val.toLowerCase().includes(this.input)))
+  tap2(newValue: string): void {
+    this.input = newValue;
+    this.filteredGroups = this.groups.filter((val) => (val.toLowerCase().includes(this.input)));
   }
 
-  addgroup() {
-    let index = this.obj.access['groups'].indexOf(this.input)
-    if(index === -1 && this.input.trimStart() !== "") {
-      this.obj.access["groups"].push(this.input)
+  addGroup(): void {
+    const index = this.obj.access.groups.indexOf(this.input);
+    if (index === -1 && this.input.trimStart() !== '') {
+      this.obj.access.groups.push(this.input);
     }
-    this.input = ""
+    this.input = '';
   }
 
-  delete_element(group:string) {
-    let index = this.obj.access['groups'].indexOf(group)
-    this.obj.access['groups'].splice(index,1)
+  delete_element(group: string): void {
+    const index = this.obj.access.groups.indexOf(group);
+    this.obj.access.groups.splice(index, 1);
   }
 
-  changeBigDispBy(bool:boolean) {
-    if(bool){
-      this.big_disp = true
+  changeBigDispBy(bool: boolean): void {
+    if (bool){
+      this.bigDisp = true;
     }
   }
 }

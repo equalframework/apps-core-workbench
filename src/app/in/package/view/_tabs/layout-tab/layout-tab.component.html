@@ -21,13 +21,13 @@
       </div>
 
       <app-group-editor
-        [group_obj]="group.sections"
+        [groupObj]="group.sections"
         [entity]="entity"
-        [package]="package_name"
+        [package]="packageName"
         [fields]="fields"
         (onChange)="group.sections= $event"
         [groups]="groups"
-        [action_controllers]="action_controllers"
+        [actionControllers]="actionControllers"
       ></app-group-editor>
     </div>
   </div>
@@ -50,7 +50,7 @@
               <div class="itemprez">
                 <mat-icon cdkDragHandle>drag_indicator</mat-icon>
                 <div class="typeicon">
-                  <mat-icon>{{ class_scheme?.fields?.[item.value]?.type ? iconType[class_scheme.fields[item.value].type] : "" }}</mat-icon>
+                  <mat-icon>{{ classScheme?.fields?.[item.value]?.type ? iconType[classScheme.fields[item.value].type] : "" }}</mat-icon>
               </div>
                 <label *ngIf="item.type==='field'">{{item.value}}</label>
                 <label *ngIf="item.type==='separator'">---SEPARATOR---</label>
@@ -60,8 +60,8 @@
               {{item.type==="field" ? "field : "+item.value : ""}}
             </mat-panel-description>
             <div class="property-icon-holder">
-              <mat-icon class="property-icon" *ngIf="item.hasRestrainedVisibility || class_scheme?.fields?.[item.value]?.visible">visibility_off</mat-icon>
-              <mat-icon class="property-icon" *ngIf="item.readonly || class_scheme?.fields?.[item.value]?.readonly">do_not_touch</mat-icon>
+              <mat-icon class="property-icon" *ngIf="item.hasRestrainedVisibility || classScheme?.fields?.[item.value]?.visible">visibility_off</mat-icon>
+              <mat-icon class="property-icon" *ngIf="item.readonly || classScheme?.fields?.[item.value]?.readonly">do_not_touch</mat-icon>
               <mat-icon class="property-icon" *ngIf="item.has_widget && item.widgetList.sortable">swap_vert</mat-icon>
               <mat-icon class="property-icon" *ngIf="item.has_widget && item.widgetList.link">link</mat-icon>
               <mat-icon class="property-icon" *ngIf="item.has_widget && item.widgetList.usage.export() !== ''">auto_fix_high</mat-icon>
@@ -72,7 +72,7 @@
             [entity]="entity"
             [fields]="fields"
             [types]="types"
-            [package_name]="package_name"
+            [packageName]="packageName"
             [displayDelete]="true"
             (delete)="deleteItemLayout(viewObj.layout.items.indexOf(item))"
           ></app-item-editor>

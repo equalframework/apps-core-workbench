@@ -10,29 +10,29 @@ import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 })
 export class RouteEditorComponent implements OnInit {
 
-  @Input() obj: ViewRoute[]
-  @Input() entity: string
-  @Input() package_name: string
+  @Input() obj: ViewRoute[];
+  @Input() entity: string;
+  @Input() packageName: string;
 
-  entity_list:string[]
+  entityList: string[];
 
   constructor(
     private workbenchService: WorkbenchService
   ) { }
 
-  async ngOnInit() {
-    this.entity_list = await this.workbenchService.collectClasses(true).toPromise()
+  async ngOnInit(): Promise<void> {
+    this.entityList = await this.workbenchService.collectClasses(true).toPromise();
   }
 
-  createRoute() {
-    this.obj.push(new ViewRoute())
+  createRoute(): void {
+    this.obj.push(new ViewRoute());
   }
 
-  drop(event: CdkDragDrop<ViewRoute[]>) {
+  drop(event: CdkDragDrop<ViewRoute[]>): void {
     moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
   }
 
-  onDeletionRequest(index:number) {
-    this.obj.splice(index,1)
+  onDeletionRequest(index: number): void {
+    this.obj.splice(index, 1);
   }
 }

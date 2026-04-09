@@ -694,7 +694,7 @@ class ViewItem extends ViewElement {
     public visible_bool: boolean = true
     public widgetList: ViewListWidget = new ViewListWidget()
     public widgetForm: ViewFormWidget = new ViewFormWidget()
-    public viewtype:number = 0
+    public viewType:number = 0
     public has_domain: boolean = false
     public has_widget: boolean = false
     public is_visible_domain:boolean = false
@@ -721,7 +721,7 @@ class ViewItem extends ViewElement {
 
     constructor(scheme: any = {},type:number=0) {
         super()
-        this.viewtype = type
+        this.viewType = type
         if (scheme['type']) {
             this.type = scheme['type']
             delete scheme['type']
@@ -767,7 +767,7 @@ class ViewItem extends ViewElement {
             delete scheme["domain"]
         }
         if (scheme['widget']) {
-            if(this.viewtype === 0) {
+            if(this.viewType === 0) {
                 this.widgetList = new ViewListWidget(scheme['widget'])
             } else {
                 this.widgetForm = new ViewFormWidget(scheme['widget'])
@@ -799,7 +799,7 @@ class ViewItem extends ViewElement {
                 result['visible'] = this.visible_bool
         }
         if (this.has_widget){
-            if(this.viewtype === 0) {
+            if(this.viewType === 0) {
                 result['widget'] = this.widgetList.export()
             } else {
                 result['widget'] = this.widgetForm.export()

@@ -8,16 +8,16 @@ import { ViewHeader } from '../../_objects/View';
 })
 export class HeaderEditorComponent implements OnInit {
 
-  @Input() obj:ViewHeader
-  @Input() type:string
-  @Input() groups:string[]
-  @Input() action_controllers:string[]
-  @Input() entity:string
-  
-  header_action_visible:boolean = false
-  header_selection_action_visible:boolean = false
+  @Input() obj: ViewHeader;
+  @Input() type: string;
+  @Input() groups: string[];
+  @Input() actionControllers: string[];
+  @Input() entity: string;
 
-  obk = Object.keys
+  headerActionVisible = false;
+  headerSelectionActionVisible = false;
+
+  obk = Object.keys;
 
   constructor() { }
 
@@ -25,16 +25,16 @@ export class HeaderEditorComponent implements OnInit {
     this.updateSelectionActionVisibility();
   }
 
-  ngOnChanges() {
+  ngOnChanges(): void {
     this.updateSelectionActionVisibility();
   }
 
-  private updateSelectionActionVisibility() {
+  private updateSelectionActionVisibility(): void {
     if (this.obj.selection.predef_actions._has_selection_actions) {
-      this.header_selection_action_visible = true;
+      this.headerSelectionActionVisible = true;
     }
     if (this.obj._has_actions) {
-      this.header_action_visible = true;
+      this.headerActionVisible = true;
     }
   }
 }
