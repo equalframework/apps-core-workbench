@@ -53,7 +53,7 @@ export class JsonValidationService {
      */
     public validateAndSave(
         validate$: Observable<ValidationResult>,
-        saveFn: () => Observable<{ success: boolean; message: string }>,
+        saveFn: () => Observable<{ success?: boolean; message?: string } | void>,
         setIsSaving: (saving: boolean) => void
     ): void {
         setIsSaving(true);
@@ -63,10 +63,14 @@ export class JsonValidationService {
                     saveFn().subscribe(
                         (result) => {
                             setIsSaving(false);
-                            if (result.success) {
-                                this.notificationService.showSuccess(result.message);
+                            const saveResult = result || {};
+                            const wasSuccessful = typeof saveResult.success === 'boolean' ? saveResult.success : true;
+                            const saveMessage = saveResult.message || (wasSuccessful ? 'Saved successfully' : 'Save failed');
+
+                            if (wasSuccessful) {
+                                this.notificationService.showSuccess(saveMessage);
                             } else {
-                                this.notificationService.showError(result.message);
+                                this.notificationService.showError(saveMessage);
                             }
                         },
                         (error) => {
@@ -193,7 +197,6 @@ export class JsonValidationService {
         }
 
         const errorCount = result.errors?.length || 0;
-        console.log('Validation failed with errors:', result.errors);
         if (errorCount > 1) {
             return [{
                 label,
@@ -228,14 +231,12 @@ export class JsonValidationService {
             return '';
         }
         let formatted = 'Validation errors:\n';
-        console.log('Formatting validation errors for display:', normalizedErrors);
         for (const error of normalizedErrors) {
             const fieldInfo = error.field ? `Field: ${error.field}` : '';
             const pathInfo = error.path ? `Path: ${error.path}` : '';
             const messageInfo = error.message ? `Message: ${error.message}` : '';
             const codeInfo = error.code ? `Code: ${error.code}` : '';
             const errorDetails = [fieldInfo, pathInfo, messageInfo, codeInfo].filter(info => info).join(' | ');
-            console.log('Formatted error details:', errorDetails);
             formatted += `- ${errorDetails}\n`;
         }
         return formatted;
@@ -269,7 +270,6 @@ export class JsonValidationService {
                         valid,
                         errors: this.normalizeErrors(response.errors),
                     };
-                    console.log('Validation API response:', response, 'Is valid:', valid, 'Result object:', result);
                     observer.next(result);
                     observer.complete();
                 },
