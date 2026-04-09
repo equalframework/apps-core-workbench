@@ -167,8 +167,8 @@ export class InfoControllerComponent implements OnInit, OnChanges {
             this.metaData =[
                 { icon: 'key', tooltip: 'ID', value: this.controller_name, copyable:true },
                 ]
-            this.announcement = response?.announcement;
-
+            this.announcement = response?.announcement ?? null;
+            
             this.schema = this.announcement ?? {};
             this.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', null, true);
             this.initialization();
