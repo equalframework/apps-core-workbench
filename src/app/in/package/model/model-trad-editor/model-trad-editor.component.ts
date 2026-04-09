@@ -15,7 +15,7 @@ import { NotificationService } from 'src/app/in/_services/notification.service';
 import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
 import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
 import { Location } from '@angular/common';
-
+import { JsonValidationService } from 'src/app/in/_services/json-validation.service';
 import { TranslationActionField, TranslationErrorField, TranslationLayoutField, TranslationModelField, TranslationValue, FieldColumnConfig, FIELD_CONFIGS } from './_object/translation.types';
 
 @Component({
@@ -39,7 +39,7 @@ export class ModelTradEditorComponent implements OnInit {
     activeField = '';
     errorActiveField = '';
     expandedErrorFields: { [key: string]: boolean } = {};
-
+    public isSaving: boolean = false;
     adderror = new FormControl('', { validators: [ ModelTradEditorComponent.snakeCaseValidator ] });
     langName = new FormControl('', { validators: [ ModelTradEditorComponent.langCaseValidator ] });
     data: { [id: string]: Translator } = {};
@@ -110,7 +110,8 @@ export class ModelTradEditorComponent implements OnInit {
         private location: Location,
         private cdr: ChangeDetectorRef,
         private queryParamNavigator: QueryParamNavigatorService,
-        private injector: Injector
+        private injector: Injector,
+        private jsonValidationService: JsonValidationService,
     ) {
         this.activatorRegistry = new QueryParamActivatorRegistry();
     }
@@ -320,8 +321,7 @@ export class ModelTradEditorComponent implements OnInit {
             this.updateAvailableLanguages();
             return;
         }
-
-        const langs = Object.keys(allData);
+        const langs = Object.keys(allData).filter((lang) => (allData[lang]?.length ?? 0) > 0);
         const firstLang = langs[0] || null;
 
         if (firstLang) {
@@ -665,9 +665,17 @@ export class ModelTradEditorComponent implements OnInit {
     }
 
     saveAll() {
-        this.workbenchService.saveTranslations(this.package_name, this.model_name, this.data).subscribe(()=> {
-            this.notificationService.showSuccess("Translations updated");
-        });
+        const exportedData: { [lang: string]: any } = {};
+        for (const lang in this.data) {
+            exportedData[lang] = this.data[lang].export();
+        }
+        console.log('Exported data for saving:', exportedData);
+        this.jsonValidationService.validateAndSave(
+            this.jsonValidationService.validateBySchemaType(exportedData, "model-translations", this.package_name),
+            () => this.workbenchService.saveTranslations(this.package_name, this.model_name, this.data),
+            (saving) => this.isSaving = saving
+        );
+        console.log('Validation passed, save initiated.');
     }
     
 }

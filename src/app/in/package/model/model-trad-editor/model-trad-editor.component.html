@@ -5,6 +5,7 @@
   <app-inner-header
     [buttonBack]="true"   (onButtonBack)="goBack()"
     [buttonSave]="true"   (onButtonSave)="saveAll()"
+    [buttonSaveDisabled]="isSaving"
     [buttonCancel]="true" (onButtonCancel)="reload()"
     [customButton]="true"
     [customButtonList]="[{ name: 'Show Json', icon: 'bug_report', disabled: false }]"
