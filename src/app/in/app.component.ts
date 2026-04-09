@@ -54,7 +54,6 @@ export class AppComponent implements OnInit {
     }
 
     public async ngOnInit() {
-
         // Listen to route changes and update selectedComponent
         this.router.events
             .pipe(filter(event => event instanceof NavigationEnd))
@@ -74,7 +73,6 @@ export class AppComponent implements OnInit {
 
         if (fromUrl.root.children['primary'] && fromUrl.root.children['primary'].segments.length > 0) {
             const segments = fromUrl.root.children['primary'].segments;
-            console.log('URL segments for restoration:', segments);
                 // Route
             if (segments.length >= 4 && segments[0].path === 'package' && segments[2].path === 'route') {
                 // Collect all segments from index 3 onwards to handle routes like '/auth/pwd'
@@ -111,7 +109,6 @@ export class AppComponent implements OnInit {
             } else
                 // View
             if (segments.length === 4 && segments[2].path === 'view') {
-                console.log('Restoring view with segments:', segments);
                 restored = {
                     package_name: segments[0].path === 'package' ? segments[1].path : '',
                     name: segments[3].path,
