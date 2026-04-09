@@ -1,5 +1,5 @@
 import { CdkDragEnd } from '@angular/cdk/drag-drop';
-import { Component, Inject, OnChanges, OnInit, Optional } from '@angular/core';
+import { Component, Injector, OnChanges, OnInit, Optional } from '@angular/core';
 
 import { WorkflowNode } from './_components/workflow-displayer/_objects/WorkflowNode';
 import { Anchor, WorkflowLink, test } from './_components/workflow-displayer/_objects/WorkflowLink';
@@ -15,6 +15,7 @@ import { Location } from '@angular/common';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
 import { JsonValidationService } from 'src/app/in/_services/json-validation.service';
+import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
 
 @Component({
     selector: 'package-model-workflow',
@@ -46,6 +47,7 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
     public h = 10;
 
     public selected_classes: string[] = ["core\\User"];
+    private backgroundPreloadStarted: boolean = false;
 
     public test: { source: string, target: string, type: string }[] = [];
     public has_meta_data: number;
@@ -62,7 +64,9 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
         private matDialog: MatDialog,
         private snackBar: MatSnackBar,
         private location: Location,
-        private jsonValidationService: JsonValidationService
+        private jsonValidationService: JsonValidationService,
+        private provider: EqualComponentsProviderService,
+        private injector: Injector,
     ) { }
 
     public async ngOnInit() {
@@ -76,8 +80,27 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
             this.model = params['class_name'];
 
             await this.loadWorkflow();
+            void this.fetchBackgroundData();
         });
     }
+
+        private async fetchBackgroundData(): Promise<void> {
+            if (this.backgroundPreloadStarted) {
+                return;
+            }
+    
+            this.backgroundPreloadStarted = true;
+    
+            try {
+                // Lazy-resolve provider so its constructor-triggered preload starts only in phase 3.
+                if (!this.provider) {
+                    this.provider = this.injector.get(EqualComponentsProviderService);
+                }
+            } catch (err) {
+                console.error('Error during background data fetching', err);
+    
+            }
+        }
 
     private async loadWorkflow() {
         this.loading = true;
