@@ -18,6 +18,7 @@ import { EqualComponentsProviderService } from '../../_services/equal-components
 import { NotificationService } from '../../_services/notification.service';
 import { WorkbenchService } from '../../_services/workbench.service';
 import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
+import { JsonValidationService } from 'src/app/in/_services/json-validation.service';
 
 @Component({
     selector: 'package-view',
@@ -39,6 +40,7 @@ export class PackageViewComponent implements OnInit {
     types = ViewItem.typeList;
     loading = true;
     error = false;
+    isSaving = false;
 
     class_scheme: any = { fields: {} };
     fields: string[] = [];
@@ -74,6 +76,8 @@ export class PackageViewComponent implements OnInit {
         private notificationService: NotificationService,
         private routerMemory: RouterMemory,
         private queryParamNavigator: QueryParamNavigatorService,
+        private jsonValidationService: JsonValidationService
+        
     ) { }
 
     async ngOnInit() {
@@ -206,17 +210,28 @@ export class PackageViewComponent implements OnInit {
     }
 
     save() {
-        this.workbenchService.saveView(this.viewObj.export(),this.node.package_name, this.entity,this.viewId).subscribe((result )=>{
-            if(result.success){
-                this.notificationService.showSuccess(result.message);
-            }else{
-                this.notificationService.showError(result.message);
-            }
+        if (this.isSaving) return;
+
+        if (!this.idCompliancy.ok) {
+            this.notificationService.showError('Cannot save: ' +
+                (this.idDoublons.length > 0
+                    ? 'Some IDs are duplicated (' + this.idDoublons + ')'
+                    : 'Some items do not have an ID'));
+            return;
+        }
+
+        const viewData = this.viewObj.export();
+        const schemaId = `urn:equal:json-schema:core:view.${this.viewId.split('.')[0]}.default`;
+
+        this.jsonValidationService.validateAndSave(
+            this.jsonValidationService.validateView(viewData, schemaId),
+            () => this.workbenchService.saveView(viewData, this.node.package_name, this.entity, this.viewId),
+            (saving) => this.isSaving = saving
         );
     }
 
     cancel() {
-        var timerId = setTimeout(async () => {
+        setTimeout(async () => {
             await this.init();
             this.snackBar.open("Changes canceled", '', {
                 duration: 1000,
