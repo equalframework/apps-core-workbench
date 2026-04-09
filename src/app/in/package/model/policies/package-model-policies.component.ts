@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, Injector } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Location } from '@angular/common';
 import { RouterMemory } from 'src/app/_services/routermemory.service';
@@ -13,6 +13,7 @@ import { ButtonStateService } from 'src/app/in/_services/button-state.service';
 import { NotificationService } from 'src/app/in/_services/notification.service';
 import { JsonValidationService } from 'src/app/in/_services/json-validation.service';
 import { cloneDeep } from 'lodash';
+import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
 
 @Component({
   selector: 'app-policies',
@@ -27,6 +28,7 @@ export class PackageModelPoliciesComponent implements OnInit, OnDestroy {
     selectedPolicy: PolicyItem | undefined;
     readonly destroy$ = new Subject<void>();
     public isSaving: boolean = false;
+    private backgroundPreloadStarted: boolean = false;
 
     constructor(
         private workbenchService: WorkbenchService,
@@ -36,18 +38,39 @@ export class PackageModelPoliciesComponent implements OnInit, OnDestroy {
         private notificationService: NotificationService,
         public buttonStateService: ButtonStateService,
         private routerMemory: RouterMemory,
-        private jsonValidationService: JsonValidationService
+        private jsonValidationService: JsonValidationService,
+        private provider: EqualComponentsProviderService,
+        private injector: Injector,
     ) {}
 
     ngOnInit(): void {
         this.loading = true;
         this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => this.handleRouteParams(params));
     }
+    
+    private async fetchBackgroundData(): Promise<void> {
+        if (this.backgroundPreloadStarted) {
+            return;
+        }
+
+        this.backgroundPreloadStarted = true;
+
+        try {
+            // Lazy-resolve provider so its constructor-triggered preload starts only in phase 3.
+            if (!this.provider) {
+                this.provider = this.injector.get(EqualComponentsProviderService);
+            }
+        } catch (err) {
+            console.error('Error during background data fetching', err);
+
+        }
+    }
 
     private handleRouteParams(params: Params): void {
         this.package_name = this.route.parent ? this.route.parent?.snapshot.paramMap.get('package_name') : params['package_name'];
         this.model_name = this.route.parent ? this.route.parent?.snapshot.paramMap.get('class_name') : params['class_name'];
         this.loadPolicies();
+        void this.fetchBackgroundData();
         this.loading = false;
     }
 
