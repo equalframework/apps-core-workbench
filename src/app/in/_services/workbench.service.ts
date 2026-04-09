@@ -1,7 +1,7 @@
 import { HttpErrorResponse} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { forkJoin, from, Observable, of, } from 'rxjs';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, map, mergeMap, switchMap, tap, toArray } from 'rxjs/operators';
 import { ApiService } from 'sb-shared-lib';
 import { API_ENDPOINTS } from '../_models/api-endpoints';
 import { EqualComponentDescriptor } from '../_models/equal-component-descriptor.class';
@@ -963,7 +963,8 @@ export class WorkbenchService {
      */
     public overwriteTranslations(package_name: string, entity: string, dict: any): Observable<void> {
         const requests = Object.keys(dict).map((lang) => {
-            const url = `?do=core_config_generate-i18n&package=${package_name}&entity=${entity}&overwrite=true&lang=${lang}&create_lang=true&payload=${JSON.stringify(dict[lang].export())}`;
+            const payload = dict[lang].export ? dict[lang].export() : dict[lang];
+            const url = `?do=core_config_generate-i18n&package=${package_name}&entity=${entity}&overwrite=true&lang=${lang}&create_lang=true&payload=${JSON.stringify(payload)}`;
             return this.callApi(url, 'Translation updated').pipe(
                 catchError((err) => {
                     console.error(`Error saving translation for ${lang}:`, err);
@@ -971,7 +972,16 @@ export class WorkbenchService {
                 })
             );
         });
-        return forkJoin(requests).pipe(map(() => {})); // Wait for all the requests to finish
+
+        if (requests.length === 0) {
+            return of(void 0);
+        }
+
+        return from(requests).pipe(
+            mergeMap((request) => request),
+            toArray(),
+            map(() => void 0)
+        );
     }
 
     /**
