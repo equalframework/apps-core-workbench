@@ -35,6 +35,7 @@
     fields:string[] = []
 
     ngOnChanges(): void {
+
         if (this.selectedNode >= 0) {
             if (this.model_schema && this.model_schema['fields']) {
                 this.fields = Object.keys(this.model_schema['fields']);
@@ -53,7 +54,7 @@
 
 
     updateACField() {
-        if(this.selectedLink > 0) {
+        if(this.selectedLink >= 0) {
             this.ACField =  this.fields.filter(value => !this.links[this.selectedLink].watch.includes(value))
             } else {
             this.ACField = []
@@ -62,13 +63,13 @@
     }
 
     deleteWatcher(index:number) {
-        if(this.selectedLink > 0) {
+        if(this.selectedLink >= 0) {
             this.links[this.selectedLink].watch.splice(index,1)
         }
     }
 
     addWatcher() {
-        if(this.selectedLink > 0) {
+        if(this.selectedLink >= 0) {
             if (this.inputwatch && !this.links[this.selectedLink].watch.includes(this.inputwatch)) {
                 this.links[this.selectedLink].watch.push(this.inputwatch)
             }
@@ -76,14 +77,14 @@
     }
 
     deletePolicy(index:number) {
-        if(this.selectedLink > 0) {
+        if(this.selectedLink >= 0) {
             this.links[this.selectedLink].policies.splice(index,1)
         }
     }
 
     addPolicy() {
-        if(this.selectedLink > 0) {
-            if (this.inputPolicy && !this.links[this.selectedLink].policies.includes(this.inputwatch)) {
+        if(this.selectedLink >= 0) {
+            if (this.inputPolicy && !this.links[this.selectedLink].policies.includes(this.inputPolicy)) {
                 this.links[this.selectedLink].policies.push(this.inputPolicy)
             }
         }

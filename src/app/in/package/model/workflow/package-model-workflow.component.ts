@@ -71,14 +71,10 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
 
     private async init() {
         this.loading = true;
-        console.log(`${this.debugPrefix} init()`);
         this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe(async (params) => {
             this.package = params['package_name'];
             this.model = params['class_name'];
-            console.log(`${this.debugPrefix} route params`, {
-                package: this.package,
-                model: this.model
-            });
+
             await this.loadWorkflow();
         });
     }
@@ -89,17 +85,8 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
         this.links = [];
         this.need_save = false;
 
-        console.log(`${this.debugPrefix} loadWorkflow() start`, {
-            package: this.package,
-            model: this.model
-        });
-
         try {
             const r = await this.workbenchService.getWorkflow(this.package, this.model).toPromise();
-            console.log(`${this.debugPrefix} workflow API result`, {
-                exists: r?.exists,
-                keys: r?.info ? Object.keys(r.info).length : 0
-            });
 
             if (r.exists !== null && r.exists !== undefined) {
                 this.exists = r.exists;
@@ -173,25 +160,11 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
                         }
                     }
                 }
-
-                console.log(`${this.debugPrefix} parsed workflow`, {
-                    exists: this.exists,
-                    hasMetaData: !!this.has_meta_data,
-                    nodes: this.nodes.length,
-                    links: this.links.length,
-                    needSave: this.need_save
-                });
             }
         } catch (error) {
             console.error(`${this.debugPrefix} loadWorkflow() failed`, error);
         } finally {
             this.loading = false;
-            console.log(`${this.debugPrefix} loadWorkflow() end`, {
-                loading: this.loading,
-                nodes: this.nodes.length,
-                links: this.links.length,
-                exists: this.exists
-            });
         }
     }
 
@@ -288,11 +261,19 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
         for(let node of this.nodes) {
             result[node.name] = node.export();
             result[node.name].transitions = {};
-            for(let link of this.links) {
-                if(link.from === node){
-                    result[node.name].transitions[link.name] = link.export();
-                }
+        }
+
+        for (let link of this.links) {
+            const fromNodeName = this.getNodeName(link?.from);
+            if (!fromNodeName || !result[fromNodeName]) {
+                continue;
             }
+
+            const transitionName = this.getUniqueTransitionName(
+                result[fromNodeName].transitions,
+                link?.name
+            );
+            result[fromNodeName].transitions[transitionName] = link.export();
         }
         return result;
     }
@@ -302,13 +283,42 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
         for(let node of this.nodes) {
             result[node.name] = node.generateMetaData();
             result[node.name].transitions = {};
-            for(let link of this.links) {
-                if(link.from === node){
-                    result[node.name].transitions[link.name] = link.generateMetaData();
-                }
+        }
+
+        for (let link of this.links) {
+            const fromNodeName = this.getNodeName(link?.from);
+            if (!fromNodeName || !result[fromNodeName]) {
+                continue;
             }
+
+            const transitionName = this.getUniqueTransitionName(
+                result[fromNodeName].transitions,
+                link?.name
+            );
+            result[fromNodeName].transitions[transitionName] = link.generateMetaData();
         }
         return result;
+    }
+
+    private getNodeName(node: WorkflowNode | null | undefined): string {
+        return node?.name || '';
+    }
+
+    private getUniqueTransitionName(existingTransitions: { [id: string]: any }, requestedName: string | null | undefined): string {
+        const baseName = (requestedName || 'transition').trim() || 'transition';
+
+        if (!existingTransitions[baseName]) {
+            return baseName;
+        }
+
+        let index = 2;
+        let candidate = `${baseName}_${index}`;
+        while (existingTransitions[candidate]) {
+            index += 1;
+            candidate = `${baseName}_${index}`;
+        }
+
+        return candidate;
     }
 
 
@@ -332,7 +342,6 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
         const workflowJSON = JSON.stringify(workflowPayload);
         const metadataJSON = JSON.stringify(this.exportMetaData());
         let modelPayloadForValidation: any;
-
         try {
             modelPayloadForValidation = await this.buildModelPayloadWithWorkflow(workflowPayload);
         } catch (error) {

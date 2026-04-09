@@ -120,7 +120,7 @@
                     </g>
                 </g>
             </g>
-            <g *ngIf="state === 'linking-to' && selectedNode > 0 && selectedAnchor">
+            <g *ngIf="state === 'linking-to' && selectedNode >= 0 && selectedAnchor">
                 <g *ngIf="getPathStringBetween(nodes[selectedNode],mousePosOffsetted,selectedAnchor,anchor.Top) as line">
                     <path
                         [attr.d]="line.path"

@@ -1,4 +1,4 @@
-    import { AfterViewChecked, AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+    import { AfterViewChecked, AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, ViewChild } from '@angular/core';
 
     import { cloneDeep} from 'lodash';
     import { WorkflowNode } from './_objects/WorkflowNode';
