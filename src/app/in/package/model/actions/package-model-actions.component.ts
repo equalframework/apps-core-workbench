@@ -1,5 +1,5 @@
 import { Location } from '@angular/common';
-import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { RouterMemory } from 'src/app/_services/router-memory.service';
 import { Component, OnDestroy, OnInit, Injector } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
@@ -16,24 +16,24 @@ import { cloneDeep } from 'lodash';
 import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
 
 @Component({
-  selector: 'app-policy',
+  selector: 'app-package-model-actions',
   templateUrl: './package-model-actions.component.html',
   styleUrls: ['./package-model-actions.component.scss']
 })
-export class PackageModelActions implements OnInit, OnDestroy {
+export class PackageModelActionsComponent implements OnInit, OnDestroy {
     actions$ = new BehaviorSubject<Actions>({});
     availablePolicies$ = new BehaviorSubject<string[]>([]);
-    package_name: string = '';
-    model_name: string = '';
+    packageName = '';
+    modelName = '';
     loading = false;
     selectedAction: ActionItem | undefined;
-    public isSaving: boolean = false;
+    public isSaving = false;
     private destroy$ = new Subject<void>();
     loadingState = {
         actions: false,
         policies: false
     };
-    private backgroundPreloadStarted: boolean = false;
+    private backgroundPreloadStarted = false;
 
     constructor(
       private workbenchService: WorkbenchService,
@@ -42,7 +42,6 @@ export class PackageModelActions implements OnInit, OnDestroy {
       private matDialog: MatDialog,
       private notificationService: NotificationService,
       public buttonStateService: ButtonStateService,
-      private routerMemory: RouterMemory,
       private jsonValidationService: JsonValidationService,
       private provider: EqualComponentsProviderService,
       private injector: Injector,
@@ -51,8 +50,8 @@ export class PackageModelActions implements OnInit, OnDestroy {
     ngOnInit(): void {
       this.loading = true;
       this.route.params.pipe(takeUntil(this.destroy$)).subscribe(async (params) => {
-        this.package_name = params['package_name'];
-        this.model_name = params['class_name'];
+        this.packageName = params.package_name;
+        this.modelName = params.class_name;
         this.loading = false;
         this.loadActions();
         this.loadPolicies();
@@ -60,7 +59,7 @@ export class PackageModelActions implements OnInit, OnDestroy {
       });
 
     }
-    
+
     private async fetchBackgroundData(): Promise<void> {
         if (this.backgroundPreloadStarted) {
             return;
@@ -86,7 +85,7 @@ export class PackageModelActions implements OnInit, OnDestroy {
         this.loadingState.actions = true;
         this.buttonStateService.disableButtons();
 
-        this.workbenchService.getActions(this.package_name, this.model_name).pipe(
+        this.workbenchService.getActions(this.packageName, this.modelName).pipe(
           take(1),
           tap(actions => this.actions$.next(actions)),
           catchError(() => {
@@ -106,7 +105,7 @@ export class PackageModelActions implements OnInit, OnDestroy {
      */
     private loadPolicies(): void {
         this.loadingState.policies = true;
-        this.workbenchService.getPolicies(this.package_name, this.model_name).pipe(
+        this.workbenchService.getPolicies(this.packageName, this.modelName).pipe(
           take(1),
           map((response: PolicyResponse) => Object.keys(response)),
           tap(policies => this.availablePolicies$.next(policies)),
@@ -152,14 +151,14 @@ export class PackageModelActions implements OnInit, OnDestroy {
       }
 
       this.jsonValidationService.validateAndSave(
-        this.jsonValidationService.validateBySchemaType(modelPayloadForValidation, 'urn:equal:json-schema:core:model', this.package_name),
-        () => this.workbenchService.saveActions(this.package_name, this.model_name, jsonData),
+        this.jsonValidationService.validateBySchemaType(modelPayloadForValidation, 'urn:equal:json-schema:core:model', this.packageName),
+        () => this.workbenchService.saveActions(this.packageName, this.modelName, jsonData),
         (saving) => this.isSaving = saving
       );
     }
 
     private async buildModelPayloadWithActions(actionsPayload: Actions): Promise<any> {
-      const entity = `${this.package_name}\\${this.model_name}`;
+      const entity = `${this.packageName}\\${this.modelName}`;
       const latestModelSchema = await this.workbenchService.getSchema(entity).toPromise();
       const modelPayload = cloneDeep(latestModelSchema || {});
       modelPayload.actions = actionsPayload;
@@ -172,7 +171,7 @@ export class PackageModelActions implements OnInit, OnDestroy {
      */
     addAction(newItem: ActionItem): void {
         this.actions$.pipe(take(1)).subscribe(actions => {
-            const updatedActions = { ...actions, [newItem.key]: {'description':'','policies':[],'function':''} };
+            const updatedActions = { ...actions, [newItem.key]: {description: '', policies: [], function: ''} };
             this.actions$.next(updatedActions);
         });
     }
@@ -181,7 +180,7 @@ export class PackageModelActions implements OnInit, OnDestroy {
      * Deletes an action from the current state.
      * @param action The action to be deleted.
      */
-    ondeleteAction(action: ActionItem): void {
+    onDeleteAction(action: ActionItem): void {
         this.actions$.pipe(take(1)).subscribe(actions => {
             const updatedActions = { ...actions };
             delete updatedActions[action.key];
@@ -195,12 +194,12 @@ export class PackageModelActions implements OnInit, OnDestroy {
      * @param evt The triggering event.
      */
     public customButtonBehavior(evt: string): void {
-        if (evt === "Show JSON") {
+        if (evt === 'Show JSON') {
             this.export().pipe(take(1)).subscribe(exportedData => {
                 this.matDialog.open(JsonViewerComponent, {
                     data: exportedData,
-                    width: "70vw",
-                    height: "80vh"
+                    width: '70vw',
+                    height: '80vh'
                 });
             });
         }
@@ -221,7 +220,7 @@ export class PackageModelActions implements OnInit, OnDestroy {
      * Refreshes the list of actions by reloading them from the API.
      */
     refreshAction(): void {
-        this.loadActions()
+        this.loadActions();
     }
 
     /**
@@ -234,7 +233,7 @@ export class PackageModelActions implements OnInit, OnDestroy {
     /**
      * Cancel all the changes on reloading
      */
-    cancel(){
+    cancel(): void{
         this.loadActions();
         this.loadPolicies();
         this.selectedAction = undefined;
