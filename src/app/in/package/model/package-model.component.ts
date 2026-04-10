@@ -5,7 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Location } from '@angular/common';
-import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { RouterMemory } from 'src/app/_services/router-memory.service';
 import { EqualComponentDescriptor } from '../../_models/equal-component-descriptor.class';
 
 @Component({
@@ -19,15 +19,15 @@ export class PackageModelComponent implements OnInit, OnDestroy {
     // rx subject for unsubscribing subscriptions on destroy
     private ngUnsubscribe = new Subject<void>();
 
-    public child_loaded = false;
+    public childLoaded = false;
 
-    public package_name: string = '';
+    public packageName: string = '';
 
-    public selected_model: string | undefined = undefined;
+    public selectedModel: string | undefined = undefined;
 
-    public selected_class: EqualComponentDescriptor | undefined;
+    public selectedClass: EqualComponentDescriptor | undefined;
 
-    public selected_field: FieldClass|undefined = undefined;
+    public selectedField: FieldClass|undefined = undefined;
 
     // http://equal.local/index.php?get=config_packages
     public packages: string[];
@@ -46,28 +46,28 @@ export class PackageModelComponent implements OnInit, OnDestroy {
             private routerMemory: RouterMemory
         ) { }
 
-    public async ngOnInit() {
+    public async ngOnInit(): Promise<void> {
         this.init();
     }
 
-    public ngOnDestroy() {
+    public ngOnDestroy(): void  {
         console.debug('ModelsComponent::ngOnDestroy');
         this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
     }
 
-    private async init() {
+    private async init(): Promise<void> {
         this.loading = true;
-        this.selected_field = undefined;
-        this.selected_model = undefined;
-        this.child_loaded = false;
+        this.selectedField = undefined;
+        this.selectedModel = undefined;
+        this.childLoaded = false;
 
         this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
-                this.package_name = params['package_name'];
-                this.selected_model = params['class_name'];
+                this.packageName = params['package_name'];
+                this.selectedModel = params['class_name'];
                 this.ready = true;
                 this.loading = false;
-                this.onSelectNode(new EqualComponentDescriptor(this.package_name, this.selected_model!));
+                this.onSelectNode(new EqualComponentDescriptor(this.packageName, this.selectedModel!));
             });
 
     }
@@ -77,28 +77,28 @@ export class PackageModelComponent implements OnInit, OnDestroy {
      *
      * @param eq_route the route that the user has selected
      */
-    public async onSelectNode(eq_class: EqualComponentDescriptor) {
-        if (this.selected_class === eq_class) {
-            this.selected_class = undefined;
+    public async onSelectNode(eqClass: EqualComponentDescriptor): Promise<void> {
+        if (this.selectedClass === eqClass) {
+            this.selectedClass = undefined;
         } else {
-            this.selected_class = eq_class;
+            this.selectedClass = eqClass;
         }
     }
 
 
-    public async onChangeStep(step:number) {
+    public async onChangeStep(step:number): Promise<void> {
         /*
         if(step == 2) {
-            this.route.navigate(['/fields',this.package_name,this.selected_class],{"class":this.selected_class})
+            this.route.navigate(['/fields',this.packageName,this.selectedClass],{"class":this.selectedClass})
         }
         if(step===3) {
-            this.route.navigate(['/views',"entity",this.package_name+'\\'+this.selected_class],{"class":this.selected_class})
+            this.route.navigate(['/views',"entity",this.packageName+'\\'+this.selectedClass],{"class":this.selectedClass})
         }
         if(step===4) {
-            this.route.navigate(['/translation/model',this.package_name,this.selected_class],{"class":this.selected_class})
+            this.route.navigate(['/translation/model',this.packageName,this.selectedClass],{"class":this.selectedClass})
         }
         if(step===5) {
-            this.route.navigate(['/workflow',this.package_name,this.selected_class],{"class":this.selected_class})
+            this.route.navigate(['/workflow',this.packageName,this.selectedClass],{"class":this.selectedClass})
         }
         */
     }
@@ -108,7 +108,7 @@ export class PackageModelComponent implements OnInit, OnDestroy {
      *
      * @param event contains the old and new name of the class
      */
-    public onUpdateNode(change: {old_node: EqualComponentDescriptor, new_node: EqualComponentDescriptor}) {
+    public onUpdateNode(change: {oldNode: EqualComponentDescriptor, newNode: EqualComponentDescriptor}) {
     }
 
 
