@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit, Injector } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Location } from '@angular/common';
-import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { RouterMemory } from 'src/app/_services/router-memory.service';
 import { MatDialog } from '@angular/material/dialog';
 import { BehaviorSubject, Observable, Subject, of } from 'rxjs';
 import { catchError, finalize, map, take, takeUntil, tap } from 'rxjs/operators';
@@ -22,13 +22,13 @@ import { EqualComponentsProviderService } from 'src/app/in/_services/equal-compo
 })
 export class PackageModelPoliciesComponent implements OnInit, OnDestroy {
     policies$ = new BehaviorSubject<PolicyResponse>({});
-    package_name = '';
-    model_name = '';
+    packageName = '';
+    modelName = '';
     loading = false;
     selectedPolicy: PolicyItem | undefined;
     readonly destroy$ = new Subject<void>();
-    public isSaving: boolean = false;
-    private backgroundPreloadStarted: boolean = false;
+    public isSaving = false;
+    private backgroundPreloadStarted = false;
 
     constructor(
         private workbenchService: WorkbenchService,
@@ -47,7 +47,7 @@ export class PackageModelPoliciesComponent implements OnInit, OnDestroy {
         this.loading = true;
         this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => this.handleRouteParams(params));
     }
-    
+
     private async fetchBackgroundData(): Promise<void> {
         if (this.backgroundPreloadStarted) {
             return;
@@ -67,8 +67,8 @@ export class PackageModelPoliciesComponent implements OnInit, OnDestroy {
     }
 
     private handleRouteParams(params: Params): void {
-        this.package_name = this.route.parent ? this.route.parent?.snapshot.paramMap.get('package_name') : params['package_name'];
-        this.model_name = this.route.parent ? this.route.parent?.snapshot.paramMap.get('class_name') : params['class_name'];
+        this.packageName = this.route.parent ? this.route.parent?.snapshot.paramMap.get('package_name') : params['package_name'];
+        this.modelName = this.route.parent ? this.route.parent?.snapshot.paramMap.get('class_name') : params['class_name'];
         this.loadPolicies();
         void this.fetchBackgroundData();
         this.loading = false;
@@ -77,7 +77,7 @@ export class PackageModelPoliciesComponent implements OnInit, OnDestroy {
     private loadPolicies(): void {
         this.loading = true;
         this.buttonStateService.disableButtons();
-        this.workbenchService.getPolicies(this.package_name, this.model_name).pipe(
+        this.workbenchService.getPolicies(this.packageName, this.modelName).pipe(
         take(1),
         tap(policies => this.policies$.next(policies)),
         catchError(error => {
@@ -143,7 +143,7 @@ export class PackageModelPoliciesComponent implements OnInit, OnDestroy {
 
     refreshPolicies(): void {
         this.loading = true;
-        this.workbenchService.getPolicies(this.package_name, this.model_name).pipe(
+        this.workbenchService.getPolicies(this.packageName, this.modelName).pipe(
         take(1),
         catchError(error => {
             this.notificationService.showError('Failed to refresh policies');
@@ -172,14 +172,15 @@ export class PackageModelPoliciesComponent implements OnInit, OnDestroy {
         }
 
         this.jsonValidationService.validateAndSave(
-            this.jsonValidationService.validateBySchemaType(modelPayloadForValidation, 'urn:equal:json-schema:core:model', this.package_name),
-            () => this.workbenchService.savePolicies(this.package_name, this.model_name, jsonData),
+            this.jsonValidationService.validateBySchemaType(
+                modelPayloadForValidation, 'urn:equal:json-schema:core:model', this.packageName),
+            () => this.workbenchService.savePolicies(this.packageName, this.modelName, jsonData),
             (saving) => this.isSaving = saving
         );
     }
 
     private async buildModelPayloadWithPolicies(policiesPayload: PolicyResponse): Promise<any> {
-        const entity = `${this.package_name}\\${this.model_name}`;
+        const entity = `${this.packageName}\\${this.modelName}`;
         const latestModelSchema = await this.workbenchService.getSchema(entity).toPromise();
         const modelPayload = cloneDeep(latestModelSchema || {});
         modelPayload.policies = policiesPayload;

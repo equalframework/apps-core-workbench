@@ -1,5 +1,4 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { WorkbenchModule } from "../../../../../../_modules/workbench.module";
 import { PolicyItem } from 'src/app/in/_models/policy.model';
 
 @Component({
@@ -9,6 +8,6 @@ import { PolicyItem } from 'src/app/in/_models/policy.model';
 })
 export class PolicyEditorDetailComponent {
 
-    @Input() policy:PolicyItem
+    @Input() policy: PolicyItem;
 
 }
