@@ -17,7 +17,7 @@ describe('EditColComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(EditColComponent);
     component = fixture.componentInstance;
-    component.data = {col:new ViewColumn(),entity:"core\\User", package:"core"}
+    component.data = {col: new ViewColumn(), entity: 'core\\User', package: 'core'};
     fixture.detectChanges();
   });
 

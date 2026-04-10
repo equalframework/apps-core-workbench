@@ -22,7 +22,7 @@ describe('PopupParamsComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(PopupParamsComponent);
     component = fixture.componentInstance;
-    component.data = new ViewAction()
+    component.data = new ViewAction();
     fixture.detectChanges();
   });
 

@@ -20,7 +20,7 @@ describe('RouteEditComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(RouteEditComponent);
     component = fixture.componentInstance;
-    component.route = new ViewRoute()
+    component.route = new ViewRoute();
     fixture.detectChanges();
   });
 

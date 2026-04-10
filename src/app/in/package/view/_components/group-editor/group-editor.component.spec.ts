@@ -12,7 +12,7 @@ describe('GroupEditorComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ GroupEditorComponent ],
-      imports:[MatDialogModule]
+      imports: [MatDialogModule]
     })
     .compileComponents();
   });
@@ -20,7 +20,7 @@ describe('GroupEditorComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(GroupEditorComponent);
     component = fixture.componentInstance;
-    component.group_obj = []
+    component.groupObj = [];
     fixture.detectChanges();
   });
 

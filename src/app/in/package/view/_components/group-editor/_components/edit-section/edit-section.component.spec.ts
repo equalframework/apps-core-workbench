@@ -18,7 +18,7 @@ describe('EditSectionComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(EditSectionComponent);
     component = fixture.componentInstance;
-    component.data = {section: new ViewSection(), entity:"core\\User", package:"core"}
+    component.data = {section: new ViewSection(), entity: 'core\\User', package: 'core'};
     fixture.detectChanges();
   });
 

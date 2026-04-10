@@ -12,7 +12,7 @@ describe('PreDefActionEditorComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ PreDefActionEditorComponent,MatAutocomplete ],
+      declarations: [ PreDefActionEditorComponent, MatAutocomplete ],
       imports: [MatDialogModule]
     })
     .compileComponents();
@@ -21,8 +21,8 @@ describe('PreDefActionEditorComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(PreDefActionEditorComponent);
     component = fixture.componentInstance;
-    component.controllers = []
-    component.obj = new ViewPreDefAction()
+    component.controllers = [];
+    component.obj = new ViewPreDefAction();
     fixture.detectChanges();
   });
 

@@ -1,8 +1,8 @@
-import { DraginfoDirective } from './draginfo.directive';
+import { DragInfoDirective } from './dragInfo.directive';
 
-describe('DraginfoDirective', () => {
+describe('DragInfoDirective', () => {
   it('should create an instance', () => {
-    const directive = new DraginfoDirective();
+    const directive = new DragInfoDirective();
     expect(directive).toBeTruthy();
   });
 });

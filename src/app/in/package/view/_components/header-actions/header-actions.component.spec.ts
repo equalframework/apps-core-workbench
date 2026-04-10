@@ -18,7 +18,7 @@ describe('HeaderActionsComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(HeaderActionsComponent);
     component = fixture.componentInstance;
-    component.h_scheme = new ViewHeader({},"form")
+    component.hScheme = new ViewHeader({}, 'form');
     fixture.detectChanges();
   });
 

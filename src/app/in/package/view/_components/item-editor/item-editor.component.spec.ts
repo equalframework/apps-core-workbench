@@ -13,11 +13,11 @@ describe('ItemEditorComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports : [SharedLibModule,BrowserAnimationsModule],
+      imports : [SharedLibModule, BrowserAnimationsModule],
       declarations: [ ItemEditorComponent ],
       providers : [TranslateFakeLoader]
     })
-    
+
     .compileComponents();
   });
 
@@ -25,7 +25,7 @@ describe('ItemEditorComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(ItemEditorComponent);
     component = fixture.componentInstance;
-    component.item = new ViewItem()
+    component.item = new ViewItem();
     fixture.detectChanges();
   });
 

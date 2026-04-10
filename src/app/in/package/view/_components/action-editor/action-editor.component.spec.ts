@@ -11,8 +11,8 @@ describe('ActionEditorComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ActionEditorComponent,MatAutocomplete ],
-      imports:[MatDialogModule]
+      declarations: [ ActionEditorComponent, MatAutocomplete ],
+      imports: [MatDialogModule]
     })
     .compileComponents();
   });
@@ -20,8 +20,8 @@ describe('ActionEditorComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(ActionEditorComponent);
     component = fixture.componentInstance;
-    component.controllers = []
-    component.obj = new ViewAction()
+    component.controllers = [];
+    component.obj = new ViewAction();
     fixture.detectChanges();
     component.obj = new ViewAction();
   });

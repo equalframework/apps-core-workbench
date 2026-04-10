@@ -19,13 +19,13 @@ describe('EditItemFormComponent', () => {
     fixture = TestBed.createComponent(EditItemFormComponent);
     component = fixture.componentInstance;
     component.data = {
-      item:new ViewItem({type:"field",value:"id",width:100}),
-      fields: ["id","created"],
-      groups:["users","admins"],
-      action_controllers:["core_user_create"],
-      entity:"core\\User",
-      package:"core"
-    }
+      item: new ViewItem({type: 'field', value: 'id', width: 100}),
+      fields: ['id', 'created'],
+      groups: ['users', 'admins'],
+      action_controllers: ['core_user_create'],
+      entity: 'core\\User',
+      package: 'core'
+    };
     fixture.detectChanges();
   });
 

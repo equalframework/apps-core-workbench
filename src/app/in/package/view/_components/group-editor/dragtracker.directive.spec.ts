@@ -1,4 +1,4 @@
-import { DragTrackerDirective } from './dragtracker.directive';
+import { DragTrackerDirective } from './dragTracker.directive';
 
 describe('DragTrackerDirective', () => {
   it('should create an instance', () => {
