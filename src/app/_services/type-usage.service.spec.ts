@@ -156,7 +156,7 @@ describe('TypeUsageService', () => {
 
       // Verify icon names follow Material Design naming
       const materialIconNames = Object.values(icons) as string[];
-      
+
       // Common Material icon patterns (snake_case, numbers, or single word)
       const validPattern = /^[a-z0-9_]+$/;
       materialIconNames.forEach(name => {
@@ -205,7 +205,7 @@ describe('TypeUsageService', () => {
       });
 
       const newService = TestBed.inject(TypeUsageService);
-      
+
       // Should not throw on creation despite API error
       expect(newService).toBeTruthy();
 
@@ -252,7 +252,7 @@ describe('TypeUsageService', () => {
 
       await new Promise(resolve => setTimeout(resolve, 50));
       expect(newService.usages).toBeNull();
-      
+
       // typeIcon should still work
       expect(newService.typeIcon['string']).toBe('format_quote');
     });
@@ -291,7 +291,7 @@ describe('TypeUsageService', () => {
 
       await new Promise(resolve => setTimeout(resolve, 50));
       expect(newService.usages).toEqual({ unexpected: 'data' });
-      
+
       // typeIcon should still work regardless
       expect(newService.typeIcon['string']).toBe('format_quote');
     });
@@ -308,13 +308,13 @@ describe('TypeUsageService', () => {
 
     it('should not leak references to internal data', () => {
       const icons = service.typeIcon;
-      
+
       // Modify returned object
       icons['custom_type'] = 'custom_icon';
 
       // Get icons again
       const icons2 = service.typeIcon;
-      
+
       // Should not have the custom type
       expect(icons2['custom_type']).toBeUndefined();
     });
@@ -338,7 +338,7 @@ describe('TypeUsageService', () => {
   describe('API contract verification', () => {
     it('should call API with exact endpoint specification', () => {
       mockApiService.fetch.calls.reset();
-      
+
       TestBed.resetTestingModule();
       TestBed.configureTestingModule({
         providers: [
