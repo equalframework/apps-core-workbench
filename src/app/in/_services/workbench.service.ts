@@ -17,6 +17,8 @@ import { convertRights, convertRightsFromStrings, Right, Roles } from '../_model
 })
 export class WorkbenchService {
 
+    private packageConsistencyCache: Map<string, any> = new Map<string, any>();
+
     constructor(
         private api: ApiService,
     ) {}
@@ -413,6 +415,31 @@ export class WorkbenchService {
         }
         const url = `?do=test_package-consistency&package=${package_name}`;
         return this.callApi(url, ``);
+    }
+
+    public getCachedPackageConsistency(package_name: string): any | null {
+        if (!package_name || package_name.length <= 0) {
+            return null;
+        }
+
+        return this.packageConsistencyCache.get(package_name) ?? null;
+    }
+
+    public setCachedPackageConsistency(package_name: string, result: any): void {
+        if (!package_name || package_name.length <= 0 || !result) {
+            return;
+        }
+
+        this.packageConsistencyCache.set(package_name, result);
+    }
+
+    public clearCachedPackageConsistency(package_name?: string): void {
+        if (!package_name) {
+            this.packageConsistencyCache.clear();
+            return;
+        }
+
+        this.packageConsistencyCache.delete(package_name);
     }
 
     /**

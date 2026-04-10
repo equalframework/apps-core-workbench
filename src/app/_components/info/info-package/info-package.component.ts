@@ -102,6 +102,7 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
         this.loadPackage();
         this.buildNavigationButtons();
         this.buildHeaderExtraInfo();
+        this.restoreCachedConsistency();
     }
 
     loadInitializedPackages(): Observable<string[]> {
@@ -155,7 +156,19 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
             this.loadPackage();
             this.buildNavigationButtons();
             this.buildHeaderExtraInfo();
+            this.restoreCachedConsistency();
         }
+    }
+
+    private restoreCachedConsistency(): void {
+        const cached = this.workbenchService.getCachedPackageConsistency(this.package?.name);
+        if (!cached || !cached.success) {
+            return;
+        }
+
+        this.package_consistency = cached.response;
+        this.processConsistencyResults(false);
+        this.consistency_checked = true;
     }
 
     private buildNavigationButtons(): void {
@@ -217,8 +230,9 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
             takeUntil(this.destroy$),
             tap((result: any) => {
                 if(result.success){
+                    this.workbenchService.setCachedPackageConsistency(this.package.name, result);
                     this.package_consistency = result.response;
-                    this.processConsistencyResults();
+                    this.processConsistencyResults(true);
                     return result.response;
                 }
                 else{
@@ -236,7 +250,7 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
     }
 
 
-    private processConsistencyResults(): void {
+    private processConsistencyResults(showToast: boolean = true): void {
         this.warn_count = 0;
         this.error_count = 0;
         this.error_list = [];
@@ -254,7 +268,9 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
             }
         });
 
-        this.snackBar.open(`Consistency check complete: ${this.error_count} errors, ${this.warn_count} warnings`, 'Close', { duration: 3000 });
+        if (showToast) {
+            this.snackBar.open(`Consistency check complete: ${this.error_count} errors, ${this.warn_count} warnings`, 'Close', { duration: 3000 });
+        }
     }
 
     /*
