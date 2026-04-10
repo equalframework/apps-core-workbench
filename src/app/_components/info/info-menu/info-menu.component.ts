@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, OnDestroy, OnChanges } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { RouterMemory } from 'src/app/_services/router-memory.service';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { JsonValidationService, ValidationStatusInfo } from 'src/app/in/_services/json-validation.service';

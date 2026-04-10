@@ -7,7 +7,7 @@ import { RequestSendingDialogComponent } from 'src/app/_dialogs/request-sending-
 import { TypeUsageService } from 'src/app/_services/type-usage.service';
 import { EnvService } from 'sb-shared-lib';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
-import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { RouterMemory } from 'src/app/_services/router-memory.service';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { JsonValidationService, ValidationStatusInfo } from 'src/app/in/_services/json-validation.service';
 import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';

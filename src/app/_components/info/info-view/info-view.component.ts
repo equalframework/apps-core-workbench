@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges, OnDestroy, ViewEncapsulation } from '@angular/core';
-import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { RouterMemory } from 'src/app/_services/router-memory.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';

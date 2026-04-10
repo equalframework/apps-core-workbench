@@ -4,7 +4,7 @@ import {STEPPER_GLOBAL_OPTIONS} from '@angular/cdk/stepper';
 import { Router } from '@angular/router';
 
 import { ContextService, ApiService, AuthService, EnvService } from 'sb-shared-lib';
-import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { RouterMemory } from 'src/app/_services/router-memory.service';
 
 
 /*

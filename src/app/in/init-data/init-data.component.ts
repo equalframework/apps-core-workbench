@@ -1,5 +1,5 @@
 import { Location } from '@angular/common';
-import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { RouterMemory } from 'src/app/_services/router-memory.service';
 import { Component, Inject, OnInit, Optional } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { InitDataFile } from './_models/init-data';

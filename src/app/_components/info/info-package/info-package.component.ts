@@ -9,7 +9,7 @@ import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-des
 import { Observable, of, Subject } from 'rxjs';
 import { catchError, finalize, shareReplay, takeUntil, tap } from 'rxjs/operators';
 import { PackageSummary } from 'src/app/in/_models/package-info.model';
-import {RouterMemory} from 'src/app/_services/routermemory.service';
+import {RouterMemory} from 'src/app/_services/router-memory.service';
 import { JsonValidationService, ValidationStatusInfo } from 'src/app/in/_services/json-validation.service';
 
 class ConsistencyResultItem {

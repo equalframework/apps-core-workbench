@@ -1,6 +1,6 @@
 import { OnChanges, SimpleChanges, ViewEncapsulation, ViewChild } from '@angular/core';
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
-import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { RouterMemory } from 'src/app/_services/router-memory.service';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { InfoSubHeaderButton } from '../info-sub-header/info-sub-header.component';
 import { MatSort, Sort } from '@angular/material/sort';
