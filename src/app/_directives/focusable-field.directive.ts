@@ -1,16 +1,16 @@
 /**
  * Focusable Field Directive
- * 
+ *
  * Marks form field elements (input, select, textarea, button) that can be focused or clicked via URL query parameters.
  * Registers the element with the navigation service so it can receive focus when the corresponding query parameter is activated.
  * For buttons, triggers a click instead of focus.
- * 
+ *
  * Usage:
  *   <input appFocusableField="item-1-value" [(ngModel)]="item.value">
  *   <mat-select appFocusableField="customer-id-select" [(value)]="customerValue">
  *   <textarea appFocusableField="description-textarea" [(ngModel)]="description"></textarea>
  *   <button appFocusableField="submit-button" (click)="onSubmit()">Submit</button>
- * 
+ *
  * URL Example:
  *   ?view=default&field=item-1-value  (focuses the field with ID 'item-1-value')
  *   ?element=section-1&field=customer-id-select  (scrolls to element and focuses the field)
@@ -27,7 +27,7 @@ export class FocusableFieldDirective implements OnInit, OnDestroy {
   /**
    * Unique ID for the focusable field or button, used in query parameters (e.g. ?field=item-1-value)
    * Should be lowercase with dashes (kebab-case) and unique within the page
-   * 
+   *
    * @example
    *   appFocusableField="item-1-value"
    *   appFocusableField="customer-id-input"

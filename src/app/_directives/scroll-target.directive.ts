@@ -1,9 +1,9 @@
 /**
  * Scroll Target Directive
- * 
+ *
  * Marks elements that can be targeted by the FragmentNavigator.
  * Registers the element with the navigation service so it can scroll to it when the corresponding query parameter is activated.
- * 
+ *
  * Usage:
  *   <div appScrollTarget="field-customer">...</div>
  *   <div appScrollTarget="section-1">...</div>
@@ -20,7 +20,7 @@ export class ScrollTargetDirective implements OnInit, OnDestroy {
   /**
    * Unique ID for the scroll target element, used in query parameters (e.g. ?element=field-customer)
    * Should be lowercase with dashes (kebab-case) and unique within the page
-   * 
+   *
    * @example
    *   appScrollTarget="field-customer"
    *   appScrollTarget="item-5"
