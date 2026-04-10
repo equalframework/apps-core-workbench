@@ -9,9 +9,9 @@
         (onCustomButton)="showJSON()">
     <div class="header-labels">
         <label>Menu </label>
-        <label class="component-color-package colorized">{{package_name}}</label>
+        <label class="component-color-package colorized">{{packageName}}</label>
         <label class="separator">\</label>
-        <label class="component-color-menu colorized">{{menu_name}}</label>
+        <label class="component-color-menu colorized">{{menuName}}</label>
     </div> 
 
 </app-inner-header>
@@ -42,7 +42,7 @@
                                     *ngFor="let item of object.layout.items; index as i"
                                     cdkDrag
                                     [item]="item"
-                                    [selected_item]="selected_item"
+                                    [selectedItem]="selectedItem"
                                     (select)="select($event)"
                                     (deleteMe)="deleteItem(i)">
                             </app-item-editor>
@@ -52,72 +52,72 @@
             </div>
         </mat-grid-tile>
         <mat-grid-tile colspan="3">
-            <div class="right-pane-loader" *ngIf="isRightPaneLoading && selected_item">
+            <div class="right-pane-loader" *ngIf="isRightPaneLoading && selectedItem">
                 <mat-spinner diameter="42"></mat-spinner>
             </div>
-            <div *ngIf="!selected_item">Please select an item to view its details.</div>
+            <div *ngIf="!selectedItem">Please select an item to view its details.</div>
 
-            <div class="margin-paddin" *ngIf="selected_item && !isRightPaneLoading">
+            <div class="margin-paddin" *ngIf="selectedItem && !isRightPaneLoading">
                 <mat-form-field class="input-id">
                     <mat-label>Id</mat-label>
-                    <input matInput [(ngModel)]="selected_item.id" appFocusableField="field-{{selected_item.id}}-id">
+                    <input matInput [(ngModel)]="selectedItem.id" appFocusableField="field-{{selectedItem.id}}-id">
                 </mat-form-field>
                 <mat-form-field class="input-label">
                     <mat-label>Label</mat-label>
-                    <input matInput [(ngModel)]="selected_item.label" appFocusableField="field-{{selected_item.id}}-label">
+                    <input matInput [(ngModel)]="selectedItem.label" appFocusableField="field-{{selectedItem.id}}-label">
                 </mat-form-field>
                 <mat-form-field class="input-icon">
                     <mat-label>Icon</mat-label>
-                    <input matInput [(ngModel)]="selected_item.icon" appFocusableField="field-{{selected_item.id}}-icon">
+                    <input matInput [(ngModel)]="selectedItem.icon" appFocusableField="field-{{selectedItem.id}}-icon">
                 </mat-form-field>
                 <mat-form-field>
                     <mat-label>Type</mat-label>
-                    <mat-select [(value)]="selected_item.type" appFocusableField="field-{{selected_item.id}}-type">
+                    <mat-select [(value)]="selectedItem.type" appFocusableField="field-{{selectedItem.id}}-type">
                         <mat-option *ngFor="let type of menuItem.availableTypes" [value]="type">{{type}}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <mat-form-field class="input-description">
                     <mat-label>Description</mat-label>
-                    <input matInput [(ngModel)]="selected_item.description" appFocusableField="field-{{selected_item.id}}-description">
+                    <input matInput [(ngModel)]="selectedItem.description" appFocusableField="field-{{selectedItem.id}}-description">
                 </mat-form-field>
                 <mat-form-field style="width: 25em;">
                     <mat-label>Route</mat-label>
-                    <input matInput [(ngModel)]="selected_item.route" appFocusableField="field-{{selected_item.id}}-route">
+                    <input matInput [(ngModel)]="selectedItem.route" appFocusableField="field-{{selectedItem.id}}-route">
                 </mat-form-field>
 
-                <div *ngIf="['entry'].includes(selected_item.type)">
+                <div *ngIf="['entry'].includes(selectedItem.type)">
                     <mat-divider></mat-divider>
                     <label>Context </label>
                     <autocomplete-multi
                             class="input-entity"
                             name="entity"
                             width="25em"
-                            [value]="selected_item.context.entity"
+                            [value]="selectedItem.context.entity"
                             (valueChange)="changeContextEntity($event)"
                             [values]="entities">
                     </autocomplete-multi>
                     <autocomplete
                             name="view"
                             width="15em"
-                            [value]="selected_item.context.view"
-                            (valueChange)="selected_item.context.view = $event"
+                            [value]="selectedItem.context.view"
+                            (valueChange)="selectedItem.context.view = $event"
                             [values]="viewList">
                     </autocomplete>
 
                     <mat-grid-list cols="5" rowHeight="3em" class="padded-checkboxes">
                         <mat-grid-tile>
                             <div class="checkbox-holder">
-                                <mat-checkbox [checked]="selected_item.context._has_sort" (change)="selected_item.context._has_sort = $event.checked">Sort</mat-checkbox>
+                                <mat-checkbox [checked]="selectedItem.context._hasSort" (change)="selectedItem.context._hasSort = $event.checked">Sort</mat-checkbox>
                             </div>
                         </mat-grid-tile>
                         <mat-grid-tile>
                             <div class="checkbox-holder">
-                                <mat-checkbox [checked]="selected_item.context._has_order" (change)="selected_item.context._has_order = $event.checked">Order</mat-checkbox>
+                                <mat-checkbox [checked]="selectedItem.context._hasOrder" (change)="selectedItem.context._hasOrder = $event.checked">Order</mat-checkbox>
                             </div>
                         </mat-grid-tile>
                         <mat-grid-tile>
                             <div class="checkbox-holder">
-                                <mat-checkbox [checked]="selected_item.context._has_domain" (change)="selected_item.context._has_domain = $event.checked">Domain</mat-checkbox>
+                                <mat-checkbox [checked]="selectedItem.context._hasDomain" (change)="selectedItem.context._hasDomain = $event.checked">Domain</mat-checkbox>
                             </div>
                         </mat-grid-tile>
                     </mat-grid-list>
@@ -125,7 +125,7 @@
                     <div>
                         <mat-form-field>
                             <mat-label>purpose</mat-label>
-                            <mat-select [value]="selected_item.context.purpose" appFocusableField="field-{{selected_item.id}}-purpose">
+                            <mat-select [value]="selectedItem.context.purpose" appFocusableField="field-{{selectedItem.id}}-purpose">
                                 <mat-option *ngFor="let purpose of menuContext.PossiblePurpose" value="purpose">
                                     {{purpose}}
                                 </mat-option>
@@ -133,7 +133,7 @@
                         </mat-form-field>
                         <mat-form-field>
                             <mat-label>Display mode</mat-label>
-                            <mat-select [value]="selected_item.context.display_mode" appFocusableField="field-{{selected_item.id}}-display_mode">
+                            <mat-select [value]="selectedItem.context.displayMode" appFocusableField="field-{{selectedItem.id}}-display_mode">
                                 <mat-option *ngFor="let purpose of menuContext.PossibleDisplayMode" value="purpose">
                                     {{purpose}}
                                 </mat-option>
@@ -141,10 +141,10 @@
                         </mat-form-field>
                     </div>
 
-                    <div *ngIf="selected_item.context._has_sort">
+                    <div *ngIf="selectedItem.context._hasSort">
                         <mat-form-field>
                             <mat-label>Sort</mat-label>
-                            <mat-select [value]="selected_item.context.sort" appFocusableField="field-{{selected_item.id}}-sort">
+                            <mat-select [value]="selectedItem.context.sort" appFocusableField="field-{{selectedItem.id}}-sort">
                                 <mat-option value="asc">
                                     asc
                                 </mat-option>
@@ -154,17 +154,17 @@
                             </mat-select>
                         </mat-form-field>
                     </div>
-                    <div *ngIf="selected_item.context._has_order">
+                    <div *ngIf="selectedItem.context._hasOrder">
                         <autocomplete
-                            [value]="selected_item.context.order"
-                            [values]="entity_fields"
+                            [value]="selectedItem.context.order"
+                            [values]="entityFields"
                             name="Order"
                         ></autocomplete>
                     </div>
-                    <div class="domain-holder" *ngIf="selected_item.context._has_domain">
+                    <div class="domain-holder" *ngIf="selectedItem.context._hasDomain">
                         <app-property-domain-component
-                            [(value)]="selected_item.context.domain"
-                            [class]="selected_item.context.entity">
+                            [(value)]="selectedItem.context.domain"
+                            [class]="selectedItem.context.entity">
                         </app-property-domain-component>
                     </div>
                 </div>

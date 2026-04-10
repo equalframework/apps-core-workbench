@@ -1,5 +1,5 @@
 import { Location } from '@angular/common';
-import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { RouterMemory } from 'src/app/_services/router-memory.service';
 import { Component, Inject, Injector, OnDestroy, OnInit, Optional } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Menu, MenuContext, MenuItem } from './_models/Menu';
@@ -18,7 +18,7 @@ import { EqualComponentsProviderService } from '../../_services/equal-components
 import { JsonValidationService } from '../../_services/json-validation.service';
 
 @Component({
-    selector: 'package-menu',
+    selector: 'app-package-menu',
     templateUrl: './package-menu.component.html',
     styleUrls: ['./package-menu.component.scss'],
 })
@@ -30,21 +30,21 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
     public menuItem = MenuItem;
     public menuContext = MenuContext;
 
-    public package_name: string = '';
-    public menu_name: string = '';
+    public packageName = '';
+    public menuName = '';
 
     public menuSchema: any = '';
     public groups: string[] = [];
     public object: Menu = new Menu();
-    public entities: {[id:string]:string[]} = {'model' : [], "data" : []};
+    public entities: {[id: string]: string[]} = {'model' : [], 'data' : []};
     public viewList: string[] = [];
 
-    public selected_item: MenuItem;
-    public entity_fields: string[] = [];
-    public isLoadingEntityData: boolean = false;
-    public isRightPaneLoading: boolean = false;
-    private backgroundPreloadStarted: boolean = false;
-    public isSaving: boolean = false;
+    public selectedItem: MenuItem;
+    public entityFields: string[] = [];
+    public isLoadingEntityData = false;
+    public isRightPaneLoading = false;
+    private backgroundPreloadStarted = false;
+    public isSaving = false;
 
     private queryParamActivatorRegistry: QueryParamActivatorRegistry;
     private provider: EqualComponentsProviderService | null = null;
@@ -53,27 +53,24 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
         private route: ActivatedRoute,
         private workbenchService: WorkbenchService,
         private location: Location,
-        private matSnack: MatSnackBar,
         private dialog: MatDialog,
-        private routerMemory: RouterMemory,
         private queryParamNavigator: QueryParamNavigatorService,
         private injector: Injector,
         private jsonValidationService: JsonValidationService
-            
     ) { }
 
-    public async ngOnInit() {
+    public async ngOnInit(): Promise<void> {
         this.initializeNavigation();
 
         this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe(async (params) => {
-            this.menu_name = params['menu_name'];
-            this.package_name = params['package_name'];
+            this.menuName = params['menu_name'];
+            this.packageName = params['package_name'];
 
             await this.fetchMenuData();
             void this.fetchBackgroundData();
         });
     }
-    
+
     private async fetchBackgroundData(): Promise<void> {
         if (this.backgroundPreloadStarted) {
             return;
@@ -96,7 +93,7 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
     private async fetchMenuData(): Promise<void> {
         try {
             const [menuResult, coreGroupsResult] = await Promise.all([
-                this.workbenchService.readMenu(this.package_name, this.menu_name).pipe(take(1), takeUntil(this.ngUnsubscribe)).toPromise(),
+                this.workbenchService.readMenu(this.packageName, this.menuName).pipe(take(1), takeUntil(this.ngUnsubscribe)).toPromise(),
                 this.workbenchService.getCoreGroups().pipe(take(1), takeUntil(this.ngUnsubscribe)).toPromise()
             ]);
 
@@ -157,7 +154,7 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
                     // Find the menu item with matching ID and select it
                     const menuItem = this.findMenuItemById(value, context.object.layout.items);
                     if (menuItem) {
-                        context.selected_item = menuItem;
+                        context.selectedItem = menuItem;
                         context.updateEntityDependentFields();
                     }
                 }
@@ -166,13 +163,13 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
         this.queryParamActivatorRegistry.register(fieldActivator);
     }
 
-    public ngOnDestroy() {
+    public ngOnDestroy(): void {
         this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
     }
 
-    public select(event:MenuItem) {
-        this.selected_item = event;
+    public select(event: MenuItem): void {
+        this.selectedItem = event;
         this.updateEntityDependentFields();
     }
 
@@ -186,54 +183,55 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
         return items.find(item => item.label === id);
     }
 
-    async updateEntityDependentFields() {
-        if(this.selected_item && this.selected_item.context && this.selected_item.context.entity) {
-            this.viewList =   ((await this.workbenchService.collectViews(this.package_name,this.selected_item.context.entity).toPromise()).map((value => value.split(":").slice(1).join(':'))))
-            this.workbenchService.getSchema(this.selected_item.context.entity.replaceAll("_", "\\"))
+    async updateEntityDependentFields(): Promise<void> {
+        if (this.selectedItem && this.selectedItem.context && this.selectedItem.context.entity) {
+            this.viewList = ((await this.workbenchService.collectViews(this.packageName, this.selectedItem.context.entity).toPromise())
+            .map((value => value.split(':').slice(1).join(':'))));
+            this.workbenchService.getSchema(this.selectedItem.context.entity.replaceAll('_', '\\'))
             .pipe(
                 map(schema => Object.keys(schema.fields))
             )
             .subscribe(fields => {
-                this.entity_fields = fields;
+                this.entityFields = fields;
             });
                 }
     }
 
-    public goBack() {
+    public goBack(): void {
         this.location.back();
     }
 
-    public deleteItem(index:number) {
-        this.object.layout.items.splice(index,1);
+    public deleteItem(index: number): void {
+        this.object.layout.items.splice(index, 1);
     }
 
-    public changeContextEntity(value:string) {
-        if(this.selected_item) {
-            this.selected_item.context.entity = value
-            this.selected_item.context.view = ''
-            this.selected_item.context.domain = []
-            this.selected_item.context.order = ""
-            this.updateEntityDependentFields()
+    public changeContextEntity(value:string): void {
+        if(this.selectedItem) {
+            this.selectedItem.context.entity = value;
+            this.selectedItem.context.view = '';
+            this.selectedItem.context.domain = [];
+            this.selectedItem.context.order = '';
+            this.updateEntityDependentFields();
         }
     }
 
-    public newItem() {
+    public newItem(): void {
         this.object.layout.items.push(new MenuItem());
     }
 
-    public async save() {
+    public async save(): Promise<void> {
         this.jsonValidationService.validateAndSave(
-            this.jsonValidationService.validateBySchemaType(this.object.export(), "menu", this.package_name),
-            () => this.workbenchService.saveView(this.object.export(),this.package_name,"\\menu",this.menu_name.trim()),
+            this.jsonValidationService.validateBySchemaType(this.object.export(), 'menu', this.packageName),
+            () => this.workbenchService.saveView(this.object.export(), this.packageName, '\\menu', this.menuName.trim()),
             (saving) => this.isSaving = saving
         );
     }
 
-    public showJSON() {
-        this.dialog.open(JsonViewerComponent,{data:this.object.export(),width:"70%",height:"85%"});
+    public showJSON(): void {
+        this.dialog.open(JsonViewerComponent,{data: this.object.export(), width: '70%', height: '85%'});
     }
 
-    public drop(event: CdkDragDrop<MenuItem[]>) {
+    public drop(event: CdkDragDrop<MenuItem[]>): void {
         if (event.previousContainer === event.container) {
             moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
         }
