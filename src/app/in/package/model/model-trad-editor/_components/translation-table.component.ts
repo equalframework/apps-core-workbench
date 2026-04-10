@@ -38,7 +38,7 @@ export class TranslationTableComponent {
   @Input() tabName = '';
 
   get computedHeaders(): GridHeaderColumn[] {
-    if (this.headers) return this.headers;
+    if (this.headers) { return this.headers; }
     return [
       { label: 'Translated', colspan: 1 },
       { label: 'Field',      colspan: 2 },
@@ -47,17 +47,17 @@ export class TranslationTableComponent {
   }
 
   changeActive(key: string): void {
-    if (!this.items[key]) return;
+    if (!this.items[key]) { return; }
     const item = this.items[key];
     if (item && typeof item === 'object') {
       item.is_active = item.is_active ? false : true;
-      //this.selectedField = !item.is_active && key === this.selectedField ? undefined : this.selectedField;
+      // this.selectedField = !item.is_active && key === this.selectedField ? undefined : this.selectedField;
     }
   }
 
   get itemKeys(): string[] {
     const keys = Object.keys(this.items ?? {});
-    if (!this.items) return keys;
+    if (!this.items) { return keys; }
     for (const k of keys) {
       const item = this.items[k];
       if (item && typeof item === 'object' && k === this.selectedField) {

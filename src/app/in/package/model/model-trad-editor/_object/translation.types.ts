@@ -8,9 +8,9 @@ export interface TranslationValue {
 
 export interface TranslationModelField {
   is_active: boolean;
-  label:       TranslationValue;
+  label: TranslationValue;
   description: TranslationValue;
-  help:        TranslationValue;
+  help: TranslationValue;
 }
 
 // ─── Champ d'une vue layout (label seulement) ────────────────────────────────
@@ -24,7 +24,7 @@ export interface TranslationLayoutField {
 
 export interface TranslationActionField {
   is_active: boolean;
-  label:       TranslationValue;
+  label: TranslationValue;
   description: TranslationValue;
 }
 
