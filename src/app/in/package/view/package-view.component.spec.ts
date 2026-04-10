@@ -7,14 +7,13 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { of, throwError } from 'rxjs';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 
-import { RouterMemory } from 'src/app/_services/routermemory.service';
-import { QueryParamNavigatorService } from 'src/app/_services/query-param-navigator.service';
-import { QueryParamActivatorRegistry, QueryParamTabActivator } from 'src/app/_services/query-param-activator.registry';
-import { TypeUsageService } from 'src/app/_services/type-usage.service';
+import { RouterMemory } from '../../../_services/router-memory.service';
+import { QueryParamNavigatorService } from '../../../_services/query-param-navigator.service';
+import { TypeUsageService } from '../../../_services/type-usage.service';
 import { EqualComponentsProviderService } from '../../_services/equal-components-provider.service';
 import { NotificationService } from '../../_services/notification.service';
 import { WorkbenchService } from '../../_services/workbench.service';
-import { JsonValidationService, ValidationResult } from 'src/app/in/_services/json-validation.service';
+import { JsonValidationService, ValidationResult } from '../../../in/_services/json-validation.service';
 import { View } from './_objects/View';
 import { EqualComponentDescriptor } from '../../_models/equal-component-descriptor.class';
 
