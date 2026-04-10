@@ -207,8 +207,8 @@ export class SearchFieldsListComponent implements OnInit {
         return new FieldClass(
                 node.name,
                 node.inherited,
-                node.synchronised,
-                JSON.parse(JSON.stringify(node.current_scheme ?? {}))
+                node.isSynchronized,
+                JSON.parse(JSON.stringify(node.currentScheme ?? {}))
             );
     }
 

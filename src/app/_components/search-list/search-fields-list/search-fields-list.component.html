@@ -27,7 +27,7 @@
                     <div class="node_container"
                             [class.node-hover]="!areNodesEqual(node, node_selected)"
                             [class.node-selected]="areNodesEqual(node, node_selected)"
-                            [class.node-edited]="!node.synchronised"
+                            [class.node-edited]="!node.isSynchronized"
                             [class.node-created]="node.isNew">
                         <div class="pointable node-text" (click)="onclickSelect(node)">{{ node.name }}</div>
                         <div class="icons">
