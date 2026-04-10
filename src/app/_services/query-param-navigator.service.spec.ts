@@ -434,7 +434,7 @@ describe('QueryParamNavigatorService', () => {
 
       const context = { selectedTabIndex: 0 };
       const registry = new QueryParamActivatorRegistry();
-      const tabMap = { 'actions': 2 };
+      const tabMap = { actions: 2 };
       registry.register(new QueryParamTabActivator(tabMap));
 
       await service.handleQueryParams(
@@ -496,7 +496,7 @@ describe('QueryParamNavigatorService', () => {
 
     it('should skip intermediate activator keys', async () => {
       const registry = new QueryParamActivatorRegistry();
-      registry.register(new QueryParamTabActivator({ 'actions': 2 }));
+      registry.register(new QueryParamTabActivator({ actions: 2 }));
 
       const context = { selectedTabIndex: 0 };
       spyOn(console, 'log');
@@ -585,7 +585,7 @@ describe('QueryParamNavigatorService', () => {
 
       const context = { selectedTabIndex: 0 };
       const registry = new QueryParamActivatorRegistry();
-      registry.register(new QueryParamTabActivator({ 'actions': 2 }));
+      registry.register(new QueryParamTabActivator({ actions: 2 }));
 
       await service.handleQueryParams(
         { tab: 'actions', element: 'field-1', field: 'field-2' },
@@ -636,7 +636,7 @@ describe('QueryParamNavigatorService', () => {
   describe('createLink', () => {
     it('should create correct query string', () => {
       const link = service.createLink({ tab: 'actions', element: 'field-customer' });
-      
+
       expect(link).toContain('?');
       expect(link).toContain('tab=actions');
       expect(link).toContain('element=field-customer');
@@ -645,7 +645,7 @@ describe('QueryParamNavigatorService', () => {
 
     it('should URL encode special characters', () => {
       const link = service.createLink({ search: 'hello world', field: 'data:value' });
-      
+
       expect(link).toContain('hello%20world');
       expect(link).toContain('data%3Avalue');
     });
@@ -785,7 +785,7 @@ describe('QueryParamNavigatorService', () => {
       // Create activators
       const context = { selectedTabIndex: 0 };
       const registry = new QueryParamActivatorRegistry();
-      registry.register(new QueryParamTabActivator({ 'actions': 2 }));
+      registry.register(new QueryParamTabActivator({ actions: 2 }));
 
       // Simulate URL: ?tab=actions&element=actions-section&field=customer-input
       await service.handleQueryParams(

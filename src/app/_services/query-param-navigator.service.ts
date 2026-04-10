@@ -1,14 +1,14 @@
 /**
  * Query Parameter Navigator Service
- * 
+ *
  * Service for navigating to nested components via URL queryParams.
- * 
- * 
+ *
+ *
  * Usage:
  *   - URL: ?tab=actions&element=field-customer
  *   - URL: ?view=default.form&element=section-1
  *   - URL: ?view=Post:default.form&actions=action-1&element=item-5
- * 
+ *
  * Strategy for redundant keys:
  *   - 'element' or 'field': final element to scroll to (accepts multiple aliases)
  *   - 'tab': tab/pane to activate
@@ -93,7 +93,7 @@ export class QueryParamNavigatorService {
     if (!this.scrollTargets.get(id)) {
       this.scrollTargets.set(id, element);
     } else {
-      console.warn(`${id} already has an entry in scroll with ${this.scrollTargets.get(id)} and not ${element}`)
+      console.warn(`${id} already has an entry in scroll with ${this.scrollTargets.get(id)} and not ${element}`);
     }
   }
 
@@ -126,14 +126,14 @@ export class QueryParamNavigatorService {
 
   /**
    * Navigates to the element specified in the queryParams, activating intermediate components as needed based on the provided activators.
-   * 
+   *
    * Handles both 'element' and 'field' query parameters:
    * - 'element': Scrolls to an element
    * - 'field': Scrolls to the element containing the field AND focuses the field
-   * 
+   *
    * @param queryParams Object of queryParams (e.g. {tab: 'actions', element: 'field-customer'})
    * @param config Specific configuration for this component
-   * 
+   *
    * @example
    * this.route.queryParams.subscribe(params => {
    *   if (Object.keys(params).length > 0) {
@@ -152,27 +152,27 @@ export class QueryParamNavigatorService {
   ): Promise<void> {
     const elementKeys = config.elementKeys || this.defaultElementKeys;
     const fieldKey = 'field';
-    
+
     // Check if we have a field parameter
     const hasFieldParam = fieldKey in queryParams;
     const fieldId = hasFieldParam ? queryParams[fieldKey] : undefined;
-    
+
     // Iterate over queryParams and activate intermediate components (tabs, views, etc.) using the activators
     for (const [key, value] of Object.entries(queryParams)) {
       // Ignore the keys that are meant to identify the final element or field to focus
       if (elementKeys.includes(key) || key === fieldKey) {
-        //console.log(`Skipping key "${key}" for intermediate activation, reserved for final element/field targeting`);
+        // console.log(`Skipping key "${key}" for intermediate activation, reserved for final element/field targeting`);
         continue;
       }
 
-      //console.log(`Handling query param "${key}=${value}"`);
-      
+      // console.log(`Handling query param "${key}=${value}"`);
+
       const activator = config.activators.findActivatorByKey(key);
-      
+
       if (activator) {
         try {
           await activator.activate(key, value, config.context);
-          //console.log(`Activated "${key}=${value}" successfully`);
+          // console.log(`Activated "${key}=${value}" successfully`);
         } catch (error) {
           console.error(`Error activating "${key}=${value}":`, error);
         }
@@ -181,7 +181,7 @@ export class QueryParamNavigatorService {
 
     // After activating all intermediate components, handle element and field parameters
     const elementId = this.findElementInParams(queryParams, elementKeys);
-    
+
     // If we have both element and field, scroll to element first then focus field
     if (elementId && hasFieldParam) {
       await this.scrollToElement(elementId, config);
@@ -197,7 +197,7 @@ export class QueryParamNavigatorService {
       const fieldElement = this.focusableFields.get(fieldId);
       if (fieldElement) {
         // Find the closest scroll target parent
-        let parent = fieldElement.closest('[appScrollTarget]');
+        const parent = fieldElement.closest('[appScrollTarget]');
         if (parent) {
           const parentId = parent.getAttribute('appScrollTarget');
           if (parentId) {
@@ -229,7 +229,7 @@ export class QueryParamNavigatorService {
 
   /**
    * Scrolls to a specific element
-   * 
+   *
    * @param elementId ID of the element (must have appScrollTarget)
    * @param config Configuration for the scroll
    */
@@ -243,11 +243,11 @@ export class QueryParamNavigatorService {
       await new Promise(resolve => setTimeout(resolve, delay));
     }
     const element = this.scrollTargets.get(elementId);
-    
+
     if (element) {
       const scrollOptions = config.scrollOptions || this.defaultScrollOptions;
       element.scrollIntoView(scrollOptions);
-      //console.log(`Scrolled to element with appScrollTarget="${elementId}"`, element);
+      // console.log(`Scrolled to element with appScrollTarget="${elementId}"`, element);
 
       if (element.classList.contains('mat-list-item') || element.className.match('item-pretty')) {
         // If it's a mat-list-item/item-pretty (exclusive to menus), select it to enable selection of sub-menu items
@@ -269,7 +269,7 @@ export class QueryParamNavigatorService {
 
   /**
    * Focuses a specific field element or clicks a button
-   * 
+   *
    * @param fieldId ID of the field or button (must have appFocusableField)
    * @param config Configuration for the operation
    */
@@ -283,7 +283,7 @@ export class QueryParamNavigatorService {
     }
 
     const fieldElement = this.focusableFields.get(fieldId);
-    
+
     if (fieldElement) {
       const tagName = (fieldElement as any).tagName;
       // For button elements, click them
@@ -323,7 +323,7 @@ export class QueryParamNavigatorService {
 
   /**
    * Creates a shareable URL with queryParams
-   * 
+   *
    * @example
    * const url = this.queryParamNavigator.createLink({tab: 'actions', element: 'field-customer'});
    * // Result: '?tab=actions&element=field-customer'
@@ -337,7 +337,7 @@ export class QueryParamNavigatorService {
 
   /**
    * Navigates to the specified queryParams
-   * 
+   *
    * @example
    * this.queryParamNavigator.navigateWithParams({
    *   tab: 'actions',
@@ -355,7 +355,7 @@ export class QueryParamNavigatorService {
   /**
    * Combine the existing queryParams with the new ones
    * Useful for adding a scroll target without losing other params
-   * 
+   *
    * @example
    * this.queryParamNavigator.updateParams({element: 'field-customer'});
    * // If ?tab=actions already exists, the result will be ?tab=actions&element=field-customer
