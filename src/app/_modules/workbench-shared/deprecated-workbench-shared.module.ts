@@ -32,7 +32,6 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
 
-import { InnerHeaderComponent } from '../../_components/inner-header/inner-header.component';
 
 
 
@@ -44,7 +43,6 @@ import { InnerHeaderComponent } from '../../_components/inner-header/inner-heade
 
 @NgModule({
     declarations: [
-        InnerHeaderComponent,
     ],
     imports: [
         CommonModule,
@@ -55,7 +53,6 @@ import { InnerHeaderComponent } from '../../_components/inner-header/inner-heade
         MatButtonToggleModule, MatPaginatorModule, MatDialogModule, ReactiveFormsModule
     ],
     exports : [
-        InnerHeaderComponent,
     ]
 })
 export class WorkbenchSharedModule { }
@@ -65,6 +62,5 @@ export class WorkbenchSharedModule { }
     // #memo - this is mandatory for other modules to be able to load Components from this one
 */
 export {
-    InnerHeaderComponent,
  };
 
