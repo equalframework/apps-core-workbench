@@ -4,7 +4,7 @@ import { Component, Injector, OnChanges, OnInit, Optional } from '@angular/core'
 import { WorkflowNode } from './_components/workflow-displayer/_objects/WorkflowNode';
 import { Anchor, WorkflowLink, test } from './_components/workflow-displayer/_objects/WorkflowLink';
 import { cloneDeep } from 'lodash';
-import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { RouterMemory } from 'src/app/_services/router-memory.service';
 import { ActivatedRoute } from '@angular/router';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { prettyPrintJson } from 'pretty-print-json';
@@ -18,7 +18,7 @@ import { JsonValidationService } from 'src/app/in/_services/json-validation.serv
 import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
 
 @Component({
-    selector: 'package-model-workflow',
+    selector: 'app-package-model-workflow',
     templateUrl: './package-model-workflow.component.html',
     styleUrls: ['./package-model-workflow.component.scss']
 })
@@ -27,31 +27,31 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
     private ngUnsubscribe = new Subject<void>();
 
     public models: string[] = [];
-    public state: string = 'normal';
+    public state = 'normal';
 
 
     public nodes: WorkflowNode[] = [];
     public links: WorkflowLink[] = [];
-    public selectedLink: number = -1;
-    public selectedNode: number = -1;
-    public package: string = "";
-    public model: string = "";
-    public model_scheme: any = {};
-    public need_save: boolean = false;
-    public selected_class: string = "";
-    public tabIndex: number = 1;
-    public isSaving: boolean = false;
+    public selectedLink = -1;
+    public selectedNode = -1;
+    public package = '';
+    public model = '';
+    public modelScheme: any = {};
+    public needSave = false;
+    public selectedClass = '';
+    public tabIndex = 1;
+    public isSaving = false;
 
     public color: { type: string, color: string }[] = [];
     public w = 10;
     public h = 10;
 
-    public selected_classes: string[] = ["core\\User"];
-    private backgroundPreloadStarted: boolean = false;
+    public selectedClasses: string[] = ['core\\User'];
+    private backgroundPreloadStarted = false;
 
     public test: { source: string, target: string, type: string }[] = [];
-    public has_meta_data: number;
-    public exists: boolean = false;
+    public hasMetaData: number;
+    public exists = false;
 
     public loading = true;
 
@@ -69,11 +69,11 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
         private injector: Injector,
     ) { }
 
-    public async ngOnInit() {
+    public async ngOnInit(): Promise<void> {
         this.init();
     }
 
-    private async init() {
+    private async init(): Promise<void> {
         this.loading = true;
         this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe(async (params) => {
             this.package = params['package_name'];
@@ -88,9 +88,9 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
             if (this.backgroundPreloadStarted) {
                 return;
             }
-    
+
             this.backgroundPreloadStarted = true;
-    
+
             try {
                 // Lazy-resolve provider so its constructor-triggered preload starts only in phase 3.
                 if (!this.provider) {
@@ -98,15 +98,14 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
                 }
             } catch (err) {
                 console.error('Error during background data fetching', err);
-    
             }
         }
 
-    private async loadWorkflow() {
+    private async loadWorkflow(): Promise<void> {
         this.loading = true;
         this.nodes = [];
         this.links = [];
-        this.need_save = false;
+        this.needSave = false;
 
         try {
             const r = await this.workbenchService.getWorkflow(this.package, this.model).toPromise();
@@ -114,13 +113,13 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
             if (r.exists !== null && r.exists !== undefined) {
                 this.exists = r.exists;
                 const metadata = await this.workbenchService.fetchMetaData('workflow', this.package + '.' + this.model).toPromise();
-                this.has_meta_data = Object.keys(metadata).length > 0 ? metadata[0].id : undefined;
-                this.model_scheme = await this.workbenchService.getSchema(this.package + "\\" + this.model).toPromise();
+                this.hasMetaData = Object.keys(metadata).length > 0 ? metadata[0].id : undefined;
+                this.modelScheme = await this.workbenchService.getSchema(this.package + '\\' + this.model).toPromise();
                 const res = r.info;
-                let orig = { x: 200, y: 200 };
+                const orig = { x: 200, y: 200 };
                 let mdt: any = {};
 
-                if (this.has_meta_data) {
+                if (this.hasMetaData) {
                     try {
                         mdt = JSON.parse(metadata[0].value);
                     } catch (error) {
@@ -129,19 +128,19 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
                     }
                 }
 
-                let offset_x: number = 0;
-                let offset_y: number = 0;
-                let is_first: boolean = true;
-                for (let node in res) {
-                    let pos = (!this.has_meta_data || !mdt || !mdt[node] || !mdt[node].position) ? cloneDeep(orig) : mdt[node].position;
-                    if (is_first && pos.x < 200) {
-                        offset_x = -pos.x + 200;
+                let offsetX = 0;
+                let offsetY = 0;
+                let isFirst = true;
+                for (const node in res) {
+                    const pos = (!this.hasMetaData || !mdt || !mdt[node] || !mdt[node].position) ? cloneDeep(orig) : mdt[node].position;
+                    if (isFirst && pos.x < 200) {
+                        offsetX = -pos.x + 200;
                     }
-                    if (is_first && pos.y < 200) {
-                        offset_y = -pos.y + 200;
+                    if (isFirst && pos.y < 200) {
+                        offsetY = -pos.y + 200;
                     }
-                    pos.x += offset_x;
-                    pos.y += offset_y;
+                    pos.x += offsetX;
+                    pos.y += offsetY;
                     this.nodes.push(new WorkflowNode(node, {
                         description: res[node].description,
                         position: pos,
@@ -151,11 +150,11 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
                     );
                     orig.y += 100;
                     orig.x += 100;
-                    is_first = false;
+                    isFirst = false;
                 }
-                for (let node in res) {
-                    for (let link in res[node].transitions) {
-                        let a = this.getNodeByName(node);
+                for (const node in res) {
+                    for (const link in res[node].transitions) {
+                        const a = this.getNodeByName(node);
                         let b = this.getNodeByName(res[node].transitions[link].status);
 
                         if (!b) {
@@ -163,7 +162,7 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
                             this.nodes.push(b);
                             orig.y += 100;
                             orig.x += 100;
-                            this.need_save = true;
+                            this.needSave = true;
                             console.warn(`${this.debugPrefix} transition references missing node, auto-created`, {
                                 from: node,
                                 to: res[node].transitions[link].status,
@@ -171,14 +170,14 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
                             });
                         }
                         if (a && b) {
-                            const anch1 = (!this.has_meta_data || !mdt || !mdt[a.name] || !mdt[a.name].transitions || !mdt[a.name].transitions[link] || !mdt[a.name].transitions[link].anchorFrom)
+                            const anchor1 = (!this.hasMetaData || !mdt || !mdt[a.name] || !mdt[a.name].transitions || !mdt[a.name].transitions[link] || !mdt[a.name].transitions[link].anchorFrom)
                                 ? Anchor.MiddleRight
                                 : mdt[a.name].transitions[link].anchorFrom;
-                            const anch2 = (!this.has_meta_data || !mdt || !mdt[a.name] || !mdt[a.name].transitions || !mdt[a.name].transitions[link] || !mdt[a.name].transitions[link].anchorFrom)
+                            const anchor2 = (!this.hasMetaData || !mdt || !mdt[a.name] || !mdt[a.name].transitions || !mdt[a.name].transitions[link] || !mdt[a.name].transitions[link].anchorFrom)
                                 ? Anchor.MiddleLeft
                                 : mdt[a.name].transitions[link].anchorTo;
                             this.links.push(
-                                new WorkflowLink(a, b, anch1, anch2, Object.assign(res[node].transitions[link], { name: link }))
+                                new WorkflowLink(a, b, anchor1, anchor2, Object.assign(res[node].transitions[link], { name: link }))
                             );
                         }
                     }
@@ -191,27 +190,27 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
         }
     }
 
-    public reset() {
+    public reset(): void {
         this.init();
     }
 
-    public changeState(state: string) {
+    public changeState(state: string): void {
         if (this.state !== state) {
             this.state = state;
-            if (!["linking-to"].includes(this.state)) {
+            if (!['linking-to'].includes(this.state)) {
                 this.selectedNode = -1;
             }
-            if (this.state.includes("linked-failed")) {
+            if (this.state.includes('linked-failed')) {
                 this.selectedNode = -1;
-                this.snackBar.open("Link already existing");
+                this.snackBar.open('Link already existing');
             }
-            if (!["edit-link", "edit-from", "edit-to"].includes(this.state)) {
+            if (!['edit-link', 'edit-from', 'edit-to'].includes(this.state)) {
                 this.selectedLink = -1;
             }
         }
     }
 
-    selectNode(index: number) {
+    selectNode(index: number): void {
         this.selectedNode = index;
         this.nodes.forEach((node, idx) => {
             node.icon = idx === index ? 'check_circle' : 'hub';
@@ -222,17 +221,17 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
         return this.nodes.find(item => item.name === name) || null;
     }
 
-    public ngOnChanges() {
+    public ngOnChanges(): void {
     }
 
-    public deleteLink() {
+    public deleteLink(): void {
         if (this.selectedLink >= 0) {
             this.links.splice(this.selectedLink, 1);
         }
         this.selectedLink = -1;
     }
 
-    public deleteNode() {
+    public deleteNode(): void {
         if (this.selectedNode >= 0) {
             const deleted = this.nodes.splice(this.selectedNode, 1);
             this.links = this.links.filter(link => link.from !== deleted[0] && link.to !== deleted[0]);
@@ -240,10 +239,10 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
         }
     }
 
-    public dragoff(event: CdkDragEnd) {
+    public dragOff(event: CdkDragEnd): void {
     }
 
-    public requestLinkFrom() {
+    public requestLinkFrom(): void {
         if (!['linking-from', 'linking-to'].includes(this.state)) {
             this.changeState('linking-from');
         }
@@ -251,11 +250,11 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
 
     get sizeViewer(): number {
         switch (this.state) {
-            case "normal":
-            case "link-to":
-            case "link-from":
+            case 'normal':
+            case 'link-to':
+            case 'link-from':
                 return 12;
-            case "edit-link":
+            case 'edit-link':
                 return 8;
             default:
                 return 9;
@@ -264,29 +263,29 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
 
     get sizeEditor(): number {
         switch (this.state) {
-            case "normal":
-            case "link-to":
-            case "link-from":
+            case 'normal':
+            case 'link-to':
+            case 'link-from':
                 return 0;
-            case "edit-link":
+            case 'edit-link':
                 return 4;
             default:
                 return 3;
         }
     }
 
-    public goBack() {
+    public goBack(): void {
         this.location.back();
     }
 
-    public export() {
-        let result:{[id:string]:any} = {};
-        for(let node of this.nodes) {
+    public export(): any {
+        const result: {[id: string]: any} = {};
+        for (const node of this.nodes) {
             result[node.name] = node.export();
             result[node.name].transitions = {};
         }
 
-        for (let link of this.links) {
+        for (const link of this.links) {
             const fromNodeName = this.getNodeName(link?.from);
             if (!fromNodeName || !result[fromNodeName]) {
                 continue;
@@ -301,14 +300,14 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
         return result;
     }
 
-    public exportMetaData() {
-        let result:{[id:string]:any} = {};
-        for(let node of this.nodes) {
+    public exportMetaData(): any {
+        const result: {[id: string]: any} = {};
+        for (const node of this.nodes) {
             result[node.name] = node.generateMetaData();
             result[node.name].transitions = {};
         }
 
-        for (let link of this.links) {
+        for (const link of this.links) {
             const fromNodeName = this.getNodeName(link?.from);
             if (!fromNodeName || !result[fromNodeName]) {
                 continue;
@@ -345,12 +344,12 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
     }
 
 
-    public save() {
+    public save(): void {
 
         if (!this.exists) {
             this.workbenchService.createWorkflow(this.package, this.model).subscribe((create) => {
                 if (!create) {
-                    console.error("Error while creating the workflow.");
+                    console.error('Error while creating the workflow.');
                     return;
                 }
                 this.saveWorkflowWithMetaData();
@@ -360,7 +359,7 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
         }
     }
 
-    private async saveWorkflowWithMetaData() {
+    private async saveWorkflowWithMetaData(): Promise<void> {
         const workflowPayload = this.export();
         const workflowJSON = JSON.stringify(workflowPayload);
         const metadataJSON = JSON.stringify(this.exportMetaData());
@@ -383,9 +382,9 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
     private async buildModelPayloadWithWorkflow(workflowPayload: any): Promise<any> {
         const entity = `${this.package}\\${this.model}`;
         const latestModelSchema = await this.workbenchService.getSchema(entity).toPromise();
-        this.model_scheme = latestModelSchema || {};
+        this.modelScheme = latestModelSchema || {};
 
-        const modelPayload = cloneDeep(this.model_scheme);
+        const modelPayload = cloneDeep(this.modelScheme);
         modelPayload.workflow = workflowPayload;
         return modelPayload;
     }
@@ -400,8 +399,8 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
                         return;
                     }
 
-                    const metadata$ = this.has_meta_data
-                        ? this.workbenchService.saveMetaData(this.has_meta_data, metadataJSON)
+                    const metadata$ = this.hasMetaData
+                        ? this.workbenchService.saveMetaData(this.hasMetaData, metadataJSON)
                         : this.workbenchService.createMetaData('workflow', `${this.package}.${this.model}`, metadataJSON);
 
                     metadata$.subscribe(
@@ -427,36 +426,36 @@ export class PackageModelWorkflowComponent implements OnInit, OnChanges {
         });
     }
 
-    public showJSON() {
+    public showJSON(): void {
         this.matDialog.open(JsonViewerComponent, {
             data: this.export(),
-            width: "70vw",
-            height: "85vh"
+            width: '70vw',
+            height: '85vh'
         });
     }
 
-    public showJSONMetaData() {
+    public showJSONMetaData(): void {
         this.matDialog.open(JsonViewerComponent, {
             data: this.exportMetaData(),
-            width: "70vw",
-            height: "85vh"
+            width: '70vw',
+            height: '85vh'
         });
     }
 
-    public navigateToParent() {
-        if (this.model_scheme.parent !== "model") {
-            const parent_package = this.model_scheme.parent.split("\\")[0];
-            const parent_model = this.model_scheme.parent.split("\\").slice(1).join("\\");
-            this.router.navigate(['/package/' + parent_package + '/model/' + parent_model + '/workflow']);
+    public navigateToParent(): void {
+        if (this.modelScheme.parent !== 'model') {
+            const parentPackage = this.modelScheme.parent.split('\\')[0];
+            const parentModel = this.modelScheme.parent.split('\\').slice(1).join('\\');
+            this.router.navigate(['/package/' + parentPackage + '/model/' + parentModel + '/workflow']);
         }
     }
 
-    public customButtonBehavior(evt: string) {
+    public customButtonBehavior(evt: string): void {
         switch (evt) {
-            case "Show JSON":
+            case 'Show JSON':
                 this.showJSON();
                 break;
-            case "Show JSON meta data":
+            case 'Show JSON meta data':
                 this.showJSONMetaData();
                 break;
         }

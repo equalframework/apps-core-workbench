@@ -11,7 +11,7 @@
     <div class="header-labels">
         <label>Workflow of </label><label class="component-color-package colorized">{{package}}</label><label class="separator">\</label><label class="component-color-class colorized">{{model}}</label>
     </div>
-    <div *ngIf="need_save" class="title-holder">
+    <div *ngIf="needSave" class="title-holder">
         <mat-icon class="warn-icon" >error</mat-icon>
         <label>This workflow is malformed, save it from Workbench to fix it.</label>
     </div>
@@ -79,7 +79,7 @@
                     [state]="state"
                     [modelName]="model"
                     [packageName]="package"
-                    [model_schema]="model_scheme"
+                    [modelSchema]="modelScheme"
                     (requestState)="changeState($event)"
                     (requestDeleteLink)="deleteLink()"
                     (requestDeleteNode)="deleteNode()">
