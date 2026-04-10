@@ -9,14 +9,14 @@ import { QueryParamActivatorRegistry, QueryParamCustomActivator } from 'src/app/
 import { prettyPrintJson } from 'pretty-print-json';
 
 import { ErrorItemTranslator, Translator } from './_object/Translation';
-import { View } from '../views/vieweditor/_objects/View';
+import { View } from '../_object/View';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { NotificationService } from 'src/app/in/_services/notification.service';
 import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
 import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
 import { Location } from '@angular/common';
 import { JsonValidationService } from 'src/app/in/_services/json-validation.service';
-import { TranslationActionField, TranslationErrorField, TranslationLayoutField, TranslationModelField, TranslationValue, FieldColumnConfig, FIELD_CONFIGS } from './_object/translation.types';
+import { FIELD_CONFIGS } from './_object/translation.types';
 
 @Component({
   selector: 'app-model-trad-editor',
@@ -24,82 +24,6 @@ import { TranslationActionField, TranslationErrorField, TranslationLayoutField, 
   styleUrls: ['./model-trad-editor.component.scss']
 })
 export class ModelTradEditorComponent implements OnInit {
-    package_name: string;
-    model_name: string;
-    lang: string;
-
-    error = false;
-    entitype = 'model';
-    loading = true;
-    addingLanguage = false;
-    activeTab = 'model';
-    activeView = '';
-    private viewInnerTabs = ['layout', 'actions', 'routes'];
-    viewActiveTab: { [view: string]: string } = {};
-    activeField = '';
-    errorActiveField = '';
-    expandedErrorFields: { [key: string]: boolean } = {};
-    public isSaving: boolean = false;
-    adderror = new FormControl('', { validators: [ ModelTradEditorComponent.snakeCaseValidator ] });
-    langName = new FormControl('', { validators: [ ModelTradEditorComponent.langCaseValidator ] });
-    data: { [id: string]: Translator } = {};
-    allLanguages = ['en', 'fr', 'de', 'es', 'it', 'pt', 'nl'];
-    availableLanguages: string[] = [];
-    public readonly FIELD_CONFIGS = FIELD_CONFIGS;
-    public readonly TAB_NAMES = ['model', 'view', 'error'];
-
-    // Tab navigation mappings
-    private readonly tabNameToIndexMap: { [key: string]: number } = {
-        'model': 0,
-        'view': 1,
-        'error': 2
-    };
-    private readonly viewTabNameToIndexMap: { [key: string]: number } = {
-        'layout': 0,
-        'actions': 1,
-        'routes': 2
-    };
-
-    selectedTabIndex: number = 0;
-    selectedViewTabIndex: { [view: string]: number } = {};
-
-    // Field type metadata and error type mappings
-    private fieldTypeMap: { [key: string]: string } = {};
-    private backgroundTranslationsLoadStarted = false;
-    private backgroundPreloadStarted = false;
-    private provider: EqualComponentsProviderService | null = null;
-    public readonly ERROR_TYPE_DESCRIPTIONS: { [key: string]: { description: string, severity: 'info' | 'warning' | 'error' } } = {
-        'missing_mandatory': { description: 'Field is null/empty and required', severity: 'error' },
-        'non_nullable': { description: 'Attempted to set to null when marked required', severity: 'error' },
-        'size_exceeded': { description: 'String/data length exceeds maximum limit', severity: 'error' },
-        'too_short': { description: 'Value is shorter than minimum length requirement', severity: 'error' },
-        'too_long': { description: 'Value is longer than maximum length requirement', severity: 'error' },
-        'pattern_mismatch': { description: 'Value does not match required pattern/format', severity: 'warning' },
-        'invalid_choice': { description: 'Value not in allowed selection list', severity: 'error' },
-        'invalid_type': { description: 'Value is not of the correct data type', severity: 'error' },
-        'invalid_date': { description: 'Value is not a valid date/time', severity: 'error' },
-        'broken_usage': { description: 'Invalid format for specialized field usage', severity: 'warning' },
-        'unique_constraint_failed': { description: 'Value must be unique but duplicate exists', severity: 'error' },
-        'invalid_email': { description: 'Email address format is invalid', severity: 'warning' },
-        'invalid_phone': { description: 'Phone number format is invalid', severity: 'warning' },
-        'invalid_url': { description: 'URL format is invalid', severity: 'warning' }
-    };
-
-    public readonly FIELD_TYPE_ERRORS: { [type: string]: string[] } = {
-        'string': ['missing_mandatory', 'non_nullable', 'size_exceeded', 'pattern_mismatch', 'invalid_choice'],
-        'text': ['missing_mandatory', 'non_nullable', 'size_exceeded', 'broken_usage', 'pattern_mismatch', 'invalid_choice'],
-        'date': ['missing_mandatory', 'non_nullable', 'invalid_type', 'invalid_date', 'pattern_mismatch'],
-        'integer': ['missing_mandatory', 'non_nullable', 'invalid_type', 'pattern_mismatch'],
-        'float': ['missing_mandatory', 'non_nullable', 'invalid_type', 'pattern_mismatch'],
-        'boolean': ['missing_mandatory', 'non_nullable', 'invalid_type'],
-        'email': ['missing_mandatory', 'non_nullable', 'invalid_email', 'pattern_mismatch'],
-        'phone': ['missing_mandatory', 'non_nullable', 'invalid_phone', 'pattern_mismatch'],
-        'uri': ['missing_mandatory', 'non_nullable', 'invalid_url', 'pattern_mismatch'],
-        'computed': []
-    };
-
-    private _modelTemplate: { modelFields: string[], views: { name: string, view: View }[], errors: { [field: string]: { fieldType: string, errorTypes: string[] } } } | null = null;
-    private activatorRegistry: QueryParamActivatorRegistry;
 
     constructor(
         private route: ActivatedRoute,
@@ -115,12 +39,123 @@ export class ModelTradEditorComponent implements OnInit {
     ) {
         this.activatorRegistry = new QueryParamActivatorRegistry();
     }
+    packageName: string;
+    modelName: string;
+    lang: string;
+
+    error = false;
+    entityType = 'model';
+    loading = true;
+    addingLanguage = false;
+    activeTab = 'model';
+    activeView = '';
+    private viewInnerTabs = ['layout', 'actions', 'routes'];
+    viewActiveTab: { [view: string]: string } = {};
+    activeField = '';
+    errorActiveField = '';
+    expandedErrorFields: { [key: string]: boolean } = {};
+    public isSaving = false;
+    addError = new FormControl('', { validators: [ ModelTradEditorComponent.snakeCaseValidator ] });
+    langName = new FormControl('', { validators: [ ModelTradEditorComponent.langCaseValidator ] });
+    data: { [id: string]: Translator } = {};
+    allLanguages = ['en', 'fr', 'de', 'es', 'it', 'pt', 'nl'];
+    availableLanguages: string[] = [];
+    public readonly FIELD_CONFIGS = FIELD_CONFIGS;
+    public readonly TAB_NAMES = ['model', 'view', 'error'];
+
+    // Tab navigation mappings
+    private readonly tabNameToIndexMap: { [key: string]: number } = {
+        model: 0,
+        view: 1,
+        error: 2
+    };
+    private readonly viewTabNameToIndexMap: { [key: string]: number } = {
+        layout: 0,
+        actions: 1,
+        routes: 2
+    };
+
+    selectedTabIndex = 0;
+    selectedViewTabIndex: { [view: string]: number } = {};
+
+    // Field type metadata and error type mappings
+    private fieldTypeMap: { [key: string]: string } = {};
+    private backgroundTranslationsLoadStarted = false;
+    private backgroundPreloadStarted = false;
+    private provider: EqualComponentsProviderService | null = null;
+    public readonly ERROR_TYPE_DESCRIPTIONS: { [key: string]: { description: string, severity: 'info' | 'warning' | 'error' } } = {
+        missing_mandatory: { description: 'Field is null/empty and required', severity: 'error' },
+        non_nullable: { description: 'Attempted to set to null when marked required', severity: 'error' },
+        size_exceeded: { description: 'String/data length exceeds maximum limit', severity: 'error' },
+        too_short: { description: 'Value is shorter than minimum length requirement', severity: 'error' },
+        too_long: { description: 'Value is longer than maximum length requirement', severity: 'error' },
+        pattern_mismatch: { description: 'Value does not match required pattern/format', severity: 'warning' },
+        invalid_choice: { description: 'Value not in allowed selection list', severity: 'error' },
+        invalid_type: { description: 'Value is not of the correct data type', severity: 'error' },
+        invalid_date: { description: 'Value is not a valid date/time', severity: 'error' },
+        broken_usage: { description: 'Invalid format for specialized field usage', severity: 'warning' },
+        unique_constraint_failed: { description: 'Value must be unique but duplicate exists', severity: 'error' },
+        invalid_email: { description: 'Email address format is invalid', severity: 'warning' },
+        invalid_phone: { description: 'Phone number format is invalid', severity: 'warning' },
+        invalid_url: { description: 'URL format is invalid', severity: 'warning' }
+    };
+
+    public readonly FIELD_TYPE_ERRORS: { [type: string]: string[] } = {
+        string: ['missing_mandatory', 'non_nullable', 'size_exceeded', 'pattern_mismatch', 'invalid_choice'],
+        text: ['missing_mandatory', 'non_nullable', 'size_exceeded', 'broken_usage', 'pattern_mismatch', 'invalid_choice'],
+        date: ['missing_mandatory', 'non_nullable', 'invalid_type', 'invalid_date', 'pattern_mismatch'],
+        integer: ['missing_mandatory', 'non_nullable', 'invalid_type', 'pattern_mismatch'],
+        float: ['missing_mandatory', 'non_nullable', 'invalid_type', 'pattern_mismatch'],
+        boolean: ['missing_mandatory', 'non_nullable', 'invalid_type'],
+        email: ['missing_mandatory', 'non_nullable', 'invalid_email', 'pattern_mismatch'],
+        phone: ['missing_mandatory', 'non_nullable', 'invalid_phone', 'pattern_mismatch'],
+        uri: ['missing_mandatory', 'non_nullable', 'invalid_url', 'pattern_mismatch'],
+        computed: []
+    };
+
+    private _modelTemplate: {
+        modelFields: string[],
+        views: { name: string, view: View }[],
+        errors: { [field: string]: { fieldType: string, errorTypes: string[] } } } | null = null;
+    private activatorRegistry: QueryParamActivatorRegistry;
+
+    static snakeCaseValidator(control: AbstractControl): ValidationErrors | null {
+        const value: string = control.value;
+        const validChars = 'abcdefghijkmlnopqrstuvwxyz-_';
+        for (const char of value) {
+        if (!validChars.includes(char)) { return { case: true }; }
+        }
+        return null;
+    }
+
+    static langCaseValidator(control: AbstractControl): ValidationErrors | null {
+        const value: string = control.value;
+        const lower = 'abcdefghijkmlnopqrstuvwxyz';
+        const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        switch (value.length) {
+        case 5:
+            if (value[2] !== '_') { return { case: true }; }
+            if (!upper.includes(value[3])) { return { case: true }; }
+            if (!upper.includes(value[4])) { return { case: true }; }
+            break;
+        case 2:
+            if (!lower.includes(value[0])) { return { case: true }; }
+            if (!lower.includes(value[1])) { return { case: true }; }
+            break;
+        default:
+            return { case: true };
+        }
+        return null;
+    }
 
     /**
-     * Initialise les activateurs de queryParams pour la navigation
+     * Initialize navigation activators for handling query parameter-based navigation.
+     * This allows deep-linking to specific tabs, views, and fields within the editor based on URL parameters.
+     * Activators are registered with the QueryParamActivatorRegistry and define logic for validating and activating based
+     * on specific query parameters.
      */
     private initializeNavigation(): void {
-        // Activateur pour les tabs principales (model, view, error)
+        // Main tab activator (e.g. ?tab=view)
         const tabActivator = {
             type: 'tab',
             queryParamKeys: ['tab'],
@@ -149,7 +184,7 @@ export class ModelTradEditorComponent implements OnInit {
             type: 'view',
             queryParamKeys: ['view'],
             canHandle: (key: string, value: any) => {
-                if (key !== 'view' || !this.lang || !this.data[this.lang]) return false;
+                if (key !== 'view' || !this.lang || !this.data[this.lang]) { return false; }
                 return this.getViewNames().includes(value);
             },
             activate: async (key: string, value: any, context: any) => {
@@ -171,9 +206,8 @@ export class ModelTradEditorComponent implements OnInit {
                 return this.viewInnerTabs.includes(value) && value !== null && value !== undefined;
             },
             activate: async (key: string, value: any, context: any) => {
-               
+
                 if (this.viewInnerTabs.includes(value)) {
-                    // Si on n'a pas de vue active et qu'on est sur l'onglet view, sélectionner la première vue
                     if (!context.activeView && context.activeTab === 'view' && this.getViewNames().length > 0) {
                         context.activeView = this.getViewNames()[0];
                     }
@@ -193,14 +227,16 @@ export class ModelTradEditorComponent implements OnInit {
             type: 'field',
             queryParamKeys: ['element', 'field'],
             canHandle: (key: string, value: any) => {
-                if (!this.lang || !this.data[this.lang] || !['element', 'field'].includes(key)) return false;
+                if (!this.lang || !this.data[this.lang] || !['element', 'field'].includes(key)) { return false; }
                 return this.fieldExists(this.lang, value);
             },
             activate: async (key: string, value: any, context: any) => {
                 if (this.fieldExists(this.lang, value)) {
                     if (context.activeTab === 'error') {
                         context.errorActiveField = value;
-                        if (context.data[context.lang] && context.data[context.lang].error && context.data[context.lang].error._base[value]) {
+                        if (context.data[context.lang]
+                            && context.data[context.lang].error
+                            && context.data[context.lang].error._base[value]) {
                             context.data[context.lang].error._base[value].active = true;
                             // Ensure the error section is expanded for scrolling
                             context.expandedErrorFields[value] = true;
@@ -216,25 +252,26 @@ export class ModelTradEditorComponent implements OnInit {
         this.activatorRegistry.register(fieldActivator);
     }
 
-    async ngOnInit() {
+    async ngOnInit(): Promise<void> {
         this.loading = true;
         this.allLanguages = await this.workbenchService.collectAllLanguagesCode().toPromise();
         const selectedPackage = this.route.parent?.snapshot.paramMap.get('package_name');
         const selectedModel = this.route.snapshot.paramMap.get('class_name');
         const type = this.route.snapshot.paramMap.get('type');
-        
-        if (type) { this.entitype = type; }
+
+        if (type) { this.entityType = type; }
         if (!selectedPackage || !selectedModel) {
             this.error = true;
             return;
         }
 
-        this.package_name = selectedPackage;
-        this.model_name = selectedModel || '';
+        this.packageName = selectedPackage;
+        this.modelName = selectedModel || '';
 
         await this.initTranslations();
 
-        // Initialize navigation activators after data is loaded to ensure they have the necessary context for validation and activation logic
+        // Initialize navigation activators after data is loaded to ensure they have the necessary context for
+        // validation and activation logic
         this.initializeNavigation();
 
         this.route.queryParams.subscribe(params => {
@@ -288,9 +325,18 @@ export class ModelTradEditorComponent implements OnInit {
                     const viewTab = this.viewActiveTab[this.activeView];
 
                     if (viewObj) {
-                        if (viewTab === 'layout' && viewObj.layout && typeof viewObj.layout === 'object' && this.obk(viewObj.layout).includes(field)) { return true; }
-                        if (viewTab === 'actions' && viewObj.actions && typeof viewObj.actions === 'object' && this.obk(viewObj.actions).includes(field)) { return true; }
-                        if (viewTab === 'routes' && viewObj.routes && typeof viewObj.routes === 'object' && this.obk(viewObj.routes).includes(field)) { return true; }
+                        if (viewTab === 'layout'
+                            && viewObj.layout
+                            && typeof viewObj.layout === 'object'
+                            && this.obk(viewObj.layout).includes(field)) { return true; }
+                        if (viewTab === 'actions'
+                            && viewObj.actions
+                            && typeof viewObj.actions === 'object'
+                            && this.obk(viewObj.actions).includes(field)) { return true; }
+                        if (viewTab === 'routes'
+                            && viewObj.routes
+                            && typeof viewObj.routes === 'object'
+                            && this.obk(viewObj.routes).includes(field)) { return true; }
                     }
                 }
             } catch (e) {}
@@ -310,11 +356,11 @@ export class ModelTradEditorComponent implements OnInit {
         return false;
     }
 
-    async initTranslations() {
+    async initTranslations(): Promise<void> {
         this.loading = true;
         this.backgroundTranslationsLoadStarted = false;
         this.data = {};
-        const allData = await this.workbenchService.getTranslations(this.package_name, this.model_name).toPromise();
+        const allData = await this.workbenchService.getTranslations(this.packageName, this.modelName).toPromise();
 
         if (!allData) {
             this.loading = false;
@@ -349,7 +395,7 @@ export class ModelTradEditorComponent implements OnInit {
         // Try to fetch the existing translation payload for this specific language.
         // If it contains data, prefer it. Otherwise fall back to the previously fetched `allData`.
         try {
-            const perLang = await this.workbenchService.getTranslationLanguages(this.package_name, this.model_name, lang).toPromise();
+            const perLang = await this.workbenchService.getTranslationLanguages(this.packageName, this.modelName, lang).toPromise();
             if (perLang && Object.keys(perLang).length > 0) {
                 this.data[lang].fill(perLang);
                 // Ensure any missing error entries are present after filling
@@ -367,7 +413,9 @@ export class ModelTradEditorComponent implements OnInit {
         return this.data[lang];
     }
 
-    private async fetchRemainingTranslationsInBackground(langs: string[], firstLang: string | null, allData: { [key: string]: any } | null | undefined): Promise<void> {
+    private async fetchRemainingTranslationsInBackground(
+        langs: string[], firstLang: string | null, allData: { [key: string]: any } | null | undefined)
+        : Promise<void> {
         if (this.backgroundTranslationsLoadStarted) {
             return;
         }
@@ -486,9 +534,9 @@ export class ModelTradEditorComponent implements OnInit {
 
 
     private async _buildModelTemplate(): Promise<void> {
-        const scheme = await this.workbenchService.getSchema(`${this.package_name}\\${this.model_name}`).toPromise();
+        const scheme = await this.workbenchService.getSchema(`${this.packageName}\\${this.modelName}`).toPromise();
         const modelFields = Object.keys(scheme.fields);
-        const viewsList = await this.workbenchService.collectViews(this.package_name, `${this.package_name}\\${this.model_name}`).toPromise();
+        const viewsList = await this.workbenchService.collectViews(this.packageName, `${this.packageName}\\${this.modelName}`).toPromise();
         const views: { name: string, view: View }[] = [];
         for (const viewStr of viewsList) {
             const parts = viewStr.split(':');
@@ -519,26 +567,26 @@ export class ModelTradEditorComponent implements OnInit {
         return Object.keys(object).sort((a, b) => a.localeCompare(b));
     }
 
-    createError(lang: string, type: string) {
-        const val = this.adderror.value;
+    createError(lang: string, type: string): void {
+        const val = this.addError.value;
         if (this.data[lang].error._base[type].val[val]) { return; }
         this.data[lang].error._base[type].val[val] = new ErrorItemTranslator();
-        this.data[lang].error._base[type].val[val].is_active = true;
-        this.adderror.setValue('');
+        this.data[lang].error._base[type].val[val].isActive = true;
+        this.addError.setValue('');
     }
 
-    startAddingLanguage() {
+    startAddingLanguage(): void {
         this.addingLanguage = true;
     }
 
-    stopAddingLanguage() {
+    stopAddingLanguage(): void {
         this.addingLanguage = false;
     }
 
-    async createLanguage() {
+    async createLanguage(): Promise<void> {
         const selectedLang = this.langName.value;
 
-        if (!selectedLang) return;
+        if (!selectedLang) { return; }
 
         if (this.data[selectedLang]) {
           this.notificationService.showError('This model already has a translation for this language.', 'ERROR');
@@ -554,42 +602,13 @@ export class ModelTradEditorComponent implements OnInit {
         this.updateAvailableLanguages();
       }
 
-      updateAvailableLanguages() {
+      updateAvailableLanguages(): void {
         const existingLangs = Object.keys(this.data || {});
         this.availableLanguages = this.allLanguages.filter(lang => !existingLangs.includes(lang));
       }
 
-    static snakeCaseValidator(control: AbstractControl): ValidationErrors | null {
-        const value: string = control.value;
-        const validChars = 'abcdefghijkmlnopqrstuvwxyz-_';
-        for (const char of value) {
-        if (!validChars.includes(char)) { return { case: true }; }
-        }
-        return null;
-    }
-
-    static langCaseValidator(control: AbstractControl): ValidationErrors | null {
-        const value: string = control.value;
-        const lower = 'abcdefghijkmlnopqrstuvwxyz';
-        const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        switch (value.length) {
-        case 5:
-            if (value[2] !== '_') return { case: true };
-            if (!upper.includes(value[3])) return { case: true };
-            if (!upper.includes(value[4])) return { case: true };
-            break;
-        case 2:
-            if (!lower.includes(value[0])) return { case: true };
-            if (!lower.includes(value[1])) return { case: true };
-            break;
-        default:
-            return { case: true };
-        }
-        return null;
-    }
-
     changeActive(key: string): void {
-        if (!this.data[this.lang].error._base[key]) return;
+        if (!this.data[this.lang].error._base[key]) { return; }
         const item = this.data[this.lang].error._base[key];
         if (item && typeof item === 'object') {
           item.active = item.active ? false : true;
@@ -633,10 +652,10 @@ export class ModelTradEditorComponent implements OnInit {
     }
 
     addPresetError(fieldName: string, errorType: string, lang: string): void {
-        if (!this.data[lang]?.error._base[fieldName]) return;
-        if (this.data[lang].error._base[fieldName].val[errorType]) return;
+        if (!this.data[lang]?.error._base[fieldName]) { return; }
+        if (this.data[lang].error._base[fieldName].val[errorType]) { return; }
         this.data[lang].error._base[fieldName].val[errorType] = new ErrorItemTranslator();
-        this.data[lang].error._base[fieldName].val[errorType].is_active = true;
+        this.data[lang].error._base[fieldName].val[errorType].isActive = true;
         // Auto-activate the error field section
         this.data[lang].error._base[fieldName].active = true;
     }
@@ -656,7 +675,7 @@ export class ModelTradEditorComponent implements OnInit {
         this.location.back();
     }
 
-    debugExport() {
+    debugExport(): void {
         this.dialog.open(JsonViewerComponent, {
         data: this.data[this.lang] ? this.data[this.lang].export() : {},
         height: '80%',
@@ -664,18 +683,18 @@ export class ModelTradEditorComponent implements OnInit {
         });
     }
 
-    saveAll() {
+    saveAll(): void {
         const exportedData: { [lang: string]: any } = {};
         for (const lang in this.data) {
             exportedData[lang] = this.data[lang].export();
         }
         console.log('Exported data for saving:', exportedData);
         this.jsonValidationService.validateAndSave(
-            this.jsonValidationService.validateBySchemaType(exportedData, "model-translations", this.package_name),
-            () => this.workbenchService.saveTranslations(this.package_name, this.model_name, this.data),
+            this.jsonValidationService.validateBySchemaType(exportedData, 'model-translations', this.packageName),
+            () => this.workbenchService.saveTranslations(this.packageName, this.modelName, this.data),
             (saving) => this.isSaving = saving
         );
         console.log('Validation passed, save initiated.');
     }
-    
+
 }
