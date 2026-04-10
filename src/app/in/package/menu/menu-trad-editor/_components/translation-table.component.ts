@@ -65,7 +65,9 @@ export class TranslationTableComponent implements OnChanges {
   }
 
   get computedHeaders(): GridHeaderColumn[] {
-    if (this.headers) return this.headers;
+    if (this.headers) {
+      return this.headers;
+    }
     return [
       { label: 'Translated?', colspan: 1 },
       { label: 'Menu Item (schema)',  colspan: 2 },
@@ -85,8 +87,10 @@ export class TranslationTableComponent implements OnChanges {
   /** Get the last segment of a hierarchical key */
   getDisplayName(key: string): string {
     const meta = this.getItemMetadata(key);
-    if (meta && meta.label) return meta.label;
-    
+    if (meta && meta.label) {
+      return meta.label;
+    }
+
     // Try to get parent ID using callback
     if (this.getParentIdCallback) {
       // If there's a parent, just show the item's own label from metadata
@@ -99,7 +103,6 @@ export class TranslationTableComponent implements OnChanges {
         return meta.label;
       }
     }
-    
     // Fallback: extract from dot notation
     const parts = key.split('.');
     return parts[parts.length - 1];
@@ -108,16 +111,16 @@ export class TranslationTableComponent implements OnChanges {
   /** Safely read a field value (handles primitive or { value } shapes) */
   getFieldValue(itemKey: string, fieldKey: string): string {
     const item = this.allItems?.[itemKey];
-    if (!item) return '';
+    if (!item) { return ''; }
     const v = item[fieldKey];
-    if (v == null) return '';
-    if (typeof v === 'object' && 'value' in v) return v.value || '';
+    if (v == null) { return ''; }
+    if (typeof v === 'object' && 'value' in v) { return v.value || ''; }
     return String(v);
   }
 
   /** Safely set a field value, creating structure when needed */
   setFieldValue(itemKey: string, fieldKey: string, value: string): void {
-    if (!this.allItems) return;
+    if (!this.allItems) { return; }
     const item = this.allItems[itemKey] = this.allItems[itemKey] || {};
     const existing = item[fieldKey];
     if (existing == null || typeof existing !== 'object') {
@@ -135,7 +138,7 @@ export class TranslationTableComponent implements OnChanges {
     }
     // Fallback: infer from dot notation
     const parts = key.split('.');
-    if (parts.length <= 1) return null;
+    if (parts.length <= 1) { return null; }
     return parts.slice(0, -1).join('.');
   }
 
@@ -167,7 +170,7 @@ export class TranslationTableComponent implements OnChanges {
 
   changeActive(key: string): void {
     const item = this.allItems?.[key];
-    if (!item) return;
+    if (!item) { return; }
     if (item && typeof item === 'object') {
       item.is_active = item.is_active ? false : true;
       this.selectedField = !item.is_active && key === this.selectedField ? undefined : this.selectedField;
@@ -177,7 +180,7 @@ export class TranslationTableComponent implements OnChanges {
 
   get itemKeys(): string[] {
     const keys = Object.keys(this.allItems ?? {});
-    if (!this.allItems) return keys;
+    if (!this.allItems) { return keys; }
     for (const k of keys) {
       const item = this.allItems[k];
       if (item && typeof item === 'object' && k === this.selectedField) {

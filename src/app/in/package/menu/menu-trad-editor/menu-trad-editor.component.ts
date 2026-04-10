@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormControl, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
-import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { RouterMemory } from 'src/app/_services/router-memory.service';
 import { QueryParamNavigatorService } from 'src/app/_services/query-param-navigator.service';
 import { QueryParamActivatorRegistry, QueryParamTabActivator } from 'src/app/_services/query-param-activator.registry';
 
@@ -25,19 +25,19 @@ import { JsonValidationService } from 'src/app/in/_services/json-validation.serv
   styleUrls: ['./menu-trad-editor.component.scss']
 })
 export class MenuTradEditorComponent implements OnInit {
-    package_name: string = '';
-    menu_name: string = '';
-    lang: string = '';
+    packageName = '';
+    menuName = '';
+    lang = '';
 
     error = false;
     loading = true;
     addingLanguage = false;
     activeTab = 'menu';
     activeField = '';
-    public isSaving: boolean = false;
+    public isSaving = false;
 
     langName = new FormControl('', { validators: [ MenuTradEditorComponent.langCaseValidator ] });
-    local_schema: { [id: string]: Translator } = {};
+    localSchema: { [id: string]: Translator } = {};
     checkedItems: { [lang: string]: Set<string> } = {}; // Tracks which items are checked (editable) per language
     allLanguages = ['en', 'fr', 'de', 'es', 'it', 'pt', 'nl'];
     availableLanguages: string[] = [];
@@ -53,9 +53,28 @@ export class MenuTradEditorComponent implements OnInit {
     private provider: EqualComponentsProviderService | null = null;
     private activatorRegistry: QueryParamActivatorRegistry;
 
+    static langCaseValidator(control: AbstractControl): ValidationErrors | null {
+        const value: string = control.value;
+        const lower = 'abcdefghijkmlnopqrstuvwxyz';
+        const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        switch (value.length) {
+            case 5:
+                if (value[2] !== '_') { return { case: true }; }
+                if (!upper.includes(value[3])) { return { case: true }; }
+                if (!upper.includes(value[4])) { return { case: true }; }
+                break;
+            case 2:
+                if (!lower.includes(value[0])) { return { case: true }; }
+                if (!lower.includes(value[1])) { return { case: true }; }
+                break;
+            default:
+                return { case: true };
+        }
+        return null;
+    }
+
     constructor(
         private route: ActivatedRoute,
-        private router: Router,
         private workbenchService: WorkbenchService,
         private notificationService: NotificationService,
         private dialog: MatDialog,
@@ -90,7 +109,7 @@ export class MenuTradEditorComponent implements OnInit {
             type: 'field',
             queryParamKeys: ['element', 'field'],
             canHandle: (key: string, value: any) => {
-                if (!['element', 'field'].includes(key)) return false;
+                if (!['element', 'field'].includes(key)) { return false; }
                 // Don't check fieldExists here - we'll validate in activate phase if needed
                 return true;
             },
@@ -108,19 +127,18 @@ export class MenuTradEditorComponent implements OnInit {
         return Math.max(0, this.TAB_NAMES.indexOf(this.activeTab));
     }
 
-    async ngOnInit() {
+    async ngOnInit(): Promise<void> {
         this.loading = true;
         this.allLanguages = await this.workbenchService.collectAllLanguagesCode().toPromise() || [];
         const selectedPackage = this.route.parent?.snapshot.paramMap.get('package_name');
         const selectedMenu = this.route.snapshot.paramMap.get('menu_name');
-        
         if (!selectedPackage || !selectedMenu) {
             this.error = true;
             return;
         }
 
-        this.package_name = selectedPackage;
-        this.menu_name = selectedMenu;
+        this.packageName = selectedPackage;
+        this.menuName = selectedMenu;
 
         // Load menu schema and build metadata early
         await this.loadMenuSchemaAndMetadata();
@@ -185,7 +203,7 @@ export class MenuTradEditorComponent implements OnInit {
 
     private fieldExists(lang: string | null | undefined, field: string): boolean {
         if (!lang) { return false; }
-        const translator = this.local_schema[lang];
+        const translator = this.localSchema[lang];
         if (!translator) { return false; }
 
         try {
@@ -206,7 +224,7 @@ export class MenuTradEditorComponent implements OnInit {
 
         try {
             if (!this._menuScheme) {
-                const raw = await this.workbenchService.readMenu(this.package_name, this.menu_name).toPromise();
+                const raw = await this.workbenchService.readMenu(this.packageName, this.menuName).toPromise();
                 this._menuScheme = new Menu(raw || {});
             }
             if (this._menuScheme && this._menuScheme.layout && this._menuScheme.layout.items) {
@@ -226,12 +244,11 @@ export class MenuTradEditorComponent implements OnInit {
      * Also builds hierarchy maps that track parent-child relationships based on the children property
      */
     private _buildMenuMetadata(items: any[], parentId: string | null = null): void {
-        if (!Array.isArray(items)) return;
+        if (!Array.isArray(items)) { return; }
 
         items.forEach(item => {
             if (item.id) {
                 const itemId = item.id;
-                
                 this._menuMetadata.set(itemId, {
                     id: itemId,
                     shortId: item.id,
@@ -244,7 +261,7 @@ export class MenuTradEditorComponent implements OnInit {
 
                 // Build hierarchy map: track parent and children relationships
                 this._hierarchyMap.set(itemId, parentId);
-                
+
                 if (parentId) {
                     // Add to parent's children list
                     const children = this._childrenMap.get(parentId) || [];
@@ -289,14 +306,14 @@ export class MenuTradEditorComponent implements OnInit {
     getItemDepth(itemId: string): number {
         let depth = 0;
         let currentId: string | null = itemId;
-        
+
         while (currentId) {
             currentId = this._hierarchyMap.get(currentId) || null;
             if (currentId) {
                 depth++;
             }
         }
-        
+
         return depth;
     }
 
@@ -341,7 +358,7 @@ export class MenuTradEditorComponent implements OnInit {
         items: Record<string, any>,
         parentId: string | null = null
     ): void {
-        if (!Array.isArray(schemaItems)) return;
+        if (!Array.isArray(schemaItems)) { return; }
 
         schemaItems.forEach(schemaItem => {
             if (schemaItem.id) {
@@ -373,16 +390,16 @@ export class MenuTradEditorComponent implements OnInit {
     private getTranslationForItem(itemId: string): any {
         const translation: Record<string, any> = {};
 
-        if (!this.lang || !this.local_schema[this.lang]) {
+        if (!this.lang || !this.localSchema[this.lang]) {
             return translation;
         }
 
         try {
-            const languageData = this.local_schema[this.lang];
+            const languageData = this.localSchema[this.lang];
             const menuLayout = languageData?.view.menu.layout;
             if (menuLayout && menuLayout[itemId]) {
                 const itemTranslation = menuLayout[itemId] as any;
-                
+
                 // Extract label translation if it exists
                 if (itemTranslation.label) {
                     translation['label'] = itemTranslation.label;
@@ -398,18 +415,18 @@ export class MenuTradEditorComponent implements OnInit {
         return translation;
     }
 
-    async initTranslations() {
+    async initTranslations(): Promise<void> {
         this.loading = true;
         this.backgroundTranslationsLoadStarted = false;
-        this.local_schema = {};
+        this.localSchema = {};
         this.checkedItems = {};
         const existingTranslationLanguages: string[] = [];
 
         // Fetch existing languages
         try {
-            const translationsByPackage = await this.workbenchService.getTranslationLanguagesByPackage(this.package_name).toPromise();
+            const translationsByPackage = await this.workbenchService.getTranslationLanguagesByPackage(this.packageName).toPromise();
             for (const lang in translationsByPackage) {
-                if (translationsByPackage[lang].includes(`${this.package_name}_menu.${this.menu_name}`)) {
+                if (translationsByPackage[lang].includes(`${this.packageName}_menu.${this.menuName}`)) {
                     existingTranslationLanguages.push(lang);
                 }
             }
@@ -441,7 +458,8 @@ export class MenuTradEditorComponent implements OnInit {
 
     private async loadSingleLanguageTranslation(lang: string): Promise<void> {
         try {
-            const partialData: any = await this.workbenchService.getMenuTranslationsList(this.package_name, this.menu_name, lang).toPromise();
+            const partialData: any =
+            await this.workbenchService.getMenuTranslationsList(this.packageName, this.menuName, lang).toPromise();
 
             // Create a fresh Translator with all schema items
             const translator = await this.createNewMenuLang();
@@ -496,7 +514,7 @@ export class MenuTradEditorComponent implements OnInit {
             // Mark items as checked if they have a translation value
             this._markCheckedItemsForLanguage(lang, translator);
 
-            this.local_schema[lang] = translator;
+            this.localSchema[lang] = translator;
         } catch (e) {
             console.warn(`Failed to load translations for language ${lang}:`, e);
         }
@@ -537,12 +555,11 @@ export class MenuTradEditorComponent implements OnInit {
     onTabChange(index: number): void {
         this.activeTab = this.TAB_NAMES[index] || 'menu';
         this.activeField = '';
-        // Fragment navigation est géré par la souscription dans ngOnInit
     }
 
     async createNewMenuLang(): Promise<Translator> {
         if (!this._menuScheme) {
-            const raw = await this.workbenchService.readMenu(this.package_name, this.menu_name).toPromise();
+            const raw = await this.workbenchService.readMenu(this.packageName, this.menuName).toPromise();
             this._menuScheme = new Menu(raw || {});
         }
         const translator = Translator.MenuConstructor(new Menu(this._menuScheme.export()));
@@ -563,7 +580,7 @@ export class MenuTradEditorComponent implements OnInit {
             let checkedCount = 0;
             const itemsWithLabels: { [key: string]: string } = {};
             const itemsWithoutLabels: string[] = [];
-            
+
             for (const itemId in layout) {
                 const item = layout[itemId];
                 // Mark item as checked if it has a translation value (non-empty label)
@@ -609,26 +626,26 @@ export class MenuTradEditorComponent implements OnInit {
         return Object.keys(object).sort((a, b) => a.localeCompare(b));
     }
 
-    startAddingLanguage() {
+    startAddingLanguage(): void {
         this.addingLanguage = true;
     }
 
-    stopAddingLanguage() {
+    stopAddingLanguage(): void {
         this.addingLanguage = false;
     }
 
-    async createLanguage() {
+    async createLanguage(): Promise<void> {
         const selectedLang = this.langName.value;
 
-        if (!selectedLang) return;
+        if (!selectedLang) { return; }
 
-        if (this.local_schema[selectedLang]) {
+        if (this.localSchema[selectedLang]) {
             this.notificationService.showError('This menu already has a translation for this language.', 'ERROR');
             return;
         }
 
         const newTranslation = await this.createNewMenuLang();
-        this.local_schema[selectedLang] = newTranslation;
+        this.localSchema[selectedLang] = newTranslation;
         this.checkedItems[selectedLang] = new Set<string>();
         this.addingLanguage = false;
         this.onLangChange(selectedLang);
@@ -636,41 +653,20 @@ export class MenuTradEditorComponent implements OnInit {
         this.updateAvailableLanguages();
     }
 
-    updateAvailableLanguages() {
-        const existingLangs = Object.keys(this.local_schema || {});
+    updateAvailableLanguages(): void {
+        const existingLangs = Object.keys(this.localSchema || {});
         this.availableLanguages = this.allLanguages.filter(lang => !existingLangs.includes(lang));
     }
 
-    static langCaseValidator(control: AbstractControl): ValidationErrors | null {
-        const value: string = control.value;
-        const lower = 'abcdefghijkmlnopqrstuvwxyz';
-        const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        switch (value.length) {
-            case 5:
-                if (value[2] !== '_') return { case: true };
-                if (!upper.includes(value[3])) return { case: true };
-                if (!upper.includes(value[4])) return { case: true };
-                break;
-            case 2:
-                if (!lower.includes(value[0])) return { case: true };
-                if (!lower.includes(value[1])) return { case: true };
-                break;
-            default:
-                return { case: true };
-        }
-        return null;
-    }
-
     /**
-     * Navigue vers le parent (package)
+     * Navigates back to the parent route (menu list) when user clicks "Back" button.
      */
     goBack(): void {
-        // Naviguer vers le parent de la route actuelle
         this.location.back();
     }
 
-    debugExport() {
-        const sanitizedData = this.sanitizeTranslationData(this.local_schema);
+    debugExport(): void {
+        const sanitizedData = this.sanitizeTranslationData(this.localSchema);
 
         this.dialog.open(JsonViewerComponent, {
             data: sanitizedData,
@@ -679,13 +675,13 @@ export class MenuTradEditorComponent implements OnInit {
         });
     }
 
-    saveAll() {
+    saveAll(): void {
         // Sanitize data to ensure it matches the expected structure
         // All fields are included (even unedited ones) to prevent data loss on overwrite
-        const sanitizedData = this.sanitizeTranslationData(this.local_schema);
+        const sanitizedData = this.sanitizeTranslationData(this.localSchema);
         this.jsonValidationService.validateAndSave(
-            this.jsonValidationService.validateBySchemaType(sanitizedData, "menu-translations", this.package_name),
-            () => this.workbenchService.overwriteMenuTranslations(this.package_name, this.menu_name, sanitizedData),
+            this.jsonValidationService.validateBySchemaType(sanitizedData, 'menu-translations', this.packageName),
+            () => this.workbenchService.overwriteMenuTranslations(this.packageName, this.menuName, sanitizedData),
             (saving) => this.isSaving = saving
         );
     }
@@ -694,15 +690,15 @@ export class MenuTradEditorComponent implements OnInit {
      * Sanitizes translation data to match the expected backend structure.
      * Transforms nested view.menu.layout to flat view structure.
      * Ensures all items have label, description, help, and layout fields.
-     * 
+     *
      * All items from local_schema are included (even unedited ones) to preserve data.
-     * 
+     *
      * Input format:
      * {
      *   name: "", description: "", plural: "",
      *   view: { menu: { layout: { item_id: { label: Translation } } } }
      * }
-     * 
+     *
      * Output format:
      * {
      *   name: "", description: "",
@@ -714,7 +710,7 @@ export class MenuTradEditorComponent implements OnInit {
 
         for (const lang in data) {
             const translator = data[lang];
-            if (!translator) continue;
+            if (!translator) { continue; }
 
             // Start with root-level fields
             const sanitizedLang: any = {
@@ -731,7 +727,11 @@ export class MenuTradEditorComponent implements OnInit {
                 
                 // Include all items, even if not checked (unedited)
                 // Empty translations are stored as empty strings
-                if (item && item.label && typeof item.label.value === 'string' && item.label.value.trim() !== '' && this.checkedItems[lang]?.has(itemId)) {
+                if (item
+                    && item.label
+                    && typeof item.label.value === 'string'
+                    && item.label.value.trim() !== ''
+                    && this.checkedItems[lang]?.has(itemId)) {
                     viewObj[itemId] = {
                         label: item?.label?.value || '',
                         description: '',
@@ -763,9 +763,9 @@ export class MenuTradEditorComponent implements OnInit {
      * Also marks the item as checked (editable) when changes are made.
      */
     onTranslationItemChange(event: { key: string; changes: Record<string, any> }): void {
-        if (!this.lang) return;
-        const translator = this.local_schema[this.lang];
-        if (!translator || !translator.view || !translator.view['menu'] || !translator.view['menu'].layout) return;
+        if (!this.lang) { return; }
+        const translator = this.localSchema[this.lang];
+        if (!translator || !translator.view || !translator.view['menu'] || !translator.view['menu'].layout) { return; }
 
         const layout = translator.view['menu'].layout as Record<string, any>;
         const item = layout[event.key] = layout[event.key] || {};

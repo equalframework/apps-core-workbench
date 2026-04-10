@@ -11,17 +11,17 @@
     (onCustomButton)="debugExport()">
     <div class="header-labels">
       <label>Translations of</label>
-      <label class="component-color-package colorized">{{ package_name }}</label>
+      <label class="component-color-package colorized">{{ packageName }}</label>
       <label class="separator">\</label>
-      <label class="component-color-menu colorized">{{ menu_name }}</label>
+      <label class="component-color-menu colorized">{{ menuName }}</label>
     </div>
   </app-inner-header>
 
-  <div *ngIf="loading && obk(local_schema).length === 0" class="loading-container">
+  <div *ngIf="loading && obk(localSchema).length === 0" class="loading-container">
     <mat-spinner></mat-spinner>
   </div>
 
-  <mat-card *ngIf="!loading && obk(local_schema).length === 0" class="no-translation-card">
+  <mat-card *ngIf="!loading && obk(localSchema).length === 0" class="no-translation-card">
     <mat-card-content>No translation available for this menu.</mat-card-content>
     <button *ngIf="!addingLanguage" mat-flat-button color="primary" class="btn-margin" (click)="startAddingLanguage()">
       <mat-icon>add</mat-icon> Add language
@@ -45,16 +45,16 @@
     </div>
   </mat-card>
 
-  <mat-card *ngIf="obk(local_schema).length > 0" class="translation-card">
+  <mat-card *ngIf="obk(localSchema).length > 0" class="translation-card">
     <mat-card-content>
 
       <!--  LANGUAGE SELECTION & MANAGEMENT -->
-      <div class="lang-selection" *ngIf="!addingLanguage && obk(local_schema).length > 0" appScrollTarget="lang-selection">
+      <div class="lang-selection" *ngIf="!addingLanguage && obk(localSchema).length > 0" appScrollTarget="lang-selection">
         <div class="info-left">
           <mat-form-field appearance="outline">
             <mat-label>Translated language</mat-label>
             <mat-select [value]="lang" (selectionChange)="onLangChange($event.value)">
-              <mat-option *ngFor="let lg of obk(local_schema)" [value]="lg">{{ lg }}</mat-option>
+              <mat-option *ngFor="let lg of obk(localSchema)" [value]="lg">{{ lg }}</mat-option>
             </mat-select>
           </mat-form-field>
           <button mat-flat-button color="primary" class="btn-margin" (click)="startAddingLanguage()">
@@ -63,7 +63,7 @@
         </div>
       </div>
 
-      <div class="lang-selection" *ngIf="addingLanguage || obk(local_schema).length === 0">
+      <div class="lang-selection" *ngIf="addingLanguage || obk(localSchema).length === 0">
         <mat-form-field appearance="outline">
           <mat-label>Language</mat-label>
           <mat-select [formControl]="langName">
@@ -81,22 +81,20 @@
       </div>
 
       <!--  MENU TRANSLATIONS TAB -->
-      <mat-tab-group *ngIf="obk(local_schema).length > 0 && lang && local_schema[lang]" animationDuration="0ms"
+      <mat-tab-group *ngIf="obk(localSchema).length > 0 && lang && localSchema[lang]" animationDuration="0ms"
         [selectedIndex]="selectedTabIndex"
         (selectedIndexChange)="onTabChange($event)">
 
-        <!-- ═══════════════════════════════════════════════════════ -->
         <!-- TAB: Menu Items -->
-        <!-- ═══════════════════════════════════════════════════════ -->
         <mat-tab label="Menu Items" appScrollTarget="menu">
           <div class="tab-content">
             <div class="section-title">Menu Item Translations</div>
 
-            <div *ngIf="obk(local_schema[lang].view).length === 0" class="no-data-message">
+            <div *ngIf="obk(localSchema[lang].view).length === 0" class="no-data-message">
               <p>No menu items available for translation.</p>
             </div>
 
-            <div *ngIf="obk(local_schema[lang].view).length > 0" class="menu-items">
+            <div *ngIf="obk(localSchema[lang].view).length > 0" class="menu-items">
               <app-translation-table
                 [items]="getTableItems()"
                 [fields]="FIELD_CONFIGS.menuItem"
