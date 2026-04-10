@@ -44,11 +44,11 @@
                     <mat-label>Return type</mat-label>
                     <input matInput (keydown)="noCancel($event)" [formControl]="typeControl" [matAutocomplete]="auto">
                     <mat-autocomplete #auto>
-                        <mat-optgroup *ngIf="filtered_types_custom.length > 0" label="Return types">
-                            <mat-option *ngFor="let type of filtered_types_custom" [value]="type">{{type}}</mat-option>
+                        <mat-optgroup *ngIf="filteredTypesCustom.length > 0" label="Return types">
+                            <mat-option *ngFor="let type of filteredTypesCustom" [value]="type">{{type}}</mat-option>
                         </mat-optgroup>
-                        <mat-optgroup *ngIf="filtered_types_regular.length > 0" label="Classic types">
-                            <mat-option *ngFor="let type of filtered_types_regular" [value]="type">{{type}}</mat-option>
+                        <mat-optgroup *ngIf="filteredTypesRegular.length > 0" label="Classic types">
+                            <mat-option *ngFor="let type of filteredTypesRegular" [value]="type">{{type}}</mat-option>
                         </mat-optgroup>
                     </mat-autocomplete>
                 </mat-form-field>
@@ -64,7 +64,7 @@
 
             <!-- Type-specific Fields -->
             <app-usages
-                *ngIf="types_regular.includes(object.type)"
+                *ngIf="typesRegular.includes(object.type)"
                 [usage]="object.usage"
                 [type]="object.type"
                 (CRUD)="onChange($event)"
@@ -82,13 +82,13 @@
             <!-- Format Toggle for 'any' Type -->
             <mat-slide-toggle
                 *ngIf="object.type === 'any'"
-                [checked]="object._has_values"
+                [checked]="object._hasValues"
                 (change)="changeHasFormat($event.checked)">
                 Add Format
             </mat-slide-toggle>
 
             <!-- Format Items (nested section) -->
-            <div *ngIf="object.type === 'any' && object._has_values" class="subpart">
+            <div *ngIf="object.type === 'any' && object._hasValues" class="subpart">
                 <div class="subpart-title">
                     <mat-icon>list</mat-icon>
                     <span>Format Fields</span>
@@ -141,7 +141,7 @@
                             <autocomplete
                                 name="type"
                                 [value]="item.type"
-                                [values]="types_regular"
+                                [values]="typesRegular"
                                 (valueChange)="changeFormatType(index, $event)">
                             </autocomplete>
                             <app-usages
@@ -153,12 +153,12 @@
                         </div>
 
                         <!-- Selection Toggle -->
-                        <mat-checkbox [checked]="item._has_selection" (change)="changeHasSelection(index, $event.checked)">
+                        <mat-checkbox [checked]="item._hasSelection" (change)="changeHasSelection(index, $event.checked)">
                             has selection
                         </mat-checkbox>
 
                         <!-- Selection Items (nested) -->
-                        <mat-accordion *ngIf="item._has_selection" class="mt-2">
+                        <mat-accordion *ngIf="item._hasSelection" class="mt-2">
                             <button class="mb-1" mat-stroked-button color="primary" (click)="addFormatSelectionItem(index)">
                                 <mat-icon>add</mat-icon> 
                                 Add selection item
