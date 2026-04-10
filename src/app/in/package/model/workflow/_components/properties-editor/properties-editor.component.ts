@@ -9,36 +9,36 @@
     })
     export class PropertiesEditorComponent implements OnChanges {
 
-    obk = Object.keys
+    obk = Object.keys;
 
-    @Input() state:string = 'normal'
+    @Input() state = 'normal';
 
-    @Input() selectedNode:number
-    @Input() selectedLink:number
-    @Input() modelName:string = ""
-    @Input() packageName:string = ""
-    @Input() model_schema:any = {}
+    @Input() selectedNode: number;
+    @Input() selectedLink: number;
+    @Input() modelName = '';
+    @Input() packageName = '';
+    @Input() modelSchema: any = {};
 
-    @Input() nodes:WorkflowNode[]
-    @Input() links:WorkflowLink[]
+    @Input() nodes: WorkflowNode[];
+    @Input() links: WorkflowLink[];
 
-    @Output() requestState = new EventEmitter<string>()
-    @Output() requestDeleteLink = new EventEmitter<void>()
-    @Output() requestDeleteNode = new EventEmitter<void>()
+    @Output() requestState = new EventEmitter<string>();
+    @Output() requestDeleteLink = new EventEmitter<void>();
+    @Output() requestDeleteNode = new EventEmitter<void>();
 
-    inputwatch:string = ""
-    inputPolicy:string = ""
-    ACField:string[] = []
+    inputWatch = '';
+    inputPolicy = '';
+    ACField: string[] = [];
 
     constructor() { }
 
-    fields:string[] = []
+    fields: string[] = [];
 
     ngOnChanges(): void {
 
         if (this.selectedNode >= 0) {
-            if (this.model_schema && this.model_schema['fields']) {
-                this.fields = Object.keys(this.model_schema['fields']);
+            if (this.modelSchema && this.modelSchema['fields']) {
+                this.fields = Object.keys(this.modelSchema['fields']);
                 this.updateACField();
             } else {
                 console.warn('model_schema ou model_schema["fields"] est undefined ou null');
@@ -53,39 +53,39 @@
     }
 
 
-    updateACField() {
-        if(this.selectedLink >= 0) {
-            this.ACField =  this.fields.filter(value => !this.links[this.selectedLink].watch.includes(value))
+    updateACField(): void {
+        if (this.selectedLink >= 0) {
+            this.ACField =  this.fields.filter(value => !this.links[this.selectedLink].watch.includes(value));
             } else {
-            this.ACField = []
+            this.ACField = [];
         }
 
     }
 
-    deleteWatcher(index:number) {
-        if(this.selectedLink >= 0) {
-            this.links[this.selectedLink].watch.splice(index,1)
+    deleteWatcher(index: number): void {
+        if (this.selectedLink >= 0) {
+            this.links[this.selectedLink].watch.splice(index, 1);
         }
     }
 
-    addWatcher() {
-        if(this.selectedLink >= 0) {
-            if (this.inputwatch && !this.links[this.selectedLink].watch.includes(this.inputwatch)) {
-                this.links[this.selectedLink].watch.push(this.inputwatch)
+    addWatcher(): void {
+        if (this.selectedLink >= 0) {
+            if (this.inputWatch && !this.links[this.selectedLink].watch.includes(this.inputWatch)) {
+                this.links[this.selectedLink].watch.push(this.inputWatch);
             }
         }
     }
 
-    deletePolicy(index:number) {
-        if(this.selectedLink >= 0) {
-            this.links[this.selectedLink].policies.splice(index,1)
+    deletePolicy(index: number): void {
+        if (this.selectedLink >= 0) {
+            this.links[this.selectedLink].policies.splice(index, 1);
         }
     }
 
-    addPolicy() {
-        if(this.selectedLink >= 0) {
+    addPolicy(): void {
+        if (this.selectedLink >= 0) {
             if (this.inputPolicy && !this.links[this.selectedLink].policies.includes(this.inputPolicy)) {
-                this.links[this.selectedLink].policies.push(this.inputPolicy)
+                this.links[this.selectedLink].policies.push(this.inputPolicy);
             }
         }
     }

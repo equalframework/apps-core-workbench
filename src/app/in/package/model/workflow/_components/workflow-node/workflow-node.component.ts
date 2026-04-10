@@ -9,17 +9,17 @@ import { Anchor } from '../workflow-displayer/_objects/WorkflowLink';
 })
 export class WorkflowNodeComponent implements OnInit, AfterViewChecked {
 
-  @ViewChild("bdy")
-  body: ElementRef
+  @ViewChild('bdy')
+  body: ElementRef;
 
-  anchor = Anchor
+  anchor = Anchor;
 
-  @Input() node: WorkflowNode
-  @Input() state: string = "normal"
-  @Input() selected:boolean = false
+  @Input() node: WorkflowNode;
+  @Input() state = 'normal';
+  @Input() selected = false;
 
-  @Output() createLink = new EventEmitter<void>()
-  @Output() linkToMe = new EventEmitter<Anchor>()
+  @Output() createLink = new EventEmitter<void>();
+  @Output() linkToMe = new EventEmitter<Anchor>();
 
 
   constructor() { }
@@ -28,8 +28,8 @@ export class WorkflowNodeComponent implements OnInit, AfterViewChecked {
   }
 
   ngAfterViewChecked(): void {
-    this.node.height = this.body.nativeElement.getBoundingClientRect().height
-    this.node.width = this.body.nativeElement.getBoundingClientRect().width
+    this.node.height = this.body.nativeElement.getBoundingClientRect().height;
+    this.node.width = this.body.nativeElement.getBoundingClientRect().width;
   }
 
 }

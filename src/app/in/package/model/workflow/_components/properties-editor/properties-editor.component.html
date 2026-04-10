@@ -31,15 +31,15 @@
                 <type-input
                     type="string"
                     name="OnAfter"
-                    [value]="links[selectedLink].onafter"
-                    (changed)="links[selectedLink].onafter = $event"
+                    [value]="links[selectedLink].onAfter"
+                    (changed)="links[selectedLink].onAfter = $event"
                 ></type-input>
                 <mat-divider></mat-divider>
                 <div>
                     <label>Watch</label><br>
                     <autocomplete
                         name="add watcher"
-                        [(value)]="inputwatch"
+                        [(value)]="inputWatch"
                         [values]="ACField"
                         (keydown.enter)="addWatcher()"
                     >

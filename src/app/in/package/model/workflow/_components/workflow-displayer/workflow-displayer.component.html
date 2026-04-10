@@ -121,7 +121,7 @@
                 </g>
             </g>
             <g *ngIf="state === 'linking-to' && selectedNode >= 0 && selectedAnchor">
-                <g *ngIf="getPathStringBetween(nodes[selectedNode],mousePosOffsetted,selectedAnchor,anchor.Top) as line">
+                <g *ngIf="getPathStringBetween(nodes[selectedNode],mousePosOffset,selectedAnchor,anchor.Top) as line">
                     <path
                         [attr.d]="line.path"
                         stroke="#424242" fill="none" stroke-width="2px"
@@ -142,7 +142,7 @@
                 </g>
             </g>
             <g *ngIf="state === 'edit-to'">
-                <g *ngIf="getPathStringBetween(links[selectedLink].from,mousePosOffsetted,links[selectedLink].anchorFrom,anchor.Top) as line">
+                <g *ngIf="getPathStringBetween(links[selectedLink].from,mousePosOffset,links[selectedLink].anchorFrom,anchor.Top) as line">
                     <path
                         [attr.d]="line.path"
                         stroke="#3F51B5" fill="none" stroke-width="2px"
@@ -163,7 +163,7 @@
                 </g>
             </g>
             <g *ngIf="state === 'edit-from'">
-                <g *ngIf="getPathStringBetween(mousePosOffsetted,links[selectedLink].to,anchor.Top,links[selectedLink].anchorTo) as line">
+                <g *ngIf="getPathStringBetween(mousePosOffset,links[selectedLink].to,anchor.Top,links[selectedLink].anchorTo) as line">
                     <path
                         [attr.d]="line.path"
                         stroke="#3F51B5" fill="none" stroke-width="2px"
