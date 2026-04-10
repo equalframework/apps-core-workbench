@@ -4,7 +4,7 @@ import { Location } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { cloneDeep } from 'lodash';
-import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { RouterMemory } from 'src/app/_services/router-memory.service';
 import { Field } from './_object/Field';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -19,11 +19,11 @@ import { QueryParamNavigatorService } from 'src/app/_services/query-param-naviga
 import { JsonValidationService } from 'src/app/in/_services/json-validation.service';
 
 @Component({
-    selector: 'package-model-fields',
+    selector: 'app-package-model-fields',
     templateUrl: './package-model-fields.component.html',
     styleUrls: ['./package-model-fields.component.scss'],
     host : {
-        "(body:keydown)" : "onKeydown($event)"
+        '(body:keydown)' : 'onKeydown($event)'
     }
 })
 export class PackageModelFieldsComponent implements OnInit {
@@ -31,37 +31,37 @@ export class PackageModelFieldsComponent implements OnInit {
     // rx subject for unsubscribing subscriptions on destroy
     private ngUnsubscribe = new Subject<void>();
 
-    public package_name: string = "";
-    public class_name: string = "";
-    public dummySchema: any = {};
-    public isSaving: boolean = false;
+    public packageName = '';
+    public className = '';
+    public dummyScheme: any = {};
+    public isSaving = false;
 
     public models: string[] = [];
-    public get types() {
+    public get types(): string[] {
         // #memo - Field.type_directives is set is ngOnInit
         return Object.keys(Field.type_directives ?? {});
     }
 
-    public selected_index: number = -1;
+    public selected_index = -1;
 
     public schema: any = {};
     // Schema of the parent class. Defaults to core\\Model
-    public parent_schema: any = {"fields":{"id":{"type":"integer","readonly":true},"creator":{"type":"many2one","foreign_object":"core\\User","default":1},"created":{"type":"datetime","default":"2023-09-05T11:49:53+00:00","readonly":true},"modifier":{"type":"many2one","foreign_object":"core\\User","default":1},"modified":{"type":"datetime","default":"2023-09-05T11:49:53+00:00","readonly":true},"deleted":{"type":"boolean","default":false},"state":{"type":"string","selection":["draft","instance","archive"],"default":"instance"},"name":{"type":"alias","alias":"id"}}};
+    public parentSchema: any = {fields: {id: {type: 'integer', readonly: true}, creator: {type: 'many2one', foreign_object: 'core\\User', default: 1}, created: {type: 'datetime', default: '2023-09-05T11:49:53+00:00', readonly: true}, modifier: {type: 'many2one', foreign_object: 'core\\User', default: 1}, modified: {type: 'datetime', default: '2023-09-05T11:49:53+00:00', readonly: true}, deleted: {type: 'boolean', default: false}, state: {type: 'string', selection: ['draft', 'instance', 'archive'], default: 'instance'}, name: {type: 'alias', alias: 'id'}}};
 
     public parentFieldList: Field[] = [];
 
     public fieldList: Field[] = [];
-    public fieldListHistory:{field: Field[], message: string}[] = [];
-    public fieldFutureHistory:{field: Field[], message: string}[] = [];
-    
-    private backgroundPreloadStarted: boolean = false;
+    public fieldListHistory: {field: Field[], message: string}[] = [];
+    public fieldFutureHistory: {field: Field[], message: string}[] = [];
+
+    private backgroundPreloadStarted = false;
     private provider: EqualComponentsProviderService | null = null;
     private queryParamActivatorRegistry: QueryParamActivatorRegistry;
 
     public fieldName: string[] = [];
-    public computeds: string[] = [];
+    public computedFields: string[] = [];
 
-    public loading: boolean = true;
+    public loading = true;
 
     get lastIndex(): number {
         return this.fieldListHistory.length - 1;
@@ -74,31 +74,31 @@ export class PackageModelFieldsComponent implements OnInit {
         private workbenchService: WorkbenchService,
         private dialog: MatDialog,
         private location: Location,
-        private notificationService:NotificationService,
+        private notificationService: NotificationService,
         private injector: Injector,
         private queryParamNavigator: QueryParamNavigatorService,
         private jsonValidationService: JsonValidationService,
     ) { }
 
     public onKeydown(event: KeyboardEvent) {
-        if( event.key === "z" && event.ctrlKey) {
+        if ( event.key === 'z' && event.ctrlKey) {
             event.preventDefault();
             event.stopImmediatePropagation();
             this.cancelOneChange();
         }
-        if( event.key === "y" && event.ctrlKey) {
+        if ( event.key === 'y' && event.ctrlKey) {
             event.preventDefault();
             event.stopImmediatePropagation();
             this.revertOneChange();
         }
     }
-    public async ngOnInit() {
+    public async ngOnInit(): Promise<void> {
         this.initializeNavigation();
         this.models = await this.workbenchService.collectClasses(true).toPromise();
         Field.type_directives = await this.workbenchService.getTypeDirective();
         this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
-            this.package_name = this.route.parent ? this.route.parent?.snapshot.paramMap.get('package_name') : params['package_name'];
-            this.class_name = this.route.parent ? this.route.parent?.snapshot.paramMap.get('class_name') : params['class_name'];
+            this.packageName = this.route.parent ? this.route.parent?.snapshot.paramMap.get('package_name') : params.package_name;
+            this.className = this.route.parent ? this.route.parent?.snapshot.paramMap.get('class_name') : params.class_name;
             await this.loadFields();
             void this.fetchBackgroundData();
 
@@ -142,100 +142,100 @@ export class PackageModelFieldsComponent implements OnInit {
         }
     }
 
-    private async loadFields() {
+    private async loadFields(): Promise<void> {
         this.loading = true;
 
         this.fieldList = [];
         this.parentFieldList = [];
 
-        this.schema = await this.workbenchService.getSchema(this.package_name + '\\' + this.class_name).toPromise();
+        this.schema = await this.workbenchService.getSchema(this.packageName + '\\' + this.className).toPromise();
 
-        for(let item in this.schema["fields"]) {
-            this.fieldList.push(new Field(cloneDeep(this.schema["fields"][item]), item));
+        for (const item in this.schema.fields) {
+            this.fieldList.push(new Field(cloneDeep(this.schema.fields[item]), item));
         }
 
-        if(this.schema.parent !== "equal\\orm\\Model") {
-            this.parent_schema = await this.workbenchService.getSchema(this.schema.parent).toPromise();
+        if (this.schema.parent !== 'equal\\orm\\Model') {
+            this.parentSchema = await this.workbenchService.getSchema(this.schema.parent).toPromise();
         }
-        for(let item in this.parent_schema["fields"]) {
-            this.parentFieldList.push(new Field(cloneDeep(this.parent_schema["fields"][item]), item));
+        for (const item in this.parentSchema.fields) {
+            this.parentFieldList.push(new Field(cloneDeep(this.parentSchema.fields[item]), item));
         }
 
         this.loading = false;
         await this.handleQueryParams(['element'], 100);
     }
 
-    public cancelOneChange() {
-        if(this.lastIndex > 0) {
-            let x = this.fieldListHistory.pop();
-            if(x){
+    public cancelOneChange(): void {
+        if (this.lastIndex > 0) {
+            const x = this.fieldListHistory.pop();
+            if (x){
                 this.fieldFutureHistory.push(x);
                 this.fieldList = cloneDeep(this.fieldListHistory[this.lastIndex].field);
-                this.matSnack.open("undone "+x.message,"INFO");
+                this.matSnack.open('undone ' + x.message, 'INFO');
             }
         }
     }
 
-    async cancel() {
+    async cancel(): Promise<void> {
         this.loading = true;
-        this.notificationService.showInfo("Canceling...");
+        this.notificationService.showInfo('Canceling...');
 
         try {
           await this.loadFields();
-          this.notificationService.showSuccess("Canceled");
+          this.notificationService.showSuccess('Canceled');
         } catch (error) {
-          this.notificationService.showError("Error occurred while canceling.");
+          this.notificationService.showError('Error occurred while canceling.');
         } finally {
           this.loading = false;
         }
       }
 
-    public revertOneChange() {
-        if(this.fieldFutureHistory.length > 0) {
-            let x = this.fieldFutureHistory.pop();
-            if(x) {
+    public revertOneChange(): void {
+        if (this.fieldFutureHistory.length > 0) {
+            const x = this.fieldFutureHistory.pop();
+            if (x) {
                 this.fieldListHistory.push(x);
                 this.fieldList = cloneDeep(this.fieldListHistory[this.lastIndex].field);
-                this.matSnack.open("reverted "+x.message,"INFO");
+                this.matSnack.open('reverted ' + x.message, 'INFO');
             }
         }
     }
 
-    public onChange(msg:string) {
-        this.fieldListHistory.push({field : cloneDeep(this.fieldList), message:msg});
+    public onChange(msg: string): void {
+        this.fieldListHistory.push({field : cloneDeep(this.fieldList), message: msg});
         this.fieldFutureHistory = [];
         this.fieldList = [...this.fieldList];
         this.fieldName = [];
-        this.computeds = [];
+        this.computedFields = [];
         this.fieldList.forEach(field => {
             this.fieldName.push(field.name);
-            if(field.type === 'computed') {
-                this.computeds.push(field.name);
+            if (field.type === 'computed') {
+                this.computedFields.push(field.name);
             }
         });
-        this.dummySchema = {};
-        this.fieldList.forEach((value:Field) => {this.dummySchema[value.name] = value.DummySchema;});
+        this.dummyScheme = {};
+        this.fieldList.forEach((value: Field) => {this.dummyScheme[value.name] = value.DummySchema; });
     }
 
-    public goBack() {
+    public goBack(): void {
         this.location.back();
     }
 
     public isInherited(field: Field): boolean {
-        if(!field) {
+        if (!field) {
             return false;
         }
-        for(let item of this.parentFieldList) {
-            if(field.name === item.name) {
+        for (const item of this.parentFieldList) {
+            if (field.name === item.name) {
                 return true;
             }
         }
         return false;
     }
 
-    public isOverrided(field:Field): boolean {
-        for(let item of this.parentFieldList) {
-            if(field.name === item.name) {
+    public isOverridden(field: Field): boolean {
+        for (const item of this.parentFieldList) {
+            if (field.name === item.name) {
                 return !field.areSimilar(item);
             }
         }
@@ -243,52 +243,53 @@ export class PackageModelFieldsComponent implements OnInit {
     }
 
     public export2JSON(): any {
-        let result = cloneDeep(this.schema);
-        result["fields"] = {};
+        const result = cloneDeep(this.schema);
+        result.fields = {};
         this.fieldList.forEach(item => {
-            if(item.isUneditable) {
+            if (item.isUneditable) {
                 return;
             }
-            if(this.isInherited(item) && !this.isOverrided(item)) {
+            if (this.isInherited(item) && !this.isOverridden(item)) {
                 return;
             }
-            result["fields"][item.name] = cloneDeep(item.JSON);
-        })
+            result.fields[item.name] = cloneDeep(item.JSON);
+        });
         return result;
     }
 
-    public showJSON() {
-        this.dialog.open(JsonViewerComponent,{data:this.export2JSON(),width:"70%",height:"85%"})
+    public showJSON(): void {
+        this.dialog.open(JsonViewerComponent, {data: this.export2JSON(), width: '70%', height: '85%'});
     }
 
-    public async savedata() {
+    public async savedata(): Promise<void> {
         const exportedModel = this.export2JSON();
         let modelPayloadForValidation: any;
 
         try {
             modelPayloadForValidation = await this.buildModelPayloadWithFields(exportedModel);
         } catch (error) {
-            this.notificationService.showError("Error while fetching model schema for fields validation.");
+            this.notificationService.showError('Error while fetching model schema for fields validation.');
             return;
         }
 
         this.jsonValidationService.validateAndSave(
-            this.jsonValidationService.validateBySchemaType(modelPayloadForValidation, "urn:equal:json-schema:core:model", this.package_name),
-            () => this.workbenchService.updateFieldsFromClass(exportedModel,this.package_name,this.class_name),
+            this.jsonValidationService.
+            validateBySchemaType(modelPayloadForValidation, 'urn:equal:json-schema:core:model', this.packageName),
+            () => this.workbenchService.updateFieldsFromClass(exportedModel, this.packageName, this.className),
             (saving) => this.isSaving = saving
         );
     }
 
     private async buildModelPayloadWithFields(exportedModel: any): Promise<any> {
-        const entity = `${this.package_name}\\${this.class_name}`;
+        const entity = `${this.packageName}\\${this.className}`;
         const latestModelSchema = await this.workbenchService.getSchema(entity).toPromise();
         const modelPayload = cloneDeep(latestModelSchema || {});
-        const parentFields = cloneDeep(this.parent_schema?.fields || {});
+        const parentFields = cloneDeep(this.parentSchema?.fields || {});
         const schemaFields = cloneDeep(modelPayload?.fields || {});
         const exportedFields = cloneDeep(exportedModel?.fields || {});
 
         // Keep inherited/system fields for validation and overlay current edits on top.
-        modelPayload["fields"] = {
+        modelPayload.fields = {
             ...parentFields,
             ...schemaFields,
             ...exportedFields,
@@ -296,12 +297,12 @@ export class PackageModelFieldsComponent implements OnInit {
         return modelPayload;
     }
 
-    public navigateToParent() {
-        if(this.schema["parent"] === "equal\\orm\\Model") {
-            this.matSnack.open("You cannot edit equal\\orm\\Model","ERROR");
+    public navigateToParent(): void {
+        if (this.schema.parent === 'equal\\orm\\Model') {
+            this.matSnack.open('You cannot edit equal\\orm\\Model', 'ERROR');
             return;
         }
-        this.router.navigate(["fields",this.schema["parent"].split("\\")[0],this.schema["parent"].split("\\").slice(1).join("\\")])
+        this.router.navigate(['fields', this.schema.parent.split('\\')[0], this.schema.parent.split('\\').slice(1).join('\\')]);
     }
 }
 

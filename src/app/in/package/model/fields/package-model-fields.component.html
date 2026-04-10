@@ -10,7 +10,7 @@
         [customButtonList]="[{name:'Show JSON', icon:'bug_report', disabled:false}]"
         (onCustomButton)="showJSON()">
     <div class="header-labels">
-        <label>Fields of </label><label class="component-color-package colorized">{{package_name}}</label><label class="separator">\</label><label class="component-color-class colorized">{{class_name}}</label>
+        <label>Fields of </label><label class="component-color-package colorized">{{packageName}}</label><label class="separator">\</label><label class="component-color-class colorized">{{className}}</label>
     </div>
 </app-inner-header>
 <div *ngIf="loading" style="display: flex; align-items: center; justify-content: center; flex-direction: column;" class="full">
@@ -30,8 +30,8 @@
             [types]="types"
             [models]="models"
             [fields]="fieldName"
-            [computeds]="computeds"
-            [dummyscheme]="dummySchema"
+            [computedFields]="computedFields"
+            [dummyScheme]="dummyScheme"
             (CRUD)="onChange($event)"
             (navToParent)="navigateToParent()">
     </app-field-editor-sp>
