@@ -25,8 +25,8 @@
                 <ng-container *ngIf="!node.inherited; else uneditablemod">
                 <ng-container>
                     <div class="node_container"
-                            [class.node-hover]="!areNodesEqual(node, node_selected)"
-                            [class.node-selected]="areNodesEqual(node, node_selected)"
+                            [class.node-hover]="!areNodesEqual(node, selectedNode)"
+                            [class.node-selected]="areNodesEqual(node, selectedNode)"
                             [class.node-edited]="!node.isSynchronized"
                             [class.node-created]="node.isNew">
                         <div class="pointable node-text" (click)="onclickSelect(node)">{{ node.name }}</div>
@@ -43,7 +43,7 @@
             </ng-container>
             </ng-template>
             <ng-template #uneditablemod class="node_container node_hover node_uneditable">
-                <div class="node_container node_uneditable" [class.node-selected]="areNodesEqual(node, node_selected)">
+                <div class="node_container node_uneditable" [class.node-selected]="areNodesEqual(node, selectedNode)">
                     <div class="pointable node-text" (click)="onclickSelect(node)">{{ node.name }}</div>
                 </div>
             </ng-template>
@@ -53,7 +53,7 @@
 
 <div class="add_container">
     <mat-form-field class="input search-bar" title="name of the new field">
-        <input matInput [(ngModel)]="input_value" placeholder="new field name" (keyup)="reformatTextCreate()">
+        <input matInput [(ngModel)]="inputValue" placeholder="new field name" (keyup)="reformatTextCreate()">
     </mat-form-field>
     <button mat-icon-button class="add_button" title="create a new field">
         <mat-icon class="icon pointable" (click)="onclickCreate()">add</mat-icon>
