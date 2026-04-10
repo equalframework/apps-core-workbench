@@ -11,7 +11,7 @@
 [customButtonList]="[{icon:'bug_report', name:'Show JSON', disabled:false}]"
 (onCustomButton)="customButtonBehavior($event)">
 <div class="header-labels">
-  <label>Workflow of </label><label class="component-color-package colorized">{{package_name}}</label><label class="separator">\</label><label class="component-color-class colorized">{{model_name}}</label>
+  <label>Workflow of </label><label class="component-color-package colorized">{{packageName}}</label><label class="separator">\</label><label class="component-color-class colorized">{{modelName}}</label>
 </div>
 </app-inner-header>
 
@@ -40,8 +40,8 @@
     *ngIf="selectedRole"
     [role]="selectedRole"
     [availableRoles]="(availableRoles$ | async) || []"
-    [package_name]="package_name"
-    [model_name]="model_name"
+    [package_name]="packageName"
+    [model_name]="modelName"
     (onrefresh)="refreshRoles()"
     >
 

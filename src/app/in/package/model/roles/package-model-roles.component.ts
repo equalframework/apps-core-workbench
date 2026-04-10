@@ -1,6 +1,6 @@
 import { ButtonStateService } from './../../../_services/button-state.service';
 import { KeyValue, Location } from '@angular/common';
-import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { RouterMemory } from 'src/app/_services/router-memory.service';
 import { Component, OnDestroy, OnInit, Injector } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
@@ -22,13 +22,13 @@ import { EqualComponentsProviderService } from 'src/app/in/_services/equal-compo
   export class PackageModelRolesComponent implements OnInit, OnDestroy {
     readonly roles$ = new BehaviorSubject<Roles>({});
     readonly availableRoles$ = this.roles$.pipe(map(roles => Object.keys(roles)));
-    package_name = '';
-    model_name = '';
+    packageName = '';
+    modelName = '';
     loading = false;
     selectedRole?: RoleItem;
     private readonly destroy$ = new Subject<void>();
-    public isSaving: boolean = false;
-    private backgroundPreloadStarted: boolean = false;
+    public isSaving = false;
+    private backgroundPreloadStarted = false;
 
     constructor(
       private workbenchService: WorkbenchService,
@@ -47,7 +47,7 @@ import { EqualComponentsProviderService } from 'src/app/in/_services/equal-compo
       this.handleRouteParams();
     }
 
-    
+
     private async fetchBackgroundData(): Promise<void> {
         if (this.backgroundPreloadStarted) {
             return;
@@ -89,12 +89,12 @@ import { EqualComponentsProviderService } from 'src/app/in/_services/equal-compo
 
 
     customButtonBehavior(event: string): void {
-      if (event === "Show JSON") {
+      if (event === 'Show JSON') {
         this.export().pipe(take(1)).subscribe(exportedData => {
           this.matDialog.open(JsonViewerComponent, {
             data: exportedData,
-            width: "70vw",
-            height: "80vh"
+            width: '70vw',
+            height: '80vh'
           });
         });
       }
@@ -134,8 +134,8 @@ import { EqualComponentsProviderService } from 'src/app/in/_services/equal-compo
 
     private handleRouteParams(): void {
         this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
-          this.package_name = this.route.parent ? this.route.parent?.snapshot.paramMap.get('package_name') : params['package_name'];
-          this.model_name = this.route.parent ? this.route.parent?.snapshot.paramMap.get('class_name') : params['class_name'];
+          this.packageName = this.route.parent ? this.route.parent?.snapshot.paramMap.get('package_name') : params['package_name'];
+          this.modelName = this.route.parent ? this.route.parent?.snapshot.paramMap.get('class_name') : params['class_name'];
           this.loadRoles();
           void this.fetchBackgroundData();
         });
@@ -145,7 +145,7 @@ import { EqualComponentsProviderService } from 'src/app/in/_services/equal-compo
         this.loading = true;
         this.buttonStateService.disableButtons();
 
-        this.workbenchService.getRoles(this.package_name, this.model_name).pipe(
+        this.workbenchService.getRoles(this.packageName, this.modelName).pipe(
           take(1),
           tap(roles => this.roles$.next(roles)),
           catchError(() => {
@@ -177,14 +177,14 @@ import { EqualComponentsProviderService } from 'src/app/in/_services/equal-compo
       }
 
       this.jsonValidationService.validateAndSave(
-        this.jsonValidationService.validateBySchemaType(modelPayloadForValidation, 'urn:equal:json-schema:core:model', this.package_name),
-        () => this.workbenchService.saveRoles(this.package_name, this.model_name, jsonData),
+        this.jsonValidationService.validateBySchemaType(modelPayloadForValidation, 'urn:equal:json-schema:core:model', this.packageName),
+        () => this.workbenchService.saveRoles(this.packageName, this.modelName, jsonData),
         (saving) => this.isSaving = saving
       );
     }
 
     private async buildModelPayloadWithRoles(rolesPayload: any): Promise<any> {
-      const entity = `${this.package_name}\\${this.model_name}`;
+      const entity = `${this.packageName}\\${this.modelName}`;
       const latestModelSchema = await this.workbenchService.getSchema(entity).toPromise();
       const modelPayload = cloneDeep(latestModelSchema || {});
       modelPayload.roles = rolesPayload;

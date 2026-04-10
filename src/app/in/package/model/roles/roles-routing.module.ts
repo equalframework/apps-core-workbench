@@ -6,7 +6,7 @@ import { PackageModelRolesComponent } from './package-model-roles.component';
 const routes: Routes = [
   {
       path: '**',
-      component:PackageModelRolesComponent
+      component: PackageModelRolesComponent
   }
 ];
 
