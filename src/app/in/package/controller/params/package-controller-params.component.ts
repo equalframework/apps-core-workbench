@@ -1,11 +1,11 @@
 import { Component, OnInit, OnDestroy, Input } from '@angular/core';
-import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { RouterMemory } from 'src/app/_services/router-memory.service';
 import { ActivatedRoute } from '@angular/router';
 import { Param } from '../../../_models/Params';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { cloneDeep, constant } from 'lodash';
 import { ItemTypes } from 'src/app/in/_models/item-types.class';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { NotificationService } from 'src/app/in/_services/notification.service';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
@@ -24,7 +24,7 @@ import { JsonValidationService } from 'src/app/in/_services/json-validation.serv
  *
  */
 @Component({
-  selector: 'package-controller-params',
+  selector: 'app-package-controller-params',
   templateUrl: './package-controller-params.component.html',
   styleUrls: ['./package-controller-params.component.scss'],
   host : {
@@ -45,54 +45,45 @@ export class PackageControllerParamsComponent implements OnInit, OnDestroy {
     ];
 
     // @Input properties for tab-based usage
-    @Input() controllerName: string = '';
-    @Input() controllerType: string = '';
-    @Input() controllerPackage: string = '';
+    @Input() controllerName = '';
+    @Input() controllerType = '';
+    @Input() controllerPackage = '';
 
     // @Input properties for data from parent component
     @Input() types: string[] = [];
     @Input() usages: string[] = [];
     @Input() paramsScheme: any = null;
     @Input() modelList: string[] = [];
-    @Input() dataReady: boolean = false;
-    @Input() isSaving: boolean = false;
-    public error:boolean = false;
+    @Input() dataReady = false;
+    @Input() isSaving = false;
+    public error = false;
 
-    public paramListHistory:{param:Param[],message:string}[] = [];
-    public paramFutureHistory:{param:Param[],message:string}[] = [];
+    public paramListHistory: {param: Param[], message: string}[] = [];
+    public paramFutureHistory: {param: Param[], message: string}[] = [];
 
-    public scheme:any;
-    public controller_package:string = '';
-    public controller_name:string = '';
-    public controller_type:string = '';
+    public scheme: any;
     public selectedIndex = -1;
 
-    public paramList:Param[] = [];
+    public paramList: Param[] = [];
 
     public alert = alert;
 
-    public sch:any;
-    public loading: boolean = true;
+    public sch: any;
+    public loading = true;
 
-    public type_icon:string;
-    public package_icon:string = ItemTypes.getIconForType('package');
+    public typeIcon: string;
+    public packageIcon: string = ItemTypes.getIconForType('package');
 
     private ngUnsubscribe: Subject<void> = new Subject<void>();
 
-    get lastIndex():number {
+    get lastIndex(): number {
         return this.paramListHistory.length - 1;
     }
 
     constructor(
         private workbenchService: WorkbenchService,
-        private activatedRoute: ActivatedRoute,
-        private router: RouterMemory,
-        private matSnack:MatSnackBar,
+        private matSnack: MatSnackBar,
         private dialog: MatDialog,
-        private snack: MatSnackBar,
-        private notificationService: NotificationService,
-        private route: ActivatedRoute,
-        private provider: EqualComponentsProviderService,
         private location: Location,
         private jsonValidator: JsonValidationService
       ) { }
@@ -102,25 +93,22 @@ export class PackageControllerParamsComponent implements OnInit, OnDestroy {
         this.ngUnsubscribe.complete();
       }
 
-    public onKeydown(event: KeyboardEvent) {
-        if( event.key === "z" && event.ctrlKey) {
+    public onKeydown(event: KeyboardEvent): void {
+        if ( event.key === 'z' && event.ctrlKey) {
             event.preventDefault();
             event.stopImmediatePropagation();
             this.cancelOneChange();
         }
-        if( event.key === "y" && event.ctrlKey) {
+        if ( event.key === 'y' && event.ctrlKey) {
             event.preventDefault();
             event.stopImmediatePropagation();
             this.revertOneChange();
         }
     }
 
-    public ngOnInit(){
+    public ngOnInit(): void {
         // Use @Input properties from parent component (required)
-        this.controller_name = this.controllerName;
-        this.controller_type = this.controllerType;
-        this.controller_package = this.controllerPackage;
-        this.type_icon = ItemTypes.getIconForType(this.controller_type);
+        this.typeIcon = ItemTypes.getIconForType(this.controllerType);
 
         // Initialize from parent-provided data
         if (this.types.length > 0) {
@@ -132,18 +120,18 @@ export class PackageControllerParamsComponent implements OnInit, OnDestroy {
 
         // Initialize paramList from scheme if provided
         if (this.paramsScheme && this.paramsScheme.announcement && this.paramsScheme.announcement.params) {
-            for (let key in this.paramsScheme.announcement.params) {
+            for (const key in this.paramsScheme.announcement.params) {
                 this.paramList.push(new Param(key, cloneDeep(this.paramsScheme.announcement.params[key])));
             }
             this.scheme = this.paramsScheme;
-            this.onChange("Opening file");
+            this.onChange('Opening file');
         }
 
         this.loading = false;
-        console.log("Initialized with @Input properties:", {
-            controllerName: this.controller_name,
-            controllerType: this.controller_type,
-            controllerPackage: this.controller_package,
+        console.log('Initialized with @Input properties:', {
+            controllerName: this.controllerName,
+            controllerType: this.controllerType,
+            controllerPackage: this.controllerPackage,
             scheme: this.scheme,
             types: this.types,
             usages: this.usages,
@@ -153,70 +141,70 @@ export class PackageControllerParamsComponent implements OnInit, OnDestroy {
 
     }
 
-    public onSelection(index:number){
-        this.selectedIndex = index
+    public onSelection(index: number): void {
+        this.selectedIndex = index;
     }
 
-  public cancelOneChange() {
+  public cancelOneChange(): void {
     this.loading = true;
-    if(this.lastIndex > 0) {
-      let x = this.paramListHistory.pop()
-      if(x){
-        this.paramFutureHistory.push(x)
-        this.paramList = cloneDeep(this.paramListHistory[this.lastIndex].param)
-        this.matSnack.open("undone "+x.message,"INFO")
+    if (this.lastIndex > 0) {
+      const x = this.paramListHistory.pop();
+      if (x){
+        this.paramFutureHistory.push(x);
+        this.paramList = cloneDeep(this.paramListHistory[this.lastIndex].param);
+        this.matSnack.open('undone ' + x.message, 'INFO');
       }
     }
-    this.toSchema()
-      this.loading = false;
-  }
-
-  public revertOneChange() {
-    this.loading = true;
-    if(this.paramFutureHistory.length > 0) {
-      let x = this.paramFutureHistory.pop()
-      if(x){
-        this.paramListHistory.push(x)
-        this.paramList = cloneDeep(this.paramListHistory[this.lastIndex].param)
-        this.matSnack.open("reverted "+x.message,"INFO")
-      }
-
-    }
-    this.toSchema()
+    this.toSchema();
     this.loading = false;
   }
 
-  public onChange(msg:string) {
-    //this.paramList =  this.paramList.sort((p1,p2) => p1.name.localeCompare(p2.name))
-    this.paramListHistory.push({param : cloneDeep(this.paramList), message:msg})
-    this.paramFutureHistory = []
-    this.paramList = [...this.paramList]
-    this.toSchema()
+  public revertOneChange(): void {
+    this.loading = true;
+    if (this.paramFutureHistory.length > 0) {
+      const x = this.paramFutureHistory.pop();
+      if (x){
+        this.paramListHistory.push(x);
+        this.paramList = cloneDeep(this.paramListHistory[this.lastIndex].param);
+        this.matSnack.open('reverted ' + x.message, 'INFO');
+      }
+
+    }
+    this.toSchema();
+    this.loading = false;
   }
 
-  toSchema() {
-    let res:{[id:string]:any} = {}
-    for(let item of this.paramList) {
-      res[item.name] = item.toSchema()
-    }
-    this.sch = res
+  public onChange(msg: string): void {
+    // this.paramList =  this.paramList.sort((p1,p2) => p1.name.localeCompare(p2.name))
+    this.paramListHistory.push({param : cloneDeep(this.paramList), message: msg});
+    this.paramFutureHistory = [];
+    this.paramList = [...this.paramList];
+    this.toSchema();
   }
 
-  export():{[id:string]:any} {
-    let res:{[id:string]:any} = {}
-    for(let item of this.paramList) {
-      res[item.name] = item.export()
+  toSchema(): void {
+    const res: {[id: string]: any} = {};
+    for (const item of this.paramList) {
+      res[item.name] = item.toSchema();
     }
-    let result = cloneDeep(this.scheme)
-    result["announcement"]["params"] = res
-    return result["announcement"]
+    this.sch = res;
+  }
+
+  export(): {[id: string]: any} {
+    const res: {[id: string]: any} = {};
+    for (const item of this.paramList) {
+      res[item.name] = item.export();
+    }
+    const result = cloneDeep(this.scheme);
+    result['announcement']['params'] = res;
+    return result['announcement'];
   }
 
   public formatJson(json: any): any {
     const formatted = cloneDeep(json);
-    formatted["name"] = this.controller_name;
-    formatted["type"] = this.controller_type;
-    formatted["package_name"] = this.controller_package;
+    formatted['name'] = this.controllerName;
+    formatted['type'] = this.controllerType;
+    formatted['package_name'] = this.controllerPackage;
 
     const announcement = this.scheme?.announcement ?? {};
     for (const key of this.announcementFieldsToCopy) {
@@ -228,31 +216,27 @@ export class PackageControllerParamsComponent implements OnInit, OnDestroy {
     return formatted;
   }
 
-  showJson() {
-    this.dialog.open(JsonViewerComponent,{data:this.export(),width:"75%",height:"85%"})
+  showJson(): void {
+    this.dialog.open(JsonViewerComponent, {data: this.export(), width: '75%', height: '85%'});
   }
 
-  handleCustomButton(name:string) {
-    if(name === "show JSON") {
-      this.showJson()
-      return
+  handleCustomButton(name: string): void {
+    if (name === 'show JSON') {
+      this.showJson();
+      return;
     }
   }
 
-  goBack() {
+  goBack(): void {
     this.location.back();
   }
 
-  public async save() {
-
-
-
+  public async save(): Promise<void> {
     this.jsonValidator.validateAndSave(
-      this.jsonValidator.validateBySchemaType(this.formatJson(this.export()), "controller", this.controller_package),
-      () => this.workbenchService.updateController(this.controller_package, this.controller_name, this.controller_type, this.export()),
+      this.jsonValidator.validateBySchemaType(this.formatJson(this.export()), 'controller', this.controllerPackage),
+      () => this.workbenchService.updateController(this.controllerPackage, this.controllerName, this.controllerType, this.export()),
       (saving) => this.isSaving = saving
-  );
+    );
   }
 
 }
-
