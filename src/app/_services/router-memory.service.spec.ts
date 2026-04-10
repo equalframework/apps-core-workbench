@@ -1,7 +1,7 @@
 import { TestBed, fakeAsync, flush, tick } from '@angular/core/testing';
 import { Router, ActivatedRoute, Routes } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { RouterMemory } from './routermemory.service';
+import { RouterMemory } from './router-memory.service';
 import { Component } from '@angular/core';
 
 @Component({
@@ -54,7 +54,7 @@ describe('RouterMemory', () => {
     });
 
     it('should initialize saved_args as empty object', () => {
-      expect(service.saved_args).toEqual({});
+      expect(service.savedArgs).toEqual({});
     });
 
     it('should set routeReuseStrategy to allow route reload', () => {
@@ -116,7 +116,7 @@ describe('RouterMemory', () => {
     it('should decode %5C (backslash) in saved URL', fakeAsync(() => {
       // Manually set router.url to a URL with encoded backslashes
       Object.defineProperty(router, 'url', { value: '/path%5Cto%5Croute', writable: true });
-      
+
       service.navigate(['/next']);
       tick();
 
@@ -144,9 +144,9 @@ describe('RouterMemory', () => {
         service.navigate(['/next'], params);
         tick();
 
-        expect(service.saved_args['/test/path']).toBeDefined();
-        expect(service.saved_args['/test/path'].userId).toBe('456');
-        expect(service.saved_args['/test/path'].view).toBe('grid');
+        expect(service.savedArgs['/test/path']).toBeDefined();
+        expect(service.savedArgs['/test/path'].userId).toBe('456');
+        expect(service.savedArgs['/test/path'].view).toBe('grid');
       });
       tick();
       flush();
@@ -162,7 +162,7 @@ describe('RouterMemory', () => {
         tick();
         service.navigate(['/path3']);
         tick();
-        
+
         expect(service.previous.length).toBe(2);
       });
       tick();
@@ -307,13 +307,13 @@ describe('RouterMemory', () => {
         return router.navigate(['/route/one']);
       }).then(() => {
         tick();
-        let args = service.retrieveArgs();
+        const args = service.retrieveArgs();
         expect(args.color).toBe('red');
 
         return router.navigate(['/route/two']);
       }).then(() => {
         tick();
-        let args = service.retrieveArgs();
+        const args = service.retrieveArgs();
         expect(args.color).toBe('blue');
       });
       tick();
@@ -327,8 +327,8 @@ describe('RouterMemory', () => {
         tick();
         service.updateArg('key1', 'value1');
 
-        expect(service.saved_args['/new/route']).toBeDefined();
-        expect(service.saved_args['/new/route'].key1).toBe('value1');
+        expect(service.savedArgs['/new/route']).toBeDefined();
+        expect(service.savedArgs['/new/route'].key1).toBe('value1');
       });
       tick();
       flush();
@@ -338,10 +338,10 @@ describe('RouterMemory', () => {
       router.navigate(['/route/path']).then(() => {
         tick();
         service.updateArg('key1', 'value1');
-        expect(service.saved_args['/route/path'].key1).toBe('value1');
+        expect(service.savedArgs['/route/path'].key1).toBe('value1');
 
         service.updateArg('key1', 'value2');
-        expect(service.saved_args['/route/path'].key1).toBe('value2');
+        expect(service.savedArgs['/route/path'].key1).toBe('value2');
       });
       tick();
       flush();
@@ -354,7 +354,7 @@ describe('RouterMemory', () => {
         service.updateArg('key2', 'value2');
         service.updateArg('key3', 'value3');
 
-        const args = service.saved_args['/route/path'];
+        const args = service.savedArgs['/route/path'];
         expect(args.key1).toBe('value1');
         expect(args.key2).toBe('value2');
         expect(args.key3).toBe('value3');
@@ -372,8 +372,8 @@ describe('RouterMemory', () => {
         tick();
         service.updateArg('key', 'route2-value');
 
-        expect(service.saved_args['/route/one'].key).toBe('route1-value');
-        expect(service.saved_args['/route/two'].key).toBe('route2-value');
+        expect(service.savedArgs['/route/one'].key).toBe('route1-value');
+        expect(service.savedArgs['/route/two'].key).toBe('route2-value');
       });
       tick();
       flush();
@@ -385,8 +385,8 @@ describe('RouterMemory', () => {
         service.updateArg('nullKey', null);
         service.updateArg('undefinedKey', undefined);
 
-        expect(service.saved_args['/route/path'].nullKey).toBeNull();
-        expect(service.saved_args['/route/path'].undefinedKey).toBeUndefined();
+        expect(service.savedArgs['/route/path'].nullKey).toBeNull();
+        expect(service.savedArgs['/route/path'].undefinedKey).toBeUndefined();
       });
       tick();
       flush();
@@ -398,7 +398,7 @@ describe('RouterMemory', () => {
         const complexObj = { nested: { deep: { value: 'test' } }, array: [1, 2, 3] };
         service.updateArg('complex', complexObj);
 
-        expect(service.saved_args['/route/path'].complex).toEqual(complexObj);
+        expect(service.savedArgs['/route/path'].complex).toEqual(complexObj);
       });
       tick();
       flush();
@@ -430,7 +430,7 @@ describe('RouterMemory', () => {
       }).then(() => {
         tick();
         // Check we can retrieve args for route two
-        let args = service.retrieveArgs();
+        const args = service.retrieveArgs();
         expect(args.tabIndex).toBe(1);
         expect(args.userId).toBe('123');
 
@@ -438,7 +438,7 @@ describe('RouterMemory', () => {
       }).then(() => {
         tick();
         // Check we can retrieve args for route one
-        let args = service.retrieveArgs();
+        const args = service.retrieveArgs();
         expect(args.tabIndex).toBe(0);
       });
       tick();
