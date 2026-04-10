@@ -1,7 +1,7 @@
 import { Location } from '@angular/common';
 import { Component, Inject, OnDestroy, OnInit, ViewChild, ElementRef, ViewContainerRef, AfterViewInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { RouterMemory } from 'src/app/_services/router-memory.service';
 import { QueryParamNavigatorService } from 'src/app/_services/query-param-navigator.service';
 import { QueryParamActivatorRegistry, QueryParamTabActivator } from 'src/app/_services/query-param-activator.registry';
 import { Subject } from 'rxjs';
@@ -73,10 +73,8 @@ export class PackageViewComponent implements OnInit {
         private location: Location,
         private provider: EqualComponentsProviderService,
         private notificationService: NotificationService,
-        private routerMemory: RouterMemory,
         private queryParamNavigator: QueryParamNavigatorService,
         private jsonValidationService: JsonValidationService
-
     ) { }
 
     async ngOnInit(): Promise<void> {
