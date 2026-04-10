@@ -37,7 +37,7 @@ describe('QueryParamActivatorRegistry', () => {
       };
 
       registry.register(activator);
-      
+
       expect(registry.findActivatorByKey('key1')).toBe(activator);
       expect(registry.findActivatorByKey('key2')).toBe(activator);
       expect(registry.findActivatorByKey('key3')).toBe(activator);
@@ -59,7 +59,7 @@ describe('QueryParamActivatorRegistry', () => {
 
       registry.register(activator1);
       registry.register(activator2);
-      
+
       expect(registry.count()).toBe(2);
       expect(registry.findActivatorByKey('key1')).toBe(activator1);
       expect(registry.findActivatorByKey('key2')).toBe(activator2);
@@ -188,7 +188,7 @@ describe('QueryParamActivatorRegistry', () => {
 
 describe('QueryParamTabActivator', () => {
   let activator: QueryParamTabActivator;
-  const tabMap = { 'layout': 0, 'header': 1, 'actions': 2, 'routes': 3, 'advanced': 4 };
+  const tabMap = { layout: 0, header: 1, actions: 2, routes: 3, advanced: 4 };
 
   beforeEach(() => {
     activator = new QueryParamTabActivator(tabMap);
@@ -212,15 +212,13 @@ describe('QueryParamTabActivator', () => {
   describe('activate', () => {
     it('should set correct tab index', async () => {
       const context = { selectedTabIndex: 0 };
-      
       await activator.activate('tab', 'actions', context);
-      
       expect(context.selectedTabIndex).toBe(2);
     });
 
     it('should handle all tabs in map', async () => {
       const context = { selectedTabIndex: 0 };
-      
+
       for (const [tabName, index] of Object.entries(tabMap)) {
         await activator.activate('tab', tabName, context);
         expect(context.selectedTabIndex).toBe(index);
@@ -229,18 +227,14 @@ describe('QueryParamTabActivator', () => {
 
     it('should not change context for invalid tab name', async () => {
       const context = { selectedTabIndex: 0 };
-      
       await activator.activate('tab', 'invalid', context);
-      
       expect(context.selectedTabIndex).toBe(0);
     });
 
     it('should use custom property name', async () => {
       const customActivator = new QueryParamTabActivator(tabMap, 'customTabProperty');
       const context = { customTabProperty: 0 };
-      
       await customActivator.activate('tab', 'actions', context);
-      
       expect(context.customTabProperty).toBe(2);
     });
   });
@@ -287,18 +281,16 @@ describe('QueryParamViewActivator', () => {
     describe('activate', () => {
       it('should set active view', async () => {
         const context = { activeView: 'list' };
-        
+
         await activator.activate('view', 'form', context);
-        
+
         expect(context.activeView).toBe('form');
       });
 
       it('should use custom property name', async () => {
         const customActivator = new QueryParamViewActivator(['list', 'form'], 'myActiveView');
         const context = { myActiveView: 'list' };
-        
         await customActivator.activate('view', 'form', context);
-        
         expect(context.myActiveView).toBe('form');
       });
     });
@@ -325,14 +317,12 @@ describe('QueryParamViewActivator', () => {
 
     it('should use dynamic view options', async () => {
       const context = { activeView: 'list', availableViews: ['custom1', 'custom2'] };
-      
       await activator.activate('view', 'custom1', context);
       expect(context.activeView).toBe('custom1');
     });
 
     it('should fall back to default views when context lacks availableViews', async () => {
       const context = { activeView: 'list' };
-      
       expect(activator.canHandle('view', 'list')).toBe(true);
       expect(activator.canHandle('view', 'form')).toBe(true);
       expect(activator.canHandle('view', 'grid')).toBe(false);
@@ -368,9 +358,9 @@ describe('QueryParamCustomActivator', () => {
   describe('activate', () => {
     it('should call the callback with correct parameters', async () => {
       const context = {};
-      
+
       await activator.activate('key1', 'testValue', context);
-      
+
       expect(activateCallback).toHaveBeenCalledWith('key1', 'testValue', context);
     });
 
@@ -387,7 +377,6 @@ describe('QueryParamCustomActivator', () => {
 
       const promise = customActivator.activate('key1', 'value', {});
       expect(callbackCompleted).toBe(false);
-      
       await promise;
       expect(callbackCompleted).toBe(true);
     });
@@ -432,13 +421,11 @@ describe('QueryParamExpandableActivator', () => {
   describe('activate', () => {
     it('should call expand callback with element ID', async () => {
       await activator.activate('any-key', 'section-1', {});
-      
       expect(expandCallback).toHaveBeenCalledWith('section-1');
     });
 
     it('should convert value to string', async () => {
       await activator.activate('any-key', 123, {});
-      
       expect(expandCallback).toHaveBeenCalledWith('123');
     });
 
@@ -454,7 +441,6 @@ describe('QueryParamExpandableActivator', () => {
 
       const promise = customActivator.activate('any-key', 'section-1', {});
       expect(callbackCompleted).toBe(false);
-      
       await promise;
       expect(callbackCompleted).toBe(true);
     });

@@ -1,8 +1,8 @@
 /**
  * Query Parameter Activator Registry
- * 
+ *
  * Extensible system for activating nested components (tabs, menus, etc.) before scrolling to the final element, based on queryParams.
- * 
+ *
  */
 
 /**
@@ -12,7 +12,7 @@
 export interface IQueryParamActivator {
   /**
    * Activator's type (e.g. 'tab', 'menu', 'expandable')
-    * Used for logging and debugging
+   * Used for logging and debugging
    */
   type: string;
 
@@ -154,12 +154,12 @@ export class QueryParamViewActivator implements IQueryParamActivator {
   ) {}
 
   canHandle(key: string, value: any): boolean {
-    if (key !== 'view' || !value) return false;
-    
+    if (key !== 'view' || !value) { return false; }
+
     const availableViews = typeof this.viewOptions === 'function'
       ? this.viewOptions({})
       : this.viewOptions;
-    
+
     return availableViews.includes(value);
   }
 
@@ -167,7 +167,7 @@ export class QueryParamViewActivator implements IQueryParamActivator {
     const availableViews = typeof this.viewOptions === 'function'
       ? this.viewOptions(context)
       : this.viewOptions;
-    
+
     if (availableViews.includes(value)) {
       context[this.viewProperty] = value;
       await new Promise(resolve => setTimeout(resolve, 0));
@@ -232,7 +232,7 @@ export class QueryParamExpandableActivator implements IQueryParamActivator {
     if (!value) {
       return false;
     }
-    return this.elementIdPrefixes.some(prefix => 
+    return this.elementIdPrefixes.some(prefix =>
       String(value).startsWith(prefix)
     );
   }
