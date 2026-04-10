@@ -29,11 +29,11 @@
                 <label *ngIf="selectedTabIndex === 0">Parameters of </label>
                 <label *ngIf="selectedTabIndex === 1">Response of </label>
                 <div class="component-color-package borders">
-                    <label>{{package_name}}</label>
+                    <label>{{packageName}}</label>
                 </div>
                 <label class="separator">_</label>
                 <div class="component-color-controller borders">
-                    <label>{{ controller_name }}</label>
+                    <label>{{ controllerName }}</label>
                 </div>
             </div>
         </app-inner-header>
@@ -45,33 +45,33 @@
             <ng-template mat-tab-label>
                 <span>Parameters</span>
             </ng-template>
-            <package-controller-params
-                [controllerName]="controller_name"
-                [controllerType]="controller_type"
-                [controllerPackage]="package_name"
+            <app-package-controller-params
+                [controllerName]="controllerName"
+                [controllerType]="controllerType"
+                [controllerPackage]="packageName"
                 [types]="types"
                 [usages]="usages"
                 [paramsScheme]="paramsScheme"
                 [modelList]="modelList"
                 [dataReady]="dataLoaded"
                 [isSaving]="isSaving">
-            </package-controller-params>
+            </app-package-controller-params>
         </mat-tab>
 
         <mat-tab>
             <ng-template mat-tab-label>
                 <span>Response</span>
             </ng-template>
-            <package-controller-return
-                [controllerName]="controller_name"
-                [controllerType]="controller_type"
-                [controllerPackage]="package_name"
+            <app-package-controller-return
+                [controllerName]="controllerName"
+                [controllerType]="controllerType"
+                [controllerPackage]="packageName"
                 [types]="types"
                 [entities]="entities"
                 [returnScheme]="returnScheme"
                 [dataReady]="dataLoaded"
                 [isSaving]="isSaving">
-            </package-controller-return>
+            </app-package-controller-return>
         </mat-tab>
     </mat-tab-group>
 </div>

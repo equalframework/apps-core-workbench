@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Location } from '@angular/common';
-import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { RouterMemory } from 'src/app/_services/router-memory.service';
 import { PackageControllerParamsComponent } from './params/package-controller-params.component';
 import { PackageControllerReturnComponent } from './return/package-controller-return.component';
 import { QueryParamNavigatorService } from 'src/app/_services/query-param-navigator.service';
@@ -19,7 +19,7 @@ import { EqualComponentsProviderService } from 'src/app/in/_services/equal-compo
  * Manages the shared header above the tabs
  */
 @Component({
-    selector: 'package-controller',
+    selector: 'app-package-controller',
     templateUrl: './package-controller.component.html',
     styleUrls: ['./package-controller.component.scss'],
     encapsulation : ViewEncapsulation.Emulated,
@@ -29,9 +29,9 @@ export class PackageControllerComponent implements OnInit, OnDestroy {
     // rx subject for unsubscribing subscriptions on destroy
     private ngUnsubscribe = new Subject<void>();
 
-    public controller_name: string = '';
-    public controller_type: string = '';
-    public package_name: string = '';
+    public controllerName = '';
+    public controllerType = '';
+    public packageName = '';
     public loading = true;
     public error = false;
     public isSaving = false;
@@ -54,7 +54,7 @@ export class PackageControllerComponent implements OnInit, OnDestroy {
     public modelList: string[] = [];
     public entities: string[] = [];
     public componentDescriptor: any = null;
-    public dataLoaded: boolean = false;
+    public dataLoaded = false;
 
     // ViewChild references to child components for delegating header button actions
     @ViewChild(PackageControllerParamsComponent) paramsComponent: PackageControllerParamsComponent;
@@ -64,28 +64,27 @@ export class PackageControllerComponent implements OnInit, OnDestroy {
             private route: ActivatedRoute,
             private location: Location,
             public matDialog: MatDialog,
-            private routerMemory: RouterMemory,
             private queryParamNavigator: QueryParamNavigatorService,
             private workbenchService: WorkbenchService,
             private provider: EqualComponentsProviderService,
         ) { }
 
-    public async ngOnInit() {
+    public async ngOnInit(): Promise<void> {
         this.initializeNavigation();
 
         this.init();
     }
 
-    private init() {
+    private init(): void {
         this.loading = true;
         this.dataLoaded = false;
 
         this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
-            this.package_name = params['package_name'];
-            this.controller_type = params['controller_type'];
-            this.controller_name = params['controller_name'];
+            this.packageName = params['package_name'];
+            this.controllerType = params['controller_type'];
+            this.controllerName = params['controller_name'];
 
-            if (!this.controller_name || !this.controller_type) {
+            if (!this.controllerName || !this.controllerType) {
                 this.error = true;
                 this.loading = false;
                 return;
@@ -95,32 +94,32 @@ export class PackageControllerComponent implements OnInit, OnDestroy {
             await this.fetchControllerData();
             this.dataLoaded = true;
             
-        // Subscribe to query parameters for URL-based navigation
-        this.route.queryParams.pipe(takeUntil(this.ngUnsubscribe)).subscribe(params => {
-            // Only handle query params after data is loaded
-            if (Object.keys(params).length > 0 && this.queryParamActivatorRegistry && this.dataLoaded) {
-                this.queryParamNavigator.handleQueryParams(params, {
-                    activators: this.queryParamActivatorRegistry,
-                    context: this,
-                    elementKeys: ['element'],
-                    scrollDelay: 100
-                });
-            }
-        });
+            // Subscribe to query parameters for URL-based navigation
+            this.route.queryParams.pipe(takeUntil(this.ngUnsubscribe)).subscribe(params => {
+                // Only handle query params after data is loaded
+                if (Object.keys(params).length > 0 && this.queryParamActivatorRegistry && this.dataLoaded) {
+                    this.queryParamNavigator.handleQueryParams(params, {
+                        activators: this.queryParamActivatorRegistry,
+                        context: this,
+                        elementKeys: ['element'],
+                        scrollDelay: 100
+                    });
+                }
+            });
         });
 
     }
 
     private async fetchControllerData(): Promise<void> {
         // Phase 1 : Load controller announcement for basic info and params/return scheme
-        let originalName = this.package_name + '_' + this.controller_name;
+        let originalName = this.packageName + '_' + this.controllerName;
         if (this.componentDescriptor?.file) {
             const parts = this.componentDescriptor.file.split('/');
             originalName = parts[parts.length - 1].replace('.php', '');
         }
 
         try {
-            const scheme = await this.workbenchService.announceController(this.controller_type, originalName).toPromise();
+            const scheme = await this.workbenchService.announceController(this.controllerType, originalName).toPromise();
             this.paramsScheme = scheme;
             this.returnScheme = scheme;
             this.loading = false;
@@ -130,7 +129,7 @@ export class PackageControllerComponent implements OnInit, OnDestroy {
                     this.workbenchService.getTypeList(),
                     this.workbenchService.getUsageList(),
                     this.workbenchService.collectClasses(true).toPromise(),
-                    this.provider.getComponent(this.package_name, 'controller', '', this.controller_name).toPromise()
+                    this.provider.getComponent(this.packageName, 'controller', '', this.controllerName).toPromise()
                         .catch(err => { console.error('Error fetching component descriptor', err); return null; })
                 ]);
                 this.types = ['array', ...types];
@@ -139,8 +138,6 @@ export class PackageControllerComponent implements OnInit, OnDestroy {
                 this.modelList = modelList;
                 this.entities = modelList;
                 this.componentDescriptor = componentDescriptor;
-        
-    
             } catch (err) {
                 console.error('Error fetching controller data', err);
                 this.error = true;
@@ -161,25 +158,25 @@ export class PackageControllerComponent implements OnInit, OnDestroy {
         this.queryParamActivatorRegistry.register(tabActivator);
     }
 
-    public ngOnDestroy() {
+    public ngOnDestroy(): void {
         this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
     }
 
-    public getBack() {
+    public getBack(): void {
         this.location.back();
     }
 
-    public onTabChange(index: number) {
+    public onTabChange(index: number): void {
         this.selectedTabIndex = index;
     }
 
     // Header button delegates - forward to the appropriate child component
-    public onHeaderButtonBack() {
+    public onHeaderButtonBack(): void {
         this.getBack();
     }
 
-    public onHeaderButtonCancelOne() {
+    public onHeaderButtonCancelOne(): void {
         if (this.selectedTabIndex === 0 && this.paramsComponent) {
             this.paramsComponent.cancelOneChange();
         } else if (this.selectedTabIndex === 1 && this.returnComponent) {
@@ -187,7 +184,7 @@ export class PackageControllerComponent implements OnInit, OnDestroy {
         }
     }
 
-    public onHeaderButtonRevertOne() {
+    public onHeaderButtonRevertOne(): void {
         if (this.selectedTabIndex === 0 && this.paramsComponent) {
             this.paramsComponent.revertOneChange();
         } else if (this.selectedTabIndex === 1 && this.returnComponent) {
@@ -195,7 +192,7 @@ export class PackageControllerComponent implements OnInit, OnDestroy {
         }
     }
 
-    public onHeaderButtonSave() {
+    public onHeaderButtonSave(): void {
         if (this.selectedTabIndex === 0 && this.paramsComponent) {
             this.paramsComponent.save();
         } else if (this.selectedTabIndex === 1 && this.returnComponent) {
@@ -203,7 +200,7 @@ export class PackageControllerComponent implements OnInit, OnDestroy {
         }
     }
 
-    public onHeaderCustomButton(buttonName: string) {
+    public onHeaderCustomButton(buttonName: string): void {
         if (this.selectedTabIndex === 0 && this.paramsComponent) {
             this.paramsComponent.handleCustomButton(buttonName);
         } else if (this.selectedTabIndex === 1 && this.returnComponent) {
@@ -232,13 +229,13 @@ export class PackageControllerComponent implements OnInit, OnDestroy {
 
     public get headerLabel(): string {
         if (this.selectedTabIndex === 0) {
-            return this.paramsComponent ? this.paramsComponent.controller_package : '';
+            return this.paramsComponent ? this.paramsComponent.controllerPackage : '';
         } else {
-            return this.returnComponent ? this.returnComponent.package_name : '';
+            return this.returnComponent ? this.returnComponent.controllerPackage : '';
         }
     }
 
     public get headerControllerName(): string {
-        return this.controller_name;
+        return this.controllerName;
     }
 }
