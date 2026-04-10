@@ -11,7 +11,7 @@ import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/dr
 export class ItemEditorComponent implements OnInit {
 
     @Input() item: MenuItem = new MenuItem();
-    @Input() selected_item: MenuItem | undefined = undefined;
+    @Input() selectedItem: MenuItem | undefined = undefined;
 
     @Output() select = new EventEmitter<MenuItem>();
     @Output() CRUD = new EventEmitter<void>();
@@ -22,25 +22,25 @@ export class ItemEditorComponent implements OnInit {
     public ngOnInit(): void {
     }
 
-    public ngOnChanges() {
-        // console.log(this.selected_item);
+    public ngOnChanges(): void {
+        // console.log(this.selectedItem);
     }
 
-    public addChild() {
-        this.item.children.push(new MenuItem);
+    public addChild(): void {
+        this.item.children.push(new MenuItem());
         this.CRUD.emit();
     }
 
-    public ondelete() {
+    public onDelete(): void {
         this.deleteMe.emit();
     }
 
-    public deleteChild(index:number) {
+    public deleteChild(index: number): void {
         this.item.children.splice(index, 1);
     }
 
 
-    public drop(event: CdkDragDrop<MenuItem[]>) {
+    public drop(event: CdkDragDrop<MenuItem[]>): void {
         if (event.previousContainer === event.container) {
             moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
         }
