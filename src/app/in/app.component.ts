@@ -12,48 +12,46 @@ import { filter } from 'rxjs/operators';
     encapsulation : ViewEncapsulation.Emulated,
 })
 export class AppComponent implements OnInit {
-    public child_loaded = false;
+    public childLoaded = false;
     public selectedComponent: EqualComponentDescriptor | undefined;
-    public classes_for_selected_package: string[] = [];
+    public classesForSelectedPackage: string[] = [];
     // http://equal.local/index.php?get=config_packages
     public elements: EqualComponentDescriptor[] = [];
     // http://equal.local/index.php?get=core_config_classes
 
-    public initialized_packages:string[];
-    public schema:any;
-    public selected_type_controller:string = '';
-    public fetch_error:boolean = false;
-    public route_list:any = {};
-    search_scope ='all';
-    search_filters: { [key: string]: string } = {};
-    search_terms: string[] = [];
-    public loading: boolean = false;
+    public initializedPackages: string[];
+    public schema: any;
+    public selectedTypeController = '';
+    public fetchError = false;
+    public routeList:any = {};
+    searchScope = 'all';
+    searchFilters: { [key: string]: string } = {};
+    searchTerms: string[] = [];
+    public loading = false;
 
     constructor(
-            private api: WorkbenchService,
             private router: Router,
-
         ) { }
 
     handleSearchScopeChange(newScope: string): void {
         setTimeout(() => {
-            this.search_scope = newScope;
+            this.searchScope = newScope;
         }, 0);
     }
 
     handleSearchFiltersChange(filters: { [key: string]: string }): void {
         setTimeout(() => {
-            this.search_filters = filters;
+            this.searchFilters = filters;
         }, 0);
     }
 
     handleSearchTermsChange(terms: string[]): void {
         setTimeout(() => {
-            this.search_terms = terms;
+            this.searchTerms = terms;
         }, 0);
     }
 
-    public async ngOnInit() {
+    public async ngOnInit(): Promise<void> {
         // Listen to route changes and update selectedComponent
         this.router.events
             .pipe(filter(event => event instanceof NavigationEnd))
@@ -67,7 +65,7 @@ export class AppComponent implements OnInit {
         await this.init();
     }
 
-    private restoreSelectedComponentFromUrl() {
+    private restoreSelectedComponentFromUrl(): void {
         const fromUrl = this.router.parseUrl(this.router.url);
         let restored: EqualComponentDescriptor | undefined;
 
@@ -134,16 +132,15 @@ export class AppComponent implements OnInit {
         }
     }
 
-    public async refresh() {
+    public async refresh(): Promise<void> {
         this.init();
     }
 
     // load all components
-    public async init() {
+    public async init(): Promise<void> {
         this.loading = true;
         this.elements = [];
 
-        // this.initialized_packages = await this.api.getInitializedPackages().toPromise();
         this.loading = false;
     }
 
@@ -176,16 +173,16 @@ export class AppComponent implements OnInit {
      *
      * @param event contains the old and new name of the package
      */
-    public onupdatePackage(event: { old_node: string, new_node: string }) {
-        //this.api.updatePackage(event.old_node, event.new_node);
+    public onupdatePackage(event: { oldNode: string, newNode: string }): void {
+        //this.api.updatePackage(event.oldNode, event.newNode);
     }
 
     get package_name(): string {
         return this.selectedComponent?.package_name || this.selectedComponent?.name || '';
     }
 
-    public goTo(ev: any) {
-        let els: EqualComponentDescriptor[] = this.elements.filter(el => (el.name === ev.name && (!ev.package || ev.package === el.package)));
+    public goTo(ev: any): void {
+        const els: EqualComponentDescriptor[] = this.elements.filter(el => (el.name === ev.name && (!ev.package || ev.package === el.package)));
         this.selectNode(els[0]);
     }
 
@@ -196,18 +193,18 @@ export class AppComponent implements OnInit {
      */
     getComponentTypeName(type: string): string {
         const typeNames: { [key: string]: string } = {
-            'package': 'packages',
-            'class': 'models',
-            'get': 'data providers',
-            'do': 'action handlers',
-            'route': 'routes',
-            'view': 'views',
-            'menu': 'menus',
-            'model': 'models',
-            'list': 'lists',
-            'form': 'forms',
+            package: 'packages',
+            class: 'models',
+            get: 'data providers',
+            do: 'action handlers',
+            route: 'routes',
+            view: 'views',
+            menu: 'menus',
+            model: 'models',
+            list: 'lists',
+            form: 'forms',
             'data-provider': 'data providers',
-            'controller': 'controllers'
+            controller: 'controllers'
         };
         return typeNames[type] || type;
     }
@@ -234,34 +231,34 @@ export class AppComponent implements OnInit {
      */
     getScopeComponentType(): string {
         // Handle special cases where scope is a grouping
-        if (this.search_scope === 'controller') {
+        if (this.searchScope === 'controller') {
             return 'get'; // Use 'get' for styling purposes
         }
-        if (this.search_scope === 'view') {
+        if (this.searchScope === 'view') {
             return 'view';
         }
-        return this.search_scope;
+        return this.searchScope;
     }
 
     /**
      * Check if there are any active filters
      */
     hasAnyFilters(): boolean {
-        return Object.keys(this.search_filters).length > 0;
+        return Object.keys(this.searchFilters).length > 0;
     }
 
     /**
      * Check if there are any search terms entered
      */
     hasAnySearchTerms(): boolean {
-        return this.search_terms.length > 0;
+        return this.searchTerms.length > 0;
     }
 
     /**
      * Get the keys of the active filters
      */
     getFilterKeys(): string[] {
-        return Object.keys(this.search_filters);
+        return Object.keys(this.searchFilters);
     }
 
     /**
@@ -288,8 +285,4 @@ export class AppComponent implements OnInit {
         }
         return '';
     }
-
 }
-
-
-
