@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewEncapsulation} from '@angular/core';
 import { Location } from '@angular/common';
-import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { RouterMemory } from 'src/app/_services/router-memory.service';
 import {EnvService } from 'sb-shared-lib';
 import { prettyPrintJson } from 'pretty-print-json';
 import { ActivatedRoute} from '@angular/router';

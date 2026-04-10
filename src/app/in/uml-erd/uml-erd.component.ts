@@ -2,7 +2,7 @@ import { CdkDragEnd } from '@angular/cdk/drag-drop';
 import { Component, Inject, OnChanges, OnInit, Optional } from '@angular/core';
 import { UmlErdNode } from './_components/uml-erd-displayer/_objects/UmlErdNode';
 import { Anchor, UmlErdLink } from './_components/uml-erd-displayer/_objects/UmlErdLink';
-import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { RouterMemory } from 'src/app/_services/router-memory.service';
 import { ActivatedRoute } from '@angular/router';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { prettyPrintJson } from 'pretty-print-json';

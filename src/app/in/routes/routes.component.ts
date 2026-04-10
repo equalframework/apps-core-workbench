@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewEncapsulation, ViewChild } from '@angular/core';
 import { Location } from '@angular/common';
-import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { RouterMemory } from 'src/app/_services/router-memory.service';
 import { ContextService, EnvService } from 'sb-shared-lib';
 import { prettyPrintJson } from 'pretty-print-json';
 import { cloneDeep, update } from 'lodash';
