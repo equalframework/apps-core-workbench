@@ -1,6 +1,9 @@
 <div class="dashboard-container">
 
   <ng-container *ngIf="groupedLayout">
+    <div class="section-header">
+        <span class="section-label">{{ groupedLayout.name }}</span>
+    </div>
     <div class="layout-root">
 
         <div class="group-block" *ngFor="let group of groupedLayout.layout.groups; let gi = index">
@@ -32,6 +35,7 @@
                     </ng-template>
 
                     <!-- Rows → columns → items with proper width -->
+
                     <div class="section-body">
                         <div class="row-wrap" *ngFor="let row of section.rows">
                             <div class="col-wrap" 
