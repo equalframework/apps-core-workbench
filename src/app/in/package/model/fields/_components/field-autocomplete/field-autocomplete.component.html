@@ -3,7 +3,7 @@
         <mat-label>{{name}}</mat-label>
         <input matInput [matAutocomplete]="auto" [formControl]="valueControl">
         <mat-autocomplete #auto>
-            <mat-option autoActiveFirstOption *ngFor="let item of f_values" [value]="item">{{item}}</mat-option>
+            <mat-option autoActiveFirstOption *ngFor="let item of fValues" [value]="item">{{item}}</mat-option>
         </mat-autocomplete>
     </mat-form-field>
 </div>

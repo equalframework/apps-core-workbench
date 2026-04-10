@@ -8,58 +8,60 @@ import { FormControl } from '@angular/forms';
 })
 export class FieldAutocompleteComponent implements OnInit {
 
-  @Input() name:string = ""
-  @Input() values:string[] = []
-  @Input() value:string = ""
-  @Input() width:string = "auto"
-  @Input() disabled:boolean = false
+  @Input() name = '';
+  @Input() values: string[] = [];
+  @Input() value = '';
+  @Input() width = 'auto';
+  @Input() disabled = false;
 
-  @Output() valueChange = new EventEmitter<string>()
+  @Output() valueChange = new EventEmitter<string>();
 
-  f_values:string[]
+  fValues: string[];
 
-  valueControl = new FormControl("")
+  valueControl = new FormControl('');
 
   constructor() { }
 
   ngOnInit(): void {
     this.valueControl.valueChanges.subscribe(
       value =>  {
-        this.f_values = this.values.filter((item:string) => item.toLowerCase().includes(value.toLowerCase()))
-        this.checkvalue()
+        this.fValues = this.values.filter((item: string) => item.toLowerCase().includes(value.toLowerCase()));
+        this.checkValue();
       }
-    )
+    );
   }
 
-  ngOnChanges() {
-    this.reset()
-    if(this.disabled)
-      this.valueControl.disable({emitEvent:false})
-  }
-
-  checkvalue() {
-    if(this.values.includes(this.valueControl.value) && (this.value !== this.valueControl.value))
-      this.valueChange.emit(this.valueControl.value)
-  }
-
-  resetEntry() {
-    this.valueControl.setValue(this.value,{emitEvent:false})
-  }
-
-  noCancel(event: KeyboardEvent) {
-    if( event.key === "z" && event.ctrlKey) {
-      event.preventDefault()
-      event.stopImmediatePropagation()
+  ngOnChanges(): void {
+    this.reset();
+    if (this.disabled) {
+      this.valueControl.disable({emitEvent: false});
     }
-    if( event.key === "y" && event.ctrlKey) {
-      event.preventDefault()
-      event.stopImmediatePropagation()
-    }
-  } 
+  }
 
-  reset() {
-    this.valueControl.setValue(this.value,{emitEvent:false})
-    this.f_values = this.values.filter((item:string) => item.toLowerCase().includes(this.valueControl.value.toLowerCase()))
+  checkValue(): void {
+    if (this.values.includes(this.valueControl.value) && (this.value !== this.valueControl.value)) {
+      this.valueChange.emit(this.valueControl.value);
+    }
+  }
+
+  resetEntry(): void {
+    this.valueControl.setValue(this.value, {emitEvent: false});
+  }
+
+  noCancel(event: KeyboardEvent): void {
+    if ( event.key === 'z' && event.ctrlKey) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+    if ( event.key === 'y' && event.ctrlKey) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+  }
+
+  reset(): void {
+    this.valueControl.setValue(this.value, {emitEvent: false});
+    this.fValues = this.values.filter((item: string) => item.toLowerCase().includes(this.valueControl.value.toLowerCase()));
   }
 
 }
