@@ -17,10 +17,9 @@ import { convertRights, convertRightsFromStrings, Right, Roles } from '../_model
 })
 export class WorkbenchService {
 
-    constructor(private api: ApiService,) {}
-
-
-
+    constructor(
+        private api: ApiService,
+    ) {}
 
     /**
      * Creates a new component based on the type specified in the node.
@@ -36,25 +35,25 @@ export class WorkbenchService {
             get: () => this.createController(node.package_name, node.name, node.type),
             do: () => this.createController(node.package_name, node.name, node.type),
             view: () => {
-                    const view_name = node.name.split(":")[1];
-                    return this.createView(node.package_name,node.item.model, view_name)
+                    const viewName = node.name.split(':')[1];
+                    return this.createView(node.package_name,node.item.model, viewName);
             },
             menu: () => this.createMenu(node.package_name, node.name, node.item.subtype),
-            route:() => {
-                        const file_name = node.file.split("/").pop()?.trim() ??""
-                        return this.createRoute(node.package_name,file_name,node.name)
+            route: () => {
+                        const fileName = node.file.split('/').pop()?.trim() ??'';
+                        return this.createRoute(node.package_name,fileName,node.name)
             },
-            policy:()=>  this.createPolicy(node.package_name,node.item.model, node.name),
-            role: ()=> this.createRole(node.package_name,node.item.model, node.name)
+            policy: () =>  this.createPolicy(node.package_name,node.item.model, node.name),
+            role: () => this.createRole(node.package_name,node.item.model, node.name)
 
 
         };
 
         // Return the appropriate observable based on the node type, or a default message for unknown types.
-        return createActions[node.type]?.() || of({ message: "Unknown type" });
+        return createActions[node.type]?.() || of({ message: 'Unknown type' });
     }
     private createRole(package_name: string, model: any, name: string): Observable<any> {
-        const url = API_ENDPOINTS.class.roles.create(package_name,model,name);
+        const url = API_ENDPOINTS.class.roles.create(package_name, model, name);
         return this.callApi(url, `Role ${name} created`);
     }
 
@@ -79,15 +78,15 @@ export class WorkbenchService {
             get: () => this.deleteController(node.package_name, node.name, node.type),
             do: () => this.deleteController(node.package_name, node.name, node.type),
             view: () => {
-                const view_name = node.name.split(":")[1];
-                return this.deleteView(node.package_name,node.item.model, view_name);
+                const viewName = node.name.split(':')[1];
+                return this.deleteView(node.package_name,node.item.model, viewName);
             },
             menu: () => this.deleteMenu(node.package_name,node.name),
-            route:() =>this.notImplemented(`Deleting route not implemented`)
+            route: () =>this.notImplemented(`Deleting route not implemented`)
         };
 
         // Return the appropriate observable based on the node type, or a default message for unknown types.
-        return deleteActions[node.type]?.() || of({ message: "Unknown type" });
+        return deleteActions[node.type]?.() || of({ message: 'Unknown type' });
     }
 
     /**
@@ -130,7 +129,7 @@ export class WorkbenchService {
         const url = API_ENDPOINTS.class.actions.get(package_name,class_name);
         return this.callApi(url,'').pipe(
             map(({success, response})=> success ? response: [])
-        )
+        );
     }
 
     public getRoles(package_name: string, class_name: string): Observable<Roles> {
@@ -155,11 +154,19 @@ export class WorkbenchService {
         );
     }
 
-    public collect(entity:string, domain:any[], fields:any[], order:string='id', sort:string='asc', start:number=0, limit:number=25, lang: string = ''){
-        return from(this.api.collect(entity,domain,fields,order,sort,start,limit,lang))
+    public collect(
+        entity:string, 
+        domain:any[], 
+        fields:any[], 
+        order:string='id', 
+        sort:string='asc', 
+        start:number=0, 
+        limit:number=25, 
+        lang: string = ''): Observable<any> {
+        return from(this.api.collect(entity, domain, fields, order, sort, start, limit, lang));
     }
 
-    public collectAllLanguagesCode(){
+    public collectAllLanguagesCode(): Observable<string[]> {
         return this.collect('core\\Lang',[],['code']).pipe(
             map(response => response.map((lang: { code: string }) => lang.code))
         );
@@ -200,7 +207,11 @@ export class WorkbenchService {
      * @param payload The payload containing the data to update the controller.
      * @returns Observable indicating the success of the update operation.
      */
-    public updateController(package_name: string, controller_name: string, controller_type: string, payload: { [id: string]: any }): Observable<any> {
+    public updateController(
+        package_name: string, 
+        controller_name: string, 
+        controller_type: string, 
+        payload: { [id: string]: any }): Observable<any> {
         const url = API_ENDPOINTS.controller.update(package_name, controller_name, controller_type, payload);
         const successfullyMessage = `${controller_name} has been updated`;
         return this.callApi(url, successfullyMessage);
@@ -453,15 +464,15 @@ export class WorkbenchService {
     * the response or error details if the class creation fails.
     *
     */
-    private createClass(package_name: string, class_name: string, parent: string) {
+    private createClass(package_name: string, class_name: string, parent: string): Observable<any> {
     const url = API_ENDPOINTS.class.create(package_name,class_name,parent);
-    const successfullyMessage = `Class ${class_name} created successfully!`
-    return this.callApi(url,successfullyMessage)
+    const successfullyMessage = `Class ${class_name} created successfully!`;
+    return this.callApi(url,successfullyMessage);
     }
 
-    private deleteClass(package_name:string,class_name:string){
+    private deleteClass(package_name: string, class_name: string): Observable<any> {
         const url = API_ENDPOINTS.class.delete(package_name,class_name);
-        const successfullyMessage = `Class ${class_name} deleted successfully!`
+        const successfullyMessage = `Class ${class_name} deleted successfully!`;
         return this.callApi(url, successfullyMessage);
     }
 
@@ -471,7 +482,7 @@ export class WorkbenchService {
         return this.callApi(url, successfullyMessage);
     }
 
-    private deleteView(package_name:string,model_name:string,view_name:string){
+    private deleteView(package_name: string, model_name: string, view_name: string): Observable<any>{
         const url = API_ENDPOINTS.view.delete(package_name,model_name,view_name);
         const successfullyMessage = `View ${model_name}:${view_name} deleted successfully!`;
         return this.callApi(url,successfullyMessage);
@@ -479,33 +490,33 @@ export class WorkbenchService {
 
 
     private createController(package_name: string, controller_name: string, controller_type: string): Observable<any> {
-        const url = API_ENDPOINTS.controller.create(package_name,controller_name,controller_type)
-        const successfullyMessage = `Controller ${controller_name} of type ${controller_type} created successfully!`
+        const url = API_ENDPOINTS.controller.create(package_name,controller_name,controller_type);
+        const successfullyMessage = `Controller ${controller_name} of type ${controller_type} created successfully!`;
         return this.callApi(url,successfullyMessage);
     }
 
     private deleteController(package_name: string, controller_name: string, controller_type: string): Observable<any> {
         const url = API_ENDPOINTS.controller.delete(package_name,controller_name, controller_type);
-        const successfullyMessage = `Controller ${controller_name} of type ${controller_type} deleted successfully!`
+        const successfullyMessage = `Controller ${controller_name} of type ${controller_type} deleted successfully!`;
         return this.callApi(url, successfullyMessage);
     }
 
-    private createMenu(package_name:string, menu_name:string, menu_type:string) {
-        const url = API_ENDPOINTS.menu.create(package_name,menu_name,menu_type)
-        const successfullyMessage = `Menu ${menu_name} of type ${menu_type} created successfully!`
+    private createMenu(package_name: string, menu_name: string, menu_type: string): Observable<any> {
+        const url = API_ENDPOINTS.menu.create(package_name,menu_name,menu_type);
+        const successfullyMessage = `Menu ${menu_name} of type ${menu_type} created successfully!`;
         return this.callApi(url,successfullyMessage);
     }
 
-    private deleteMenu(package_name:string,menu_name:string) {
-        const url = API_ENDPOINTS.menu.delete(package_name,menu_name)
-        const successfullyMessage = `Menu ${menu_name} deleted successfully!`
+    private deleteMenu(package_name: string, menu_name: string): Observable<any> {
+        const url = API_ENDPOINTS.menu.delete(package_name,menu_name);
+        const successfullyMessage = `Menu ${menu_name} deleted successfully!`;
         return this.callApi(url,successfullyMessage);
     }
 
     private createRoute(package_name: string, file_name: string, route_name: string): Observable<any> {
-        const url = API_ENDPOINTS.route.create(package_name,file_name,route_name)
-        const successfullyMessage=`Route ${route_name} created successfully!`
-        return this.callApi(url, successfullyMessage)
+        const url = API_ENDPOINTS.route.create(package_name,file_name,route_name);
+        const successfullyMessage=`Route ${route_name} created successfully!`;
+        return this.callApi(url, successfullyMessage);
     }
 
     /**
@@ -1211,7 +1222,7 @@ export class WorkbenchService {
                 Object.keys(object[element])
                     .map((field) => (!isNaN(parseFloat(field)) && isFinite(parseFloat(field))) ? field = `${element}/${object[element][field]}` : `${element}/${field}`)
             )
-        })
+        });
         return result;
     }
 
