@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, Optional } from '@angular/core';
+import { Component, Inject, Input, OnInit, Optional } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { GroupEditorComponent } from '../../group-editor.component';
 import { ViewItem } from '../../../../_objects/View';
@@ -22,7 +22,8 @@ export class EditItemFormComponent implements OnInit {
       fields: string[], 
       groups: string[], 
       action_controllers: string[], 
-      package: string}
+      package: string,
+      schema: any}
   ) {
     this.editingItem = cloneDeep(data.item);
   }

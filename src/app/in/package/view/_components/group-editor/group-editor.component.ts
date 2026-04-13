@@ -26,6 +26,7 @@ class GroupEditorComponent implements OnInit, OnChanges {
   @Output() change = new EventEmitter<ViewSection[]>();
   @Input() groups: string[];
   @Input() actionControllers: string[];
+  @Input() scheme: any;
   dragged: ViewItem|undefined;
 
 
@@ -122,7 +123,8 @@ class GroupEditorComponent implements OnInit, OnChanges {
         fields: this.fields,
         groups: this.groups,
         action_controllers : this.actionControllers,
-        package: this.package
+        package: this.package,
+        schema: this.scheme
       }
     }).afterClosed().subscribe((result) => {
       if (result) {

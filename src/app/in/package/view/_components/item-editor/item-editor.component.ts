@@ -16,6 +16,7 @@ export class ItemEditorComponent implements OnInit {
     @Input() groups: string[];
     @Input() actionControllers: string[];
     @Input() packageName: string;
+    @Input() scheme: any;
 
     protected _widgetTypes: { [id: string]: string[] };
     public filteredEqualUsage: string[];
@@ -25,8 +26,6 @@ export class ItemEditorComponent implements OnInit {
     obk = Object.keys;
 
     public cacheList: { foreign: string, lists: { [key: string]: string } } = { foreign: '', lists: {} };
-
-    public scheme: any;
 
     get isReadonly(): boolean {
         if (this.item?.readonly) { return true; }
@@ -49,9 +48,6 @@ export class ItemEditorComponent implements OnInit {
         }
         this.workbenchService.getWidgetTypes().subscribe((data) => {
             this._widgetTypes = data;
-        });
-        this.workbenchService.getSchema(`${packageName}\\${this.entity}`).subscribe((data) => {
-        this.scheme = data;
         });
         if (this.item.viewType === 1) {
             this.set_has_view(this.item.widgetForm._has_view);

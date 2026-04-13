@@ -28,6 +28,7 @@
         (onChange)="group.sections= $event"
         [groups]="groups"
         [actionControllers]="actionControllers"
+        [scheme]="classScheme"
       ></app-group-editor>
     </div>
   </div>
@@ -75,6 +76,7 @@
             [packageName]="packageName"
             [displayDelete]="true"
             (delete)="deleteItemLayout(viewObj.layout.items.indexOf(item))"
+            [scheme]="classScheme"
           ></app-item-editor>
         </mat-expansion-panel>
       </ng-container>
