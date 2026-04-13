@@ -32,7 +32,7 @@
     <mat-checkbox [(ngModel)]="obj._has_domain" (ngModelChange)="changeBigDispBy(obj._has_domain)">domain</mat-checkbox>
 
 
-    <button mat-icon-button (click)="deleteMe()"><mat-icon>delete</mat-icon></button>
+    <button mat-icon-button color="warn" class="action-button action-button--delete" (click)="deleteMe()" aria-label="Delete predefined action"><mat-icon>delete</mat-icon></button>
 
     <!-- CONDITIONAL DISP PART --->
     <div *ngIf="bigDisp">
@@ -40,7 +40,7 @@
         <div *ngIf="obj._has_access">
             <mat-form-field >
                 <input [value]="input" (keyup.enter)="addGroup()" (keyup)="tap2($event.target.value)"  matInput placeholder="groups" [matAutocomplete]="auto2">
-                <button matSuffix mat-icon-button (click)="addGroup()"><mat-icon class="grpsufix"  >add</mat-icon></button>
+                <button matSuffix mat-icon-button class="action-button" (click)="addGroup()"><mat-icon class="grpsufix">add</mat-icon></button>
                 <mat-autocomplete autoActiveFirstOption #auto2="matAutocomplete">
                     <mat-option *ngFor="let option of filteredGroups" [value]="option">
                         {{option}}
@@ -50,7 +50,7 @@
             <div class="inline group-item-holder">
                 <div class="inline group-item" *ngFor="let item of obj.access['groups']">
                     <label>{{item}}</label>
-                    <button mat-icon-button (click)="delete_element(item)"><mat-icon>close</mat-icon></button>
+                    <button mat-icon-button color="warn" class="action-button action-button--delete action-button--compact" (click)="delete_element(item)" [attr.aria-label]="'Remove group ' + item"><mat-icon>close</mat-icon></button>
                 </div>
             </div>
         </div>
