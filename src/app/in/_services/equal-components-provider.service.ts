@@ -911,7 +911,7 @@ export class EqualComponentsProviderService {
     }
 
 
-    // Méthode to associate classes with package
+    // Method to associate classes with package
     private associateClassesToPackages(packages: EqualComponentDescriptor[], classes: any): EqualComponentDescriptor[] {
         const updatedComponents: EqualComponentDescriptor[] = [];
 
