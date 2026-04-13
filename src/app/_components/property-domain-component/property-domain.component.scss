@@ -82,13 +82,14 @@
     gap: 12px;
     flex-wrap: wrap;
     padding: 12px;
-    background-color: white;
-    border-radius: 6px;
-    border: 1px solid #eeeeee;
     transition: border-color 0.2s ease;
 
     &:hover {
         border-color: #e0e0e0;
+    }
+
+    .right-content {
+        margin-left: auto;
     }
 }
 

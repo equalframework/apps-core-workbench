@@ -98,14 +98,16 @@
                                     </mat-form-field>
                                 </ng-container>
                             </div>
-
+                            <div class="right-content">
+                                <button mat-icon-button 
+                                (click)="removeCondition(i, j)"
+                                matTooltip="Clear condition"
+                                class="delete-condition-btn">
+                            <mat-icon>clear_all</mat-icon>
+                        </button>
+                            </div>
                             <!-- Delete Condition -->
-                            <button mat-icon-button 
-                                    (click)="removeCondition(i, j)"
-                                    matTooltip="Clear condition"
-                                    class="delete-condition-btn">
-                                <mat-icon>clear_all</mat-icon>
-                            </button>
+
                         </div>
 
                         <!-- Add Condition Button -->
