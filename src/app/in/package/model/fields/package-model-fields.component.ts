@@ -160,7 +160,7 @@ export class PackageModelFieldsComponent implements OnInit {
         for (const item in this.parentSchema.fields) {
             this.parentFieldList.push(new Field(cloneDeep(this.parentSchema.fields[item]), item));
         }
-
+        this.selected_index = this.fieldList.length > 0 ? this.fieldList.length - 1 : -1;
         this.loading = false;
         await this.handleQueryParams(['element'], 100);
     }

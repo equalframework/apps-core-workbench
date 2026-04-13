@@ -21,6 +21,7 @@
     <app-field-editor-list
             [list]="fieldList"
             [parentList]="parentFieldList"
+            [selectedIndex]="selected_index"
             (CRUD)="onChange($event)"
             (select)="selected_index = $event">
     </app-field-editor-list>

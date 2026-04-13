@@ -11,6 +11,7 @@ import { cloneDeep } from 'lodash';
 export class FieldEditorListComponent implements OnInit {
   @Input() list: Field[];
   @Input() parentList: Field[];
+  @Input() selectedIndex = -1;
 
   @Output() select = new EventEmitter<number>();
   @Output() CRUD = new EventEmitter<string>();

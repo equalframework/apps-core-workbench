@@ -14,10 +14,6 @@
     overflow-y: scroll;
 }
 
-.selected {
-    background-color: #dddddd;
-}
-
 .icon {
     display : flex;
     justify-content: center;
@@ -54,6 +50,9 @@
     border-radius: .5em;
     &:hover {
         background-color: #ebebeb !important;
+    }
+    &.focus {
+        background-color: #dddddd !important;
     }
 }
 
