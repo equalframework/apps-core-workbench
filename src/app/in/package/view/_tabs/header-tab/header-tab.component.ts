@@ -19,7 +19,6 @@ export class HeaderTabComponent implements OnInit {
   @ViewChild('headerTabContainer', { read: ElementRef }) headerTabContainer: ElementRef;
 
   isFilterVisible = false;
-  private tabComponentId = 'header';
 
   constructor(
 

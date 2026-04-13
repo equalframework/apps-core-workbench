@@ -20,7 +20,13 @@
     <mat-slide-toggle [(ngModel)]="viewObj._has_filter"></mat-slide-toggle>
     <label [class.toggle-label]="!viewObj._has_filter" [style.opacity]="viewObj._has_filter ? 1 : 0.6" class="category-title maincolor">Filters</label>
     <div class="addItem">
-      <button mat-mini-fab color="primary" *ngIf="isFilterVisible || viewObj._has_filter" (click)="onAddFilter()"><mat-icon>add</mat-icon></button>
+      <button
+        mat-icon-button 
+        class="action-button"
+        *ngIf="isFilterVisible || viewObj._has_filter"
+        (click)="onAddFilter()"
+        aria-label="Add filter"
+      ><mat-icon>add</mat-icon></button>
     </div>
   </div>
 
@@ -34,7 +40,14 @@
           (valueChange)="filter.clause.arr = $event"
         ></app-clause-domain-component>
       </div>
-      <button *ngIf="isFilterVisible" mat-icon-button color="warn" class="filter-delete-btn" (click)="onDeleteFilter(filterIndex)" [attr.aria-label]="'Delete filter ' + filterIndex">
+      <button
+        *ngIf="isFilterVisible"
+        mat-icon-button
+        color="warn"
+        class="filter-delete-btn action-button action-button--delete"
+        (click)="onDeleteFilter(filterIndex)"
+        [attr.aria-label]="'Delete filter ' + filterIndex"
+      >
         <mat-icon>delete</mat-icon>
       </button>
     </div>
