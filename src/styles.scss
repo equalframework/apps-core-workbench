@@ -237,6 +237,78 @@ ngx-material-timepicker-toggle {
 }
 
 
+/* shared circular action buttons used across view tabs */
+.action-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0;
+  width: 34px !important;
+  min-width: 34px !important;
+  height: 34px !important;
+  line-height: 34px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  border: 1px solid rgba(25, 118, 210, 0.2) !important;
+  background-color: mat-color($maincolor) !important;
+  color: white !important;
+  box-shadow: none !important;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    line-height: 20px !important;
+  }
+
+  &:hover:not([disabled]) {
+    background-color: rgba(25, 118, 210, 0.2);
+    transform: translateY(-1px);
+    box-shadow: none !important;
+  }
+
+  &:focus-visible {
+    outline: 2px solid rgba(25, 118, 210, 0.35);
+    outline-offset: 2px;
+  }
+
+  &[disabled] {
+    background-color: rgba(25, 118, 210, 0.08);
+    color: rgba(0, 0, 0, 0.38) !important;
+    transform: none;
+  }
+}
+
+.workbench-action-button--delete {
+  border-color: rgba(211, 47, 47, 0.2);
+  background-color: rgba(211, 47, 47, 0.12);
+  color: mat-color($warncolor) !important;
+
+  &:hover:not([disabled]) {
+    background-color: rgba(211, 47, 47, 0.2);
+  }
+
+  &[disabled] {
+    background-color: rgba(211, 47, 47, 0.08);
+  }
+}
+
+.workbench-action-button--compact {
+  width: 26px;
+  min-width: 26px;
+  height: 26px;
+  line-height: 26px;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+  }
+}
+
+
 /* global classes for components in workbench (can be used in overlay) */
 
 .component-icon {
