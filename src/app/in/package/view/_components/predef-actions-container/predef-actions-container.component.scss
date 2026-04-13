@@ -1,3 +1,6 @@
+@import "src/theme.scss";
+
+
 :host {
   display: block;
 
@@ -5,13 +8,6 @@
     display: block;
     font-weight: 500;
     margin-bottom: 0.5em;
-  }
-
-  button[mat-icon-button] {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin-left: 0.5em;
   }
 
   .indent {
