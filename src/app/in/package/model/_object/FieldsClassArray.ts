@@ -1,4 +1,4 @@
-import { FieldClass } from './FieldClass';
+import { FieldClass } from './FieldsClass';
 
 export class FieldClassArray extends Array<FieldClass> {
     public getNameList(): string[] {
