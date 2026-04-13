@@ -5,6 +5,7 @@
     box-sizing: border-box;
     width: 100%;
     height: 100%;
+    overflow-y: auto;
 
     .header-labels {
         display: flex;
