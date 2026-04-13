@@ -28,6 +28,7 @@
     <app-field-editor-sp sidepane
             [inherited]="isInherited(fieldList[selected_index])"
             [field]="fieldList[selected_index]"
+            [entity]="packageName + '\\' + className"
             [types]="types"
             [models]="models"
             [fields]="fieldName"

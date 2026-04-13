@@ -192,68 +192,65 @@
             <ng-template mat-tab-label>
                 <mat-icon style="margin-right: 1em;">tune</mat-icon> Advanced
             </ng-template>
-            <div class="scrollable content">
-                <mat-accordion>
-                    <mat-expansion-panel *ngIf="typeDirective['onupdate'] || typeDirective['ondelete'] || typeDirective['ondetach']">
-                        <mat-expansion-panel-header>
-                            <mat-panel-title>Triggers</mat-panel-title>
-                            <mat-panel-description>
-                                <label>Handle trigger on modification of this field</label>
-                            </mat-panel-description>
-                        </mat-expansion-panel-header>
-                        <ng-container *ngIf="typeDirective['onUpdate']">
-                            <mat-form-field class="thirdfield">
-                                <mat-label>onupdate</mat-label>
-                                <input matInput [value]="field.onUpdate" (keydown)="noCancel($event)" (change)="changeOnUpdate($event.target.value)">
-                            </mat-form-field>
-                        </ng-container>
-                        <ng-container *ngIf="typeDirective['onDelete']">
-                            <mat-form-field class="thirdfield">
-                                <mat-label>ondelete</mat-label>
-                                <input matInput [value]="field.onDelete" (keydown)="noCancel($event)" (change)="changeOnDelete($event.target.value)">
-                            </mat-form-field>
-                        </ng-container>
-                        <ng-container *ngIf="typeDirective['onDetach']">
-                            <mat-form-field class="thirdfield">
-                                <mat-label>ondetach</mat-label>
-                                <input matInput [value]="field.onDetach" (keydown)="noCancel($event)" (change)="changeOnDetach($event.target.value)">
-                            </mat-form-field>
-                        </ng-container>
-                        <ng-container *ngIf="typeDirective['onRevert']">
-                            <mat-form-field class="thirdfield">
-                                <mat-label>onrevert</mat-label>
-                                <input matInput [value]="field.onRevert" (keydown)="noCancel($event)" (change)="changeOnRevert($event.target.value)">
-                            </mat-form-field>
-                        </ng-container>
-                    </mat-expansion-panel>
-                    <mat-expansion-panel *ngIf="typeDirective['sort']">
-                        <mat-expansion-panel-header>
-                            <mat-panel-title>
-                                Sort
-                            </mat-panel-title>
-                            <mat-panel-description>
-                                Edit sorting parameter of this field
-                            </mat-panel-description>
-                        </mat-expansion-panel-header>
-                        <mat-form-field>
-                            <mat-label>Order</mat-label>
-                            <mat-select [value]="field.sort">
-                                <mat-option value="asc">asc</mat-option>
-                                <mat-option value="desc">desc</mat-option>
-                            </mat-select>
+            <div class="scrollable content advanced-layout">
+                <div class="advanced-section" *ngIf="typeDirective['onupdate'] || typeDirective['onDelete'] || typeDirective['ondelete'] || typeDirective['onDetach'] || typeDirective['ondetach'] || typeDirective['onRevert'] || typeDirective['onrevert']">
+                    <div class="advanced-section-header">
+                        <div class="advanced-section-title">
+                            <mat-icon>bolt</mat-icon>
+                            <label>Triggers</label>
+                        </div>
+                        <span>Handle trigger hooks when this field is modified</span>
+                    </div>
+                    <div class="advanced-grid">
+                        <mat-form-field *ngIf="typeDirective['onUpdate'] || typeDirective['onupdate']" class="advanced-field">
+                            <mat-label>onupdate</mat-label>
+                            <input matInput [value]="field.onUpdate" (keydown)="noCancel($event)" (change)="changeOnUpdate($event.target.value)">
                         </mat-form-field>
-                    </mat-expansion-panel>
-                    <mat-expansion-panel *ngIf="typeDirective['dependencies']">
-                        <mat-expansion-panel-header>
-                            <mat-panel-title>
-                                Dependents (fields)
-                            </mat-panel-title>
-                            <mat-panel-description>
-                                Select the computed field that need to be refreshed when this field is edited
-                            </mat-panel-description>
-                            <mat-icon class="toggleicon" [class.on]="field._hasDependencies" (click)="$event.stopPropagation();changeHasDependencies(!field._hasDependencies)">{{field._hasDependencies?"toggle_on":"toggle_off"}}</mat-icon>
-                        </mat-expansion-panel-header>
-                        <div *ngIf="field._hasDependencies">
+                        <mat-form-field *ngIf="typeDirective['onDelete'] || typeDirective['ondelete']" class="advanced-field">
+                            <mat-label>ondelete</mat-label>
+                            <input matInput [value]="field.onDelete" (keydown)="noCancel($event)" (change)="changeOnDelete($event.target.value)">
+                        </mat-form-field>
+                        <mat-form-field *ngIf="typeDirective['onDetach'] || typeDirective['ondetach']" class="advanced-field">
+                            <mat-label>ondetach</mat-label>
+                            <input matInput [value]="field.onDetach" (keydown)="noCancel($event)" (change)="changeOnDetach($event.target.value)">
+                        </mat-form-field>
+                        <mat-form-field *ngIf="typeDirective['onRevert'] || typeDirective['onrevert']" class="advanced-field">
+                            <mat-label>onrevert</mat-label>
+                            <input matInput [value]="field.onRevert" (keydown)="noCancel($event)" (change)="changeOnRevert($event.target.value)">
+                        </mat-form-field>
+                    </div>
+                </div>
+
+                <div class="advanced-section" *ngIf="typeDirective['sort']">
+                    <div class="advanced-section-header">
+                        <div class="advanced-section-title">
+                            <mat-icon>sort</mat-icon>
+                            <label>Sort</label>
+                        </div>
+                        <span>Edit sorting behavior for this field</span>
+                    </div>
+                    <mat-form-field class="advanced-field narrow">
+                        <mat-label>Order</mat-label>
+                        <mat-select [value]="field.sort">
+                            <mat-option value="asc">asc</mat-option>
+                            <mat-option value="desc">desc</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+
+                <div class="advanced-section" *ngIf="typeDirective['dependencies']">
+                    <div class="advanced-section-header with-toggle">
+                        <div>
+                            <div class="advanced-section-title">
+                                <mat-icon>schema</mat-icon>
+                                <label>Dependents (fields)</label>
+                            </div>
+                            <span>Select computed fields to refresh when this field changes</span>
+                        </div>
+                        <mat-icon class="toggleicon" [class.on]="field._hasDependencies" (click)="changeHasDependencies(!field._hasDependencies)">{{field._hasDependencies?"toggle_on":"toggle_off"}}</mat-icon>
+                    </div>
+                    <div *ngIf="field._hasDependencies" class="dependencies-layout">
+                        <div class="dependency-input-row">
                             <app-field-autocomplete
                                 name="Add a dependency"
                                 [value]="dependencyInput"
@@ -262,42 +259,57 @@
                                 (keydown.enter)="addToDependencies()"
                             >
                             </app-field-autocomplete>
-                            <button mat-icon-button (click)="addToDependencies()"><mat-icon>add</mat-icon></button>
-                            <div class="deps-holder">
-                                <div *ngFor="let dep of field.dependencies; index as index" class="dependency-chip">
-                                    <label>{{dep}}</label>
-                                    <mat-icon class="pseudo-button" (click)="DeleteDependency(index)">close</mat-icon>
-                                </div>
+                            <button mat-raised-button color="primary" (click)="addToDependencies()">
+                                <mat-icon>add</mat-icon>
+                                Add
+                            </button>
+                        </div>
+                        <div class="deps-holder">
+                            <div *ngFor="let dep of field.dependencies; index as index" class="dependency-chip">
+                                <label>{{dep}}</label>
+                                <mat-icon class="pseudo-button" (click)="DeleteDependency(index)">close</mat-icon>
                             </div>
                         </div>
-                    </mat-expansion-panel>
-                    <mat-expansion-panel *ngIf="typeDirective['visible']">
-                        <mat-expansion-panel-header>
-                            <mat-panel-title>Visibility</mat-panel-title>
-                            <mat-panel-description>Edit the visibility of the field as a domain</mat-panel-description>
-                            <mat-icon class="toggleicon" [class.on]="field._hasVisible" (click)="$event.stopPropagation();changeHasVisible(!field._hasVisible)">{{field._hasVisible?"toggle_on":"toggle_off"}}</mat-icon>
-                        </mat-expansion-panel-header>
-                        <app-property-domain-component *ngIf="field._hasVisible"
-                            [class]="field.foreign_object"
-                            [value]="field.visible"
-                            (valueChange)="changeVisible($event)">
-                        </app-property-domain-component>
-                    </mat-expansion-panel>
-                    <mat-expansion-panel *ngIf="typeDirective['domain']">
-                        <mat-expansion-panel-header>
-                            <mat-panel-title>Domain</mat-panel-title>
-                            <mat-panel-description>Edit the domain of the relation O2M</mat-panel-description>
-                            <mat-icon class="toggleicon" [class.on]="field._hasDomain" (click)="$event.stopPropagation();changeHasDomain(!field._hasDomain)">{{field._hasDomain?"toggle_on":"toggle_off"}}</mat-icon>
-                        </mat-expansion-panel-header>
-                        {{field.foreign_object}}
-                        <app-property-domain-component *ngIf="field._hasDomain"
-                            [class]="field.foreign_object"
-                            [value]="field.domain"
-                            (valueChange)="changeDomain($event)"
-                        >
-                        </app-property-domain-component>
-                    </mat-expansion-panel>
-                </mat-accordion>
+                    </div>
+                </div>
+
+                <div class="advanced-section" *ngIf="typeDirective['visible']">
+                    <div class="advanced-section-header with-toggle">
+                        <div>
+                            <div class="advanced-section-title">
+                                <mat-icon>visibility</mat-icon>
+                                <label>Visibility</label>
+                            </div>
+                            <span>Edit field visibility as a domain expression</span>
+                        </div>
+                        <mat-icon class="toggleicon" [class.on]="field._hasVisible" (click)="changeHasVisible(!field._hasVisible)">{{field._hasVisible?"toggle_on":"toggle_off"}}</mat-icon>
+                    </div>
+                    <app-property-domain-component *ngIf="field._hasVisible"
+                        [class]="entity"
+                        [value]="field.visible"
+                        (valueChange)="changeVisible($event)">
+                    </app-property-domain-component>
+                </div>
+
+                <div class="advanced-section" *ngIf="typeDirective['domain']">
+                    <div class="advanced-section-header with-toggle">
+                        <div>
+                            <div class="advanced-section-title">
+                                <mat-icon>filter_alt</mat-icon>
+                                <label>Domain</label>
+                            </div>
+                            <span>Edit relation domain for O2M fields</span>
+                        </div>
+                        <mat-icon class="toggleicon" [class.on]="field._hasDomain" (click)="changeHasDomain(!field._hasDomain)">{{field._hasDomain?"toggle_on":"toggle_off"}}</mat-icon>
+                    </div>
+                    <div class="advanced-object-hint">Target model: {{field.foreign_object || 'none'}}</div>
+                    <app-property-domain-component *ngIf="field._hasDomain"
+                        [class]="field.foreign_object"
+                        [value]="field.domain"
+                        (valueChange)="changeDomain($event)"
+                    >
+                    </app-property-domain-component>
+                </div>
             </div>
         </mat-tab>
     </mat-tab-group>

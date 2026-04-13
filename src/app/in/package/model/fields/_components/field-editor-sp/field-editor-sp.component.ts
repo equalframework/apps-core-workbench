@@ -15,6 +15,7 @@ export class FieldEditorSpComponent implements OnInit {
   @Input() field: Field | null | undefined;
   @Input() types: string[];
   @Input() models: string[];
+  @Input() entity = '';
   @Input() fields: string[] = [];
   @Input() computedFields: string[] = [];
   @Input() dummyScheme: any = {};
