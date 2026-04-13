@@ -1,6 +1,6 @@
 <div class="header"> 
     <label>Edit routes</label>
-    <button mat-mini-fab color="primary" class="addItem" (click)="createRoute()"><mat-icon>add</mat-icon></button>
+    <button mat-icon-button color="primary" class="addItem action-button" (click)="createRoute()"><mat-icon>add</mat-icon></button>
 </div>
 
 <div cdkDropList [cdkDropListData]="obj" (cdkDropListDropped)="drop($event)" cdkDropListOrientation="vertical">
