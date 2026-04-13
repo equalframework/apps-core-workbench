@@ -32,10 +32,6 @@
           color: mat-color($accentcolor);
         }
       }
-
-      button.addItem {
-        transform: scale(0.7);
-      }
     }
 
     .group-spacing {
@@ -131,10 +127,6 @@
         }
       }
     }
-  }
-
-  .addItem {
-    transform: scale(0.7);
   }
 
   @media (max-width: 600px) {

@@ -23,7 +23,6 @@ export class LayoutTabComponent implements OnInit {
   @ViewChild('layoutTabContainer', { read: ElementRef }) layoutTabContainer: ElementRef;
 
   types = ViewItem.typeList;
-  private tabComponentId = 'layout';
 
   constructor() {}
 

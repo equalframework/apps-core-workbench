@@ -2,7 +2,7 @@
   <div *ngIf="viewObj.type === 'form' || viewObj.type === 'search'">
     <div class="tab-header">
       <label class="category-title maincolor">Groups</label>
-      <button mat-mini-fab color="primary" class="addItem" (click)="addGroup()"><mat-icon>add</mat-icon></button>
+      <button mat-icon-button color="primary" class="addItem action-button" (click)="addGroup()"><mat-icon>add</mat-icon></button>
     </div>
 
     <div *ngFor="let group of viewObj.layout.groups; let idx = index" 
@@ -17,7 +17,7 @@
           <input matInput appFocusableField="{{'group-' + group.id + '-id'}}"
           placeholder="Group.id" [value]="group.id" (input)="group.id = $event.target.value">
         </mat-form-field>
-        <button mat-mini-fab color="primary" class="section-add-btn" (click)="deleteGroup(viewObj.layout.groups.indexOf(group))"><mat-icon>delete</mat-icon></button>
+        <button mat-icon-button color="warn" class="action-button action-button--delete" (click)="deleteGroup(viewObj.layout.groups.indexOf(group))"><mat-icon>delete</mat-icon></button>
       </div>
 
       <app-group-editor
@@ -36,7 +36,7 @@
   <div *ngIf="viewObj.type === 'list'">
     <div class="tab-header">
       <label class="category-title maincolor">Items</label>
-      <button mat-mini-fab color="primary" class="addItem" (click)="addItemLayout()"><mat-icon>add</mat-icon></button>
+      <button mat-icon-button color="primary" class="addItem action-button" (click)="addItemLayout()"><mat-icon>add</mat-icon></button>
     </div>
     <div class="indent tab-content">
     <mat-accordion
