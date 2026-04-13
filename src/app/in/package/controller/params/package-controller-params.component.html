@@ -10,7 +10,7 @@
     <app-param-list class="list"
             [list]="paramList"
             [selectedIndex]="selectedIndex"
-            (select)="onSelection($event)"
+            (itemSelected)="onSelection($event)"
             (CRUD)="onChange($event)">
     </app-param-list>
 
