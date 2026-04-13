@@ -10,6 +10,7 @@ import { Usage } from 'src/app/in/_models/Params';
 export class AdvancedTabComponent implements OnInit {
   @Input() viewObj: View;
   @Input() entity: string;
+  @Input() packageName: string;
   @Input() collectController: string[] = [];
   @Input() classScheme: any = { fields: {} };
   @Input() groups: string[] = [];
@@ -19,12 +20,12 @@ export class AdvancedTabComponent implements OnInit {
   @ViewChild('advancedTabContainer', { read: ElementRef }) advancedTabContainer: ElementRef;
 
   obk = Object.keys;
-  private tabComponentId = 'advanced';
 
   constructor() {}
 
   ngOnInit(): void {
     // Initialization
+    console.log('AdvancedTabComponent initialized with viewObj:', this.viewObj);
   }
 
   addNewGroupBy(): void {
