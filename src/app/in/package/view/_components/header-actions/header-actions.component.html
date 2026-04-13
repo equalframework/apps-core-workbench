@@ -12,7 +12,14 @@
             Disable
         </mat-checkbox>
         <div class="add-button-container">
-        <button mat-mini-fab color="primary" *ngIf="hScheme.actions[key].enabled" (click)="create(key)">
+        <button
+            mat-icon-button
+            color="primary"
+            class="action-button"
+            *ngIf="hScheme.actions[key].enabled"
+            (click)="create(key)"
+            [attr.aria-label]="'Add action to ' + key"
+        >
             <mat-icon>add</mat-icon>
         </button>
         </div>
