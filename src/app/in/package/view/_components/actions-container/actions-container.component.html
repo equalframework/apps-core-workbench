@@ -1,6 +1,12 @@
 <div class="header"> 
     <label>{{label}}</label>
-    <button mat-mini-fab color="primary" class="addItem" (click)="create()"><mat-icon>add</mat-icon></button>
+    <button
+        mat-icon-button
+        color="primary"
+        class="addItem action-button"
+        (click)="create()"
+        [attr.aria-label]="'Add action in ' + label"
+    ><mat-icon>add</mat-icon></button>
 </div>
 <div class="indent">
     <label *ngIf="acts.length === 0" class="info">No custom actions bound.</label>
