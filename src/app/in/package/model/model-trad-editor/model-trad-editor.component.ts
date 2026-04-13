@@ -27,7 +27,6 @@ export class ModelTradEditorComponent implements OnInit {
 
     constructor(
         private route: ActivatedRoute,
-        private router: Router,
         private workbenchService: WorkbenchService,
         private notificationService: NotificationService,
         private dialog: MatDialog,
@@ -36,6 +35,7 @@ export class ModelTradEditorComponent implements OnInit {
         private queryParamNavigator: QueryParamNavigatorService,
         private injector: Injector,
         private jsonValidationService: JsonValidationService,
+        private provider: EqualComponentsProviderService
     ) {
         this.activatorRegistry = new QueryParamActivatorRegistry();
     }
@@ -82,7 +82,6 @@ export class ModelTradEditorComponent implements OnInit {
     private fieldTypeMap: { [key: string]: string } = {};
     private backgroundTranslationsLoadStarted = false;
     private backgroundPreloadStarted = false;
-    private provider: EqualComponentsProviderService | null = null;
     public readonly ERROR_TYPE_DESCRIPTIONS: { [key: string]: { description: string, severity: 'info' | 'warning' | 'error' } } = {
         missing_mandatory: { description: 'Field is null/empty and required', severity: 'error' },
         non_nullable: { description: 'Attempted to set to null when marked required', severity: 'error' },
@@ -536,12 +535,12 @@ export class ModelTradEditorComponent implements OnInit {
     private async _buildModelTemplate(): Promise<void> {
         const scheme = await this.workbenchService.getSchema(`${this.packageName}\\${this.modelName}`).toPromise();
         const modelFields = Object.keys(scheme.fields);
-        const viewsList = await this.workbenchService.collectViews(this.packageName, `${this.packageName}\\${this.modelName}`).toPromise();
+        const viewsList = await this.provider.getComponents(this.packageName, 'class', this.modelName).toPromise();
         const views: { name: string, view: View }[] = [];
         for (const viewStr of viewsList) {
             const parts = viewStr.split(':');
             if (!parts[1].includes('list.') && !parts[1].includes('form.') && !parts[1].includes('search.')) { continue; }
-            const viewSchema = await this.workbenchService.getView(parts[0], parts[1]).toPromise();
+            const viewSchema = await this.provider.getComponents(parts[0], 'class', parts[1]).toPromise();
             views.push({ name: parts[1], view: new View(viewSchema, parts[1].split('.')[0]) });
         }
         const errors: { [field: string]: { fieldType: string; errorTypes: string[] } } = {};

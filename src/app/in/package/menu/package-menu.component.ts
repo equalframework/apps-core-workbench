@@ -47,7 +47,6 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
     public isSaving = false;
 
     private queryParamActivatorRegistry: QueryParamActivatorRegistry;
-    private provider: EqualComponentsProviderService | null = null;
 
     constructor(
         private route: ActivatedRoute,
@@ -56,7 +55,8 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
         private dialog: MatDialog,
         private queryParamNavigator: QueryParamNavigatorService,
         private injector: Injector,
-        private jsonValidationService: JsonValidationService
+        private jsonValidationService: JsonValidationService,
+        private provider: EqualComponentsProviderService
     ) { }
 
     public async ngOnInit(): Promise<void> {
@@ -185,7 +185,7 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
 
     async updateEntityDependentFields(): Promise<void> {
         if (this.selectedItem && this.selectedItem.context && this.selectedItem.context.entity) {
-            this.viewList = ((await this.workbenchService.collectViews(this.packageName, this.selectedItem.context.entity).toPromise())
+            this.viewList = ((await this.provider.getComponents(this.packageName, 'menu',this.selectedItem.context.entity).toPromise())
             .map((value => value.split(':').slice(1).join(':'))));
             this.workbenchService.getSchema(this.selectedItem.context.entity.replaceAll('_', '\\'))
             .pipe(

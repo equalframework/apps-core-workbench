@@ -1,6 +1,7 @@
 import { Component, Input, OnInit, EventEmitter, Output, OnDestroy, ElementRef } from '@angular/core';
 import { ViewItem } from '../../_objects/View';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
+import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
 
 @Component({
     selector: 'app-item-editor',
@@ -35,6 +36,7 @@ export class ItemEditorComponent implements OnInit {
 
     constructor(
         private workbenchService: WorkbenchService,
+        private provider: EqualComponentsProviderService,
         private elementRef: ElementRef,
     ) {}
 
@@ -124,10 +126,10 @@ export class ItemEditorComponent implements OnInit {
             return;
         }
         const t = this.scheme.fields[this.item.value].foreign_object.split('\\');
-        const x = (await this.workbenchService.collectViews(t[0], t.slice(1).join('\\')).toPromise())?.filter((value) => value.includes('list.'));
+        const x = (await this.provider.getComponents(t[0], 'view', t.slice(1).join('\\')).toPromise())?.filter((value) => value.name.includes('list.'));
         if (x) {
             const r: { [key: string]: string } = {};
-            x.forEach(list => r[list.split(':')[1]] = list);
+            x.forEach(list => r[list.name.split(':')[1]] = list.name);
             this.cacheList = {
                 foreign: this.scheme.fields[this.item.value].foreign_object,
                 lists: r,
