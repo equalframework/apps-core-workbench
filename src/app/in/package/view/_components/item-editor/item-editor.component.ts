@@ -19,7 +19,7 @@ export class ItemEditorComponent implements OnInit {
     @Input() packageName: string;
     @Input() scheme: any;
 
-    protected _widgetTypes: { [id: string]: string[] };
+    protected _widgetTypes: { [id: string]: string[] } = {};
     public filteredEqualUsage: string[];
 
     @Output() delete = new EventEmitter<void>();
@@ -64,7 +64,7 @@ export class ItemEditorComponent implements OnInit {
             return [''];
         }
         const fieldType = this.scheme.fields[this.item.value].type;
-        if (!Object.keys(this._widgetTypes).includes(fieldType)) {
+        if (!this._widgetTypes || !Object.prototype.hasOwnProperty.call(this._widgetTypes, fieldType)) {
             return [''];
         }
         return ['', ...this._widgetTypes[fieldType]];
