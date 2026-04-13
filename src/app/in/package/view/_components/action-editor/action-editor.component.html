@@ -53,10 +53,24 @@
 
         <div class="spacer"></div>
 
-        <button mat-mini-fab color="primary" (click)="show_custom_params()" title="Custom parameters">
+        <button
+            mat-icon-button
+            color="primary"
+            class="action-button"
+            (click)="show_custom_params()"
+            title="Custom parameters"
+            aria-label="Open custom parameters"
+        >
             <mat-icon>settings</mat-icon>
         </button>
-        <button mat-mini-fab color="primary" (click)="deleteMe()" title="Delete action">
+        <button
+            mat-icon-button
+            color="warn"
+            class="action-button action-button--delete"
+            (click)="deleteMe()"
+            title="Delete action"
+            aria-label="Delete action"
+        >
             <mat-icon>delete</mat-icon>
         </button>
     </div>
