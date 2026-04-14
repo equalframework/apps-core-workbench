@@ -10,8 +10,8 @@ import { Param } from '../../../../../_models/Params';
 })
 export class ParamListComponent implements OnInit, OnChanges {
 
-  @Input() list: Params[];
-  @Input() selectedIndex: number;
+  @Input() list: Params[] = [];
+  @Input() selectedIndex: number = -1;
 
   @Output() itemSelected = new EventEmitter<number>();
   @Output() CRUD = new EventEmitter<string>();
@@ -48,7 +48,7 @@ export class ParamListComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
-    this.filteredList = this.list.sort((p1, p2) => p1.name.localeCompare(p2.name));
+    this.filteredList = [...this.list].sort((p1, p2) => p1.name.localeCompare(p2.name));
     this.filterControl.valueChanges.subscribe(data => {
       this.filteredList = this._filter(data);
     });
@@ -60,7 +60,7 @@ export class ParamListComponent implements OnInit, OnChanges {
 
 
   private _filter(value: string): Params[] {
-    const filterValue = value.toLowerCase();
+    const filterValue = (value || '').toLowerCase();
     return this.list.filter(option => option.name.toLowerCase().includes(filterValue)).sort((p1, p2) => p1.name.localeCompare(p2.name));
   }
 
@@ -69,13 +69,20 @@ export class ParamListComponent implements OnInit, OnChanges {
   }
 
   public createItem(): void {
-    this.list.push(new Param(this.createControl.value ? this.createControl.value : 'new_param_' + (this.incrementor++)));
+    const newName = this.createControl.value ? this.createControl.value : 'new_param_' + (this.incrementor++);
+    if (this.list.some(param => param.name === newName)) {
+      return;
+    }
+    this.list.push(new Param(newName));
     this.CRUD.emit('Creation of a new param');
     this.createControl.setValue('');
     this.filteredList = this._filter(this.filterControl.value);
   }
 
   public deleteItem(index: number): void {
+    if (index < 0 || index >= this.list.length) {
+      return;
+    }
     const d = this.list.splice(index, 1);
     this.CRUD.emit('deletion of ' + d[0].name);
     this.onClickItem(-1);
