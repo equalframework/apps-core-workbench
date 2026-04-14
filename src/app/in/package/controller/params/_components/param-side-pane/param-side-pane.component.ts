@@ -1,7 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { Param, Usage } from '../../../../../_models/Params';
 import { AbstractControl, FormControl, ValidationErrors, Validators } from '@angular/forms';
-import { TypeUsageService } from 'src/app/_services/type-usage.service';
 
 @Component({
   selector: 'app-param-side-pane',
@@ -39,11 +38,9 @@ export class ParamSidePaneComponent implements OnInit, OnChanges {
   tmpUsage = '';
 
   constructor(
-    private typeUsage: TypeUsageService
   ) { }
 
   ngOnInit(): void {
-    const x = new Usage('aaaaa/b.c:d.k{e,f}');
     this.filteredModelList = this.modelList;
     this.foreignControl.valueChanges.subscribe((value: string) => {
       if (!value) {
@@ -212,11 +209,15 @@ export class ParamSidePaneComponent implements OnInit, OnChanges {
   public addToSelection(): void {
     if (this.param) {
       this.param.selection.push(undefined);
+      this.CRUD.emit('Added to selection for ' + this.param.name);
     }
   }
 
   public deleteSelection(index: number): void {
-    this.param?.selection.splice(index, 1);
+    if (this.param && index >= 0 && index < this.param.selection.length) {
+      this.param.selection.splice(index, 1);
+      this.CRUD.emit('Deleted selection for ' + this.param.name);
+    }
   }
 
   public noCancel(event: KeyboardEvent): void {
@@ -238,12 +239,18 @@ function snake_case(control: AbstractControl): ValidationErrors | null {
   if (!value) {
     return { case: true };
   }
+  // Ensure no leading or trailing underscores
+  if (value.startsWith('_') || value.endsWith('_')) {
+    return { case: true };
+  }
 
-  const validChars = 'abcdefghijklmnopqrstuvwxyz_';
-  for (const char of value) {
-    if (!validChars.includes(char)) {
-      return { case: true };
-    }
+  // Ensure no consecutive underscores
+  if (value.includes('__')) {
+    return { case: true };
+  }
+  const validChars = /^[a-z_]+$/;
+  if (!validChars.test(value)) {
+    return { case: true };
   }
   return null;
 }
