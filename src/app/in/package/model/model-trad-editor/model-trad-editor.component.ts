@@ -7,7 +7,7 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dial
 import { QueryParamNavigatorService } from 'src/app/_services/query-param-navigator.service';
 import { QueryParamActivatorRegistry, QueryParamCustomActivator } from 'src/app/_services/query-param-activator.registry';
 import { prettyPrintJson } from 'pretty-print-json';
-
+import { cloneDeep } from 'lodash';
 import { ErrorItemTranslator, Translator } from './_object/Translation';
 import { View } from '../_object/View';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
@@ -288,6 +288,7 @@ export class ModelTradEditorComponent implements OnInit {
 
         this.loading = false;
         void this.fetchBackgroundData();
+        console.log('Data after initialization:', this.data);
     }
 
     private async fetchBackgroundData(): Promise<void> {
@@ -385,9 +386,10 @@ export class ModelTradEditorComponent implements OnInit {
 
     private async fillLanguage(lang: string, allData: { [key: string]: any } | null | undefined): Promise<Translator | null> {
         const newTranslation = await this.createNewLang();
+        console.log(`Created new translation for ${lang}:`, newTranslation);
         if (!newTranslation.ok) { return null; }
-        this.data[lang] = newTranslation;
-
+        this.data[lang] = cloneDeep(newTranslation);
+        console.log('data[lang] before filling:', this.data[lang]);
         // Ensure error._base contains entries for all model fields according to the model template
         this.ensureErrorBase(lang);
 
@@ -399,6 +401,7 @@ export class ModelTradEditorComponent implements OnInit {
                 this.data[lang].fill(perLang);
                 // Ensure any missing error entries are present after filling
                 this.ensureErrorBase(lang);
+                console.log('Data: ', this.data, 'filled with perLang', perLang);
                 return this.data[lang];
             }
         } catch (e) {
@@ -407,6 +410,8 @@ export class ModelTradEditorComponent implements OnInit {
 
         if (allData && allData[lang]) {
             this.data[lang].fill(allData[lang]);
+            console.log(`Filled language ${lang} from allData fallback`);
+            console.log('Data after filling from allData:', this.data);
         }
 
         return this.data[lang];
@@ -535,13 +540,29 @@ export class ModelTradEditorComponent implements OnInit {
     private async _buildModelTemplate(): Promise<void> {
         const scheme = await this.workbenchService.getSchema(`${this.packageName}\\${this.modelName}`).toPromise();
         const modelFields = Object.keys(scheme.fields);
-        const viewsList = await this.provider.getComponents(this.packageName, 'class', this.modelName).toPromise();
+        const viewsList = await this.provider.getComponents(this.packageName, 'view', this.modelName).toPromise();
         const views: { name: string, view: View }[] = [];
-        for (const viewStr of viewsList) {
-            const parts = viewStr.split(':');
-            if (!parts[1].includes('list.') && !parts[1].includes('form.') && !parts[1].includes('search.')) { continue; }
-            const viewSchema = await this.provider.getComponents(parts[0], 'class', parts[1]).toPromise();
-            views.push({ name: parts[1], view: new View(viewSchema, parts[1].split('.')[0]) });
+        for (const descriptor of viewsList) {
+            const fullName = descriptor?.name || '';
+            const separatorIdx = fullName.indexOf(':');
+            const sourceModelName = separatorIdx !== -1 ? fullName.substring(0, separatorIdx) : this.modelName;
+            const viewName = separatorIdx !== -1 ? fullName.substring(separatorIdx + 1) : fullName;
+
+            if (!viewName || (!viewName.includes('list.') && !viewName.includes('form.') && !viewName.includes('search.'))) {
+                continue;
+            }
+
+            try {
+                const viewSchema = await this.workbenchService.readView(
+                    descriptor?.package_name || this.packageName,
+                    viewName,
+                    sourceModelName
+                ).toPromise();
+                views.push({ name: viewName, view: new View(viewSchema || {}, viewName.split('.')[0]) });
+                console.log(`Loaded view schema for ${fullName}:`, viewSchema);
+            } catch (e) {
+                console.warn(`Unable to load view schema for ${fullName}`, e);
+            }
         }
         const errors: { [field: string]: { fieldType: string; errorTypes: string[] } } = {};
         for (const field of modelFields) {
@@ -559,6 +580,7 @@ export class ModelTradEditorComponent implements OnInit {
         if (!this._modelTemplate) {
             await this._buildModelTemplate();
         }
+        console.log('Model template built:', this._modelTemplate);
         return new Translator(this._modelTemplate!.modelFields, this._modelTemplate!.views);
     }
 

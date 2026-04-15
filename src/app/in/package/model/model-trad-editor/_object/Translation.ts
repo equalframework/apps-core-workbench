@@ -1,6 +1,91 @@
 import { Menu } from '../../../menu/_models/Menu';
 import { View } from '../../_object/View';
 
+function sanitizeLayoutKey(value: string): string {
+    return value.trim().replace(/\s+/g, '_').replace(/[^A-Za-z0-9._-]/g, '_');
+}
+
+function collectLayoutTranslationKeys(layout: any): string[] {
+    const keys: string[] = [];
+    const used = new Set<string>();
+
+    const registerKey = (preferred: string | null | undefined, fallback: string): string => {
+        const normalizedPreferred = preferred ? sanitizeLayoutKey(preferred) : '';
+        const normalizedFallback = sanitizeLayoutKey(fallback);
+        const base = normalizedPreferred || normalizedFallback;
+        if (!base) {
+            return '';
+        }
+
+        if (!used.has(base)) {
+            used.add(base);
+            keys.push(base);
+            return base;
+        }
+
+        let idx = 2;
+        let candidate = `${base}#${idx}`;
+        while (used.has(candidate)) {
+            idx++;
+            candidate = `${base}#${idx}`;
+        }
+        used.add(candidate);
+        keys.push(candidate);
+        return candidate;
+    };
+
+    const registerNode = (node: any, fallback: string): string => {
+        const id = (typeof node?.id === 'string' ? node.id.trim() : '');
+        return registerKey(id || undefined, fallback);
+    };
+
+    const registerItem = (item: any, fallback: string): void => {
+        const explicitId = (typeof item?.id === 'string' ? item.id.trim() : '');
+        const fieldValue = (typeof item?.value === 'string' ? item.value.trim() : '');
+        if (explicitId) {
+            registerKey(explicitId, fallback);
+            return;
+        }
+        if (fieldValue) {
+            registerKey(fieldValue, fallback);
+            return;
+        }
+        registerKey(undefined, fallback);
+    };
+
+    const groups = Array.isArray(layout?.groups) ? layout.groups : [];
+    for (let gi = 0; gi < groups.length; gi++) {
+        const group = groups[gi];
+        const groupPath = registerNode(group, `group.${gi}`) || `group.${gi}`;
+        const sections = Array.isArray(group?.sections) ? group.sections : [];
+        for (let si = 0; si < sections.length; si++) {
+            const section = sections[si];
+            const sectionPath = registerNode(section, `${groupPath}.section.${si}`) || `${groupPath}.section.${si}`;
+            const rows = Array.isArray(section?.rows) ? section.rows : [];
+            for (let ri = 0; ri < rows.length; ri++) {
+                const row = rows[ri];
+                const rowPath = registerNode(row, `${sectionPath}.row.${ri}`) || `${sectionPath}.row.${ri}`;
+                const columns = Array.isArray(row?.columns) ? row.columns : [];
+                for (let ci = 0; ci < columns.length; ci++) {
+                    const column = columns[ci];
+                    const columnPath = registerNode(column, `${rowPath}.column.${ci}`) || `${rowPath}.column.${ci}`;
+                    const items = Array.isArray(column?.items) ? column.items : [];
+                    for (let ii = 0; ii < items.length; ii++) {
+                        registerItem(items[ii], `${columnPath}.item.${ii}`);
+                    }
+                }
+            }
+        }
+    }
+
+    const rootItems = Array.isArray(layout?.items) ? layout.items : [];
+    for (let ii = 0; ii < rootItems.length; ii++) {
+        registerItem(rootItems[ii], `layout.item.${ii}`);
+    }
+
+    return keys;
+}
+
 
 export class Translation {
     public value = '';
@@ -52,7 +137,9 @@ export class Translator {
         this.plural = new Translation(values.plural);
         if (values.model){
             for (const item in values.model) {
-                if (!this.model[item]) { continue; }
+                if (!this.model[item]) {
+                    continue;
+                }
                 this.model[item].fill(values.model[item]);
             }
         }
@@ -94,7 +181,7 @@ export class Translator {
                 res.view[key] = {};
                 res.view[key].name = this.view[key].name.value;
                 res.view[key].description = this.view[key].description.value;
-                if (Object.keys(this.view[key].layout).length > 0) {
+                if (this.view[key].hasLayoutValues || Object.keys(this.view[key].layout).length > 0) {
                     res.view[key].layout = {};
                     for (const id in this.view[key].layout) {
                         if (!this.view[key].layout[id].isActive) { continue; }
@@ -102,8 +189,11 @@ export class Translator {
                             label : this.view[key].layout[id].label.value
                         };
                     }
+                    if (Object.keys(res.view[key].layout).length === 0) {
+                        delete res.view[key].layout;
+                    }
                 }
-                if (Object.keys(this.view[key].actions).length > 0) {
+                if (this.view[key].hasActionValues || Object.keys(this.view[key].actions).length > 0) {
                     res.view[key].actions = {};
                     for (const id in this.view[key].actions) {
                         if (!this.view[key].actions[id].isActive) { continue; }
@@ -112,8 +202,11 @@ export class Translator {
                             description : this.view[key].actions[id].description.value
                         };
                     }
+                    if (Object.keys(res.view[key].actions).length === 0) {
+                        delete res.view[key].actions;
+                    }
                 }
-                if (Object.keys(this.view[key].routes).length > 0) {
+                if (this.view[key].hasRouteValues || Object.keys(this.view[key].routes).length > 0) {
                     res.view[key].routes = {};
                     for (const id in this.view[key].routes) {
                         if (!this.view[key].routes[id].isActive) { continue; }
@@ -121,6 +214,9 @@ export class Translator {
                             label : this.view[key].routes[id].label.value,
                             description : this.view[key].routes[id].description.value
                         };
+                    }
+                    if (Object.keys(res.view[key].routes).length === 0) {
+                        delete res.view[key].routes;
                     }
                 }
             }
@@ -136,7 +232,12 @@ export class Translator {
                 res.error[key] = {};
                 for (const id in this.error._base[key].val) {
                     if (!this.error._base[key].val[id].isActive) { continue; }
-                    res.error[key][id] = this.error._base[key].val[id]._val.value;
+                    res.error[key][id] = {
+                        _val: this.error._base[key].val[id]._val.value
+                    };
+                }
+                if (Object.keys(res.error[key]).length === 0) {
+                    delete res.error[key];
                 }
             }
             if (Object.keys(res.error).length <= 0) {
@@ -185,7 +286,6 @@ export class ModelTranslator {
             this.help = new Translation(values.help);
             this.is_active = true;
         }
-
     }
 }
 
@@ -195,9 +295,12 @@ export class ViewTranslator {
     description: Translation = new Translation();
     actions: {[id: string]: ViewActionTranslator} = {};
     routes: {[id: string]: ViewRouteTranslator} = {};
+    hasLayoutValues = false;
+    hasActionValues = false;
+    hasRouteValues = false;
 
     constructor(view: View) {
-        for (const id of view.layout.id_compliant([]).id_list) {
+        for (const id of collectLayoutTranslationKeys((view as any).layout)) {
             this.layout[id] = new ViewLayoutItemTranslator();
         }
         for (const action of view.actions) {
@@ -211,21 +314,30 @@ export class ViewTranslator {
     fill(values: any): void {
         this.name = new Translation(values.name);
         this.description = new Translation(values.description);
+        this.hasLayoutValues = values?.layout !== undefined;
         if (values.layout){
             for (const item in values.layout) {
-                if (!this.layout[item]) { continue; }
+                if (!this.layout[item]) {
+                    continue;
+                }
                 this.layout[item].fill(values.layout[item]);
             }
         }
+        this.hasActionValues = values?.actions !== undefined;
         if (values.actions){
             for (const item in values.actions) {
-                if (!this.actions[item]) { continue; }
+                if (!this.actions[item]) {
+                    continue;
+                }
                 this.actions[item].fill(values.actions[item]);
             }
         }
+        this.hasRouteValues = values?.routes !== undefined;
         if (values.routes) {
             for (const item in values.routes) {
-                if (!this.routes[item]) { continue; }
+                if (!this.routes[item]) {
+                    continue;
+                }
                 this.routes[item].fill(values.routes[item]);
             }
         }
@@ -242,8 +354,12 @@ export class ViewRouteTranslator {
         if (values) {
             this.label = new Translation(values.label);
         }
-        this.description = new Translation(values.description);
-        this.isActive = true;
+        this.description = new Translation(values?.description);
+        this.isActive = typeof values?.isActive === 'boolean'
+            ? values.isActive
+            : typeof values?.is_active === 'boolean'
+                ? values.is_active
+                : true;
     }
 }
 
@@ -257,8 +373,12 @@ export class ViewActionTranslator {
         if (values) {
             this.label = new Translation(values.label);
         }
-        this.description = new Translation(values.description);
-        this.isActive = true;
+        this.description = new Translation(values?.description);
+        this.isActive = typeof values?.isActive === 'boolean'
+            ? values.isActive
+            : typeof values?.is_active === 'boolean'
+                ? values.is_active
+                : true;
     }
 }
 
@@ -270,7 +390,11 @@ export class ViewLayoutItemTranslator {
         if (values) {
             this.label = new Translation(values.label);
         }
-        this.isActive = true;
+        this.isActive = typeof values?.isActive === 'boolean'
+            ? values.isActive
+            : typeof values?.is_active === 'boolean'
+                ? values.is_active
+                : true;
     }
 }
 
@@ -281,8 +405,12 @@ export class ErrorItemTranslator {
 
     fill(values: any): void {
         if (values) {
-            this._val = new Translation(values);
+            this._val = new Translation(values._val);
         }
-        this.isActive = true;
+        this.isActive = typeof values?.isActive === 'boolean'
+            ? values.isActive
+            : typeof values?.is_active === 'boolean'
+                ? values.is_active
+                : true;
     }
 }

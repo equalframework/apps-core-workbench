@@ -1,10 +1,6 @@
-// ─── Valeur traductible ───────────────────────────────────────────────────────
-
 export interface TranslationValue {
   value: string;
 }
-
-// ─── Champ d'un modèle (label / description / help) ─────────────────────────
 
 export interface TranslationModelField {
   is_active: boolean;
@@ -13,14 +9,10 @@ export interface TranslationModelField {
   help: TranslationValue;
 }
 
-// ─── Champ d'une vue layout (label seulement) ────────────────────────────────
-
 export interface TranslationLayoutField {
   is_active: boolean;
   label: TranslationValue;
 }
-
-// ─── Champ d'une action / route (label + description) ────────────────────────
 
 export interface TranslationActionField {
   is_active: boolean;
@@ -28,14 +20,10 @@ export interface TranslationActionField {
   description: TranslationValue;
 }
 
-// ─── Champ d'une erreur (_val) ────────────────────────────────────────────────
-
 export interface TranslationErrorField {
   is_active: boolean;
   _val: TranslationValue;
 }
-
-// ─── Config d'une colonne d'input dans le composant générique ─────────────────
 
 export interface FieldColumnConfig {
   /** Clé de l'objet item à binder (ex: 'label', 'description', '_val') */
@@ -45,8 +33,6 @@ export interface FieldColumnConfig {
   /** Largeur en colonnes dans le mat-grid-list (total 16, fixe = 3) */
   colspan: number;
 }
-
-// ─── Configs prédéfinies réutilisables ────────────────────────────────────────
 
 export const FIELD_CONFIGS = {
   /** Model : label (3) + description (5) + help (5) = 13 */
