@@ -5,21 +5,24 @@ export class Field {
 
     constructor(schema: any = {}, name = '') {
         this.name = name;
-        for (const key in this) {
-            if (key === 'usage') {
-                if (schema[key]) {
+        // Get the field type to determine which properties are allowed
+        const fieldType = schema.type || this.type;
+        const allowedProperties = Field.type_directives[fieldType] || Field.type_directives['string'];
+        
+        // Process each property that the schema might contain
+        for (const key in allowedProperties) {
+            if (allowedProperties[key] && schema[key] !== undefined) {
+                if (key === 'usage') {
                     this.usage = new Usage(schema[key]);
                     delete schema[key];
+                    continue;
                 }
-                continue;
-            }
-            if (schema[key]){
                 if (key === 'default') { this._hasDefault = true; }
                 if (key === 'selection') { this._hasSelection = true; }
                 if (key === 'dependencies') { this._hasDependencies = true; }
                 if (key === 'visible') { this._hasVisible = true; }
                 if (key === 'domain') { this._hasDomain = true; }
-                this[key] = schema[key];
+                (this as any)[key] = schema[key];
                 delete schema[key];
             }
         }
