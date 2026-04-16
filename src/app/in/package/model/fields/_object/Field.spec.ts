@@ -37,4 +37,19 @@ describe('Field', () => {
         expect(field.domain).toBe('test_domain');
         expect(field._leftover).toEqual({extra_key: 'extra_value'});
     });
+
+    it('should determine if the field is uneditable based on its name', () => {
+        const uneditableField = new Field({}, 'id');
+        const editableField = new Field({}, 'name');
+        expect(uneditableField.isUneditable).toBe(true);
+        expect(editableField.isUneditable).toBe(false);
+    });
+
+    it('should return correct comparison result from areSimilar method', () => {
+        const field1 = new Field({type: 'string', description: 'A test field'}, 'field1');
+        const field2 = new Field({type: 'string', description: 'A test field'}, 'field2');
+        const field3 = new Field({type: 'number', description: 'A different field'}, 'field3');
+        expect(field1.areSimilar(field2)).toBe(true);
+        expect(field1.areSimilar(field3)).toBe(false);
+    });
 });
