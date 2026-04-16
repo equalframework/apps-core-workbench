@@ -1,5 +1,5 @@
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { ModalInputComponent } from './modal-input.component';
 
 describe('ModalInputComponent', () => {
@@ -8,7 +8,18 @@ describe('ModalInputComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ModalInputComponent ]
+      declarations: [ ModalInputComponent ],
+      providers: [
+        { 
+          provide: MAT_DIALOG_DATA, 
+          useValue: { 
+            pair: { key: 'testKey', value: { type: 'string' } },
+            value: 'testValue'
+          } 
+        },
+        { provide: MatDialogRef, useValue: jasmine.createSpyObj('MatDialogRef', ['close', 'dismiss']) }
+      ]
+
     })
     .compileComponents();
   });
