@@ -672,7 +672,7 @@ export class WorkbenchService {
                 map((res: any) => Object.keys(res.response || {}))
                 );
             });
-            return forkJoin(observables);
+            return observables.length > 0 ? forkJoin(observables) : of([]);
             }),
             map((arrays: string[][]) => arrays.flat())
         );
