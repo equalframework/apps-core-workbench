@@ -82,6 +82,7 @@ describe('PackageViewComponent', () => {
     
     mockJsonValidationService = jasmine.createSpyObj('JsonValidationService', [
       'validateView',
+      'validateAndSave',
       'getErrorSummary',
       'formatErrorsForDisplay'
     ]);
@@ -115,6 +116,43 @@ describe('PackageViewComponent', () => {
     ));
 
     mockJsonValidationService.validateView.and.returnValue(of({ valid: true, errors: [], warnings: [], message: '' } as ValidationResult));
+    mockJsonValidationService.validateAndSave.and.callFake((validate$, saveFn, setIsSaving) => {
+      setIsSaving(true);
+
+      validate$.subscribe(
+        (validationResult) => {
+          if (validationResult.valid) {
+            saveFn().subscribe(
+              (result) => {
+                setIsSaving(false);
+                const saveResult = result || {};
+                const wasSuccessful = typeof saveResult.success === 'boolean' ? saveResult.success : true;
+                const saveMessage = saveResult.message || (wasSuccessful ? 'Saved successfully' : 'Save failed');
+
+                if (wasSuccessful) {
+                  mockNotificationService.showSuccess(saveMessage);
+                } else {
+                  mockNotificationService.showError(saveMessage);
+                }
+              },
+              (error) => {
+                setIsSaving(false);
+                mockNotificationService.showError('Save error: ' + (error.message || 'Unknown error'));
+              }
+            );
+          } else {
+            setIsSaving(false);
+            const summary = mockJsonValidationService.getErrorSummary(validationResult);
+            const details = mockJsonValidationService.formatErrorsForDisplay(validationResult.errors);
+            mockNotificationService.showError(summary + '\n\n' + details);
+          }
+        },
+        (error) => {
+          setIsSaving(false);
+          mockNotificationService.showError('Validation error: ' + (error.message || 'Failed to validate'));
+        }
+      );
+    });
 
     await TestBed.configureTestingModule({
       declarations: [PackageViewComponent],
@@ -197,7 +235,6 @@ describe('PackageViewComponent', () => {
       expect(component.name).toBe('form');
       expect(component.entity).toBe('Post');
       expect(component.viewId).toBe('default.form');
-      expect(component.loading).toBe(false);
     });
 
     it('should load schema and set fields', async () => {

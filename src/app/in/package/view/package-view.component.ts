@@ -52,7 +52,7 @@ export class PackageViewComponent implements OnInit {
     actionControllers: string[];
 
     // Tab management
-    selectedTabIndex: number;
+    selectedTabIndex = 0;
     private tabNameToIndexMap: { [key: string]: number } = {
       layout: 0,
       header: 1,
