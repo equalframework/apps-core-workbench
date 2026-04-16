@@ -1,4 +1,4 @@
-import { clone, cloneDeep, isObject, result } from "lodash"
+import { clone, cloneDeep, isObject, result } from 'lodash'
 import { Usage } from 'src/app/in/_models/Params';
 
 abstract class ViewElement {
@@ -8,7 +8,7 @@ abstract class ViewElement {
     constructor() { }
 
     getListDisplay(): string {
-        return ""
+        return ''
     }
 
     isValid(): boolean {
@@ -39,7 +39,7 @@ class ViewOperation extends ViewElement {
         suffix:string,
         leftover:any,
     }[] = []
-    public name:string = ""
+    public name:string = ''
 
     get fieldTaken():string[] {
         let ret = []
@@ -55,10 +55,10 @@ class ViewOperation extends ViewElement {
         for(let op in scheme) {
             let l = this.ops.push({
                 name : op,
-                usage : new Usage(""),
-                operation : "",
-                prefix : "",
-                suffix : "",
+                usage : new Usage(''),
+                operation : '',
+                prefix : '',
+                suffix : '',
                 leftover : {}
             })
             if(scheme[op].usage) {
@@ -108,22 +108,22 @@ class ViewOperation extends ViewElement {
 }
 
 class View extends ViewElement {
-    public layout: ViewLayout = new ViewLayout("form")
-    public name: string = ""
-    public description: string = ""
-    public type:string = "form"
+    public layout: ViewLayout = new ViewLayout('form')
+    public name: string = ''
+    public description: string = ''
+    public type:string = 'form'
     public domain: ViewDomain = new ViewDomain()
     public filters: ViewFilter[] = []
-    public controller: string = "core_model_collect"
+    public controller: string = 'core_model_collect'
     public header: ViewHeader
     public actions: ViewAction[] = []
     public routes: ViewRoute[] = []
-    public access = { "groups": ["users"] }
+    public access = { 'groups': ['users'] }
     public operations:ViewOperation[] = []
     public limit:number = 0
     public groupBy:ViewGroupBy = new ViewGroupBy()
-    public order:"asc"|"desc"|"" = ""
-    public sort:string = ""
+    public order:string = ''
+    public sort:'asc'|'desc'|'' = ''
 
 
     public _has_domain = false
@@ -178,35 +178,39 @@ class View extends ViewElement {
             scheme['actions'].forEach((action: any) => this.actions.push(new ViewAction(action, true)))
             delete scheme['actions']
         }
-        if (scheme["routes"]) {
+        if (scheme['routes']) {
             this._has_routes = true
             scheme['routes'].forEach((route:any) => this.routes.push(new ViewRoute(route)))
             delete scheme['routes']
         }
-        if(scheme["access"]) {
+        if(scheme['access']) {
             this._has_access = true
-            this.access = scheme["access"]
-            delete scheme["access"]
+            this.access = scheme['access']
+            delete scheme['access']
         }
-        if(scheme["operations"]) {
-            for(let k in scheme["operations"]) {
+        if(scheme['operations']) {
+            for(let k in scheme['operations']) {
                 this.operations.push(new ViewOperation(scheme.operations[k],k))
             }
-            delete scheme["operations"]
+            delete scheme['operations']
         }
-        if(scheme["limit"]) {
+        if(scheme['limit']) {
             this._has_limit = true
-            this.limit = scheme["limit"]
-            delete scheme["limit"]
+            this.limit = scheme['limit']
+            delete scheme['limit']
         }
-        if(scheme["group_by"]) {
+        if(scheme['group_by']) {
             this._has_group_by = true
-            this.groupBy = new ViewGroupBy(scheme["group_by"])
-            delete scheme["group_by"]
+            this.groupBy = new ViewGroupBy(scheme['group_by'])
+            delete scheme['group_by']
         }
-        if(scheme["sort"]) {
-            this.sort = scheme["sort"]
-            delete scheme["sort"]
+        if(scheme['order'] !== undefined) {
+            this.order = scheme['order']
+            delete scheme['order']
+        }
+        if(scheme['sort'] !== undefined) {
+            this.sort = scheme['sort']
+            delete scheme['sort']
         }
         this.leftover = scheme
     }
@@ -216,7 +220,7 @@ class View extends ViewElement {
     }
 
     addFilter() {
-        this.filters.push(new ViewFilter({ "label": "New Filter" }))
+        this.filters.push(new ViewFilter({ 'label': 'New Filter' }))
     }
 
     deleteFilter(index: number) {
@@ -233,10 +237,10 @@ class View extends ViewElement {
                 result.operations[op.name] = op.export()
             }
         }
-        if (this._has_limit) result["limit"] = this.limit
-        if (this._has_group_by) result["group_by"] = this.groupBy.export()
+        if (this._has_limit) result['limit'] = this.limit
+        if (this._has_group_by) result['group_by'] = this.groupBy.export()
         if (this._has_access) {
-            result["access"] = this.access
+            result['access'] = this.access
         }
         if (this._has_routes) {
             result['routes'] = []
@@ -245,7 +249,7 @@ class View extends ViewElement {
         if (this._has_header) {
             result['header'] = this.header.export()
         }
-        if (this.controller !== "core_model_collect") result['controller'] = this.controller
+        if (this.controller !== 'core_model_collect') result['controller'] = this.controller
         if (this._has_domain) result['domain'] = this.domain.dom
         if (this._has_filter) {
             result['filters'] = []
@@ -255,6 +259,8 @@ class View extends ViewElement {
             result['actions'] = []
             this.actions.forEach(action => result['actions'].push(action.export()))
         }
+        if (this.order !== '') result['order'] = this.order
+        if (this.sort !== '') result['sort'] = this.sort
         result['layout'] = this.layout.export()
         return result
     }
@@ -309,7 +315,7 @@ class ViewGroupBy extends ViewElement {
 }
 
 class ViewGroupByItem extends ViewElement {
-    public field:string = ""
+    public field:string = ''
     public operation:ViewGroupByItemOperation = new ViewGroupByItemOperation()
 
     get _only_field() {
@@ -320,11 +326,11 @@ class ViewGroupByItem extends ViewElement {
         super()
         if(isObject(scheme)){
             const cast:{[id:string]:any} = cloneDeep(scheme)
-            if(cast["field"]) {
-                this.field = cast["field"]
+            if(cast['field']) {
+                this.field = cast['field']
             }
-            if(cast["operation"]) {
-                this.operation = new ViewGroupByItemOperation(cast["operation"])
+            if(cast['operation']) {
+                this.operation = new ViewGroupByItemOperation(cast['operation'])
             }
         } else {
             this.field = scheme.toString()
@@ -344,8 +350,8 @@ class ViewGroupByItem extends ViewElement {
 }
 
 class ViewGroupByItemOperation extends ViewElement {
-    public operator:string = ""
-    public operand:string = ""
+    public operator:string = ''
+    public operand:string = ''
 
     constructor(scheme:any[]=[]) {
         super()
@@ -377,16 +383,16 @@ class ViewLayout extends ViewElement {
     constructor(view_type:string,scheme: any = {}) {
         super()
         this._view_type = view_type
-        if (scheme["items"] && ['list'].includes(this._view_type)) {
-            for (let v of scheme["items"]) {
+        if (scheme['items'] && ['list'].includes(this._view_type)) {
+            for (let v of scheme['items']) {
                 this.items.push(new ViewItem(v,0))
             }
-            delete scheme["items"]
-        } if (scheme["groups"] && ['form','search'].includes(this._view_type)) {
-            for (let v of scheme["groups"]) {
+            delete scheme['items']
+        } if (scheme['groups'] && ['form','search'].includes(this._view_type)) {
+            for (let v of scheme['groups']) {
                 this.groups.push(new ViewGroup(v))
             }
-            delete scheme["groups"]
+            delete scheme['groups']
         }
         this.leftover = scheme
     }
@@ -400,7 +406,7 @@ class ViewLayout extends ViewElement {
     }
 
     override getListDisplay(): string {
-        return "Layout"
+        return 'Layout'
     }
 
     override export(): any {
@@ -433,13 +439,13 @@ class ViewLayout extends ViewElement {
 
 class ViewGroup extends ViewElement {
     public sections: ViewSection[] = []
-    public label: string = ""
-    public id: string = ""
+    public label: string = ''
+    public id: string = ''
 
     constructor(scheme: any = {}) {
         super()
         if (scheme['sections']) {
-            for (let v of scheme["sections"]) {
+            for (let v of scheme['sections']) {
                 this.sections.push(new ViewSection(v))
             }
             delete scheme['sections']
@@ -452,17 +458,17 @@ class ViewGroup extends ViewElement {
             this.id = scheme['id']
             delete scheme['id']
         }
-        if (this.id === "") this.id = "group." + (ViewGroup.num++)
+        if (this.id === '') this.id = 'group.' + (ViewGroup.num++)
         this.leftover = scheme
     }
 
     override getListDisplay(): string {
-        return "Group"
+        return 'Group'
     }
 
     override export(): any {
         let result = super.export()
-        if (this.label !== "") result['label'] = this.label
+        if (this.label !== '') result['label'] = this.label
         result['id'] = this.id
         result['sections'] = []
         this.sections.forEach(section => result['sections'].push(section.export()))
@@ -472,7 +478,7 @@ class ViewGroup extends ViewElement {
     override id_compliant(id_list: string[]): { ok: boolean; id_list: string[]; } {
         let ret = super.id_compliant(id_list)
         if (!ret.ok) return { ok: false, id_list: ret.id_list }
-        if (ret.id_list.includes(this.id) || this.id == "") return { ok: false, id_list: [...ret.id_list, this.id] }
+        if (ret.id_list.includes(this.id) || this.id == '') return { ok: false, id_list: [...ret.id_list, this.id] }
         ret.id_list = [...ret.id_list, this.id]
         for (let section of this.sections) {
             ret = section.id_compliant(ret.id_list)
@@ -483,8 +489,8 @@ class ViewGroup extends ViewElement {
 }
 
 class ViewSection extends ViewElement {
-    public label: string = ""
-    public id: string = ""
+    public label: string = ''
+    public id: string = ''
     public rows: ViewRow[] = []
     public visible: ViewDomain = new ViewDomain();
 
@@ -501,7 +507,7 @@ class ViewSection extends ViewElement {
             delete scheme['id']
         }
         if (scheme['rows']) {
-            for (let v of scheme["rows"]) {
+            for (let v of scheme['rows']) {
                 this.rows.push(new ViewRow(v))
             }
             delete scheme['rows']
@@ -511,7 +517,7 @@ class ViewSection extends ViewElement {
             this.visible = new ViewDomain(scheme['visible'])
             delete scheme['visible']
         }
-        if (this.id === "") this.id = "section." + (ViewSection.num++)
+        if (this.id === '') this.id = 'section.' + (ViewSection.num++)
         this.leftover = scheme
     }
 
@@ -521,7 +527,7 @@ class ViewSection extends ViewElement {
 
     override export() {
         let result = super.export()
-        if (this.label !== "") result['label'] = this.label
+        if (this.label !== '') result['label'] = this.label
         result['id'] = this.id
         if (this._has_domain) result['visible'] = this.visible.dom
         result['rows'] = []
@@ -533,7 +539,7 @@ class ViewSection extends ViewElement {
     override id_compliant(id_list: string[]): { ok: boolean; id_list: string[]; } {
         let ret = super.id_compliant(id_list)
         if (!ret.ok) return { ok: false, id_list: ret.id_list }
-        if (ret.id_list.includes(this.id) || this.id == "") return { ok: false, id_list: [...ret.id_list, this.id] }
+        if (ret.id_list.includes(this.id) || this.id == '') return { ok: false, id_list: [...ret.id_list, this.id] }
         ret.id_list = [...ret.id_list, this.id]
         for (let row of this.rows) {
             ret = row.id_compliant(ret.id_list)
@@ -544,8 +550,8 @@ class ViewSection extends ViewElement {
 }
 
 class ViewRow extends ViewElement {
-    public id: string = ""
-    public label: string = ""
+    public id: string = ''
+    public label: string = ''
     public columns: ViewColumn[] = []
     public visible: ViewDomain = new ViewDomain()
 
@@ -555,7 +561,7 @@ class ViewRow extends ViewElement {
         super()
         //if(scheme['height']) this.height = scheme['height']
         if (scheme['columns']) {
-            for (let v of scheme["columns"]) {
+            for (let v of scheme['columns']) {
                 this.columns.push(new ViewColumn(v))
             }
             delete scheme['columns']
@@ -573,7 +579,7 @@ class ViewRow extends ViewElement {
             this._has_domain = true
             delete scheme['visible']
         }
-        if (this.id === "") this.id = "row." + (ViewRow.num++)
+        if (this.id === '') this.id = 'row.' + (ViewRow.num++)
         this.leftover = scheme
     }
 
@@ -584,13 +590,13 @@ class ViewRow extends ViewElement {
     }
 
     override getListDisplay(): string {
-        return "Row"
+        return 'Row'
     }
 
     override export(): any {
         let result = super.export()
         result['id'] = this.id
-        if (this.label !== "") result['label'] = this.label
+        if (this.label !== '') result['label'] = this.label
         if (this._has_domain) result['visible'] = this.visible.dom
         result['columns'] = []
         this.columns.forEach(column => result['columns'].push(column.export()))
@@ -600,7 +606,7 @@ class ViewRow extends ViewElement {
     override id_compliant(id_list: string[]): { ok: boolean; id_list: string[]; } {
         let ret = super.id_compliant(id_list)
         if (!ret.ok) return { ok: false, id_list: ret.id_list }
-        if (ret.id_list.includes(this.id) || this.id == "") return { ok: false, id_list: [...ret.id_list, this.id] }
+        if (ret.id_list.includes(this.id) || this.id == '') return { ok: false, id_list: [...ret.id_list, this.id] }
         ret.id_list = [...ret.id_list, this.id]
         for (let column of this.columns) {
             ret = column.id_compliant(ret.id_list)
@@ -611,8 +617,8 @@ class ViewRow extends ViewElement {
 }
 
 class ViewColumn extends ViewElement {
-    public label: string = ""
-    public id: string = ""
+    public label: string = ''
+    public id: string = ''
     public width: number = 100
     public items: ViewItem[] = []
     public visible: ViewDomain = new ViewDomain()
@@ -626,7 +632,7 @@ class ViewColumn extends ViewElement {
             delete scheme['width']
         }
         if (scheme['items']) {
-            for (let v of scheme["items"]) {
+            for (let v of scheme['items']) {
                 this.items.push(new ViewItem(v,1))
             }
             delete scheme['items']
@@ -644,17 +650,17 @@ class ViewColumn extends ViewElement {
             this._has_domain = true
             delete scheme['visible']
         }
-        if (this.id === "") this.id = "column." + (ViewColumn.num++)
+        if (this.id === '') this.id = 'column.' + (ViewColumn.num++)
         this.leftover = scheme
     }
     override getListDisplay(): string {
-        return "Column"
+        return 'Column'
     }
 
     override export() {
         let result = super.export()
         result['id'] = this.id
-        if (this.label !== "") result['label'] = this.label
+        if (this.label !== '') result['label'] = this.label
         if (this._has_domain) result['visible'] = this.visible.dom
         result['width'] = this.width + '%'
         result['items'] = []
@@ -665,7 +671,7 @@ class ViewColumn extends ViewElement {
     override id_compliant(id_list: string[]): { ok: boolean; id_list: string[]; } {
         let ret = super.id_compliant(id_list)
         if (!ret.ok) return { ok: false, id_list: ret.id_list }
-        if (ret.id_list.includes(this.id) || this.id == "") return { ok: false, id_list: [...ret.id_list, this.id] }
+        if (ret.id_list.includes(this.id) || this.id == '') return { ok: false, id_list: [...ret.id_list, this.id] }
         ret.id_list = [...ret.id_list, this.id]
         for (let item of this.items) {
             ret = item.id_compliant(ret.id_list)
@@ -676,8 +682,8 @@ class ViewColumn extends ViewElement {
 }
 
 class ViewItem extends ViewElement {
-    public type: string = ""
-    public value: string = ""
+    public type: string = ''
+    public value: string = ''
     public width: number = 100
     public readonly:boolean = false
     public visible: ViewDomain = new ViewDomain()
@@ -688,15 +694,15 @@ class ViewItem extends ViewElement {
     public has_domain: boolean = false
     public has_widget: boolean = false
     public is_visible_domain:boolean = false
-    public label:string = ""
-    public id:string = ""
+    public label:string = ''
+    public id:string = ''
 
     public get valueIsSelect(): boolean {
-        return this.type !== "label"
+        return this.type !== 'label'
     }
 
     public static get typeList(): string[] {
-        return ["field", "label"]
+        return ['field', 'label']
     }
 
     public get hasRestrainedVisibility() {
@@ -753,8 +759,8 @@ class ViewItem extends ViewElement {
             if(!scheme['widget']){
                 scheme['widget'] = {}
             }
-            scheme["widget"]["domain"] = scheme["domain"]
-            delete scheme["domain"]
+            scheme['widget']['domain'] = scheme['domain']
+            delete scheme['domain']
         }
         if (scheme['widget']) {
             if(this.viewtype === 0) {
@@ -769,7 +775,7 @@ class ViewItem extends ViewElement {
             this.id = scheme['id']
             delete scheme['id']
         }
-        if (!ViewItem.typeList.includes(this.type)) this.type = ""
+        if (!ViewItem.typeList.includes(this.type)) this.type = ''
         this.leftover = scheme
     }
 
@@ -778,8 +784,8 @@ class ViewItem extends ViewElement {
         if ( this.id ) result['id'] = this.id
         result['type'] = this.type
         result['value'] = this.value
-        result['width'] = this.width + "%"
-        if(this.label.trim() !== "" && this.type === "field") {
+        result['width'] = this.width + '%'
+        if(this.label.trim() !== '' && this.type === 'field') {
             result['label'] = this.label.trim()
         }
         if (this.has_domain) {
@@ -796,7 +802,7 @@ class ViewItem extends ViewElement {
             }
         }
         if(this.readonly) {
-            result["readonly"] = this.readonly
+            result['readonly'] = this.readonly
         }
         return result
     }
@@ -817,8 +823,8 @@ class ViewItem extends ViewElement {
 class ViewListWidget extends ViewElement {
     public sortable: boolean = false
     public link: boolean = false
-    public type: string = ""
-    public usage:Usage= new Usage("")
+    public type: string = ''
+    public usage:Usage= new Usage('')
     public values: string[] = []
     public domain: ViewDomain = new ViewDomain()
 
@@ -856,11 +862,11 @@ class ViewListWidget extends ViewElement {
             result['link'] = this.link
         if (this.sortable)
             result['sortable'] = this.sortable
-        if (this.type !== "")
+        if (this.type !== '')
             result['type'] = this.type
-        if (this.usage.export() !== "")
+        if (this.usage.export() !== '')
             result['usage'] = this.usage.export()
-        if (this.type === "select")
+        if (this.type === 'select')
             result['values'] = this.values
 
         return result
@@ -870,11 +876,11 @@ class ViewListWidget extends ViewElement {
 class ViewFormWidget extends ViewElement {
     public link: boolean = false
     public heading: boolean = false
-    public type: string = ""
-    public usage:Usage = new Usage("")
+    public type: string = ''
+    public usage:Usage = new Usage('')
     public values: string[] = []
-    public header:ViewHeader = new ViewHeader({},"list")
-    public view:string = ""
+    public header:ViewHeader = new ViewHeader({},'list')
+    public view:string = ''
     public domain:ViewDomain = new ViewDomain()
 
     public _has_domain = false
@@ -904,11 +910,11 @@ class ViewFormWidget extends ViewElement {
             delete scheme['values']
         }
         if (scheme['header']) {
-            this.header = new ViewHeader(scheme['header'],"list")
+            this.header = new ViewHeader(scheme['header'],'list')
             this._has_header = true
             delete scheme['header']
         }
-        if (scheme["view"]){
+        if (scheme['view']){
             this.view = scheme['view']
             this._has_view = true
             delete scheme['view']
@@ -927,11 +933,11 @@ class ViewFormWidget extends ViewElement {
             result['link'] = this.link
         if (this.heading)
             result['heading'] = this.heading
-        if (this.type !== "")
+        if (this.type !== '')
             result['type'] = this.type
-        if (this.usage.export() !== "")
+        if (this.usage.export() !== '')
             result['usage'] = this.usage.export()
-        if (this.type === "select")
+        if (this.type === 'select')
             result['values'] = this.values
         if(this._has_header) {
             result['header'] = this.header.export()
@@ -954,9 +960,9 @@ class ViewDomain {
 }
 
 class ViewFilter extends ViewElement {
-    public id: string = ""
-    public label: string = ""
-    public description: string = ""
+    public id: string = ''
+    public label: string = ''
+    public description: string = ''
     public clause: ViewClause = new ViewClause()
 
     constructor(scheme: any = {}) {
@@ -977,23 +983,23 @@ class ViewFilter extends ViewElement {
             this.clause = new ViewClause(scheme['clause'])
             delete scheme['clause']
         }
-        if (this.id === "") this.id = "Filter." + (ViewFilter.num++)
+        if (this.id === '') this.id = 'Filter.' + (ViewFilter.num++)
         this.leftover = scheme
     }
 
     override export() {
         let result = super.export()
-        result["id"] = this.id
-        result["label"] = this.label
-        result["description"] = this.description
-        result["clause"] = this.clause.arr
+        result['id'] = this.id
+        result['label'] = this.label
+        result['description'] = this.description
+        result['clause'] = this.clause.arr
         return result
     }
 
     override id_compliant(id_list: string[]): { ok: boolean; id_list: string[]; } {
         let ret = super.id_compliant(id_list)
         if (!ret.ok) return ret
-        if (ret.id_list.includes(this.id) || this.id == "") return { ok: false, id_list: [...ret.id_list, this.id] }
+        if (ret.id_list.includes(this.id) || this.id == '') return { ok: false, id_list: [...ret.id_list, this.id] }
         ret.id_list = [...ret.id_list, this.id]
         return { ok: true, id_list: ret.id_list }
     }
@@ -1001,11 +1007,11 @@ class ViewFilter extends ViewElement {
 
 class ViewSelection extends ViewElement {
     predef_actions: { [id: string]: {visible: boolean} } = {
-        "ACTION.EDIT_INLINE": { visible: true},
-        "ACTION.CLONE": { visible: true},
-        "ACTION.DELETE": { visible: true},
-        "ACTION.EDIT_BULK" : {visible : true},
-        "ACTION.ARCHIVE" : {visible : true},
+        'ACTION.EDIT_INLINE': { visible: true},
+        'ACTION.CLONE': { visible: true},
+        'ACTION.DELETE': { visible: true},
+        'ACTION.EDIT_BULK' : {visible : true},
+        'ACTION.ARCHIVE' : {visible : true},
     }
     actions: ViewAction[] = []
     default: boolean = true
@@ -1035,15 +1041,15 @@ class ViewSelection extends ViewElement {
  
     public override export() {
         let result = super.export()
-        if(!this.default) result["default"] = false
+        if(!this.default) result['default'] = false
         if (this._has_selection_actions) {
-            result["actions"] = []
+            result['actions'] = []
             for(let key in this.predef_actions) {
                 if(!this.predef_actions[key].visible) {
-                    result["actions"].push({id:key,visible:this.predef_actions[key].visible})
+                    result['actions'].push({id:key,visible:this.predef_actions[key].visible})
                 }
             }
-            this.actions.forEach(act => result["actions"].push(act.export()))
+            this.actions.forEach(act => result['actions'].push(act.export()))
         }
         return result
     }
@@ -1068,20 +1074,20 @@ class ViewHeader extends ViewElement {
 
     static get actions_for_list(): { [id: string]: { acts: ViewPreDefAction[], enabled: boolean, default: boolean, possible_ids: string[] } } {
         return {
-            "ACTION.SELECT": { acts: [], enabled: true, default: true, possible_ids: ["SELECT","ADD"] },
-            "ACTION.CREATE": { acts: [], enabled: true, default: true, possible_ids: ["CREATE"] },
-            "ACTION.SAVE": { acts: [], enabled: true, default: true, possible_ids: ["SAVE_AND_CLOSE","SAVE_AND_CONTINUE","SAVE_AND_VIEW","SAVE_AND_EDIT"] },
-            "ACTION.CANCEL": { acts: [], enabled: true, default: true, possible_ids:["CANCEL"] },
-            "ACTION.OPEN": { acts: [], enabled: true, default: true, possible_ids:["OPEN"] },
+            'ACTION.SELECT': { acts: [], enabled: true, default: true, possible_ids: ['SELECT','ADD'] },
+            'ACTION.CREATE': { acts: [], enabled: true, default: true, possible_ids: ['CREATE'] },
+            'ACTION.SAVE': { acts: [], enabled: true, default: true, possible_ids: ['SAVE_AND_CLOSE','SAVE_AND_CONTINUE','SAVE_AND_VIEW','SAVE_AND_EDIT'] },
+            'ACTION.CANCEL': { acts: [], enabled: true, default: true, possible_ids:['CANCEL'] },
+            'ACTION.OPEN': { acts: [], enabled: true, default: true, possible_ids:['OPEN'] },
         }
     }
 
     static get actions_for_form(): { [id: string]: { acts: ViewPreDefAction[], enabled: boolean, default: boolean, possible_ids: string[] } } {
         return {
-            "ACTION.CREATE": { acts: [], enabled: true, default: true, possible_ids: ["CREATE"] },
-            "ACTION.EDIT": { acts: [], enabled: true, default: true, possible_ids : ["EDIT"] },
-            "ACTION.SAVE": { acts: [], enabled: true, default: true, possible_ids: ["SAVE_AND_CLOSE","SAVE_AND_CONTINUE","SAVE_AND_VIEW","SAVE_AND_EDIT"] },
-            "ACTION.CANCEL": { acts: [], enabled: true, default: true, possible_ids:["CANCEL"] },
+            'ACTION.CREATE': { acts: [], enabled: true, default: true, possible_ids: ['CREATE'] },
+            'ACTION.EDIT': { acts: [], enabled: true, default: true, possible_ids : ['EDIT'] },
+            'ACTION.SAVE': { acts: [], enabled: true, default: true, possible_ids: ['SAVE_AND_CLOSE','SAVE_AND_CONTINUE','SAVE_AND_VIEW','SAVE_AND_EDIT'] },
+            'ACTION.CANCEL': { acts: [], enabled: true, default: true, possible_ids:['CANCEL'] },
         }
     }
 
@@ -1096,8 +1102,8 @@ class ViewHeader extends ViewElement {
             this._has_actions = true
             for (let key in this.actions) {
                 // This is done to differenciate undefined value of false value (dynamic typing sucks)
-                if (typeof (scheme["actions"][key]) !== typeof (undefined)) {
-                    if (typeof (scheme["actions"][key]) === typeof (true)) {
+                if (typeof (scheme['actions'][key]) !== typeof (undefined)) {
+                    if (typeof (scheme['actions'][key]) === typeof (true)) {
                         if (scheme['actions'][key] === false)
                             this.actions[key].enabled = false
                         if (scheme['actions'][key] === true)
@@ -1126,21 +1132,21 @@ class ViewHeader extends ViewElement {
     override export() {
         let result = super.export()
         if (this._has_actions) {
-            if(!result["actions"]) result["actions"] = {}
+            if(!result['actions']) result['actions'] = {}
             for (let key in this.actions) {
                 if (!this.actions[key].enabled) {
-                    result["actions"][key] = false
+                    result['actions'][key] = false
                     continue
                 }
                 if (this.actions[key].default) continue
-                result["actions"][key] = []
+                result['actions'][key] = []
                 this.actions[key].acts.forEach(action => {
-                    result["actions"][key].push(action.export())
+                    result['actions'][key].push(action.export())
                 })
             }
         }
         if(this.selection._has_selection_actions || !this.selection.default)
-            result["selection"] = this.selection.export()
+            result['selection'] = this.selection.export()
         return result
     }
 
@@ -1166,13 +1172,13 @@ class ViewHeader extends ViewElement {
 }
 
 class ViewAction extends ViewElement {
-    id: string = ""
-    controller: string = ""
-    icon: string = ""
-    description: string = ""
-    label: string = ""
+    id: string = ''
+    controller: string = ''
+    icon: string = ''
+    description: string = ''
+    label: string = ''
     params: any = {}
-    access = { "groups": ["users"] }
+    access = { 'groups': ['users'] }
     visible = new ViewDomain()
 
     static index = 0
@@ -1208,14 +1214,14 @@ class ViewAction extends ViewElement {
             this.icon = scheme['icon']
             delete scheme['icon']
         }
-        if (scheme["access"]) {
-            this.access = scheme["access"]
+        if (scheme['access']) {
+            this.access = scheme['access']
             this._has_access = true
             delete scheme['access']
         }
-        if (scheme["params"]) {
+        if (scheme['params']) {
             this._has_params = true
-            this.params = scheme["params"]
+            this.params = scheme['params']
             delete scheme['params']
         }
         if (scheme['confirm'] !== undefined) {
@@ -1230,23 +1236,23 @@ class ViewAction extends ViewElement {
                 delete scheme['visible']
             }
         }
-        if(this.id === "") this.id = "action.id."+(ViewAction.index++)
+        if(this.id === '') this.id = 'action.id.'+(ViewAction.index++)
         this.leftover = scheme
     }
 
     override export() {
         let result = super.export()
-        result["id"] = this.id
+        result['id'] = this.id
         if (this._has_access) {
-            result["access"] = this.access
+            result['access'] = this.access
         }
-        result["controller"] = this.controller
-        result["icon"] = this.icon
+        result['controller'] = this.controller
+        result['icon'] = this.icon
         if(this.description)
-            result["description"] = this.description
-        result["label"] = this.label
+            result['description'] = this.description
+        result['label'] = this.label
         if (this._domainable && this._has_domain) result['visible'] = this.visible.dom
-        if (this._has_params) result["params"] = this.params
+        if (this._has_params) result['params'] = this.params
         if (this.confirm)
             result['confirm'] = this.confirm
         return result
@@ -1255,19 +1261,19 @@ class ViewAction extends ViewElement {
     override id_compliant(id_list: string[]): { ok: boolean; id_list: string[]; } {
         let ret = super.id_compliant(id_list)
         if (!ret.ok) return ret
-        if (ret.id_list.includes(this.id) || this.id == "") return { ok: false, id_list: [...ret.id_list, this.id] }
+        if (ret.id_list.includes(this.id) || this.id == '') return { ok: false, id_list: [...ret.id_list, this.id] }
         ret.id_list = [...ret.id_list, this.id]
         return { ok: true, id_list: ret.id_list }
     }
 }
 
 class ViewPreDefAction extends ViewElement {
-    id: string = ""
-    description:string =""
-    controller: string = ""
+    id: string = ''
+    description:string =''
+    controller: string = ''
     domain:ViewDomain = new ViewDomain()
-    view :string = ""
-    access = { "groups": ["users"] }
+    view :string = ''
+    access = { 'groups': ['users'] }
 
     static index = 0
 
@@ -1276,7 +1282,7 @@ class ViewPreDefAction extends ViewElement {
     _has_params = false
     _has_view = false
 
-    constructor(scheme: any = {},deflt:string[]=[""]) {
+    constructor(scheme: any = {},deflt:string[]=['']) {
         super()
         if (scheme['controller']) {
             this.controller = scheme['controller']
@@ -1286,8 +1292,8 @@ class ViewPreDefAction extends ViewElement {
             this.id = scheme['id']
             delete scheme['id']
         }
-        if (scheme["access"]) {
-            this.access = scheme["access"]
+        if (scheme['access']) {
+            this.access = scheme['access']
             this._has_access = true
             delete scheme['access']
         }
@@ -1297,13 +1303,13 @@ class ViewPreDefAction extends ViewElement {
         }
         if(scheme['domain']) {
             this._has_domain = true
-            this.domain = scheme["domain"]
-            delete scheme["domain"]
+            this.domain = scheme['domain']
+            delete scheme['domain']
         }
         if(scheme['view']) {
             this._has_view = true
-            this.view = scheme["view"]
-            delete scheme["view"]
+            this.view = scheme['view']
+            delete scheme['view']
         }
         if(!this.id) this.id = deflt[0]
         this.leftover = scheme
@@ -1311,18 +1317,18 @@ class ViewPreDefAction extends ViewElement {
 
     override export() {
         let result = super.export()
-        result["id"] = this.id
+        result['id'] = this.id
         if (this._has_access) {
-            result["access"] = this.access
+            result['access'] = this.access
         }
         if(this.controller)
-            result["controller"] = this.controller
+            result['controller'] = this.controller
         if(this.description)
-            result["description"] = this.description
+            result['description'] = this.description
         if(this._has_view)
-            result["view"] = this.view
+            result['view'] = this.view
         if(this._has_domain)
-            result["domain"] = this.domain.dom
+            result['domain'] = this.domain.dom
         return result
     }
 
@@ -1340,11 +1346,11 @@ class ViewClause {
 }
 
 class ViewRoute extends ViewElement {
-    public id:string = ""
-    public label:string = ""
-    public description:string = ""
-    public icon:string = ""
-    public route:string = ""
+    public id:string = ''
+    public label:string = ''
+    public description:string = ''
+    public icon:string = ''
+    public route:string = ''
     public visible:ViewDomain = new ViewDomain()
     public context:ViewRouteContext = new ViewRouteContext()
     
@@ -1403,15 +1409,15 @@ class ViewRoute extends ViewElement {
         if(!ret.ok) {
             return ret
         }
-        if (ret.id_list.includes(this.id) || this.id == "") return { ok: false, id_list: [...ret.id_list, this.id] }
+        if (ret.id_list.includes(this.id) || this.id == '') return { ok: false, id_list: [...ret.id_list, this.id] }
         ret.id_list = [...ret.id_list, this.id]
         return { ok: true, id_list: ret.id_list }
     }
 }
 
 class ViewRouteContext extends ViewElement {
-    public entity:string = ""
-    public view:string = ""
+    public entity:string = ''
+    public view:string = ''
     public domain:ViewDomain = new ViewDomain()
     public reset:boolean = false
 

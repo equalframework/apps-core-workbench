@@ -8,7 +8,7 @@ describe("View",() => {
     it('should export empty', () => {
         item = new View({},"list")
         
-        expect(compareDictRecursif(item.export(),empty)).toBe(0)
+        expect(compareDictRecurs(item.export(),empty)).toBe(0)
     })
 
     it('should fill id', () => {
@@ -41,19 +41,19 @@ describe("View",() => {
 
     it("should export a copy of import", () => {
         item = new View(t1,"list")
-        expect(compareDictRecursif(item.export(),t1)).toBe(0)
+        expect(compareDictRecurs(item.export(),t1)).toBe(0)
         item = new View(t2,"list")
-        expect(compareDictRecursif(item.export(),t2)).toBe(0)
+        expect(compareDictRecurs(item.export(),t2)).toBe(0)
         item = new View(t3,"form")
-        expect(compareDictRecursifForm(item.export(),t3)).toBe(0)
+        expect(compareDictRecursForm(item.export(),t3)).toBe(0)
         item = new View(t4,"list")
-        expect(compareDictRecursif(item.export(),rt4)).toBe(0)
+        expect(compareDictRecurs(item.export(),rt4)).toBe(0)
         item = new View(t5,"form")
-        expect(compareDictRecursifForm(item.export(),t5)).toBe(0)
+        expect(compareDictRecursForm(item.export(),t5)).toBe(0)
     });
 })
 
-function compareDictRecursif(dict1:any, dict2:any):number {
+function compareDictRecurs(dict1:any, dict2:any):number {
     try {
         if(dict1 === undefined) return -1
         if(dict2 === undefined) return 1
@@ -66,12 +66,12 @@ function compareDictRecursif(dict1:any, dict2:any):number {
         var res:number
         for(var item in dict1) {
             if(dict2[item] === undefined) return 1
-            res = compareDictRecursif(dict1[item],dict2[item])
+            res = compareDictRecurs(dict1[item],dict2[item])
             if(res !== 0) return 1
         }
         for(var item in dict2) {
             if(dict1[item] === undefined) return 1
-            res = compareDictRecursif(dict1[item],dict2[item])
+            res = compareDictRecurs(dict1[item],dict2[item])
             if(res !== 0) return -1
         }
     } catch {
@@ -80,7 +80,7 @@ function compareDictRecursif(dict1:any, dict2:any):number {
     return 0
 }
 
-function compareDictRecursifForm(dict1:any, dict2:any):number {
+function compareDictRecursForm(dict1:any, dict2:any):number {
     try {
         if(dict1 === undefined && dict2 === undefined) return 0
         if(dict1 === undefined) return -1
@@ -95,12 +95,12 @@ function compareDictRecursifForm(dict1:any, dict2:any):number {
         for(var item in dict1) {
             if((item === "id" || item==="label") && isNotImportantIDLabel(dict1,dict2,item) ) continue
             if(dict2[item] === undefined) return 1
-            res = compareDictRecursifForm(dict1[item],dict2[item])
+            res = compareDictRecursForm(dict1[item],dict2[item])
             if(res !== 0) return 1
         }
         for(var item in dict2) {
             if(dict1[item] === undefined) return -1
-            res = compareDictRecursifForm(dict1[item],dict2[item])
+            res = compareDictRecursForm(dict1[item],dict2[item])
             if(res !== 0) return -1
         }
     } catch {
