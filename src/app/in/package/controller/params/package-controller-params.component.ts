@@ -15,6 +15,7 @@ import { Observable, Subject } from 'rxjs';
 import { Location } from '@angular/common';
 import { QueryParamActivatorRegistry, QueryParamTabActivator } from 'src/app/_services/query-param-activator.registry';
 import { JsonValidationService } from 'src/app/in/_services/json-validation.service';
+import { ca } from 'date-fns/locale';
 
 /**
  * Component used to display the params of a controller
@@ -104,6 +105,11 @@ export class PackageControllerParamsComponent implements OnInit, OnDestroy {
             event.stopImmediatePropagation();
             this.revertOneChange();
         }
+        if (event.key === 's' && event.ctrlKey) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            this.save();
+        }
     }
 
     public ngOnInit(): void {
@@ -128,16 +134,6 @@ export class PackageControllerParamsComponent implements OnInit, OnDestroy {
         }
 
         this.loading = false;
-        console.log('Initialized with @Input properties:', {
-            controllerName: this.controllerName,
-            controllerType: this.controllerType,
-            controllerPackage: this.controllerPackage,
-            scheme: this.scheme,
-            types: this.types,
-            usages: this.usages,
-            modelList: this.modelList,
-            paramsScheme: this.paramsScheme
-        });
 
     }
 
@@ -189,15 +185,14 @@ export class PackageControllerParamsComponent implements OnInit, OnDestroy {
     }
     this.sch = res;
   }
-
   export(): {[id: string]: any} {
     const res: {[id: string]: any} = {};
     for (const item of this.paramList) {
       res[item.name] = item.export();
     }
     const result = cloneDeep(this.scheme);
-    result['announcement']['params'] = res;
-    return result['announcement'];
+    result.announcement.params = res;
+    return result.announcement;
   }
 
   public formatJson(json: any): any {
