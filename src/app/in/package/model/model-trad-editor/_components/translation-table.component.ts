@@ -46,12 +46,32 @@ export class TranslationTableComponent {
     ];
   }
 
+  isItemActive(item: any): boolean {
+    if (!item || typeof item !== 'object') { return false; }
+    if (typeof item.is_active === 'boolean') { return item.is_active; }
+    if (typeof item.isActive === 'boolean') { return item.isActive; }
+    return false;
+  }
+
+  setItemActive(item: any, active: boolean): void {
+    if (!item || typeof item !== 'object') { return; }
+    if (Object.prototype.hasOwnProperty.call(item, 'is_active')) {
+      item.is_active = active;
+      return;
+    }
+    if (Object.prototype.hasOwnProperty.call(item, 'isActive')) {
+      item.isActive = active;
+      return;
+    }
+    item.is_active = active;
+    item.isActive = active;
+  }
+
   changeActive(key: string): void {
     if (!this.items[key]) { return; }
     const item = this.items[key];
     if (item && typeof item === 'object') {
-      item.is_active = item.is_active ? false : true;
-      // this.selectedField = !item.is_active && key === this.selectedField ? undefined : this.selectedField;
+      this.setItemActive(item, !this.isItemActive(item));
     }
   }
 
@@ -61,7 +81,7 @@ export class TranslationTableComponent {
     for (const k of keys) {
       const item = this.items[k];
       if (item && typeof item === 'object' && k === this.selectedField) {
-        item.is_active = true;
+        this.setItemActive(item, true);
       }
     }
     return keys;
