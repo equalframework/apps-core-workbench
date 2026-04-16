@@ -168,35 +168,39 @@ export class FieldEditorSpComponent implements OnInit {
   changeDefault(value: any): void {
     if (this.field){
       this.field.default = value;
-      this.CRUD.emit('changed default of ' + this.field.name);
+      this.CRUD.emit('Changed default of ' + this.field.name);
     }
   }
 
   changeRelTable(value: string): void {
     if (this.field){
       this.field.relTable = value;
-      this.CRUD.emit('changed rel_table of ' + this.field.name);
+      this.field.default = undefined;
+      this.field.selection = [];
+      this.CRUD.emit('Changed relTable of ' + this.field.name);
     }
   }
 
   changeRelLocalKey(value: string): void {
     if (this.field){
       this.field.relLocalKey = value;
-      this.CRUD.emit('changed rel_local_key of ' + this.field.name);
+      this.CRUD.emit('Changed relLocalKey of ' + this.field.name);
     }
   }
 
   changeRelForeignKey(value: string): void {
     if (this.field){
       this.field.relForeignKey = value;
-      this.CRUD.emit('changed rel_foreign_key of ' + this.field.name);
+      this.field.default = undefined;
+      this.field.selection = [];
+      this.CRUD.emit('Changed relForeignKey of ' + this.field.name);
     }
   }
 
   public changeAlias(value: string): void {
     if (this.field){
       this.field.alias = value;
-      this.CRUD.emit('changed alias of ' + this.field.name);
+      this.CRUD.emit('Changed alias of ' + this.field.name);
     }
   }
 
