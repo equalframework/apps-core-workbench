@@ -248,11 +248,21 @@ export class QueryParamNavigatorService {
       const scrollOptions = config.scrollOptions || this.defaultScrollOptions;
       element.scrollIntoView(scrollOptions);
       // console.log(`Scrolled to element with appScrollTarget="${elementId}"`, element);
-
-      if (element.classList.contains('mat-list-item') || element.className.match('item-pretty')) {
+      console.log('Called scrollIntoView with options:', element);
+      if (element.classList.contains('mat-list-item') || element.className.match('item-pretty') || element.children[0]?.className.match('checkbox')) {
         // If it's a mat-list-item/item-pretty (exclusive to menus), select it to enable selection of sub-menu items
+        try {
+          const input = element.querySelector('input[type="checkbox"]') as HTMLElement;
+          if (input) {            
+            input.focus();
+            input.click();
+          }
+        } catch (error) {
+          console.warn(`Failed to focus/click checkbox inside menu item with appScrollTarget="${elementId}"`, error);
+        }
         element.focus(); // Focus to trigger :focus styles
         element.click(); // Trigger click to activate any hover effects
+        console.log(`Focused and clicked on menu item with appScrollTarget="${elementId}" to activate hover effects`, element);
       }
 
       // Optional callback after scrolling (e.g. to update URL, log analytics, etc.)
@@ -293,8 +303,8 @@ export class QueryParamNavigatorService {
       else if (tagName === 'MAT-CHECKBOX') {
         const innerInput = fieldElement.querySelector('input[type="checkbox"]') as HTMLElement;
         if (innerInput) {
-          innerInput.focus();
-          innerInput.click();
+          (innerInput as HTMLElement).focus();
+          (innerInput as HTMLElement).click();
         }
       }
       // For native HTML form elements (input, select, textarea), focus them

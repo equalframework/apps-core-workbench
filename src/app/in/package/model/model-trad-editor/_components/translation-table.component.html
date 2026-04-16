@@ -14,12 +14,11 @@
 
   <tbody>
     <tr *ngFor="let key of itemKeys" class="translation-row"
-    appScrollTarget="{{tabName}}-{{key}}"
     >
 
       <td class="checkbox-cell">
-        <mat-checkbox
-          [checked]="items[key].is_active"
+        <mat-checkbox appScrollTarget="{{tabName}}-{{key}}"
+          [checked]="isItemActive(items[key])"
           (change)="changeActive(key)">
         </mat-checkbox>
       </td>
@@ -28,7 +27,7 @@
         <label class="fieldnamelabel">{{ key }}</label>
       </td>
 
-      <ng-container *ngIf="items[key].is_active">
+      <ng-container *ngIf="isItemActive(items[key])">
         <td *ngFor="let field of fields; let fi = index"
             class="editable-cell"
             [attr.colspan]="field.colspan">
@@ -41,7 +40,7 @@
         </td>
       </ng-container>
 
-      <ng-container *ngIf="!items[key].is_active">
+      <ng-container *ngIf="!isItemActive(items[key])">
         <td class="placeholder" [attr.colspan]="totalCols - 3"></td>
       </ng-container>
 

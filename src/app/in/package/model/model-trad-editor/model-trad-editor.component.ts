@@ -285,6 +285,18 @@ export class ModelTradEditorComponent implements OnInit {
                 });
             }
         });
+        this.route.queryParams.subscribe(params => {
+            if (Object.keys(params).length > 0) {
+                this.queryParamNavigator.handleQueryParams(params, {
+                    activators: this.activatorRegistry,
+                    context: this,
+                    elementKeys: ['field'],
+                    // Wait a bit before scrolling to ensure the DOM has updated with any changes (e.g. expanded sections)
+                    scrollDelay: 100,
+                    scrollOptions: { behavior: 'smooth', block: 'start' }
+                });
+            }
+        });
 
         this.loading = false;
         void this.fetchBackgroundData();
