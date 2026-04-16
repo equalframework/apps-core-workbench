@@ -11,7 +11,9 @@ export class EntityDialogComponent implements OnInit {
   public selectedModel:string = '';
 
   get filteredModel() {
-    return this.data.model.filter(item => !this.data.model_taken.includes(item))
+    const model = this.data?.model ?? [];
+    const modelTaken = this.data?.model_taken ?? [];
+    return model.filter(item => !modelTaken.includes(item));
   }
 
   public fmodel:string[];
