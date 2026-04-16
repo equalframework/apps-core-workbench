@@ -16,6 +16,9 @@ describe('PipelineDisplayerComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(PipelineDisplayerComponent);
     component = fixture.componentInstance;
+    component.nodes = [];
+    component.links = [];
+    component.view_offset = { x: 0, y: 0 };
     fixture.detectChanges();
   });
 
