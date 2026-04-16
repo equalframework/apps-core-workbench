@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { EditSectionComponent } from './edit-section.component';
 import { ViewSection } from '../../../../_objects/View';
 import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
@@ -10,7 +10,14 @@ describe('EditSectionComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ EditSectionComponent ]
+      declarations: [ EditSectionComponent ],
+      providers: [
+        {
+          provide: MAT_DIALOG_DATA,
+          useValue: { section: new ViewSection(), entity: 'core\\User', package: 'core' }
+        },
+        { provide: MatDialogRef, useValue: jasmine.createSpyObj('MatDialogRef', ['close']) }
+      ]
     })
     .compileComponents();
   });

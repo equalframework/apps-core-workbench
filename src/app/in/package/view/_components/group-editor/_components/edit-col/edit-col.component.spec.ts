@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
 import { EditColComponent } from './edit-col.component';
 import { ViewColumn } from '../../../../_objects/View';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 describe('EditColComponent', () => {
   let component: EditColComponent;
@@ -9,7 +10,14 @@ describe('EditColComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ EditColComponent ]
+      declarations: [ EditColComponent ],
+      providers: [
+        {
+          provide: MAT_DIALOG_DATA,
+          useValue: { col: new ViewColumn(), entity: 'core\\User', package: 'core' }
+        },
+        { provide: MatDialogRef, useValue: jasmine.createSpyObj('MatDialogRef', ['close']) }
+      ]
     })
     .compileComponents();
   });
@@ -17,7 +25,6 @@ describe('EditColComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(EditColComponent);
     component = fixture.componentInstance;
-    component.data = {col: new ViewColumn(), entity: 'core\\User', package: 'core'};
     fixture.detectChanges();
   });
 

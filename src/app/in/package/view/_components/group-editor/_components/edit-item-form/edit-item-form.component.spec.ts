@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { EditItemFormComponent } from './edit-item-form.component';
 import { ViewItem } from '../../../../_objects/View';
 import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 describe('EditItemFormComponent', () => {
   let component: EditItemFormComponent;
@@ -10,7 +11,22 @@ describe('EditItemFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ EditItemFormComponent ]
+      declarations: [ EditItemFormComponent ],
+      providers: [
+        {
+          provide: MAT_DIALOG_DATA,
+          useValue: {
+            item: new ViewItem({type: 'field', value: 'id', width: 100}),
+            fields: ['id', 'created'],
+            groups: ['users', 'admins'],
+            action_controllers: ['core_user_create'],
+            entity: 'core\\User',
+            package: 'core',
+            schema: {}
+          }
+        },
+        { provide: MatDialogRef, useValue: jasmine.createSpyObj('MatDialogRef', ['close']) }
+      ]
     })
     .compileComponents();
   });
@@ -18,14 +34,6 @@ describe('EditItemFormComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(EditItemFormComponent);
     component = fixture.componentInstance;
-    component.data = {
-      item: new ViewItem({type: 'field', value: 'id', width: 100}),
-      fields: ['id', 'created'],
-      groups: ['users', 'admins'],
-      action_controllers: ['core_user_create'],
-      entity: 'core\\User',
-      package: 'core'
-    };
     fixture.detectChanges();
   });
 
