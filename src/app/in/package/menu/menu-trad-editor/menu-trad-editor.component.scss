@@ -2,13 +2,11 @@
 
 $border-color: #d0d0d0;
 $border-light: #e8e8e8;
-$bg-inactive: #fafafa;
-$bg-hover: #f0f7ff;
 $bg-section: #f5f9fc;
-$bg-table-header: #37474f;
 $text-primary: #1a1a1a;
 $text-secondary: #666666;
 $accent-color: mat-color($maincolor);
+$accent-color-pink: mat-color($accentcolor);
 $transition-standard: 0.2s ease-out;
 
 :host {
@@ -18,6 +16,7 @@ $transition-standard: 0.2s ease-out;
   height: 100%;
   padding: 0;
   box-sizing: border-box;
+
 }
 
 .app-holder {
@@ -25,6 +24,7 @@ $transition-standard: 0.2s ease-out;
   flex-direction: column;
   width: 100%;
   height: 100%;
+
 }
 
 app-inner-header {
@@ -32,18 +32,16 @@ app-inner-header {
   z-index: 10;
 }
 
-.colorized {
+.colorized{
   padding: 0 .3em;
   border-radius: .2em;
 }
-
 .header-labels {
   display: flex;
   align-items: center;
   gap: 0.5em;
   flex-wrap: wrap;
 }
-
 .separator {
   font-weight: bold;
 }
@@ -63,6 +61,66 @@ mat-card.translation-card {
     display: flex;
     flex-direction: column;
     padding: 0;
+    padding-right: 5px;
+  }
+}
+
+.tabs-header-container {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0;
+  padding: 0;
+}
+
+.tab-group-header {
+  flex: 1;
+  flex-shrink: 0;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end;
+  width: 100%;
+
+  ::ng-deep .mat-tab-labels {
+    border-bottom: none !important;
+    margin-bottom: 0 !important;
+    width: 100%;
+  }
+
+  ::ng-deep .mat-tab-header {
+    width: 100%;
+  }
+}
+
+.lang-selector-header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0 1.5rem;
+  white-space: nowrap;
+  height: 100%;
+  align-self: stretch;
+
+  mat-form-field {
+    margin: 0;
+    max-width: 250px;
+  }
+
+  button {
+    flex-shrink: 0;
+  }
+
+  &.adding-mode {
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 0.75rem;
+
+    mat-form-field {
+      width: 100%;
+    }
   }
 }
 
@@ -141,6 +199,7 @@ mat-form-field {
   }
 
   &.descinput {
+    flex-grow: 1;
     max-width: 100%;
   }
 }
@@ -149,13 +208,20 @@ mat-tab-group {
   flex: 1;
   display: flex;
   flex-direction: column;
+
   // Tab styling unified in global styles.scss - all Material tab components are styled globally
+  // Component may override specific padding or sizing as needed
+
+  &.content-tab-group {
+    > ::ng-deep .mat-tab-header .mat-tab-labels {
+      display: none !important;
+    }
+  }
 }
 
 .tab-content {
   width: 100%;
   height: 100%;
-  padding: 1.5rem;
   box-sizing: border-box;
   background-color: #ffffff;
 
@@ -178,18 +244,20 @@ mat-tab-group {
   }
 }
 
-.menu-items {
+.model-items {
   max-height: none;
   border: none;
   background-color: transparent;
   margin: 1.5rem 0 0 0;
   padding: 0;
 
-  app-translation-table {
+  app-translation-grid {
     display: block;
     margin-bottom: 1rem;
   }
 }
+
+
 
 .loading-container {
   display: flex;
@@ -219,16 +287,31 @@ mat-tab-group {
   margin-bottom: 1.34375em;
 }
 
-.section-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: $text-primary;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid $accent-color;
-  display: inline-block;
+.form-section {
+  margin-bottom: 2rem;
+  border-bottom: 1px solid $border-light;
+
+  &:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+
+  &.row {
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    mat-form-field {
+      flex: 1;
+      min-width: 250px;
+    }
+  }
 }
 
 .no-data-message {
@@ -241,7 +324,276 @@ mat-tab-group {
   margin: 1rem 0;
 }
 
+// ─── Error Tab Section ────────────────────────────────────────────────────
+
+.error-section {
+  margin: 1rem 0;
+  border: 1px solid rgba($accent-color, 0.3);
+  border-radius: 6px;
+  overflow: hidden;
+  transition: box-shadow $transition-standard;
+  padding: 0 !important;
+
+  &:hover {
+    box-shadow: 0 2px 6px rgba($accent-color, 0.12);
+  }
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+.error-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba($accent-color, 0.2);
+  background-color: mat-color($maincolor);
+  color: white;
+  margin-bottom: 0;
+}
+
+.error-title-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.expand-button {
+  flex-shrink: 0;
+  color: white;
+
+  &:hover {
+    background-color: rgba(white, 0.08);
+  }
+}
+
+.expand-button-wrap {
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hidden {
+  visibility: hidden !important;
+}
+
+.error-field-name {
+  font-weight: 600;
+  color: white;
+  font-size: 15px;
+}
+
+.field-type-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background-color: rgba($accent-color-pink, 0.12);
+  color: $accent-color-pink;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  align-self: center;
+}
+
+.error-checkbox {
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.error-content {
+  padding: 1.5rem;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 1000px;
+  }
+}
+.suggestions-title {
+  font-weight: 600;
+  color: $accent-color;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  display: flex;
+  align-items: center;
+}
+
+
+.suggestions-list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.suggestion-mini-btn {
+  font-size: 11px !important;
+  height: 32px !important;
+  min-width: 80px !important;
+  padding: 0 0.75rem !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background-color: rgba($accent-color, 0.12) !important;
+  color: $accent-color !important;
+  border: 1px solid rgba($accent-color, 0.3) !important;
+  transition: all $transition-standard;
+
+  &:hover {
+    background-color: rgba($accent-color, 0.2) !important;
+    border-color: $accent-color !important;
+    box-shadow: 0 2px 4px rgba($accent-color, 0.15);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+  }
+}
+
+.add-error-container {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: rgba($accent-color, 0.04);
+  border: 1px solid rgba($accent-color, 0.15);
+  border-radius: 4px;
+}
+
+.add-error-actions {
+  display: flex;
+  align-items: center;
+}
+
+.custom-error-input-group {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+.add-error-field {
+  flex: 1;
+  margin-bottom: 0 !important;
+}
+
+.add-error-btn {
+  flex-shrink: 0;
+  background-color: $accent-color !important;
+  color: white !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 24px !important;
+  width: 24px !important;
+  box-shadow: 0 2px 4px rgba($accent-color, 0.25) !important;
+  transition: all $transition-standard;
+
+  &:hover:not(:disabled) {
+    background-color: darken($accent-color, 8%) !important;
+    box-shadow: 0 4px 8px rgba($accent-color, 0.35) !important;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    box-shadow: none !important;
+  }
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.no-errors-message {
+  color: $text-secondary;
+  font-size: 13px;
+  font-style: italic;
+  padding: 1rem;
+  margin: 1rem 0 0 0;
+  text-align: center;
+  background-color: rgba($accent-color, 0.06);
+  border-radius: 4px;
+  border-left: 3px solid $accent-color;
+}
+
+.error-items-title {
+  font-weight: 600;
+  color: $accent-color;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid rgba($accent-color, 0.3);
+}
+
+.error-list {
+  width: 100%;
+  margin-top: 1rem;
+}
+
 @media (max-width: 768px) {
+  .tabs-header-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    border-bottom: none;
+    box-shadow: none;
+  }
+
+  .tab-group-header {
+    width: 100%;
+    border-bottom: 2px solid $border-light;
+  }
+
+  .lang-selector-header {
+    width: 100%;
+    padding: 1rem !important;
+    border-left: none !important;
+    border-top: 2px solid $border-light;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+
+    mat-form-field {
+      width: 100%;
+      max-width: 100%;
+    }
+
+    &.adding-mode {
+      align-items: stretch;
+
+      mat-form-field {
+        width: 100%;
+      }
+    }
+  }
+
+  .lang-actions {
+    width: 100%;
+    flex-direction: row-reverse;
+
+    button {
+      flex: 1;
+      width: 100%;
+    }
+  }
+
   .lang-selection {
     gap: 1rem;
     padding: 1rem;
@@ -255,25 +607,24 @@ mat-tab-group {
     width: 100%;
   }
 
-  .lang-actions {
-    width: 100%;
-    flex-direction: row-reverse;
-
-    button {
-      flex: 1;
-      width: 100%;
-    }
-  }
-
   mat-form-field {
     max-width: 100%;
   }
 
   .tab-content {
     padding: 1rem;
+    padding-top: 0;
   }
 
   mat-tab-group {
+    .mat-tab-header {
+      width: 100%;
+    }
+    ::ng-deep .mat-tab-header {
+      display: flex;
+      flex-grow: 1;
+    }
+    
     ::ng-deep .mat-tab-labels {
       .mat-tab-label {
         min-width: 100px !important;
@@ -281,4 +632,51 @@ mat-tab-group {
       }
     }
   }
+
+  .error-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+
+    .error-title-container {
+      width: 100%;
+    }
+  }
+
+  .error-title-container {
+    flex-wrap: wrap;
+  }
+
+  .error-content {
+    padding: 1rem;
+    background-color: white !important;
+  }
+
+  .preset-suggestions {
+    padding: 1rem;
+  }
+
+  .custom-error-input-group {
+    flex-direction: column;
+    align-items: stretch;
+
+    .add-error-field {
+      margin-bottom: 0.75rem !important;
+    }
+
+    .add-error-btn {
+      width: 100% !important;
+    }
+  }
+
+  .suggestions-list {
+    gap: 0.4rem;
+  }
+
+  .suggestion-mini-btn {
+    min-width: 70px !important;
+    font-size: 10px !important;
+  }
 }
+
+

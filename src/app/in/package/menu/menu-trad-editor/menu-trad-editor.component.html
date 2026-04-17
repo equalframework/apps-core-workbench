@@ -49,47 +49,55 @@
     <mat-card-content>
 
       <!--  LANGUAGE SELECTION & MANAGEMENT -->
-      <div class="lang-selection" *ngIf="!addingLanguage && obk(localSchema).length > 0" appScrollTarget="lang-selection">
-        <div class="info-left">
+      <div class="tabs-header-container" *ngIf="obk(localSchema).length > 0 && lang && localSchema[lang]">
+        <!-- Tab headers -->
+        <mat-tab-group class="tab-group-header" animationDuration="0ms"
+          [selectedIndex]="selectedTabIndex"
+          (selectedIndexChange)="onTabChange($event)">
+          <mat-tab label="Model"></mat-tab>
+        </mat-tab-group>
+
+        <!-- Language selector controls (right side) -->
+        <div class="lang-selector-header" *ngIf="!addingLanguage && obk(localSchema).length > 0">
+          <div class="info-left">
+            <mat-form-field appearance="outline">
+              <mat-label>Translated language</mat-label>
+              <mat-select [value]="lang" (selectionChange)="onLangChange($event.value)">
+                <mat-option *ngFor="let lg of obk(localSchema)" [value]="lg">{{ lg }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <button mat-flat-button color="primary" (click)="startAddingLanguage()">
+              <mat-icon>add</mat-icon> Add language
+            </button>
+          </div>
+        </div>
+
+        <div class="lang-selector-header adding-mode" *ngIf="addingLanguage || obk(localSchema).length === 0">
           <mat-form-field appearance="outline">
-            <mat-label>Translated language</mat-label>
-            <mat-select [value]="lang" (selectionChange)="onLangChange($event.value)">
-              <mat-option *ngFor="let lg of obk(localSchema)" [value]="lg">{{ lg }}</mat-option>
+            <mat-label>Language</mat-label>
+            <mat-select [formControl]="langName">
+              <mat-option *ngFor="let lang of availableLanguages" [value]="lang">{{ lang }}</mat-option>
             </mat-select>
           </mat-form-field>
-          <button mat-flat-button color="primary" class="btn-margin" (click)="startAddingLanguage()">
-            <mat-icon>add</mat-icon> Add language
-          </button>
-        </div>
-      </div>
-
-      <div class="lang-selection" *ngIf="addingLanguage || obk(localSchema).length === 0">
-        <mat-form-field appearance="outline">
-          <mat-label>Language</mat-label>
-          <mat-select [formControl]="langName">
-            <mat-option *ngFor="let lang of availableLanguages" [value]="lang">{{ lang }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-        <div class="lang-actions">
-          <button mat-button (click)="stopAddingLanguage()">
-            <mat-icon>close</mat-icon> Cancel
-          </button>
-          <button mat-raised-button color="accent" [disabled]="langName.invalid" (click)="createLanguage()">
-            <mat-icon>done</mat-icon> Create
-          </button>
+          <div class="lang-actions">
+            <button mat-button (click)="stopAddingLanguage()">
+              <mat-icon>close</mat-icon> Cancel
+            </button>
+            <button mat-raised-button color="accent" [disabled]="langName.invalid" (click)="createLanguage()">
+              <mat-icon>done</mat-icon> Create
+            </button>
+          </div>
         </div>
       </div>
 
       <!--  MENU TRANSLATIONS TAB -->
-      <mat-tab-group *ngIf="obk(localSchema).length > 0 && lang && localSchema[lang]" animationDuration="0ms"
+      <mat-tab-group class="content-tab-group" *ngIf="obk(localSchema).length > 0 && lang && localSchema[lang]" animationDuration="0ms"
         [selectedIndex]="selectedTabIndex"
         (selectedIndexChange)="onTabChange($event)">
 
         <!-- TAB: Menu Items -->
         <mat-tab label="Menu Items" appScrollTarget="menu">
           <div class="tab-content">
-            <div class="section-title">Menu Item Translations</div>
-
             <div *ngIf="obk(localSchema[lang].view).length === 0" class="no-data-message">
               <p>No menu items available for translation.</p>
             </div>

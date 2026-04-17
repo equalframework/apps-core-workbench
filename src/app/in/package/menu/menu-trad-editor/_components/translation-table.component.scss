@@ -19,8 +19,8 @@
 		/* Ensure second logical column (menu item) takes at least half the table */
 		th.header-tile:nth-child(2),
 		td.fieldname-cell {
-			min-width: 50%;
-			width: 50%;
+			min-width: 40%;
+			width: 40%;
 		}
 
 		/* Ensure editable cells don't change size and inputs fill their cell */
