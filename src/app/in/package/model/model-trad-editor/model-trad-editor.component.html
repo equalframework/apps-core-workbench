@@ -24,6 +24,26 @@
 
   <mat-card *ngIf="!loading && obk(data).length === 0" class="no-translation-card">
     <mat-card-content>No translation available for this model.</mat-card-content>
+    <button *ngIf="!addingLanguage" mat-flat-button color="primary" class="btn-margin" (click)="startAddingLanguage()">
+      <mat-icon>add</mat-icon> Add language
+    </button>
+
+    <div class="lang-selection" *ngIf="addingLanguage">
+      <mat-form-field appearance="outline">
+        <mat-label>Language</mat-label>
+        <mat-select [formControl]="langName">
+          <mat-option *ngFor="let lang of availableLanguages" [value]="lang">{{ lang }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <div class="lang-actions">
+        <button mat-button (click)="stopAddingLanguage()">
+          <mat-icon>close</mat-icon> Cancel
+        </button>
+        <button mat-raised-button color="accent" [disabled]="langName.invalid" (click)="createLanguage()">
+          <mat-icon>done</mat-icon> Create
+        </button>
+      </div>
+    </div>
   </mat-card>
 
   <mat-card *ngIf="obk(data).length > 0" class="translation-card">
