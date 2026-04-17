@@ -413,7 +413,7 @@ export class WorkbenchService {
             console.warn(`Ignoring empty package`);
             return of([]);
         }
-        const url = `?do=test_package-consistency&package=${package_name}`;
+        const url = `?do=test_package-consistency&package=${package_name}&force=true`;
         return this.callApi(url, ``);
     }
 
