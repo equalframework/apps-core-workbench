@@ -179,7 +179,7 @@ export class InfoModelComponent implements OnInit, OnChanges {
         this.router.navigate([`/package/${this.model.package_name}/model/${this.model.name}`], {
             queryParams: {
                 scope: 'view',
-                filter_package_name: this.model.package_name
+                filter_model: this.model.name
             }
         });
 }
