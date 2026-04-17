@@ -105,7 +105,7 @@ export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
 
     public onclickTranslations() {
         this.router.navigate([`/package/${this.view.package_name}/model/${this.view.item.model}/translations`], 
-        { queryParams: { 'tab': 'view', 'view': this.view.name } });
+        { queryParams: { 'tab': 'view', 'view': this.view.name.split(':')[1] } });
     }
 
     private validateSchema(): void {
