@@ -1,6 +1,11 @@
 :host {
     width: 100%;
     height: 100%;
+    overflow-y: auto;
+
+    .adapted {
+      height: calc(100% - 147px) !important;
+    }
 
     .colorized{
         padding: 0 .3em;
@@ -16,4 +21,31 @@
         font-weight: bold;
       }
     
+    .model-properties-container {
+        padding: 0 1.5em;
+
+        .properties-section {
+            .model-properties-form {
+                display: flex;
+                flex-direction: row;
+                gap: 1em;
+            }
+
+            .name-field {
+                flex-grow: 0.5;
+            }
+            .description-field {
+                flex-grow: 1;
+            }
+        }
+    }
+
+    .fields-section {
+        h3 {
+            margin-top: 0;
+            margin-bottom: 1em;
+            font-size: 16px;
+            font-weight: 600;
+        }
+    }
 }

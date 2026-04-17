@@ -33,6 +33,9 @@ export class PackageModelFieldsComponent implements OnInit {
 
     public packageName = '';
     public className = '';
+    public modelName = '';
+    public modelDescription = '';
+    public modelLink = '';
     public dummyScheme: any = {};
     public isSaving = false;
 
@@ -149,6 +152,10 @@ export class PackageModelFieldsComponent implements OnInit {
         this.parentFieldList = [];
 
         this.schema = await this.workbenchService.getSchema(this.packageName + '\\' + this.className).toPromise();
+        console.log('Loaded schema for', this.packageName + '\\' + this.className, this.schema);
+        this.modelName = this.className || '';
+        this.modelDescription = this.schema.description || '';
+        this.modelLink = this.schema.link || '';
 
         for (const item in this.schema.fields) {
             this.fieldList.push(new Field(cloneDeep(this.schema.fields[item]), item));
@@ -244,6 +251,19 @@ export class PackageModelFieldsComponent implements OnInit {
 
     public export2JSON(): any {
         const result = cloneDeep(this.schema);
+        
+        // #memo - To truly update these 3 properties, we need to update the workbenchService method called
+        // in savedata to send the full model payload instead of just the fields. 
+        if (this.modelName) {
+            result.name = this.modelName;
+        }
+        if (this.modelDescription) {
+            result.description = this.modelDescription;
+        }
+        if (this.modelLink) {
+            result.link = this.modelLink;
+        }
+        
         result.fields = {};
         this.fieldList.forEach(item => {
             if (item.isUneditable) {

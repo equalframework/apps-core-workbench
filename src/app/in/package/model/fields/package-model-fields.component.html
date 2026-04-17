@@ -17,14 +17,34 @@
     <mat-spinner></mat-spinner>
     <label style="font-size: 20px; margin-top: 1em;">Loading...</label>
 </div>
-<app-classic-layout *ngIf="!loading">
+<!-- Add a way to edit the model's name, description and link -->
+<!-- Model Properties Section -->
+<div class="model-properties-container">
+    <div class="properties-section">
+        <form class="model-properties-form">
+            <mat-form-field class="name-field">
+                <mat-label>Model Name</mat-label>
+                <input matInput [(ngModel)]="modelName" name="modelName" placeholder="Enter model name">
+            </mat-form-field>
+            <mat-form-field class="name-field">
+                <mat-label>Documentation Link</mat-label>
+                <input matInput [(ngModel)]="modelLink" name="modelLink" placeholder="Enter documentation link URL">
+            </mat-form-field>
+            <mat-form-field class="description-field">
+                <mat-label>Description</mat-label>
+                <textarea matInput [(ngModel)]="modelDescription" name="modelDescription" placeholder="Enter model description" rows="1"></textarea>
+            </mat-form-field>
+        </form>
+    </div>
+</div>
+<app-classic-layout class="adapted" *ngIf="!loading">
     <app-field-editor-list
             [list]="fieldList"
             [parentList]="parentFieldList"
             [selectedIndex]="selected_index"
             (CRUD)="onChange($event)"
             (select)="selected_index = $event">
-    </app-field-editor-list>
+        </app-field-editor-list>
     <app-field-editor-sp sidepane
             [inherited]="isInherited(fieldList[selected_index])"
             [field]="fieldList[selected_index]"
