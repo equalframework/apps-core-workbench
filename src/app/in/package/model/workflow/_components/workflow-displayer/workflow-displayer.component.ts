@@ -137,7 +137,7 @@
             p1.y -= node2.height;
         }
         if (anchor1 === Anchor.Bottom || anchor1 === Anchor.BottomLeft || anchor1 === Anchor.BottomRight){
-            p1.y += node1.height;
+            p1.y += 5;
         }
         if (anchor2 === Anchor.Bottom || anchor2 === Anchor.BottomLeft || anchor2 === Anchor.BottomRight){
             p2.y += 15;
