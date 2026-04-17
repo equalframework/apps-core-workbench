@@ -29,38 +29,48 @@
   <mat-card *ngIf="obk(data).length > 0" class="translation-card">
     <mat-card-content>
 
-      <div class="lang-selection" *ngIf="!addingLanguage && obk(data).length > 0">
-        <div class="info-left">
+      <div class="tabs-header-container" *ngIf="obk(data).length > 0 && lang && data[lang]">
+        <!-- Tab headers -->
+        <mat-tab-group class="tab-group-header" animationDuration="0ms"
+          [selectedIndex]="selectedTabIndex"
+          (selectedIndexChange)="onTabChange($event)">
+          <mat-tab label="Model"></mat-tab>
+          <mat-tab label="View"></mat-tab>
+          <mat-tab label="Error"></mat-tab>
+        </mat-tab-group>
+
+        <!-- Language selector controls (right side) -->
+        <div class="lang-selector-header" *ngIf="!addingLanguage && obk(data).length > 0">
           <mat-form-field appearance="outline">
             <mat-label>Translated language</mat-label>
             <mat-select [value]="lang" (selectionChange)="onLangChange($event.value)">
               <mat-option *ngFor="let lg of obk(data)" [value]="lg">{{ lg }}</mat-option>
             </mat-select>
           </mat-form-field>
-          <button mat-flat-button color="primary" class="btn-margin" (click)="startAddingLanguage()">
+          <button mat-flat-button color="primary" (click)="startAddingLanguage()">
             <mat-icon>add</mat-icon> Add language
           </button>
         </div>
-      </div>
 
-      <div class="lang-selection" *ngIf="addingLanguage || obk(data).length === 0">
-        <mat-form-field appearance="outline">
-          <mat-label>Language</mat-label>
-          <mat-select [formControl]="langName">
-            <mat-option *ngFor="let lang of availableLanguages" [value]="lang">{{ lang }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-        <div class="lang-actions">
-          <button mat-button (click)="stopAddingLanguage()">
-            <mat-icon>close</mat-icon> Cancel
-          </button>
-          <button mat-raised-button color="accent" [disabled]="langName.invalid" (click)="createLanguage()">
-            <mat-icon>done</mat-icon> Create
-          </button>
+        <div class="lang-selector-header adding-mode" *ngIf="addingLanguage || obk(data).length === 0">
+          <mat-form-field appearance="outline">
+            <mat-label>Language</mat-label>
+            <mat-select [formControl]="langName">
+              <mat-option *ngFor="let lang of availableLanguages" [value]="lang">{{ lang }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <div class="lang-actions">
+            <button mat-button (click)="stopAddingLanguage()">
+              <mat-icon>close</mat-icon> Cancel
+            </button>
+            <button mat-raised-button color="accent" [disabled]="langName.invalid" (click)="createLanguage()">
+              <mat-icon>done</mat-icon> Create
+            </button>
+          </div>
         </div>
       </div>
 
-      <mat-tab-group *ngIf="obk(data).length > 0 && lang && data[lang]" animationDuration="0ms"
+      <mat-tab-group class="content-tab-group" *ngIf="obk(data).length > 0 && lang && data[lang]" animationDuration="0ms"
         [selectedIndex]="selectedTabIndex"
         (selectedIndexChange)="onTabChange($event)">
 
@@ -68,7 +78,6 @@
           <div class="tab-content">
 
             <div *ngIf="entityType !== 'menu'" class="form-section">
-              <div class="section-title">General Information</div>
               <div class="form-group">
                 <mat-form-field appearance="outline" class="nameinput">
                   <mat-label>Model name (singular)</mat-label>
@@ -78,9 +87,6 @@
                   <mat-label>Model name (plural)</mat-label>
                   <input matInput [(ngModel)]="data[lang].plural.value" spellcheck="true">
                 </mat-form-field>
-              </div>
-              <div class="section-title">Description</div>
-              <div class="form-group">
                 <mat-form-field appearance="outline" class="descinput">
                   <mat-label>Model description</mat-label>
                   <input matInput [(ngModel)]="data[lang].description.value" spellcheck="true">
@@ -89,9 +95,6 @@
             </div>
 
             <div *ngIf="entityType !== 'menu'" class="model-items">
-              <div class="section-title" style="margin-top: 1.5rem; margin-bottom: 1rem;">
-                Field Translations
-              </div>
               <app-translation-table
                 [tabName]="'model'"
                 [items]="data[lang].model"
@@ -116,7 +119,6 @@
                 <div class="tab-content">
 
                   <div class="form-section">
-                    <div class="section-title">{{ view }} - General Information</div>
                     <div class="form-group">
                       <mat-form-field appearance="outline" class="nameinput">
                         <mat-label>View name</mat-label>
@@ -134,7 +136,6 @@
                     <mat-tab label="Layout"
                       *ngIf="obk(data[lang].view[view].layout).length > 0">
                       <div class="tab-content">
-                        <div class="section-title">Layout Components</div>
                         <app-translation-table
                           [tabName] = "'layout'"
                           [items]="data[lang].view[view].layout"
@@ -147,7 +148,6 @@
                     <mat-tab label="Actions"
                       *ngIf="obk(data[lang].view[view].actions).length > 0">
                       <div class="tab-content">
-                        <div class="section-title">View Actions</div>
                         <app-translation-table
                           [tabName] = "'actions'"
                           [items]="data[lang].view[view].actions"
@@ -160,7 +160,6 @@
                     <mat-tab label="Routes"
                       *ngIf="obk(data[lang].view[view].routes).length > 0">
                       <div class="tab-content">
-                        <div class="section-title">View Routes</div>
                         <app-translation-table
                           [tabName] = "'routes'"
                           [items]="data[lang].view[view].routes"
@@ -179,7 +178,6 @@
 
         <mat-tab label="Error">
           <div class="tab-content">
-            <div class="section-title">Error Messages</div>
             
             <div *ngFor="let errType of getErrorFieldNames(lang)" class="error-section" appScrollTarget="error-{{errType}}">
 
@@ -258,6 +256,7 @@
             </div>
           </div>
         </mat-tab>
+        
 
       </mat-tab-group>
     </mat-card-content>
