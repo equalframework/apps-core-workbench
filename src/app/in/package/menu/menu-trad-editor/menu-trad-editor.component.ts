@@ -59,6 +59,8 @@ export class MenuTradEditorComponent implements OnInit {
         const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         switch (value.length) {
             case 5:
+                if (!lower.includes(value[0])) { return { case: true }; }
+                if (!lower.includes(value[1])) { return { case: true }; }
                 if (value[2] !== '_') { return { case: true }; }
                 if (!upper.includes(value[3])) { return { case: true }; }
                 if (!upper.includes(value[4])) { return { case: true }; }
