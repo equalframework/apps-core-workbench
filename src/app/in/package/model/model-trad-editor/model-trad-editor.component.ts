@@ -14,6 +14,7 @@ import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer
 import { Location } from '@angular/common';
 import { JsonValidationService } from 'src/app/in/_services/json-validation.service';
 import { FIELD_CONFIGS } from './_object/translation.types';
+import { text } from 'd3';
 
 @Component({
   selector: 'app-model-trad-editor',
@@ -68,16 +69,19 @@ export class ModelTradEditorComponent implements OnInit {
     };
 
     public readonly FIELD_TYPE_ERRORS: { [type: string]: string[] } = {
-        string: ['missing_mandatory', 'non_nullable', 'size_exceeded', 'pattern_mismatch', 'invalid_choice'],
-        text: ['missing_mandatory', 'non_nullable', 'size_exceeded', 'broken_usage', 'pattern_mismatch', 'invalid_choice'],
-        date: ['missing_mandatory', 'non_nullable', 'invalid_type', 'invalid_date', 'pattern_mismatch'],
-        integer: ['missing_mandatory', 'non_nullable', 'invalid_type', 'pattern_mismatch'],
-        float: ['missing_mandatory', 'non_nullable', 'invalid_type', 'pattern_mismatch'],
-        boolean: ['missing_mandatory', 'non_nullable', 'invalid_type'],
-        email: ['missing_mandatory', 'non_nullable', 'invalid_email', 'pattern_mismatch'],
-        phone: ['missing_mandatory', 'non_nullable', 'invalid_phone', 'pattern_mismatch'],
-        uri: ['missing_mandatory', 'non_nullable', 'invalid_url', 'pattern_mismatch'],
-        computed: []
+        amount: ['invalid_amount'],
+        binary: ['size_exceeded'], image: ['size_exceeded'],
+        country: ['invalid_country'],
+        currency: ['invalid_currency'],
+        date: ['invalid_type', 'invalid_date'],
+        email: ['invalid_email'],
+        language: ['invalid_language'],
+        locale: ['invalid_language', 'invalid_country'],
+        number: ['not_boolean', 'not_integer', 'size_exceeded', 'too_low', 'too_high', 'not_natural', 'not_real'],
+        password: ['invalid_password'],
+        phone: ['invalid_phone'],
+        text: ['size_exceeded', 'broken_usage'], icon: ['size_exceeded', 'broken_usage'],
+        uri: ['invalid_url', 'invalid_iban', 'invalid_ean']
     };
 
     packageName: string;
@@ -112,7 +116,7 @@ export class ModelTradEditorComponent implements OnInit {
     private _modelTemplate: {
         modelFields: string[],
         views: { name: string, view: View }[],
-        errors: { [field: string]: { fieldType: string, errorTypes: string[] } } } | null = null;
+        errors: { [field: string]: { fieldUsage: string, errorTypes: string[] } } } | null = null;
     private activatorRegistry: QueryParamActivatorRegistry;
 
     static snakeCaseValidator(control: AbstractControl): ValidationErrors | null {
@@ -460,12 +464,12 @@ export class ModelTradEditorComponent implements OnInit {
                 console.log(`Loaded view schema for ${result!.fullName}:`, result!.viewSchema);
                 return { name: result!.viewName, view: new View(result!.viewSchema || {}, result!.viewName.split('.')[0]) };
             });
-        const errors: { [field: string]: { fieldType: string; errorTypes: string[] } } = {};
+        const errors: { [field: string]: { fieldUsage: string; errorTypes: string[] } } = {};
         for (const field of modelFields) {
-            const fieldType = scheme.fields[field].type || 'string';
+            const fieldUsage = scheme.fields[field].usage || '';
             errors[field] = {
-                fieldType,
-                errorTypes: this.FIELD_TYPE_ERRORS[fieldType] || []
+                fieldUsage,
+                errorTypes: this.FIELD_TYPE_ERRORS[fieldUsage] || []
             };
         }
 
@@ -640,19 +644,19 @@ export class ModelTradEditorComponent implements OnInit {
         return [];
     }
 
-    getFieldType(fieldName: string): string {
+    getFieldUsage(fieldName: string): string {
         if (this._modelTemplate && this._modelTemplate.errors && this._modelTemplate.errors[fieldName]) {
-            return this._modelTemplate.errors[fieldName].fieldType || 'string';
+            console.log(`Field usage for ${fieldName}:`, this._modelTemplate.errors[fieldName].fieldUsage.split('/')[0]);
+            return this._modelTemplate.errors[fieldName].fieldUsage.split('/')[0];
         }
-        return 'string';
+        return '';
     }
 
     getSuggestedErrorsForField(fieldName: string): string[] {
-        if (this._modelTemplate && this._modelTemplate.errors && this._modelTemplate.errors[fieldName]) {
-            return this._modelTemplate.errors[fieldName].errorTypes || [];
-        }
-        const fieldType = this.getFieldType(fieldName);
-        return this.FIELD_TYPE_ERRORS[fieldType] || [];
+        const fieldUsage = this.getFieldUsage(fieldName);
+        // #memo: enhancement - we could assume certain error types based on field type even
+        // if usage is not explicitly defined
+        return this.FIELD_TYPE_ERRORS[fieldUsage] || [];
     }
 
     getSuggestedErrorsNotAdded(fieldName: string, lang: string): string[] {

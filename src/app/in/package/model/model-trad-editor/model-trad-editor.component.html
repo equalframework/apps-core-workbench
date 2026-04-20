@@ -212,7 +212,7 @@
                     </button>
                   </div>
                   <span class="error-field-name">{{ errType }}</span>
-                  <span class="field-type-badge">{{ getFieldType(errType) }}</span>
+                  <span class="field-type-badge">{{ getFieldUsage(errType) }}</span>
                 </div>
                 <mat-checkbox appFocusableField="error-{{errType}}-checkbox"
                   [checked]="data[lang].error._base[errType].active"
