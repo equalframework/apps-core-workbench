@@ -149,7 +149,6 @@ export class ModelTradEditorComponent implements OnInit {
     }
 
     async ngOnInit(): Promise<void> {
-        console.log('Collecting all languages codes...');
         this.allLanguages = await this.workbenchService.collectAllLanguagesCode().toPromise();
         const selectedPackage = this.route.parent?.snapshot.paramMap.get('package_name');
         const selectedModel = this.route.snapshot.paramMap.get('class_name');
@@ -192,7 +191,6 @@ export class ModelTradEditorComponent implements OnInit {
         });
 
         this.loading = false;
-        console.log('Data after initialization:', this.data);
         void this.fetchBackgroundData();
 
     }
@@ -297,7 +295,6 @@ export class ModelTradEditorComponent implements OnInit {
     async initTranslations(): Promise<void> {
         this.backgroundTranslationsLoadStarted = false;
         this.data = {};
-        console.log('Collecting all translations for model...');
         const allData = await this.workbenchService.getTranslations(this.packageName, this.modelName).toPromise();
 
         if (!allData) {
@@ -310,12 +307,9 @@ export class ModelTradEditorComponent implements OnInit {
 
         if (firstLang) {
             const perLangDataMap = await this.fetchAllTranslationLanguages(langs);
-            console.log('Per-language data map:', perLangDataMap);
             await this.fillLanguage(firstLang, allData, perLangDataMap);
-            console.log('Filled first language:', firstLang, this.data[firstLang]);
             this.lang = firstLang;
             this.loading = false; // reveal UI as soon as first language is ready
-            console.log('Updating available languages after loading first language...');
             this.updateAvailableLanguages();
 
             await this.fetchRemainingTranslationsInBackground(langs, firstLang, allData, perLangDataMap);
@@ -347,7 +341,6 @@ export class ModelTradEditorComponent implements OnInit {
 
     private async fillLanguage(lang: string, allData: { [key: string]: any } | null | undefined, perLangDataMap?: { [lang: string]: any }): Promise<Translator | null> {
         const newTranslation = await this.createNewLang();
-        console.log('Created new translator for language', lang, newTranslation);
         if (!newTranslation.ok) { return null; }
         this.data[lang] = cloneDeep(newTranslation);
         this.ensureErrorBase(lang);
@@ -370,20 +363,17 @@ export class ModelTradEditorComponent implements OnInit {
     private async fetchRemainingTranslationsInBackground(
         langs: string[], firstLang: string | null, allData: { [key: string]: any } | null | undefined, perLangDataMap: { [lang: string]: any })
         : Promise<void> {
-        console.log('Attempting to load remaining translations in background...');
         if (this.backgroundTranslationsLoadStarted) {
             return;
         }
         
         this.backgroundTranslationsLoadStarted = true;
-        console.log('Background loading for remaining languages started.');
         
         const remainingLangs = langs.filter(lang => lang !== firstLang);
         const fillPromises = remainingLangs.map(lang =>
             this.fillLanguage(lang, allData, perLangDataMap)
                 .then(() => {
                     this.updateAvailableLanguages();
-                    console.log(`Background loaded language: ${lang}`, this.data[lang]);
                 })
         );
         
@@ -461,7 +451,6 @@ export class ModelTradEditorComponent implements OnInit {
         const views: { name: string, view: View }[] = viewResults
             .filter(result => result !== null)
             .map(result => {
-                console.log(`Loaded view schema for ${result!.fullName}:`, result!.viewSchema);
                 return { name: result!.viewName, view: new View(result!.viewSchema || {}, result!.viewName.split('.')[0]) };
             });
         const errors: { [field: string]: { fieldUsage: string; errorTypes: string[] } } = {};
@@ -480,7 +469,6 @@ export class ModelTradEditorComponent implements OnInit {
         if (!this._modelTemplate) {
             await this._buildModelTemplate();
         }
-        console.log('Model template built:', this._modelTemplate);
         return new Translator(this._modelTemplate!.modelFields, this._modelTemplate!.views);
     }
 
@@ -646,7 +634,6 @@ export class ModelTradEditorComponent implements OnInit {
 
     getFieldUsage(fieldName: string): string {
         if (this._modelTemplate && this._modelTemplate.errors && this._modelTemplate.errors[fieldName]) {
-            console.log(`Field usage for ${fieldName}:`, this._modelTemplate.errors[fieldName].fieldUsage.split('/')[0]);
             return this._modelTemplate.errors[fieldName].fieldUsage.split('/')[0];
         }
         return '';
@@ -704,13 +691,11 @@ export class ModelTradEditorComponent implements OnInit {
         for (const lang in this.data) {
             exportedData[lang] = this.data[lang].export();
         }
-        console.log('Exported data for saving:', exportedData);
         this.jsonValidationService.validateAndSave(
             this.jsonValidationService.validateBySchemaType(exportedData, 'model-translations', this.packageName),
             () => this.workbenchService.saveTranslations(this.packageName, this.modelName, this.data),
             (saving) => this.isSaving = saving
         );
-        console.log('Validation passed, save initiated.');
     }
 
     debugExport(): void {
@@ -732,13 +717,11 @@ export class ModelTradEditorComponent implements OnInit {
     }
 
     private async fetchBackgroundData(): Promise<void> {
-        console.log('Attempting to load background data (component provider)...');
         if (this.backgroundPreloadStarted) {
             return;
         }
 
         this.backgroundPreloadStarted = true;
-        console.log('Background preload for component provider started.');
         try {
             if (!this.provider) {
                 this.provider = this.injector.get(EqualComponentsProviderService);

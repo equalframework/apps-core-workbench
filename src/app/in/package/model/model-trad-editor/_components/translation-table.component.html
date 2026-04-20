@@ -17,7 +17,7 @@
     >
 
       <td class="checkbox-cell">
-        <mat-checkbox appScrollTarget="{{tabName}}-{{key}}"
+        <mat-checkbox appScrollTarget="{{tabView}}-{{tabName}}-{{key}}"
           [checked]="isItemActive(items[key])"
           (change)="changeActive(key)">
         </mat-checkbox>

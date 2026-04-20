@@ -160,7 +160,8 @@
                           [tabName] = "'layout'"
                           [items]="data[lang].view[view].layout"
                           [fields]="FIELD_CONFIGS.layout"
-                          [selectedField]="activeField">
+                          [selectedField]="activeField"
+                          [tabView]="view">
                         </app-translation-table>
                       </div>
                     </mat-tab>
@@ -172,7 +173,8 @@
                           [tabName] = "'actions'"
                           [items]="data[lang].view[view].actions"
                           [fields]="FIELD_CONFIGS.actions"
-                          [selectedField]="activeField">
+                          [selectedField]="activeField"
+                          [tabView]="view">
                         </app-translation-table>
                       </div>
                     </mat-tab>
@@ -184,7 +186,8 @@
                           [tabName] = "'routes'"
                           [items]="data[lang].view[view].routes"
                           [fields]="FIELD_CONFIGS.actions"
-                          [selectedField]="activeField">
+                          [selectedField]="activeField"
+                          [tabView]="view">
                         </app-translation-table>
                       </div>
                     </mat-tab>
