@@ -91,6 +91,22 @@ export class MenuTradEditorComponent implements OnInit {
 
 
     private initializeNavigation(): void {
+        const langActivator = {
+            type: 'lang',
+            queryParamKeys: ['lang'],
+            canHandle: (key: string, value: any) => {
+                if (key !== 'lang') { return false; }
+                return this.allLanguages.includes(value) && this.localSchema[value] !== undefined;
+            },
+            activate: async (key: string, value: any, context: any) => {
+                if (this.allLanguages.includes(value) && context.localSchema[value]) {
+                    context.onLangChange(value);
+                    await new Promise(resolve => setTimeout(resolve, 0));
+                }
+            }
+        };
+        this.activatorRegistry.register(langActivator);
+
         const allTabs = this.TAB_NAMES;
         const tabActivator = {
             type: 'tab',

@@ -196,6 +196,22 @@ export class ModelTradEditorComponent implements OnInit {
     }
 
     private initializeNavigation(): void {
+        const langActivator = {
+            type: 'lang',
+            queryParamKeys: ['lang'],
+            canHandle: (key: string, value: any) => {
+                if (key !== 'lang') { return false; }
+                return this.allLanguages.includes(value) && this.data[value] !== undefined;
+            },
+            activate: async (key: string, value: any, context: any) => {
+                if (this.allLanguages.includes(value) && context.data[value]) {
+                    context.onLangChange(value);
+                    await new Promise(resolve => setTimeout(resolve, 0));
+                }
+            }
+        };
+        this.activatorRegistry.register(langActivator);
+
         const tabActivator = {
             type: 'tab',
             queryParamKeys: ['tab'],
