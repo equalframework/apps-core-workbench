@@ -3,6 +3,8 @@ import { Field } from '../../_object/Field';
 import { FieldEditorListComponent } from './field-editor-list.component';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { Router, ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
 
 describe('FieldEditorListComponent', () => {
   let component: FieldEditorListComponent;
@@ -14,6 +16,8 @@ describe('FieldEditorListComponent', () => {
       imports: [ HttpClientTestingModule ],
       providers: [
         { provide: WorkbenchService, useValue: jasmine.createSpyObj('WorkbenchService', ['someMethod']) },
+        { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigate']) },
+        { provide: ActivatedRoute, useValue: { queryParams: of({}) } },
       ]
     })
     .compileComponents();
