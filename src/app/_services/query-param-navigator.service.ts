@@ -186,11 +186,14 @@ export class QueryParamNavigatorService {
         
         // If element is mat-checkbox, click its .mat-checkbox-layout child; otherwise click the element itself
         if (element.classList.contains('mat-checkbox')) {
-          const layoutChild = element.querySelector('.mat-checkbox-layout');
-          if (layoutChild) {
-            (layoutChild as HTMLElement).click();
-          } else {
-            element.click();
+          const checkboxInput = element.querySelector('input[type="checkbox"]') as HTMLInputElement;
+          if (!checkboxInput || !checkboxInput.checked) {
+            const layoutChild = element.querySelector('.mat-checkbox-layout');
+            if (layoutChild) {
+              (layoutChild as HTMLElement).click();
+            } else {
+              element.click();
+            }
           }
         } else {
           // For inputs, clicking may not be necessary - focus is usually enough

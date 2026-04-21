@@ -168,30 +168,6 @@ export class MenuTradEditorComponent implements OnInit {
             if (Object.keys(params).length === 0) {
                 return;
             }
-
-            // Handle tab parameter (set default to 'menu' if not present)
-            if (params['tab']) {
-                this.activeTab = params['tab'];
-            } else if (params['field']) {
-                // If field params are present, auto-activate the menu tab
-                this.activeTab = 'menu';
-            }
-
-            // Handle field parameters - extract the fieldId
-            if (params['field']) {
-                // If it's a full field reference like 'field-id-name', extract the ID
-                const parts = params['field'].split('-');
-                if (parts.length > 1 && parts[0] === 'field') {
-                    // Full field reference format
-                    this.activeField = parts[1];
-                } else {
-                    // Simple element ID
-                    this.activeField = params['field'];
-                }
-            }
-
-            // Now use the navigator service to handle scroll and focus
-            // This will respect the activeTab and activeField we just set
             await this.queryParamNavigator.handleQueryParams(params, {
                 activators: this.activatorRegistry,
                 context: this,
