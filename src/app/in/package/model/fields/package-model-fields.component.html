@@ -45,8 +45,7 @@
             (CRUD)="onChange($event)"
             (select)="selected_index = $event">
         </app-field-editor-list>
-    <app-field-editor-sp sidepane
-            [inherited]="isInherited(fieldList[selected_index])"
+    <app-field-editor-sp sidepane            [(selectedTabIndex)]="selectedTabIndex"            [inherited]="isInherited(fieldList[selected_index])"
             [field]="fieldList[selected_index]"
             [entity]="packageName + '\\' + className"
             [types]="types"

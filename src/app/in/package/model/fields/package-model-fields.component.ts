@@ -14,7 +14,7 @@ import { takeUntil, take } from 'rxjs/operators';
 import { NotificationService } from 'src/app/in/_services/notification.service';
 import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
 import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
-import { QueryParamActivatorRegistry, IQueryParamActivator } from 'src/app/_services/query-param-activator.registry';
+import { QueryParamActivatorRegistry, IQueryParamActivator, QueryParamTabActivator } from 'src/app/_services/query-param-activator.registry';
 import { QueryParamNavigatorService } from 'src/app/_services/query-param-navigator.service';
 import { JsonValidationService } from 'src/app/in/_services/json-validation.service';
 
@@ -63,6 +63,7 @@ export class PackageModelFieldsComponent implements OnInit {
 
     public fieldName: string[] = [];
     public computedFields: string[] = [];
+    public selectedTabIndex = 0;  // Track selected tab for field editor: 0 = Basic, 1 = Advanced
 
     public loading = true;
 
@@ -111,9 +112,12 @@ export class PackageModelFieldsComponent implements OnInit {
 
     private initializeNavigation(): void {
         this.queryParamActivatorRegistry = new QueryParamActivatorRegistry();
+        const tabNameToIndexMap = { basic: 0, advanced: 1 };
+        const tabActivator = new QueryParamTabActivator(tabNameToIndexMap, 'selectedTabIndex');
+        this.queryParamActivatorRegistry.register(tabActivator);
     }
 
-    private async handleQueryParams(elementKeys: string[], scrollDelay: number): Promise<void> {
+    private async handleQueryParams(scrollDelay: number): Promise<void> {
         const queryParams = await this.route.queryParams.pipe(take(1), takeUntil(this.ngUnsubscribe)).toPromise();
         if (Object.keys(queryParams).length === 0 || !this.queryParamActivatorRegistry) {
             return;
@@ -121,9 +125,7 @@ export class PackageModelFieldsComponent implements OnInit {
         this.queryParamNavigator.handleQueryParams(queryParams, {
             activators: this.queryParamActivatorRegistry,
             context: this,
-            elementKeys,
-            scrollDelay,
-            scrollOptions: { behavior: 'smooth', block: 'center' }
+            delay: scrollDelay,
         });
     }
 
@@ -152,7 +154,6 @@ export class PackageModelFieldsComponent implements OnInit {
         this.parentFieldList = [];
 
         this.schema = await this.workbenchService.getSchema(this.packageName + '\\' + this.className).toPromise();
-        console.log('Loaded schema for', this.packageName + '\\' + this.className, this.schema);
         this.modelName = this.className || '';
         this.modelDescription = this.schema.description || '';
         this.modelLink = this.schema.link || '';
@@ -167,9 +168,8 @@ export class PackageModelFieldsComponent implements OnInit {
         for (const item in this.parentSchema.fields) {
             this.parentFieldList.push(new Field(cloneDeep(this.parentSchema.fields[item]), item));
         }
-        this.selected_index = this.fieldList.length > 0 ? this.fieldList.length - 1 : -1;
         this.loading = false;
-        await this.handleQueryParams(['element'], 100);
+        await this.handleQueryParams(100);
     }
 
     public cancelOneChange(): void {

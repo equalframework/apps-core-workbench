@@ -1,7 +1,8 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, Optional } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Field } from '../../_object/Field';
 import { cloneDeep } from 'lodash';
+import { QueryParamNavigatorService } from 'src/app/_services/query-param-navigator.service';
 
 @Component({
   selector: 'app-field-editor-list',
@@ -43,7 +44,9 @@ export class FieldEditorListComponent implements OnInit {
     many2many: 'height'
   };
 
-  constructor() {
+  constructor(
+    @Optional() private queryParamNavigator: QueryParamNavigatorService
+  ) {
 
   }
 

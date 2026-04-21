@@ -19,9 +19,11 @@ export class FieldEditorSpComponent implements OnInit {
   @Input() fields: string[] = [];
   @Input() computedFields: string[] = [];
   @Input() dummyScheme: any = {};
+  @Input() selectedTabIndex = 0;
 
   @Output() CRUD = new EventEmitter<string>();
   @Output() navToParent = new EventEmitter<void>();
+  @Output() selectedTabIndexChange = new EventEmitter<number>();
 
   dependencyInput = '';
 

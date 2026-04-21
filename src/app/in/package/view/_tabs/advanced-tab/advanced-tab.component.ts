@@ -25,7 +25,6 @@ export class AdvancedTabComponent implements OnInit {
 
   ngOnInit(): void {
     // Initialization
-    console.log('AdvancedTabComponent initialized with viewObj:', this.viewObj);
   }
 
   addNewGroupBy(): void {
