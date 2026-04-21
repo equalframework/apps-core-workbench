@@ -105,8 +105,6 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
 
             const modelList = await this.workbenchService.collectClasses(true).pipe(take(1), takeUntil(this.ngUnsubscribe)).toPromise();
 
-            await this.handleQueryParamsOnce(['element'], 0);
-
             this.isRightPaneLoading = true;
 
             const dataControllers = await this.workbenchService.collectControllers('data').pipe(take(1), takeUntil(this.ngUnsubscribe)).toPromise();
@@ -115,8 +113,9 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
             const dataEntities = dataControllers.map((item: string) => item.split(':')[0]);
             this.entities['model'] = modelEntities;
             this.entities['data'] = dataEntities;
+            console.log('Right pane data loaded');
 
-            await this.handleQueryParamsOnce(['field'], 100);
+            await this.handleQueryParamsOnce(0);
             this.isRightPaneLoading = false;
         } catch (err) {
             this.isRightPaneLoading = false;
@@ -124,7 +123,8 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
         }
     }
 
-    private async handleQueryParamsOnce(elementKeys: string[], scrollDelay: number): Promise<void> {
+    private async handleQueryParamsOnce(delay: number): Promise<void> {
+        console.log('Handling query params with delay', delay);
         const queryParams = await this.route.queryParams.pipe(take(1), takeUntil(this.ngUnsubscribe)).toPromise();
         if (Object.keys(queryParams).length === 0 || !this.queryParamActivatorRegistry) {
             return;
@@ -132,9 +132,7 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
         this.queryParamNavigator.handleQueryParams(queryParams, {
             activators: this.queryParamActivatorRegistry,
             context: this,
-            elementKeys,
-            scrollDelay,
-            scrollOptions: { behavior: 'smooth', block: 'center' }
+            delay
         });
     }
 
@@ -145,9 +143,9 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
         // Register activators for menu navigation
         const fieldActivator = {
             type: 'field',
-            queryParamKeys: ['element', 'field'],
+            queryParamKeys: ['field'],
             canHandle: (key: string, value: any) => {
-                return ['element', 'field'].includes(key);
+                return key === 'field';
             },
             activate: async (key: string, value: any, context: any) => {
                 if (value && context.object && context.object.layout && context.object.layout.items) {

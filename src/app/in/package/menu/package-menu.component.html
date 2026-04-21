@@ -55,7 +55,7 @@
             <div class="right-pane-loader" *ngIf="isRightPaneLoading && selectedItem">
                 <mat-spinner diameter="42"></mat-spinner>
             </div>
-            <div class="empty-selection" *ngIf="!selectedItem">Please select an item to view its details.</div>
+            <div class="empty-selection" *ngIf="!selectedItem"> </div>
 
             <div class="margin-paddin details-pane" *ngIf="selectedItem && !isRightPaneLoading">
                 <div class="pane-section">
@@ -63,19 +63,19 @@
                     <div class="fields-grid fields-grid-4">
                         <mat-form-field class="field-item">
                             <mat-label>Id</mat-label>
-                            <input matInput [(ngModel)]="selectedItem.id" appFocusableField="field-{{selectedItem.id}}-id">
+                            <input matInput [(ngModel)]="selectedItem.id" appFocusableField="{{selectedItem.id}}-id">
                         </mat-form-field>
                         <mat-form-field class="field-item">
                             <mat-label>Label</mat-label>
-                            <input matInput [(ngModel)]="selectedItem.label" appFocusableField="field-{{selectedItem.id}}-label">
+                            <input matInput [(ngModel)]="selectedItem.label" appFocusableField="{{selectedItem.id}}-label">
                         </mat-form-field>
                         <mat-form-field class="field-item">
                             <mat-label>Icon</mat-label>
-                            <input matInput [(ngModel)]="selectedItem.icon" appFocusableField="field-{{selectedItem.id}}-icon">
+                            <input matInput [(ngModel)]="selectedItem.icon" appFocusableField="{{selectedItem.id}}-icon">
                         </mat-form-field>
                         <mat-form-field class="field-item">
                             <mat-label>Type</mat-label>
-                            <mat-select [(value)]="selectedItem.type" appFocusableField="field-{{selectedItem.id}}-type">
+                            <mat-select [(value)]="selectedItem.type" appFocusableField="{{selectedItem.id}}-type">
                                 <mat-option *ngFor="let type of menuItem.availableTypes" [value]="type">{{type}}</mat-option>
                             </mat-select>
                         </mat-form-field>
@@ -83,11 +83,11 @@
                     <div class="fields-grid fields-grid-2">
                         <mat-form-field class="field-item field-span-2">
                             <mat-label>Description</mat-label>
-                            <input matInput [(ngModel)]="selectedItem.description" appFocusableField="field-{{selectedItem.id}}-description">
+                            <input matInput [(ngModel)]="selectedItem.description" appFocusableField="{{selectedItem.id}}-description">
                         </mat-form-field>
                         <mat-form-field class="field-item field-span-2">
                             <mat-label>Route</mat-label>
-                            <input matInput [(ngModel)]="selectedItem.route" appFocusableField="field-{{selectedItem.id}}-route">
+                            <input matInput [(ngModel)]="selectedItem.route" appFocusableField="{{selectedItem.id}}-route">
                         </mat-form-field>
                     </div>
                 </div>
@@ -127,7 +127,7 @@
                     <div class="fields-grid fields-grid-2 context-options">
                         <mat-form-field class="field-item">
                             <mat-label>Purpose</mat-label>
-                            <mat-select [value]="selectedItem.context.purpose" appFocusableField="field-{{selectedItem.id}}-purpose">
+                            <mat-select [value]="selectedItem.context.purpose" appFocusableField="{{selectedItem.id}}-purpose">
                                 <mat-option *ngFor="let purpose of menuContext.PossiblePurpose" value="purpose">
                                     {{purpose}}
                                 </mat-option>
@@ -135,7 +135,7 @@
                         </mat-form-field>
                         <mat-form-field class="field-item">
                             <mat-label>Display mode</mat-label>
-                            <mat-select [value]="selectedItem.context.displayMode" appFocusableField="field-{{selectedItem.id}}-display_mode">
+                            <mat-select [value]="selectedItem.context.displayMode" appFocusableField="{{selectedItem.id}}-display_mode">
                                 <mat-option *ngFor="let purpose of menuContext.PossibleDisplayMode" value="purpose">
                                     {{purpose}}
                                 </mat-option>
@@ -146,7 +146,7 @@
                     <div class="sort-row" *ngIf="selectedItem.context._hasSort">
                         <mat-form-field class="field-item">
                             <mat-label>Sort</mat-label>
-                            <mat-select [value]="selectedItem.context.sort" appFocusableField="field-{{selectedItem.id}}-sort">
+                            <mat-select [value]="selectedItem.context.sort" appFocusableField="{{selectedItem.id}}-sort">
                                 <mat-option value="asc">
                                     asc
                                 </mat-option>

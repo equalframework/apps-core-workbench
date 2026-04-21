@@ -6,23 +6,6 @@ export interface GridHeaderColumn {
   colspan: number;
 }
 
-/**
- * Affiche un bloc complet : en-tête de colonnes + N lignes de traduction.
- *
- * Utilisation :
- *   <app-translation-table
- *     [items]="data[lang].view['menu'].layout"
- *     [fields]="FIELD_CONFIGS.menuItem"
- *     [metadata]="menuMetadata"
- *     [headers]="MENU_HEADERS">
- *   </app-translation-table>
- *
- * Où MENU_HEADERS = [
- *   { label: 'Translated', colspan: 1 },
- *   { label: 'Menu Item',  colspan: 2 },
- *   { label: 'Label',      colspan: 13 },
- * ]
- */
 @Component({
   selector: 'app-translation-table',
   styleUrls: ['./translation-table.component.scss'],
