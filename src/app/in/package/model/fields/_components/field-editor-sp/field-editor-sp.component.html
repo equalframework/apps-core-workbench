@@ -170,7 +170,7 @@
                 <div *ngIf="field._hasSelection && finalTypeDirective['selection']" class="conditionalcontainer selection-flex">
                     <div class="title selection-title-flex">
                         <label>Selection</label>
-                        <button mat-button (click)="addToSelection()" [disabled]="field.isUneditable" [appFocusableField]="field.name + '-selection-add'"><mat-icon>add</mat-icon> Add item</button>
+                        <button mat-button (click)="addToSelection()" [disabled]="field.isUneditable" [appFocusableField]="field.name + '-selection_add'"><mat-icon>add</mat-icon> Add item</button>
                     </div>
                     <div *ngFor="let item of field.selection; index as index" class="selection-el selection-el-flex">
                         <div class="t-input-holder t-input-holder-flex">
@@ -180,7 +180,7 @@
                                 name="option {{index+1}}"
                                 (changed)="changeSelection(index,$event)"
                                 [disabled]="field.isUneditable"
-                                [appFocusableField]="field.name + '-selection-' + index"
+                                [appFocusableField]="field.name + '-selection_' + index"
                             ></type-input>
                             <button mat-icon-button (click)="deleteSelection(index)" [disabled]="field.isUneditable"><mat-icon>delete</mat-icon></button>
                         </div>
