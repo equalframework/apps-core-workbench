@@ -7,14 +7,14 @@
         </div>
         <div class="part-content">
             <div class="form-row">
-                <type-input [appFocusableField]="'param-header-content_type'"
+                <type-input [appFocusableField]="'response-header-content_type'"
                     class="field-width-20"
                     type="string"
                     name="content-type"
                     [value]="object.contentType"
                     (changed)="changeContentType($event)">
                 </type-input>
-                <type-input [appFocusableField]="'param-header-charset'"
+                <type-input [appFocusableField]="'response-header-charset'"
                     class="field-width-20"
                     type="string"
                     name="charset"
@@ -22,7 +22,7 @@
                     (changed)="changeCharset($event)">
                 </type-input>
             </div>
-            <type-input [appFocusableField]="'param-header-accept_origin'"
+            <type-input [appFocusableField]="'response-header-accept_origin'"
                 type="array"
                 name="accept-origin"
                 [value]="object.acceptOrigin"
@@ -42,7 +42,7 @@
             <div class="form-row">
                 <mat-form-field class="field-width-20">
                     <mat-label>Return type</mat-label>
-                    <input matInput (keydown)="noCancel($event)" [formControl]="typeControl" [matAutocomplete]="auto">
+                    <input matInput [appFocusableField]="'response-schema-return_type'" (keydown)="noCancel($event)" [formControl]="typeControl" [matAutocomplete]="auto">
                     <mat-autocomplete #auto>
                         <mat-optgroup *ngIf="filteredTypesCustom.length > 0" label="Return types">
                             <mat-option *ngFor="let type of filteredTypesCustom" [value]="type">{{type}}</mat-option>
@@ -55,7 +55,7 @@
 
                 <mat-form-field>
                     <mat-label>Quantity</mat-label>
-                    <mat-select [value]="object.qty" (valueChange)="changeQty($event)">
+                    <mat-select [value]="object.qty" (valueChange)="changeQty($event)" [appFocusableField]="'response-schema-qty'">
                         <mat-option value="one">one</mat-option>
                         <mat-option value="many">many</mat-option>
                     </mat-select>

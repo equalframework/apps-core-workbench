@@ -101,8 +101,7 @@ export class PackageControllerComponent implements OnInit, OnDestroy {
                     this.queryParamNavigator.handleQueryParams(params, {
                         activators: this.queryParamActivatorRegistry,
                         context: this,
-                        elementKeys: ['element'],
-                        scrollDelay: 100
+                        delay: 0
                     });
                 }
             });
