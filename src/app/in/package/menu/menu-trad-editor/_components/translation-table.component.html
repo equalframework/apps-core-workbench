@@ -25,7 +25,7 @@
 
       <!-- Active checkbox -->
       <td class="checkbox-cell">
-        <mat-checkbox
+        <mat-checkbox appFocusableField="{{key}}"
           [checked]="items[key].is_active"
           (change)="changeActive(key)">
         </mat-checkbox>
@@ -44,7 +44,7 @@
           <mat-icon *ngIf="!getItemIcon(key) && !hasChildren(key)" class="hierarchy-icon entry-icon">label</mat-icon>
           
           <!-- Display name -->
-          <label class="fieldnamelabel" appScrollTarget="{{key}}">{{ getDisplayName(key) }}</label>
+          <label class="fieldnamelabel">{{ getDisplayName(key) }}</label>
           
           <!-- Breadcrumb removed per UX request -->
         </div>
@@ -57,7 +57,7 @@
             [attr.colspan]="field.colspan">
           <input
             matInput
-            appFocusableField="field-{{key}}-label"
+            appFocusableField="{{key}}-label"
             [placeholder]="field.placeholder"
             [ngModel]="getFieldValue(key, field.key)"
             (ngModelChange)="setFieldValue(key, field.key, $event)"

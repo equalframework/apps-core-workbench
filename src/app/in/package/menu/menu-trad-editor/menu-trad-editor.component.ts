@@ -117,7 +117,7 @@ export class MenuTradEditorComponent implements OnInit {
             activate: async (key: string, value: any, context: any) => {
                 if (allTabs.includes(value)) {
                     context.activeTab = value;
-                    await new Promise(resolve => setTimeout(resolve, 100));
+                    await new Promise(resolve => setTimeout(resolve, 0));
                 }
             }
         };
@@ -125,17 +125,14 @@ export class MenuTradEditorComponent implements OnInit {
 
         const fieldActivator = {
             type: 'field',
-            queryParamKeys: ['element', 'field'],
+            queryParamKeys: ['field'],
             canHandle: (key: string, value: any) => {
-                if (!['element', 'field'].includes(key)) { return false; }
-                // Don't check fieldExists here - we'll validate in activate phase if needed
-                return true;
+                return key === 'field';
             },
             activate: async (key: string, value: any, context: any) => {
                 context.activeField = value;
 
-                // Wait longer for template to render the table rows with appScrollTarget
-                await new Promise(resolve => setTimeout(resolve, 200));
+                await new Promise(resolve => setTimeout(resolve, 0));
             }
         };
         this.activatorRegistry.register(fieldActivator);
@@ -175,16 +172,22 @@ export class MenuTradEditorComponent implements OnInit {
             // Handle tab parameter (set default to 'menu' if not present)
             if (params['tab']) {
                 this.activeTab = params['tab'];
-            } else if (params['element'] || params['field']) {
-                // If element/field params are present, auto-activate the menu tab
+            } else if (params['field']) {
+                // If field params are present, auto-activate the menu tab
                 this.activeTab = 'menu';
             }
 
-            // Handle element/field parameters - set activeField directly before calling navigator
+            // Handle field parameters - extract the fieldId
             if (params['field']) {
-                this.activeField = params['field'].split('-')[1];
-            } else if (params['element']) {
-                this.activeField = params['element'];
+                // If it's a full field reference like 'field-id-name', extract the ID
+                const parts = params['field'].split('-');
+                if (parts.length > 1 && parts[0] === 'field') {
+                    // Full field reference format
+                    this.activeField = parts[1];
+                } else {
+                    // Simple element ID
+                    this.activeField = params['field'];
+                }
             }
 
             // Now use the navigator service to handle scroll and focus
@@ -192,9 +195,7 @@ export class MenuTradEditorComponent implements OnInit {
             await this.queryParamNavigator.handleQueryParams(params, {
                 activators: this.activatorRegistry,
                 context: this,
-                elementKeys: ['element', 'field'],
-                scrollDelay: 100,
-                scrollOptions: { behavior: 'smooth', block: 'center' }
+                delay: 0
             });
         });
 

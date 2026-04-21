@@ -1,6 +1,6 @@
 <button class="item-pretty" 
         [class.selected]="selectedItem && selectedItem === item" 
-        (click)="select.emit(item)" appScrollTarget="{{item.id}}">
+        (click)="select.emit(item)" appFocusableField="{{item.id}}">
     <div class="real-holder">
         <mat-icon *ngIf="item.icon" class="item-icon">{{item.icon}}</mat-icon>
         <div class="item-content">

@@ -28,6 +28,6 @@ export const MENU_FIELD_CONFIGS: {
   menuItem: MenuFieldColumnConfig[];
 } = {
   menuItem: [
-    { key: 'label', placeholder: 'Translation', colspan: 13 }
+    { key: 'label', placeholder: 'Label', colspan: 13 }
   ]
 };
