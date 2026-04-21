@@ -1,9 +1,11 @@
-import { Injectable} from '@angular/core';
+import { Injectable, Inject, Optional, InjectionToken } from '@angular/core';
 import { BehaviorSubject, forkJoin, from, Observable, of } from 'rxjs';
 import { EqualComponentDescriptor } from '../_models/equal-component-descriptor.class';
 import { catchError, map, switchMap, take } from 'rxjs/operators';
 import { ApiService } from 'sb-shared-lib';
 import { API_ENDPOINTS } from '../_models/api-endpoints';
+
+export const PRELOAD_COMPONENTS_TOKEN = new InjectionToken<boolean>('preloadComponents');
 
 type PreloadComponentType = 'class' | 'view' | 'controller' | 'menu' | 'route';
 type PreloadPriorityType = PreloadComponentType | 'package';
@@ -21,8 +23,10 @@ export class EqualComponentsProviderService {
       }
     public equalComponents$ = this.equalComponentsSubject.asObservable();
 
-    constructor(private api: ApiService) {
-        this.preloadComponents();
+    constructor(private api: ApiService, @Optional() @Inject(PRELOAD_COMPONENTS_TOKEN) preload?: boolean) {
+        if (preload) {
+            this.preloadComponents();
+        }
     }
 
 
