@@ -18,7 +18,7 @@
     <div class="section-body">
       <mat-form-field class="inputlong">
         <mat-label>Controller</mat-label>
-        <mat-select [(value)]="viewObj.controller" (selectionChange)="onViewObjChange()">
+        <mat-select [(value)]="viewObj.controller" (selectionChange)="onViewObjChange()" appFocusableField="advanced-controller">
           <mat-option *ngFor="let item of collectController" [value]="item">
             {{item === 'core_model_collect' ? 'core_model_collect (default)' : item}}
           </mat-option>
@@ -41,7 +41,8 @@
     <div class="section-body">
       <editor-access
         [obj]="viewObj.access"
-        [groups]="groups">
+        [groups]="groups"
+        appFocusableField="advanced-access">
       </editor-access>
     </div>
   </section>

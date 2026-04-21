@@ -1,10 +1,10 @@
-<div class="item" [appScrollTarget]="item.id">
+<div class="item">
     <div class="flex justify-between">
         <div>
             <div class="flex">
                 <mat-form-field>
                     <mat-label>Id</mat-label>
-                    <input 
+                    <input appFocusableField="{{'layout-' + item.value + '-id'}}"
                         matInput 
                         [(ngModel)]="item.id" 
                         [disabled]="isReadonly">
@@ -13,7 +13,7 @@
                     title="Type of the item &#010; * field : display a value &#010; * label : display a string"
                 >
                     <mat-label>type</mat-label>
-                    <mat-select 
+                    <mat-select appFocusableField="{{'layout-' + item.value + '-type'}}"
                         [(value)]="item.type" 
                         (valueChange)="update_has_field()" 
                         [disabled]="isReadonly">
@@ -25,7 +25,7 @@
                     title="{{item.type === 'field' ? 'field' : 'string'}} to display"
                 >
                     <mat-label>value</mat-label>
-                    <mat-select 
+                    <mat-select appFocusableField="{{'layout-' + item.value + '-value'}}"
                         [(value)]="item.value" 
                         (valueChange)="update_has_field()" 
                         [disabled]="isReadonly">
@@ -33,7 +33,7 @@
                     </mat-select>
                 </mat-form-field>
                 <mat-form-field *ngIf="!item.valueIsSelect">
-                    <input 
+                    <input
                         matInput 
                         placeholder="value" 
                         [value]="item.value" 
@@ -41,7 +41,7 @@
                         [disabled]="isReadonly">
                 </mat-form-field>
                 <mat-form-field class="percent-form">
-                    <input 
+                    <input appFocusableField="{{'layout-' + item.value + '-width'}}"
                         matInput 
                         placeholder="item width" 
                         type="number" 
@@ -52,7 +52,7 @@
                 </mat-form-field>
 
                 <mat-form-field class="ml1em">
-                    <input 
+                    <input appFocusableField="{{'layout-' + item.value + '-label'}}"
                         [disabled]="item.type !== 'field' || isReadonly" 
                         matInput 
                         placeholder="custom label" 
@@ -61,8 +61,9 @@
                 </mat-form-field>
             </div>
             <div  class="flex">
-                <mat-checkbox [checked]="item.readonly" (change)="item.readonly = $event.checked">readonly</mat-checkbox>
+                <mat-checkbox appFocusableField="{{'layout-' + item.value + '-is_readonly'}}" [checked]="item.readonly" (change)="item.readonly = $event.checked">readonly</mat-checkbox>
                 <mat-checkbox
+                    appFocusableField="{{'layout-' + item.value + '-has_visibility'}}"
                     title="Add a boolean or a domain that tell if this item is displayed or not"
                     [checked]="item.has_domain"
                     (change)="item.has_domain= $event.checked"
@@ -71,6 +72,7 @@
                     visibility
                 </mat-checkbox>
                 <mat-checkbox
+                appFocusableField="{{'layout-' + item.value + '-has_widget'}}"
                     title="Does this item has special properties &#010;(create a widget for this item)"
                     [checked]="item.has_widget"
                     (change)="item.has_widget= $event.checked"

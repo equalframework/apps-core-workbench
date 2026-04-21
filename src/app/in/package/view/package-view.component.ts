@@ -137,8 +137,7 @@ export class PackageViewComponent implements OnInit {
                     this.queryParamNavigator.handleQueryParams(params, {
                         activators: this.queryParamActivatorRegistry,
                         context: this,
-                        elementKeys: ['element'],
-                        scrollDelay: 100
+                        delay: 100
                     });
                 }
             });
