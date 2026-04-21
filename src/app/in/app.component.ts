@@ -4,7 +4,6 @@ import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-des
 import {Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 
-
 @Component({
     selector: 'app-component',
     templateUrl: './app.component.html',
@@ -31,7 +30,8 @@ export class AppComponent implements OnInit {
 
     constructor(
             private router: Router,
-        ) { }
+        ) {
+        }
 
     handleSearchScopeChange(newScope: string): void {
         setTimeout(() => {

@@ -2,7 +2,6 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import {FormBuilder, Validators} from '@angular/forms';
 import {STEPPER_GLOBAL_OPTIONS} from '@angular/cdk/stepper';
 import { Router } from '@angular/router';
-
 import { ContextService, ApiService, AuthService, EnvService } from 'sb-shared-lib';
 import { RouterMemory } from 'src/app/_services/router-memory.service';
 
@@ -23,7 +22,7 @@ declare global {
       {
         provide: STEPPER_GLOBAL_OPTIONS,
         useValue: {showError: true},
-      },
+      }
     ],
     encapsulation: ViewEncapsulation.None
 })
@@ -43,7 +42,7 @@ export class AppRootComponent implements OnInit {
         private auth:AuthService,
         private env:EnvService,
         private routerMemory: RouterMemory
-    ) {}
+    ) { }
 
 
     public async ngOnInit() {
