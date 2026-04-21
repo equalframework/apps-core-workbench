@@ -116,7 +116,7 @@
 
             <div *ngIf="entityType !== 'menu'" class="model-items">
               <app-translation-table
-                [tabName]="'model'"
+                [tab]="'model'"
                 [items]="data[lang].model"
                 [fields]="FIELD_CONFIGS.model"
                 [selectedField]="activeField">
@@ -157,11 +157,12 @@
                       *ngIf="obk(data[lang].view[view].layout).length > 0">
                       <div class="tab-content">
                         <app-translation-table
-                          [tabName] = "'layout'"
+                          [viewTab] = "'layout'"
                           [items]="data[lang].view[view].layout"
                           [fields]="FIELD_CONFIGS.layout"
                           [selectedField]="activeField"
-                          [tabView]="view">
+                          [tab]="'view'"
+                          [view]="view">
                         </app-translation-table>
                       </div>
                     </mat-tab>
@@ -170,11 +171,12 @@
                       *ngIf="obk(data[lang].view[view].actions).length > 0">
                       <div class="tab-content">
                         <app-translation-table
-                          [tabName] = "'actions'"
+                          [viewTab] = "'actions'"
                           [items]="data[lang].view[view].actions"
                           [fields]="FIELD_CONFIGS.actions"
                           [selectedField]="activeField"
-                          [tabView]="view">
+                          [tab]="'view'"
+                          [view]="view">
                         </app-translation-table>
                       </div>
                     </mat-tab>
@@ -183,11 +185,12 @@
                       *ngIf="obk(data[lang].view[view].routes).length > 0">
                       <div class="tab-content">
                         <app-translation-table
-                          [tabName] = "'routes'"
+                          [viewTab] = "'routes'"
                           [items]="data[lang].view[view].routes"
                           [fields]="FIELD_CONFIGS.actions"
                           [selectedField]="activeField"
-                          [tabView]="view">
+                          [tab]="'view'"
+                          [view]="view">
                         </app-translation-table>
                       </div>
                     </mat-tab>
@@ -217,7 +220,7 @@
                   <span class="error-field-name">{{ errType }}</span>
                   <span class="field-type-badge">{{ getFieldUsage(errType) }}</span>
                 </div>
-                <mat-checkbox appFocusableField="error-{{errType}}-checkbox"
+                <mat-checkbox appFocusableField="error-{{errType}}"
                   [checked]="data[lang].error._base[errType].active"
                   (change)="changeActive(errType)"
                   class="error-checkbox">
@@ -264,7 +267,7 @@
                 <div class="error-list" *ngIf="data[lang].error._base[errType].active && obk(data[lang].error._base[errType].val).length > 0">
                   <div class="error-items-title">Error Translations</div>
                   <app-translation-table
-                    [tabName]="'suberror'"
+                    [tab]="'error'"
                     [items]="data[lang].error._base[errType].val"
                     [fields]="FIELD_CONFIGS.error"
                     [selectedField]="errorActiveField">

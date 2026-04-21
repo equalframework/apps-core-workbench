@@ -14,7 +14,6 @@ import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer
 import { Location } from '@angular/common';
 import { JsonValidationService } from 'src/app/in/_services/json-validation.service';
 import { FIELD_CONFIGS } from './_object/translation.types';
-import { text } from 'd3';
 
 @Component({
   selector: 'app-model-trad-editor',
@@ -172,20 +171,7 @@ export class ModelTradEditorComponent implements OnInit {
                 this.queryParamNavigator.handleQueryParams(params, {
                     activators: this.activatorRegistry,
                     context: this,
-                    elementKeys: ['element'],
-                    scrollDelay: 100,
-                    scrollOptions: { behavior: 'smooth', block: 'start' }
-                });
-            }
-        });
-        this.route.queryParams.subscribe(params => {
-            if (Object.keys(params).length > 0) {
-                this.queryParamNavigator.handleQueryParams(params, {
-                    activators: this.activatorRegistry,
-                    context: this,
-                    elementKeys: ['field'],
-                    scrollDelay: 100,
-                    scrollOptions: { behavior: 'smooth', block: 'start' }
+                    delay: 100
                 });
             }
         });
@@ -254,8 +240,8 @@ export class ModelTradEditorComponent implements OnInit {
         this.activatorRegistry.register(viewActivator);
 
         const viewTabActivator = {
-            type: 'viewTab',
-            queryParamKeys: ['viewTab'],
+            type: 'view_tab',
+            queryParamKeys: ['view_tab'],
             canHandle: (key: string, value: any) => {
                 return this.viewInnerTabs.includes(value) && value !== null && value !== undefined;
             },
@@ -278,9 +264,9 @@ export class ModelTradEditorComponent implements OnInit {
 
         const fieldActivator = {
             type: 'field',
-            queryParamKeys: ['element', 'field'],
+            queryParamKeys: ['field'],
             canHandle: (key: string, value: any) => {
-                if (!this.lang || !this.data[this.lang] || !['element', 'field'].includes(key)) { return false; }
+                if (!this.lang || !this.data[this.lang] || key !== 'field') { return false; }
                 return this.fieldExists(this.lang, value);
             },
             activate: async (key: string, value: any, context: any) => {

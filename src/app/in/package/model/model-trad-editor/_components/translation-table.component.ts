@@ -6,24 +6,6 @@ export interface GridHeaderColumn {
   colspan: number;
 }
 
-/**
- * Affiche un bloc complet : en-tête de colonnes + N lignes de traduction.
- *
- * Utilisation :
- *   <app-translation-table
- *     [items]="data[lang].model"
- *     [fields]="FIELD_CONFIGS.model"
- *     [headers]="MODEL_HEADERS">
- *   </app-translation-table>
- *
- * Où MODEL_HEADERS = [
- *   { label: 'Translated', colspan: 1 },
- *   { label: 'Field',      colspan: 2 },
- *   { label: 'Label',      colspan: 3 },
- *   { label: 'Description',colspan: 5 },
- *   { label: 'Help',       colspan: 5 },
- * ]
- */
 @Component({
   selector: 'app-translation-table',
   styleUrls: ['./translation-table.component.scss'],
@@ -35,8 +17,9 @@ export class TranslationTableComponent {
   @Input() selectedField?: string;
   @Input() headers?: GridHeaderColumn[];
   @Input() totalCols = 16;
-  @Input() tabName = '';
-  @Input() tabView = '';
+  @Input() tab = '';
+  @Input() view? = '';
+  @Input() viewTab? = '';
 
   get computedHeaders(): GridHeaderColumn[] {
     if (this.headers) { return this.headers; }

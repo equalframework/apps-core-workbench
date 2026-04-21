@@ -17,7 +17,7 @@
     >
 
       <td class="checkbox-cell">
-        <mat-checkbox appScrollTarget="{{tabView}}-{{tabName}}-{{key}}"
+        <mat-checkbox appFocusableField="{{tab}}-{{view?view+'-':''}}{{viewTab?viewTab+'-':''}}{{key}}"
           [checked]="isItemActive(items[key])"
           (change)="changeActive(key)">
         </mat-checkbox>
@@ -31,7 +31,7 @@
         <td *ngFor="let field of fields; let fi = index"
             class="editable-cell"
             [attr.colspan]="field.colspan">
-          <input appFocusableField="field-{{key}}-{{field.key}}"
+          <input appFocusableField="{{tab}}-{{view?view+'-':''}}{{viewTab?viewTab+'-':''}}{{key}}-{{field.key}}"
             matInput
             [placeholder]="field.placeholder"
             [(ngModel)]="items[key][field.key].value"
