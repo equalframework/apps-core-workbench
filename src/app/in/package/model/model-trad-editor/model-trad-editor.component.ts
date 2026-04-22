@@ -163,6 +163,7 @@ export class ModelTradEditorComponent implements OnInit {
         this.modelName = selectedModel || '';
 
         await this.initTranslations();
+        this.loading = false;
 
         this.initializeNavigation();
 
@@ -176,7 +177,6 @@ export class ModelTradEditorComponent implements OnInit {
             }
         });
 
-        this.loading = false;
         void this.fetchBackgroundData();
 
     }
@@ -343,7 +343,9 @@ export class ModelTradEditorComponent implements OnInit {
 
     private async fillLanguage(lang: string, allData: { [key: string]: any } | null | undefined, perLangDataMap?: { [lang: string]: any }): Promise<Translator | null> {
         const newTranslation = await this.createNewLang();
-        if (!newTranslation.ok) { return null; }
+        if (!newTranslation.ok) {
+            return null;
+        }
         this.data[lang] = cloneDeep(newTranslation);
         this.ensureErrorBase(lang);
 
@@ -413,37 +415,48 @@ export class ModelTradEditorComponent implements OnInit {
      * and view structure for the editor.
      */
     private async _buildModelTemplate(): Promise<void> {
-        const [scheme, viewsList] = await Promise.all([
-            this.workbenchService.getSchema(`${this.packageName}\\${this.modelName}`).toPromise(),
-            this.provider.getComponents(this.packageName, 'view', this.modelName).toPromise()
-        ]);
+        const schemaPromise = this.workbenchService.getSchema(`${this.packageName}\\${this.modelName}`).toPromise();
+        const componentsPromise = this.provider.getComponents(this.packageName, 'view', this.modelName).toPromise();
+
+        const [scheme, viewsList] = await Promise.all([schemaPromise, componentsPromise]);
         
         const modelFields = Object.keys(scheme.fields);
-        
-        const viewSchemaPromises = viewsList
+
+        const candidateDescriptors = (viewsList || [])
             .map(descriptor => {
                 const fullName = descriptor?.name || '';
                 const separatorIdx = fullName.indexOf(':');
                 const sourceModelName = separatorIdx !== -1 ? fullName.substring(0, separatorIdx) : this.modelName;
                 const viewName = separatorIdx !== -1 ? fullName.substring(separatorIdx + 1) : fullName;
-
-                if (!viewName || (!viewName.includes('list.') && !viewName.includes('form.') && !viewName.includes('search.'))) {
-                    return null;
-                }
-
-                return this.workbenchService.readView(
-                    descriptor?.package_name || this.packageName,
+                const isSupported = !!viewName && (viewName.includes('list.') || viewName.includes('form.') || viewName.includes('search.'));
+                return {
+                    descriptor,
+                    fullName,
+                    sourceModelName,
                     viewName,
-                    sourceModelName
+                    isSupported
+                };
+            });
+
+        const supportedDescriptors = candidateDescriptors.filter(item => item.isSupported);
+
+        const viewSchemaPromises = supportedDescriptors
+            .map(item => {
+                return this.workbenchService.readView(
+                    item.descriptor?.package_name || this.packageName,
+                    item.viewName,
+                    item.sourceModelName
                 ).toPromise()
-                    .then(viewSchema => ({
-                        fullName,
-                        viewName,
-                        sourceModelName,
-                        viewSchema
-                    }))
+                    .then(viewSchema => {
+                        return {
+                            fullName: item.fullName,
+                            viewName: item.viewName,
+                            sourceModelName: item.sourceModelName,
+                            viewSchema
+                        };
+                    })
                     .catch(e => {
-                        console.warn(`Unable to load view schema for ${fullName}`, e);
+                        console.warn(`Unable to load view schema for ${item.fullName}`, e);
                         return null;
                     });
             })
