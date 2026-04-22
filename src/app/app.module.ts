@@ -12,7 +12,6 @@ import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
 import { AppRoutingModule } from './app-routing.module';
 import { AppRootComponent } from './app.root.component';
 import { AppComponent } from './in/app.component';
-import { PRELOAD_COMPONENTS_TOKEN } from './in/_services/equal-components-provider.service';
 
 import { WorkbenchModule } from 'src/app/_modules/workbench.module';
 
@@ -85,7 +84,6 @@ const sharedComponents = [
         { provide: MAT_DATE_LOCALE, useValue: 'fr-BE' },
         { provide: LOCALE_ID, useValue: 'fr-BE' },
         { provide: DateAdapter, useClass: CustomDateAdapter, deps: [MAT_DATE_LOCALE, Platform] },
-        { provide: PRELOAD_COMPONENTS_TOKEN, useValue: true },
     ],
     bootstrap : [AppRootComponent]
     // other module metadata

@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewEncapsulation} from '@angular/core';
-import { WorkbenchService } from './_services/workbench.service'
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
 import {Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { EqualComponentsProviderService } from './_services/equal-components-provider.service';
 
 @Component({
     selector: 'app-component',
@@ -30,6 +30,7 @@ export class AppComponent implements OnInit {
 
     constructor(
             private router: Router,
+            private provider: EqualComponentsProviderService,
         ) {
         }
 
@@ -63,6 +64,7 @@ export class AppComponent implements OnInit {
         this.restoreSelectedComponentFromUrl();
 
         await this.init();
+
     }
 
     private restoreSelectedComponentFromUrl(): void {
@@ -140,7 +142,7 @@ export class AppComponent implements OnInit {
     public async init(): Promise<void> {
         this.loading = true;
         this.elements = [];
-
+        await this.provider.preloadComponents();
         this.loading = false;
     }
 
