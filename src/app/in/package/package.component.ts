@@ -1,12 +1,10 @@
 import { Component, OnInit, ViewEncapsulation, Output, OnDestroy } from '@angular/core';
-
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { prettyPrintJson } from 'pretty-print-json';
 import { ActivatedRoute} from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Location } from '@angular/common';
+import { EqualComponentsProviderService } from '../_services/equal-components-provider.service';
 
 @Component({
     selector: 'app-package',
@@ -41,7 +39,7 @@ export class PackageComponent implements OnInit, OnDestroy {
 
     constructor(
             private route: ActivatedRoute,
-            private location: Location
+            private location: Location,
         ) { }
 
     public async ngOnInit(): Promise<void> {

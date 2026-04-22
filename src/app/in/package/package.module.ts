@@ -30,7 +30,8 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
     providers: [
         DatePipe,
         AsyncPipe,
-        { provide: DateAdapter, useClass: CustomDateAdapter, deps: [MAT_DATE_LOCALE, Platform] }
+        { provide: DateAdapter, useClass: CustomDateAdapter, deps: [MAT_DATE_LOCALE, Platform] },
+
     ]
 })
 export class PackageModule { }
