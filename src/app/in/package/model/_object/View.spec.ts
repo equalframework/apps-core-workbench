@@ -1,5 +1,5 @@
 import { View, ViewColumn, ViewGroup, ViewRow, ViewSection } from "./View"
-import { rt4, t1, t2, t3, t4, t5 } from "./testsetsView"
+import { rt4, t1, t2, t3, t4, t5 } from "../../view/_objects/testsetsView"
 
 describe("View",() => {
     let item:View
