@@ -405,10 +405,6 @@ export class ModelTradEditorComponent implements OnInit {
         }
     }
 
-    // ============================================================================
-    // MODEL TEMPLATE BUILDING
-    // ============================================================================
-
     /**
      * Build the model template by fetching the schema and available views.
      * This is done once and cached. The template provides field information
