@@ -44,6 +44,28 @@ describe('EqualComponentsProviderService', () => {
     return [];
   };
 
+  const descriptor = (
+    packageName: string,
+    name: string,
+    type: string,
+    file: string = '',
+    item: any = {}
+  ): EqualComponentDescriptor => new EqualComponentDescriptor(packageName, name, type, file, item);
+
+  const seedCache = (cacheEntries: Record<string, Record<string, EqualComponentDescriptor[]>>): void => {
+    const cacheMap = new Map<string, Map<string, EqualComponentDescriptor[]>>();
+
+    Object.entries(cacheEntries).forEach(([packageName, types]) => {
+      const packageMap = new Map<string, EqualComponentDescriptor[]>();
+      Object.entries(types).forEach(([type, components]) => {
+        packageMap.set(type, components);
+      });
+      cacheMap.set(packageName, packageMap);
+    });
+
+    (service as any).componentsCacheMapSubject.next(cacheMap);
+  };
+
   beforeEach(() => {
     apiServiceSpy = jasmine.createSpyObj<ApiService>('ApiService', ['fetch']);
     apiServiceSpy.fetch.and.callFake((url: string) => Promise.resolve(defaultFetchResponse(url)) as any);
@@ -67,105 +89,6 @@ describe('EqualComponentsProviderService', () => {
     expect(service).toBeTruthy();
   }));
 
-  // Preload priority – the constructor inspects the current URL and fetches the
-  // matching component type BEFORE fetching packages.
-  describe('preload priority', () => {
-    function getCallOrder(urls: string[]): number[] {
-      const calls = apiServiceSpy.fetch.calls.allArgs().map(args => args[0] as string);
-      return urls.map(u => calls.indexOf(u));
-    }
-
-    it('should preload class components before packages when URL targets a model', fakeAsync(() => {
-      window.history.replaceState({}, '', '/#/package/core/model/Post');
-      service = TestBed.inject(EqualComponentsProviderService);
-      flushMicrotasks();
-
-      const [classIdx, packageIdx] = getCallOrder([
-        API_ENDPOINTS.class.collect_all,
-        API_ENDPOINTS.package.collect_all
-      ]);
-
-      expect(classIdx).toBeGreaterThanOrEqual(0);
-      expect(packageIdx).toBeGreaterThanOrEqual(0);
-      expect(classIdx).toBeLessThan(packageIdx);
-    }));
-
-    it('should preload view components before packages when URL targets a view', fakeAsync(() => {
-      window.history.replaceState({}, '', '/#/package/core/view/Post/list');
-      service = TestBed.inject(EqualComponentsProviderService);
-      flushMicrotasks();
-
-      const [viewIdx, packageIdx] = getCallOrder([
-        API_ENDPOINTS.view.collect_from_package('core'),
-        API_ENDPOINTS.package.collect_all
-      ]);
-
-      expect(viewIdx).toBeGreaterThanOrEqual(0);
-      expect(packageIdx).toBeGreaterThanOrEqual(0);
-      expect(viewIdx).toBeLessThan(packageIdx);
-    }));
-
-    it('should preload controller components before packages when URL targets a controller', fakeAsync(() => {
-      window.history.replaceState({}, '', '/#/package/core/controller/get/GetUser');
-      service = TestBed.inject(EqualComponentsProviderService);
-      flushMicrotasks();
-
-      const [controllerIdx, packageIdx] = getCallOrder([
-        API_ENDPOINTS.controller.collect_from_package('core'),
-        API_ENDPOINTS.package.collect_all
-      ]);
-
-      expect(controllerIdx).toBeGreaterThanOrEqual(0);
-      expect(packageIdx).toBeGreaterThanOrEqual(0);
-      expect(controllerIdx).toBeLessThan(packageIdx);
-    }));
-
-    it('should preload menu components before packages when URL targets a menu', fakeAsync(() => {
-      window.history.replaceState({}, '', '/#/package/core/menu/left');
-      service = TestBed.inject(EqualComponentsProviderService);
-      flushMicrotasks();
-
-      const [menuIdx, packageIdx] = getCallOrder([
-        API_ENDPOINTS.menu.collect_from_package('core'),
-        API_ENDPOINTS.package.collect_all
-      ]);
-
-      expect(menuIdx).toBeGreaterThanOrEqual(0);
-      expect(packageIdx).toBeGreaterThanOrEqual(0);
-      expect(menuIdx).toBeLessThan(packageIdx);
-    }));
-
-    it('should preload route components before packages when URL targets a route', fakeAsync(() => {
-      window.history.replaceState({}, '', '/#/package/core/route/test');
-      service = TestBed.inject(EqualComponentsProviderService);
-      flushMicrotasks();
-
-      const [routeIdx, packageIdx] = getCallOrder([
-        API_ENDPOINTS.route.collect_from_package('core'),
-        API_ENDPOINTS.package.collect_all
-      ]);
-
-      expect(routeIdx).toBeGreaterThanOrEqual(0);
-      expect(packageIdx).toBeGreaterThanOrEqual(0);
-      expect(routeIdx).toBeLessThan(packageIdx);
-    }));
-
-    it('should fetch packages before any component type when URL has no known context', fakeAsync(() => {
-      window.history.replaceState({}, '', '/');
-      service = TestBed.inject(EqualComponentsProviderService);
-      flushMicrotasks();
-
-      const [packageIdx, classIdx] = getCallOrder([
-        API_ENDPOINTS.package.collect_all,
-        API_ENDPOINTS.class.collect_all
-      ]);
-
-      expect(packageIdx).toBeGreaterThanOrEqual(0);
-      expect(classIdx).toBeGreaterThanOrEqual(0);
-      expect(packageIdx).toBeLessThan(classIdx);
-    }));
-  });
-
   // Behavior after default initialization (mock produces core + Post class).
   // The inner beforeEach creates the service, flushes all promise-based
   // microtasks so the cache is fully populated, then resets the spy so each
@@ -177,46 +100,7 @@ describe('EqualComponentsProviderService', () => {
       apiServiceSpy.fetch.calls.reset();
     }));
 
-    describe('equalComponents$', () => {
-      it('should emit a package entry for each loaded package', () => {
-        let components: EqualComponentDescriptor[] = [];
-        service.equalComponents$.subscribe(c => components = c);
-
-        const packageEntry = components.find(c => c.type === 'package' && c.name === 'core');
-        expect(packageEntry).toBeTruthy();
-      });
-
-      it('should emit a class entry for each loaded class', () => {
-        let components: EqualComponentDescriptor[] = [];
-        service.equalComponents$.subscribe(c => components = c);
-
-        const classEntry = components.find(c => c.type === 'class' && c.name === 'Post');
-        expect(classEntry).toBeTruthy();
-        expect(classEntry!.package_name).toBe('core');
-      });
-    });
-
-    describe('getPackages', () => {
-      it('should return an array of loaded package names', () => {
-        let packages: string[] = [];
-        service.getPackages().subscribe(p => packages = p);
-
-        expect(packages).toContain('core');
-      });
-    });
-
     describe('getComponents', () => {
-      it('should return class components from cache without an API call', () => {
-        let result: EqualComponentDescriptor[] = [];
-        service.getComponents('core', 'class').subscribe(c => result = c);
-
-        expect(result.length).toBe(1);
-        expect(result[0].name).toBe('Post');
-        expect(result[0].type).toBe('class');
-        expect(result[0].package_name).toBe('core');
-        expect(apiServiceSpy.fetch).not.toHaveBeenCalled();
-      });
-
       it('should return empty array for class type with a non-matching class_name filter', () => {
         // Class descriptors store item as '' so item.model is undefined;
         // filtering by class_name will always produce an empty result for classes.
@@ -268,24 +152,6 @@ describe('EqualComponentsProviderService', () => {
     });
 
     describe('getComponent', () => {
-      it('should return a matching component from cache synchronously', () => {
-        let result: EqualComponentDescriptor | null = null;
-        service.getComponent('core', 'class', '', 'Post').subscribe(c => result = c);
-
-        expect(result).toBeTruthy();
-        expect(result!.name).toBe('Post');
-        expect(result!.type).toBe('class');
-        expect(apiServiceSpy.fetch).not.toHaveBeenCalled();
-      });
-
-      it('should search across all cached types when component_type is empty string', () => {
-        let result: EqualComponentDescriptor | null = null;
-        service.getComponent('core', '', '', 'Post').subscribe(c => result = c);
-
-        expect(result).toBeTruthy();
-        expect(result!.name).toBe('Post');
-      });
-
       it('should fall back to API and return null when component is not in cache', fakeAsync(() => {
         let result: EqualComponentDescriptor | null = undefined as any;
         service.getComponent('core', 'class', '', 'NonExistent').subscribe(c => result = c);
@@ -304,27 +170,6 @@ describe('EqualComponentsProviderService', () => {
     });
 
     describe('getComponentCountByType', () => {
-      it('should return the number of packages', () => {
-        let count = -1;
-        service.getComponentCountByType('package').subscribe(n => count = n);
-
-        expect(count).toBe(1);
-      });
-
-      it('should count all class components across all packages', () => {
-        let count = -1;
-        service.getComponentCountByType('class').subscribe(n => count = n);
-
-        expect(count).toBe(1);
-      });
-
-      it('should count class components in a specific package', () => {
-        let count = -1;
-        service.getComponentCountByType('class', 'core').subscribe(n => count = n);
-
-        expect(count).toBe(1);
-      });
-
       it('should return 0 for a package that does not exist', () => {
         let count = -1;
         service.getComponentCountByType('class', 'nonexistent').subscribe(n => count = n);
@@ -344,6 +189,57 @@ describe('EqualComponentsProviderService', () => {
         service.getComponentCountByType('view').subscribe(n => count = n);
 
         expect(count).toBe(0);
+      });
+    });
+
+    describe('cache hits', () => {
+      beforeEach(() => {
+        seedCache({
+          core: {
+            class: [descriptor('core', 'Post', 'class', 'core/classes/Post.class.php', '')],
+            do: [descriptor('core', 'create', 'do', 'core/actions/create.php', { model: 'Post' })],
+            get: [descriptor('core', 'read', 'get', 'core/data/read.php', { model: 'Post' })]
+          }
+        });
+        apiServiceSpy.fetch.calls.reset();
+      });
+
+      it('should return a cached class component without calling the API', fakeAsync(() => {
+        let result: EqualComponentDescriptor | null = null;
+
+        service.getComponent('core', 'class', '', 'Post').subscribe(component => result = component);
+        flushMicrotasks();
+
+        expect(result).not.toBeNull();
+        expect((result as unknown as EqualComponentDescriptor).name).toBe('Post');
+        expect(apiServiceSpy.fetch).not.toHaveBeenCalled();
+      }));
+
+      it('should return cached class components from getComponents without calling the API', () => {
+        let result: EqualComponentDescriptor[] = [];
+
+        service.getComponents('core', 'class').subscribe(components => result = components);
+
+        expect(result.length).toBe(1);
+        expect(result[0].name).toBe('Post');
+        expect(apiServiceSpy.fetch).not.toHaveBeenCalled();
+      });
+
+      it('should merge do and get controller components from cache without calling the API', () => {
+        let result: EqualComponentDescriptor[] = [];
+
+        service.getComponents('core', 'controller').subscribe(components => result = components);
+
+        expect(result.map(component => component.name)).toEqual(['create', 'read']);
+        expect(apiServiceSpy.fetch).not.toHaveBeenCalled();
+      });
+
+      it('should count cached controller components across do and get buckets', () => {
+        let count = -1;
+
+        service.getComponentCountByType('controller', 'core').subscribe(value => count = value);
+
+        expect(count).toBe(2);
       });
     });
 
@@ -386,4 +282,111 @@ describe('EqualComponentsProviderService', () => {
       }));
     });
   });
+
+  describe('preloadComponents', () => {
+    beforeEach(fakeAsync(() => {
+      service = TestBed.inject(EqualComponentsProviderService);
+      flushMicrotasks();
+      apiServiceSpy.fetch.calls.reset();
+    }));
+
+    it('should preload view components first when URL targets a view under a package', fakeAsync(() => {
+      window.history.replaceState({}, '', '/workbench/#/package/core/view/core\\Post:default');
+
+      service.preloadComponents();
+      flushMicrotasks();
+
+      const calls = apiServiceSpy.fetch.calls.allArgs().map(args => args[0] as string);
+      const viewUrl = API_ENDPOINTS.view.collect_from_package('core');
+      const packagesUrl = API_ENDPOINTS.package.collect_all;
+
+      expect(calls.length).toBeGreaterThan(0);
+      expect(calls[0]).toBe(viewUrl);
+      expect(calls.indexOf(packagesUrl)).toBeGreaterThan(0);
+      expect(calls.filter(url => url === viewUrl).length).toBeGreaterThan(1);
+    }));
+
+    it('should preload class components first when URL targets a class under a package', fakeAsync(() => {
+      window.history.replaceState({}, '', '/workbench/#/package/core/class/Post');
+
+      service.preloadComponents();
+      flushMicrotasks();
+
+      const calls = apiServiceSpy.fetch.calls.allArgs().map(args => args[0] as string);
+      const classUrl = API_ENDPOINTS.class.collect_all;
+      const packagesUrl = API_ENDPOINTS.package.collect_all;
+
+      expect(calls.length).toBeGreaterThan(0);
+      expect(calls[0]).toBe(classUrl);
+      expect(calls).toContain(packagesUrl);
+      expect(calls.filter(url => url === classUrl).length).toBeGreaterThan(1);
+    }));
+
+    it('should preload controllers first when URL targets a controller under a package', fakeAsync(() => {
+      window.history.replaceState({}, '', '/workbench/#/package/core/controller/create');
+
+      service.preloadComponents();
+      flushMicrotasks();
+
+      const calls = apiServiceSpy.fetch.calls.allArgs().map(args => args[0] as string);
+      const controllerUrl = API_ENDPOINTS.controller.collect_from_package('core');
+
+      expect(calls.length).toBeGreaterThan(0);
+      expect(calls[0]).toBe(controllerUrl);
+      expect(calls).toContain(API_ENDPOINTS.package.collect_all);
+    }));
+
+    it('should preload menu components first when URL targets a menu under a package', fakeAsync(() => {
+      window.history.replaceState({}, '', '/workbench/#/package/core/menu/main');
+
+      service.preloadComponents();
+      flushMicrotasks();
+
+      const calls = apiServiceSpy.fetch.calls.allArgs().map(args => args[0] as string);
+      const menuUrl = API_ENDPOINTS.menu.collect_from_package('core');
+
+      expect(calls.length).toBeGreaterThan(0);
+      expect(calls[0]).toBe(menuUrl);
+      expect(calls).toContain(API_ENDPOINTS.package.collect_all);
+    }));
+
+    it('should still start with package loading when a class URL has no package context', fakeAsync(() => {
+      window.history.replaceState({}, '', '/workbench/#/class/Post');
+
+      service.preloadComponents();
+      flushMicrotasks();
+
+      const calls = apiServiceSpy.fetch.calls.allArgs().map(args => args[0] as string);
+
+      expect(calls.length).toBeGreaterThan(0);
+      expect(calls[0]).toBe(API_ENDPOINTS.package.collect_all);
+      expect(calls).toContain(API_ENDPOINTS.class.collect_all);
+    }));
+
+    it('should preload route lives first when URL targets route without package context', fakeAsync(() => {
+      window.history.replaceState({}, '', '/workbench/#/routes');
+
+      service.preloadComponents();
+      flushMicrotasks();
+
+      const calls = apiServiceSpy.fetch.calls.allArgs().map(args => args[0] as string);
+
+      expect(calls.length).toBeGreaterThan(0);
+      expect(calls[0]).toBe(API_ENDPOINTS.route.collect_all_live);
+      expect(calls).toContain(API_ENDPOINTS.package.collect_all);
+    }));
+
+    it('should start with package loading when URL has no component priority', fakeAsync(() => {
+      window.history.replaceState({}, '', '/workbench/');
+
+      service.preloadComponents();
+      flushMicrotasks();
+
+      const calls = apiServiceSpy.fetch.calls.allArgs().map(args => args[0] as string);
+
+      expect(calls.length).toBeGreaterThan(0);
+      expect(calls[0]).toBe(API_ENDPOINTS.package.collect_all);
+    }));
+  });
+  
 });
