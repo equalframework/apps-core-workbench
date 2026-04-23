@@ -1,7 +1,7 @@
 import { ListField } from './../info-generic/_models/listFields.model';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { MixedCreatorDialogComponent } from 'src/app/_modules/workbench.module';
+import { MixedCreatorDialogComponent } from 'src/app/_dialogs/mixed-creator-dialog/mixed-creator-dialog.component';
 import { allEnumKeys, allEnumValues, convertRights, getRightName, Right, RoleItem } from 'src/app/in/_models/roles.model';
 import { NotificationService } from 'src/app/in/_services/notification.service';
 
