@@ -12,6 +12,8 @@ import { QueryParamActivatorRegistry } from 'src/app/_services/query-param-activ
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { QueryParamNavigatorService } from 'src/app/_services/query-param-navigator.service';
 import { of, Subject } from 'rxjs';
+import { ErrorTranslator, Translation, Translator, ViewTranslator } from '../../model/model-trad-editor/_object/Translation';
+import { throwError } from 'rxjs';
 
 describe('MenuTradEditorComponent', () => {
   let component: MenuTradEditorComponent;
@@ -26,6 +28,9 @@ describe('MenuTradEditorComponent', () => {
   let mockChangeDetectorRef: jasmine.SpyObj<ChangeDetectorRef>;
   let mockActivatedRoute: any;
   let mockInjector: jasmine.SpyObj<Injector>;
+  let mockTranslation: jasmine.SpyObj<Translation>;
+  let mockErrorTranslation: jasmine.SpyObj<ErrorTranslator>;
+  let mockTranslator: jasmine.SpyObj<Translator>;
   let queryParamsSubject: Subject<any>;
 
   beforeEach(async () => {
@@ -215,6 +220,96 @@ describe('MenuTradEditorComponent', () => {
     it('should call location.back on goBack', () => {
       component.goBack();
       expect(mockLocation.back).toHaveBeenCalled();
+    });
+  });
+
+  describe('Navigation Initialization', () => {
+    const getActivatorByType = (type: string) => {
+      const activators = component['activatorRegistry'].getAll() as any[];
+      return activators.find((activator: any) => activator.type === type);
+    };
+
+    it('should initialize navigation with activators', () => {
+      component['initializeNavigation']();
+      expect(component['activatorRegistry']).toBeDefined();
+      const activators = component['activatorRegistry'].getAll();
+
+      expect(activators.length).toBe(3);
+      expect(activators.map((activator: any) => activator.type)).toEqual([
+        'lang',
+        'tab',
+        'field'
+      ]);
+
+      expect(activators).toEqual([
+        jasmine.objectContaining({
+          type: 'lang',
+          queryParamKeys: ['lang'],
+          canHandle: jasmine.any(Function),
+          activate: jasmine.any(Function)
+        }),
+        jasmine.objectContaining({
+          type: 'tab',
+          queryParamKeys: ['tab'],
+          canHandle: jasmine.any(Function),
+          activate: jasmine.any(Function)
+        }),
+        jasmine.objectContaining({
+          type: 'field',
+          queryParamKeys: ['field'],
+          canHandle: jasmine.any(Function),
+          activate: jasmine.any(Function)
+        })
+      ]);
+    });
+
+    it('should evaluate and activate lang activator', async () => {
+      component.allLanguages = ['en', 'es'];
+      component.localSchema = {
+        en: {} as any,
+      }
+      spyOn(component, 'onLangChange');
+      component['initializeNavigation']();
+
+      const langActivator = getActivatorByType('lang');
+      expect(langActivator.canHandle('lang', 'en')).toBe(true);
+      expect(langActivator.canHandle('tab', 'en')).toBe(false);
+      expect(langActivator.canHandle('lang', 'es')).toBe(false);
+
+      await langActivator.activate('lang', 'en', component as any);
+      expect(component.onLangChange).toHaveBeenCalledWith('en');
+
+      await langActivator.activate('lang', 'es', component as any);
+      expect(component.onLangChange).toHaveBeenCalledTimes(1);
+    });
+
+    it('should evaluate and activate tab activator for view tab', async () => {
+      component.lang = 'en';
+      component.activeField = 'fieldA';
+      component['initializeNavigation']();
+
+      const tabActivator = getActivatorByType('tab');
+      expect(tabActivator.canHandle('tab', 'menu')).toBe(true);
+      expect(tabActivator.canHandle('tab', 'unknown')).toBe(false);
+
+      await tabActivator.activate('tab', 'menu', component as any);
+      expect(component.activeTab).toBe('menu');
+      expect(component.selectedTabIndex).toBe(0);
+      expect(component.activeField).toBe('fieldA');
+    });
+
+    it('should activate field on model tab', async () => {
+      component.lang = 'en';
+      component['initializeNavigation']();
+
+      const fieldActivator = getActivatorByType('field');
+
+      component.activeTab = 'model';
+      expect(fieldActivator.canHandle('field', 'f1')).toBe(true);
+      expect(fieldActivator.canHandle('tab', 'f1')).toBe(false);
+
+      await fieldActivator.activate('field', 'f1', component as any);
+      expect(component.activeField).toBe('f1');
     });
   });
 
@@ -411,6 +506,235 @@ describe('MenuTradEditorComponent', () => {
 
       control.value = 'english';
       expect(MenuTradEditorComponent.langCaseValidator(control)).toEqual({ case: true });
+    });
+  });
+
+  describe('getTableItems', () => {
+    it('should return empty object if menu scheme is not loaded', () => {
+      component['_menuScheme'] = null;
+      expect(component.getTableItems()).toEqual({});
+    });
+    
+    it('should return items from menu scheme', () => {
+      component.lang = 'en';
+      component.localSchema = {
+        en: {
+          view: {
+            menu: {
+              layout: {
+                item1: { label: { value: 'Item 1' } },
+                item2: { label: { value: 'Item 2' } }
+              }
+            }
+          }
+        }
+      } as any;
+      component['_menuScheme'] = {
+        layout: {
+          items: [
+            { id: 'item1', type: 'parent' },
+            { id: 'item2', type: 'child' }
+          ]
+        }
+      } as any;
+
+      const result = component.getTableItems();
+      expect(result.layout).toBeUndefined();
+      expect(result).toEqual({
+        item1: jasmine.objectContaining({ id: 'item1', type: 'parent', label: { value: 'Item 1' } }),
+        item2: jasmine.objectContaining({ id: 'item2', type: 'child', label: { value: 'Item 2' } })
+      });
+    });
+  });
+
+  describe('createNewMenuLang', () => {
+    it('should create a new menu language object', async () => {
+      const result = await component.createNewMenuLang();
+      expect(result).toEqual(
+          jasmine.objectContaining({
+          name: jasmine.any(Translation),
+          description: jasmine.any(Translation),
+          plural: jasmine.any(Translation),
+          model: {},
+          view: {
+            menu: jasmine.objectContaining({
+              layout: {},
+              name: jasmine.any(Translation),
+              description: jasmine.any(Translation),
+              actions: {},
+              routes: {},
+              hasLayoutValues: false,
+              hasActionValues: false,
+              hasRouteValues: false
+            })
+          },
+          error: jasmine.objectContaining({
+            _base: jasmine.objectContaining({
+              errors: jasmine.objectContaining({
+                active: false,
+                val: {}
+              })            
+            }),
+          })
+        })
+      )
+    });
+  });
+
+  describe('initTranslations', () => {
+    it('should initialize translations for a new language', async () => {
+      component.packageName = 'test-package';
+      component.menuName = 'test-menu';
+      mockWorkbenchService.getTranslationLanguagesByPackage.and.returnValue(
+        of({
+          en: ['test-package_menu.test-menu'],
+          fr: ['other-package_menu.other-menu']
+        })
+      );
+      await component.initTranslations();
+
+      expect(mockWorkbenchService.getTranslationLanguagesByPackage).toHaveBeenCalledWith('test-package');
+      expect(component.lang).toBe('en');
+      expect(component.loading).toBeFalse();
+      expect(component.localSchema.en).toBeDefined();
+      expect(component.checkedItems.en).toBeDefined();
+    });
+
+    it('should handle error when loading translations for package fails', async () => {
+      component.packageName = 'test-package';
+      component.menuName = 'test-menu';
+      const mockUpdateAvailableLanguages = spyOn(component, 'updateAvailableLanguages');
+      mockWorkbenchService.getTranslationLanguagesByPackage.and.returnValue(throwError('Failed to load translations for package test-package'));
+      mockNotificationService.showError.and.stub();
+
+      await component.initTranslations();
+      expect(mockUpdateAvailableLanguages).toHaveBeenCalled();
+      expect(mockWorkbenchService.getTranslationLanguagesByPackage).toHaveBeenCalledWith('test-package');
+      expect(component.loading).toBeFalse();
+    });
+  });
+
+  describe('loadSingleLanguageTranslation', () => {
+    it('should load translations for a specific language', async () => {
+      component.packageName = 'test-package';
+      component.menuName = 'test-menu';
+      component.lang = 'en';
+      mockWorkbenchService.getTranslationLanguagesByPackage.and.returnValue(
+        of({
+          en: ['test-package_menu.test-menu']
+        })
+      );
+      await component.initTranslations();
+      expect(component.localSchema.en).toBeDefined();
+    });
+
+    it('should handle error when loading translations for language fails', async () => {
+      component.packageName = 'test-package';
+      component.menuName = 'test-menu';
+      component.lang = 'en';
+      mockWorkbenchService.getTranslationLanguagesByPackage.and.returnValue(
+        of({
+          en: ['test-package_menu.test-menu']
+        })
+      );
+      mockWorkbenchService.getMenuTranslationsList.and.returnValue(throwError('Failed to load translations for language en'));
+      mockNotificationService.showError.and.stub();
+      await component.initTranslations();
+      expect(mockWorkbenchService.getMenuTranslationsList).toHaveBeenCalledWith('test-package', 'test-menu', 'en');
+      expect(component.localSchema.en).toBeUndefined();
+    });
+
+    it('should handle case when no translations are found for language', async () => {
+      component.packageName = 'test-package';
+      component.menuName = 'test-menu';
+      component.lang = 'en';
+      mockWorkbenchService.getTranslationLanguagesByPackage.and.returnValue(
+        of({
+          en: ['test-package_menu.test-menu']
+        })
+      );
+      mockWorkbenchService.getMenuTranslationsList.and.returnValue(of({}));
+      await component.initTranslations();
+      expect(component.localSchema.en).toEqual(
+        jasmine.objectContaining({
+          name: jasmine.any(Translation),
+          description: jasmine.any(Translation),
+          plural: jasmine.any(Translation),
+          model: {},
+          view: {
+            menu: jasmine.objectContaining({
+              layout: {},
+              name: jasmine.any(Translation),
+              description: jasmine.any(Translation),
+              actions: {},
+              routes: {},
+              hasLayoutValues: false,
+              hasActionValues: false,
+              hasRouteValues: false
+            })
+          },
+          error: jasmine.objectContaining({ _base: jasmine.objectContaining({ errors: jasmine.objectContaining({ active: false, val: {} }) }) })
+        })
+      );
+    });
+  });
+
+  describe('createLanguage', () => {
+    it('should create a new language and reload translations', async () => {
+      component.packageName = 'test-package';
+      component.menuName = 'test-menu';
+      component.langName.setValue('es');
+      const mockTranslator = {
+        name: { value: '' },
+        description: { value: '' },
+        view: {
+          menu: {
+            layout: {}
+          }
+        }
+      } as unknown as Translator;
+      const initTranslationsSpy = spyOn(component, 'createNewMenuLang').and.returnValue(
+        Promise.resolve(mockTranslator)
+      );
+      await component.createLanguage();
+      expect(initTranslationsSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('fieldExists', () => {
+    it('should return true if field exists in localSchema', () => {
+      component.lang = 'en';
+      component.localSchema = {
+        en: {
+          view: {
+            menu: {
+              layout: {
+                item1: { label: { value: 'Item 1' } }
+              }
+            }
+          }
+        } as any
+      };
+      expect(component['fieldExists']('en', 'item1')).toBeTrue();
+    });
+
+    it('should return false if field does not exist in localSchema', () => {
+      component.lang = 'en';
+      component.localSchema = {
+        en: {
+          view: {
+            menu: {
+              layout: {}
+            }
+          }
+        } as any
+      };
+      expect(component['fieldExists']('en', 'nonexistent')).toBeFalse();
+    });
+
+    it('should return false if lang is not set', () => {
+      component.lang = '';
+      expect(component['fieldExists']('', 'item1')).toBeFalse();
     });
   });
 });
