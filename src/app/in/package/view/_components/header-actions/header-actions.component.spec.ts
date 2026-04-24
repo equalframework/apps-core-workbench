@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { HeaderActionsComponent } from './header-actions.component';
-import { ViewHeader } from '../../_objects/View';
+import { ViewHeader, ViewPreDefAction } from '../../_objects/View';
 import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
 
 describe('HeaderActionsComponent', () => {
@@ -35,5 +35,21 @@ describe('HeaderActionsComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('del', () => {
+    it('should delete action from scheme', () => {
+      const action = component.hScheme.actions['key'] = { acts: [new ViewPreDefAction()] } as any;
+      component.del('key', action.acts[0]);
+      expect(action.acts.length).toBe(0);
+    });
+  });
+
+  describe('create', () => {
+    it('should add action to scheme', () => {
+      component.hScheme.actions['key'] = { acts: [] } as any;
+      component.create('key');
+      expect(component.hScheme.actions['key'].acts.length).toBe(1);
+    });
   });
 });
