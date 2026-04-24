@@ -1,18 +1,16 @@
-import { View, ViewColumn, ViewGroup, ViewRow, ViewSection } from "./View"
+import { View } from "./View"
 import { rt4, t1, t2, t3, t4, t5 } from "../../view/_objects/testsetsView"
 
 describe("View",() => {
-    let item:View
-    let empty = {"name":"","description":"","layout":{}}
+    const empty = {"name":"","description":"","layout":{}}
 
-    it('should export empty', () => {
-        item = new View({},"list")
-        
-        expect(compareDictRecurs(item.export(),empty)).toBe(0)
+    it("exports the default empty payload", () => {
+        const item = new View({},"list")
+        expect(item.export()).toEqual(empty)
     })
 
-    it('should fill id', () => {
-        item = new View({
+    it("creates compliant ids for form layouts", () => {
+        const item = new View({
             "name":"a",
             "description":"b",
             "header" : {},
@@ -36,83 +34,201 @@ describe("View",() => {
                 ]
             },
         }, "form")
+
         expect(item.id_compliant([]).ok).toBeTrue()
     })
 
-    it("should export a copy of import", () => {
-        item = new View(t1,"list")
-        expect(compareDictRecurs(item.export(),t1)).toBe(0)
-        item = new View(t2,"list")
-        expect(compareDictRecurs(item.export(),t2)).toBe(0)
-        item = new View(t3,"form")
-        expect(compareDictRecursForm(item.export(),t3)).toBe(0)
-        item = new View(t4,"list")
-        expect(compareDictRecurs(item.export(),rt4)).toBe(0)
-        item = new View(t5,"form")
-        expect(compareDictRecursForm(item.export(),t5)).toBe(0)
-    });
+    it("exports list dataset t1", () => {
+        const item = new View(t1, "list")
+        expect(item.export()).toEqual(t1)
+    })
+
+    it("exports list dataset t2", () => {
+        const item = new View(t2, "list")
+        expect(item.export()).toEqual(t2)
+    })
+
+    it("exports form dataset t3 (ignoring generated form id/label fields)", () => {
+        const item = new View(t3, "form")
+        expectFormEquivalent(item.export(), t3)
+    })
+
+    it("normalizes t4 sortable fields under widget", () => {
+        const item = new View(t4, "list")
+        expect(item.export()).toEqual(rt4)
+    })
+
+    it("exports form dataset t5 (ignoring generated form id/label fields)", () => {
+        const item = new View(t5, "form")
+        expectFormEquivalent(item.export(), t5)
+    })
+
+    it("returns the name in getListDisplay", () => {
+        const item = new View({ name: "Display Name", layout: { items: [] } }, "list")
+        expect(item.getListDisplay()).toBe("Display Name")
+    })
+
+    it("adds and deletes filters and exports updated filter list", () => {
+        const item = new View({
+            name: "With Filters",
+            filters: [{ label: "Existing" }],
+            layout: { items: [] }
+        }, "list")
+
+        item.addFilter()
+        expect(item.filters.length).toBe(2)
+
+        item.deleteFilter(0)
+        expect(item.filters.length).toBe(1)
+
+        const exported = item.export()
+        expect(exported.filters.length).toBe(1)
+        expect(exported.filters[0].label).toBe("New Filter")
+    })
+
+    it("exports optional view properties when present", () => {
+        const item = new View({
+            name: "Complex List",
+            description: "Coverage payload",
+            domain: [["id", "=", 1]],
+            filters: [{ id: "f1", label: "Main", description: "desc", clause: ["id", "=", 1] }],
+            controller: "custom_collect",
+            header: {
+                actions: {
+                    "ACTION.CREATE": false
+                },
+                selection: {
+                    default: false,
+                    actions: [
+                        { id: "ACTION.DELETE", visible: false },
+                        { id: "selection.custom", label: "Selection", controller: "selection.ctrl" }
+                    ]
+                }
+            },
+            actions: [{
+                id: "action.main",
+                label: "Action",
+                controller: "action.ctrl",
+                icon: "bolt",
+                access: { groups: ["admins"] },
+                params: { key: "value" },
+                visible: ["id", "=", 1],
+                confirm: true
+            }],
+            routes: [{
+                id: "route.main",
+                label: "Route",
+                description: "route desc",
+                route: "/route",
+                visible: ["id", "=", 1],
+                context: {
+                    entity: "demo.entity",
+                    view: "list.default",
+                    domain: ["id", "=", 1],
+                    reset: true
+                }
+            }],
+            access: { groups: ["admins"] },
+            operations: {
+                total: {
+                    amount: {
+                        usage: "amount/money:2",
+                        operation: "SUM",
+                        prefix: "$",
+                        suffix: " USD"
+                    }
+                }
+            },
+            limit: 25,
+            group_by: ["customer_id"],
+            order: "customer_id",
+            sort: "desc",
+            truthy_leftover: "keep-me",
+            falsy_leftover: false,
+            layout: {
+                items: [{ type: "field", value: "id", width: "50%" }]
+            }
+        }, "list")
+
+        const exported = item.export()
+
+        expect(exported.controller).toBe("custom_collect")
+        expect(exported.domain).toEqual([["id", "=", 1]])
+        expect(exported.limit).toBe(25)
+        expect(exported.group_by).toEqual(["customer_id"])
+        expect(exported.order).toBe("customer_id")
+        expect(exported.sort).toBe("desc")
+        expect(exported.access).toEqual({ groups: ["admins"] })
+        expect(exported.operations.total.amount.operation).toBe("SUM")
+        expect(exported.routes[0].context.reset).toBeTrue()
+        expect(exported.actions[0].confirm).toBeTrue()
+        expect(exported.truthy_leftover).toBe("keep-me")
+        expect(exported.falsy_leftover).toBeUndefined()
+    })
+
+    it("fails id compliance for duplicate action ids", () => {
+        const item = new View({
+            name: "Duplicate Action Id",
+            actions: [
+                { id: "dup.action", label: "A", controller: "a.ctrl" },
+                { id: "dup.action", label: "B", controller: "b.ctrl" }
+            ],
+            layout: { items: [] }
+        }, "list")
+
+        expect(item.id_compliant([]).ok).toBeFalse()
+    })
 })
 
-function compareDictRecurs(dict1:any, dict2:any):number {
-    try {
-        if(dict1 === undefined) return -1
-        if(dict2 === undefined) return 1
-        if(typeof(dict1) !== typeof({}) && typeof(dict1) !== typeof({}) && dict1 === dict2) {
-            return 0
-        }
-        if(typeof(dict1) !== typeof({}) && typeof(dict1) !== typeof({}) && dict1 !== dict2) {
-            return -1
-        }
-        var res:number
-        for(var item in dict1) {
-            if(dict2[item] === undefined) return 1
-            res = compareDictRecurs(dict1[item],dict2[item])
-            if(res !== 0) return 1
-        }
-        for(var item in dict2) {
-            if(dict1[item] === undefined) return 1
-            res = compareDictRecurs(dict1[item],dict2[item])
-            if(res !== 0) return -1
-        }
-    } catch {
-        return 0
-    }
-    return 0
+function expectFormEquivalent(actual: any, expected: any): void {
+    const normalized = normalizeFormPair(actual, expected)
+    expect(normalized.actual).toEqual(normalized.expected)
 }
 
-function compareDictRecursForm(dict1:any, dict2:any):number {
-    try {
-        if(dict1 === undefined && dict2 === undefined) return 0
-        if(dict1 === undefined) return -1
-        if(dict2 === undefined) return 1
-        if(typeof(dict1) !== typeof({}) && typeof(dict2) !== typeof({}) && dict1 === dict2) {
-            return 0
+function normalizeFormPair(actual: any, expected: any): { actual: any, expected: any } {
+    if (Array.isArray(actual) || Array.isArray(expected)) {
+        const actualArray = Array.isArray(actual) ? actual : []
+        const expectedArray = Array.isArray(expected) ? expected : []
+        const maxLen = Math.max(actualArray.length, expectedArray.length)
+        const nextActual: any[] = []
+        const nextExpected: any[] = []
+
+        for (let i = 0; i < maxLen; i++) {
+            const entry = normalizeFormPair(actualArray[i], expectedArray[i])
+            nextActual.push(entry.actual)
+            nextExpected.push(entry.expected)
         }
-        if(typeof(dict1) !== typeof({}) && typeof(dict1) !== typeof({}) && dict1 !== dict2) {
-            return -1
-        }
-        var res:number
-        for(var item in dict1) {
-            if((item === "id" || item==="label") && isNotImportantIDLabel(dict1,dict2,item) ) continue
-            if(dict2[item] === undefined) return 1
-            res = compareDictRecursForm(dict1[item],dict2[item])
-            if(res !== 0) return 1
-        }
-        for(var item in dict2) {
-            if(dict1[item] === undefined) return -1
-            res = compareDictRecursForm(dict1[item],dict2[item])
-            if(res !== 0) return -1
-        }
-    } catch {
-        return 0
+
+        return { actual: nextActual, expected: nextExpected }
     }
-    return 0
+
+    if (!isPlainObject(actual) && !isPlainObject(expected)) {
+        return { actual, expected }
+    }
+
+    const actualObj: Record<string, any> = isPlainObject(actual) ? { ...actual } : {}
+    const expectedObj: Record<string, any> = isPlainObject(expected) ? { ...expected } : {}
+
+    for (const optionalKey of ["id", "label"]) {
+        const hasActual = Object.prototype.hasOwnProperty.call(actualObj, optionalKey)
+        const hasExpected = Object.prototype.hasOwnProperty.call(expectedObj, optionalKey)
+
+        if (hasActual !== hasExpected) {
+            delete actualObj[optionalKey]
+            delete expectedObj[optionalKey]
+        }
+    }
+
+    const keys = new Set([...Object.keys(actualObj), ...Object.keys(expectedObj)])
+    for (const key of keys) {
+        const child = normalizeFormPair(actualObj[key], expectedObj[key])
+        actualObj[key] = child.actual
+        expectedObj[key] = child.expected
+    }
+
+    return { actual: actualObj, expected: expectedObj }
 }
 
-function isNotImportantIDLabel(d1:any,d2:any,t:string) {
-    let good_type_d1 = typeof(d1)===typeof(new ViewSection()) || typeof(d1)===typeof(new ViewRow()) || typeof(d1)===typeof(new ViewColumn()) || typeof(d1)===typeof(new ViewGroup())
-    let good_type_d2 = typeof(d2)===typeof(new ViewSection()) || typeof(d2)===typeof(new ViewRow()) || typeof(d2)===typeof(new ViewColumn()) || typeof(d2)===typeof(new ViewGroup())
-    if(!good_type_d1 || !good_type_d2 || !(typeof(d1)===typeof(d2))) return false
-    if(!d1[t] || !d2[t]) return true
-    return false
+function isPlainObject(value: any): boolean {
+    return !!value && typeof value === "object" && !Array.isArray(value)
 }
