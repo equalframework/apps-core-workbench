@@ -82,6 +82,9 @@ export class WorkflowLink {
                 ret[key] = this.leftover[key];
             }
         }
+        if (this.name) {
+            ret.name = this.name;
+        }
         if (this.description) {
             ret.description = this.description;
         }
