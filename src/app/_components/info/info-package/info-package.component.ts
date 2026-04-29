@@ -295,7 +295,7 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
         this.router.navigate([`/package/${this.package.name}`], {
             queryParams: {
                 scope: 'class',
-                filter_package_name: this.package.name
+                filter_package: this.package.name
             }
         });
     }
@@ -304,7 +304,7 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
         this.router.navigate([`/package/${this.package.name}`], {
             queryParams: {
                 scope: 'controller',
-                filter_package_name: this.package.name
+                filter_package: this.package.name
             }
         });
     }
@@ -313,7 +313,7 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
         this.router.navigate([`/package/${this.package.name}`], {
             queryParams: {
                 scope: 'view',
-                filter_package_name: this.package.name
+                filter_package: this.package.name
             }
         });
     }
@@ -322,7 +322,7 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
         this.router.navigate([`/package/${this.package.name}`], {
             queryParams: {
                 scope: 'route',
-                filter_package_name: this.package.name
+                filter_package: this.package.name
             }
         });
     }
