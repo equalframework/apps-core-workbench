@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of, throwError } from 'rxjs';
-import { map, catchError, shareReplay } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 import { ApiService } from 'sb-shared-lib';
 import { API_ENDPOINTS } from '../_models/api-endpoints';
 import { NotificationService } from './notification.service';
@@ -8,7 +7,7 @@ import { NotificationService } from './notification.service';
 /**
  * JSON Schema Validation Service
  * Validates JSON structures against backend schemas before saving
- * Uses backend endpoint: ?get=core_json-validate
+ * Uses backend endpoint: ?post=core_json-validate
  */
 
 export interface ValidationError {
@@ -107,9 +106,9 @@ export class JsonValidationService {
         strict?: boolean
     ): Observable<ValidationResult> {
         const normalizedSchemaId = this.normalizeSchemaId(schemaId);
-        const url = API_ENDPOINTS.json.validate(json, normalizedSchemaId, packageName, strict);
+        const url = API_ENDPOINTS.json.validate(normalizedSchemaId, packageName, strict);
 
-        return this.callValidateApi(url);
+        return this.callValidateApi(url, json.stringify ? json : JSON.stringify(json));
     }
 
     /**
@@ -256,9 +255,9 @@ export class JsonValidationService {
     /**
      * Call the validation API
      */
-    private callValidateApi(url: string): Observable<ValidationResult> {
+    private callValidateApi(url: string, payload: string): Observable<ValidationResult> {
         return new Observable(observer => {
-            this.api.fetch(url, {}).then(
+            this.api.call(url, {json: payload}).then(
                 (response: any) => {
                     const valid = (typeof response.valid !== 'undefined')
                         ? !!response.valid

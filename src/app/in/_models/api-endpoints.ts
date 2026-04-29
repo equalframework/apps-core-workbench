@@ -120,12 +120,11 @@ export const API_ENDPOINTS = {
 
     //JSON Editor-specific actions
     json: {
-        validate: (json: any, schema_id: any, package_name?: any, strict?: any) => {
-            const jsonPayload = encodeURIComponent(JSON.stringify(json));
+        validate: (schema_id: any, package_name?: any, strict?: any) => {
             const schemaParam = encodeURIComponent(schema_id);
             const packageParam = package_name ? `&package=${encodeURIComponent(package_name)}` : '';
             const strictParam = strict ? '&strict=true' : '';
-            return `?get=core_json-validate&json=${jsonPayload}&schema_id=${schemaParam}${packageParam}${strictParam}`;
+            return `?get=core_json-validate&schema_id=${schemaParam}${packageParam}${strictParam}`;
         }
     }
 };
