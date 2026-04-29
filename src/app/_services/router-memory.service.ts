@@ -1,6 +1,5 @@
-import { query } from '@angular/animations';
 import { Injectable } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 
 // TODO add refresh function
 
