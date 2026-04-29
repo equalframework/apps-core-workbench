@@ -38,8 +38,12 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 80px;
-    min-height: 50px;
+    padding: 0;
+
+    ::ng-deep .mat-icon-button {
+      min-width: 80px;
+      min-height: 50px;
+    }
   }
 
   copy-button:hover, close-button:hover {
