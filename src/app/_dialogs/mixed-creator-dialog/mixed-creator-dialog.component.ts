@@ -112,8 +112,7 @@ export class MixedCreatorDialogComponent implements OnInit, OnDestroy {
 
     public async ngOnInit() {
         console.log('Initializing MixedCreatorDialogComponent with type:', this.type);
-        await this.provider.getPackages().
-        subscribe((packages: any[]) => {
+        this.provider.getPackages().subscribe((packages: any[]) => {
             this.cachePkgList = packages;
         });
         //this.cachePkgList = await this.workbenchService.listPackages();
