@@ -394,7 +394,8 @@ export class WorkbenchService {
         const url = `?do=core_init_package&package=${package_name}` +
           `${do_import ? `&import=true` : ``}` +
           `&cascade=${do_cascade ? `true` : `false`}` +
-          `&import_cascade=${do_import_cascade ? `true` : `false`}`;
+          `&import_cascade=${do_import_cascade ? `true` : `false`}` +
+          `&force=true`;
 
         return this.callApi(url, ``).pipe(
           map(({ response }) => response)
