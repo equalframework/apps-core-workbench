@@ -1,22 +1,28 @@
-import { Injectable} from '@angular/core';
+import { Injectable, InjectionToken } from '@angular/core';
 import { BehaviorSubject, forkJoin, from, Observable, of } from 'rxjs';
 import { EqualComponentDescriptor } from '../_models/equal-component-descriptor.class';
-import { catchError, map, switchMap, take, tap } from 'rxjs/operators';
+import { catchError, map, switchMap, take } from 'rxjs/operators';
 import { ApiService } from 'sb-shared-lib';
 import { API_ENDPOINTS } from '../_models/api-endpoints';
+
+type PreloadComponentType = 'class' | 'view' | 'controller' | 'menu' | 'route';
+type PreloadPriorityType = PreloadComponentType | 'package';
+
 @Injectable({
     providedIn: 'root'
 })
 export class EqualComponentsProviderService {
     private equalComponentsSubject = new BehaviorSubject<EqualComponentDescriptor[]>([]);
     private componentsCacheMapSubject = new BehaviorSubject<Map<string, Map<string, EqualComponentDescriptor[]>>>(new Map());
+    private readonly defaultPreloadOrder: PreloadComponentType[] = ['class', 'view', 'controller', 'menu', 'route'];
+
     get componentsCacheMap$(): Observable<Map<string, Map<string, EqualComponentDescriptor[]>>> {
         return this.componentsCacheMapSubject.asObservable();
       }
     public equalComponents$ = this.equalComponentsSubject.asObservable();
 
     constructor(private api: ApiService) {
-        this.preloadComponents();
+
     }
 
 
@@ -77,11 +83,9 @@ export class EqualComponentsProviderService {
             return of(foundComponent);
         }
         }
-
         // If not found in the cache, retrieve via the API
         return this.fetchComponents(package_name, component_type, class_name).pipe(
         map(components => {
-            console.log("Components retrieved:", components);
             return components.find(comp => comp.name === component_name) || null;
         }),
         catchError(response => {
@@ -124,12 +128,9 @@ export class EqualComponentsProviderService {
         );
         return of(components && components.length > 0 ? components : []);
         }
-        console.log("class name : ", class_name);
-        console.log("bon bah go dans l'api hn");
         // If not found in cache, retrieve via the API
         return this.fetchComponents(package_name, component_type, class_name).pipe(
         map(newComponents => {
-            console.log("components : ", newComponents)
             // Optionally, update the cache here
             if (!cacheMap.has(package_name)) {
             cacheMap.set(package_name, new Map<string, EqualComponentDescriptor[]>());
@@ -169,7 +170,6 @@ export class EqualComponentsProviderService {
         if(component_type ==='do' || component_type ==='get'){
             component_type = 'controller'
         }
-
         switch (component_type) {
             case 'class':
                 return this.retrieveClasses([packageComponent]);
@@ -199,10 +199,7 @@ export class EqualComponentsProviderService {
         .pipe(take(1))
         .subscribe({
             next: (packages: EqualComponentDescriptor[]) => {
-                console.log(
-                `Reloading components. Provided package: ${package_name ? package_name : 'all'}, component type: ${component_type ? component_type : 'all'}. Packages loaded:`,
-                packages
-                );
+
                 this.updatePackagesMap(packages)
                 const currentCacheMap = this.componentsCacheMapSubject.getValue();
                 let updatedCacheMap = new Map<string, Map<string, EqualComponentDescriptor[]>>(currentCacheMap);
@@ -211,11 +208,9 @@ export class EqualComponentsProviderService {
                     const isPackageValid = packages.some(packageComponent => packageKey === packageComponent.name);
 
                     if (!isPackageValid) {
-                        console.log(`Removing package from cache: ${packageKey}`);
                         updatedCacheMap.delete(packageKey);
                     }else{
                         if (!updatedCacheMap.has(packageKey)) {
-                            console.log(`Adding package to cache: ${packageKey}`);
                             updatedCacheMap.set(packageKey, new Map());
                         }
                     }
@@ -236,7 +231,6 @@ export class EqualComponentsProviderService {
                 }
 
                 if(component_type){
-                    let componentTypes : string[] = [component_type];
                     this.reloadComponentsFromPackage(filtered_packages, component_type);
 
                 }else{
@@ -282,14 +276,12 @@ export class EqualComponentsProviderService {
 
 
     if (apiCalls.length === 0) {
-        console.log("No components selected for preloading.");
         return;
     }
 
     forkJoin(apiCalls).subscribe({
         next: (results: EqualComponentDescriptor[][]) => {
             const allComponents = results.flat();
-            console.log("all component : ", allComponents)
             if (allComponents.length > 0) {
                 this.refreshComponentsMapFromPackage(packages[0].name, allComponents);
             }
@@ -364,26 +356,136 @@ export class EqualComponentsProviderService {
     /**
      * Loads all available components.
      */
-    private preloadComponents(): void {
-        this.collectAllPackages()
+    public preloadComponents(): void {
+                const priority = this.resolvePriorityFromCurrentUrl();
+                const preloadOrder = this.resolvePreloadOrder(priority);
+
+                this.preloadPriorityComponentsBeforePackages(priority)
           .pipe(
-            switchMap((packages: EqualComponentDescriptor[]) => {
-                return of(packages);
-            }),
+                        switchMap(() => this.collectAllPackages()),
             take(1)
           )
           .subscribe({
               next: (packages: EqualComponentDescriptor[]) => {
                 this.updatePackagesMap(packages);
-                console.log('Packages loaded:', packages);
-                this.preloadComponentsForPackages(packages);
-                console.log("Updated map:", this.componentsCacheMapSubject.getValue());
+                this.preloadComponentsForPackages(packages, preloadOrder);
               },
               error: (response) => {
                   console.error('Error loading components:', response);
               }
           });
       }
+
+    private resolvePreloadOrder(priority: PreloadPriorityType): PreloadComponentType[] {
+        if (priority === 'package') {
+            return [...this.defaultPreloadOrder];
+        }
+
+        return [
+            priority,
+            ...this.defaultPreloadOrder.filter(type => type !== priority)
+        ];
+    }
+
+    private resolvePriorityFromCurrentUrl(): PreloadPriorityType {
+        const currentUrl = this.getCurrentUrl().toLowerCase();
+
+        if (currentUrl.includes('/model/') || currentUrl.includes('/class/')) {
+            return 'class';
+        }
+        if (currentUrl.includes('/view/')) {
+            return 'view';
+        }
+        if (currentUrl.includes('/controller/')) {
+            return 'controller';
+        }
+        if (currentUrl.includes('/menu/')) {
+            return 'menu';
+        }
+        if (currentUrl.includes('/route/') || currentUrl.includes('/routes')) {
+            return 'route';
+        }
+
+        return 'package';
+    }
+
+    private getCurrentUrl(): string {
+        if (typeof window === 'undefined') {
+            return '';
+        }
+
+        const { pathname, search, hash } = window.location;
+        const hashPath = hash.startsWith('#') ? hash.slice(1) : hash;
+        return `${pathname}${search}${hashPath}`;
+    }
+
+    private preloadPriorityComponentsBeforePackages(priority: PreloadPriorityType): Observable<void> {
+        if (priority === 'package') {
+            return of(void 0);
+        }
+
+        const packageName = this.extractPackageNameFromCurrentUrl();
+        if (!packageName && priority !== 'route') {
+            return of(void 0);
+        }
+
+        const packageDescriptor = packageName
+            ? this.createPackageDescriptor(packageName)
+            : null;
+
+        let source$: Observable<EqualComponentDescriptor[]>;
+        switch (priority) {
+            case 'class':
+                source$ = this.retrieveClasses([packageDescriptor!]);
+                break;
+            case 'view':
+                source$ = this.retrieveViews([packageDescriptor!]);
+                break;
+            case 'controller':
+                source$ = this.retrieveControllers([packageDescriptor!]);
+                break;
+            case 'menu':
+                source$ = this.retrieveMenus([packageDescriptor!]);
+                break;
+            case 'route':
+                source$ = packageDescriptor
+                    ? this.retrieveRoutes([packageDescriptor])
+                    : this.retrieveAllRoutesLives();
+                break;
+            default:
+                return of(void 0);
+        }
+
+        return source$.pipe(
+            map((components: EqualComponentDescriptor[]) => {
+                if (components.length > 0) {
+                    this.updateComponentsMap(components);
+                }
+                return void 0;
+            }),
+            catchError((response) => {
+                console.error(`Error preloading priority ${priority} components before packages:`, response);
+                return of(void 0);
+            })
+        );
+    }
+
+    private extractPackageNameFromCurrentUrl(): string | null {
+        const currentUrl = this.getCurrentUrl();
+        const packageMatch = currentUrl.match(/\/package\/([^/?#]+)/i);
+
+        return packageMatch?.[1] ?? null;
+    }
+
+    private createPackageDescriptor(package_name: string): EqualComponentDescriptor {
+        return {
+            package_name,
+            name: package_name,
+            type: 'package',
+            file: package_name,
+            item: 'package'
+        };
+    }
 
 
 
@@ -398,35 +500,39 @@ export class EqualComponentsProviderService {
      * @param {EqualComponentDescriptor[]} packages - The list of packages.
      * @param {string[]} componentTypes - The list of component types to preload. If empty, all types are loaded.
      */
-    private preloadComponentsForPackages (packages: EqualComponentDescriptor[], componentTypes: string[] = []): void {
+    private preloadComponentsForPackages (packages: EqualComponentDescriptor[], componentTypes: PreloadComponentType[] = []): void {
     const apiCalls: Observable<EqualComponentDescriptor[]>[] = [];
+    const orderedTypes = componentTypes.length > 0 ? componentTypes : this.defaultPreloadOrder;
 
-    if (componentTypes.length === 0 || componentTypes.includes("controller")) {
-        apiCalls.push(this.retrieveControllers(packages));
-    }
-    if (componentTypes.length === 0 || componentTypes.includes("view")) {
-        apiCalls.push(this.retrieveViews(packages));
-    }
-    if (componentTypes.length === 0 || componentTypes.includes("menu")) {
-        apiCalls.push(this.retrieveMenus(packages));
-    }
-    if (componentTypes.length === 0 || componentTypes.includes("route")) {
-        apiCalls.push(this.retrieveRoutes(packages));
-    }
-    if (componentTypes.length === 0 || componentTypes.includes("class")) {
-        apiCalls.push(this.retrieveClasses(packages));
-    }
-
+    orderedTypes.forEach((componentType) => {
+        switch (componentType) {
+            case 'class':
+                apiCalls.push(this.retrieveClasses(packages));
+                break;
+            case 'view':
+                apiCalls.push(this.retrieveViews(packages));
+                break;
+            case 'controller':
+                apiCalls.push(this.retrieveControllers(packages));
+                break;
+            case 'menu':
+                apiCalls.push(this.retrieveMenus(packages));
+                break;
+            case 'route':
+                apiCalls.push(this.retrieveRoutes(packages));
+                break;
+            default:
+                break;
+        }
+    });
 
     if (apiCalls.length === 0) {
-        console.log("No components selected for preloading.");
         return;
     }
 
     forkJoin(apiCalls).subscribe({
         next: (results: EqualComponentDescriptor[][]) => {
             const allComponents = results.flat();
-            console.log("all component : ", allComponents)
             if (allComponents.length > 0) {
                 this.updateComponentsMap(allComponents);
             }
@@ -467,7 +573,6 @@ export class EqualComponentsProviderService {
 
     private updateComponentsMap(components: EqualComponentDescriptor[]): void {
         const cacheMap = this.componentsCacheMapSubject.getValue();
-        console.log("map before : ", cacheMap);
         components.forEach(component => {
             const pkg = component.package_name;
             const type = component.type;
@@ -496,7 +601,6 @@ export class EqualComponentsProviderService {
 
         // Update the BehaviorSubject with the modified map
         this.componentsCacheMapSubject.next(cacheMap);
-        console.log("this.componentsCachemap : ", this.componentsCacheMapSubject.getValue())
         // Flatten the map to update `equalComponentsSubject`, including a package entry for each package
         const allComponentsArray: EqualComponentDescriptor[] = [];
         cacheMap.forEach((pkgMap, pkgName) => {
@@ -507,7 +611,6 @@ export class EqualComponentsProviderService {
             allComponentsArray.push(...componentsArray);
             });
         });
-        console.log("AllComponentsArray : ", allComponentsArray)
         this.equalComponentsSubject.next(allComponentsArray);
     }
 
@@ -605,7 +708,6 @@ export class EqualComponentsProviderService {
             rawData.forEach(item => {
                 item.views = this.filterViews(item.views, class_name);
             });
-            console.log("rawData", rawData);
             return this.formatViews(rawData,class_name)})
        )
     }
@@ -683,6 +785,7 @@ export class EqualComponentsProviderService {
     }
 
     private collectRoutes(packages: EqualComponentDescriptor[]): Observable<Array<{ package: EqualComponentDescriptor, routesData: any }>> {
+
         return forkJoin(
             packages.map(packageComponent =>
             this.collectRoutesFromPackage(packageComponent.name).pipe(
@@ -808,7 +911,7 @@ export class EqualComponentsProviderService {
     }
 
 
-    // Méthode to associate classes with package
+    // Method to associate classes with package
     private associateClassesToPackages(packages: EqualComponentDescriptor[], classes: any): EqualComponentDescriptor[] {
         const updatedComponents: EqualComponentDescriptor[] = [];
 
@@ -921,7 +1024,6 @@ export class EqualComponentsProviderService {
               });
             });
         });
-        console.log("resultat : ", result)
         return result;
       }
 

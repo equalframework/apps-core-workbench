@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { MatDialog } from '@angular/material/dialog';
+import { NotificationService } from 'src/app/in/_services/notification.service';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { InfoRoleComponent } from './info-role.component';
 
 describe('InfoRoleComponent', () => {
@@ -8,7 +10,14 @@ describe('InfoRoleComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ InfoRoleComponent ]
+      declarations: [ InfoRoleComponent ],
+      providers: [
+        { provide: MatDialog, useValue: {} },
+        { provide: NotificationService, useValue: {} },
+        { provide: MAT_DIALOG_DATA, useValue: {} },
+        { provide: MatDialogRef, useValue: {} }
+      ]
+
     })
     .compileComponents();
   });

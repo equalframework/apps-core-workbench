@@ -1,5 +1,6 @@
 import { NotificationService } from './../../_services/notification.service';
 import { Location } from '@angular/common';
+import { RouterMemory } from 'src/app/_services/router-memory.service';
 import { Component, Inject, OnInit, OnDestroy, Optional } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { InitDataFile } from './_models/init-data';
@@ -45,7 +46,8 @@ export class InitDataComponent implements OnInit, OnDestroy {
         private dialog: MatDialog,
         private snack: MatSnackBar,
         private location: Location,
-        private notificationService:NotificationService
+        private notificationService:NotificationService,
+        private routerMemory: RouterMemory
     ) {}
 
     async ngOnInit(): Promise<void> {
@@ -144,7 +146,7 @@ export class InitDataComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Navigates back to the previous location.
+     * Navigates back to the previous location using RouterMemory.
      */
     public goBack(): void {
         this.location.back();

@@ -1,65 +1,170 @@
 @import '/src/theme.scss';
 
-.header {
+:host {
+  .info-header-section {
     background: white;
-    padding: 16px;
+    margin-bottom: 1.5em;
+    width: 100%;
+    padding: 1.5em 2em 1em 2em;
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    margin-bottom: 12px;
-    width: 70vw;
 
-    .main {
+    .info-header-row {
+      width: 100%;
+    }
+
+    .info-header-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.3em;
+      font-weight: bold;
+
+      .info-header-left {
         display: flex;
         align-items: center;
-        justify-content: space-between;
+        gap: 12px;
 
-        .title {
+        .info-header-label {
+          color: mat-color($maincolor, 700);
+          font-size: 1.1em;
+          margin-right: 0.5em;
+        }
+
+        .info-header-main {
+          color: mat-color($accentcolor);
+          font-size: 1.2em;
+        }
+      }
+
+      .info-header-right {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        .icon-btn mat-icon.disabled {
+          color: #bdbdbd;
+        }
+      }
+    }
+
+    .info-header-description {
+      font-size: 1.05em;
+      color: #666;
+      margin-top: 8px;
+      margin-bottom: 0.5em;
+    }
+
+    .info-header-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2em;
+      margin-top: 12px;
+      font-size: 1em;
+      color: mat-color($maincolor, 700);
+      align-items: center;
+
+      .info-header-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1em;
+        color: mat-color($maincolor);
+        background: mat-color($maincolor, 5);
+        border-radius: 6px;
+        padding: 0.3em 0.8em;
+
+        mat-icon {
+          color: mat-color($maincolor);
+          font-size: 1.5em;
+          margin-right: 6px;
+        }
+
+        .info-header-meta-text {
+          display: flex;
+          align-items: center;
+          overflow: hidden;
+          font-weight: 500;
+        }
+      }
+    }
+
+    .info-header-status {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1em;
+      margin-top: 12px;
+      align-items: center;
+
+      .info-header-status-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        font-size: 0.95em;
+        color: mat-color($maincolor, 800);
+        background: mat-color($maincolor, 5);
+        border-radius: 6px;
+        padding: 0.25em 0.6em;
+
+        mat-icon {
+          font-size: 1.2em;
+        }
+
+        .status-left {
+          display: flex;
+          align-items: center;
+          gap: 0.25em;
+          flex: 1 1 0%;
+          min-width: 0;
+        }
+
+        .status-label {
+          font-weight: 600;
+          margin-right: 0.25em;
+        }
+
+        .status-errors-col{
+          display: flex;
+          flex-direction: column;
+          gap: 0.15em;
+          font-size: 0.85em;
+          background: mat-color($maincolor, 5);
+          border-radius: 4px;
+          padding: 0.2em 0.5em;
+          flex: 1 1 0%;
+          min-width: 0;
+          max-width: 70%;
+
+          .status-errors-row {
             display: flex;
-            align-items: center;
+            flex-direction: row;
             gap: 8px;
 
-            label {
-                font-size: 20px;
-                font-weight: bold;
+            .detail {
+              flex: 1 1 auto;
+              min-width: 0;
+              white-space: normal;
+              line-height: 1.3;
+              padding: 0.1em 0;
             }
-
-            .accent {
-                color: mat-color($accentcolor);
-            }
+          }
         }
-    }
 
-    .description {
-        font-size: 16px;
-        color: #666;
-        margin-top: 8px;
-    }
 
-    .meta {
-        display: flex;
-        gap: 10%;
-        margin-top: 12px;
-        font-size: 16px;
-        color: #666;
-        align-items: center;
-
-        .meta-item {
-            display: flex;
-            gap: 10px;
-            font-size: 16px;
-            color: mat-color($maincolor);
-
-            mat-icon {
-                color: mat-color($maincolor);
-                font-size: 2em;
-                margin-right: 8px;
-            }
-
-            .meta-text {
-                display: flex;
-                align-items: center;
-                overflow: hidden;
-            }
+        &.status-error,
+        &.status-error mat-icon,
+        &.status-error .status-label {
+          color: mat-color($route-color) !important;
         }
+
+        &.status-ok,
+        &.status-ok mat-icon,
+        &.status-ok .status-label {
+          color: mat-color($package-color) !important;
+        }
+      }
     }
+  }
 }

@@ -6,12 +6,14 @@
 [buttonCancelDisabled]="(buttonStateService.buttonsState$ | async)?.cancel || false"
 [buttonSave]="true"
 (onButtonSave)="save()"
-[buttonSaveDisabled]="(buttonStateService.buttonsState$ | async)?.save || false"
+[buttonSaveDisabled]="isSaving"
 [customButton]="true"
 [customButtonList]="[{icon:'bug_report', name:'Show JSON', disabled:false}]"
 (onCustomButton)="customButtonBehavior($event)">
-    <label>Roles of </label><label>{{ package_name }}</label><label>\</label><label>{{ model_name }}</label>
-  </app-inner-header>
+<div class="header-labels">
+  <label>Workflow of </label><label class="component-color-package colorized">{{packageName}}</label><label class="separator">\</label><label class="component-color-class colorized">{{modelName}}</label>
+</div>
+</app-inner-header>
 
   <app-classic-layout>
 
@@ -38,8 +40,8 @@
     *ngIf="selectedRole"
     [role]="selectedRole"
     [availableRoles]="(availableRoles$ | async) || []"
-    [package_name]="package_name"
-    [model_name]="model_name"
+    [package_name]="packageName"
+    [model_name]="modelName"
     (onrefresh)="refreshRoles()"
     >
 

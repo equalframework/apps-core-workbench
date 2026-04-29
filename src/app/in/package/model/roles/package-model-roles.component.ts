@@ -1,6 +1,7 @@
 import { ButtonStateService } from './../../../_services/button-state.service';
 import { KeyValue, Location } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { RouterMemory } from 'src/app/_services/router-memory.service';
+import { Component, OnDestroy, OnInit, Injector } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
@@ -9,6 +10,9 @@ import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer
 import { RoleItem, RoleManager, Roles } from 'src/app/in/_models/roles.model';
 import { NotificationService } from 'src/app/in/_services/notification.service';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
+import { JsonValidationService } from 'src/app/in/_services/json-validation.service';
+import { cloneDeep } from 'lodash';
+import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
 
 @Component({
     selector: 'app-roles',
@@ -18,11 +22,13 @@ import { WorkbenchService } from 'src/app/in/_services/workbench.service';
   export class PackageModelRolesComponent implements OnInit, OnDestroy {
     readonly roles$ = new BehaviorSubject<Roles>({});
     readonly availableRoles$ = this.roles$.pipe(map(roles => Object.keys(roles)));
-    package_name = '';
-    model_name = '';
+    packageName = '';
+    modelName = '';
     loading = false;
     selectedRole?: RoleItem;
     private readonly destroy$ = new Subject<void>();
+    public isSaving = false;
+    private backgroundPreloadStarted = false;
 
     constructor(
       private workbenchService: WorkbenchService,
@@ -30,13 +36,35 @@ import { WorkbenchService } from 'src/app/in/_services/workbench.service';
       private location: Location,
       private matDialog: MatDialog,
       private notificationService: NotificationService,
-      public buttonStateService: ButtonStateService
+      public buttonStateService: ButtonStateService,
+      private routerMemory: RouterMemory,
+      private jsonValidationService: JsonValidationService,
+      private provider: EqualComponentsProviderService,
+      private injector: Injector,
     ) {}
 
     ngOnInit(): void {
       this.handleRouteParams();
     }
 
+
+    private async fetchBackgroundData(): Promise<void> {
+        if (this.backgroundPreloadStarted) {
+            return;
+        }
+
+        this.backgroundPreloadStarted = true;
+
+        try {
+            // Lazy-resolve provider so its constructor-triggered preload starts only in phase 3.
+            if (!this.provider) {
+                this.provider = this.injector.get(EqualComponentsProviderService);
+            }
+        } catch (err) {
+            console.error('Error during background data fetching', err);
+
+        }
+    }
 
     goBack(): void {
       this.location.back();
@@ -61,12 +89,12 @@ import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
 
     customButtonBehavior(event: string): void {
-      if (event === "Show JSON") {
+      if (event === 'Show JSON') {
         this.export().pipe(take(1)).subscribe(exportedData => {
           this.matDialog.open(JsonViewerComponent, {
             data: exportedData,
-            width: "70vw",
-            height: "80vh"
+            width: '70vw',
+            height: '80vh'
           });
         });
       }
@@ -106,9 +134,10 @@ import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 
     private handleRouteParams(): void {
         this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
-          this.package_name = params['package_name'];
-          this.model_name = params['class_name'];
+          this.packageName = this.route.parent ? this.route.parent?.snapshot.paramMap.get('package_name') : params['package_name'];
+          this.modelName = this.route.parent ? this.route.parent?.snapshot.paramMap.get('class_name') : params['class_name'];
           this.loadRoles();
+          void this.fetchBackgroundData();
         });
     }
 
@@ -116,7 +145,7 @@ import { WorkbenchService } from 'src/app/in/_services/workbench.service';
         this.loading = true;
         this.buttonStateService.disableButtons();
 
-        this.workbenchService.getRoles(this.package_name, this.model_name).pipe(
+        this.workbenchService.getRoles(this.packageName, this.modelName).pipe(
           take(1),
           tap(roles => this.roles$.next(roles)),
           catchError(() => {
@@ -136,15 +165,30 @@ import { WorkbenchService } from 'src/app/in/_services/workbench.service';
         this.notificationService.showInfo('Saving...');
     }
 
-    private saveExportedActions(exportedActions: any): void {
-        const jsonData = JSON.stringify(exportedActions);
-        this.workbenchService.saveRoles(this.package_name, this.model_name, jsonData).pipe(
-            take(1),
-            finalize(() => this.buttonStateService.enableButtons())
-        ).subscribe({
-            next: (result) => this.handleSaveResponse(result),
-            error: () => this.handleError(),
-        });
+    private async saveExportedActions(exportedActions: any): Promise<void> {
+      const jsonData = JSON.stringify(exportedActions);
+      let modelPayloadForValidation: any;
+
+      try {
+        modelPayloadForValidation = await this.buildModelPayloadWithRoles(exportedActions);
+      } catch (error) {
+        this.notificationService.showError('Error while fetching model schema for roles validation.');
+        return;
+      }
+
+      this.jsonValidationService.validateAndSave(
+        this.jsonValidationService.validateBySchemaType(modelPayloadForValidation, 'urn:equal:json-schema:core:model', this.packageName),
+        () => this.workbenchService.saveRoles(this.packageName, this.modelName, jsonData),
+        (saving) => this.isSaving = saving
+      );
+    }
+
+    private async buildModelPayloadWithRoles(rolesPayload: any): Promise<any> {
+      const entity = `${this.packageName}\\${this.modelName}`;
+      const latestModelSchema = await this.workbenchService.getSchema(entity).toPromise();
+      const modelPayload = cloneDeep(latestModelSchema || {});
+      modelPayload.roles = rolesPayload;
+      return modelPayload;
     }
 
     private handleSaveResponse(result: any): void {

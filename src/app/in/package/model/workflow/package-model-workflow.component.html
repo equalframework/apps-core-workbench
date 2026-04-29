@@ -8,8 +8,10 @@
         [customButton]="true"
         [customButtonList]="[{icon:'bug_report', name:'Show JSON', disabled:false},{icon:'bug_report', name:'Show JSON meta data', disabled:false}]"
         (onCustomButton)="customButtonBehavior($event)">
-    <label>Workflow of </label><label>{{package}}</label><label>\</label><label>{{model}}</label>
-    <div *ngIf="need_save" class="title-holder">
+    <div class="header-labels">
+        <label>Workflow of </label><label class="component-color-package colorized">{{package}}</label><label class="separator">\</label><label class="component-color-class colorized">{{model}}</label>
+    </div>
+    <div *ngIf="needSave" class="title-holder">
         <mat-icon class="warn-icon" >error</mat-icon>
         <label>This workflow is malformed, save it from Workbench to fix it.</label>
     </div>
@@ -63,7 +65,7 @@
                         [selectedNode]="selectedNode"
                         [selectedLink]="selectedLink"
                         (selectLink)="selectedLink = $event"
-                        (selectNode)="selectedNode = $event; log($event)"
+                        (selectNode)="selectedNode = $event;"
                         (requestState)="changeState($event)">
                 </app-workflow-displayer>
             </div>
@@ -77,7 +79,7 @@
                     [state]="state"
                     [modelName]="model"
                     [packageName]="package"
-                    [model_schema]="model_scheme"
+                    [modelSchema]="modelScheme"
                     (requestState)="changeState($event)"
                     (requestDeleteLink)="deleteLink()"
                     (requestDeleteNode)="deleteNode()">

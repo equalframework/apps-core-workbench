@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { MixedCreatorDialogComponent } from 'src/app/_modules/workbench.module';
+import { MixedCreatorDialogComponent } from 'src/app/_dialogs/mixed-creator-dialog/mixed-creator-dialog.component';
 import { ActionItem } from 'src/app/in/_models/actions.model';
 import { PolicyItem } from 'src/app/in/_models/policy.model';
 import { NotificationService } from 'src/app/in/_services/notification.service';

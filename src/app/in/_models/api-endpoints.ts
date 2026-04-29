@@ -65,8 +65,8 @@ export const API_ENDPOINTS = {
             `?get=core_config_controllers&package=${package_name}`,
         create: (package_name: string, controller_name: string, controller_type: string) =>
             `?do=core_config_create-controller&controller_name=${controller_name}&controller_type=${controller_type}&package=${package_name}`,
-        update: (controller_name: string, controller_type: string, payload: { [id: string]: any }) =>
-            `?do=core_config_update-controller&controller=${controller_name}&operation=${controller_type}&payload=${JSON.stringify(payload)}`,
+        update: (package_name: string, controller_name: string, controller_type: string, payload: { [id: string]: any }) =>
+            `?do=core_config_update-controller&controller=${package_name}_${controller_name}&operation=${controller_type}&payload=${JSON.stringify(payload)}`,
         delete: (package_name: string, controller_name: string, controller_type: string) =>
             `?do=core_config_delete-controller&package=${package_name}&controller_name=${controller_name}&controller_type=${controller_type}`
     },
@@ -116,5 +116,16 @@ export const API_ENDPOINTS = {
     schema: {
         get: (entity: string) =>
             `?get=core_model_schema&entity=${entity}`
+    },
+
+    //JSON Editor-specific actions
+    json: {
+        validate: (json: any, schema_id: any, package_name?: any, strict?: any) => {
+            const jsonPayload = encodeURIComponent(JSON.stringify(json));
+            const schemaParam = encodeURIComponent(schema_id);
+            const packageParam = package_name ? `&package=${encodeURIComponent(package_name)}` : '';
+            const strictParam = strict ? '&strict=true' : '';
+            return `?get=core_json-validate&json=${jsonPayload}&schema_id=${schemaParam}${packageParam}${strictParam}`;
+        }
     }
 };

@@ -1,0 +1,77 @@
+<div *ngIf="error" class="error-container">
+    <p>Error: Unable to load controller details</p>
+</div>
+
+<div *ngIf="loading" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <label>Loading...</label>
+</div>
+
+<div *ngIf="!loading && !error" class="controller-container">
+    <!-- Header placed above tabs -->
+    <div class="app-inner-header-wrapper">
+        <app-inner-header
+                [buttonBack]="true"
+                (onButtonBack)="onHeaderButtonBack()"
+                [buttonCancelOne]="true"
+                [buttonCancelOneDisabled]="!canCancelOne"
+                (onButtonCancelOne)="onHeaderButtonCancelOne()"
+                [buttonRevertOne]="true"
+                [buttonRevertOneDisabled]="!canRevertOne"
+                (onButtonRevertOne)="onHeaderButtonRevertOne()"
+                [buttonSave]="true"
+                [buttonSaveDisabled]="isSaving"
+                (onButtonSave)="onHeaderButtonSave()"
+                [customButton]="true"
+                [customButtonList]="[{name:'show JSON', icon:'bug_report', disabled:false}]"
+                (onCustomButton)="onHeaderCustomButton($event)">
+            <div class="header-labels">
+                <label *ngIf="selectedTabIndex === 0">Parameters of </label>
+                <label *ngIf="selectedTabIndex === 1">Response of </label>
+                <div class="component-color-package borders">
+                    <label>{{packageName}}</label>
+                </div>
+                <label class="separator">_</label>
+                <div class="component-color-controller borders">
+                    <label>{{ controllerName }}</label>
+                </div>
+            </div>
+        </app-inner-header>
+    </div>
+
+    <!-- Tabs below header -->
+    <mat-tab-group [(selectedIndex)]="selectedTabIndex" (selectedIndexChange)="onTabChange($event)" class="controller-tabs">
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <span>Parameters</span>
+            </ng-template>
+            <app-package-controller-params
+                [controllerName]="controllerName"
+                [controllerType]="controllerType"
+                [controllerPackage]="packageName"
+                [types]="types"
+                [usages]="usages"
+                [paramsScheme]="paramsScheme"
+                [modelList]="modelList"
+                [dataReady]="dataLoaded"
+                [isSaving]="isSaving">
+            </app-package-controller-params>
+        </mat-tab>
+
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <span>Response</span>
+            </ng-template>
+            <app-package-controller-return
+                [controllerName]="controllerName"
+                [controllerType]="controllerType"
+                [controllerPackage]="packageName"
+                [types]="types"
+                [entities]="entities"
+                [returnScheme]="returnScheme"
+                [dataReady]="dataLoaded"
+                [isSaving]="isSaving">
+            </app-package-controller-return>
+        </mat-tab>
+    </mat-tab-group>
+</div>

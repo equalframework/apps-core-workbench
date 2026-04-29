@@ -18,7 +18,7 @@ describe('HeaderEditorComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(HeaderEditorComponent);
     component = fixture.componentInstance;
-    component.obj = new ViewHeader({},"list")
+    component.obj = new ViewHeader({}, 'list');
     fixture.detectChanges();
   });
 

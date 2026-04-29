@@ -85,6 +85,8 @@ export class MixedCreatorDialogComponent implements OnInit, OnDestroy {
         return;
         }
 
+        console.log('Injected data into MixedCreatorDialogComponent:', data);
+
         // Determine component type from injected data
         this.type = this.obk(this.tDict).includes(data.node_type)
         ? data.node_type
@@ -109,8 +111,11 @@ export class MixedCreatorDialogComponent implements OnInit, OnDestroy {
         }
 
     public async ngOnInit() {
-        this.cachePkgList = await this.workbenchService.collectAllPackages().toPromise();
-
+        console.log('Initializing MixedCreatorDialogComponent with type:', this.type);
+        await this.provider.getPackages().
+        subscribe((packages: any[]) => {
+            this.cachePkgList = packages;
+        });
         //this.cachePkgList = await this.workbenchService.listPackages();
         this.loaded = true;
         await this.reloadList();
@@ -179,6 +184,7 @@ export class MixedCreatorDialogComponent implements OnInit, OnDestroy {
      * Set up component fields based on the type.
      */
     protected async casing(): Promise<void> {
+        console.log('Setting up form for type:', this.type);
         switch (this.type) {
         case 'package':
             this.cacheList = this.cachePkgList;
@@ -193,14 +199,16 @@ export class MixedCreatorDialogComponent implements OnInit, OnDestroy {
             this.subtypeName = 'View Type';
             this.cacheList = [];
             if (this.selectedPackage && this.selectedModel) {
-            const views = await this.workbenchService.collectViews(this.selectedPackage, this.selectedModel).toPromise();
-            views?.filter(item => {
-                const sp = item.split(':');
-                return sp[1].split('.')[0] === this.subtype &&
-                    sp[0] === `${this.selectedPackage}\\${this.selectedModel}`;
-            }).forEach(item => {
-                this.cacheList?.push(item.split(':')[1].split('.')[1]);
-            });
+                const views = await this.provider.getComponents(this.selectedPackage, 'view', this.selectedModel).toPromise();
+                if (Array.isArray(views)) {
+                    views.filter(item => {
+                        const sp = item.split(':');
+                        return sp[1].split('.')[0] === this.subtype &&
+                            sp[0] === `${this.selectedPackage}\\${this.selectedModel}`;
+                    }).forEach(item => {
+                        this.cacheList?.push(item.split(':')[1].split('.')[1]);
+                    });
+                }
             }
             break;
         case 'menu':
@@ -211,8 +219,8 @@ export class MixedCreatorDialogComponent implements OnInit, OnDestroy {
             this.subtypeName = 'Menu Type';
             this.cacheList = [];
             if (this.selectedPackage) {
-            const menus = await this.workbenchService.getMenusByPackage(this.selectedPackage).toPromise();
-            menus.forEach(item => this.cacheList?.push(item.split('.')[0]));
+            const menus = await this.provider.getComponents(this.selectedPackage, 'menu').toPromise();
+            menus.forEach(item => this.cacheList?.push(item.name.split('.')[0]));
             }
             break;
         case 'class':
@@ -231,7 +239,7 @@ export class MixedCreatorDialogComponent implements OnInit, OnDestroy {
             this.implemented = true;
             this.needSubtype = false;
             if (this.selectedPackage) {
-            this.cacheList = await this.workbenchService.collectControllers('actions',this.selectedPackage,true).toPromise();
+            this.cacheList = (await this.provider.getComponents(this.selectedPackage, 'controller').toPromise()).map(item => item.name);
             }
             break;
         case 'get':
@@ -239,7 +247,7 @@ export class MixedCreatorDialogComponent implements OnInit, OnDestroy {
             this.implemented = true;
             this.needSubtype = false;
             if (this.selectedPackage) {
-            this.cacheList = await this.workbenchService.collectControllers('data',this.selectedPackage,true).toPromise();
+            this.cacheList = (await this.provider.getComponents(this.selectedPackage, 'controller').toPromise()).map(item => item.name);
             }
             break;
         case 'route':
@@ -250,14 +258,13 @@ export class MixedCreatorDialogComponent implements OnInit, OnDestroy {
             this.subtypeName = 'File';
             this.nameTitle = 'URL';
             if (this.selectedPackage) {
-            const routes = await this.workbenchService.getRoutesByPackage(this.selectedPackage).toPromise();
-            this.subTypeList = Object.keys(routes);
-            console.log("subtypeList : ", this.subTypeList)
+            const routes = (await this.provider.getComponents(this.selectedPackage, 'route').toPromise()).map((item: any) => item.file.split('/').slice(-1)[0]);
+            this.subTypeList = Object.values(routes);
+            console.log(this.subTypeList, 'subtypes for route', routes);
             this.cacheList = [];
-            if (routes[this.subtype] && !this.addingState) {
-                for (const key in routes[this.subtype]) {
-                    console.log("key, ", key)
-                this.cacheList.push(key);
+            if (routes.length > 0 && !this.addingState) {
+                for (const key in routes) {
+                this.cacheList.push(routes[key]);
                 }
             } else if (this.addingState) {
                 this.customStList = await this.workbenchService.getAllRouteFiles().toPromise();
@@ -274,7 +281,6 @@ export class MixedCreatorDialogComponent implements OnInit, OnDestroy {
               map(response => Object.keys(response))
             )
             .toPromise();
-            console.log("this.cache Liste : ", this.cacheList);
             break;
         case 'role':
             this.needPackage = true;

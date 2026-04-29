@@ -12,7 +12,7 @@ import { TogglingButtonComponent } from './_components/toggling-button/toggling-
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { DragTrackerDirective } from './_components/group-editor/dragtracker.directive';
-import { DraginfoDirective } from './_components/group-editor/draginfo.directive';
+import { DragInfoDirective } from './_components/group-editor/draginfo.directive';
 import { HeaderActionsComponent } from './_components/header-actions/header-actions.component';
 import { ActionEditorComponent } from './_components/action-editor/action-editor.component';
 import { ItemEditorComponent } from './_components/item-editor/item-editor.component';
@@ -37,6 +37,13 @@ import { RouteEditComponent } from './_components/route-editor/route-edit/route-
 import { PopupLayoutModule } from 'src/app/in/popup-layout/popup-layout.module';
 import { UsagesModule } from 'src/app/in/usages/usages.module';
 
+// Tab components
+import { LayoutTabComponent } from './_tabs/layout-tab/layout-tab.component';
+import { HeaderTabComponent } from './_tabs/header-tab/header-tab.component';
+import { ActionsTabComponent } from './_tabs/actions-tab/actions-tab.component';
+import { RoutesTabComponent } from './_tabs/routes-tab/routes-tab.component';
+import { AdvancedTabComponent } from './_tabs/advanced-tab/advanced-tab.component';
+
 
 @NgModule({
   declarations: [
@@ -48,7 +55,7 @@ import { UsagesModule } from 'src/app/in/usages/usages.module';
     EditItemFormComponent,
     TogglingButtonComponent,
     DragTrackerDirective,
-    DraginfoDirective,
+    DragInfoDirective,
     HeaderActionsComponent,
     ActionEditorComponent,
     ItemEditorComponent,
@@ -59,6 +66,11 @@ import { UsagesModule } from 'src/app/in/usages/usages.module';
     PreDefActionEditorComponent,
     RouteEditorComponent,
     RouteEditComponent,
+    LayoutTabComponent,
+    HeaderTabComponent,
+    ActionsTabComponent,
+    RoutesTabComponent,
+    AdvancedTabComponent
   ],
   imports: [
     CommonModule,
@@ -70,7 +82,9 @@ import { UsagesModule } from 'src/app/in/usages/usages.module';
     HttpClientModule,
     RouterModule,
     PopupLayoutModule,
-    UsagesModule
+    UsagesModule,
+    PropertyDomainModule,
+    PropertyClauseModule
   ],
   exports : [
 
@@ -81,8 +95,8 @@ import { UsagesModule } from 'src/app/in/usages/usages.module';
       useValue: {}
     },
     {
-      provide:MAT_DIALOG_DATA,
-      useValue:{}
+      provide: MAT_DIALOG_DATA,
+      useValue: {}
     },
     HttpClientModule,
     MatDialogModule,

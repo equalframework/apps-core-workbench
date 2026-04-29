@@ -1,0 +1,262 @@
+@import '/src/theme.scss';
+
+:host {
+  .info-footer {
+    background: white;
+    width: 100%;
+    padding: 1em 2em;
+    box-sizing: border-box;
+    border-radius: 8px;
+
+    .footer-inner {
+      display: flex;
+      width: 100%;
+      gap: 1.5em;
+      flex-wrap: wrap;
+      align-items: flex-start;
+
+      .section-label {
+        font-size: 0.9em;
+        font-weight: 600;
+        color: mat-color($maincolor, 700);
+        margin-bottom: 0.8em;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .navigation-section {
+        flex: 1 1 auto;
+
+        .nav-scroll {
+          display: flex;
+          gap: 10px;
+          flex-wrap: wrap;
+          align-items: center;
+
+          .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.6em 1.2em;
+            background: mat-color($maincolor);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: white;
+            font-size: 0.95em;
+            font-weight: 500;
+            font-family: inherit;
+            white-space: nowrap;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+            .btn-top {
+              display: flex;
+              align-items: center;
+              gap: 6px;
+
+              .icon {
+                font-size: 1.1em;
+                display: inline-flex;
+                align-items: center;
+              }
+
+              .btn-count {
+                background: rgba(255, 255, 255, 0.25);
+                color: white;
+                border: none;
+                border-radius: 12px;
+                padding: 2px 8px;
+                font-size: 0.8em;
+                font-weight: 600;
+                font-family: inherit;
+              }
+            }
+
+            .btn-bottom {
+              display: flex;
+              align-items: center;
+              gap: 6px;
+
+              .label {
+                color: white;
+              }
+            }
+
+            &:hover:not(:disabled) {
+              background: mat-color($maincolor, 700);
+              box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+              transform: translateY(-2px);
+            }
+
+            &:active:not(:disabled) {
+              transform: translateY(0);
+              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+
+            &:disabled {
+              opacity: 0.5;
+              cursor: not-allowed;
+              box-shadow: none;
+            }
+
+            &:focus {
+              outline: 2px solid mat-color($maincolor, 700);
+              outline-offset: 2px;
+            }
+          }
+        }
+      }
+
+      .actions-section {
+        flex: 0 1 auto;
+
+        .actions-scroll {
+          display: flex;
+          gap: 10px;
+          flex-wrap: wrap;
+          align-items: center;
+
+          .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.6em 1.2em;
+            background: mat-color($maincolor);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: white;
+            font-size: 0.95em;
+            font-weight: 500;
+            font-family: inherit;
+            white-space: nowrap;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+            .btn-top {
+              display: flex;
+              align-items: center;
+              gap: 6px;
+
+              .icon {
+                font-size: 1.1em;
+                display: inline-flex;
+                align-items: center;
+              }
+
+              .btn-count {
+                background: rgba(255, 255, 255, 0.25);
+                color: white;
+                border: none;
+                border-radius: 12px;
+                padding: 2px 8px;
+                font-size: 0.8em;
+                font-weight: 600;
+                font-family: inherit;
+              }
+            }
+
+            .btn-bottom {
+              display: flex;
+              align-items: center;
+              gap: 6px;
+
+              .label {
+                color: white;
+              }
+            }
+
+            &:hover:not(:disabled) {
+              background: mat-color($maincolor, 700);
+              box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+              transform: translateY(-2px);
+            }
+
+            &:active:not(:disabled) {
+              transform: translateY(0);
+              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+
+            &:disabled {
+              opacity: 0.5;
+              cursor: not-allowed;
+              box-shadow: none;
+            }
+
+            &:focus {
+              outline: 2px solid mat-color($maincolor, 700);
+              outline-offset: 2px;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @media (max-width: 900px) {
+    .info-footer {
+      .footer-inner {
+        flex-direction: column;
+        gap: 1em;
+
+        .navigation-section,
+        .actions-section {
+          width: 100%;
+          min-width: auto;
+        }
+
+        .section-label {
+          margin-bottom: 0.6em;
+        }
+
+        .nav-scroll,
+        .actions-scroll {
+          gap: 8px;
+
+          .nav-btn,
+          .action-btn {
+            flex: 1 1 calc(50% - 5px);
+            justify-content: center;
+            padding: 0.5em 0.8em;
+          }
+        }
+      }
+    }
+  }
+
+  @media (max-width: 600px) {
+    .info-footer {
+      padding: 0.75em 1em;
+
+      .footer-inner {
+        gap: 0.75em;
+
+        .section-label {
+          font-size: 0.8em;
+          margin-bottom: 0.5em;
+        }
+
+        .nav-scroll,
+        .actions-scroll {
+          .nav-btn,
+          .action-btn {
+            flex: 1 1 100%;
+
+            .btn-top {
+              gap: 4px;
+
+              .icon {
+                font-size: 1em;
+              }
+            }
+
+            .label {
+              font-size: 0.9em;
+            }
+          }
+        }
+      }
+    }
+  }
+}

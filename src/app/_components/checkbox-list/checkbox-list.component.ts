@@ -19,7 +19,6 @@ export class CheckboxListComponent implements OnChanges {
       const previous = changes.selectedValues.previousValue || [];
       const current = changes.selectedValues.currentValue || [];
       if (!this.areArraysEqual(previous, current)) {
-        console.log("🔍 selectedValues modifié :", current);
         this.internalSelectedValues = new Set(current);
       }
     }

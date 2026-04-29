@@ -24,7 +24,6 @@ export class ValueSelectionComponent implements OnInit {
     constructor() { }
 
     ngOnInit(): void {
-        console.log(this.fields.fields[this.operand])
         this.myControl.setValue(this.value);
     }
 
@@ -36,12 +35,10 @@ export class ValueSelectionComponent implements OnInit {
     }
 
     public changeOption(option: any) {
-        console.log(option);
         this.changeValue.emit(option);
     }
 
     public onOptionChange(event: any) {
-        console.log(event.value);
         this.changeValue.emit(event.value);
     }
 

@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WorkflowNodeComponent } from './workflow-node.component';
+import { WorkflowNode } from '../workflow-displayer/_objects/WorkflowNode';
 
 describe('WorkflowNodeComponent', () => {
   let component: WorkflowNodeComponent;
@@ -8,7 +9,10 @@ describe('WorkflowNodeComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ WorkflowNodeComponent ]
+      declarations: [ WorkflowNodeComponent ],
+      providers: [
+        { provide: WorkflowNode, useValue: new WorkflowNode('test') }
+      ]
     })
     .compileComponents();
   });
@@ -16,6 +20,7 @@ describe('WorkflowNodeComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(WorkflowNodeComponent);
     component = fixture.componentInstance;
+    component.node = new WorkflowNode('test');
     fixture.detectChanges();
   });
 

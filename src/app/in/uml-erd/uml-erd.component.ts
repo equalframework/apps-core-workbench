@@ -2,7 +2,7 @@ import { CdkDragEnd } from '@angular/cdk/drag-drop';
 import { Component, Inject, OnChanges, OnInit, Optional } from '@angular/core';
 import { UmlErdNode } from './_components/uml-erd-displayer/_objects/UmlErdNode';
 import { Anchor, UmlErdLink } from './_components/uml-erd-displayer/_objects/UmlErdLink';
-import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { RouterMemory } from 'src/app/_services/router-memory.service';
 import { ActivatedRoute } from '@angular/router';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { prettyPrintJson } from 'pretty-print-json';
@@ -250,7 +250,6 @@ export class UmlErdComponent implements OnInit, OnChanges {
         d.afterClosed().subscribe(async (data: string | null) => {
           if (data) {
             this.current_filename = data;
-            console.log('loaded: ', data);
             this.init();
           }
         });
@@ -261,7 +260,6 @@ export class UmlErdComponent implements OnInit, OnChanges {
         const package_name = this.current_filename.split(":")[0]
         const file_name_without_ext = this.current_filename.trim().split(":").pop()?.split(".")[0] || "default";
 
-        console.log("file name ", file_name_without_ext)
         const res = await this.workbenchService.saveUML(package_name, "erd",file_name_without_ext , JSON.stringify(this.export())).toPromise();
                 if(res) {
                     this.snackBar.open("Saved successfully","INFO");
@@ -303,7 +301,6 @@ export class UmlErdComponent implements OnInit, OnChanges {
         d.afterClosed().subscribe(async (data: string | null) => {
           if (data) {
             this.current_filename = data;
-            console.log('loaded: ', data);
             this.init();
           }
         });

@@ -1,24 +1,65 @@
-.cdk-drag-preview {
+@import "src/theme.scss";
+
+:host {
+  display: block;
+
+  .cdk-drag-preview {
     box-sizing: border-box;
     border-radius: 4px;
     box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
                 0 8px 10px 1px rgba(0, 0, 0, 0.14),
                 0 3px 14px 2px rgba(0, 0, 0, 0.12);
     background-color: white;
-}
+  }
 
-.cdk-drag-placeholder {
-opacity: 0;
-}
+  .cdk-drag-placeholder {
+    opacity: 0;
+  }
 
-.cdk-drag-animating {
-transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
-}
-
-.example-list.cdk-drop-list-dragging .example-box:not(.cdk-drag-placeholder) {
+  .cdk-drag-animating {
     transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
-}
+  }
 
-.grabable {
+  .example-list.cdk-drop-list-dragging .example-box:not(.cdk-drag-placeholder) {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  }
+
+  .grabable {
     cursor: grab;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1em;
+
+    label {
+      font-weight: 500;
+    }
+
+    .addItem {
+      margin-left: 1em;
+    }
+  }
+
+  .info {
+    font-style: italic;
+    opacity: 0.7;
+    margin-top: 1em;
+  }
+
+  [cdkDropList] {
+    display: flex;
+    flex-direction: column;
+
+    app-route-edit {
+      display: block;
+      width: 100%;
+
+      &[cdkDrag] {
+        cursor: grab;
+      }
+    }
+  }
 }

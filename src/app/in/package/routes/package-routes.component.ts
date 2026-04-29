@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewEncapsulation} from '@angular/core';
 import { Location } from '@angular/common';
+import { RouterMemory } from 'src/app/_services/router-memory.service';
 import {EnvService } from 'sb-shared-lib';
 import { prettyPrintJson } from 'pretty-print-json';
 import { ActivatedRoute} from '@angular/router';
@@ -42,7 +43,8 @@ export class PackageRoutesComponent implements OnInit {
             private location: Location,
             public matDialog:MatDialog,
             public env:EnvService,
-            public provider:EqualComponentsProviderService
+            public provider:EqualComponentsProviderService,
+            private routerMemory: RouterMemory
         ) { }
 
     public async ngOnInit() {
@@ -62,6 +64,7 @@ export class PackageRoutesComponent implements OnInit {
      */
     public async onSelectNode(eq_route: EqualComponentDescriptor) {
         this.selected_route = eq_route;
+        this.selected_route.name = "/" + eq_route.name;
     }
 
     /**

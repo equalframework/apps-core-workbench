@@ -1,120 +1,167 @@
-import { cloneDeep } from "lodash";
-import { WorkflowNode } from "./WorkflowNode";
+import { WorkflowNode } from './WorkflowNode';
 
 export enum Anchor {
-    TopLeft = "top-left",
-    Top = "top",
-    TopRight = "top-right",
-    MiddleLeft = "middle-left",
-    MiddleRight = "middle-right",
-    BottomLeft = "bottom-left",
-    Bottom = "bottom",
-    BottomRight = "bottom-right"
+    TopLeft = 'top-left',
+    Top = 'top',
+    TopRight = 'top-right',
+    MiddleLeft = 'middle-left',
+    MiddleRight = 'middle-right',
+    BottomLeft = 'bottom-left',
+    Bottom = 'bottom',
+    BottomRight = 'bottom-right'
 }
 
 
 export class WorkflowLink {
-    public from:WorkflowNode
-    public to:WorkflowNode
-    public anchorFrom:Anchor = Anchor.Top
-    public anchorTo:Anchor = Anchor.Bottom
+    public from: WorkflowNode;
+    public to: WorkflowNode;
+    public anchorFrom: Anchor = Anchor.Top;
+    public anchorTo: Anchor = Anchor.Bottom;
 
-    public name:string = "transition"
-    public watch:string[] = []
-    public description:string = ""
-    public help:string = ""
-    public domain:any[] = []
-    public policies:string[] = []
-    onafter:string = ""
+    public name = 'transition';
+    public watch: string[] = [];
+    public description = '';
+    public help = '';
+    public domain: any[] = [];
+    public policies: string[] = [];
+    public onAfter = '';
 
-    leftover:any = {}
+    leftover: any = {};
 
-    get status():string {
-        return this.to.name
+    get status(): string {
+        return this.to.name;
     }
 
-    
-
-    constructor(from:WorkflowNode,to:WorkflowNode,anchorFrom:Anchor,anchorTo:Anchor,scheme:any = {}) {
-        this.from = from
-        this.to = to
-        this.anchorFrom = anchorFrom
-        this.anchorTo = anchorTo
+    constructor(from: WorkflowNode, to: WorkflowNode, anchorFrom: Anchor, anchorTo: Anchor, scheme: any = {}) {
+        this.from = from;
+        this.to = to;
+        this.anchorFrom = anchorFrom;
+        this.anchorTo = anchorTo;
 
 
-        if(scheme.name) {
-            this.name = scheme.name
-            delete scheme.name
+        if (scheme.name) {
+            this.name = scheme.name;
+            delete scheme.name;
         }
-        if(scheme.watch) {
-            this.watch = scheme.watch
-            delete scheme.watch
+        if (scheme.watch) {
+            this.watch = scheme.watch;
+            delete scheme.watch;
         }
-        if(scheme.description) {
-            this.description = scheme.description
-            delete scheme.description
+        if (scheme.description) {
+            this.description = scheme.description;
+            delete scheme.description;
         }
-        if(scheme.help) {
-            this.help = scheme.help
-            delete scheme.help
+        if (scheme.help) {
+            this.help = scheme.help;
+            delete scheme.help;
         }
-        if(scheme.onafter) {
-            this.onafter = scheme.onafter
-            delete scheme.onafter
+        if (scheme.onafter) {
+            this.onAfter = scheme.onafter;
+            delete scheme.onafter;
         }
-        if(scheme.policies) {
-            this.policies = scheme.policies
-            delete scheme.policies
+        if (scheme.policies) {
+            this.policies = scheme.policies;
+            delete scheme.policies;
         }
-        if(scheme.domain) {
-            this.domain = scheme.domain
-            delete scheme.domain
+        if (scheme.domain) {
+            this.domain = scheme.domain;
+            delete scheme.domain;
         }
-        delete scheme.status
+        delete scheme.status;
     }
-    
-    export() {
-        let ret:any = {}
-        for(let key in this.leftover) {
-            if(this.leftover[key]) {
+
+    export(): any {
+        const ret: any = {};
+        for (const key in this.leftover) {
+            if (this.leftover[key]) {
                 try {
-                    if(this.leftover[key].length > 0) {
-                        continue
+                    if (this.leftover[key].length > 0) {
+                        continue;
                     }
                 } catch {}
-                ret[key] = this.leftover[key]
+                ret[key] = this.leftover[key];
             }
         }
-        if(this.description) {
-            ret.description = this.description
+        if (this.name) {
+            ret.name = this.name;
         }
-        if(this.help) {
-            ret.help = this.help
+        if (this.description) {
+            ret.description = this.description;
         }
-        if(this.watch.length > 0) {
-            ret.watch = this.watch
+        if (this.help) {
+            ret.help = this.help;
         }
-        if(this.onafter) {
-            ret.onafter = this.onafter
+        if (this.watch.length > 0) {
+            ret.watch = this.watch;
         }
-        if(this.policies.length > 0) {
-            ret.policies = this.policies
+        if (this.onAfter) {
+            ret.onafter = this.onAfter;
         }
-        if(this.domain.length > 0) {
-            ret.domain = this.domain
+        if (this.policies.length > 0) {
+            ret.policies = this.policies;
         }
-        if(this.status) {
-            ret.status = this.status
+        if (this.domain.length > 0) {
+            ret.domain = this.domain;
         }
-        return ret
+        if (this.status) {
+            ret.status = this.status;
+        }
+        return ret;
     }
 
-    generateMetaData() {
+    generateMetaData(): any {
         return {
             anchorFrom : this.anchorFrom,
             anchorTo : this.anchorTo,
-        }
+        };
     }
 }
 
-export const test:{[id:string]:any} = {"created":{"description":"The user account has been created but is not validated yet.","transitions":{"validation":{"watch":["validated"],"domain":["validated","=",true],"description":"Update the user status based on the `validated` field.","help":"The `validated` field is set by a dedicated controller that handles email confirmation requests.","status":"validated","onafter":"onafterValidate"}}},"validated":{"description":"The email address of the account has been confirmed.","transitions":{"suspension":{"description":"Set the user status as suspended.","status":"suspended"},"confirmation":{"domain":["validated","=",true],"description":"Update the user status based on the `confirmed` field.","help":"The `confirmed` field is set by a dedicated controller that handles the account confirmation process (auto or manual).","status":"confirmed"}}},"confirmed":{"description":"The account has been validated by the USER_ACCOUNT_VALIDATION policy, and the email address has been confirmed.","transitions":{"suspension":{"description":"Set the user account as disabled (prevents signin).","status":"suspended"}}},"suspended":{"transitions":{"confirmation":{"description":"Re-enable the user account.","status":"confirmed"}}}}
+export const test: {[id: string]: any} =
+{created:
+    {
+        description: 'The user account has been created but is not validated yet.',
+        transitions: {
+            validation: {
+                watch: ['validated'],
+                domain: ['validated', '=', true],
+                description: 'Update the user status based on the `validated` field.',
+                help: 'The `validated` field is set by a dedicated controller that handles email confirmation requests.',
+                status: 'validated',
+                onafter: 'onafterValidate'
+            }
+        }
+    },
+    validated: {
+        description: 'The email address of the account has been confirmed.',
+        transitions: {
+            suspension: {
+                description: 'Set the user status as suspended.',
+                status: 'suspended'
+            },
+            confirmation: {
+                domain: ['validated', '=', true],
+                description: 'Update the user status based on the `confirmed` field.',
+                help: 'The `confirmed` field is set by a dedicated controller that handles the account confirmation process (auto or manual).',
+                status: 'confirmed'
+            }
+        }
+    },
+    confirmed: {
+        description: 'The account has been validated by the USER_ACCOUNT_VALIDATION policy, and the email address has been confirmed.',
+        transitions: {
+            suspension: {
+                description: 'Set the user account as disabled (prevents signin).',
+                status: 'suspended'
+            }
+        }
+    },
+    suspended: {
+        transitions: {
+            confirmation: {
+                description: 'Re-enable the user account.',
+                status: 'confirmed'
+            }
+        }
+    }
+};

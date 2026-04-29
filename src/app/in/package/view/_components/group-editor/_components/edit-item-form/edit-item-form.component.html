@@ -1,13 +1,17 @@
 <app-popup-layout
+    [okButton]="true"
+    okButtonText="Save"
     (close)="dialogRef.close()"
+    (ok)="dialogRef.close(editingItem)"
 >
     <app-item-editor
-    [item]="data.item"
+    [item]="editingItem"
     [fields]="data.fields"
-    [entity]="data.entity"
+    [entity]="data.package + '\\' + data.entity"
     [types]="types"
     [groups]="data.groups"
-    [action_controllers]="data.action_controllers"
+    [actionControllers]="data.action_controllers"
+    [scheme]="data.schema"
     >
     </app-item-editor>
 </app-popup-layout>

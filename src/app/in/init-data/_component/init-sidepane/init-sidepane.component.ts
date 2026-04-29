@@ -65,7 +65,6 @@ export class InitSidepaneComponent implements OnInit,OnChanges {
         this.file.entities[key].name,
         "list.default"
       ).toPromise()).layout.items.filter((item:any) => item.value !== 'id' && item.type === 'field')
-      console.log(this.viewField)
       this.sorted = this.file.entities[key].items.slice()
     }
     this.page = new PageEvent()

@@ -17,6 +17,9 @@ import { WorkbenchModule } from 'src/app/_modules/workbench.module';
 
 /* HTTP requests interception dependencies */
 import { HTTP_INTERCEPTORS, HttpClient, HttpClientModule } from '@angular/common/http';
+import { CacheInterceptor } from './_interceptors/cache.interceptor';
+import { ApiThrottleInterceptor } from './_interceptors/api-throttle.interceptor';
+import { API_THROTTLE_LIMIT, API_THROTTLE_URL_REGEX } from './_services/api-throttle.service';
 
 import { registerLocaleData } from '@angular/common';
 import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar';
@@ -24,7 +27,6 @@ import { MAT_TABS_CONFIG } from '@angular/material/tabs';
 
 // import { PackageModule } from './in/package/package.module';
 
-import { TranslateModule } from '@ngx-translate/core';
 import { RouterModule } from '@angular/router';
 
 
@@ -70,15 +72,18 @@ const sharedComponents = [
         MatNativeDateModule,
         PlatformModule,
         NgxMaterialTimepickerModule.setLocale('fr-BE'),
-        TranslateModule.forRoot(),
         HttpClientModule
     ],
     exports: [
         RouterModule
     ],
     providers: [
+        { provide: HTTP_INTERCEPTORS, useClass: CacheInterceptor, multi: true },
+        { provide: HTTP_INTERCEPTORS, useClass: ApiThrottleInterceptor, multi: true },
         // add HTTP interceptor to inject AUTH header to any outgoing request
         { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptorService, multi: true },
+        { provide: API_THROTTLE_LIMIT, useValue: 5 },
+        { provide: API_THROTTLE_URL_REGEX, useValue: /[?&](get|do|call)=/i },
         { provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: { duration: 4000, horizontalPosition: 'start' } },
         { provide: MAT_TABS_CONFIG, useValue: { animationDuration: '0ms' } },
         { provide: MAT_DATE_LOCALE, useValue: 'fr-BE' },

@@ -1,6 +1,7 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, Injector } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Location } from '@angular/common';
+import { RouterMemory } from 'src/app/_services/router-memory.service';
 import { MatDialog } from '@angular/material/dialog';
 import { BehaviorSubject, Observable, Subject, of } from 'rxjs';
 import { catchError, finalize, map, take, takeUntil, tap } from 'rxjs/operators';
@@ -10,6 +11,9 @@ import { PolicyItem, PolicyManager, PolicyResponse } from 'src/app/in/_models/po
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { ButtonStateService } from 'src/app/in/_services/button-state.service';
 import { NotificationService } from 'src/app/in/_services/notification.service';
+import { JsonValidationService } from 'src/app/in/_services/json-validation.service';
+import { cloneDeep } from 'lodash';
+import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
 
 @Component({
   selector: 'app-policies',
@@ -18,11 +22,13 @@ import { NotificationService } from 'src/app/in/_services/notification.service';
 })
 export class PackageModelPoliciesComponent implements OnInit, OnDestroy {
     policies$ = new BehaviorSubject<PolicyResponse>({});
-    package_name = '';
-    model_name = '';
+    packageName = '';
+    modelName = '';
     loading = false;
     selectedPolicy: PolicyItem | undefined;
     readonly destroy$ = new Subject<void>();
+    public isSaving = false;
+    private backgroundPreloadStarted = false;
 
     constructor(
         private workbenchService: WorkbenchService,
@@ -30,7 +36,11 @@ export class PackageModelPoliciesComponent implements OnInit, OnDestroy {
         private location: Location,
         private matDialog: MatDialog,
         private notificationService: NotificationService,
-        public buttonStateService: ButtonStateService
+        public buttonStateService: ButtonStateService,
+        private routerMemory: RouterMemory,
+        private jsonValidationService: JsonValidationService,
+        private provider: EqualComponentsProviderService,
+        private injector: Injector,
     ) {}
 
     ngOnInit(): void {
@@ -38,17 +48,36 @@ export class PackageModelPoliciesComponent implements OnInit, OnDestroy {
         this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => this.handleRouteParams(params));
     }
 
+    private async fetchBackgroundData(): Promise<void> {
+        if (this.backgroundPreloadStarted) {
+            return;
+        }
+
+        this.backgroundPreloadStarted = true;
+
+        try {
+            // Lazy-resolve provider so its constructor-triggered preload starts only in phase 3.
+            if (!this.provider) {
+                this.provider = this.injector.get(EqualComponentsProviderService);
+            }
+        } catch (err) {
+            console.error('Error during background data fetching', err);
+
+        }
+    }
+
     private handleRouteParams(params: Params): void {
-        this.package_name = params['package_name'];
-        this.model_name = params['class_name'];
+        this.packageName = this.route.parent ? this.route.parent?.snapshot.paramMap.get('package_name') : params['package_name'];
+        this.modelName = this.route.parent ? this.route.parent?.snapshot.paramMap.get('class_name') : params['class_name'];
         this.loadPolicies();
+        void this.fetchBackgroundData();
         this.loading = false;
     }
 
     private loadPolicies(): void {
         this.loading = true;
         this.buttonStateService.disableButtons();
-        this.workbenchService.getPolicies(this.package_name, this.model_name).pipe(
+        this.workbenchService.getPolicies(this.packageName, this.modelName).pipe(
         take(1),
         tap(policies => this.policies$.next(policies)),
         catchError(error => {
@@ -70,7 +99,6 @@ export class PackageModelPoliciesComponent implements OnInit, OnDestroy {
 
     onselectPolicy(policy: PolicyItem): void {
         this.selectedPolicy = policy;
-        console.log('Policy:', this.selectedPolicy);
     }
 
     ngOnDestroy(): void {
@@ -115,7 +143,7 @@ export class PackageModelPoliciesComponent implements OnInit, OnDestroy {
 
     refreshPolicies(): void {
         this.loading = true;
-        this.workbenchService.getPolicies(this.package_name, this.model_name).pipe(
+        this.workbenchService.getPolicies(this.packageName, this.modelName).pipe(
         take(1),
         catchError(error => {
             this.notificationService.showError('Failed to refresh policies');
@@ -129,27 +157,34 @@ export class PackageModelPoliciesComponent implements OnInit, OnDestroy {
     }
 
     save(): void {
-        this.buttonStateService.disableButtons();
-        this.notificationService.showInfo('Saving...');
+        this.export().pipe(take(1)).subscribe(exportedPolicies => this.saveExportedPolicies(exportedPolicies));
+    }
 
-        this.export().pipe(take(1)).subscribe(exportedActions => {
-        const jsonData = JSON.stringify(exportedActions);
+    private async saveExportedPolicies(exportedPolicies: PolicyResponse): Promise<void> {
+        const jsonData = JSON.stringify(exportedPolicies);
+        let modelPayloadForValidation: any;
 
-        this.workbenchService.savePolicies(this.package_name, this.model_name, jsonData).pipe(take(1)).subscribe(
-            result => {
-            this.buttonStateService.enableButtons();
-            if (result.success) {
-                this.notificationService.showSuccess(result.message);
-            } else {
-                this.notificationService.showError(result.message);
-            }
-            },
-            () => {
-            this.buttonStateService.enableButtons();
-            this.notificationService.showError('Error when saving');
-            }
+        try {
+            modelPayloadForValidation = await this.buildModelPayloadWithPolicies(exportedPolicies);
+        } catch (error) {
+            this.notificationService.showError('Error while fetching model schema for policies validation.');
+            return;
+        }
+
+        this.jsonValidationService.validateAndSave(
+            this.jsonValidationService.validateBySchemaType(
+                modelPayloadForValidation, 'urn:equal:json-schema:core:model', this.packageName),
+            () => this.workbenchService.savePolicies(this.packageName, this.modelName, jsonData),
+            (saving) => this.isSaving = saving
         );
-        });
+    }
+
+    private async buildModelPayloadWithPolicies(policiesPayload: PolicyResponse): Promise<any> {
+        const entity = `${this.packageName}\\${this.modelName}`;
+        const latestModelSchema = await this.workbenchService.getSchema(entity).toPromise();
+        const modelPayload = cloneDeep(latestModelSchema || {});
+        modelPayload.policies = policiesPayload;
+        return modelPayload;
     }
 
     cancel(): void {

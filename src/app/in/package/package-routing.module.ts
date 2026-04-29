@@ -3,6 +3,9 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { PackageComponent } from './package.component';
 import { PackageRoutesComponent } from './routes/package-routes.component';
+import { AppComponent } from '../app.component';
+
+
 
 
 const routes: Routes = [
@@ -23,8 +26,6 @@ const routes: Routes = [
         path: 'workflow/:package/:model',
         loadChildren: () => import('src/app/in/workflows/workflows.module').then(m => m.WorkflowsModule)
     },
-    */
-   /*
     {
         path: 'view/:view_name',
         loadChildren: () => import('./model/view.module').then(m => m.PackageViewModule)
@@ -35,43 +36,92 @@ const routes: Routes = [
         loadChildren: () => import('./init-data/init-data.module').then(m => m.InitDataModule)
     },
     {
-        path: 'views',
-        loadChildren: () => import('./views/views.module').then(m => m.PackageViewsModule)
+        path: 'model/:class_name/fields',
+        loadChildren: () => import('./model/fields/fields.module').then(m => m.PackageModelFieldsModule)
+    },
+    {
+        path: 'model/:class_name/translations',
+        loadChildren: () => import('./model/model-trad-editor/model-trad-editor.module').then(m => m.ModelTradEditorModule)
+    },
+    {
+        path: 'model/:class_name/workflow',
+        loadChildren: () => import('./model/workflow/workflow.module').then(m => m.PackageModelWorkflowModule)
+    },
+    {
+        path: 'model/:class_name/policies',
+        loadChildren: () => import('./model/policies/policies.module').then(m => m.PackageModelPoliciesModule)
+    },
+    {
+        path: 'model/:class_name/actions',
+        loadChildren: () => import('./model/actions/actions.module').then(m => m.PackageModelActionsModule)
+    },
+    {
+        path: 'model/:class_name/roles',
+        loadChildren: () => import('./model/roles/roles.module').then(m => m.PackageModelRolesModule)
     },
     {
         path: 'model/:class_name',
-        loadChildren: () => import('./model/model.module').then(m => m.PackageModelModule)
+        component: AppComponent
     },
     {
-        path: 'models',
-        loadChildren: () => import('./models/models.module').then(m => m.PackageModelsModule)
+        path: 'menu/:menu_name/translations',
+        loadChildren: () => import('./menu/menu-trad-editor/menu-trad-editor.module').then(m => m.MenuTradEditorModule)
     },
     {
-        path: 'menu/:menu_name',
+        path: 'menu/:menu_name/edit',
         loadChildren: () => import('./menu/menu.module').then(m => m.PackageMenuModule)
     },
     {
-      path: 'controller/:controller_type/:controller_name',
+        path: 'menu/:menu_name',
+        component: AppComponent
+    },
+    {
+        path: 'controller/:controller_type/:controller_name/edit',
         loadChildren: () => import('./controller/controller.module').then(m => m.AppInControllerModule)
     },
     {
-        path: 'controllers',
-        loadChildren: () => import('./controllers/controllers.module').then(m => m.AppInControllersModule)
+        path: 'controller/:controller_type/:controller_name',
+        component: AppComponent
     },
+    {
+        path: 'route/:route_name',
+        component: AppComponent
+    },
+    {
+        path: 'route/**',
+        component: AppComponent
+    },
+    /*
     {
         path: 'routes',
         component: PackageRoutesComponent
     },
+    */
     {
-        path: 'view/:view_name',
+        path: 'package/:package_name',
+        component: PackageComponent
+    },
+    {
+        path: 'view/:entity_view/edit',
         loadChildren: () => import('./view/view.module').then(m => m.PackageViewModule)
     },
+    /*
+    {
+        path: 'entity/:entity_name/view/:view_name/type/:view_type/translations',
+        loadChildren: () => import('./view/view-trad-editor/view-trad-editor.module').then(m => m.ViewTradEditorModule)
+    },
+    */
+    {
+        path: 'view/:entity_view',
+        component: AppComponent
+    },
+
 
     
     // wildcard route (accept root and any sub route that does not match any of the routes above)
     {
         path: '**',
-        component: PackageComponent
+        component: AppComponent
     },
 
 

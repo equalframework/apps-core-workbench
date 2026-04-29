@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+import { NoPreloading, RouterModule, Routes } from '@angular/router';
 import { AppComponent } from './in/app.component';
 
 const routes: Routes = [
@@ -33,7 +33,7 @@ const routes: Routes = [
 
 @NgModule({
     imports: [
-        RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules, onSameUrlNavigation: 'reload', useHash:true })
+        RouterModule.forRoot(routes, { preloadingStrategy: NoPreloading, onSameUrlNavigation: 'reload', useHash:true })
     ],
     exports: [RouterModule]
 })

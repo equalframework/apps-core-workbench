@@ -1,4 +1,5 @@
 import { Location } from '@angular/common';
+import { RouterMemory } from 'src/app/_services/router-memory.service';
 import { Component, Inject, OnInit, Optional } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { InitDataFile } from './_models/init-data';
@@ -29,12 +30,13 @@ export class InitDataComponent implements OnInit {
 
     public selected_file_index = 0;
 
-    constructor(
+        constructor(
             private api:WorkbenchService,
             private activatedRoute:ActivatedRoute,
             private dialog:MatDialog,
             private snack:MatSnackBar,
-            private location:Location) {}
+            private location:Location,
+            private routerMemory: RouterMemory) {}
 
     async ngOnInit(): Promise<void> {
         const a = this.activatedRoute.snapshot.paramMap.get('package');
@@ -91,7 +93,7 @@ export class InitDataComponent implements OnInit {
     }
 
     public goBack() {
-        this.location.back()
+        this.location.back();
     }
 
 }

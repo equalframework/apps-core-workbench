@@ -25,7 +25,7 @@
 
         .input-query {
             display: inline-block;
-            width: 50%;
+            width: 80%;
             height: 65px;
             padding: 0px !important;
             margin-bottom: -11px;
@@ -33,7 +33,7 @@
 
         .select-component {
             display: inline-block;
-            width: 50%;
+            width: 20%;
             height: 3em;
             margin-top: -10px;
 
@@ -50,8 +50,12 @@
         border-radius: 8px;
         height: 100%;
         max-height: calc(100% - 56px);
-        background-color: whitesmoke;
+        background-color: white;
         overflow-y: scroll;
+        min-width: 340px;
+        max-width: 100%;
+        width: 100%;
+        box-sizing: border-box;
 
         ::-webkit-scrollbar {
             width: 6px;
@@ -66,7 +70,7 @@
         }
 
         ::ng-deep .mat-list-item-content {
-            padding: 5px 5px 0 5px !important;
+            padding: 5px 0px 0 0px !important;
         }
 
         .node_edit {
@@ -101,9 +105,12 @@
             align-items: center;
             justify-content: space-between;
             width: 100%;
+            min-width: 320px;
+            max-width: 100%;
             height: 100%;
             border-radius: 8px;
             user-select: none;
+            box-sizing: border-box;
 
             &.hover:hover {
                 background-color: #ebebeb !important;
@@ -132,17 +139,22 @@
                     display: flex;
                     align-items: center;
                     max-width: calc(100% - 80px);
+                    min-width: 0;
 
                     .node-name {
                         overflow: hidden;
                         white-space: nowrap;
-                        display:inline-block;
-                        width: 80%;
-                        text-overflow: ellipsis;
+                        display: inline-block;
+                        width: 100%;
+                        min-width: 0;
+                        text-overflow: clip;
+                        max-width: 100%;
+
+
                     }
 
                     .node-icon {
-                        display:inline-block;
+                        display: inline-block;
                         width: 10%;
                         text-align: center;
                         margin-right: 5%;
@@ -188,5 +200,9 @@
         font-size: 14px;
       }
 
+      ::ng-deep .highlight-term {
+        color: mat-color($maincolor);
+        font-weight: bold;
+    }
 }
 

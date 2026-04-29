@@ -80,15 +80,12 @@ export class ExplorerDialogComponent implements OnInit, OnDestroy {
             let baseName= this.data.current_file_name;
             let newName = baseName || '';
             let suffix = 1;
-            console.log("base name : ", baseName)
 
-            console.log()
             while(existingNames.includes(this.data.formatItem ? this.data.formatItem(newName):newName)){
                 newName = `${baseName}_${suffix}`;
                 suffix++;
             }
 
-            console.log("newName : ", newName)
             this.fileForm.setValue({
             newItem: newName
             });

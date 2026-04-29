@@ -1,7 +1,7 @@
 import { ListField } from './../info-generic/_models/listFields.model';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { MixedCreatorDialogComponent } from 'src/app/_modules/workbench.module';
+import { MixedCreatorDialogComponent } from 'src/app/_dialogs/mixed-creator-dialog/mixed-creator-dialog.component';
 import { allEnumKeys, allEnumValues, convertRights, getRightName, Right, RoleItem } from 'src/app/in/_models/roles.model';
 import { NotificationService } from 'src/app/in/_services/notification.service';
 
@@ -60,7 +60,6 @@ initializeListFields(): void {
   }
 
   onAddRight(event:(any)) {
-    console.log(event);
     if (event.key ==='value.rights' && !this.role.value.rights.includes(event.value)) {
       this.role.value.rights.push(event.value);
     }
@@ -75,7 +74,6 @@ initializeListFields(): void {
   }
 
   oncreate(type_show:string){
-          console.log(type_show);
       this.matDialog.open(MixedCreatorDialogComponent, {
                       data: {
                           node_type: type_show,

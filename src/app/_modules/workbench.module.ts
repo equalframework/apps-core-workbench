@@ -1,6 +1,7 @@
 import { GroupsViewerComponent } from 'src/app/_components/groups-viewer/groups-viewer.component';
 import { ItemViewerComponent } from 'src/app/_components/item-viewer/item-viewer.component';
 import { NgModule} from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 
 
@@ -31,6 +32,7 @@ import { InfoViewComponent } from '../_components/info/info-view/info-view.compo
 import { InfoRouteComponent } from '../_components/info/info-route/info-route.component';
 import { InfoModelComponent } from '../_components/info/info-model/info-model.component';
 import { InfoControllerComponent } from '../_components/info/info-controller/info-controller.component';
+import { InfoSubHeaderComponent } from '../_components/info/info-sub-header/info-sub-header.component';
 
 import { EditorAccessComponent } from '../_components/editor-access/editor-access.component';
 
@@ -38,6 +40,8 @@ import { TypeInputComponent } from '../_components/type-input/type-input.compone
 import { InfoSystemComponent } from '../_components/info/info-system/info-system.component';
 import { ExplorerDialogComponent } from '../_dialogs/explorer-dialog/explorer-dialog.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatSortModule } from '@angular/material/sort';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { ShortenPathPipe } from '../_pipes/shorten-path.pipe';
 import { CopyButtonComponent } from '../_components/buttons/copy-button/copy-button.component';
@@ -57,6 +61,9 @@ import { InfoGenericComponent } from '../_components/info/info-generic/info-gene
 import { ChipsAutocompleteComponent } from '../_components/chips-auto-complete/chips-auto-complete.component';
 import { CheckboxListComponent } from '../_components/checkbox-list/checkbox-list.component';
 import { ItemDisplayComponent } from '../_components/item-display/item-display.component';
+import { ScrollTargetDirective } from 'src/app/_directives/scroll-target.directive';
+import { FocusableFieldDirective } from 'src/app/_directives/focusable-field.directive';
+
 const sharedComponents = [
 
 
@@ -79,6 +86,7 @@ const sharedComponents = [
     RequestSendingDialogComponent,
 
     InfoPackageComponent,
+    InfoSubHeaderComponent,
     InitValidatorComponent,
     InfoMenuComponent,
     InfoViewComponent,
@@ -103,7 +111,7 @@ const sharedComponents = [
     InfoGenericComponent,
     ChipsAutocompleteComponent,
     CheckboxListComponent,
-    ItemDisplayComponent
+    ItemDisplayComponent,
 ];
 
 const sharedPipes = [
@@ -115,7 +123,9 @@ const sharedPipes = [
 @NgModule({
     declarations: [
         ...sharedComponents,
-        ...sharedPipes
+        ...sharedPipes,
+        ScrollTargetDirective,
+        FocusableFieldDirective
     ],
     imports: [
         SharedLibModule,
@@ -123,14 +133,19 @@ const sharedPipes = [
         PropertyDomainModule,
         AutocompleteModule,
         MatTooltipModule,
+        MatTabsModule,
+        MatSortModule,
         ClipboardModule,
+        FormsModule,
     ],
     exports: [
         PropertyClauseModule,
         PropertyDomainModule,
         AutocompleteModule,
         ...sharedComponents,
-        ...sharedPipes
+        ...sharedPipes,
+        ScrollTargetDirective,
+        FocusableFieldDirective
     ],
 
     // other module metadata
@@ -154,6 +169,7 @@ export {
     DeleteConfirmationDialogComponent,
     RequestSendingDialogComponent,
     InfoPackageComponent,
+    InfoSubHeaderComponent,
     InfoMenuComponent,
     InfoViewComponent,
     InfoRouteComponent,

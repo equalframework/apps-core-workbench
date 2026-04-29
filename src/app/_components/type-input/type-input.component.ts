@@ -1,6 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { AbstractControl, FormControl, ValidationErrors } from '@angular/forms';
-import { FieldClass } from '../../in/package/models/_object/FieldClass';
 
 @Component({
   selector: 'type-input',
@@ -47,7 +46,6 @@ export class TypeInputComponent implements OnInit,OnChanges {
   public changeDefaultFromJson() {
     if(this.JsonControl.valid) {
       if(this.JsonControl.value) {
-        console.log(this.JsonControl.value)
         this.changed.emit(JSON.parse(this.JsonControl.value))
       }
       else 
@@ -57,11 +55,8 @@ export class TypeInputComponent implements OnInit,OnChanges {
 
   public changeDefaultDate(value:string) {
     let d = new Date(value)
-    console.log("getting : "+d.toISOString())
-    console.log(d.getTimezoneOffset())
     //d.setHours(d.getHours(),d.getMinutes()+d.getTimezoneOffset(),d.getSeconds(),0)
     this.changed.emit(d.getTime()/1000)
-    console.log("emitting : "+d.toISOString())
   }
 
   onIconChange(icon: string) {
@@ -70,7 +65,6 @@ export class TypeInputComponent implements OnInit,OnChanges {
   }
 
   noCancel(event: KeyboardEvent) {
-    console.log(event)
     if( event.key === "z" && event.ctrlKey) {
       event.preventDefault()
     }
@@ -95,11 +89,8 @@ export class TypeInputComponent implements OnInit,OnChanges {
   TabBehavior(event:any) {
     event.preventDefault()
     let caret = event.target.selectionStart
-    console.log("caret @ "+caret)
     let x:string[] = this.JsonControl.value.split('')
-    console.log(x)
     x.splice(caret,event.target.selectionEnd-caret,"  ")
-    console.log(x)
     this.JsonControl.setValue(
       x.join('')
     )

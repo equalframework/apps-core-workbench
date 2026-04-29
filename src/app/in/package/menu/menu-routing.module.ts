@@ -1,19 +1,16 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-
 import { PackageMenuComponent } from './package-menu.component';
+import { MenuTradEditorModule } from './menu-trad-editor/menu-trad-editor.module';
 
 const routes: Routes = [
-  // wildcard route (accept root and any sub route that does not match any of the routes above)
-/*
   {
-      path: 'translations',
-      component: MenuEditorComponent
+    path: 'translations',
+    loadChildren: () => import('./menu-trad-editor/menu-trad-editor.module').then(m => MenuTradEditorModule)
   },
-*/
   {
-      path: '',
-      component: PackageMenuComponent
+    path: '',
+    component: PackageMenuComponent
   }
 ];
 

@@ -11,7 +11,9 @@ export class EntityDialogComponent implements OnInit {
   selectedModel:string = ''
 
   get filteredModel() {
-    return this.data.model.filter(item => !this.data.model_taken.includes(item))
+    const model = this.data?.model ?? []
+    const modelTaken = this.data?.model_taken ?? []
+    return model.filter(item => !modelTaken.includes(item))
   }
 
   fmodel:string[]
@@ -20,7 +22,6 @@ export class EntityDialogComponent implements OnInit {
     @Optional() public dialogRef:MatDialogRef<EntityDialogComponent>,
     @Optional() @Inject(MAT_DIALOG_DATA) public data:{model:string[], model_taken:string[]}
   ) {
-    console.log(data)  
     this.fmodel = this.filteredModel
   }
 

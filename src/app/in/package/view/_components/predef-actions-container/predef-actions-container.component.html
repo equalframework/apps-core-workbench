@@ -1,7 +1,13 @@
 <label>{{label}}</label>
-<button mat-icon-button (click)="create()"><mat-icon>add</mat-icon></button>
+<button
+    mat-icon-button
+    color="primary"
+    class="action-button"
+    (click)="create()"
+    [attr.aria-label]="'Add predefined action in ' + label"
+><mat-icon>add</mat-icon></button>
 <div class="indent">
-    <label *ngIf="acts.length === 0">No custom actions binded.</label>
+    <label *ngIf="acts.length === 0">No custom actions bound.</label>
     <div *ngFor="let action of acts">
         <app-predef-action-editor 
             [obj]="action"

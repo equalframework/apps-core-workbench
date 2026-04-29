@@ -1,7 +1,7 @@
 import { HttpErrorResponse} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { forkJoin, from, Observable, of, } from 'rxjs';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, map, mergeMap, switchMap, tap, toArray } from 'rxjs/operators';
 import { ApiService } from 'sb-shared-lib';
 import { API_ENDPOINTS } from '../_models/api-endpoints';
 import { EqualComponentDescriptor } from '../_models/equal-component-descriptor.class';
@@ -17,10 +17,11 @@ import { convertRights, convertRightsFromStrings, Right, Roles } from '../_model
 })
 export class WorkbenchService {
 
-    constructor(private api: ApiService,) {}
+    private packageConsistencyCache: Map<string, any> = new Map<string, any>();
 
-
-
+    constructor(
+        private api: ApiService,
+    ) {}
 
     /**
      * Creates a new component based on the type specified in the node.
@@ -36,25 +37,25 @@ export class WorkbenchService {
             get: () => this.createController(node.package_name, node.name, node.type),
             do: () => this.createController(node.package_name, node.name, node.type),
             view: () => {
-                    const view_name = node.name.split(":")[1];
-                    return this.createView(node.package_name,node.item.model, view_name)
+                    const viewName = node.name.split(':')[1];
+                    return this.createView(node.package_name,node.item.model, viewName);
             },
             menu: () => this.createMenu(node.package_name, node.name, node.item.subtype),
-            route:() => {
-                        const file_name = node.file.split("/").pop()?.trim() ??""
-                        return this.createRoute(node.package_name,file_name,node.name)
+            route: () => {
+                        const fileName = node.file.split('/').pop()?.trim() ??'';
+                        return this.createRoute(node.package_name,fileName,node.name)
             },
-            policy:()=>  this.createPolicy(node.package_name,node.item.model, node.name),
-            role: ()=> this.createRole(node.package_name,node.item.model, node.name)
+            policy: () =>  this.createPolicy(node.package_name,node.item.model, node.name),
+            role: () => this.createRole(node.package_name,node.item.model, node.name)
 
 
         };
 
         // Return the appropriate observable based on the node type, or a default message for unknown types.
-        return createActions[node.type]?.() || of({ message: "Unknown type" });
+        return createActions[node.type]?.() || of({ message: 'Unknown type' });
     }
     private createRole(package_name: string, model: any, name: string): Observable<any> {
-        const url = API_ENDPOINTS.class.roles.create(package_name,model,name);
+        const url = API_ENDPOINTS.class.roles.create(package_name, model, name);
         return this.callApi(url, `Role ${name} created`);
     }
 
@@ -79,15 +80,15 @@ export class WorkbenchService {
             get: () => this.deleteController(node.package_name, node.name, node.type),
             do: () => this.deleteController(node.package_name, node.name, node.type),
             view: () => {
-                const view_name = node.name.split(":")[1];
-                return this.deleteView(node.package_name,node.item.model, view_name);
+                const viewName = node.name.split(':')[1];
+                return this.deleteView(node.package_name,node.item.model, viewName);
             },
             menu: () => this.deleteMenu(node.package_name,node.name),
-            route:() =>this.notImplemented(`Deleting route not implemented`)
+            route: () =>this.notImplemented(`Deleting route not implemented`)
         };
 
         // Return the appropriate observable based on the node type, or a default message for unknown types.
-        return deleteActions[node.type]?.() || of({ message: "Unknown type" });
+        return deleteActions[node.type]?.() || of({ message: 'Unknown type' });
     }
 
     /**
@@ -99,10 +100,10 @@ export class WorkbenchService {
      */
     public readMenu(package_name: string, menu_name: string): Observable<any> {
         const url = API_ENDPOINTS.menu.read(package_name, menu_name);
-        return this.callApi(url, '').pipe(
-            map(({ response }) => response)
+        return from(this.api.fetch(url)).pipe(
+          map((res: any) => res)
         );
-    }
+      }
 
     /**
      * Reads the view configuration for a given package, model, and view name.
@@ -130,7 +131,7 @@ export class WorkbenchService {
         const url = API_ENDPOINTS.class.actions.get(package_name,class_name);
         return this.callApi(url,'').pipe(
             map(({success, response})=> success ? response: [])
-        )
+        );
     }
 
     public getRoles(package_name: string, class_name: string): Observable<Roles> {
@@ -155,11 +156,19 @@ export class WorkbenchService {
         );
     }
 
-    public collect(entity:string, domain:any[], fields:any[], order:string='id', sort:string='asc', start:number=0, limit:number=25, lang: string = ''){
-        return from(this.api.collect(entity,domain,fields,order,sort,start,limit,lang))
+    public collect(
+        entity:string, 
+        domain:any[], 
+        fields:any[], 
+        order:string='id', 
+        sort:string='asc', 
+        start:number=0, 
+        limit:number=25, 
+        lang: string = ''): Observable<any> {
+        return from(this.api.collect(entity, domain, fields, order, sort, start, limit, lang));
     }
 
-    public collectAllLanguagesCode(){
+    public collectAllLanguagesCode(): Observable<string[]> {
         return this.collect('core\\Lang',[],['code']).pipe(
             map(response => response.map((lang: { code: string }) => lang.code))
         );
@@ -200,8 +209,12 @@ export class WorkbenchService {
      * @param payload The payload containing the data to update the controller.
      * @returns Observable indicating the success of the update operation.
      */
-    public updateController(controller_name: string, controller_type: string, payload: { [id: string]: any }): Observable<any> {
-        const url = API_ENDPOINTS.controller.update(controller_name, controller_type, payload);
+    public updateController(
+        package_name: string, 
+        controller_name: string, 
+        controller_type: string, 
+        payload: { [id: string]: any }): Observable<any> {
+        const url = API_ENDPOINTS.controller.update(package_name, controller_name, controller_type, payload);
         const successfullyMessage = `${controller_name} has been updated`;
         return this.callApi(url, successfullyMessage);
     }
@@ -254,7 +267,7 @@ export class WorkbenchService {
      * @param model The model name.
      * @returns An Observable that resolves to a boolean indicating success.
      */
-    public createWorkflow(package_name: string, model: string): Observable<boolean> {
+    public createWorkflow(package_name: string, model: string): Observable<any> {
         const url = API_ENDPOINTS.workflow.create(package_name,model);
         return from(this.api.post(url)).pipe(
             switchMap(() => of(true)),
@@ -291,7 +304,7 @@ export class WorkbenchService {
      * @param payload The payload for the metadata.
      * @returns An Observable that resolves to a boolean indicating success.
      */
-    public createMetaData(code: string, reference: string, payload: string): Observable<boolean> {
+    public createMetaData(code: string, reference: string, payload: string): Observable<any> {
         return from(this.api.post(`?do=core_model_create&entity=core\\Meta`, { fields: { value: payload, code: code, reference: reference } })).pipe(
             switchMap(() => of(true)),
             catchError(e => {
@@ -308,7 +321,7 @@ export class WorkbenchService {
      * @param payload The payload for the metadata.
      * @returns An Observable that resolves to a boolean indicating success.
      */
-    public saveMetaData(id: number, payload: string): Observable<boolean> {
+    public saveMetaData(id: number, payload: string): Observable<any> {
         return from(this.api.post(`?do=core_model_update&entity=core\\Meta&id=${id}`, { fields: { value: payload } })).pipe(
             switchMap(() => of(true)),
             catchError(e => {
@@ -353,6 +366,7 @@ export class WorkbenchService {
                 const packageInfo: PackageInfos = response;
 
                 const transformedResponse: PackageSummary = {
+                    name: packageInfo.name,
                     description: packageInfo.description,
                     version: packageInfo.version,
                     authors: packageInfo.authors,
@@ -380,7 +394,8 @@ export class WorkbenchService {
         const url = `?do=core_init_package&package=${package_name}` +
           `${do_import ? `&import=true` : ``}` +
           `&cascade=${do_cascade ? `true` : `false`}` +
-          `&import_cascade=${do_import_cascade ? `true` : `false`}`;
+          `&import_cascade=${do_import_cascade ? `true` : `false`}` +
+          `&force=true`;
 
         return this.callApi(url, ``).pipe(
           map(({ response }) => response)
@@ -399,8 +414,33 @@ export class WorkbenchService {
             console.warn(`Ignoring empty package`);
             return of([]);
         }
-        const url = `?do=test_package-consistency&package=${package_name}`;
+        const url = `?do=test_package-consistency&package=${package_name}&force=true`;
         return this.callApi(url, ``);
+    }
+
+    public getCachedPackageConsistency(package_name: string): any | null {
+        if (!package_name || package_name.length <= 0) {
+            return null;
+        }
+
+        return this.packageConsistencyCache.get(package_name) ?? null;
+    }
+
+    public setCachedPackageConsistency(package_name: string, result: any): void {
+        if (!package_name || package_name.length <= 0 || !result) {
+            return;
+        }
+
+        this.packageConsistencyCache.set(package_name, result);
+    }
+
+    public clearCachedPackageConsistency(package_name?: string): void {
+        if (!package_name) {
+            this.packageConsistencyCache.clear();
+            return;
+        }
+
+        this.packageConsistencyCache.delete(package_name);
     }
 
     /**
@@ -452,15 +492,15 @@ export class WorkbenchService {
     * the response or error details if the class creation fails.
     *
     */
-    private createClass(package_name: string, class_name: string, parent: string) {
+    private createClass(package_name: string, class_name: string, parent: string): Observable<any> {
     const url = API_ENDPOINTS.class.create(package_name,class_name,parent);
-    const successfullyMessage = `Class ${class_name} created successfully!`
-    return this.callApi(url,successfullyMessage)
+    const successfullyMessage = `Class ${class_name} created successfully!`;
+    return this.callApi(url,successfullyMessage);
     }
 
-    private deleteClass(package_name:string,class_name:string){
+    private deleteClass(package_name: string, class_name: string): Observable<any> {
         const url = API_ENDPOINTS.class.delete(package_name,class_name);
-        const successfullyMessage = `Class ${class_name} deleted successfully!`
+        const successfullyMessage = `Class ${class_name} deleted successfully!`;
         return this.callApi(url, successfullyMessage);
     }
 
@@ -470,7 +510,7 @@ export class WorkbenchService {
         return this.callApi(url, successfullyMessage);
     }
 
-    private deleteView(package_name:string,model_name:string,view_name:string){
+    private deleteView(package_name: string, model_name: string, view_name: string): Observable<any>{
         const url = API_ENDPOINTS.view.delete(package_name,model_name,view_name);
         const successfullyMessage = `View ${model_name}:${view_name} deleted successfully!`;
         return this.callApi(url,successfullyMessage);
@@ -478,33 +518,33 @@ export class WorkbenchService {
 
 
     private createController(package_name: string, controller_name: string, controller_type: string): Observable<any> {
-        const url = API_ENDPOINTS.controller.create(package_name,controller_name,controller_type)
-        const successfullyMessage = `Controller ${controller_name} of type ${controller_type} created successfully!`
+        const url = API_ENDPOINTS.controller.create(package_name,controller_name,controller_type);
+        const successfullyMessage = `Controller ${controller_name} of type ${controller_type} created successfully!`;
         return this.callApi(url,successfullyMessage);
     }
 
     private deleteController(package_name: string, controller_name: string, controller_type: string): Observable<any> {
         const url = API_ENDPOINTS.controller.delete(package_name,controller_name, controller_type);
-        const successfullyMessage = `Controller ${controller_name} of type ${controller_type} deleted successfully!`
+        const successfullyMessage = `Controller ${controller_name} of type ${controller_type} deleted successfully!`;
         return this.callApi(url, successfullyMessage);
     }
 
-    private createMenu(package_name:string, menu_name:string, menu_type:string) {
-        const url = API_ENDPOINTS.menu.create(package_name,menu_name,menu_type)
-        const successfullyMessage = `Menu ${menu_name} of type ${menu_type} created successfully!`
+    private createMenu(package_name: string, menu_name: string, menu_type: string): Observable<any> {
+        const url = API_ENDPOINTS.menu.create(package_name,menu_name,menu_type);
+        const successfullyMessage = `Menu ${menu_name} of type ${menu_type} created successfully!`;
         return this.callApi(url,successfullyMessage);
     }
 
-    private deleteMenu(package_name:string,menu_name:string) {
-        const url = API_ENDPOINTS.menu.delete(package_name,menu_name)
-        const successfullyMessage = `Menu ${menu_name} deleted successfully!`
+    private deleteMenu(package_name: string, menu_name: string): Observable<any> {
+        const url = API_ENDPOINTS.menu.delete(package_name,menu_name);
+        const successfullyMessage = `Menu ${menu_name} deleted successfully!`;
         return this.callApi(url,successfullyMessage);
     }
 
     private createRoute(package_name: string, file_name: string, route_name: string): Observable<any> {
-        const url = API_ENDPOINTS.route.create(package_name,file_name,route_name)
-        const successfullyMessage=`Route ${route_name} created successfully!`
-        return this.callApi(url, successfullyMessage)
+        const url = API_ENDPOINTS.route.create(package_name,file_name,route_name);
+        const successfullyMessage=`Route ${route_name} created successfully!`;
+        return this.callApi(url, successfullyMessage);
     }
 
     /**
@@ -633,7 +673,7 @@ export class WorkbenchService {
                 map((res: any) => Object.keys(res.response || {}))
                 );
             });
-            return forkJoin(observables);
+            return observables.length > 0 ? forkJoin(observables) : of([]);
             }),
             map((arrays: string[][]) => arrays.flat())
         );
@@ -864,14 +904,27 @@ export class WorkbenchService {
      *
      * @param {string} package_name - The name of the package.
      * @param {string} entity - The entity within the package.
-     * @param {string} lang - The language code (e.g., "en", "fr").
      *
      * @returns {Observable<{ [id: string]: any } | null>} An observable that emits the translations if available, or `null` if no translations are found.
      */
-    public getTranslations(package_name: string, entity: string, lang: string): Observable<{ [id: string]: any } | null> {
-        const url = `?get=core_config_translation&lang=${lang}&entity=${package_name}\\${entity}`;
+    public getTranslations(package_name: string, entity: string) : Observable<{ [id: string]: any } | null> {
+        const url = `?get=core_config_translations&entity=${package_name}\\${entity}`;
         return this.callApi(url, '').pipe(
             map((response: any) => response.success ? response.response : null)
+        );
+    }
+
+    public getTranslationLanguages(package_name: string, entity: string, language: string): Observable<string[]> {
+        const url = `?get=core_config_translation&entity=${package_name}\\${entity}&lang=${language}`;
+        return this.callApi(url, '').pipe(
+            map((response: any) => response.success ? response.response : [])
+        );
+    }
+
+    public getTranslationLanguagesByPackage(package_name: string): Observable<{ [entity: string]: string[] }> {
+        const url = `?get=core_config_translations&package=${package_name}`;
+        return this.callApi(url, '').pipe(
+            map((response: any) => response.success ? response.response : {})
         );
     }
 
@@ -893,7 +946,6 @@ export class WorkbenchService {
         );
     }
 
-
     /**
      * Saves translations for a specific package, entity, and language dictionary.
      *
@@ -905,7 +957,7 @@ export class WorkbenchService {
      *
      * @returns {Observable<void>} An observable that emits when all translation updates have been completed.
      */
-    public saveTranslations(package_name: string, entity: string, dict: any): Observable<void> {
+    public saveTranslations(package_name: string, entity: string, dict: any): Observable<any> {
         const requests = Object.keys(dict).map((lang) => {
             const url = `?do=core_config_update-translation&package=${package_name}&entity=${entity}&lang=${lang}&create_lang=true&payload=${JSON.stringify(dict[lang].export())}`;
             return this.callApi(url, 'Translation updated').pipe(
@@ -916,6 +968,102 @@ export class WorkbenchService {
             );
         });
         return forkJoin(requests).pipe(map(() => {})); // Wait for all the requests to finish
+    }
+
+    /**
+     * Fetches translations for a specific menu.
+     *
+     * This method retrieves translations for a given package and menu id.
+     *
+     * @param {string} package_name - The name of the package.
+     * @param {string} menu_id - The menu's id within the package.
+     * @param {string} lang The menu's language to fetch.
+     *
+     * @returns {Observable<{ [id: string]: any } | null>} An observable that emits the translations if available, or `null` if no translations are found.
+     */
+    //#memo: This method should be updated to handle a list of translations instead of a single one, to be consistent with the other translation methods
+    public getMenuTranslationsList(package_name: string, menu_id: string, lang: string): Observable<{ [id: string]: string[] }> {
+        const url = `?get=core_config_i18n-menu&package=${package_name}&menu_id=${menu_id}&lang=${lang}`;
+        return this.callApi(url, '').pipe(
+            map(({ response }) => response ? response : {})
+        );
+    }
+
+    /**
+     * Saves translations for a specific package, entity, and language dictionary.
+     *
+     * This method overwrites translations for a given package and entity for each language in the dictionary.
+     *
+     * @param {string} package_name - The name of the package.
+     * @param {string} entity - The entity within the package.
+     * @param {any} dict - The translation dictionary, where keys are language codes and values are translation data.
+     *
+     * @returns {Observable<void>} An observable that emits when all translation updates have been completed.
+     */
+    public overwriteTranslations(package_name: string, entity: string, dict: any): Observable<void> {
+        const requests = Object.keys(dict).map((lang) => {
+            const payload = dict[lang].export ? dict[lang].export() : dict[lang];
+            const url = `?do=core_config_generate-i18n&package=${package_name}&entity=${entity}&overwrite=true&lang=${lang}&create_lang=true&payload=${JSON.stringify(payload)}`;
+            return this.callApi(url, 'Translation updated').pipe(
+                catchError((err) => {
+                    console.error(`Error saving translation for ${lang}:`, err);
+                    return of(null); // Continue even if there's an error
+                })
+            );
+        });
+
+        if (requests.length === 0) {
+            return of(void 0);
+        }
+
+        return from(requests).pipe(
+            mergeMap((request) => request),
+            toArray(),
+            map(() => void 0)
+        );
+    }
+
+    /**
+     * Saves translations for a specific package, menu, and language dictionary.
+     *
+     * This method overwrites translations for a given package and menu for each language in the dictionary.
+     *
+     * @param {string} package_name - The name of the package.
+     * @param {string} menu_name - The menu within the package.
+     * @param {any} dict - The translation dictionary, where keys are language codes and values are translation data.
+     *
+     * @returns {Observable<void>} An observable that emits when all translation updates have been completed.
+     */
+    public overwriteMenuTranslations(package_name: string, menu_name: string, dict: any): Observable<{ success: boolean; message: string }> {
+        const requests: Observable<boolean>[] = Object.keys(dict).map((lang) => {
+            // Handle both Translator instances and plain objects
+            const payload = dict[lang].export ? dict[lang].export() : dict[lang];
+            const url = `?do=core_config_generate-menu-i18n&package=${package_name}&menu_name=${menu_name}&overwrite=true&lang=${lang}&create_lang=true&payload=${JSON.stringify(payload)}`;
+
+            return this.callApi(url, 'Translation updated').pipe(
+                map((result) => !!result.success),
+                catchError((err) => {
+                    console.error(`Error saving translation for ${lang}:`, err);
+                    return of(false);
+                })
+            );
+        });
+
+        if (requests.length === 0) {
+            return of({ success: true, message: 'No menu translations to save' });
+        }
+
+        return forkJoin(requests).pipe(
+            map((results) => {
+                const success = results.every((result) => result);
+                return {
+                    success,
+                    message: success
+                        ? 'Menu translations updated'
+                        : 'Some menu translations failed to update'
+                };
+            })
+        );
     }
 
 
@@ -1052,9 +1200,7 @@ export class WorkbenchService {
         const url = `?${type_controller}=${name}&announce=true`;
         return this.callApi(url, '').pipe(
             map(({response}) => response),
-            catchError(() => {
-                return of(null);
-            })
+            tap((response) => console.log('announceController response:', response)),
         );
     }
 
@@ -1104,7 +1250,7 @@ export class WorkbenchService {
                 Object.keys(object[element])
                     .map((field) => (!isNaN(parseFloat(field)) && isFinite(parseFloat(field))) ? field = `${element}/${object[element][field]}` : `${element}/${field}`)
             )
-        })
+        });
         return result;
     }
 

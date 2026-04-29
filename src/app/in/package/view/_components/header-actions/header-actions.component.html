@@ -1,15 +1,42 @@
-<div *ngFor="let key of obk(h_scheme.actions)">
-    <label [class.disabled]="!h_scheme.actions[key].enabled" class="key-header-actions">{{key}}</label>
-    <mat-checkbox  class="marginright1em" [checked]="!h_scheme.actions[key].enabled" (change)="h_scheme.actions[key].enabled = !$event.checked">Force disable</mat-checkbox>
-    <mat-checkbox [disabled]="!h_scheme.actions[key].enabled" class="marginright1em"[checked]="h_scheme.actions[key].default" (change)="h_scheme.actions[key].default = $event.checked">default behavior</mat-checkbox>
-    <div class="indent" *ngIf="h_scheme.actions[key].enabled && !h_scheme.actions[key].default">
-        <app-predef-actions-container
-            [label]="'Custom action behavior'"
-            [acts]="h_scheme.actions[key].acts"
-            [controllers]="controllers"
-            [groups]="groups"
-            [ids]="h_scheme.actions[key].possible_ids"
-            [entity]="entity"
-        ></app-predef-actions-container>
+<div *ngFor="let key of obk(hScheme.actions)" class="action-section">
+    <div class="action-header">
+        <label class="action-title" [class.disabled]="!hScheme.actions[key].enabled">{{key}}</label>
+        <div class="info-message" *ngIf="hScheme.actions[key].enabled && hScheme.actions[key].acts.length === 0">
+            <mat-icon>info</mat-icon>
+            <label>Default behavior will be used</label>
+        </div>
+        <mat-checkbox 
+            class="force-disable-checkbox" 
+            [checked]="!hScheme.actions[key].enabled" 
+            (change)="hScheme.actions[key].enabled = !$event.checked">
+            Disable
+        </mat-checkbox>
+        <div class="add-button-container">
+        <button
+            mat-icon-button
+            color="primary"
+            class="action-button"
+            *ngIf="hScheme.actions[key].enabled"
+            (click)="create(key)"
+            [attr.aria-label]="'Add action to ' + key"
+        >
+            <mat-icon>add</mat-icon>
+        </button>
+        </div>
     </div>
+    
+    <div class="action-content" *ngIf="hScheme.actions[key].enabled && hScheme.actions[key].acts.length > 0">
+        <div *ngFor="let action of hScheme.actions[key].acts" class="action-item">
+            <app-predef-action-editor
+                [obj]="action"
+                [controllers]="controllers"
+                [groups]="groups"
+                [entity]="entity"
+                [ids]="hScheme.actions[key].possible_ids"
+                (delete)="hScheme.actions[key].acts.splice(hScheme.actions[key].acts.indexOf(action), 1)"
+            ></app-predef-action-editor>
+        </div>
+    </div>
+    
+
 </div>

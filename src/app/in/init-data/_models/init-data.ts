@@ -1,4 +1,3 @@
-import { strict } from "assert";
 import { cloneDeep } from "lodash";
 import { WorkbenchService } from "../../_services/workbench.service";
 import { Observable } from "rxjs";
@@ -17,7 +16,6 @@ export class InitDataFile {
             this.name = name
         }
         for(let entity of schema) {
-            console.log(entity)
             if(entity.name) {
                 if(!this.entities[entity.name]) {
                     try {

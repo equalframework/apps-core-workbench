@@ -1,196 +1,237 @@
-import { Location } from '@angular/common';
-import { Component, Inject, OnInit, Optional } from '@angular/core';
-import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { Component, OnInit, OnDestroy, Input } from '@angular/core';
+import { RouterMemory } from 'src/app/_services/router-memory.service';
 import { ActivatedRoute } from '@angular/router';
 import { Param } from '../../../_models/Params';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, constant } from 'lodash';
 import { ItemTypes } from 'src/app/in/_models/item-types.class';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { prettyPrintJson } from 'pretty-print-json';
+import { MatDialog } from '@angular/material/dialog';
 import { NotificationService } from 'src/app/in/_services/notification.service';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
+import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
 import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
-
+import { takeUntil } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import { Location } from '@angular/common';
+import { QueryParamActivatorRegistry, QueryParamTabActivator } from 'src/app/_services/query-param-activator.registry';
+import { JsonValidationService } from 'src/app/in/_services/json-validation.service';
+import { ca } from 'date-fns/locale';
 
 /**
- * Component used to display the component of a package (using `/package/:package_name/controller/:controller_type/:controller_name/params` route)
+ * Component used to display the params of a controller
+ * Can be used standalone via routing or as a tab component with @Input properties
  * This component has an action historic built in.
  * Be careful if you add an element that alter the structure, you need to call onChange for the historic to work
  *
  */
 @Component({
-  selector: 'package-controller-params',
+  selector: 'app-package-controller-params',
   templateUrl: './package-controller-params.component.html',
   styleUrls: ['./package-controller-params.component.scss'],
   host : {
     "(body:keydown)" : "onKeydown($event)"
   }
 })
-export class PackageControllerParamsComponent implements OnInit {
+export class PackageControllerParamsComponent implements OnInit, OnDestroy {
 
-    public error:boolean = false;
+    private readonly announcementFieldsToCopy: string[] = [
+      'response',
+      'access',
+      'providers',
+      'constants',
+      'description',
+      'deprecated',
+      'help',
+      'usage'
+    ];
 
-    public paramListHistory:{param:Param[],message:string}[] = [];
-    public paramFutureHistory:{param:Param[],message:string}[] = [];
+    // @Input properties for tab-based usage
+    @Input() controllerName = '';
+    @Input() controllerType = '';
+    @Input() controllerPackage = '';
 
-    public scheme:any;
-    public controller_name:string = '';
-    public controller_type:string = '';
+    // @Input properties for data from parent component
+    @Input() types: string[] = [];
+    @Input() usages: string[] = [];
+    @Input() paramsScheme: any = null;
+    @Input() modelList: string[] = [];
+    @Input() dataReady = false;
+    @Input() isSaving = false;
+    public error = false;
+
+    public paramListHistory: {param: Param[], message: string}[] = [];
+    public paramFutureHistory: {param: Param[], message: string}[] = [];
+
+    public scheme: any;
     public selectedIndex = -1;
 
-    public modelList:string[];
-
-    public paramList:Param[] = [];
-
-    public types:string[] = [];
-    public usages:string[] = [];
+    public paramList: Param[] = [];
 
     public alert = alert;
 
-    public sch:any;
+    public sch: any;
+    public loading = true;
 
-    public type_icon:string;
-    public package_icon:string = ItemTypes.getIconForType('package');
+    public typeIcon: string;
+    public packageIcon: string = ItemTypes.getIconForType('package');
 
-    get lastIndex():number {
+    private ngUnsubscribe: Subject<void> = new Subject<void>();
+
+    get lastIndex(): number {
         return this.paramListHistory.length - 1;
     }
 
     constructor(
-            private workbenchService: WorkbenchService,
-            private location: Location,
-            private activatedRoute: ActivatedRoute,
-            private matSnack:MatSnackBar,
-            private dialog: MatDialog,
-            private snack: MatSnackBar,
-            private notificationService: NotificationService
-        ) { }
+        private workbenchService: WorkbenchService,
+        private matSnack: MatSnackBar,
+        private dialog: MatDialog,
+        private location: Location,
+        private jsonValidator: JsonValidationService
+      ) { }
 
-    public onKeydown(event: KeyboardEvent) {
-        if( event.key === "z" && event.ctrlKey) {
+      public ngOnDestroy(): void {
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
+      }
+
+    public onKeydown(event: KeyboardEvent): void {
+        if ( event.key === 'z' && event.ctrlKey) {
             event.preventDefault();
             event.stopImmediatePropagation();
             this.cancelOneChange();
         }
-        if( event.key === "y" && event.ctrlKey) {
+        if ( event.key === 'y' && event.ctrlKey) {
             event.preventDefault();
             event.stopImmediatePropagation();
             this.revertOneChange();
         }
-    }
-
-    public async ngOnInit(){
-        this.types = ["array",...(await this.workbenchService.getTypeList())]
-        this.usages = await this.workbenchService.getUsageList()
-        this.types.sort((p1,p2) => p1.localeCompare(p2))
-        let a = this.activatedRoute.snapshot.paramMap.get('controller_name')
-        if(a) {
-            this.controller_name = a;
+        if (event.key === 's' && event.ctrlKey) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            this.save();
         }
-        else {
-            this.error = true;
-        }
-        a = this.activatedRoute.snapshot.paramMap.get('controller_type');
-        if(a) {
-            this.controller_type = a;
-        }
-        else {
-            this.error = true;
-        }
-        this.type_icon = ItemTypes.getIconForType(this.controller_type);
-        this.scheme = await this.workbenchService.announceController(this.controller_type,this.controller_name).toPromise();
-        for(let key in this.scheme["announcement"]["params"]) {
-            this.paramList.push(new Param(key,cloneDeep(this.scheme["announcement"]["params"][key])));
-        }
-        //this.paramList =  this.paramList.sort((p1,p2) => p1.name.localeCompare(p2.name))
-        this.onChange("Opening file");
-        this.modelList = await this.workbenchService.collectClasses(true).toPromise();
     }
 
-    public onSelection(index:number){
-        this.selectedIndex = index
-    }
+    public ngOnInit(): void {
+        // Use @Input properties from parent component (required)
+        this.typeIcon = ItemTypes.getIconForType(this.controllerType);
 
-  public cancelOneChange() {
-    if(this.lastIndex > 0) {
-      let x = this.paramListHistory.pop()
-      if(x){
-        this.paramFutureHistory.push(x)
-        this.paramList = cloneDeep(this.paramListHistory[this.lastIndex].param)
-        this.matSnack.open("undone "+x.message,"INFO")
-      }
-    }
-    this.toSchema()
-  }
-
-  public revertOneChange() {
-    if(this.paramFutureHistory.length > 0) {
-      let x = this.paramFutureHistory.pop()
-      if(x){
-        this.paramListHistory.push(x)
-        this.paramList = cloneDeep(this.paramListHistory[this.lastIndex].param)
-        this.matSnack.open("reverted "+x.message,"INFO")
-      }
-
-    }
-    this.toSchema()
-  }
-
-  public onChange(msg:string) {
-    console.log("called!")
-    //this.paramList =  this.paramList.sort((p1,p2) => p1.name.localeCompare(p2.name))
-    this.paramListHistory.push({param : cloneDeep(this.paramList), message:msg})
-    this.paramFutureHistory = []
-    this.paramList = [...this.paramList]
-    this.toSchema()
-  }
-
-  toSchema() {
-    let res:{[id:string]:any} = {}
-    for(let item of this.paramList) {
-      res[item.name] = item.toSchema()
-    }
-    this.sch = res
-  }
-
-  export():{[id:string]:any} {
-    let res:{[id:string]:any} = {}
-    for(let item of this.paramList) {
-      res[item.name] = item.export()
-    }
-    let result = cloneDeep(this.scheme)
-    result["announcement"]["params"] = res
-    return result["announcement"]
-  }
-
-  showJson() {
-    this.dialog.open(JsonViewerComponent,{data:this.export(),width:"75%",height:"85%"})
-  }
-
-  handleCustomButton(name:string) {
-    console.log(name)
-    if(name === "show JSON") {
-      this.showJson()
-      return
-    }
-  }
-
-  goBack() {
-    this.location.back()
-  }
-
-save() {
-    this.snack.open("Saving...","INFO")
-    this.workbenchService.updateController(this.controller_name, this.controller_type, this.export()).subscribe((result) => {
-            if(result.success){
-                    this.notificationService.showSuccess(result.message)
-            } else{
-                this.notificationService.showError(result.message);
+        // Initialize from parent-provided data
+        if (this.types.length > 0) {
+            // Ensure 'array' is first if not already present
+            if (!this.types.includes('array')) {
+                this.types.unshift('array');
             }
-    })
+        }
 
+        // Initialize paramList from scheme if provided
+        if (this.paramsScheme && this.paramsScheme.announcement && this.paramsScheme.announcement.params) {
+            for (const key in this.paramsScheme.announcement.params) {
+                this.paramList.push(new Param(key, cloneDeep(this.paramsScheme.announcement.params[key])));
+            }
+            this.scheme = this.paramsScheme;
+            this.onChange('Opening file');
+        }
+
+        this.loading = false;
+
+    }
+
+    public onSelection(index: number): void {
+        this.selectedIndex = index;
+    }
+
+  public cancelOneChange(): void {
+    this.loading = true;
+    if (this.lastIndex > 0) {
+      const x = this.paramListHistory.pop();
+      if (x){
+        this.paramFutureHistory.push(x);
+        this.paramList = cloneDeep(this.paramListHistory[this.lastIndex].param);
+        this.matSnack.open('undone ' + x.message, 'INFO');
+      }
+    }
+    this.toSchema();
+    this.loading = false;
+  }
+
+  public revertOneChange(): void {
+    this.loading = true;
+    if (this.paramFutureHistory.length > 0) {
+      const x = this.paramFutureHistory.pop();
+      if (x){
+        this.paramListHistory.push(x);
+        this.paramList = cloneDeep(this.paramListHistory[this.lastIndex].param);
+        this.matSnack.open('reverted ' + x.message, 'INFO');
+      }
+
+    }
+    this.toSchema();
+    this.loading = false;
+  }
+
+  public onChange(msg: string): void {
+    // this.paramList =  this.paramList.sort((p1,p2) => p1.name.localeCompare(p2.name))
+    this.paramListHistory.push({param : cloneDeep(this.paramList), message: msg});
+    this.paramFutureHistory = [];
+    this.paramList = [...this.paramList];
+    this.toSchema();
+  }
+
+  toSchema(): void {
+    const res: {[id: string]: any} = {};
+    for (const item of this.paramList) {
+      res[item.name] = item.toSchema();
+    }
+    this.sch = res;
+  }
+  export(): {[id: string]: any} {
+    const res: {[id: string]: any} = {};
+    for (const item of this.paramList) {
+      res[item.name] = item.export();
+    }
+    const result = cloneDeep(this.scheme);
+    result.announcement.params = res;
+    return result.announcement;
+  }
+
+  public formatJson(json: any): any {
+    const formatted = cloneDeep(json);
+    formatted['name'] = this.controllerName;
+    formatted['type'] = this.controllerType;
+    formatted['package_name'] = this.controllerPackage;
+
+    const announcement = this.scheme?.announcement ?? {};
+    for (const key of this.announcementFieldsToCopy) {
+      if (announcement[key] !== undefined) {
+        formatted[key] = announcement[key];
+      }
+    }
+
+    return formatted;
+  }
+
+  showJson(): void {
+    this.dialog.open(JsonViewerComponent, {data: this.export(), width: '75%', height: '85%'});
+  }
+
+  handleCustomButton(name: string): void {
+    if (name === 'show JSON') {
+      this.showJson();
+      return;
+    }
+  }
+
+  goBack(): void {
+    this.location.back();
+  }
+
+  public async save(): Promise<void> {
+    this.jsonValidator.validateAndSave(
+      this.jsonValidator.validateBySchemaType(this.formatJson(this.export()), 'controller', this.controllerPackage),
+      () => this.workbenchService.updateController(this.controllerPackage, this.controllerName, this.controllerType, this.export()),
+      (saving) => this.isSaving = saving
+    );
   }
 
 }
-

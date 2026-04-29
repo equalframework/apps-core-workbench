@@ -1,7 +1,11 @@
 import { Location } from '@angular/common';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit, ViewChild, ElementRef, ViewContainerRef, AfterViewInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { RouterMemory } from 'src/app/_services/routermemory.service';
+import { RouterMemory } from 'src/app/_services/router-memory.service';
+import { QueryParamNavigatorService } from 'src/app/_services/query-param-navigator.service';
+import { QueryParamActivatorRegistry, QueryParamTabActivator } from 'src/app/_services/query-param-activator.registry';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { View, ViewGroup, ViewGroupByItem, ViewItem, ViewOperation, ViewSection } from './_objects/View';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { prettyPrintJson } from 'pretty-print-json';
@@ -14,48 +18,51 @@ import { EqualComponentsProviderService } from '../../_services/equal-components
 import { NotificationService } from '../../_services/notification.service';
 import { WorkbenchService } from '../../_services/workbench.service';
 import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
+import { JsonValidationService } from 'src/app/in/_services/json-validation.service';
 
 @Component({
-    selector: 'package-view',
+    selector: 'app-package-view',
     templateUrl: './package-view.component.html',
     styleUrls: ['./package-view.component.scss']
 })
 export class PackageViewComponent implements OnInit {
 
-    view_id: string;
+    viewId: string;
     entity: string;
 
-    view_scheme: any;
+    viewScheme: any;
     obk = Object.keys;
-    view_obj: View = new View({ layout: { items: [] }, operations: [], groupBy: { items: [] } }, '');
-    name: string = "";
+    viewObj: View = new View({ layout: { items: [] }, operations: [], groupBy: { items: [] } }, '');
+    name: string;
     node: EqualComponentDescriptor;
 
     types = ViewItem.typeList;
     loading = true;
     error = false;
+    isSaving = false;
 
-    class_scheme: any = { fields: {} };
+    classScheme: any = { fields: {} };
     fields: string[] = [];
 
-    compliancy_cache: { ok: boolean, id_list: string[] };
-
-    domain_visible = false;
-    filter_visible = false;
-    layout_visible = true;
-    header_visible = false;
-    header_action_visible = false;
-    header_selection_action_visible = false;
-    actions_visible = false;
-    routes_visible = false;
-    access_visible = false;
-
+    compliancyCache: { ok: boolean, id_list: string[] };
     groups: string[] = [];
+    iconType: { [id: string]: string };
 
-    icontype: { [id: string]: string };
+    collectController: string[] = ['core_model_collect'];
+    actionControllers: string[];
 
-    collect_controller: string[] = ["core_model_collect"];
-    action_controllers: string[];
+    // Tab management
+    selectedTabIndex = 0;
+    private tabNameToIndexMap: { [key: string]: number } = {
+      layout: 0,
+      header: 1,
+      actions: 2,
+      routes: 3,
+      advanced: 4
+    };
+
+    // Navigation
+    private queryParamActivatorRegistry: QueryParamActivatorRegistry;
 
     constructor(
         private route: ActivatedRoute,
@@ -64,212 +71,194 @@ export class PackageViewComponent implements OnInit {
         private snackBar: MatSnackBar,
         private TypeUsage: TypeUsageService,
         private location: Location,
-        private provider:EqualComponentsProviderService,
-        private notificationService: NotificationService
+        private provider: EqualComponentsProviderService,
+        private notificationService: NotificationService,
+        private queryParamNavigator: QueryParamNavigatorService,
+        private jsonValidationService: JsonValidationService
     ) { }
 
-    async ngOnInit() {
+    async ngOnInit(): Promise<void> {
+        this.initializeNavigation();
+
         await this.init();
     }
 
-    async init() {
-        this.icontype = this.TypeUsage.typeIcon;
-        const currentUrl = window.location.href;
-        const packageNameMatch = currentUrl.match(/\/package\/([^/]+)\//);
-        if (packageNameMatch) {
-            const package_name = packageNameMatch[1];
-            const viewNameParam = this.route.snapshot.paramMap.get("view_name");
-            this.name = viewNameParam ? viewNameParam : "";
-            if (this.name) {
-                const tempsplit = this.name.split(":");
-                this.entity = tempsplit[0];
-                this.view_id = tempsplit[1];
+    async init(): Promise<void> {
+        this.loading = true;
+        this.error = false;
+        this.collectController = ['core_model_collect'];
+        this.actionControllers = [];
+        this.groups = [];
+
+        const packageName = this.route.snapshot.paramMap.get('package_name');
+        const entityView = this.route.snapshot.params.entity_view;
+        const [entityName, rest] = entityView.split(':');
+        const [viewType, viewName] = rest.split('.');
+
+        this.iconType = this.TypeUsage.typeIcon;
+
+        if (!packageName || !entityName || !viewType || !viewName) { return; }
+
+        this.name = viewName;
+        this.entity = entityName;
+        this.viewId = viewType + '.' + viewName;
+
+        try {
+            // Phase 1 : essential data loaded
+            const [compo, schema, viewScheme] = await Promise.all([
+                this.provider.getComponent(packageName, 'view', this.entity, (this.entity + ':' + this.viewId)).toPromise(),
+                this.workbenchService.getSchema(`${packageName}\\${entityName}`).toPromise(),
+                this.workbenchService.readView(packageName, this.viewId, entityName).toPromise()
+            ]);
+
+            if (!compo) {
+                console.warn('Component not found.');
+                this.loading = false;
+                return;
             }
 
-            this.provider.getComponent(package_name, 'view', this.entity, this.name).subscribe(async (compo) => {
-                if (compo) {
-                    this.node = compo;
-                    try {
-                        this.class_scheme = await this.workbenchService.getSchema(`${this.node.package_name}\\${this.entity}`).toPromise() || { fields: {} };
-                        this.fields = this.obk(this.class_scheme.fields);
-                        this.view_scheme = (await this.workbenchService.readView(this.node.package_name,this.view_id,this.entity).toPromise());
-                        const nodeNameParts = this.node.name ? this.node.name.split(':') : [];
-                        const viewNamePart = (nodeNameParts.length > 1 && nodeNameParts[1])
-                                              ? nodeNameParts[1].split('.')[0]
-                                              : '';
-                        this.view_obj = new View(this.view_scheme, viewNamePart);
+            this.node = compo;
+            this.classScheme = schema || { fields: {} };
+            this.fields = this.obk(this.classScheme.fields);
+            this.viewScheme = viewScheme;
 
-                        let temp_controller = await this.workbenchService.collectControllers('data',package_name).toPromise();
-                        console.log(temp_controller);
-                        for (let item of temp_controller) {
-                            let data = await this.workbenchService.announceController(item).toPromise();
-                            if (!data) continue;
-                            if (!data["announcement"]["extends"] || data["announcement"]["extends"] !== "core_model_collect") continue;
-                            this.collect_controller.push(item);
-                        }
+            const nodeNameParts = this.node.name ? this.node.name.split(':') : [];
+            const viewNamePart = (nodeNameParts.length > 1 && nodeNameParts[1])
+                ? nodeNameParts[1].split('.')[0]
+                : '';
+            this.viewObj = new View(this.viewScheme, viewNamePart);
 
-                        this.action_controllers = await this.workbenchService.collectControllers('actions').toPromise();
-                        this.workbenchService.getCoreGroups().toPromise().then(data => {
-                            for (let key in data) {
-                                this.groups.push(data[key]['name']);
-                            }
-                        });
-                        this.loading = false;
-                    } catch (err) {
-                        this.error = true;
-                        this.loading = false;
-                    }
-                } else {
-                    console.warn('Component not found.');
-                    this.loading = false;
+            // Display UI as soon as possible, even if some secondary data is still loading in the background
+            this.loading = false;
+
+            // Subscribe to query params changes to handle navigation (e.g. activating tabs based on 'selectedTab' query param)
+            this.route.queryParams.subscribe(params => {
+                if (Object.keys(params).length > 0 && this.queryParamActivatorRegistry) {
+                    this.queryParamNavigator.handleQueryParams(params, {
+                        activators: this.queryParamActivatorRegistry,
+                        context: this,
+                        delay: 100
+                    });
                 }
             });
+
+            // Phase 2 : secondary data loaded in the background (non-blocking)
+            this.loadSecondaryData(packageName);
+        } catch (err) {
+            this.error = true;
+            this.loading = false;
         }
     }
 
-    ngOnChanges() {
+    private async loadSecondaryData(packageName: string): Promise<void> {
+        try {
+            const [tempControllers, actionControllers, groupsData] = await Promise.all([
+                this.workbenchService.collectControllers('data', packageName).toPromise(),
+                this.workbenchService.collectControllers('actions').toPromise(),
+                this.workbenchService.getCoreGroups().toPromise()
+            ]);
+
+            const announcements = await Promise.all(
+                tempControllers.map(item => this.workbenchService.announceController(item).toPromise())
+            );
+            for (let i = 0; i < tempControllers.length; i++) {
+                const data = announcements[i];
+                if (!data) { continue; }
+                if (!data.announcement.extends || data.announcement.extends !== 'core_model_collect') { continue; }
+                this.collectController.push(tempControllers[i]);
+            }
+
+            this.actionControllers = actionControllers;
+            for (const key in groupsData) {
+                this.groups.push(groupsData[key].name);
+            }
+        } catch (err) {
+            console.warn('Failed to load secondary data:', err);
+        }
+    }
+
+    /**
+     * Handle view object changes from child tab components
+     * Called when any tab component modifies the view object
+     */
+    onViewObjChange(view: View): void {
+        this.viewObj = view;
     }
 
     // Call id_compliant method on view_obj and cache it
-    get idCompliancy():{ok:boolean,id_list:string[]} {
-        this.compliancy_cache =  this.view_obj.id_compliant([]);
-        return this.compliancy_cache;
+    get idCompliancy(): {ok: boolean, id_list: string[]} {
+        this.compliancyCache =  this.viewObj.id_compliant([]);
+        return this.compliancyCache;
     }
 
-    // Look for ids doublons in compliancy_cache
-    get idDoublons() {
-        const filtered = this.compliancy_cache.id_list.filter((item, index) => this.compliancy_cache.id_list.indexOf(item) !== index);
-        return filtered.join(",");
+    // Look for ids duplicates in compliancy_cache
+    get idDuplicates(): string {
+        const filtered = this.compliancyCache.id_list.filter((item, index) => this.compliancyCache.id_list.indexOf(item) !== index);
+        return filtered.join(',');
     }
 
-    addItemLayout() {
-        this.view_obj.layout.newViewItem();
+    openJsonViewer(): void {
+        this.popup.open(JsonViewerComponent, {data: this.viewObj.export(), width: '70%', height: '85%'});
     }
 
-    addFilter() {
-        this.view_obj.addFilter();
-        this.filter_visible = true;
-    }
-
-    deleteItemLayout(index:number) {
-        this.view_obj.layout.deleteItem(index);
-    }
-
-    deleteFilter(index:number) {
-        this.view_obj.deleteFilter(index);
-    }
-
-    logit() {
-        console.log(this.view_obj);
-        this.popup.open(JsonViewerComponent,{data:this.view_obj.export(),width:"70%",height:"85%"});
-    }
-
-    addGroup() {
-        this.view_obj.layout.groups.push(new ViewGroup({"label":"New Group"}));
-    }
-
-    goBack() {
+    goBack(): void {
         this.location.back();
     }
 
-    deleteGroup(index:number){
-        this.view_obj.layout.groups.splice(index,1);
-    }
+    save(): void {
+        if (this.isSaving) { return; }
 
-    addSection(index:number) {
-        this.view_obj.layout.groups[index].sections.push(new ViewSection({"label":"new section"}));
-    }
-
-    save() {
-        this.workbenchService.saveView(this.view_obj.export(),this.node.package_name, this.entity,this.view_id).subscribe((result )=>{
-            if(result.success){
-                this.notificationService.showSuccess(result.message);
-            }else{
-                this.notificationService.showError(result.message);
-            }
-        });
-    }
-
-    cancel() {
-        var timerId = setTimeout(async () => {
-            await this.init();
-            this.snackBar.open("Changes canceled", '', {
-                duration: 1000,
-                horizontalPosition: 'left',
-                verticalPosition: 'bottom'
-            });
-        }, 1500);
-        this.snackBar.open("Canceling...", 'Cancel', {
-            duration: 1500,
-            horizontalPosition: 'left',
-            verticalPosition: 'bottom'
-        }).onAction().subscribe(() => {
-            clearTimeout(timerId);
-        });
-    }
-
-    drop_item(event: CdkDragDrop<ViewItem[]>) {
-        console.log(event);
-        if (event.previousContainer === event.container) {
-            moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-        } else {
-            transferArrayItem(
-                event.previousContainer.data,
-                event.container.data,
-                event.previousIndex,
-                event.currentIndex,
-            );
+        if (!this.idCompliancy.ok) {
+            this.notificationService.showError('Cannot save: ' +
+                (this.idDuplicates.length > 0
+                    ? 'Some IDs are duplicated (' + this.idDuplicates + ')'
+                    : 'Some items do not have an ID'));
+            return;
         }
+
+        const viewData = this.viewObj.export();
+        const schemaId = `urn:equal:json-schema:core:view.${this.viewId.split('.')[0]}.default`;
+
+        this.jsonValidationService.validateAndSave(
+            this.jsonValidationService.validateView(viewData, schemaId),
+            () => this.workbenchService.saveView(viewData, this.node.package_name, this.entity, this.viewId),
+            (saving) => this.isSaving = saving
+        );
     }
 
-    handleCustomButton(name:string) {
-        if(name === "Show JSON"){
-            this.logit();
+    cancel(): void {
+        setTimeout(async () => {
+            await this.init();
+            this.snackBar.open('Changes canceled', '', {
+                duration: 1000,
+            });
+        }, 0);
+    }
+
+    handleCustomButton(name: string): void {
+        if (name === 'Show JSON'){
+            this.openJsonViewer();
             return;
         }
     }
 
-    fieldList(operation:ViewOperation,field:string):string[] {
-        let b:string[] = [field];
-        b.push(...Object.keys(this.class_scheme.fields).filter( (item:string) => !operation.fieldTaken.includes(item)));
-        return b;
+    /**
+     * Initialize the registry of activators for query param navigation
+     * Configure the available activators (tabs, menus, etc.)
+     */
+    private initializeNavigation(): void {
+        this.queryParamActivatorRegistry = new QueryParamActivatorRegistry();
+
+        // Register a tab activator that listens to 'selectedTab' query param and activates the corresponding tab
+        const tabActivator = new QueryParamTabActivator(this.tabNameToIndexMap, 'selectedTabIndex');
+        this.queryParamActivatorRegistry.register(tabActivator);
     }
 
-    addOperation() {
-        this.view_obj.operations.push(new ViewOperation({},""));
-    }
-
-    addOp(index:number) {
-        this.view_obj.operations[index].ops.push({
-            name : "",
-            usage: new Usage(""),
-            operation: "COUNT",
-            prefix: "",
-            suffix: "",
-            leftover: {},
-        });
-    }
-
-    delOperation(index:number) {
-        this.view_obj.operations.splice(index,1);
-    }
-
-    delOp(index:number,jndex:number) {
-        this.view_obj.operations[index].ops.splice(jndex,1);
-    }
-
-    addNewGroupBy() {
-        this.view_obj.groupBy.items.push(new ViewGroupByItem());
-    }
-
-    deleteGroupBy(index:number) {
-        this.view_obj.groupBy.items.splice(index,1);
-    }
-
-    ToNameDisp(name:string):string {
-        const a = name.replaceAll("_"," ");
-        let b = a.split(" ").map(item => {return item.charAt(0).toUpperCase() + item.substr(1)});
-        return b.join(" ");
+    ToNameDisp(name: string): string {
+        const a = name.replaceAll('_', ' ');
+        const b = a.split(' ').map(item => item.charAt(0).toUpperCase() + item.substr(1));
+        return b.join(' ');
     }
 }
+
 

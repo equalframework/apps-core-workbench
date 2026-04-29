@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewEncapsulation, SimpleChanges, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
+import { InfoSubHeaderButton } from '../info-sub-header/info-sub-header.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { prettyPrintJson } from 'pretty-print-json';
@@ -7,8 +7,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { InitValidatorComponent } from './_components/init-validator/init-validator.component';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
 import { Observable, of, Subject } from 'rxjs';
-import { catchError, finalize, takeUntil, tap } from 'rxjs/operators';
+import { catchError, finalize, shareReplay, takeUntil, tap } from 'rxjs/operators';
 import { PackageSummary } from 'src/app/in/_models/package-info.model';
+import {RouterMemory} from 'src/app/_services/router-memory.service';
+import { JsonValidationService, ValidationStatusInfo } from 'src/app/in/_services/json-validation.service';
 
 class ConsistencyResultItem {
     constructor(
@@ -31,6 +33,8 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
 
     @Input() package_init_list:string[];
 
+    @Input() key: string;
+
     @Output() onModelClick = new EventEmitter<void>();
     @Output() onControllerClick = new EventEmitter<void>();
     @Output() onViewClick = new EventEmitter<void>();
@@ -46,7 +50,7 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
     public error_count: number;
 
     public error_list: ConsistencyResultItem[];
-    public info_popup = true;
+    public info_popup = false;
     public consistency_loading = false;
     public consistency_checked = false;
     public loading: boolean = false;
@@ -60,12 +64,27 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
     public show_gui: boolean = true;
 
     public selectedConsistencyResultItem: ConsistencyResultItem | null = null;
+    public navigationButtons: InfoSubHeaderButton[] = [];
+    public actionButtons: InfoSubHeaderButton[] = [];
+    public headerExtraInfo: { label: string, value: string, icon?: string }[] = [];
+    public validationStatus: ValidationStatusInfo[] = [];
+
+    public get headerStatus(): { icon?: string, tooltip?: string, label: string, value: string }[] {
+        const consistencyLabel = this.consistency_loading ? 'Checking...' : (this.consistency_checked ? `${this.error_count} errors, ${this.warn_count} warnings` : 'Not checked');
+        const initializedLabel = Array.isArray(this.package_init_list) && this.package_init_list.includes(this.package.name) ? 'Yes' : 'No';
+        return [
+            { label: 'Consistency', value: consistencyLabel, icon: this.consistency_checked ? 'check_circle' : (this.consistency_loading ? 'hourglass_top' : 'info') },
+            ...this.validationStatus,
+            { label: 'Initialized', value: initializedLabel, icon: Array.isArray(this.package_init_list) && this.package_init_list.includes(this.package.name) ? 'check_circle' : 'error' }
+        ];
+    }
 
     constructor(
             private snackBar: MatSnackBar,
-            private router: Router,
             private workbenchService: WorkbenchService,
-            private matDialog: MatDialog
+            private matDialog: MatDialog,
+            private router: RouterMemory,
+            private jsonValidationService: JsonValidationService
         ) { }
 
     ngOnDestroy(): void {
@@ -75,19 +94,117 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.resetConsistencyState();
-        this.current_initialized = this.package_init_list.includes(this.package.name);
-        this.loadPackage(this.package.name)
+        // TODO: fetch initialized packages and set current_initialized accordingly
+        this.loadInitializedPackages().subscribe((initializedPackages) => {
+            this.current_initialized = Array.isArray(initializedPackages) && initializedPackages.includes(this.package.name);
+            this.package_init_list = initializedPackages; // Store the list for future reference
+        });
+        this.loadPackage();
+        this.buildNavigationButtons();
+        this.buildHeaderExtraInfo();
+        this.restoreCachedConsistency();
     }
 
-    loadPackage(packageName: string) {
-        this.packageInfos$ = this.workbenchService.readPackage(packageName);
+    loadInitializedPackages(): Observable<string[]> {
+        return this.workbenchService.getInitializedPackages().pipe(
+            takeUntil(this.destroy$),
+            catchError((error) => {
+                console.error('Error fetching initialized packages:', error);
+                this.snackBar.open('Error fetching initialized packages', 'Close', { duration: 3000 });
+                return of([]); // Return an empty array on error
+            }),
+            shareReplay(1)
+        );
+    }
+
+    loadPackage() {
+        this.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', null, true);
+        this.packageInfos$ = this.workbenchService.readPackage(this.package.name).pipe(
+            shareReplay(1),
+            takeUntil(this.destroy$)
+        );
+        this.packageInfos$.subscribe({
+            next: (payload) => {
+                this.jsonValidationService.validate(
+                    payload.response,
+                    'urn:equal:json-schema:core:package',
+                    this.package.name
+                ).pipe(takeUntil(this.destroy$)).subscribe({
+                    next: (result) => {
+                        this.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', result);
+                    },
+                    error: () => {
+                        this.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', null, false, 'Unable to validate package');
+                    }
+                });
+            },
+            error: () => {
+                this.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', null, false, 'Unable to load package');
+            }
+        });
     }
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes.package) {
+            if (changes.package.firstChange) {
+                return;
+            }
+
+            // Cancel previous in-flight requests before starting new package load.
+            this.destroy$.next();
             this.resetConsistencyState();
-            this.loadPackage(this.package.name)
-            this.destroy$.next()
+            this.loadPackage();
+            this.buildNavigationButtons();
+            this.buildHeaderExtraInfo();
+            this.restoreCachedConsistency();
+        }
+    }
+
+    private restoreCachedConsistency(): void {
+        const cached = this.workbenchService.getCachedPackageConsistency(this.package?.name);
+        if (!cached || !cached.success) {
+            return;
+        }
+
+        this.package_consistency = cached.response;
+        this.processConsistencyResults(false);
+        this.consistency_checked = true;
+    }
+
+    private buildNavigationButtons(): void {
+        const pkgName = this.package?.name || '';
+        this.navigationButtons = [
+            { label: 'Models', icon: 'data_object' },
+            { label: 'Controllers', icon: 'code' },
+            { label: 'Views', icon: 'view_quilt' },
+            { label: 'Routes', icon: 'route' },
+            { label: 'Applications', icon: 'apps', disabled: true }
+        ];
+        this.actionButtons = [
+            { label: 'Initial data', icon: 'file_present' },
+            { label: 'Demo data', icon: 'file_present' }
+        ];
+
+    }
+
+    private buildHeaderExtraInfo(): void {
+        this.headerExtraInfo = [
+            { label: 'Check consistency', value: 'fact_check' },
+            { label: 'Init package', value: 'file_present' }
+        ];
+    }
+
+    public onHeaderExtraClick(item: any): void {
+        if (!item || !item.label) return;
+        switch (item.label) {
+            case 'Check consistency':
+                this.checkConsistency();
+                break;
+            case 'Init package':
+                this.initPackage();
+                break;
+            default:
+                break;
         }
     }
 
@@ -97,7 +214,9 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
         this.error_count = 0;
         this.error_list = [];
         this.consistency_checked = false;
-        this.current_initialized = this.package_init_list.includes(this.package.name);
+        this.loadInitializedPackages().subscribe((initializedPackages) => {
+            this.current_initialized = Array.isArray(initializedPackages) && initializedPackages.includes(this.package.name);
+        });
     }
 
     public selectConsistencyResultItem(item: ConsistencyResultItem): void {
@@ -111,9 +230,9 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
             takeUntil(this.destroy$),
             tap((result: any) => {
                 if(result.success){
-                    console.log('Received consistency data:', result.response);
+                    this.workbenchService.setCachedPackageConsistency(this.package.name, result);
                     this.package_consistency = result.response;
-                    this.processConsistencyResults();
+                    this.processConsistencyResults(true);
                     return result.response;
                 }
                 else{
@@ -123,14 +242,15 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
                 }
             }),
             finalize(() => {
+                this.info_popup = true;
                 this.consistency_loading = false;
                 this.consistency_checked = true;
-            })
+            }),
         ).subscribe();
     }
 
 
-    private processConsistencyResults(): void {
+    private processConsistencyResults(showToast: boolean = true): void {
         this.warn_count = 0;
         this.error_count = 0;
         this.error_list = [];
@@ -148,7 +268,9 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
             }
         });
 
-        this.snackBar.open(`Consistency check complete: ${this.error_count} errors, ${this.warn_count} warnings`, 'Close', { duration: 3000 });
+        if (showToast) {
+            this.snackBar.open(`Consistency check complete: ${this.error_count} errors, ${this.warn_count} warnings`, 'Close', { duration: 3000 });
+        }
     }
 
     /*
@@ -170,23 +292,69 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
     */
 
     public onclickModels() {
-        this.router.navigate(['/package/' + this.package.name+'/models']);
+        this.router.navigate([`/package/${this.package.name}`], {
+            queryParams: {
+                scope: 'class',
+                filter_package: this.package.name
+            }
+        });
     }
 
     public onclickControllers() {
-        this.router.navigate(['/package/' + this.package.name+'/controllers']);
+        this.router.navigate([`/package/${this.package.name}`], {
+            queryParams: {
+                scope: 'controller',
+                filter_package: this.package.name
+            }
+        });
     }
 
     public onclickViews() {
-        this.router.navigate(['/package/' + this.package.name+'/views']);
+        this.router.navigate([`/package/${this.package.name}`], {
+            queryParams: {
+                scope: 'view',
+                filter_package: this.package.name
+            }
+        });
     }
 
     public onclickRoutes() {
-        this.router.navigate(['/package/' + this.package.name+'/routes']);
+        this.router.navigate([`/package/${this.package.name}`], {
+            queryParams: {
+                scope: 'route',
+                filter_package: this.package.name
+            }
+        });
     }
 
     public onclickInitData(type: string) {
         this.router.navigate(['/package/' + this.package.name + '/init-data/'+ type]);
+    }
+
+    public onSubHeaderNavigation(btn: InfoSubHeaderButton) {
+        const label = (btn && btn.label) || '';
+        switch (label) {
+            case 'Models':
+                this.onclickModels();
+                break;
+            case 'Controllers':
+                this.onclickControllers();
+                break;
+            case 'Views':
+                this.onclickViews();
+                break;
+            case 'Routes':
+                this.onclickRoutes();
+                break;
+            case 'Initial data':
+                this.onclickInitData('init');
+                break;
+            case 'Demo data':
+                this.onclickInitData('demo');
+                break;
+            default:
+                break;
+        }
     }
 
     public consitencyPrint():any {

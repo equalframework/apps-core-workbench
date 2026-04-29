@@ -6,12 +6,12 @@ import { SharedLibModule, CustomDateAdapter } from 'sb-shared-lib';
 import { WorkbenchModule } from 'src/app/_modules/workbench.module';
 import { ClassicLayoutModule } from 'src/app/in/classic-layout/classic-layout.module';
 import { ActionsRoutingModule } from './actions-routing.module';
-import { PackageModelActions } from './package-model-actions.component';
+import { PackageModelActionsComponent } from './package-model-actions.component';
 
 
 @NgModule({
     declarations: [
-        PackageModelActions
+        PackageModelActionsComponent
     ],
     imports: [
         CommonModule,

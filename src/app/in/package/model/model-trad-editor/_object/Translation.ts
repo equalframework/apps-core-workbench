@@ -1,174 +1,271 @@
-import { Menu } from "../../../menu/_models/Menu"
-import { View } from "../../views/vieweditor/_objects/View"
+import { Menu } from '../../../menu/_models/Menu';
+import { View } from '../../_object/View';
+
+function sanitizeLayoutKey(value: string): string {
+    return value.trim().replace(/\s+/g, '_').replace(/[^A-Za-z0-9._-]/g, '_');
+}
+
+function collectLayoutTranslationKeys(layout: any): string[] {
+    const keys: string[] = [];
+    const used = new Set<string>();
+
+    const registerKey = (preferred: string | null | undefined, fallback: string): string => {
+        const normalizedPreferred = preferred ? sanitizeLayoutKey(preferred) : '';
+        const normalizedFallback = sanitizeLayoutKey(fallback);
+        const base = normalizedPreferred || normalizedFallback;
+        if (!base) {
+            return '';
+        }
+
+        if (!used.has(base)) {
+            used.add(base);
+            keys.push(base);
+            return base;
+        }
+
+        let idx = 2;
+        let candidate = `${base}#${idx}`;
+        while (used.has(candidate)) {
+            idx++;
+            candidate = `${base}#${idx}`;
+        }
+        used.add(candidate);
+        keys.push(candidate);
+        return candidate;
+    };
+
+    const registerNode = (node: any, fallback: string): string => {
+        const id = (typeof node?.id === 'string' ? node.id.trim() : '');
+        return registerKey(id || undefined, fallback);
+    };
+
+    const registerItem = (item: any, fallback: string): void => {
+        const explicitId = (typeof item?.id === 'string' ? item.id.trim() : '');
+        const fieldValue = (typeof item?.value === 'string' ? item.value.trim() : '');
+        if (explicitId) {
+            registerKey(explicitId, fallback);
+            return;
+        }
+        if (fieldValue) {
+            registerKey(fieldValue, fallback);
+            return;
+        }
+        registerKey(undefined, fallback);
+    };
+
+    const groups = Array.isArray(layout?.groups) ? layout.groups : [];
+    for (let gi = 0; gi < groups.length; gi++) {
+        const group = groups[gi];
+        const groupPath = registerNode(group, `group.${gi}`) || `group.${gi}`;
+        const sections = Array.isArray(group?.sections) ? group.sections : [];
+        for (let si = 0; si < sections.length; si++) {
+            const section = sections[si];
+            const sectionPath = registerNode(section, `${groupPath}.section.${si}`) || `${groupPath}.section.${si}`;
+            const rows = Array.isArray(section?.rows) ? section.rows : [];
+            for (let ri = 0; ri < rows.length; ri++) {
+                const row = rows[ri];
+                const rowPath = registerNode(row, `${sectionPath}.row.${ri}`) || `${sectionPath}.row.${ri}`;
+                const columns = Array.isArray(row?.columns) ? row.columns : [];
+                for (let ci = 0; ci < columns.length; ci++) {
+                    const column = columns[ci];
+                    const columnPath = registerNode(column, `${rowPath}.column.${ci}`) || `${rowPath}.column.${ci}`;
+                    const items = Array.isArray(column?.items) ? column.items : [];
+                    for (let ii = 0; ii < items.length; ii++) {
+                        registerItem(items[ii], `${columnPath}.item.${ii}`);
+                    }
+                }
+            }
+        }
+    }
+
+    const rootItems = Array.isArray(layout?.items) ? layout.items : [];
+    for (let ii = 0; ii < rootItems.length; ii++) {
+        registerItem(rootItems[ii], `layout.item.${ii}`);
+    }
+
+    return keys;
+}
 
 
 export class Translation {
-    public value:string=""
+    public value = '';
 
-    constructor(value:string|undefined = undefined) {
-        if(value !== undefined){
-            this.value = value
+    constructor(value?: string) {
+        if (value !== undefined){
+            this.value = value;
         }
     }
 }
 
 export class Translator {
-    name:Translation = new Translation()
-    description:Translation = new Translation()
-    plural:Translation= new Translation()
-    model:{[id:string]:ModelTranslator} = {}
-    view:{[id:string]:ViewTranslator} = {}
-    error:ErrorTranslator = new ErrorTranslator()
-    ok:boolean = true
-    view_leftover:any = {}
+    name: Translation = new Translation();
+    description: Translation = new Translation();
+    plural: Translation = new Translation();
+    model: {[id: string]: ModelTranslator} = {};
+    view: {[id: string]: ViewTranslator} = {};
+    error: ErrorTranslator = new ErrorTranslator();
+    ok = true;
+    viewLeftover: any = {};
 
-    constructor(model:string[],view:{name:string,view:View}[]) {
-        for(let item of model) {
-            this.model[item] = new ModelTranslator()
+    constructor(model: string[], view: {name: string, view: View}[]) {
+        for (const item of model) {
+            this.model[item] = new ModelTranslator();
         }
-        for(let item of view) {
-            let compl = item.view.id_compliant([])
-            if(!compl.ok){
-                this.ok = false
-                return
+        for (const item of view) {
+            const compl = item.view.id_compliant([]);
+            if (!compl.ok){
+                this.ok = false;
+                return;
             }
-            this.view[item.name] = new ViewTranslator(item.view)
+            this.view[item.name] = new ViewTranslator(item.view);
         }
-        this.error = new ErrorTranslator(model)
+        this.error = new ErrorTranslator(model);
     }
 
-    static MenuConstructor(menu:Menu):Translator {
-        let res = new Translator([],[])
-        res.view["menu"] = new ViewTranslator(new View({},"list"))
-        for(let id of menu.id_compliancy([]).id_list) {
-            res.view["menu"].layout[id] = new ViewLayoutItemTranslator()
+    static MenuConstructor(menu: Menu): Translator {
+        const res = new Translator([], []);
+        res.view.menu = new ViewTranslator(new View({}, 'list'));
+        for (const id of menu.idCompliancy([]).idList) {
+            res.view.menu.layout[id] = new ViewLayoutItemTranslator();
         }
-        return res
+        return res;
     }
 
-    fill(values:any) {
-        this.name = new Translation(values["name"])
-        this.description = new Translation(values["description"])
-        this.plural = new Translation(values["plural"])
-        console.log("model")
-        if(values["model"]){
-            for(let item in values["model"]) {
-                if(!this.model[item]) continue
-                this.model[item].fill(values["model"][item])
-            }
-        }
-        console.log("view")
-        if(values["view"]) {
-            for(let item in values["view"]) {
-                if(!this.view[item]){
-                    this.view_leftover[item] = values["view"][item]
-                    continue
+    fill(values: any): void {
+        this.name = new Translation(values.name);
+        this.description = new Translation(values.description);
+        this.plural = new Translation(values.plural);
+        if (values.model){
+            for (const item in values.model) {
+                if (!this.model[item]) {
+                    continue;
                 }
-                this.view[item].fill(values["view"][item])
+                this.model[item].fill(values.model[item]);
             }
         }
-        console.log("error")
-        if(values["error"]) {
-            this.error.fill(values["error"])
+        if (values.view) {
+            for (const item in values.view) {
+                if (!this.view[item]){
+                    this.viewLeftover[item] = values.view[item];
+                    continue;
+                }
+                this.view[item].fill(values.view[item]);
+            }
         }
-        console.log("finished")
+        if (values.error) {
+            this.error.fill(values.error);
+        }
     }
 
-    export() {
-        let res:any = {
-            "name" : this.name.value,
-            "plural" : this.plural.value,
-            "description" : this.description.value,
+    export(): any {
+        const res: any = {
+            name : this.name.value,
+            plural : this.plural.value,
+            description : this.description.value,
+        };
+        if (Object.keys(this.model).length > 0) {
+            res.model = {};
+            for (const key in this.model) {
+                if (this.model[key].is_active) {
+                    res.model[key] = {
+                        label : this.model[key].label.value,
+                        description : this.model[key].description.value,
+                        help : this.model[key].help.value
+                    };
+                }
+            }
         }
-        if(Object.keys(this.model).length > 0) {
-            res.model = {}
-            for(let key in this.model) {
-                if(this.model[key].is_active) {
-                    res["model"][key] = {
-                        "label" : this.model[key].label.value,
-                        "description" : this.model[key].description.value,
-                        "help" : this.model[key].help.value
+        if (Object.keys(this.view).length > 0) {
+            res.view = {};
+            for (const key in this.view) {
+                res.view[key] = {};
+                res.view[key].name = this.view[key].name.value;
+                res.view[key].description = this.view[key].description.value;
+                if (this.view[key].hasLayoutValues || Object.keys(this.view[key].layout).length > 0) {
+                    res.view[key].layout = {};
+                    for (const id in this.view[key].layout) {
+                        if (!this.view[key].layout[id].isActive) { continue; }
+                        res.view[key].layout[id] = {
+                            label : this.view[key].layout[id].label.value
+                        };
+                    }
+                    if (Object.keys(res.view[key].layout).length === 0) {
+                        delete res.view[key].layout;
+                    }
+                }
+                if (this.view[key].hasActionValues || Object.keys(this.view[key].actions).length > 0) {
+                    res.view[key].actions = {};
+                    for (const id in this.view[key].actions) {
+                        if (!this.view[key].actions[id].isActive) { continue; }
+                        res.view[key].actions[id] = {
+                            label : this.view[key].actions[id].label.value,
+                            description : this.view[key].actions[id].description.value
+                        };
+                    }
+                    if (Object.keys(res.view[key].actions).length === 0) {
+                        delete res.view[key].actions;
+                    }
+                }
+                if (this.view[key].hasRouteValues || Object.keys(this.view[key].routes).length > 0) {
+                    res.view[key].routes = {};
+                    for (const id in this.view[key].routes) {
+                        if (!this.view[key].routes[id].isActive) { continue; }
+                        res.view[key].routes[id] = {
+                            label : this.view[key].routes[id].label.value,
+                            description : this.view[key].routes[id].description.value
+                        };
+                    }
+                    if (Object.keys(res.view[key].routes).length === 0) {
+                        delete res.view[key].routes;
                     }
                 }
             }
-        }
-        if(Object.keys(this.view).length > 0) {
-            res.view = {}
-            for(let key in this.view) {
-                res["view"][key] = {}
-                res["view"][key]["name"] = this.view[key].name.value
-                res["view"][key]["description"] = this.view[key].description.value
-                if(Object.keys(this.view[key].layout).length > 0) {
-                    res["view"][key]["layout"] = {}
-                    for(let id in this.view[key].layout) {
-                        if(!this.view[key].layout[id].is_active) continue
-                        res["view"][key]["layout"][id] = {
-                            "label" : this.view[key].layout[id].label.value
-                        }
-                    }
-                }
-                if(Object.keys(this.view[key].actions).length > 0) {
-                    res["view"][key]["actions"] = {}
-                    for(let id in this.view[key].actions) {
-                        if(!this.view[key].actions[id].is_active) continue
-                        res["view"][key]["actions"][id] = {
-                            "label" : this.view[key].actions[id].label.value,
-                            "description" : this.view[key].actions[id].description.value
-                        }
-                    }
-                }
-                if(Object.keys(this.view[key].routes).length > 0) {
-                    res["view"][key]["routes"] = {}
-                    for(let id in this.view[key].routes) {
-                        if(!this.view[key].routes[id].is_active) continue
-                        res["view"][key]["routes"][id] = {
-                            "label" : this.view[key].routes[id].label.value,
-                            "description" : this.view[key].routes[id].description.value
-                        }
-                    }
-                }
-            }
-            
-            for(let key in this.view_leftover){
-                res["view"][key] = this.view_leftover[key]
+
+            for (const key in this.viewLeftover){
+                res.view[key] = this.viewLeftover[key];
             }
         }
-        if(Object.keys(this.error).length > 0) {
-            res.error = {}
-            for(let key in this.error._base) {
-                if(!this.error._base[key].active) continue
-                res["error"][key] = {}
-                for(let id in this.error._base[key].val) {
-                    if(!this.error._base[key].val[id].is_active) continue
-                    res["error"][key][id] = this.error._base[key].val[id]._val.value
+        if (Object.keys(this.error).length > 0) {
+            res.error = {};
+            for (const key in this.error._base) {
+                if (!this.error._base[key].active) { continue; }
+                res.error[key] = {};
+                for (const id in this.error._base[key].val) {
+                    if (!this.error._base[key].val[id].isActive) { continue; }
+                    res.error[key][id] = {
+                        _val: this.error._base[key].val[id]._val.value
+                    };
+                }
+                if (Object.keys(res.error[key]).length === 0) {
+                    delete res.error[key];
                 }
             }
-            if(Object.keys(res.error).length <= 0) {
-                delete res.error
+            if (Object.keys(res.error).length <= 0) {
+                delete res.error;
             }
         }
-        return res
+        return res;
     }
-} 
+}
 
 export class ErrorTranslator {
-    _base:{[id:string]:{active:boolean,val:{[id:string]:ErrorItemTranslator}}} = {"errors":{active:false,val:{}}}
+    _base: {[id: string]: {active: boolean, val: {[id: string]: ErrorItemTranslator}}} = {errors: {active: false, val: {}}};
 
-    constructor(model:string[] = []) {
-        for(let field of model) {
-            this._base[field] = {active:false,val:{}}
+    constructor(model: string[] = []) {
+        for (const field of model) {
+            this._base[field] = {active: false, val: {}};
         }
     }
 
-    fill(values:any) {
-        for(let key in values) {
-            if(!this._base[key]) {
-                this._base[key] = {active:false,val:{}}
-            } 
-            this._base[key].active = true
-            for(let k2 in values[key]) {
-                this._base[key].val[k2] = new ErrorItemTranslator()
-                this._base[key].val[k2].fill(values[key][k2])
+    fill(values: any): void {
+        for (const key in values) {
+            if (!this._base[key]) {
+                this._base[key] = {active: false, val: {}};
+            }
+            this._base[key].active = true;
+            for (const k2 in values[key]) {
+                this._base[key].val[k2] = new ErrorItemTranslator();
+                this._base[key].val[k2].fill(values[key][k2]);
             }
         }
     }
@@ -176,114 +273,144 @@ export class ErrorTranslator {
 }
 
 export class ModelTranslator {
-    is_active:boolean = false
-    label:Translation = new Translation()
-    description:Translation = new Translation()
-    help:Translation = new Translation()
+    is_active = false;
+    label: Translation = new Translation();
+    description: Translation = new Translation();
+    help: Translation = new Translation();
 
 
-    fill(values:any) {
-        if(values) {
-            this.label = new Translation(values["label"])
-            this.description = new Translation(values["description"])
-            this.help = new Translation(values["help"])
-            this.is_active = true
+    fill(values: any): void {
+        if (values) {
+            this.label = new Translation(values.label);
+            this.description = new Translation(values.description);
+            this.help = new Translation(values.help);
+            this.is_active = true;
         }
-        
     }
 }
 
 export class ViewTranslator {
-    layout:{[id:string]:ViewLayoutItemTranslator} = {}
-    name:Translation = new Translation()
-    description:Translation = new Translation()
-    actions:{[id:string]:ViewActionTranslator} = {}
-    routes:{[id:string]:ViewRouteTranslator} = {}
+    layout: {[id: string]: ViewLayoutItemTranslator} = {};
+    name: Translation = new Translation();
+    description: Translation = new Translation();
+    actions: {[id: string]: ViewActionTranslator} = {};
+    routes: {[id: string]: ViewRouteTranslator} = {};
+    hasLayoutValues = false;
+    hasActionValues = false;
+    hasRouteValues = false;
 
-    constructor(view:View) {
-        for(let id of view.layout.id_compliant([]).id_list) {
-            this.layout[id] = new ViewLayoutItemTranslator()
+    constructor(view: View) {
+        for (const id of collectLayoutTranslationKeys((view as any).layout)) {
+            this.layout[id] = new ViewLayoutItemTranslator();
         }
-        for(let action of view.actions) {
-            this.actions[action.id] = new ViewActionTranslator()
+        for (const action of view.actions) {
+            this.actions[action.id] = new ViewActionTranslator();
         }
-        for(let route of view.routes) {
-            this.routes[route.id] = new ViewRouteTranslator()
+        for (const route of view.routes) {
+            this.routes[route.id] = new ViewRouteTranslator();
         }
     }
 
-    fill(values:any) {
-        this.name = new Translation(values["name"])
-        this.description = new Translation(values["description"])
-        if(values["layout"]){
-            for(let item in values["layout"]) {
-                if(!this.layout[item]) continue
-                this.layout[item].fill(values["layout"][item])
+    fill(values: any): void {
+        this.name = new Translation(values.name);
+        this.description = new Translation(values.description);
+        this.hasLayoutValues = values?.layout !== undefined;
+        if (values.layout){
+            for (const item in values.layout) {
+                if (!this.layout[item]) {
+                    continue;
+                }
+                this.layout[item].fill(values.layout[item]);
             }
         }
-        if(values["actions"]){
-            for(let item in values["actions"]) {
-                if(!this.actions[item]) continue
-                this.actions[item].fill(values["actions"][item])
+        this.hasActionValues = values?.actions !== undefined;
+        if (values.actions){
+            for (const item in values.actions) {
+                if (!this.actions[item]) {
+                    continue;
+                }
+                this.actions[item].fill(values.actions[item]);
             }
         }
-        if(values["routes"]) {
-            for(let item in values["routes"]) {
-                if(!this.routes[item]) continue
-                this.routes[item].fill(values["routes"][item])
+        this.hasRouteValues = values?.routes !== undefined;
+        if (values.routes) {
+            for (const item in values.routes) {
+                if (!this.routes[item]) {
+                    continue;
+                }
+                this.routes[item].fill(values.routes[item]);
             }
         }
     }
 }
 
 export class ViewRouteTranslator {
-    label:Translation = new Translation()
-    description:Translation = new Translation()
+    label: Translation = new Translation();
+    description: Translation = new Translation();
 
-    is_active:boolean = false
+    isActive = false;
 
-    fill(values:any) {
-        if(values) 
-            this.label = new Translation(values["label"])
-            this.description = new Translation(values["description"])
-            this.is_active = true
+    fill(values: any): void {
+        if (values) {
+            this.label = new Translation(values.label);
+        }
+        this.description = new Translation(values?.description);
+        this.isActive = typeof values?.isActive === 'boolean'
+            ? values.isActive
+            : typeof values?.is_active === 'boolean'
+                ? values.is_active
+                : true;
     }
 }
 
 export class ViewActionTranslator {
-    label:Translation = new Translation()
-    description:Translation = new Translation()
+    label: Translation = new Translation();
+    description: Translation = new Translation();
 
-    is_active:boolean = false
+    isActive = false;
 
-    fill(values:any) {
-        if(values) 
-            this.label = new Translation(values["label"])
-            this.description = new Translation(values["description"])
-            this.is_active = true
+    fill(values: any): void {
+        if (values) {
+            this.label = new Translation(values.label);
+        }
+        this.description = new Translation(values?.description);
+        this.isActive = typeof values?.isActive === 'boolean'
+            ? values.isActive
+            : typeof values?.is_active === 'boolean'
+                ? values.is_active
+                : true;
     }
 }
 
 export class ViewLayoutItemTranslator {
-    label:Translation = new Translation()
-    is_active:boolean = false
+    label: Translation = new Translation();
+    isActive = false;
 
-    fill(values:any) {
-        if(values)
-            this.label = new Translation(values["label"])
-            this.is_active = true
+    fill(values: any): void {
+        if (values) {
+            this.label = new Translation(values.label);
+        }
+        this.isActive = typeof values?.isActive === 'boolean'
+            ? values.isActive
+            : typeof values?.is_active === 'boolean'
+                ? values.is_active
+                : true;
     }
 }
 
 
 export class ErrorItemTranslator {
-    _val:Translation = new Translation()
-    is_active:boolean = false
+    _val: Translation = new Translation();
+    isActive = false;
 
-    fill(values:any) {
-        if(values)
-            console.log(values)
-            this._val = new Translation(values)
-            this.is_active = true
+    fill(values: any): void {
+        if (values) {
+            this._val = new Translation(values._val);
+        }
+        this.isActive = typeof values?.isActive === 'boolean'
+            ? values.isActive
+            : typeof values?.is_active === 'boolean'
+                ? values.is_active
+                : true;
     }
 }

@@ -1,11 +1,10 @@
 import { Component, OnInit, ViewEncapsulation, Output, OnDestroy } from '@angular/core';
-
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { prettyPrintJson } from 'pretty-print-json';
 import { ActivatedRoute} from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { Location } from '@angular/common';
+import { EqualComponentsProviderService } from '../_services/equal-components-provider.service';
 
 @Component({
     selector: 'app-package',
@@ -23,33 +22,34 @@ export class PackageComponent implements OnInit, OnDestroy {
 
     public ready: boolean = false;
 
-    public package_name: string;
+    public packageName: string;
 
     public packages: any;
     public controllers: any;
-    public selected_package = '';
-    public selected_controller = '';
-    public selected_property = '';
-    public selected_type_controller = '';
+    public selectedPackage = '';
+    public selectedController = '';
+    public selectedProperty = '';
+    public selectedTypeController = '';
     public schema: any;
-    public controller_access_restrained: boolean;
-    public selected_desc = '';
-    public fetch_error = false
+    public controllerAccessRestrained: boolean;
+    public selectedDesc = '';
+    public fetchError = false
 
     public step = 1;
 
     constructor(
             private route: ActivatedRoute,
+            private location: Location,
         ) { }
 
-    public async ngOnInit() {
+    public async ngOnInit(): Promise<void> {
         this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
-            this.package_name = params['package_name'];
+            this.packageName = params['package_name'];
             this.ready = true;
         });
     }
 
-    public ngOnDestroy() {
+    public ngOnDestroy(): void {
         console.debug('PackageComponent::ngOnDestroy');
         this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
@@ -62,7 +62,7 @@ export class PackageComponent implements OnInit, OnDestroy {
      * @param property the property that the user has selected
      */
     public async onclickPropertySelect(property: string) {
-        this.selected_property = property;
+        this.selectedProperty = property;
     }
 
     /**
@@ -79,7 +79,7 @@ export class PackageComponent implements OnInit, OnDestroy {
      *
      * @param controller the name of the controller which will be deleted
      */
-    public async ondeleteController(event: { type: string, name: string }) {
+    public async onDeleteController(event: { type: string, name: string }): Promise<void> {
     }
 
     /**
@@ -87,7 +87,7 @@ export class PackageComponent implements OnInit, OnDestroy {
      *
      * @param new_package the name of the new controller
      */
-    public oncreateController(event: { type: string, name: string }) {
+    public onCreateController(event: { type: string, name: string }): void {
 
     }
 
@@ -95,14 +95,14 @@ export class PackageComponent implements OnInit, OnDestroy {
      *
      * @returns a pretty HTML string of a schema in JSON.
      */
-    public getJSONSchema() {
+    public getJSONSchema(): string | null {
         if(this.schema) {
             return this.prettyPrint(this.schema);
         }
         return null;
     }
 
-    public getProperties() {
+    public getProperties(): string[] {
         return Object.keys(this.schema);
     }
 
@@ -116,8 +116,9 @@ export class PackageComponent implements OnInit, OnDestroy {
         return prettyPrintJson.toHtml(input);
     }
 
-    public getBack() {
+    public getBack(): void {
         // this.route.goBack()
+        this.location.back();
 
     }
 

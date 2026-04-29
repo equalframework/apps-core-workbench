@@ -8,26 +8,26 @@ import { ViewAction, ViewHeader, ViewPreDefAction } from '../../_objects/View';
 })
 export class HeaderActionsComponent implements OnInit {
 
-  @Input() h_scheme:ViewHeader
-  @Input() groups:string[] = []
-  @Input() controllers:string[]
-  @Input() entity:string
-  obk = Object.keys
+  @Input() hScheme: ViewHeader;
+  @Input() groups: string[] = [];
+  @Input() controllers: string[];
+  @Input() entity: string;
+  obk = Object.keys;
 
   constructor() { }
 
   ngOnInit(): void {
   }
 
-  del(key:string,action:ViewPreDefAction) {
-    let index = this.h_scheme.actions[key].acts.indexOf(action)
-    if(index >= 0) {
-      this.h_scheme.actions[key].acts.splice(index,1)
+  del(key: string, action: ViewPreDefAction): void {
+    const index = this.hScheme.actions[key].acts.indexOf(action);
+    if (index >= 0) {
+      this.hScheme.actions[key].acts.splice(index, 1);
     }
   }
 
-  create(key:string) {
-    this.h_scheme.actions[key].acts.push(new ViewPreDefAction())
+  create(key: string): void {
+    this.hScheme.actions[key].acts.push(new ViewPreDefAction());
   }
 
 }

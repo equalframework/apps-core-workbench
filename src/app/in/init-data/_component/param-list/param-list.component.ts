@@ -10,7 +10,7 @@ import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 })
 export class ParamListComponent implements OnInit, OnChanges {
 
-  @Input() list: InitDataFile[]
+  @Input() list: InitDataFile[] = []
   @Input() selectedIndex: number
 
   @Output() select = new EventEmitter<number>()
@@ -32,8 +32,7 @@ export class ParamListComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
-    this.filteredList = this.list.sort((p1, p2) => p1.name.localeCompare(p2.name));
-    console.log(this.filteredList)
+    this.filteredList = [...this.list].sort((p1, p2) => p1.name.localeCompare(p2.name));
     this.filterControl.valueChanges.subscribe(data => {
       this.filteredList = this._filter(data)
     })
@@ -45,7 +44,7 @@ export class ParamListComponent implements OnInit, OnChanges {
 
 
   private _filter(value: string): InitDataFile[] {
-    const filterValue = value.toLowerCase();
+    const filterValue = (value || '').toLowerCase();
     return this.list.filter(option => option.name.toLowerCase().includes(filterValue.toLowerCase())).sort((p1, p2) => p1.name.localeCompare(p2.name));
   }
 

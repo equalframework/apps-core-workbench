@@ -17,8 +17,8 @@
                     <label>{{file.entities[entity].name}}</label>
                     <button mat-icon-button [mat-menu-trigger-for]="menu"><mat-icon>more_vert</mat-icon></button>
                     <mat-menu #menu>
-                        <button mat-menu-item (click)="deleteSection(entity)"><mat-icon color="primary">delete</mat-icon> delete</button>
-                        <button mat-menu-item (click)="openLangEditor()"><mat-icon color="primary">translate</mat-icon> edit languages</button>
+                        <button mat-menu-item (click)="deleteSection(entity)"><mat-icon color="primary">delete</mat-icon> Delete</button>
+                        <button mat-menu-item (click)="openLangEditor()"><mat-icon color="primary">translate</mat-icon> Edit languages</button>
                     </mat-menu>
                 </ng-template>
                 <div class="table-holder">

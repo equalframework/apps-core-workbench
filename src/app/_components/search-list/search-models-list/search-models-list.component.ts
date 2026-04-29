@@ -64,9 +64,12 @@ export class SearchModelsListComponent implements OnInit {
      * @param node value of the node which is clicked on
      */
     public onclickNodeSelect(node: string){
-        this.nodeSelect.emit(node);
+        if (this.node_selected && this.node_selected.name === node) {
+            this.nodeSelect.emit(undefined);
+        } else {
+            this.nodeSelect.emit(node);
+        }
     }
-
     /**
      * Notify parent component of the updating of a node.
      *

@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, Optional } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, Optional, Input } from '@angular/core';
 import { Form, FormControl } from '@angular/forms';
 import { ReturnFormatItem, ReturnValue } from './_objects/ReturnValue';
 import { TypeUsageService } from 'src/app/_services/type-usage.service';
@@ -11,22 +11,47 @@ import { prettyPrintJson } from 'pretty-print-json';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Location } from '@angular/common';
+import { RouterMemory } from 'src/app/_services/router-memory.service';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { JsonViewerComponent } from 'src/app/_components/json-viewer/json-viewer.component';
+import { JsonValidationService } from 'src/app/in/_services/json-validation.service';
 
 /**
- * Component used to display the component of a package (using `/package/:package_name/controller/:controller_type/:controller_name/return` route)
- *
+ * Component used to display the response of a controller
+ * Can be used standalone via routing or as a tab component with @Input properties
  */
 @Component({
-    selector: 'package-controller-return',
+    selector: 'app-package-controller-return',
     templateUrl: './package-controller-return.component.html',
     styleUrls: ['./package-controller-return.component.scss'],
     host : {
-        "(body:keydown)" : "onKeydown($event)"
+        "(body:keydown)" : "onKeydown($event)",
     }
 })
-export class PackageControllerReturnComponent implements OnInit {
+export class PackageControllerReturnComponent implements OnInit, OnDestroy {
+
+    private readonly announcementFieldsToCopy: string[] = [
+        'response',
+        'access',
+        'providers',
+        'constants',
+        'description',
+        'deprecated',
+        'help',
+        'usage'
+    ];
+
+    // @Input properties for tab-based usage
+    @Input() controllerName = '';
+    @Input() controllerType = '';
+    @Input() controllerPackage = '';
+
+    // @Input properties for data from parent component
+    @Input() types: string[] = [];
+    @Input() entities: string[] = [];
+    @Input() returnScheme: any = null;
+    @Input() dataReady = false;
+    @Input() isSaving = false;
 
     // rx subject for unsubscribing subscriptions on destroy
     private ngUnsubscribe = new Subject<void>();
@@ -35,59 +60,55 @@ export class PackageControllerReturnComponent implements OnInit {
 
     public object: ReturnValue = new ReturnValue();
 
-    public error:boolean = false;
+    public error = false;
 
-    public controller_name:string;
-    public controller_type:string;
+    public objectHistory: {value: ReturnValue, message: string}[] = [];
+    public objectFutureHistory: {value: ReturnValue, message: string}[] = [];
 
-    public entities:string[];
+    public typeControl: FormControl = new FormControl('');
 
-    public objectHistory:{value : ReturnValue, message:string}[] = [];
-    public objectFutureHistory:{value : ReturnValue, message:string}[] = [];
-
-    public typeControl:FormControl = new FormControl("");
-
-    public typeIconList:{[id:string]:string};
+    public typeIconList: {[id: string]: string};
 
 
-    public types_regular:string[] = [];
-    public types_custom:string[] = ReturnValue.customTypes;
+    public typesRegular: string[] = [];
+    public typesCustom: string[] = ReturnValue.customTypes;
 
-    public filtered_types_regular: string[] = [];
-    public filtered_types_custom: string[] = [];
+    public filteredTypesRegular: string[] = [];
+    public filteredTypesCustom: string[] = [];
 
     constructor(
             private TypeUsage: TypeUsageService,
             private workbenchService: WorkbenchService,
             private matSnack: MatSnackBar,
-            private route: ActivatedRoute,
             private dialog: MatDialog,
-            private location: Location
+            private routerMemory: RouterMemory,
+            private jsonValidator: JsonValidationService
         ) { }
 
-    public async ngOnInit() {
-
-        this.route.params.pipe(takeUntil(this.ngUnsubscribe)).subscribe( async (params) => {
-            this.controller_type = params['controller_type'];
-            this.controller_name = params['controller_name'];
-            this.scheme = await this.workbenchService.announceController(this.controller_type, this.controller_name).toPromise();
-            this.object = new ReturnValue(cloneDeep(this.scheme.announcement.response));
-            this.typeControl.setValue(this.object.type)
-            this.typeControl.valueChanges.subscribe(value => {
-                    this.filtered_types_regular = this._filter(value, 'types_regular');
-                    this.filtered_types_custom = this._filter(value, 'types_custom');
-                    this.changeType(value);
-                });
-
-        });
-
+    public ngOnInit(): void {
+        // Use @Input properties from parent component (required)
         this.typeIconList = this.TypeUsage.typeIcon;
-        this.types_regular = await this.workbenchService.getTypeList();
-        this.entities = await this.workbenchService.collectClasses(true).toPromise();
+        this.typesRegular = this.types;
 
-        this.filtered_types_regular = this._filter('', 'types_regular');
-        this.filtered_types_custom = this._filter('', 'types_custom');
+        // Initialize object from scheme if provided
+        if (this.returnScheme && this.returnScheme.announcement && this.returnScheme.announcement.response) {
+            this.scheme = this.returnScheme;
+            this.object = new ReturnValue(cloneDeep(this.scheme.announcement.response));
+            this.typeControl.setValue(this.object.type);
+            this.typeControl.valueChanges.subscribe(value => {
+                this.filteredTypesRegular = this._filter(value, 'typesRegular');
+                this.filteredTypesCustom = this._filter(value, 'typesCustom');
+                this.changeType(value);
+            });
+        }
 
+        this.filteredTypesRegular = this._filter('', 'typesRegular');
+        this.filteredTypesCustom = this._filter('', 'typesCustom');
+    }
+
+    public ngOnDestroy(): void {
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
     }
 
     private getRouteParamsFromSnapshot(routeSnapshot: ActivatedRouteSnapshot): { [key: string]: any } {
@@ -98,185 +119,206 @@ export class PackageControllerReturnComponent implements OnInit {
         return params;
     }
 
-    public onKeydown(event: KeyboardEvent) {
-        if( event.key === "z" && event.ctrlKey) {
+    public onKeydown(event: KeyboardEvent): void {
+        if ( event.key === 'z' && event.ctrlKey) {
             event.preventDefault();
             event.stopImmediatePropagation();
             this.cancelOneChange();
         }
-        if( event.key === "y" && event.ctrlKey) {
+        if ( event.key === 'y' && event.ctrlKey) {
             event.preventDefault();
             event.stopImmediatePropagation();
             this.revertOneChange();
         }
     }
 
-    public changeContentType(value:string) {
+    public changeContentType(value: string): void {
         this.object.contentType = value;
-        this.onChange("changed content-type");
+        this.onChange('changed content-type');
     }
 
-    public changeCharset(value:string) {
+    public changeCharset(value: string): void {
         this.object.charset = value;
-        this.onChange("changed charset");
+        this.onChange('changed charset');
     }
 
-    public changeAcceptOrigin(value:any) {
+    public changeAcceptOrigin(value: any): void {
         this.object.acceptOrigin = value;
-        this.onChange("changed accept-origin");
+        this.onChange('changed accept-origin');
     }
 
-    public changeType(value:string) {
-        if(!this.types_custom.includes(value) && !this.types_regular.includes(value)) {
+    public changeType(value: string): void {
+        if (!this.typesCustom.includes(value) && !this.typesRegular.includes(value)) {
             return;
         }
         this.object.type = value;
-        this.object.entity = "";
-        this.object.usage = new Usage("");
-        this.object._has_values = false;
+        this.object.entity = '';
+        this.object.usage = new Usage('');
+        this.object._hasValues = false;
         this.object.values = [];
-        this.onChange("Changed return type");
+        this.onChange('Changed return type');
     }
 
-    public changeQty(value:string) {
+    public changeQty(value: string): void {
         this.object.qty = value;
-        this.onChange("Changed Quantity");
+        this.onChange('Changed Quantity');
     }
 
-    public changeEntity(value:string) {
+    public changeEntity(value: string): void {
         this.object.entity = value;
-        this.onChange("Changed entity");
+        this.onChange('Changed entity');
     }
 
-    public changeHasFormat(value:boolean) {
-        this.object._has_values = value;
-        this.onChange("toggled values");
+    public changeHasFormat(value: boolean): void {
+        this.object._hasValues = value;
+        this.onChange('toggled values');
     }
 
-    public changeFormatType(index:number,value:string) {
+    public changeFormatType(index: number, value: string): void {
         this.object.values[index].type = value;
         this.object.values[index].selection = [];
-        this.object.values[index]._has_selection = false;
-        this.onChange("Changed type of a field of values");
+        this.object.values[index]._hasSelection = false;
+        this.onChange('Changed type of a field of values');
     }
 
-    public changeFormatName(index:number,value:string) {
+    public changeFormatName(index: number, value: string): void {
         this.object.values[index].name = value;
-        this.onChange("Changed name of a field of values");
+        this.onChange('Changed name of a field of values');
     }
 
-    public changeFormatDescription(index:number,value:string) {
+    public changeFormatDescription(index: number, value: string): void {
         this.object.values[index].description = value;
-        this.onChange("Changed description of a field of values");
+        this.onChange('Changed description of a field of values');
     }
 
-    public changeHasSelection(index:number,value:boolean) {
-        this.object.values[index]._has_selection = value;
-        this.onChange("toggled selection");
+    public changeHasSelection(index: number, value: boolean): void {
+        this.object.values[index]._hasSelection = value;
+        this.onChange('toggled selection');
     }
 
 
-    public addFormatItem() {
+    public addFormatItem(): void {
         this.object.values.push( new ReturnFormatItem() );
-        this.onChange("Added format item");
+        this.onChange('Added format item');
     }
 
-    public deleteFormatItem(index:number) {
-        this.object.values.splice(index,1);
-        this.onChange("deleted format item");
+    public deleteFormatItem(index: number): void {
+        this.object.values.splice(index, 1);
+        this.onChange('deleted format item');
     }
 
-    public changeSelectionItem(index:number,jndex:number,value:string) {
+    public changeSelectionItem(index: number, jndex: number, value: string): void {
         this.object.values[index].selection[jndex] = value;
-        this.onChange("edited selection of format item "+index);
+        this.onChange('edited selection of format item ' + index);
     }
 
-    public addFormatSelectionItem(index:number) {
+    public addFormatSelectionItem(index: number): void {
         this.object.values[index].selection.push(undefined);
-        this.onChange("Added selection item in format item "+index);
+        this.onChange('Added selection item in format item ' + index);
     }
 
-    public deleteFormatSelectionItem(index:number,jndex:number) {
+    public deleteFormatSelectionItem(index: number, jndex: number): void {
         this.object.values[index].selection.splice(jndex, 1);
-        this.onChange("Added selection item in format item "+index);
+        this.onChange('Deleted selection item in format item ' + index);
     }
 
 
-    protected _filter(value: string, list_name: 'types_regular' | 'types_custom') {
-        if(!value.length) {
-            return this[list_name];
+    protected _filter(value: string, listName: 'typesRegular' | 'typesCustom'): string[] {
+        if (!value.length) {
+            return this[listName];
         }
-        return this[list_name].filter((item:string) => item.toLowerCase().includes(value.toLowerCase()));
+        return this[listName].filter((item: string) => item.toLowerCase().includes(value.toLowerCase()));
     }
 
     // HISTORY MANAGEMENT
 
-    public cancelOneChange() {
-        if(this.lastIndex > 0) {
-        let x = this.objectHistory.pop();
-        if(x){
-            this.objectFutureHistory.push(x)
+    public cancelOneChange(): void {
+        if (this.lastIndex > 0) {
+        const x = this.objectHistory.pop();
+        if (x){
+            this.objectFutureHistory.push(x);
             this.object = cloneDeep(this.objectHistory[this.lastIndex].value);
 
             this.resetTypeInput();
 
-            this.matSnack.open("undone "+x.message, "INFO");
+            this.matSnack.open('undone ' + x.message, 'INFO');
         }
         }
     }
 
-    public resetTypeInput() {
-        this.typeControl.setValue(this.object.type,{emitEvent:false});
-        this.filtered_types_regular = this._filter(this.object.type, 'types_regular');
-        this.filtered_types_custom = this._filter(this.object.type, 'types_custom');
+    public resetTypeInput(): void {
+        this.typeControl.setValue(this.object.type, {emitEvent: false});
+        this.filteredTypesRegular = this._filter(this.object.type, 'typesRegular');
+        this.filteredTypesCustom = this._filter(this.object.type, 'typesCustom');
     }
 
-    public revertOneChange() {
-        if(this.objectFutureHistory.length > 0) {
-            let x = this.objectFutureHistory.pop();
-            if(x) {
+    public revertOneChange(): void {
+        if (this.objectFutureHistory.length > 0) {
+            const x = this.objectFutureHistory.pop();
+            if (x) {
                 this.objectHistory.push(x);
                 this.object = cloneDeep(this.objectHistory[this.lastIndex].value);
 
-                this.resetTypeInput;
+                this.resetTypeInput();
 
-                this.matSnack.open("reverted "+x.message,"INFO");
+                this.matSnack.open('reverted ' + x.message, 'INFO');
             }
         }
     }
 
-    public onChange(msg:string) {
-        this.objectHistory.push({value : cloneDeep(this.object), message:msg});
+    public onChange(msg: string): void {
+        this.objectHistory.push({value : cloneDeep(this.object), message: msg});
         this.objectFutureHistory = [];
     }
 
-    public get lastIndex():number {
+    public get lastIndex(): number {
         return this.objectHistory.length - 1;
     }
 
 
-    public noCancel(event: KeyboardEvent) {
-        console.log(event);
-        if( event.key === "z" && event.ctrlKey) {
+    public noCancel(event: KeyboardEvent): void {
+        if ( event.key === 'z' && event.ctrlKey) {
         event.preventDefault();
         }
-        if( event.key === "y" && event.ctrlKey) {
+        if ( event.key === 'y' && event.ctrlKey) {
         event.preventDefault();
         }
     }
 
-    public goBack() {
-        this.location.back();
+    public goBack(): void {
+        this.routerMemory.goBack();
     }
 
-    public showJson() {
-        this.dialog.open(JsonViewerComponent, {data:this.object.export(),width:"75%",height:"85%"});
+    public showJson(): void {
+        this.dialog.open(JsonViewerComponent, {data: this.object.export(), width: '75%', height: '85%'});
     }
 
-    public save() {
-        let payload = cloneDeep(this.scheme);
+    public formatJson(json: any): any {
+        const formatted = cloneDeep(json);
+        formatted['name'] = this.controllerName;
+        formatted['type'] = this.controllerType;
+        formatted['package_name'] = this.controllerPackage;
+
+        const announcement = this.scheme?.announcement ?? {};
+        for (const key of this.announcementFieldsToCopy) {
+            if (announcement[key] !== undefined) {
+                formatted[key] = announcement[key];
+            }
+        }
+
+        return formatted;
+      }
+
+    public save(): void {
+        const payload = cloneDeep(this.scheme);
         payload.announcement.response = this.object.export();
-        this.workbenchService.updateController(this.controller_name, this.controller_type, payload.announcement);
+        this.jsonValidator.validateAndSave(
+            this.jsonValidator.validateBySchemaType(this.formatJson(payload.announcement), 'controller', this.controllerPackage),
+            () => this.workbenchService.updateController(this.controllerPackage, this.controllerName, this.controllerType, payload.announcement),
+            (saving) => this.isSaving = saving
+        );
+
+        this.workbenchService.updateController(this.controllerPackage, this.controllerName, this.controllerType, payload.announcement);
     }
 
 }

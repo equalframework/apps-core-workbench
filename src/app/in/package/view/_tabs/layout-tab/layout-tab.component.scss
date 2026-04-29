@@ -1,0 +1,140 @@
+@import '/src/styles.scss';
+
+:host {
+  display: block;
+  box-sizing: border-box;
+  padding-top: 16px;
+
+  .tab-item {
+    margin-top: 24px;
+
+    &.indent {
+      margin: 0 2em;
+    }
+
+    .tab-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      margin-bottom: 12px;
+
+      .category-title {
+        font-size: 1.3em;
+        margin-left: 12px;
+
+        &.maincolor {
+          color: mat-color($maincolor);
+        }
+
+        &.accentcolor {
+          color: mat-color($accentcolor);
+        }
+      }
+    }
+
+    .group-spacing {
+      margin-bottom: 24px;
+
+      .group-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        mat-form-field {
+          flex: 1;
+        }
+
+        button {
+          flex-shrink: 0;
+        }
+      }
+
+      app-group-editor {
+        display: block;
+        width: 100%;
+      }
+    }
+
+    .indent.tab-content {
+      margin: 0 2em;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+
+      mat-accordion {
+        width: 100%;
+
+        mat-expansion-panel {
+          margin: 0 0 15px 0 !important;
+          box-shadow: none !important;
+
+          cdkDrag {
+            display: block;
+            width: 100%;
+          }
+
+          mat-expansion-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+          }
+
+          mat-panel-title {
+            .itemprez {
+              display: flex;
+              align-items: center;
+              gap: 8px;
+
+              mat-icon[cdkDragHandle] {
+                cursor: grab;
+              }
+
+              .typeicon {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: mat-color($maincolor, A100);
+                border-radius: 8px;
+                padding: 0 0.5em;
+                margin-right: 10px;
+              }
+
+              label {
+                margin: 0;
+              }
+            }
+          }
+
+          mat-panel-description {
+            flex: 0 0 auto;
+          }
+
+          .property-icon-holder {
+            display: flex;
+            margin-right: 10px;
+
+            .property-icon {
+              margin: 0 5px;
+            }
+          }
+
+          app-item-editor {
+            display: block;
+            width: 100%;
+          }
+        }
+      }
+    }
+  }
+
+  @media (max-width: 600px) {
+    padding: 12px;
+
+    .tab-item .tab-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+}

@@ -7,8 +7,10 @@ import { RequestSendingDialogComponent } from 'src/app/_dialogs/request-sending-
 import { TypeUsageService } from 'src/app/_services/type-usage.service';
 import { EnvService } from 'sb-shared-lib';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
-import { Router } from '@angular/router';
+import { RouterMemory } from 'src/app/_services/router-memory.service';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
+import { JsonValidationService, ValidationStatusInfo } from 'src/app/in/_services/json-validation.service';
+import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
 
 @Component({
     selector: 'info-controller',
@@ -43,6 +45,7 @@ export class InfoControllerComponent implements OnInit, OnChanges {
 
     public controller_name: string;
     public controller_type: string;
+    public controller_package: string;
 
     @Input() selected_package: string;
 
@@ -51,6 +54,16 @@ export class InfoControllerComponent implements OnInit, OnChanges {
 
     public announcement: any = {};
     public schema: any = {};
+    private controllerProperties: EqualComponentDescriptor | null = null;
+    public metaData: {
+        icon: string;
+        tooltip: string;
+        value: string;
+        copyable?: boolean;
+        double_backslash?:boolean
+      }[];
+
+        public validationStatus: ValidationStatusInfo[] = [];
 
     public loading: boolean = true;
 
@@ -67,16 +80,48 @@ export class InfoControllerComponent implements OnInit, OnChanges {
     public tojsonstring = JSON.stringify;
     public obk = Object.keys;
 
+    public viewMode: 'json' | 'edit' = 'edit';
+
     private environment: any;
+    private lastLoadedController: string;
+
+    public get headerStatus(): { icon?: string, tooltip?: string, label: string, value: string }[] {
+        const deprecatedLabel = this.announcement?.deprecated ? 'This controller is marked as deprecated, and shouldn\'t be used anymore.' : '';
+        const visibilityLabel = this.announcement?.access?.visibility === 'private' ? 'This controller has its visibility set to "private" or you don\'t have the rights to invoke it.' : '';
+        if (!deprecatedLabel && !visibilityLabel) {
+            return [];
+        } else if (deprecatedLabel && !visibilityLabel) {
+            return [{ label: 'Deprecated', value: deprecatedLabel, icon: 'warning' }];
+        } else if (!deprecatedLabel && visibilityLabel) {
+            return [{ label: 'Visibility', value: visibilityLabel, icon: this.announcement?.access?.visibility === 'private' ? 'lock' : 'public' }];
+        } else {
+        return [
+            { label: 'Deprecated', value: deprecatedLabel, icon: this.announcement?.deprecated ? 'warning' : '' },
+            { label: 'Visibility', value: visibilityLabel, icon: this.announcement?.access?.visibility === 'private' ? 'lock' : 'public' }
+        ];}
+    }
+
+    public get combinedStatus(): { icon?: string, tooltip?: string, label: string, value: string }[] {
+        const hasSchema = !!this.schema && Object.keys(this.schema).length > 0;
+        if ([...this.headerStatus, ...this.validationStatus].length === 1 && !hasSchema) {
+            return [{ icon: 'error', label: 'Error fetching', value: 'Unknown error occurred', tooltip: 'An error occurred while fetching the controller information. This might be due to restricted visibility or an unexpected issue.' }];
+        }
+        if (!hasSchema) {
+            return this.headerStatus;
+        }
+        return [...this.headerStatus, ...this.validationStatus];
+    }
 
     constructor(
             private snackBar: MatSnackBar,
             private workbenchService: WorkbenchService,
+            private jsonValidationService: JsonValidationService,
             public dialog: MatDialog,
-            private router: Router,
+            private router: RouterMemory,
             private clipboard: Clipboard,
             private typeUsage: TypeUsageService,
-            private env: EnvService
+            private env: EnvService,
+            private provider: EqualComponentsProviderService
         ) { }
 
     private isObject(value: any): value is object {
@@ -86,13 +131,14 @@ export class InfoControllerComponent implements OnInit, OnChanges {
     public async ngOnInit() {
         this.iconType = this.typeUsage.typeIcon;
         this.environment = await this.env.getEnv();
-        this.load();
+
     }
 
     public async ngOnChanges(changes: SimpleChanges) {
         if(changes.controller) {
             this.controller_name = this.controller?.name ?? '';
             this.controller_type = this.controller?.type ?? '';
+            this.controller_package = this.controller?.package_name ?? '';
             this.load();
         }
     }
@@ -101,19 +147,58 @@ export class InfoControllerComponent implements OnInit, OnChanges {
         if(!this.controller) {
             return;
         }
+
+        const controllerKey = `${this.controller.package_name}_${this.controller.name}_${this.controller.type}`;
+
+        // Skip if we just loaded this same controller
+        if(controllerKey === this.lastLoadedController) {
+            return;
+        }
+
+        this.lastLoadedController = controllerKey;
         this.loading = true;
         try {
-            const operation_name = this.controller.package_name + '_' + this.controller.name;
-            const response = await this.workbenchService.announceController(this.controller.type, operation_name).toPromise();
-            this.announcement = response?.announcement;
-            this.schema = this.announcement?.params ?? {};
+            const operation_name = this.controller.name;
+            const [response, properties] = await Promise.all([
+                this.workbenchService.announceController(this.controller.type, this.controller_package + '_' + operation_name).toPromise(),
+                this.provider.getComponent(this.controller_package, 'controller', '', this.controller.name).toPromise()
+            ]);
+            this.controllerProperties = properties ?? this.controller ?? null;
+            this.metaData =[
+                { icon: 'key', tooltip: 'ID', value: this.controller_name, copyable:true },
+                ]
+            this.announcement = response?.announcement ?? null;
+            
+            this.schema = this.announcement ?? {};
+            this.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', null, true);
             this.initialization();
+            if (this.announcement) {
+                this.validateSchema();
+            }
         }
         catch(response) {
-            console.log('unexpected error - restricted visibility?', response);
+            this.announcement = null;
+            this.controllerProperties = null;
+            this.schema = null;
+            this.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', null, false, 'Unable to load controller schema');
         }
         // #memo - all controllers are expected to be open source, so there is no point in rejecting announce for private controllers
         this.loading = false;
+    }
+
+    private validateSchema(): void {
+        const controllerDocument = this.getControllerDocument();
+        if (!controllerDocument) {
+            this.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', null, false, 'Unable to build controller payload');
+            return;
+        }
+        this.jsonValidationService.validate(
+            controllerDocument,
+            'urn:equal:json-schema:core:controller',
+            this.controller_package
+        ).subscribe((result) => {
+            this.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', result);
+        });
     }
 
     /**
@@ -203,7 +288,7 @@ export class InfoControllerComponent implements OnInit, OnChanges {
      */
     get cliCommand(): string {
         let controllerNameUnderscore = this.controller_name.replace('\\', '_');
-        let stringParams = './equal.run --' + this.controller_type + "=" + controllerNameUnderscore;
+        let stringParams = './equal.run --' + this.controller_type + "=" + this.controller_package + '_' + controllerNameUnderscore;
         for (let key in this.paramsValue) {
             if (Array.isArray(this.paramsValue[key])) {
                 let arrayString = (JSON.stringify(this.paramsValue[key])).replaceAll('"', '');
@@ -245,7 +330,7 @@ export class InfoControllerComponent implements OnInit, OnChanges {
         let result = '';
         let controller_name = this.controller?.name.replace('\\', '_');
 
-        result = this.environment.backend_url + '?' + this.controller?.type + "=" + controller_name;
+        result = this.environment.backend_url + '?' + this.controller?.type + "=" + this.controller_package + '_' + controller_name;
         for (let key in this.paramsValue) {
             if(Array.isArray(this.paramsValue[key])) {
                 let arrayString = (JSON.stringify(this.paramsValue[key])).replaceAll('"', '');
@@ -304,7 +389,6 @@ export class InfoControllerComponent implements OnInit, OnChanges {
      * @param params_name field to update
      */
     public updateParamsValue(new_value: any, params_name: any) {
-        console.log(new_value)
         if (new_value === undefined || new_value === "") {
             delete this.paramsValue[params_name];
             if (this.announcement['params'][params_name]['required']) {
@@ -318,7 +402,6 @@ export class InfoControllerComponent implements OnInit, OnChanges {
             }
         }
 
-        console.warn(this.paramsValue);
         this.updateCanSubmit();
     }
 
@@ -383,14 +466,38 @@ export class InfoControllerComponent implements OnInit, OnChanges {
     }
 
     public onclickRequestParams() {
-        this.router.navigate(['/package/'+this.selected_package+'/controller/'+this.controller_type+'/'+this.controller_name+'/params']);
-    }
-
-    public onclickResponseValues() {
-        this.router.navigate(['/package/'+this.selected_package+'/controller/'+this.controller_type+'/'+this.controller_name+'/return']);
+        this.router.navigate(['/package/'+this.controller_package+'/controller/'+this.controller_type+'/'+this.controller_name+'/edit']);
     }
 
     public onclickTranslations() {
-        this.router.navigate(['/package/'+this.selected_package+'/controller/'+this.controller_type+'/'+this.controller_name+'/translations']);
+        console.log('Not implemented yet');
+        /*
+        this.router.navigate(['/package/'+this.controller_package+'/controller/'+this.controller_type+'/'+this.controller_name+'/translations']);
+        */
+    }
+
+    public toggleViewMode(mode: 'json' | 'edit') {
+        this.viewMode = mode;
+    }
+
+    private getControllerDocument(): any | null {
+        if (!this.controllerProperties || !this.announcement) {
+            return null;
+        }
+
+        return {
+            ...this.controllerProperties,
+            announcement: this.announcement
+        };
+    }
+
+    public getControllerJson() {
+        return prettyPrintJson.toHtml(this.getControllerDocument() ?? {});
+    }
+
+    public cpyControllerJson() {
+        const jsonObj = this.getControllerDocument() ?? {};
+        let success = this.clipboard.copy(JSON.stringify(jsonObj, null, 2));
+        this.successCopyClipboard(success);
     }
 }

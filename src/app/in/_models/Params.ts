@@ -151,7 +151,6 @@ export class Usage {
         temp = sliced.pop()?.replace("}","")
         if(temp)
             sliced.push(...temp.split(","))
-        console.log(sliced)
 
         if(sliced.length > 0) this._usage = sliced.shift()
         if(sliced.length > 0 && value.includes("/")) this._subusage = sliced.shift()
@@ -213,7 +212,6 @@ export class Usage {
         this._length = undefined
         this._min = undefined
         this._max = undefined
-        console.log(this)
     }
 
     public setLength(value: string) {

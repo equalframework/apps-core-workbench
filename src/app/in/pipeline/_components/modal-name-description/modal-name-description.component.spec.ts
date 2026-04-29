@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
 
 import { ModalNameDescriptionComponent } from './modal-name-description.component';
 
@@ -8,7 +9,12 @@ describe('ModalNameDescriptionComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ModalNameDescriptionComponent ]
+      declarations: [ ModalNameDescriptionComponent ],
+      providers: [
+        { provide: MatDialogRef, useValue: jasmine.createSpyObj('MatDialogRef', ['close']) },
+        { provide: MAT_DIALOG_DATA, useValue: { name: 'Test Name', description: 'Test Description' } }
+      ]
+
     })
     .compileComponents();
   });

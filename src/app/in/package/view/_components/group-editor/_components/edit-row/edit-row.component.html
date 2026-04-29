@@ -1,20 +1,23 @@
 <app-popup-layout
+    [okButton]="true"
+    okButtonText="Save"
     (close)="dialogRef.close()"
+    (ok)="dialogRef.close(editingRow)"
 >
-    <p>Edit row informations</p>
+    <p>Edit row information</p>
     <mat-form-field>
-        <input matInput placeholder="row.id" [value]="data.row.id" (input)="data.row.id = $event.target.value">
+        <input matInput placeholder="row.id" [value]="editingRow.id" (input)="editingRow.id = $event.target.value">
     </mat-form-field>
     <mat-form-field>
-        <input matInput placeholder="row name" [value]="data.row.label" (input)="data.row.label = $event.target.value">
+        <input matInput placeholder="row name" [value]="editingRow.label" (input)="editingRow.label = $event.target.value">
     </mat-form-field>
-    <mat-checkbox [(ngModel)]="data.row._has_domain">visible domain</mat-checkbox>
-    <div *ngIf="data.row._has_domain">
+    <mat-checkbox [(ngModel)]="editingRow._has_domain">visible domain</mat-checkbox>
+    <div *ngIf="editingRow._has_domain">
         <app-property-domain-component
-            [value]="data.row.visible.dom"
+            [value]="editingRow.visible.dom"
             [name]="'oui'"
-            [class]="data.entity"
-            (valueChange)="data.row.visible.dom = $event"
+            [class]="data.package + '\\' + data.entity"
+            (valueChange)="editingRow.visible.dom = $event"
         >
         </app-property-domain-component>
     </div>

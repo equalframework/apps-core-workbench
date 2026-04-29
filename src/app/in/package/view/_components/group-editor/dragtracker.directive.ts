@@ -3,57 +3,56 @@ import { ViewItem, ViewSection } from '../../_objects/View';
 import { moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { before } from 'lodash';
 
-@Directive({selector: '[appDragtracker]'})
+@Directive({selector: '[appDragTracker]'})
 export class DragTrackerDirective {
 
-  @Input() appDragtracker:{
-    data_ref:ViewItem[],
-    ref:ViewItem|undefined,
-    before:boolean,
-    dragged:ViewItem|undefined,
-    obj:ViewSection;
-  }
+  @Input() appDragTracker: {
+    dataRef: ViewItem[],
+    ref: ViewItem|undefined,
+    before: boolean,
+    dragged: ViewItem|undefined,
+    obj: ViewSection;
+  };
 
   @HostListener('dragover', ['$event'])
-  onDragOver(evt:any) {
-    console.log("DRAGGED ON | before : "+this.appDragtracker.before)
-    let dg = this.draggedlist
-    if(this.appDragtracker.dragged && dg) {
-      let y = dg.indexOf(this.appDragtracker.dragged)
+  onDragOver(evt: any): void {
+    const dg = this.draggedList;
+    if (this.appDragTracker.dragged && dg) {
+      const y = dg.indexOf(this.appDragTracker.dragged);
 
-      if(this.appDragtracker.data_ref.length === 0 && this.appDragtracker.ref === undefined) {
-        let y = dg.indexOf(this.appDragtracker.dragged)
-        if(this.appDragtracker.data_ref === dg) {
+      if (this.appDragTracker.dataRef.length === 0 && this.appDragTracker.ref === undefined) {
+        const y = dg.indexOf(this.appDragTracker.dragged);
+        if (this.appDragTracker.dataRef === dg) {
           moveItemInArray(
-            this.appDragtracker.data_ref,
-            y, 
+            this.appDragTracker.dataRef,
+            y,
             0
           );
         } else {
           transferArrayItem(
             dg,
-            this.appDragtracker.data_ref,
+            this.appDragTracker.dataRef,
             y,
             0
           );
         }
-        return
+        return;
       }
-      if(this.appDragtracker.ref) {
-        let x = this.appDragtracker.data_ref.indexOf(this.appDragtracker.ref)
-        if(x >= 0 && y >= 0) {
-          let index = this.appDragtracker.before ? x : x+1
-          //if(index >= this.appDragtracker.data_ref.length) index = this.appDragtracker.data_ref.length-1
-          if(this.appDragtracker.data_ref === dg) {
+      if (this.appDragTracker.ref) {
+        const x = this.appDragTracker.dataRef.indexOf(this.appDragTracker.ref);
+        if (x >= 0 && y >= 0) {
+          const index = this.appDragTracker.before ? x : x + 1;
+          // if(index >= this.appDragTracker.dataRef.length) index = this.appDragTracker.dataRef.length-1
+          if (this.appDragTracker.dataRef === dg) {
             moveItemInArray(
-              this.appDragtracker.data_ref,
-              y, 
+              this.appDragTracker.dataRef,
+              y,
               index
             );
           } else {
             transferArrayItem(
               dg,
-              this.appDragtracker.data_ref,
+              this.appDragTracker.dataRef,
               y,
               index
             );
@@ -63,19 +62,19 @@ export class DragTrackerDirective {
     }
   }
 
-  get draggedlist():ViewItem[]|undefined {
-    if(this.appDragtracker.dragged){
-      for(let row of this.appDragtracker.obj.rows) {
-        for(let column of row.columns) {
-          if(column.items.indexOf(this.appDragtracker.dragged) >= 0) return column.items
+  get draggedList(): ViewItem[]|undefined {
+    if (this.appDragTracker.dragged){
+      for (const row of this.appDragTracker.obj.rows) {
+        for (const column of row.columns) {
+          if (column.items.indexOf(this.appDragTracker.dragged) >= 0) { return column.items; }
         }
       }
     }
-    return undefined
+    return undefined;
   }
 
   @HostListener('drop', ['$event'])
-  onDrop(evt:any) {
-    console.warn("DROP !");
+  onDrop(evt: any): void {
+    console.warn('DROP !');
   }
 }

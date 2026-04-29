@@ -1,69 +1,55 @@
 <div *ngIf="packageInfo as pkg; else noData">
-    <mat-card >
-      <mat-card-content>
-        <section class="info-section">
-          <h3>Description</h3>
-          <p>{{ pkg.description || 'No description available' }}</p>
-        </section>
 
-        <section class="info-section">
-          <h3>Version</h3>
-          <p>{{ pkg.version || 'No version available' }}</p>
-        </section>
+  <!-- Meta fields: compact two-column layout -->
+  <table class="meta-table">
+      <tbody>
+          <tr>
+              <td class="meta-key">Description</td>
+              <td class="meta-value">{{ pkg.description || '—' }}</td>
+          </tr>
+          <tr>
+              <td class="meta-key">Version</td>
+              <td class="meta-value">{{ pkg.version || '—' }}</td>
+          </tr>
+          <tr>
+              <td class="meta-key">Authors</td>
+              <td class="meta-value">
+                  <ng-container *ngIf="(pkg.authors?.length ?? 0) > 0; else dash">
+                      <span class="pill" *ngFor="let author of pkg.authors">{{ author }}</span>
+                  </ng-container>
+              </td>
+          </tr>
+          <tr>
+              <td class="meta-key">Dependencies</td>
+              <td class="meta-value">
+                  <ng-container *ngIf="(pkg.depends_on?.length ?? 0) > 0; else dash">
+                      <span class="pill pill-dep" *ngFor="let dep of pkg.depends_on">{{ dep }}</span>
+                  </ng-container>
+              </td>
+          </tr>
+      </tbody>
+  </table>
 
-        <section class="info-section">
-          <h3>Authors</h3>
-          <ng-container *ngIf="pkg.authors && pkg.authors.length > 0; else noAuthors">
-            <ul>
-              <li *ngFor="let author of pkg.authors">{{ author }}</li>
-            </ul>
-          </ng-container>
-          <ng-template #noAuthors>
-            <p>No authors available</p>
-          </ng-template>
-        </section>
+  <ng-template #dash><span class="empty-val">—</span></ng-template>
 
-        <section class="info-section">
-          <h3>Dependencies</h3>
-          <ng-container *ngIf="pkg.depends_on && pkg.depends_on.length > 0; else noDependencies">
-            <ul>
-              <li *ngFor="let dep of pkg.depends_on">{{ dep }}</li>
-            </ul>
-          </ng-container>
-          <ng-template #noDependencies>
-            <p>No dependencies available</p>
-          </ng-template>
-        </section>
-
-        <section class="info-section">
-            <h3>Applications</h3>
-            <div class="apps-grid">
-              <div *ngFor="let app of pkg.apps"
-                   [ngStyle]="{'flex': '0 0 calc(100% / ' + pkg.apps.length + ')'}"
-                   class="app-tile">
-                <mat-card class="app-card">
-                  <mat-card-header>
-                    <mat-icon class="app-icon">{{ app.appIcon || 'apps' }}</mat-icon>
-                    <mat-card-title>{{ app.appName }}</mat-card-title>
-                    <mat-card-subtitle>
-                      <p>{{ app.appDescription || 'No description available' }}</p>
-                    </mat-card-subtitle>
-                  </mat-card-header>
-                </mat-card>
+  <!-- Applications -->
+  <ng-container *ngIf="(pkg.apps?.length ?? 0) > 0">
+      <p class="sub-section-label">Applications</p>
+      <div class="apps-grid">
+          <div class="app-tile" *ngFor="let app of pkg.apps">
+              <div class="app-icon-wrap">
+                  <mat-icon>{{ app.appIcon || 'apps' }}</mat-icon>
               </div>
-            </div>
-          </section>
+              <div class="app-info">
+                  <span class="app-name">{{ app.appName }}</span>
+                  <span class="app-desc">{{ app.appDescription || 'No description' }}</span>
+              </div>
+          </div>
+      </div>
+  </ng-container>
 
+</div>
 
-
-
-
-      </mat-card-content>
-    </mat-card>
-  </div>
-
-  <ng-template #noData>
-    <mat-card>
-      <p>No information available.</p>
-    </mat-card>
-  </ng-template>
+<ng-template #noData>
+  <p class="empty-val">No information available.</p>
+</ng-template>

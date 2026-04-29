@@ -304,7 +304,6 @@ class ViewGroupBy extends ViewElement {
     public items:ViewGroupByItem[]  = [];
     constructor(scheme:any[]=[]) {
         super();
-        console.log(scheme);
         for(let item of scheme) {
             this.items.push(new ViewGroupByItem(item));
         }
@@ -695,7 +694,7 @@ class ViewItem extends ViewElement {
     public visible_bool: boolean = true
     public widgetList: ViewListWidget = new ViewListWidget()
     public widgetForm: ViewFormWidget = new ViewFormWidget()
-    public viewtype:number = 0
+    public viewType:number = 0
     public has_domain: boolean = false
     public has_widget: boolean = false
     public is_visible_domain:boolean = false
@@ -722,7 +721,7 @@ class ViewItem extends ViewElement {
 
     constructor(scheme: any = {},type:number=0) {
         super()
-        this.viewtype = type
+        this.viewType = type
         if (scheme['type']) {
             this.type = scheme['type']
             delete scheme['type']
@@ -768,7 +767,7 @@ class ViewItem extends ViewElement {
             delete scheme["domain"]
         }
         if (scheme['widget']) {
-            if(this.viewtype === 0) {
+            if(this.viewType === 0) {
                 this.widgetList = new ViewListWidget(scheme['widget'])
             } else {
                 this.widgetForm = new ViewFormWidget(scheme['widget'])
@@ -800,7 +799,7 @@ class ViewItem extends ViewElement {
                 result['visible'] = this.visible_bool
         }
         if (this.has_widget){
-            if(this.viewtype === 0) {
+            if(this.viewType === 0) {
                 result['widget'] = this.widgetList.export()
             } else {
                 result['widget'] = this.widgetForm.export()
@@ -1025,16 +1024,12 @@ class ViewSelection extends ViewElement {
     constructor(scheme:any={}) {
         super()
         if (scheme['default'] !== undefined) {
-            console.log("default catched")
             this.default = scheme['default']
             delete scheme['default']
-            console.log("next...")
             this._has_selection_actions = true
         }
         if (scheme['actions']) {
-            console.log("actions catched")
             this._has_selection_actions = true
-            console.log(scheme["actions"])
             scheme['actions'].forEach((action: any) => {
                 if( Object.keys(this.predef_actions).includes(action.id)) {
                     this.predef_actions[action.id].visible = action.visible
@@ -1045,7 +1040,6 @@ class ViewSelection extends ViewElement {
             delete scheme['actions']
         }
         if (scheme['default'] !== undefined || scheme['actions'])
-            console.log("selection parsing finished")
         this.leftover = scheme
     }
 
@@ -1111,7 +1105,6 @@ class ViewHeader extends ViewElement {
         if (scheme['actions']) {
             this._has_actions = true
             for (let key in this.actions) {
-                console.log( scheme['actions'][key])
                 // This is done to differenciate undefined value of false value (dynamic typing sucks)
                 if (typeof (scheme["actions"][key]) !== typeof (undefined)) {
                     if (typeof (scheme["actions"][key]) === typeof (true)) {
@@ -1135,8 +1128,7 @@ class ViewHeader extends ViewElement {
             }
         }
         if (scheme['selection']) {
-            console.log("selection detected")
-            console.log(scheme['selection'])
+
             this.selection = new ViewSelection(scheme['selection'])
             delete scheme['selection']
         }

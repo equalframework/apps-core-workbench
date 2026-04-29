@@ -1,3 +1,5 @@
+@import "/src/theme.scss";
+
 :host {
     width: 100%;
     height: 100%;
@@ -6,29 +8,37 @@
 
     .app-inner-header {
         height: 80px;
+        position: relative;
+        z-index: 2;
     }
 
     .app-inner-body {
         height: calc(100% - 80px);
         display: flex;
         flex-direction: row;
-
-        .left_pane, .right_pane {
-            padding: 8px;
-            height: 100%;
-            width: 100%;
-            box-sizing: border-box;
-        }
+        position: relative;
+        z-index: 1;
 
         .left_pane {
-            flex: 0 1 400px;
+            padding: 8px;
+            height: 100%;
+            width: 360px;
+            min-width: 320px;
             max-width: 400px;
+            box-sizing: border-box;
+            flex: 0 0 360px;
         }
 
         .right_pane {
-            flex: 1;
+            padding: 8px;
+            height: 100%;
+            width: auto;
+            min-width: 0;
+            position: relative;
+            overflow: hidden;
+            flex: 1 1 0%;
+            box-sizing: border-box;
         }
-
     }
 
 
@@ -98,4 +108,39 @@ pre {
 .title-container button,mat-label {
     margin-left: 0.5em;
     margin-right: 0.5em;
+}
+
+.header-labels {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    flex-wrap: wrap;
+    font-size: 1em;
+}
+
+.colorized {
+    padding: 0 0.3em;
+    border-radius: 0.2em;
+    font-weight: 500;
+}
+
+
+.search-term-highlight {
+    font-weight: 500;
+    color: inherit;
+}
+
+.filter-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25em;
+}
+
+.filter-key {
+    opacity: 0.7;
+    font-size: 0.9em;
+}
+
+.filter-key::after {
+    content: ':';
 }

@@ -21,8 +21,153 @@ body {
 .mat-checkbox-inner-container {
     background-color: white;
 }
+
+/* ─── Unified Tab Styling ─────────────────────────────────────────────── */
+
+/* Tab header and labels */
 .mat-tab-header {
-    max-height: 45px;
+    max-height: 48px !important;
+    background-color: #fafbfc !important;
+    border-bottom: 2px solid #e8e8e8 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.mat-tab-label {
+    min-width: 140px !important;
+    padding: 0 2rem !important;
+    height: 48px !important;
+    font-weight: 500 !important;
+    font-size: 13px !important;
+    color: #666666 !important;
+    transition: all 0.2s ease-out !important;
+
+    &:hover {
+        background-color: rgba(63, 81, 181, 0.04) !important;
+        color: #1a1a1a !important;
+    }
+
+    &.mat-tab-label-active {
+        color: mat-color($maincolor) !important;
+        background-color: rgba(63, 81, 181, 0.08) !important;
+
+        .mat-tab-label-content {
+            font-weight: 600 !important;
+        }
+    }
+}
+
+.mat-tab-label-content {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+}
+
+/* Ripple effect styling */
+.mat-tab-header ::ng-deep .mat-ripple-element {
+    display: none !important;
+}
+
+/* Tab body and content */
+.mat-tab-body-wrapper {
+    overflow: hidden !important;
+}
+
+.mat-tab-body {
+    overflow: hidden !important;
+}
+
+.mat-tab-body-content {
+    overflow-y: auto !important;
+}
+
+/* Tab body custom scrollbar */
+.mat-tab-body-content::-webkit-scrollbar {
+    width: 8px !important;
+}
+
+.mat-tab-body-content::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+
+.mat-tab-body-content::-webkit-scrollbar-thumb {
+    background: #e8e8e8 !important;
+    border-radius: 4px !important;
+
+    &:hover {
+        background: #d0d0d0 !important;
+    }
+}
+
+/* ─── Expansion Panel Header Layout ──────────────────────────────────── */
+
+.mat-expansion-panel-header {
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 !important;
+    height: auto !important;
+}
+
+.mat-content {
+    display: flex !important;
+    align-items: center !important;
+    flex: 1;
+    gap: 1rem !important;
+    padding: 0.75rem 1rem !important;
+    min-width: 0;
+}
+
+.mat-expansion-indicator {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: 0 0 auto;
+    padding: 0 1rem !important;
+}
+
+.mat-expansion-panel-header-title {
+    display: flex !important;
+    align-items: center !important;
+    flex: 0 0 300px;
+    min-width: 0;
+}
+
+.itemprez {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+    width: 100%;
+    min-width: 0;
+
+    .typeicon {
+        flex: 0 0 24px;
+    }
+
+    label {
+        flex: 1;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+.mat-expansion-panel-header-description {
+    display: flex !important;
+    align-items: center !important;
+    flex: 1;
+    padding: 0 1rem !important;
+    min-width: 150px;
+    color: rgba(0, 0, 0, 0.6) !important;
+}
+
+.property-icon-holder {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    flex: 0 0 auto;
+    padding: 0 1rem !important;
+    gap: 0.5rem !important;
 }
 
 /* external libraries customizations */
@@ -92,6 +237,78 @@ ngx-material-timepicker-toggle {
 }
 
 
+/* shared circular action buttons used across view tabs */
+.action-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0;
+  width: 34px !important;
+  min-width: 34px !important;
+  height: 34px !important;
+  line-height: 34px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  border: 1px solid rgba(25, 118, 210, 0.2) !important;
+  background-color: mat-color($maincolor) !important;
+  color: white !important;
+  box-shadow: none !important;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    line-height: 20px !important;
+  }
+
+  &:hover:not([disabled]) {
+    background-color: rgba(25, 118, 210, 0.2);
+    transform: translateY(-1px);
+    box-shadow: none !important;
+  }
+
+  &:focus-visible {
+    outline: 2px solid rgba(25, 118, 210, 0.35);
+    outline-offset: 2px;
+  }
+
+  &[disabled] {
+    background-color: rgba(25, 118, 210, 0.08);
+    color: rgba(0, 0, 0, 0.38) !important;
+    transform: none;
+  }
+}
+
+.workbench-action-button--delete {
+  border-color: rgba(211, 47, 47, 0.2);
+  background-color: rgba(211, 47, 47, 0.12);
+  color: mat-color($warncolor) !important;
+
+  &:hover:not([disabled]) {
+    background-color: rgba(211, 47, 47, 0.2);
+  }
+
+  &[disabled] {
+    background-color: rgba(211, 47, 47, 0.08);
+  }
+}
+
+.workbench-action-button--compact {
+  width: 26px;
+  min-width: 26px;
+  height: 26px;
+  line-height: 26px;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+  }
+}
+
+
 /* global classes for components in workbench (can be used in overlay) */
 
 .component-icon {
@@ -116,6 +333,10 @@ ngx-material-timepicker-toggle {
 
 .component-color-controller {
     background-color: mat-color($get-color,A100) ;
+}
+
+.component-color-model {
+    background-color: mat-color($class-color,A100) ;
 }
 
 .component-color-menu {

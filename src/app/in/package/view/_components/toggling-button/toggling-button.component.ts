@@ -7,20 +7,20 @@ import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 })
 export class TogglingButtonComponent implements OnInit {
 
-  @Input() baseState:boolean = true
-  @Input() enabledIcon:string = ""
-  @Input() disabledIcon:string = ""
-  @Input() disabled:boolean = false
-  @Output() toggle = new EventEmitter<boolean>()
+  @Input() baseState = true;
+  @Input() enabledIcon = '';
+  @Input() disabledIcon = '';
+  @Input() disabled = false;
+  @Output() toggle = new EventEmitter<boolean>();
 
   constructor() { }
 
   ngOnInit(): void {
   }
 
-  toggleIt() {
-    this.baseState = !this.baseState
-    this.toggle.emit(this.baseState)
+  toggleIt(): void {
+    this.baseState = !this.baseState;
+    this.toggle.emit(this.baseState);
   }
 
 }

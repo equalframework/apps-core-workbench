@@ -1,26 +1,34 @@
 
-<div *ngIf="viewSchema" class="full margin-container">
-    <div class="controller-container-top">
-        <app-info-header
-        [titleLabel]="'View'"
-        [title]="viewSchema['name'] || view.name"
-        [copyText]="viewSchema['name'] || view.name"
-        [description]="viewSchema['description']"
-        [metaData]="metaData">
-    </app-info-header>
-
-        <br>
+<div *ngIf="viewSchema" class="info-view-container">
+    <app-info-header
+            [titleLabel]="'View'"
+            [title]="viewSchema['name'] || view.name"
+            [copyText]="viewSchema['name'] || view.name"
+            [description]="viewSchema['description']"
+            [metaData]="metaData"
+            [statusInfo]="validationStatus"
+            (editClick)="onclickEdit()"
+            (translationClick)="onclickTranslations()">
+        </app-info-header>
+    <div class="info-body-section">
         <hierarchical-overview [viewSchema]="viewSchema"></hierarchical-overview>
-        </div>
-    <div class="controller-container-bottom">
-        <br>
-        <mat-grid-list [cols]="4" rowHeight="5.5em" class="max-width button-pkg-container">
+    </div>
+    <!--
+    <div class="info-footer-section">
+        <mat-grid-list [cols]="4" rowHeight="5.5em" class="button-pkg-container">
             <mat-grid-tile>
-                <button mat-button class="view-info-button" (click)="onclickEdit()"><mat-icon>edit</mat-icon><label>edit</label></button>
+                <button mat-flat-button class="view-info-button" (click)="onclickEdit()">
+                    <mat-icon>edit</mat-icon>
+                    <label>Edit</label>
+                </button>
             </mat-grid-tile>
             <mat-grid-tile>
-                <button mat-button class="view-info-button" (click)="onclickTranslations()"><mat-icon>translate</mat-icon><label>Translations</label></button>
+                <button mat-flat-button class="view-info-button disabled" (click)="onclickTranslations()">
+                    <mat-icon>translate</mat-icon>
+                    <label>Translations</label>
+                </button>
             </mat-grid-tile>
         </mat-grid-list>
     </div>
+    -->
 </div>

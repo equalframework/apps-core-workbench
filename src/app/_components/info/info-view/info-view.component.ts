@@ -1,9 +1,10 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges, OnDestroy, ViewEncapsulation } from '@angular/core';
-import { Router } from '@angular/router';
+import { RouterMemory } from 'src/app/_services/router-memory.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
+import { JsonValidationService, ValidationStatusInfo } from 'src/app/in/_services/json-validation.service';
 
 @Component({
     selector: 'info-view',
@@ -16,6 +17,7 @@ export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
     @Input() view: EqualComponentDescriptor;
     private destroy$: Subject<boolean> = new Subject<boolean>();
     public loading: boolean = true;
+    public validationStatus: ValidationStatusInfo[] = [];
     public metaData: {
         icon: string;
         tooltip: string;
@@ -29,8 +31,9 @@ export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
     public viewSchema: any;
     obk = Object.keys
     constructor(
-        private router: Router,
-        private workbenchService: WorkbenchService) {
+        private router: RouterMemory,
+      private workbenchService: WorkbenchService,
+      private jsonValidationService: JsonValidationService) {
     }
     ngOnDestroy(): void {
         this.destroy$.next(true);
@@ -53,7 +56,6 @@ export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
 
       private load() {
         this.loading = true;
-
         if (!this.view || !this.view.package_name || !this.view.item || !this.view.item.model) {
           console.error('Invalid view data:', this.view);
           this.loading = false;
@@ -69,6 +71,7 @@ export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
             { icon: 'key', tooltip: 'ID', value: this.view_name, copyable:true },
             {icon: 'category',tooltip: 'entity/model', value:`${this.view.package_name}\\${this.view.item.model}`, copyable:true, double_backslash:true}
             ]
+          this.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', null, true);
           this.workbenchService.readView(packageName, this.view_name, model_name)
             .pipe(takeUntil(this.destroy$))
             .subscribe(
@@ -76,12 +79,15 @@ export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
                 if (data) {
                     const schema = data;
                     this.viewSchema = schema;
+                    this.validateSchema();
                 } else {
                   console.warn('Invalid data format for view schema:', data);
+                  this.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', null, false, 'Unable to load view schema');
                 }
               },
               (error) => {
                 console.error('Error loading view details:', error);
+                this.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', null, false, 'Unable to load view schema');
               },
               () => {
                 this.loading = false;
@@ -94,13 +100,23 @@ export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     public onclickEdit() {
-        console.log("view ", this.view);
-        this.router.navigate(['/package/' + this.view.package_name + '/view/' + this.view.name]);
+        this.router.navigate([`/package/${this.view.package_name}/view/${this.view.name}/edit`]);
     }
 
     public onclickTranslations() {
-        // #todo - depends on route assigned to translation
-        this.router.navigate([`/package/${this.view.package_name}/model/${this.view.item.model}/translations`]);
+        this.router.navigate([`/package/${this.view.package_name}/model/${this.view.item.model}/translations`], 
+        { queryParams: { 'tab': 'view', 'view': this.view.name.split(':')[1] } });
+    }
+
+    private validateSchema(): void {
+      const schemaType = this.view_name.split('.')[0] || 'form';
+      this.jsonValidationService.validate(
+        this.viewSchema,
+        `urn:equal:json-schema:core:view.${schemaType}.default`,
+        this.view?.package_name
+      ).pipe(takeUntil(this.destroy$)).subscribe((result) => {
+        this.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', result);
+      });
     }
 
 }

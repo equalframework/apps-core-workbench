@@ -6,16 +6,12 @@
 }
 
 .list {
-    background-color: whitesmoke;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09);
     border-radius: 1em;
     padding: .5em;
     width : 100%;
     height : calc(90% - 35px - 1em);
     overflow-y: scroll;
-}
-
-.selected {
-    background-color: #dddddd;
 }
 
 .icon {
@@ -52,6 +48,12 @@
     align-items: center;
     cursor : pointer;
     border-radius: .5em;
+    &:hover {
+        background-color: #ebebeb !important;
+    }
+    &.focus {
+        background-color: #dddddd !important;
+    }
 }
 
 .filterinput {
@@ -67,7 +69,7 @@
     justify-content: space-between;
     padding: 0 1em;
     border-radius: 1em;
-    background-color: whitesmoke;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09);
 
     .buttoncreate {
         display: flex;
@@ -78,8 +80,14 @@
         background-color: mat-color($maincolor);
         border: none;
         color: white;
-        border-radius: 1em;
-        padding: 0 1em;
+        border-radius: 8px;
+        padding: 7px 10px;
+        max-height: fit-content;
+
+        .mat-icon {
+            margin-right: 1em;
+
+        }
     }
 
     .fieldcreate {

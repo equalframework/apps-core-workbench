@@ -2,6 +2,9 @@ import { NgModule } from '@angular/core';
 import { DateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
 import { Platform } from '@angular/cdk/platform';
 import { DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 import { SharedLibModule, CustomDateAdapter } from 'sb-shared-lib';
 import { PackageModelComponent } from './package-model.component';
@@ -16,6 +19,9 @@ import { WorkbenchModule } from 'src/app/_modules/workbench.module';
         WorkbenchModule,
         ModelsRoutingModule,
         ClassicLayoutModule,
+        FormsModule,
+        MatFormFieldModule,
+        MatInputModule,
     ],
     declarations: [
         PackageModelComponent,

@@ -8,6 +8,12 @@ export interface ViewSchemaBase {
     type: string;
     value: string;
     width: string;
+    label?: string;
+    widget?: {
+      heading?: boolean;
+      link?: boolean;
+      boolean?: boolean;
+    };
   }
 
   export interface SimpleLayout extends ViewSchemaBase {
@@ -42,7 +48,9 @@ export interface ViewSchemaBase {
   }
 
   export interface GroupedLayoutColumn {
+    id?: string;
     width: string;
+    align?: string;
     items: GroupedLayoutItem[];
   }
 

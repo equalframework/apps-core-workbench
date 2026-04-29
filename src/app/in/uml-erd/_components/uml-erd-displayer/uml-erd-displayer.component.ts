@@ -48,7 +48,6 @@ export class UmlErdDisplayerComponent implements OnInit, OnChanges, AfterViewChe
     }
 
     public ngOnChanges(changes: SimpleChanges): void {
-        console.log(changes);
     }
 
     public ngAfterViewInit(): void {
@@ -93,7 +92,6 @@ export class UmlErdDisplayerComponent implements OnInit, OnChanges, AfterViewChe
     }
 
     public onMouseDown(event: MouseEvent) {
-        console.log('mouse down', event);
         this.initialMousePos = this.fetchMousePos(event);
         this.currentMousePos = this.fetchMousePos(event);
         this.is_mousedown = true;
@@ -101,7 +99,6 @@ export class UmlErdDisplayerComponent implements OnInit, OnChanges, AfterViewChe
     }
 
     public onMouseUp(event: MouseEvent) {
-        console.log('mouse up');
         this.is_mousedown = false;
         this.is_node_captured = false;
     }
@@ -142,7 +139,6 @@ export class UmlErdDisplayerComponent implements OnInit, OnChanges, AfterViewChe
             let offset_y = this.initialMousePos.y - this.currentMousePos.y;
             node.position.x = node.initialPos.x - offset_x;
             node.position.y = node.initialPos.y - offset_y;
-            console.log(node);
         }
     }
 

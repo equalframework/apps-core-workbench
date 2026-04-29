@@ -2,7 +2,31 @@
 <div class="app-inner-header">
     <app-inner-header
             [customButton]="true">
-        <label class="solo">All components</label>
+        <div class="header-labels">
+            <span *ngIf=" !hasAnyFilters() && !hasAnySearchTerms()">
+                All components
+            </span>
+            <span *ngIf="searchScope || hasAnyFilters() || searchTerms.length">
+                All
+                <span *ngIf="searchScope" 
+                      [class]="'component-color-' + getScopeComponentType() + ' colorized'">
+                    {{ getComponentTypeName(searchScope) }}
+                </span>
+                <span *ngIf="!searchScope">components</span>
+            </span>
+            <ng-container *ngIf="hasAnyFilters()">
+                from
+                <span *ngFor="let filterKey of getFilterKeys(); let last = last" class="filter-item">
+                    <span [class]="getFilterValueClass(filterKey)">
+                        {{ searchFilters[filterKey] }}
+                    </span>
+                    <span *ngIf="!last">,</span>
+                </span>
+            </ng-container>
+            <span *ngIf="searchTerms[0] && searchTerms[0].trim() !== ''">
+                matching <span class="search-term-highlight">{{ searchTerms.join(', ') }}</span>
+            </span>
+        </div>
     </app-inner-header>
 </div>
 
@@ -16,13 +40,15 @@
                 [node_selected]="selectedComponent"
                 (selectNode)="selectNode($event)"
                 (refresh)="refresh()"
-                (searchScopeChange)="handleSearchScopeChange($event)">
+                (searchScopeChange)="handleSearchScopeChange($event)"
+                (searchFiltersChange)="handleSearchFiltersChange($event)"
+                (searchTermsChange)="handleSearchTermsChange($event)">
         </search-mixed-list>
 
     </div>
 
     <div *ngIf="!selectedComponent" class="right_pane">
-        <info-system [component_type]="search_scope"></info-system>
+        <info-system [component_type]="searchScope"></info-system>
     </div>
 
     <div *ngIf="selectedComponent" class="right_pane">
@@ -30,7 +56,8 @@
         <ng-container *ngIf="selectedComponent.type == 'package' || selectedComponent.type == ''">
             <info-package
                     [package]="selectedComponent"
-                    [package_init_list]="initialized_packages">
+                    [package_init_list]="initializedPackages"
+                    [key]="package_name">
             </info-package>
         </ng-container>
 
@@ -44,7 +71,7 @@
         <ng-container *ngIf="selectedComponent.type == 'do' || selectedComponent.type == 'get'">
             <info-controller
                     [controller]="selectedComponent"
-                    [fetch_error]="fetch_error"
+                    [fetch_error]="fetchError"
                     [selected_package]="selectedComponent.package ? selectedComponent.package : ''"
                     [moving]="true"
                     (goto)="goTo({name:$event})">
@@ -68,6 +95,13 @@
             <info-menu
                     [menu]="selectedComponent">
             </info-menu>
+        </ng-container>
+
+        <ng-container *ngIf="selectedComponent.type === 'model'">
+            <info-model
+                    [model]="selectedComponent"
+                    (getRef)="goTo($event)">
+            </info-model>
         </ng-container>
 
     </div>

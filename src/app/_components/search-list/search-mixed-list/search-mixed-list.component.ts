@@ -1,7 +1,9 @@
-import { Router } from '@angular/router';
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, SimpleChanges, ViewEncapsulation } from '@angular/core';
+import { Location } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
+import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, SimpleChanges, ViewChildren, ViewEncapsulation } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ItemTypes } from 'src/app/in/_models/item-types.class';
 
 import { MixedCreatorDialogComponent } from 'src/app/_dialogs/mixed-creator-dialog/mixed-creator-dialog.component';
@@ -10,12 +12,13 @@ import { DeleteConfirmationDialogComponent } from 'src/app/_dialogs/delete-confi
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
 import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
-import { Subject } from 'rxjs';
+import { fromEvent, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { NotificationService } from 'src/app/in/_services/notification.service';
+import { buildNodeIdentifier, reducePathIteratively } from './search-mixed-list-label.util';
 
 /**
- * This component is used to display the list of all object you recover in package.component.ts
+ * This component is used to display the list of all object
  *
  * If you need to add a new type, you just have to add it in type_dict and create the css rules for the icon in search-mixed-list.component.scss
  * You can also describe the spelling rule of the name in search-mixed-list.component.html
@@ -29,6 +32,8 @@ import { NotificationService } from 'src/app/in/_services/notification.service';
 })
 export class SearchMixedListComponent implements OnInit, OnDestroy {
     private destroy$: Subject<boolean> = new Subject<boolean>();
+    @ViewChildren('nodeDisplay') private nodeDisplayElements!: QueryList<ElementRef<HTMLElement>>;
+    @ViewChildren('nodeName') private nodeNameElements!: QueryList<ElementRef<HTMLElement>>;
 
     // Selected node of the list (consistent with node_type, if provided): parent might force the selection of a node (goto)
     @Input() node_selected?: EqualComponentDescriptor;
@@ -60,6 +65,8 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     @Output() selectNode = new EventEmitter<EqualComponentDescriptor>();
     @Output() updateNode = new EventEmitter<{ old_node: EqualComponentDescriptor, new_node: EqualComponentDescriptor }>();
     @Output() searchScopeChange = new EventEmitter<string>();
+    @Output() searchFiltersChange = new EventEmitter<{ [key: string]: string }>();
+    @Output() searchTermsChange = new EventEmitter<string[]>();
 
     // event for notifying parent that the list has been updated and needs to be refreshed
     @Output() updated = new EventEmitter();
@@ -74,7 +81,10 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     // value part of the search bar field (parsed in onSearch() method)
     public search_value: string = '';
     // type part of the search bar field (is parsed in onSearch() method)
-    public search_scope: string = "package";
+    public search_scope: string = "";
+    public search_filters: { [key: string]: string } = {};
+    public search_terms: string[] = [];
+    public reducedNodeLabels: { [key: string]: string } = {};
 
     // used to render info about components present in filteredData (or data)
     public type_dict: { [id: string]: { icon: string, disp: string } } = ItemTypes.typeDict;
@@ -83,13 +93,14 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
 
     public editingNode: EqualComponentDescriptor;
     public editedNode: EqualComponentDescriptor;
-
     constructor(
         private dialog: MatDialog,
         private provider: EqualComponentsProviderService,
         private notificationService: NotificationService,
-        private workbenchService:WorkbenchService,
-        private router: Router,
+        private workbenchService: WorkbenchService,
+        private location: Location,
+        private route: ActivatedRoute,
+        private sanitizer: DomSanitizer
     ) { }
 
 
@@ -100,20 +111,61 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
 
 
     public ngOnInit() {
+        this.route.queryParams.subscribe(params => {
+        });
         this.loading = true;
-        this.loadNodesV2();
+        this.loadNodes();
+        this.readQueryParams();
+        this.updateSearchTerms();
+        this.loading = false;
     }
 
-    public async ngOnChanges(changes: SimpleChanges) {
-        if (changes.node_type && this.node_type) {
-            this.selectSearchScope();
+    public ngOnChanges(changes: SimpleChanges) {
+        if (changes['node_selected']) {
+            setTimeout(() => this.scrollSelectedNodeIntoView(), 0);
         }
-        this.onSearch();
+        if (changes['node_type'] && this.node_type) {
+            this.search_filters = {};
+            this.search_terms = [];
+            this.searchScopeChange.emit(this.search_scope);
+        }
+        this.applyFilters();
     }
 
     trackByFn = (index: number, item: EqualComponentDescriptor) => item.name;
 
-    private loadNodesV2() {
+
+    /**
+     * Reads the query parameters from the URL to initialize the search filters and terms, and sets up a subscription to update the filtered data whenever the query parameters change. This ensures that the search state is synchronized with the URL.
+     */
+    private readQueryParams() {
+        this.route.queryParams.subscribe(params => {
+            if (params['scope']) {
+                this.search_scope = params['scope'];
+            }
+            if (params['terms']) {
+                this.search_terms = params['terms'].split(' ');
+            }
+            Object.keys(params).forEach(key => {
+                if (key.startsWith('filter_')) {
+                    this.search_filters[key.replace('filter_', '')] = params[key];
+                }
+            });
+            let filtered = this.elements.filter((element: EqualComponentDescriptor) => {
+                if (!this.matchesFilters(element, element.name, this.search_filters, this.search_terms)) {
+                    return false;
+                }
+                return this.matchesScope(element);
+            });
+
+            filtered = this.rankResults(filtered, this.search_terms);
+            this.filteredData = filtered;
+            this.scheduleReducedNodeLabelsRefresh();
+            setTimeout(() => this.scrollSelectedNodeIntoView(), 0);
+        });
+    }
+
+    private loadNodes() {
 
         if (this.package_name) {
             if (this.node_type) {
@@ -139,10 +191,10 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
             else{
             this.provider.equalComponents$
                 .pipe(takeUntil(this.destroy$))
-                .subscribe(
-                    components => this.handleComponents(components),
-                    error => this.handleError(error)
-                );
+                .subscribe({
+                    next: (components: EqualComponentDescriptor[]) => this.handleComponents(components),
+                    error: (error: any) => this.handleError(error)
+                });
             }
         }
     }
@@ -150,41 +202,14 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     private handleComponents(components: any[]) {
         this.elements = [...components];
         this.filteredData = this.elements;
-        this.onSearch();
-        this.loading = false;
-
+        this.applyFilters();
+        this.scheduleReducedNodeLabelsRefresh();
+        setTimeout(() => this.scrollSelectedNodeIntoView(), 0);
     }
 
     private handleError(error: any) {
         console.error('Error while loading components:', error);
         this.loading = false;
-    }
-
-    private getSortKey(component: EqualComponentDescriptor): string {
-        let key = component.package_name || '';
-
-        if (component.type === "route") {
-            key += component.more + component.name;
-        } else if (component.type === "class" || component.type === "menu") {
-            key += component.name;
-        } else {
-            key = component.name;
-        }
-        // normalize the key
-        return key.replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase();
-    }
-
-    private sortComponents() {
-        this.elements.sort((a, b) => {
-            let x = this.getSortKey(a);
-            let y = this.getSortKey(b);
-            return x.localeCompare(y);
-        });
-        this.filteredData.sort((a, b) => {
-            let x = this.getSortKey(a);
-            let y = this.getSortKey(b);
-            return x.localeCompare(y);
-        });
     }
 
 
@@ -199,8 +224,9 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
      * This method synchronize the search input with the search select
      */
     public selectSearchScope() {
-        console.log('selectSearchScope', this.search_scope);
         this.searchScopeChange.emit(this.search_scope);
+        this.search_filters = {};
+        this.search_terms = [];        
         this.onSearch();
     }
 
@@ -208,23 +234,92 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
      * Parse the search input and filter object to display the search result
      *
      */
-    public onSearch() {
+    private applyFilters() {
         const input = this.inputControl.value.trim();
         const tokens = input.split(" ");
-
-        const { filters, terms } = this.extractFiltersAndTerms(tokens);
-
-        this.search_scope = this.node_type ?? this.search_scope;
-        this.filteredData = this.elements.filter((element: EqualComponentDescriptor) => {
-            if (!this.matchesFilters(element, element.name, filters, terms)) {
+        ({ filters: this.search_filters, terms: this.search_terms } = this.extractFiltersAndTerms(tokens));
+        let filtered = this.elements.filter((element: EqualComponentDescriptor) => {
+            if (!this.matchesFilters(element, element.name, this.search_filters, this.search_terms)) {
                 return false;
             }
-
             return this.matchesScope(element);
         });
-
-        this.sortComponents();
+        filtered = this.rankResults(filtered, this.search_terms);
+        this.filteredData = filtered;
+        this.scheduleReducedNodeLabelsRefresh();
+        this.searchScopeChange.emit(this.search_scope);
+        this.searchFiltersChange.emit(this.search_filters);
+        this.searchTermsChange.emit(this.search_terms);
+        setTimeout(() => this.scrollSelectedNodeIntoView(), 0);
     }
+
+    ngAfterViewInit(): void {
+        this.nodeNameElements.changes
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(() => this.scheduleReducedNodeLabelsRefresh());
+
+        fromEvent(window, 'resize')
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(() => this.scheduleReducedNodeLabelsRefresh());
+
+        this.scheduleReducedNodeLabelsRefresh();
+    }
+
+    private scrollSelectedNodeIntoView(): void {
+        if (!this.node_selected || !this.filteredData?.length || !this.nodeDisplayElements) {
+            return;
+        }
+        const selectedIndex = this.filteredData.findIndex(node => this.areNodesEqual(node, this.node_selected));
+        if (selectedIndex < 0) {
+            return;
+        }
+        const nodeElement = this.nodeDisplayElements.toArray()[selectedIndex]?.nativeElement;
+        if (!nodeElement) {
+            return;
+        }
+
+        nodeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    public onSearch() {
+        this.applyFilters();
+        this.updateUrlForSearch(this.search_filters, this.search_terms);
+    }
+
+    /**
+     * Updates the search input field based on the current URL query parameters, ensuring that the search state is reflected in the input for better user experience and consistency with the URL.
+     * 
+     */
+    private updateSearchTerms() {
+        const urlParams = this.route.snapshot.queryParams;
+        const input = this.urlParamsToSearchInput(urlParams).join(' ');
+        this.inputControl.setValue(input);
+        this.searchScopeChange.emit(this.search_scope);
+        this.searchFiltersChange.emit(this.search_filters);
+        this.searchTermsChange.emit(this.search_terms);
+    }
+
+    /**
+     * Converts URL query parameters to a format suitable for the search input field.
+     * 
+     * @param params URL query parameters containing search terms and filters
+     * @returns An array of strings representing the search input, including both terms and filters in "key:value" format
+     */
+    private urlParamsToSearchInput(params: any): string[] {
+    const input: string[] = [];
+    // Add terms
+    if (params['terms']) {
+        input.push(...params['terms'].split(' '));
+    }
+    // Add filters as key:value
+    Object.keys(params).forEach(key => {
+        if (key.startsWith('filter_')) {
+            const filterKey = key.replace('filter_', '');
+            input.push(`${filterKey}:${params[key]}`);
+        }
+    });
+    return input;
+}
 
     /**
      * Parses tokens to separate filters (like `package:xyz`) from regular search terms.
@@ -235,7 +330,6 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     private extractFiltersAndTerms(tokens: string[]): { filters: { [key: string]: string }, terms: string[] } {
         const filters: { [key: string]: string } = {};
         const terms: string[] = [];
-
         for (const token of tokens) {
             if (token.includes(":")) {
                 const [key, ...valueParts] = token.split(":");
@@ -256,7 +350,7 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
      * @returns A formatted string representing the element
      */
     private buildDescriptor(element: EqualComponentDescriptor): string {
-       return element.name;
+        return [element.name, element.file].filter(Boolean).join(' ');
     }
 
     /**
@@ -274,31 +368,30 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         filters: { [key: string]: string },
         terms: string[]
     ): boolean {
-        const keyMap: { [key: string]: string } = {
-            package: "package_name",
-            name: "name",
-            type: "type",
-            model: "item.model"
-            };
-
         for (const key of Object.keys(filters)) {
-            const filterValue = filters[key].toLowerCase();
-            const mappedPath = keyMap[key] ?? key;
-            // if propriety exist
-            const elementValue = this.getValueByPath(element, mappedPath)?.toString().toLowerCase();
-
-            // propriety doesn't exist or is not include
-            if (!elementValue || !elementValue.includes(filterValue)) {
-                return false;
+            let actualKey = '';
+            if (key === 'package') {
+                actualKey = 'package_name'
+            } else if (key === 'class' || key === 'model') {
+                actualKey = 'name'
             }
+            const value = this.getValueByPath(element, actualKey);
+            console.log(`Checking filter ${key}:${filters[key]} against element value:`, value, 'with actual key:', actualKey);
+            if (typeof value === 'undefined' || value == null) return false;
+            if (element.type === 'view') {
+                const viewModel = element.name.split(':')[0];
+                console.log('Special handling for view type, comparing view model:', viewModel, 'with filter value:', filters[key]);
+                if (viewModel.toLowerCase() === filters[key].toLowerCase()) {
+                    return true;
+                }
+            }
+            if (!String(value).toLowerCase().includes(filters[key].toLowerCase())) return false;
         }
-
+    
+        const desc = this.buildDescriptor(element).toLowerCase();
         for (const term of terms) {
-            if (!descriptor.toLowerCase().includes(term)) {
-                return false;
-            }
+            if (term && !desc.includes(term)) return false;
         }
-
         return true;
     }
 
@@ -330,11 +423,17 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         this.onSearch();
     }
 
-    public areNodesEqual(node1: EqualComponentDescriptor, node2: EqualComponentDescriptor) {
-        // console.log('comparing', node1, node2);
+    private normalizeNodeType(type?: string): string | undefined {
+        return type === 'model' ? 'class' : type;
+    }
+
+    public areNodesEqual(node1?: EqualComponentDescriptor, node2?: EqualComponentDescriptor) {
+        const node1Type = this.normalizeNodeType(node1?.type);
+        const node2Type = this.normalizeNodeType(node2?.type);
+
         return (node1?.package_name === node2?.package_name &&
             node1?.name === node2?.name &&
-            node1?.type === node2?.type);
+            node1Type === node2Type);
     }
 
     public cloneNode(node: EqualComponentDescriptor): EqualComponentDescriptor {
@@ -348,30 +447,30 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
     }
 
     public oncreateNode() {
+        const prefill = this.getDialogPrefillData();
         this.dialog.open(MixedCreatorDialogComponent, {
-                data: {
-                    node_type: this.search_scope,
-                    lock_type: (this.node_type != ''),
-                    package: this.package_name,
-                    lock_package: (this.package_name != ''),
-                    model: this.model_name,
-                    lock_model: (this.model_name != '')
-                },
-                width: "40em",
-                height: "26em"
-            }).afterClosed().subscribe((result) => {
-                if (result) {
-                    if (result.success) {
-                        this.notificationService.showSuccess(result.message);
-                        this.addToComponents(result.node);
-                        this.provider.reloadComponents(result.node.package_name,result.node.type);
-                        this.selectNode.emit(result.node);
-                    }
-                    else {
-                        this.notificationService.showError(result.message);
-                    }
+            data: {
+                node_type: this.search_scope,
+                lock_type: (this.node_type != ''),
+                package: prefill.package,
+                lock_package: (this.package_name != ''),
+                model: prefill.model,
+                lock_model: (this.model_name != '')
+            },
+            width: "40em",
+            height: "26em"
+        }).afterClosed().subscribe((result) => {
+            if (result) {
+                if (result.success) {
+                    this.selectNode.emit(result.node);
+                    this.addToComponents(result.node);
+                    this.notificationService.showSuccess(result.message);
                 }
-            });
+                else {
+                    this.notificationService.showError(result.message);
+                }
+            }
+        });
     }
 
     private addToComponents(node: EqualComponentDescriptor) {
@@ -391,7 +490,6 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
      * @param node name of the node which is edited
      */
     public onEditNode(node: EqualComponentDescriptor) {
-        console.log('onEditNode clicked', node);
         this.editingNode = this.cloneNode(node);
         this.editedNode = this.cloneNode(node);
     }
@@ -407,8 +505,15 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
      * @param node value of the node which is clicked on
      */
     public onclickSelect(node: EqualComponentDescriptor) {
-        //this.router.navigate(['/package', node.name]);
+        if (this.node_selected && this.areNodesEqual(this.node_selected, node)) {
+            this.node_selected = undefined;
+            this.selectNode.emit(undefined);
+            this.updateUrlForSelectedNode(undefined);
+        } else {
+        this.node_selected = node;
         this.selectNode.emit(node);
+        this.updateUrlForSelectedNode(node);
+        }
     }
 
     /**
@@ -438,11 +543,10 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
                 this.workbenchService.deleteNode(node).pipe(takeUntil(this.destroy$)).subscribe(
                     result => {
                         if(result.success){
+                            this.selectNode.emit(undefined);
                             this.removeFromComponents(node);
                             this.notificationService.showSuccess(result.message);
-                            this.provider.reloadComponents(node.package_name, node.type);
                             this.onSearch();
-                            this.selectNode.emit(undefined);
                         } else {
                             this.notificationService.showError(result.message);
                         }
@@ -475,8 +579,181 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
                 return "View - packages/" + node.package_name + "/views/" + splitted_name.slice(1).join("/").replace(":", ".");
             case "route":
                 return "Route - packages/" + node.package_name + node.file;
+            case "menu":
+                return "Menu - packages/" + node.package_name + "/menus/" + node.name;
             default:
                 return "";
         }
+    }
+
+    
+    /**
+     * Handles the URI path update when a node is selected, ensuring the URL reflects the current selection for better navigation and bookmarking.
+     * Updates the URL without navigating to a new component.
+     * 
+     * @param node The node that has been selected, containing its package name, type, and name to construct the URL.
+     */
+    private updateUrlForSelectedNode(node: EqualComponentDescriptor | undefined) {
+        let url = '';
+
+        // Packages
+        if (node && node.type === 'package') {
+            url = `/package/${node.name}`;
+        }
+        // Models
+        else if (node && node.type === 'class') {
+            url = `/package/${node.package_name}/model/${node.name}`;
+        }
+        // Controllers (get/do)
+        else if (node && (node.type === 'get' || node.type === 'do')) {
+            url = `/package/${node.package_name}/controller/${node.type}/${node.name}`;
+        }
+        // Views
+        else if (node && (node.type === 'view')) {
+            const [model, rest] = node.name.split(':');
+            const [type, view] = rest.split('.');
+            url = `/package/${node.package_name}/view/${model}:${type}.${view}`;
+        }
+        // Menus
+        else if (node && node.type === 'menu') {
+            url = `/package/${node.package_name}/menu/${node.name}`;
+        }
+        // Routes
+        else if (node && node.type === 'route') {
+            url = `/package/${node.package_name}/route${node.name}`;
+        }
+
+        // Keep current search scope/filters/terms when switching selected node.
+        this.location.go(url, this.buildSearchQueryString(this.search_filters, this.search_terms));
+    }
+
+
+    /** 
+     * Handles the update of the URI when a filter is applied, ensuring the URL reflects the current search scope for better navigation and bookmarking.
+     * 
+     */
+    private updateUrlForSearch(filters: { [key: string]: string }, terms: string[]) {
+        const path = this.location.path().split('?')[0];
+        const queryString = this.buildSearchQueryString(filters, terms);
+
+        this.location.replaceState(path, queryString);
+    }
+
+    private buildSearchQueryString(filters: { [key: string]: string }, terms: string[]): string {
+        const params = new URLSearchParams();
+        if (this.search_scope) params.set('scope', this.search_scope);
+        Object.entries(filters).forEach(([key, value]) => {
+            if (value) params.append(`filter_${key}`, value);
+        });
+        if (terms.length > 0 && !(terms.length === 1 && terms[0] === '')) params.set('terms', terms.join(' '));
+        return params.toString();
+    }
+
+    private rankResults(elements: EqualComponentDescriptor[], terms: string[]): EqualComponentDescriptor[] {
+        if (terms.length === 0) {
+            terms = [''];
+        }
+
+        // If terms is only empty string, sort alphabetically
+        if (terms.length === 1 && terms[0] === '') {
+            return elements.sort((a, b) => a.name.localeCompare(b.name));
+        }
+        
+        return elements.sort((a, b) => {
+            const scoreA = this.calculateRelevanceScore(a, terms);
+            const scoreB = this.calculateRelevanceScore(b, terms);
+            return scoreB - scoreA;
+        });
+    }
+
+    public getNodeDisplayLabel(node: EqualComponentDescriptor): string {
+        return this.reducedNodeLabels[this.getNodeKey(node)] || node.name;
+    }
+
+    private scheduleReducedNodeLabelsRefresh(): void {
+        setTimeout(() => this.refreshReducedNodeLabels(), 0);
+    }
+
+    private refreshReducedNodeLabels(): void {
+        if (!this.filteredData?.length) {
+            this.reducedNodeLabels = {};
+            return;
+        }
+
+        const nextLabels: { [key: string]: string } = {};
+        const nameElements = this.nodeNameElements?.toArray?.() ?? [];
+
+        this.filteredData.forEach((node, index) => {
+            const hostElement = nameElements[index]?.nativeElement;
+            nextLabels[this.getNodeKey(node)] = reducePathIteratively(buildNodeIdentifier(node), hostElement, node.name);
+        });
+
+        this.reducedNodeLabels = nextLabels;
+    }
+
+    private getNodeKey(node: EqualComponentDescriptor): string {
+        return `${node.package_name || ''}|${node.type || ''}|${node.name || ''}`;
+    }
+
+    private calculateRelevanceScore(element: EqualComponentDescriptor, terms: string[]): number {
+        let score = 0;
+        const name = element.name.toLowerCase();
+        const desc = (element.item?.description || '').toLowerCase();
+
+        for (const term of terms) {
+            // Exact name match (highest priority)
+            if (name === term) score += 100;
+            // Name starts with term
+            else if (name.startsWith(term)) score += 50;
+            // Name contains term
+            else if (name.includes(term)) score += 25;
+            // Description contains term
+            else if (desc.includes(term)) score += 10;
+        }
+        
+        return score;
+    }
+
+    private getDialogPrefillData() {
+        const params = this.route.snapshot.queryParams;
+        return {
+            package: params['filter_package_name'] || this.package_name,
+            model: params['filter_model_name'] || this.model_name,
+            // Add more fields as needed
+        };
+    }
+
+    /**
+     * Highlights search terms in the given text by wrapping them in a <span class="highlight-term"> tag.
+     * This enables visual feedback when searching for nodes.
+     *
+     * @param text The text to highlight
+     * @param terms The search terms to highlight
+     * @returns SafeHtml containing the highlighted text
+     */
+    public getHighlightedName(text: string, terms: string[]): SafeHtml {
+        if (!text || !terms || terms.length === 0) {
+            return this.sanitizer.sanitize(1, text) || '';
+        }
+        
+        let highlighted = text;
+        for (const term of terms) {
+            if (term && term.length > 0) {
+                const regex = new RegExp(`(${this.escapeRegex(term)})`, 'gi');
+                highlighted = highlighted.replace(regex, '<span class="highlight-term">$1</span>');
+            }
+        }
+        
+        return this.sanitizer.bypassSecurityTrustHtml(highlighted);
+    }
+
+    /**
+     * Escapes special regex characters in a string to prevent regex errors.
+     *
+     * @param str The string to escape
+     * @returns The escaped string safe for use in a regex
+     */
+    private escapeRegex(str: string): string {
+        return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 }

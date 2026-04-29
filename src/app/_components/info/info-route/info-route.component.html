@@ -5,58 +5,57 @@
 </ng-container>
 
 <ng-container *ngIf="!loading && route">
-    <div class="header">
-        <div class="main">
-            <div class="title">
-                <label>Route :</label>
-                <label class="accent">{{ route.name }}</label>
-            </div>
-            <div class="actions">
-            </div>
-        </div>
-        <div class="description">
-            <label></label>
-        </div>
-        <div class="status">
-            <div *ngIf="isRouteLive()" class="new">
-                <mat-icon>check_circle</mat-icon>
-                <label>This route is live.</label>
-            </div>
-            <div *ngIf="!isRouteLive()" class="edited">
-                <mat-icon>error</mat-icon>
-                <label>This route is not active.</label>
-            </div>
-        </div>
-        <div class="meta">
-            <div><label>Declared in </label><label class="primary">{{route.file}}</label></div>
-        </div>
-    </div>
+    <div class="info-package-container">
+        <app-info-header
+            [titleLabel]="'Route'"
+            [title]="route.name"
+            [description]="route.description || ''"
+            [metaData]="routeMeta"
+            [statusInfo]="headerStatus"
+            [showEditTranslationButtons]="false">
+        </app-info-header>
 
-    <div class="body">
-        <div class="header">
-            <div>
-                <label class="primary">{{methods.length}} </label><label>Method(s)</label>
-            </div>
-        </div>
-        <div class="items">
-            <div *ngFor="let method of methods" class="item container-method-{{method}}">
-                <div class="title">
-                    <label class="http-method-{{method}}">{{method}}</label>
-                </div>
-                <div class="indent">
-                    <div class="desc-method">
-                        <label><strong>description : </strong>{{route.item[method]['description']}}</label>
+        <div class="info-body-section">
+            <div class="methods-container">
+                <div class="methods-header">
+                    <div class="backend-url-config">
+                        <mat-form-field appearance="outline" class="backend-url-field">
+                            <mat-label>Backend URL</mat-label>
+                            <input matInput [(ngModel)]="backendUrl" (change)="setBackendUrl(backendUrl)" placeholder="http://equal.local/">
+                        </mat-form-field>
                     </div>
-                    <div class="spacer"></div>
-                    <div class="desc-method">
-                        <label><strong>Uses : </strong><a (click)="sendTo(route.item[method]['operation'])">{{route.item[method]['operation']}}</a></label>
+                    <div class="method-count">
+                        <span class="count">{{methods.length}}</span>
+                        <span class="label">Method{{ methods.length !== 1 ? 's' : '' }}</span>
                     </div>
                 </div>
+                <div class="methods-list">
+                    <div *ngFor="let method of methods" class="method-card">
+                        <div class="method-badge" [class]="'method-' + method">
+                            {{method}}
+                        </div>
+                        <div class="method-content">
+                            <div class="method-description">
+                                <span class="label">Description</span>
+                                <p>{{route.item[method]['description']}}</p>
+                            </div>
+                            <div class="method-operation">
+                                <span class="label">Operation</span>
+                                <a class="operation-link" (click)="sendTo(method, route.item[method]['operation'])" [class]="'method-' + method">
+                                    {{route.item[method]['operation'] + (operationParams[method] ? ('&' + operationParams[method]) : '')}}
+                                </a>
+                            </div>
+                            <div class="method-params">
+                                <span class="label">Query Parameters (optional)</span>
+                                <mat-form-field appearance="outline" class="params-input">
+                                    <input matInput [(ngModel)]="operationParams[method]" (change)="setOperationParams(method, operationParams[method])" placeholder="key=value&key2=value2">
+                                </mat-form-field>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-
-    <div class="footer">
     </div>
 
 </ng-container>

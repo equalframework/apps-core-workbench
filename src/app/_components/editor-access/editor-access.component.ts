@@ -17,7 +17,6 @@ export class EditorAccessComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
-    console.log(this.obj)
     this.tap2("")
   }
 
@@ -27,7 +26,6 @@ export class EditorAccessComponent implements OnInit {
       this.obj["groups"].push(this.input)
     }
     this.input = ""
-    console.log(this.obj)
   }
 
   tap2(new_value:string) {
@@ -35,9 +33,7 @@ export class EditorAccessComponent implements OnInit {
   }
 
   delete_element(group:string) {
-    console.log(this.obj['groups'])
     let index = this.obj['groups'].indexOf(group)
-    console.log(index)
     this.obj['groups'].splice(index,1)
   }
 

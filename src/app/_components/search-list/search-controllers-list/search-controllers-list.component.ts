@@ -1,15 +1,18 @@
+import { Location } from '@angular/common';
 import { Node } from '../../../in/pipeline/_objects/Node';
 import { Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation, OnChanges, SimpleChanges, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
 import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
-import { DeleteConfirmationDialogComponent, MixedCreatorDialogComponent } from 'src/app/_modules/workbench.module';
+import { DeleteConfirmationDialogComponent } from 'src/app/_dialogs/delete-confirmation-dialog/delete-confirmation-dialog.component';
+import { MixedCreatorDialogComponent } from 'src/app/_dialogs/mixed-creator-dialog/mixed-creator-dialog.component';
 import { NotificationService } from 'src/app/in/_services/notification.service';
 import { ItemTypes } from 'src/app/in/_models/item-types.class';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'search-controllers-list',
@@ -53,7 +56,9 @@ export class SearchControllersListComponent implements OnInit, OnChanges, OnDest
         private snackBar: MatSnackBar,
         private provider: EqualComponentsProviderService,
         private notificationService: NotificationService,
-        private workbenchService : WorkbenchService
+        private workbenchService : WorkbenchService,
+        private router: Router,
+        private location: Location
     ) {}
 
     ngOnInit(): void {
@@ -66,7 +71,37 @@ export class SearchControllersListComponent implements OnInit, OnChanges, OnDest
                 .subscribe(components => {
                     this.data = components;
                     this.filterNodes();
+                    if (this.location.path().includes(`/package/${this.package_name}/controller`)) {
+                        this.selectNodeFromUrl();
+                    }
                 });
+        }
+    }
+
+    private selectNodeFromUrl(): void {
+        const urlSegments = this.location.path().split('/');
+        const typeIndex = urlSegments.indexOf('controller') + 1;
+        if (typeIndex > 0 && typeIndex < urlSegments.length) {
+            const type = urlSegments[typeIndex];
+            const name = urlSegments[typeIndex + 1];
+            const node = this.data.find(n => n.type === type && n.name === name);
+            if (node) {
+                this.selectNode.emit(node);
+            }
+        }
+    }
+
+    /**
+     * Updates the URL to reflect the selected node.
+     *
+     * @param node - The selected node.
+     * @returns void
+     */
+    private updateUrlForSelectedNode(node: EqualComponentDescriptor | undefined): void {
+        if (node) {
+            this.location.go(`/package/${node.package_name}/controller/${node.type}/${node.name}`);
+        } else {
+            this.location.go(`/package/${this.package_name}`);
         }
     }
 
@@ -129,13 +164,19 @@ export class SearchControllersListComponent implements OnInit, OnChanges, OnDest
     }
 
     /**
-     * Emits the event to select a node.
+     * Emits the event to select a node. If the node is already selected, it will deselect it.
      *
-     * @param node - The node to be selected.
+     * @param node - The node to be selected or deselected.
      * @returns void
      */
     onclickNodeSelect(node: EqualComponentDescriptor): void {
-        this.selectNode.emit(node);
+        if (this.selected_node && this.selected_node.name === node.name && this.selected_node.type === node.type) {
+            this.selectNode.emit(undefined);
+            this.updateUrlForSelectedNode(undefined);
+        } else {
+            this.selectNode.emit(node);
+            this.updateUrlForSelectedNode(node);
+        }
     }
 
     /**

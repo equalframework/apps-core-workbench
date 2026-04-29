@@ -2,7 +2,7 @@
   [buttonBack]="true"
   (onButtonBack)="goBack()"
   [buttonSave]="true"
-  [buttonSaveDisabled]="(buttonStateService.buttonsState$ | async)?.save || false"
+  [buttonSaveDisabled]="isSaving"
   (onButtonSave)="save()"
   [buttonCancel]="true"
   (onButtonCancel)="cancel()"
@@ -11,10 +11,9 @@
   [customButtonList]="[{ icon: 'bug_report', name: 'Show JSON', disabled: false }]"
   (onCustomButton)="customButtonBehavior($event)"
 >
-  <label>Policies of </label>
-  <label>{{ package_name }}</label>
-  <label>\</label>
-  <label>{{ model_name }}</label>
+<div class="header-labels">
+  <label>Policies of </label><label class="component-color-package colorized">{{packageName}}</label><label class="separator">\</label><label class="component-color-class colorized">{{modelName}}</label>
+</div>
 </app-inner-header>
 
 <app-classic-layout>

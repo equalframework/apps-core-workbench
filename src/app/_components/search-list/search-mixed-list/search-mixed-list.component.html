@@ -20,7 +20,6 @@
                 <mat-icon class="select-icon component-icon component-color-{{search_scope}}">
                     {{type_dict[search_scope]?.icon}}
                 </mat-icon>
-                {{type_dict[search_scope]?.disp}}
             </mat-select-trigger>
             <mat-option *ngFor="let component_type of getComponentsTypes()" [value]="component_type">
                 <mat-icon class="component-icon component-color-{{component_type}}">
@@ -69,16 +68,15 @@
 -->
         <ng-template #displayMode>
             <div class="node_display"
-                    [class.hover]="node_selected != node"
-                    [class.selected]="node_selected === node"
+                #nodeDisplay
+                    [class.hover]="!areNodesEqual(node_selected, node)"
+                    [class.selected]="areNodesEqual(node_selected, node)"
                     [title]="getTitle(node)"
                     >
                 <div class="inner" (click)="onclickSelect(node)">
                     <div class="node-text">
                         <label class="node-icon component-icon component-color-{{node.type}}"><mat-icon>{{type_dict[node.type].icon}}</mat-icon></label>
-                        <label class="node-name" *ngIf="node.type === 'route'">{{node.name}}</label>
-                        <label class="node-name" *ngIf="node.type === 'package'">{{node.name}}</label>
-                        <label class="node-name" *ngIf="node.type !== 'route' && node.type !== 'package'">{{node.name}}</label>
+                        <label #nodeName class="node-name" [innerHTML]="getHighlightedName(getNodeDisplayLabel(node), search_terms)"></label>
                     </div>
                     <div class="node-actions">
                         <button *ngIf="allow_update" mat-icon-button aria-label="Edit node button">

@@ -2,17 +2,16 @@ import { Directive, HostListener, Output, EventEmitter } from '@angular/core';
 import { ViewItem } from '../../_objects/View';
 
 @Directive({
-  selector: '[appDraginfo]'
+  selector: '[appDragInfo]'
 })
-export class DraginfoDirective {
+export class DragInfoDirective {
 
-  @Output() appDraginfo = new EventEmitter<void>()
+  @Output() appDragInfo = new EventEmitter<void>();
 
   constructor() { }
 
-  @HostListener("stopdrag")
-  StopDrag() {
-    console.log("got-it")
-    this.appDraginfo.emit()
+  @HostListener('stopDrag')
+  StopDrag(): void {
+    this.appDragInfo.emit();
   }
 }

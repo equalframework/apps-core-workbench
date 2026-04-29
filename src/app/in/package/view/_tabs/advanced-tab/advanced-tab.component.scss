@@ -1,0 +1,239 @@
+@import "src/theme.scss";
+
+:host {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+
+  .sidepane {
+    width: 100%;
+    height: 100%;
+    padding: 2em;
+    overflow-y: auto;
+    background-color: white;
+    border-radius: 1em;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.09);
+    display: flex;
+    flex-direction: column;
+    gap: 1.1em;
+  }
+
+  .pane-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding-bottom: 0.9em;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  }
+
+  .pane-subtitle {
+    margin-top: 0.35em;
+    color: #5f5f5f;
+    font-size: 0.95em;
+  }
+
+  .category-title {
+    font-size: 1.3em;
+    margin-left: 12px;
+
+    &.maincolor {
+      color: mat-color($maincolor);
+    }
+  }
+
+  .pane-section {
+    border: 1px solid #d9d9d9;
+    border-radius: 0.85em;
+    padding: 1em 1.25em;
+    background: #fafafa;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9em;
+  }
+
+  .section-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35em;
+
+    span {
+      color: #5f5f5f;
+      font-size: 0.92em;
+    }
+
+    &.with-toggle {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1em;
+    }
+  }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    color: mat-color($maincolor);
+    font-size: 1.05em;
+    font-weight: 600;
+  }
+
+  .section-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9em;
+  }
+
+  .inputlong {
+    width: min(28em, 100%);
+  }
+
+  .toggleicon {
+    margin-top: 0.1em;
+    transform: scale(1.2) translateY(0.1em);
+    user-select: none;
+    color: #747474;
+    cursor: pointer;
+
+    &.on {
+      color: mat-color($accentcolor) !important;
+    }
+  }
+
+  .row-fields {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 10px;
+
+    mat-form-field {
+      min-width: 180px;
+
+      &.sort-field,
+      &.operation-field {
+        min-width: 200px;
+      }
+
+      matPrefix {
+        margin-right: 0.5em;
+      }
+    }
+  }
+
+  button.add-button {
+    align-self: flex-start;
+
+    mat-icon {
+      margin-right: 0.25em;
+    }
+  }
+
+  .sub-item-card {
+    padding: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-left: 4px solid mat-color($maincolor);
+    border-radius: 0.75em;
+    background-color: rgba(0, 0, 0, 0.01);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .row-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+
+    .row-title {
+      font-weight: 500;
+      color: mat-color($maincolor);
+    }
+
+    mat-form-field {
+      flex: 1;
+      min-width: 240px;
+    }
+  }
+
+  .operation-name-field {
+    flex: 1 1 280px;
+  }
+
+  .nested-item {
+    padding: 10px;
+    border-radius: 0.55em;
+    background-color: rgba(0, 0, 0, 0.02);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  editor-access,
+  app-property-domain-component {
+    display: block;
+    width: 100%;
+  }
+
+  app-usages {
+    display: block;
+    width: 100%;
+    margin-top: 0.5em;
+  }
+
+  @media (max-width: 900px) {
+    .sidepane {
+      padding: 1.25em;
+    }
+
+    .pane-section {
+      padding: 0.9em;
+    }
+
+    .section-header.with-toggle {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .row-header {
+      flex-direction: column;
+      align-items: stretch;
+
+      mat-form-field {
+        min-width: 0;
+      }
+    }
+  }
+
+  @media (max-width: 600px) {
+    .sidepane {
+      padding: 12px;
+    }
+
+    .pane-header {
+      flex-direction: column;
+      gap: 0.35em;
+    }
+
+    .section-title,
+    .category-title {
+      margin-left: 0;
+    }
+
+    .row-fields {
+      flex-direction: column;
+      align-items: stretch;
+
+      mat-form-field {
+        min-width: 0;
+        width: 100%;
+      }
+    }
+
+    button.add-button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}

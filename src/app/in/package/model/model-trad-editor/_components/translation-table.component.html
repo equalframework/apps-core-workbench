@@ -1,0 +1,49 @@
+<table class="translation-table">
+  <thead class="test-header">
+    <tr>
+      <th *ngFor="let col of computedHeaders; let i = index" [attr.colspan]="col.colspan" class="header-tile">
+        <ng-container *ngIf="i === 0">
+          <mat-icon aria-hidden="false" aria-label="Translate">translate</mat-icon>
+        </ng-container>
+        <ng-container *ngIf="i !== 0">
+          {{ col.label }}
+        </ng-container>
+        </th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr *ngFor="let key of itemKeys" class="translation-row"
+    >
+
+      <td class="checkbox-cell">
+        <mat-checkbox appFocusableField="{{tab}}-{{view?view+'-':''}}{{viewTab?viewTab+'-':''}}{{key}}"
+          [checked]="isItemActive(items[key])"
+          (change)="changeActive(key)">
+        </mat-checkbox>
+      </td>
+
+      <td class="fieldname-cell" [attr.colspan]="2">
+        <label class="fieldnamelabel">{{ key }}</label>
+      </td>
+
+      <ng-container *ngIf="isItemActive(items[key])">
+        <td *ngFor="let field of fields; let fi = index"
+            class="editable-cell"
+            [attr.colspan]="field.colspan">
+          <input appFocusableField="{{tab}}-{{view?view+'-':''}}{{viewTab?viewTab+'-':''}}{{key}}-{{field.key}}"
+            matInput
+            [placeholder]="field.placeholder"
+            [(ngModel)]="items[key][field.key].value"
+            [name]="key + '-' + field.key"
+            spellcheck="true">
+        </td>
+      </ng-container>
+
+      <ng-container *ngIf="!isItemActive(items[key])">
+        <td class="placeholder" [attr.colspan]="totalCols - 3"></td>
+      </ng-container>
+
+    </tr>
+  </tbody>
+</table>

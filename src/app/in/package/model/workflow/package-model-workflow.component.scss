@@ -42,7 +42,7 @@
     align-items: center;
     justify-content: center;
     width: 100% ;
-    background-color: whitesmoke;
+    background-color: #f9fafc;
     height: 55px;
     border-radius: 8px;
     button {
@@ -54,6 +54,20 @@
 .spaceleft {
     margin-left: 10px;
 }
+
+.colorized{
+    padding: 0 .3em;
+    border-radius: .2em;
+}
+.header-labels {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    flex-wrap: wrap;
+  }
+  .separator {
+    font-weight: bold;
+  }
 
 .title-holder {
     display: inline-flex;

@@ -1,0 +1,86 @@
+<div class="tab-item indent" #layoutTabContainer>
+  <div *ngIf="viewObj.type === 'form' || viewObj.type === 'search'">
+    <div class="tab-header">
+      <label class="category-title maincolor">Groups</label>
+      <button mat-icon-button color="primary" class="addItem action-button" (click)="addGroup()"><mat-icon>add</mat-icon></button>
+    </div>
+
+    <div *ngFor="let group of viewObj.layout.groups; let idx = index" 
+         class="group-spacing tab-content"
+         #groupElement>
+      <div class="group-header" appFocusableField="{{group.id}}">
+        <mat-form-field>
+          <input matInput appFocusableField="{{'layout-' + group.id + '-name'}}"
+          placeholder="Group name" [value]="group.label==='' ? 'UNNAMED' : group.label" (change)="group.label = $event.target.value==='UNNAMED' ? '' : $event.target.value">
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput appFocusableField="{{'layout-' + group.id + '-id'}}"
+          placeholder="Group.id" [value]="group.id" (input)="group.id = $event.target.value">
+        </mat-form-field>
+        <button mat-icon-button color="warn" class="action-button action-button--delete" (click)="deleteGroup(viewObj.layout.groups.indexOf(group))"><mat-icon>delete</mat-icon></button>
+      </div>
+
+      <app-group-editor
+        [groupObj]="group.sections"
+        [entity]="entity"
+        [package]="packageName"
+        [fields]="fields"
+        (onChange)="group.sections= $event"
+        [groups]="groups"
+        [actionControllers]="actionControllers"
+        [scheme]="classScheme"
+      ></app-group-editor>
+    </div>
+  </div>
+
+  <div *ngIf="viewObj.type === 'list'">
+    <div class="tab-header">
+      <label class="category-title maincolor">Items</label>
+      <button mat-icon-button color="primary" class="addItem action-button" (click)="addItemLayout()"><mat-icon>add</mat-icon></button>
+    </div>
+    <div class="indent tab-content">
+    <mat-accordion
+      cdkDropList
+      [cdkDropListData]="viewObj.layout.items"
+      (cdkDropListDropped)="drop_item($event)"
+    >
+      <ng-container *ngFor="let item of viewObj.layout.items; index as index">
+        <mat-expansion-panel cdkDrag *ngIf="item" >
+          <mat-expansion-panel-header appFocusableField="layout-{{item.value}}">
+            <mat-panel-title>
+              <div class="itemprez">
+                <mat-icon cdkDragHandle>drag_indicator</mat-icon>
+                <div class="typeicon">
+                  <mat-icon>{{ classScheme?.fields?.[item.value]?.type ? iconType[classScheme.fields[item.value].type] : "" }}</mat-icon>
+              </div>
+                <label *ngIf="item.type==='field'">{{item.value}}</label>
+                <label *ngIf="item.type==='separator'">---SEPARATOR---</label>
+              </div>
+            </mat-panel-title>
+            <mat-panel-description>
+              {{item.type==="field" ? "field : "+item.value : ""}}
+            </mat-panel-description>
+            <div class="property-icon-holder">
+              <mat-icon class="property-icon" *ngIf="item.hasRestrainedVisibility || classScheme?.fields?.[item.value]?.visible">visibility_off</mat-icon>
+              <mat-icon class="property-icon" *ngIf="item.readonly || classScheme?.fields?.[item.value]?.readonly">do_not_touch</mat-icon>
+              <mat-icon class="property-icon" *ngIf="item.has_widget && item.widgetList.sortable">swap_vert</mat-icon>
+              <mat-icon class="property-icon" *ngIf="item.has_widget && item.widgetList.link">link</mat-icon>
+              <mat-icon class="property-icon" *ngIf="item.has_widget && item.widgetList.usage.export() !== ''">auto_fix_high</mat-icon>
+          </div>
+          </mat-expansion-panel-header>
+          <app-item-editor
+            [item]="item"
+            [entity]="entity"
+            [fields]="fields"
+            [types]="types"
+            [packageName]="packageName"
+            [displayDelete]="true"
+            (delete)="deleteItemLayout(viewObj.layout.items.indexOf(item))"
+            [scheme]="classScheme"
+          ></app-item-editor>
+        </mat-expansion-panel>
+      </ng-container>
+    </mat-accordion>
+    </div>
+  </div>
+</div>

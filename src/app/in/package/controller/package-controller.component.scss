@@ -1,0 +1,82 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.error-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    padding: 2rem;
+}
+
+.loading-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    height: 100vh;
+    padding: 2rem;
+
+    label {
+        font-size: 20px;
+        margin-top: 1rem;
+    }
+}
+
+.controller-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.controller-tabs {
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+
+    // Tabs inherit unified styling from global styles.scss
+    
+    ::ng-deep {
+        .mat-tab-body-wrapper {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .mat-tab-body {
+            height: 100%;
+        }
+
+        .mat-tab-body-content {
+            height: 100%;
+            overflow: hidden;
+
+            package-controller-return,
+            package-controller-params {
+                height: 100%;
+                display: flex;
+            }
+        }
+    }
+}
+
+.header-labels {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    flex-wrap: wrap;
+
+  .borders{
+    padding: 0 .3em;
+    border-radius: .2em;
+  }
+
+  .separator {
+    font-weight: bold;
+  }
+}

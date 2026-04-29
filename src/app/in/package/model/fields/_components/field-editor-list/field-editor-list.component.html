@@ -6,8 +6,8 @@
     </mat-form-field>
 </div>
 <mat-list class="list">
-    <mat-list-item *ngFor="let item of filteredList" class="item" (click)="onClickItem(list.indexOf(item))" [class.selected]="this.selectedIndex === list.indexOf(item)">
-        <div class="icon" [class.icon-uneditable]="item.isUneditable" [class.icon-overridden]="isOverrided(item)" [class.icon-inherited]="isInherited(item)">
+    <mat-list-item *ngFor="let item of filteredList; trackBy: trackByFieldName" class="item" [class.focus]="selectedIndex > -1 && list[selectedIndex]?.name === item.name" (click)="onClickItem(list.indexOf(item))" [appFocusableField]="item.name">
+        <div class="icon" [class.icon-uneditable]="item.isUneditable" [class.icon-overridden]="isOverridden(item)" [class.icon-inherited]="isInherited(item)">
             <mat-icon>{{iconList[item.type]}}</mat-icon>
         </div>
         <div class="name">
@@ -16,7 +16,7 @@
         <div class="button" *ngIf="!item.isUneditable && !isInherited(item)">
             <button mat-icon-button (click)="deleteItem(list.indexOf(item))"><mat-icon>delete</mat-icon></button>
         </div>
-        <div class="button" *ngIf="isOverrided(item) && !item.isUneditable">
+        <div class="button" *ngIf="isOverridden(item) && !item.isUneditable">
             <button mat-icon-button (click)="resetFieldToParent(list.indexOf(item))"><mat-icon>close</mat-icon></button>
         </div>
     </mat-list-item>

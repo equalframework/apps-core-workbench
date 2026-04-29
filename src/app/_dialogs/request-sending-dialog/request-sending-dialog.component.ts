@@ -22,7 +22,6 @@ export class RequestSendingDialogComponent implements OnInit {
     public ngOnInit(): void {
         // Compute and store the values only once when the component is initialized.
         this.bodyHtml = this.computeJSONSchema();
-        console.log(this.bodyHtml)
     }
 
     onNoClick(): void {
@@ -37,13 +36,12 @@ export class RequestSendingDialogComponent implements OnInit {
         if (!this.data) {
             return "NO RESPONSE";
         }
-        console.log("data : ", this.data);
         // Check if success is true or false
         if (this.data.success) {
             this.response_info = "<label>success</label>";
             return this.data.response ? this.prettyPrint(this.data.response) : "this response has no body.";
         } else {
-            console.log(this.data);
+            // console.log(this.data);
             this.response_info = "<label>error</label>";
             this.error_message = this.data.message
                 ? this.prettyPrint(this.data.message)

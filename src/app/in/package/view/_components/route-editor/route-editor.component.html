@@ -1,11 +1,18 @@
-<button mat-button (click)="createRoute()"><mat-icon>add</mat-icon>New route</button>
+<div class="header"> 
+    <label>Edit routes</label>
+    <button mat-icon-button color="primary" class="addItem action-button" (click)="createRoute()"><mat-icon>add</mat-icon></button>
+</div>
+
 <div cdkDropList [cdkDropListData]="obj" (cdkDropListDropped)="drop($event)" cdkDropListOrientation="vertical">
+    <label *ngIf="obj.length === 0" class="info">No custom route bound.</label>
     <app-route-edit
         *ngFor="let route of obj ; index as i"
         cdkDrag
         [route]="route"
         [entity]="entity"
-        [model_list]="entity_list"
-        (deleteme)="onDeletionRequest(i)"
+        [modelList]="entityList"
+        [packageName]="packageName"
+        (deleteMe)="onDeletionRequest(i)"
+        appScrollTarget="{{route.id}}"
     ></app-route-edit>
 </div>

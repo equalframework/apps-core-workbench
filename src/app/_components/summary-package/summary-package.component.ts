@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { PackageSummary } from '../../in/_models/package-info.model';
 
 @Component({
@@ -6,8 +6,10 @@ import { PackageSummary } from '../../in/_models/package-info.model';
   templateUrl: './summary-package.component.html',
   styleUrls: ['./summary-package.component.scss']
 })
-export class SummaryPackageComponent {
+export class SummaryPackageComponent implements OnInit {
   @Input() packageInfo!: PackageSummary| null;
   @Input() message!: string;
-  
+
+  ngOnInit(): void {
+  }
 }

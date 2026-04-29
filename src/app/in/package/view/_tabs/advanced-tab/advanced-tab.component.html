@@ -1,0 +1,238 @@
+<div class="sidepane" #advancedTabContainer>
+  <div class="pane-header">
+    <div>
+      <label class="category-title maincolor">Advanced</label>
+      <div class="pane-subtitle">Tune the view controller, access rules and list behavior.</div>
+    </div>
+  </div>
+
+  <section class="pane-section">
+    <div class="section-header">
+      <div class="section-title">
+        <mat-icon>settings</mat-icon>
+        <label>General</label>
+      </div>
+      <span>Choose the controller that will build the view.</span>
+    </div>
+
+    <div class="section-body">
+      <mat-form-field class="inputlong">
+        <mat-label>Controller</mat-label>
+        <mat-select [(value)]="viewObj.controller" (selectionChange)="onViewObjChange()" appFocusableField="advanced-controller">
+          <mat-option *ngFor="let item of collectController" [value]="item">
+            {{item === 'core_model_collect' ? 'core_model_collect (default)' : item}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </section>
+
+  <section class="pane-section">
+    <div class="section-header with-toggle">
+      <div>
+        <div class="section-title">
+          <mat-icon>lock</mat-icon>
+          <label>Access</label>
+        </div>
+        <span>Define who can see and edit this view.</span>
+      </div>
+    </div>
+
+    <div class="section-body">
+      <editor-access
+        [obj]="viewObj.access"
+        [groups]="groups"
+        appFocusableField="advanced-access">
+      </editor-access>
+    </div>
+  </section>
+
+  <ng-container *ngIf="['list'].includes(viewObj.type)">
+    <section class="pane-section">
+      <div class="section-header with-toggle">
+        <div>
+          <div class="section-title">
+            <mat-icon>format_list_numbered</mat-icon>
+            <label>Limit</label>
+          </div>
+          <span>Limit how many objects are returned by the query.</span>
+        </div>
+      </div>
+
+      <div class="section-body" *ngIf="['list'].includes(viewObj.type)">
+        <mat-form-field class="inputlong">
+          <mat-label>Limit</mat-label>
+          <input matInput type="number" [(ngModel)]="viewObj.limit" (change)="onViewObjChange()">
+        </mat-form-field>
+      </div>
+    </section>
+
+    <section class="pane-section">
+      <div class="section-header">
+        <div class="section-title">
+          <mat-icon>sort</mat-icon>
+          <label>Sorting</label>
+        </div>
+        <span>Set the default order applied to list results.</span>
+      </div>
+
+      <div class="section-body row-fields">
+        <mat-form-field class="sort-field">
+          <mat-label>Order</mat-label>
+          <mat-select [(value)]="viewObj.order" (selectionChange)="onViewObjChange()">
+            <mat-option value=''></mat-option>
+            <mat-option value='asc'>asc</mat-option>
+            <mat-option value='desc'>desc</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field class="sort-field" *ngIf="viewObj">
+          <mat-label>Sort field</mat-label>
+          <mat-select [(value)]="viewObj.sort" (selectionChange)="onViewObjChange()">
+            <mat-option value=''></mat-option>
+            <mat-option *ngFor="let field of obk(classScheme.fields)" [value]="field">{{field}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </section>
+
+    <section class="pane-section">
+      <div class="section-header with-toggle">
+        <div>
+          <div class="section-title">
+            <mat-icon>group_work</mat-icon>
+            <label>Group By</label>
+          </div>
+          <span>Group list items by a field and optionally aggregate an operand.</span>
+        </div>
+      </div>
+
+      <div class="section-body" >
+        <button mat-button color="primary" class="add-button" (click)="addNewGroupBy()">
+          <mat-icon>add</mat-icon>
+          Group
+        </button>
+
+        <div class="sub-item-card" *ngFor="let item of viewObj.groupBy.items; index as index">
+          <div class="row-header">
+            <label class="row-title">Group {{index + 1}}</label>
+            <button mat-icon-button color="warn" class="action-button action-button--delete" (click)="deleteGroupBy(index)"><mat-icon>delete</mat-icon></button>
+          </div>
+
+          <div class="row-fields">
+            <mat-form-field>
+              <mat-label>Field</mat-label>
+              <mat-select [(value)]="item.field" (selectionChange)="onViewObjChange()">
+                <mat-option *ngFor="let field of obk(classScheme.fields)" [value]="field">{{field}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field class="operation-field">
+              <mat-label>Operation</mat-label>
+              <mat-select [(value)]="item.operation.operator" (selectionChange)="onViewObjChange()">
+                <mat-option value=""></mat-option>
+                <mat-option value="SUM">SUM</mat-option>
+                <mat-option value="COUNT">COUNT</mat-option>
+                <mat-option value="MIN">MIN</mat-option>
+                <mat-option value="MAX">MAX</mat-option>
+                <mat-option value="AVG">AVG</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Operand</mat-label>
+              <mat-select [value]="item.operation.operand.split('.').pop()"
+                          (valueChange)="item.operation.operand = 'object.' + $event; onViewObjChange()">
+                <mat-option *ngFor="let field of obk(classScheme.fields)" [value]="field">{{field}}</mat-option>
+              </mat-select>
+              <label matPrefix>object.</label>
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="pane-section">
+      <div class="section-header">
+        <div class="section-title">
+          <mat-icon>calculate</mat-icon>
+          <label>Operations</label>
+        </div>
+        <span>Add computed operations to each fetched item.</span>
+      </div>
+
+      <div class="section-body">
+        <button mat-button color="primary" class="add-button" (click)="addOperation()">
+          <mat-icon>add</mat-icon>
+          Operation
+        </button>
+
+        <div class="sub-item-card" *ngFor="let operation of viewObj.operations; index as i">
+          <div class="row-header">
+            <mat-form-field class="inputlong operation-name-field">
+              <mat-label>Operation name</mat-label>
+              <input matInput [(ngModel)]="operation.name" (change)="onViewObjChange()">
+            </mat-form-field>
+            <button mat-icon-button color="primary" class="action-button" (click)="addOp(i)"><mat-icon>add</mat-icon></button>
+            <button mat-icon-button class="action-button action-button--delete" (click)="delOperation(i)"><mat-icon>delete</mat-icon></button>
+          </div>
+
+          <div class="nested-item" *ngFor="let op of operation.ops; index as j">
+            <div class="row-fields">
+              <mat-form-field>
+                <mat-label>Field</mat-label>
+                <mat-select [(value)]="op.name" (selectionChange)="onViewObjChange()">
+                  <mat-option *ngFor="let item of fieldList(operation, op.name)" [value]="item">{{item}}</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Operation</mat-label>
+                <mat-select [(value)]="op.operation" (selectionChange)="onViewObjChange()">
+                  <mat-option value="SUM">SUM</mat-option>
+                  <mat-option value="COUNT">COUNT</mat-option>
+                  <mat-option value="MIN">MIN</mat-option>
+                  <mat-option value="MAX">MAX</mat-option>
+                  <mat-option value="AVG">AVG</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Prefix</mat-label>
+                <input matInput [(ngModel)]="op.prefix" (change)="onViewObjChange()">
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Suffix</mat-label>
+                <input matInput [(ngModel)]="op.suffix" (change)="onViewObjChange()">
+              </mat-form-field>
+              <button mat-icon-button class="action-button action-button--delete" (click)="delOp(i, j)"><mat-icon>delete</mat-icon></button>
+            </div>
+
+            <app-usages
+              [type]="op.operation === 'COUNT' ? 'integer' : 'float'"
+              [usage]="op.usage"
+            >
+            </app-usages>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="pane-section">
+      <div class="section-header with-toggle">
+        <div>
+          <div class="section-title">
+            <mat-icon>filter_alt</mat-icon>
+            <label>Domain</label>
+          </div>
+          <span>Filter the list with a domain expression before it is shown.</span>
+        </div>
+      </div>
+
+      <div class="section-body domain-body">
+        <app-property-domain-component
+          [value]="viewObj.domain.dom"
+          [name]="'oui'"
+          [class]="packageName + '\\' + entity"
+          (valueChange)="viewObj.domain.dom = $event; onViewObjChange()"
+        >
+        </app-property-domain-component>
+      </div>
+    </section>
+  </ng-container>
+</div>
