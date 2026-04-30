@@ -9,6 +9,8 @@
  * Activators are responsible for activating intermediate elements
  * (e.g. selecting a tab before scrolling to an element it contains)
  */
+export type QueryParamNavigationPhase = 'pre' | 'scope' | 'state' | 'target';
+
 export interface IQueryParamActivator {
   /**
    * Activator's type (e.g. 'tab', 'menu', 'expandable')
@@ -37,6 +39,22 @@ export interface IQueryParamActivator {
    * @returns Promise that resolves when activation and rendering are complete
    */
   activate(key: string, value: any, context: any): Promise<void>;
+
+  /**
+   * Optional execution phase used by the navigation planner.
+   */
+  phase?: QueryParamNavigationPhase;
+
+  /**
+   * When true, the queryParam value is consumed by this activator and should not
+   * be used as the final field target.
+   */
+  consumesFieldParam?: boolean;
+
+  /**
+   * Optional ordering within the same phase. Lower values run first.
+   */
+  priority?: number;
 }
 
 /**
@@ -103,6 +121,7 @@ export class QueryParamActivatorRegistry {
 export class QueryParamTabActivator implements IQueryParamActivator {
   type = 'tab';
   queryParamKeys = ['tab'];
+  phase: QueryParamNavigationPhase = 'scope';
 
   /**
    * @param tabNameToIndexMap Mapping of the tab name (e.g. 'actions') to its index (e.g. 2)
@@ -118,6 +137,7 @@ export class QueryParamTabActivator implements IQueryParamActivator {
   }
 
   async activate(key: string, value: any, context: any): Promise<void> {
+    // console.log(`Activating tab: ${value}`);
     if (value in this.tabNameToIndexMap) {
       const tabIndex = this.tabNameToIndexMap[value];
       context[this.tabIndexProperty] = tabIndex;
@@ -143,6 +163,7 @@ export class QueryParamTabActivator implements IQueryParamActivator {
 export class QueryParamViewActivator implements IQueryParamActivator {
   type = 'view';
   queryParamKeys = ['view'];
+  phase: QueryParamNavigationPhase = 'scope';
 
   /**
    * @param viewOptions Function or list of available views
@@ -183,6 +204,9 @@ export class QueryParamViewActivator implements IQueryParamActivator {
 export class QueryParamCustomActivator implements IQueryParamActivator {
   type: string;
   queryParamKeys: string[];
+  phase?: QueryParamNavigationPhase;
+  consumesFieldParam?: boolean;
+  priority?: number;
 
   /**
    * @param type Type of activator (e.g. 'layout', 'action')
@@ -214,6 +238,7 @@ export class QueryParamCustomActivator implements IQueryParamActivator {
 export class QueryParamExpandableActivator implements IQueryParamActivator {
   type = 'expandable';
   queryParamKeys: string[];
+  phase: QueryParamNavigationPhase = 'scope';
 
   /**
    * @param elementIdPrefixes Prefixes for identifying expandable elements (e.g. ['section-', 'panel-'])
