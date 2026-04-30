@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { FormControl, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { QueryParamNavigatorService } from 'src/app/_services/query-param-navigator.service';
-import { QueryParamActivatorRegistry } from 'src/app/_services/query-param-activator.registry';
+import { QueryParamActivatorRegistry, IQueryParamActivator } from 'src/app/_services/query-param-activator.registry';
 import { cloneDeep } from 'lodash';
 import { ErrorItemTranslator, Translator } from './_object/Translation';
 import { View } from '../_object/View';
@@ -182,9 +182,11 @@ export class ModelTradEditorComponent implements OnInit {
     }
 
     private initializeNavigation(): void {
-        const langActivator = {
+        const langActivator: IQueryParamActivator = {
             type: 'lang',
             queryParamKeys: ['lang'],
+            phase: 'pre',
+            priority: 10,
             canHandle: (key: string, value: any) => {
                 if (key !== 'lang') { return false; }
                 return this.allLanguages.includes(value) && this.data[value] !== undefined;
@@ -198,9 +200,11 @@ export class ModelTradEditorComponent implements OnInit {
         };
         this.activatorRegistry.register(langActivator);
 
-        const tabActivator = {
+        const tabActivator: IQueryParamActivator = {
             type: 'tab',
             queryParamKeys: ['tab'],
+            phase: 'scope',
+            priority: 20,
             canHandle: (key: string, value: any) => {
                 return key === 'tab' && this.TAB_NAMES.includes(value);
             },
@@ -221,9 +225,11 @@ export class ModelTradEditorComponent implements OnInit {
         };
         this.activatorRegistry.register(tabActivator);
 
-        const viewActivator = {
+        const viewActivator: IQueryParamActivator = {
             type: 'view',
             queryParamKeys: ['view'],
+            phase: 'scope',
+            priority: 30,
             canHandle: (key: string, value: any) => {
                 if (key !== 'view' || !this.lang || !this.data[this.lang]) { return false; }
                 return this.getViewNames().includes(value);
@@ -239,9 +245,11 @@ export class ModelTradEditorComponent implements OnInit {
         };
         this.activatorRegistry.register(viewActivator);
 
-        const viewTabActivator = {
+        const viewTabActivator: IQueryParamActivator = {
             type: 'view_tab',
             queryParamKeys: ['view_tab'],
+            phase: 'scope',
+            priority: 40,
             canHandle: (key: string, value: any) => {
                 return this.viewInnerTabs.includes(value) && value !== null && value !== undefined;
             },
@@ -262,9 +270,11 @@ export class ModelTradEditorComponent implements OnInit {
         };
         this.activatorRegistry.register(viewTabActivator);
 
-        const fieldActivator = {
+        const fieldActivator: IQueryParamActivator = {
             type: 'field',
             queryParamKeys: ['field'],
+            phase: 'state',
+            priority: 50,
             canHandle: (key: string, value: any) => {
                 if (!this.lang || !this.data[this.lang] || key !== 'field') { return false; }
                 return this.fieldExists(this.lang, value);
