@@ -11,6 +11,11 @@ import { PolicyResponse } from '../_models/policy.model';
 import { Actions } from '../_models/actions.model';
 import { convertRights, convertRightsFromStrings, Right, Roles } from '../_models/roles.model';
 
+type CallApiOptions = {
+    successMessage?: string;
+    errorMessage?: string;
+};
+
 
 @Injectable({
     providedIn: 'root'
@@ -55,14 +60,16 @@ export class WorkbenchService {
         return createActions[node.type]?.() || of({ message: 'Unknown type' });
     }
     private createRole(package_name: string, model: any, name: string): Observable<any> {
-        const url = API_ENDPOINTS.class.roles.create(package_name, model, name);
-        return this.callApi(url, `Role ${name} created`);
+        const url = '?do=core_config_create-role';
+        const payload = { entity: `${package_name}\\${model}`, name };
+        return this.callApi(url, payload, { successMessage: `Role ${name} created` });
     }
 
 
     private createPolicy(package_name:string,class_name:string,policy_name:string){
-        const url = API_ENDPOINTS.class.policies.create(package_name,class_name,policy_name);
-        return this.callApi(url,`Policy ${policy_name} created`);
+        const url = '?do=core_config_create-policy';
+        const payload = { entity: `${package_name}\\${class_name}`, name: policy_name };
+        return this.callApi(url, payload, { successMessage: `Policy ${policy_name} created` });
     }
 
 
@@ -114,29 +121,33 @@ export class WorkbenchService {
      * @returns Observable containing the response of the view read request.
      */
     public readView(package_name: string, view_name: string, model_name: string): Observable<ViewSchema> {
-        const url = API_ENDPOINTS.view.read(package_name, model_name, view_name);
-        return this.callApi(url, '').pipe(
+        const url = '?get=core_model_view';
+        const payload = { view_id: view_name, entity: `${package_name}\\${model_name}` };
+        return this.callApi(url, payload).pipe(
             map(({ response }) => response)
         );
     }
 
     public getPolicies(package_name: string, class_name:string): Observable<PolicyResponse>{
-        const url = API_ENDPOINTS.class.policies.get(package_name,class_name);
-        return this.callApi(url,'').pipe(
+        const url = '?get=core_model_policies';
+        const payload = { entity: `${package_name}\\${class_name}` };
+        return this.callApi(url, payload).pipe(
             map(({success, response})=> success ? response: [])
         );
     }
 
     public getActions(package_name:string, class_name:string):Observable<Actions>{
-        const url = API_ENDPOINTS.class.actions.get(package_name,class_name);
-        return this.callApi(url,'').pipe(
+        const url = '?get=core_model_actions';
+        const payload = { entity: `${package_name}\\${class_name}` };
+        return this.callApi(url, payload).pipe(
             map(({success, response})=> success ? response: [])
         );
     }
 
     public getRoles(package_name: string, class_name: string): Observable<Roles> {
-        const url = API_ENDPOINTS.class.roles.get(package_name, class_name);
-        return this.callApi(url, '').pipe(
+        const url = '?get=core_model_roles';
+        const payload = { entity: `${package_name}\\${class_name}` };
+        return this.callApi(url, payload).pipe(
             map(({ response }) => {
                 Object.keys(response).forEach(roleKey => {
                     const role = response[roleKey];
@@ -174,18 +185,18 @@ export class WorkbenchService {
         );
     }
     public saveActions(package_name:string, class_name:string,payload:any): Observable<any>{
-        const url = API_ENDPOINTS.class.actions.save(package_name, class_name);
-        return this.callApi(url,'Actions saved', { payload });
+        const url = '?do=core_config_update-actions';
+        return this.callApi(url, { entity: `${package_name}\\${class_name}`, payload }, { successMessage: 'Actions saved' });
     }
 
     public savePolicies(package_name:string, class_name:string, payload:any): Observable<any>{
-        const url = API_ENDPOINTS.class.policies.save(package_name,class_name);
-        return this.callApi(url,'Policies saved', { payload });
+        const url = '?do=core_config_update-policies';
+        return this.callApi(url, { entity: `${package_name}\\${class_name}`, payload }, { successMessage: 'Policies saved' });
     }
 
     public saveRoles(package_name:string, class_name:string, payload:any): Observable<any>{
-        const url = API_ENDPOINTS.class.roles.save(package_name,class_name);
-        return this.callApi(url,'Roles saved', { payload });
+        const url = '?do=core_config_update-roles';
+        return this.callApi(url, { entity: `${package_name}\\${class_name}`, payload }, { successMessage: 'Roles saved' });
     }
     /**
      * Updates the fields for a given class in a specified package.
@@ -196,9 +207,14 @@ export class WorkbenchService {
      * @returns Observable indicating the success of the update operation.
      */
     public updateFieldsFromClass(new_schema: {}, package_name: string, class_name: string): Observable<any> {
-        const url = API_ENDPOINTS.class.update_fields(new_schema, package_name, class_name);
+        const url = '?do=config_update-model';
+        const payload = {
+            part: 'class',
+            entity: `${package_name}\\${class_name}`,
+            payload: JSON.stringify(new_schema)
+        };
         const successfullyMessage = `Fields from ${package_name}//${class_name} has been updated`;
-        return this.callApi(url, successfullyMessage);
+        return this.callApi(url, payload, { successMessage: successfullyMessage });
     }
 
     /**
@@ -214,9 +230,14 @@ export class WorkbenchService {
         controller_name: string, 
         controller_type: string, 
         payload: { [id: string]: any }): Observable<any> {
-        const url = API_ENDPOINTS.controller.update(package_name, controller_name, controller_type, payload);
+        const url = '?do=core_config_update-controller';
+        const requestPayload = {
+            controller: `${package_name}_${controller_name}`,
+            operation: controller_type,
+            payload: JSON.stringify(payload)
+        };
         const successfullyMessage = `${controller_name} has been updated`;
-        return this.callApi(url, successfullyMessage);
+        return this.callApi(url, requestPayload, { successMessage: successfullyMessage });
     }
 
 
@@ -339,8 +360,8 @@ export class WorkbenchService {
      */
     public getSchema(entity: string): Observable<any> {
         if (entity) {
-          const url = API_ENDPOINTS.schema.get(entity);
-          return this.callApi(url, '').pipe(
+          const url = '?get=core_model_schema';
+          return this.callApi(url, { entity }).pipe(
             map(result => result.response),
             catchError((response: any) => {
               console.warn('Request error:', response);
@@ -354,14 +375,19 @@ export class WorkbenchService {
 
 
     public saveView(payload:any, package_name: string, model:string,view_id:string):Observable<any>{
-        const url = API_ENDPOINTS.view.save(payload,package_name,model,view_id)
+        const url = '?do=core_config_update-view';
+        const requestPayload = {
+            entity: `${package_name}\\${model}`,
+            view_id,
+            payload: JSON.stringify(payload)
+        };
         const successfullyMessage = `${view_id} has been updated`
-        return this.callApi(url, successfullyMessage);
+        return this.callApi(url, requestPayload, { successMessage: successfullyMessage });
     }
 
     public readPackage(package_name: string): Observable<{ response: PackageSummary; message: string }> {
-        const url = API_ENDPOINTS.package.infos(package_name);
-        return this.callApi(url, '').pipe(
+        const url = '?get=packageinfo';
+        return this.callApi(url, { package: package_name }).pipe(
             map(({ response, message }) => {
                 const packageInfo: PackageInfos = response;
 
@@ -391,20 +417,26 @@ export class WorkbenchService {
         do_cascade: boolean,
         do_import_cascade: boolean
       ): Observable<any> {
-        const url = `?do=core_init_package&package=${package_name}` +
-          `${do_import ? `&import=true` : ``}` +
-          `&cascade=${do_cascade ? `true` : `false`}` +
-          `&import_cascade=${do_import_cascade ? `true` : `false`}` +
-          `&force=true`;
+        const url = '?do=core_init_package';
+        const payload: any = {
+            package: package_name,
+            cascade: do_cascade ? 'true' : 'false',
+            import_cascade: do_import_cascade ? 'true' : 'false',
+            force: 'true'
+        };
 
-        return this.callApi(url, ``).pipe(
+        if (do_import) {
+            payload.import = 'true';
+        }
+
+        return this.callApi(url, payload).pipe(
           map(({ response }) => response)
         );
       }
 
     public getInitializedPackages(): Observable<any> {
         const url = `?get=core_config_live_packages`;
-        return this.callApi(url, ``).pipe(
+        return this.callApi(url).pipe(
             map(({ response }) => response)
         );
     }
@@ -414,8 +446,8 @@ export class WorkbenchService {
             console.warn(`Ignoring empty package`);
             return of([]);
         }
-        const url = `?do=test_package-consistency&package=${package_name}&force=true`;
-        return this.callApi(url, ``);
+        const url = '?do=test_package-consistency';
+        return this.callApi(url, { package: package_name, force: 'true' });
     }
 
     public getCachedPackageConsistency(package_name: string): any | null {
@@ -462,9 +494,9 @@ export class WorkbenchService {
      * @returns An observable that emits the result of the package creation, including a success or error message.
      */
     private createPackage(package_name: string): Observable<any> {
-        const url = API_ENDPOINTS.package.create(package_name);
+        const url = '?do=core_config_create-package';
         const successfullyMessage=`Package ${package_name} created successfully!`
-        return this.callApi(url, successfullyMessage);
+        return this.callApi(url, { package: package_name }, { successMessage: successfullyMessage });
     }
 
     /**
@@ -474,9 +506,9 @@ export class WorkbenchService {
      * @returns An observable that emits the result of the package deletion, including a success or error message.
      */
     private deletePackage(package_name: string): Observable<any> {
-        const url = API_ENDPOINTS.package.delete(package_name);
+        const url = '?do=core_config_delete-package';
         const successfullyMessage=`Package ${package_name} deleted successfully!`
-        return this.callApi(url, successfullyMessage);
+        return this.callApi(url, { package: package_name }, { successMessage: successfullyMessage });
     }
 
 
@@ -493,58 +525,77 @@ export class WorkbenchService {
     *
     */
     private createClass(package_name: string, class_name: string, parent: string): Observable<any> {
-    const url = API_ENDPOINTS.class.create(package_name,class_name,parent);
+    const url = '?do=core_config_create-model';
+    const payload: any = { model: class_name, package: package_name };
+    if (parent !== 'equal\\orm\\Model') {
+        payload.extends = parent.replace(/\\/g, '\\\\');
+    }
     const successfullyMessage = `Class ${class_name} created successfully!`;
-    return this.callApi(url,successfullyMessage);
+    return this.callApi(url, payload, { successMessage: successfullyMessage });
     }
 
     private deleteClass(package_name: string, class_name: string): Observable<any> {
-        const url = API_ENDPOINTS.class.delete(package_name,class_name);
+        const url = '?do=core_config_delete-model';
         const successfullyMessage = `Class ${class_name} deleted successfully!`;
-        return this.callApi(url, successfullyMessage);
+        return this.callApi(url, { package: package_name, model: class_name }, { successMessage: successfullyMessage });
     }
 
     private createView(package_name:string, model_name: string, view_name: string): Observable<any> {
-        const url = API_ENDPOINTS.view.create(package_name,model_name,view_name);
+        const url = '?do=core_config_create-view';
+        const payload = { view_id: view_name, entity: `${package_name}\\${model_name}` };
         const successfullyMessage = `View ${view_name} created successfully!`;
-        return this.callApi(url, successfullyMessage);
+        return this.callApi(url, payload, { successMessage: successfullyMessage });
     }
 
     private deleteView(package_name: string, model_name: string, view_name: string): Observable<any>{
-        const url = API_ENDPOINTS.view.delete(package_name,model_name,view_name);
+        const url = '?do=core_config_delete-view';
+        const payload = { entity: `${package_name}\\${model_name}`, view_id: view_name };
         const successfullyMessage = `View ${model_name}:${view_name} deleted successfully!`;
-        return this.callApi(url,successfullyMessage);
+        return this.callApi(url, payload, { successMessage: successfullyMessage });
     }
 
 
     private createController(package_name: string, controller_name: string, controller_type: string): Observable<any> {
-        const url = API_ENDPOINTS.controller.create(package_name,controller_name,controller_type);
+        const url = '?do=core_config_create-controller';
+        const payload = {
+            controller_name,
+            controller_type,
+            package: package_name
+        };
         const successfullyMessage = `Controller ${controller_name} of type ${controller_type} created successfully!`;
-        return this.callApi(url,successfullyMessage);
+        return this.callApi(url, payload, { successMessage: successfullyMessage });
     }
 
     private deleteController(package_name: string, controller_name: string, controller_type: string): Observable<any> {
-        const url = API_ENDPOINTS.controller.delete(package_name,controller_name, controller_type);
+        const url = '?do=core_config_delete-controller';
+        const payload = {
+            package: package_name,
+            controller_name,
+            controller_type
+        };
         const successfullyMessage = `Controller ${controller_name} of type ${controller_type} deleted successfully!`;
-        return this.callApi(url, successfullyMessage);
+        return this.callApi(url, payload, { successMessage: successfullyMessage });
     }
 
     private createMenu(package_name: string, menu_name: string, menu_type: string): Observable<any> {
-        const url = API_ENDPOINTS.menu.create(package_name,menu_name,menu_type);
+        const url = '?do=core_config_create-view';
+        const payload = { view_id: `${menu_name}.${menu_type}`, entity: `${package_name}\\menu` };
         const successfullyMessage = `Menu ${menu_name} of type ${menu_type} created successfully!`;
-        return this.callApi(url,successfullyMessage);
+        return this.callApi(url, payload, { successMessage: successfullyMessage });
     }
 
     private deleteMenu(package_name: string, menu_name: string): Observable<any> {
-        const url = API_ENDPOINTS.menu.delete(package_name,menu_name);
+        const url = '?do=core_config_delete-view';
+        const payload = { entity: `${package_name}\\menu`, view_id: menu_name };
         const successfullyMessage = `Menu ${menu_name} deleted successfully!`;
-        return this.callApi(url,successfullyMessage);
+        return this.callApi(url, payload, { successMessage: successfullyMessage });
     }
 
     private createRoute(package_name: string, file_name: string, route_name: string): Observable<any> {
-        const url = API_ENDPOINTS.route.create(package_name,file_name,route_name);
+        const url = '?do=core_config_create-route';
+        const payload = { package: package_name, file: file_name, url: route_name };
         const successfullyMessage=`Route ${route_name} created successfully!`;
-        return this.callApi(url, successfullyMessage);
+        return this.callApi(url, payload, { successMessage: successfullyMessage });
     }
 
     /**
@@ -555,8 +606,8 @@ export class WorkbenchService {
      * logs it to the console, and returns an error message along with the error details.
      *
      * @param {string} url - The URL endpoint for the API request.
-     * @param {string} successMessage - A custom success message to be returned upon a successful API call.
-     * @param {any} [body={}] - The request body to be sent with the API call (optional). Defaults to an empty object.
+     * @param {any} [payload={}] - The request payload to be sent with the API call. Defaults to an empty object.
+     * @param {CallApiOptions} [options={}] - Optional success and error messages for the API call.
      *
      * @returns {Observable<{ success: boolean, message: string, response: any }>} An observable containing the result of the API call.
      *  - success: A boolean indicating whether the API call was successful (`true` if successful, `false` if failed).
@@ -565,7 +616,7 @@ export class WorkbenchService {
      *
      * Example usage:
      * ```typescript
-     * this.callApi('/endpoint', 'Data fetched successfully')
+     * this.callApi('/endpoint', {}, { successMessage: 'Data fetched successfully' })
      *   .subscribe(result => {
      *     if (result.success) {
      *       console.log(result.message); // Success message
@@ -577,32 +628,45 @@ export class WorkbenchService {
      *   });
      * ```
      */
-    private callApi(url: string, successMessage: string, payload:any = {}): Observable<{ success: boolean; message: string; response: any; }> {
-            return from(this.api.fetch(url,payload)).pipe(
-                map((response: any) => ({
-                    success: true,
-                    message: successMessage,
-                    response: response || null
-                })),
-                catchError(response => { //changer en response
+    private callApi(
+        url: string,
+        payload: any = {},
+        options: CallApiOptions = {}
+    ): Observable<{ success: boolean; message: string; response: any; }> {
+        const { successMessage = '', errorMessage } = options;
+        return new Observable(observer => {
+            this.api.call(url, payload).then(
+                (response: any) => {
+                    observer.next({
+                        success: true,
+                        message: successMessage,
+                        response: response || null
+                    });
+                    observer.complete();
+                },
+                (response: any) => {
                     console.error("Error details:", response);
-                    let errorMessage = `Error: `;
+                    let message = errorMessage ?? 'Error: ';
                     if (response.error && response.error.errors) {
                         let errorDetails = response.error.errors;
+                        const details: string[] = [];
                         for (const [key, value] of Object.entries(errorDetails)) {
-                            errorMessage += `\n${key}: ${value}`;
+                            details.push(`${key}: ${value}`);
                         }
+                        message = `${message}\n${details.join('\n')}`;
                     } else {
-                        errorMessage += response.message;
+                        message = errorMessage ?? `Error: ${response.message}`;
                     }
-                    return of({
+                    observer.next({
                         success: false,
-                        message: errorMessage,
+                        message,
                         response: response
                     });
-                })
+                    observer.complete();
+                }
             );
-        }
+        });
+    }
 
 ///////////////////// Functions that should need refactoring because it can still contain duplication functions
     /**
@@ -612,7 +676,7 @@ export class WorkbenchService {
      */
     public collectAllPackages(): Observable<string[]> {
         const url = '?get=config_packages';
-        return this.callApi(url, '').pipe(
+        return this.callApi(url).pipe(
             map((result: any) => result.response || [])
         );
         }
@@ -623,10 +687,11 @@ export class WorkbenchService {
      * @tag EqualComponentProvider
      * */
     public collectViews(package_name: string, entity?: string): Observable<string[]> {
-        const url = entity === undefined
-            ? `?get=core_config_views&package=${package_name}`
-            : `?get=core_config_views&entity=${package_name}\\${entity}`;
-        return this.callApi(url, '').pipe(
+        const url = '?get=core_config_views';
+        const payload = entity === undefined
+            ? { package: package_name }
+            : { entity: `${package_name}\\${entity}` };
+        return this.callApi(url, payload).pipe(
             map((result: any) => result.response || [])
         );
         }
@@ -641,8 +706,8 @@ export class WorkbenchService {
      * @tag EqualComponentProvider
      */
     public getMenusByPackage(package_name: string): Observable<string[]> {
-        const url = `?get=core_config_menus&package=${package_name}`;
-        return this.callApi(url, '').pipe(
+        const url = '?get=core_config_menus';
+        return this.callApi(url, { package: package_name }).pipe(
             map((result: any) => result.response || [])
         );
         }
@@ -654,8 +719,8 @@ export class WorkbenchService {
      * @tag EqualComponentProvider
      */
     public getRoutesByPackage(package_name: string): Observable<any> {
-        const url = `?get=core_config_routes&package=${package_name}`;
-        return this.callApi(url, '').pipe(
+        const url = '?get=core_config_routes';
+        return this.callApi(url, { package: package_name }).pipe(
             map((result: any) => result.response)
         );
         }
@@ -664,12 +729,12 @@ export class WorkbenchService {
 
     public getAllRouteFiles(): Observable<string[]> {
         const packagesUrl = '?get=core_config_packages';
-        return this.callApi(packagesUrl, '').pipe(
+        return this.callApi(packagesUrl).pipe(
             switchMap((result: any) => {
             const packs: string[] = result.response || [];
             const observables = packs.map(package_name => {
-                const url = `?get=core_config_routes&package=${package_name}`;
-                return this.callApi(url, '').pipe(
+                const url = '?get=core_config_routes';
+                return this.callApi(url, { package: package_name }).pipe(
                 map((res: any) => Object.keys(res.response || {}))
                 );
             });
@@ -695,17 +760,15 @@ export class WorkbenchService {
      * @returns array with the respond of a controller's execution
      */
     public submitController(type_controller: string, controller_name: string, params: any[]): Observable<any> {
-        let stringParams = '';
+        const payload: any = {};
         for (let key in params) {
-            if (Array.isArray(params[key])) {
-                stringParams += `&${key}=${JSON.stringify(params[key])}`;
-            } else {
-                stringParams += `&${key}=${params[key]}`;
-            }
+            payload[key] = Array.isArray(params[key])
+                ? JSON.stringify(params[key])
+                : params[key];
         }
 
-        const url = `?${type_controller}=${controller_name}${stringParams}`;
-        return this.callApi(url, '').pipe();
+        const url = `?${type_controller}=${controller_name}`;
+        return this.callApi(url, payload).pipe();
     }
 
 
@@ -720,7 +783,7 @@ export class WorkbenchService {
      */
     public collectClasses(format: boolean = false): Observable<any> {
         const url = '?get=core_config_classes';
-        return this.callApi(url, '').pipe(
+        return this.callApi(url).pipe(
             map((result: any) => {
                 const x = result.response;
 
@@ -751,7 +814,7 @@ export class WorkbenchService {
      */
     public getTypes(): Observable<any> {
         const url = '?get=config_types';
-        return this.callApi(url, '').pipe(
+        return this.callApi(url).pipe(
             map(({ response }) => response)
         );
     }
@@ -765,7 +828,7 @@ export class WorkbenchService {
      */
     public getValidOperators(): Observable<any> {
         const url = '?get=core_config_domain-operators';
-        return this.callApi(url, '').pipe(
+        return this.callApi(url).pipe(
             map(({ response }) => response)
         );
     }
@@ -779,7 +842,7 @@ export class WorkbenchService {
      */
     public getUsages(): Observable<any> {
         const url = '?get=config_usage';
-        return this.callApi(url, '').pipe(
+        return this.callApi(url).pipe(
             map(({ response }) => response)
         );
     }
@@ -794,8 +857,8 @@ export class WorkbenchService {
      * @returns {Observable<any>} An observable that emits the response containing the instances of the entity.
      */
     public collectEntitiesWithFilters(entity: string, fields: string[] = []): Observable<any> {
-        const url = `?get=core_model_collect&entity=${entity}&fields=${JSON.stringify(fields)}`;
-        return this.callApi(url, '').pipe(
+        const url = '?get=core_model_collect';
+        return this.callApi(url, { entity, fields: JSON.stringify(fields) }).pipe(
             map(({ response }) => response)
         );
     }
@@ -807,8 +870,8 @@ export class WorkbenchService {
      * @returns
      */
     public getViews(package_name: string, entity: string): Observable<string[]> {
-        const url = `?get=core_config_views&package=${package_name}&entity=${entity}`;
-        return this.callApi(url, '').pipe(
+        const url = '?get=core_config_views';
+        return this.callApi(url, { package: package_name, entity }).pipe(
             map(({response}) => response || []));
     }
 
@@ -819,8 +882,8 @@ export class WorkbenchService {
      * @returns
      */
     public getView(entity: string, name: string): Observable<any> {
-        const url = `?get=core_model_view&view_id=${name}&entity=${entity}`;
-        return this.callApi(url, '').pipe(
+        const url = '?get=core_model_view';
+        return this.callApi(url, { view_id: name, entity }).pipe(
             map((result: any) => result.response || {})
         );
     }
@@ -890,8 +953,16 @@ export class WorkbenchService {
      * @returns {Observable<any>} An observable that emits the response containing the core groups.
      */
     public getCoreGroups(): Observable<any> {
-        const url = '?get=core_model_collect&fields=[name]&lang=en&domain=[]&order=id&sort=asc&entity=core\\Group';
-        return this.callApi(url, '').pipe(
+        const url = '?get=core_model_collect';
+        const payload = {
+            fields: '[name]',
+            lang: 'en',
+            domain: '[]',
+            order: 'id',
+            sort: 'asc',
+            entity: 'core\\Group'
+        };
+        return this.callApi(url, payload).pipe(
             map(({ response }) => response)
         );
     }
@@ -908,22 +979,22 @@ export class WorkbenchService {
      * @returns {Observable<{ [id: string]: any } | null>} An observable that emits the translations if available, or `null` if no translations are found.
      */
     public getTranslations(package_name: string, entity: string) : Observable<{ [id: string]: any } | null> {
-        const url = `?get=core_config_translations&entity=${package_name}\\${entity}`;
-        return this.callApi(url, '').pipe(
+        const url = '?get=core_config_translations';
+        return this.callApi(url, { entity: `${package_name}\\${entity}` }).pipe(
             map((response: any) => response.success ? response.response : null)
         );
     }
 
     public getTranslationLanguages(package_name: string, entity: string, language: string): Observable<string[]> {
-        const url = `?get=core_config_translation&entity=${package_name}\\${entity}&lang=${language}`;
-        return this.callApi(url, '').pipe(
+        const url = '?get=core_config_translation';
+        return this.callApi(url, { entity: `${package_name}\\${entity}`, lang: language }).pipe(
             map((response: any) => response.success ? response.response : [])
         );
     }
 
     public getTranslationLanguagesByPackage(package_name: string): Observable<{ [entity: string]: string[] }> {
-        const url = `?get=core_config_translations&package=${package_name}`;
-        return this.callApi(url, '').pipe(
+        const url = '?get=core_config_translations';
+        return this.callApi(url, { package: package_name }).pipe(
             map((response: any) => response.success ? response.response : {})
         );
     }
@@ -940,8 +1011,8 @@ export class WorkbenchService {
      * @returns {Observable<{ [id: string]: string[] }>} An observable that emits a mapping of translation IDs to their keys.
      */
     public getTranslationsList(package_name: string, entity: string): Observable<{ [id: string]: string[] }> {
-        const url = `?get=core_config_translations&entity=${package_name}\\${entity}`;
-        return this.callApi(url, '').pipe(
+        const url = '?get=core_config_translations';
+        return this.callApi(url, { entity: `${package_name}\\${entity}` }).pipe(
             map(({ response }) => response ? response : {})
         );
     }
@@ -959,8 +1030,15 @@ export class WorkbenchService {
      */
     public saveTranslations(package_name: string, entity: string, dict: any): Observable<any> {
         const requests = Object.keys(dict).map((lang) => {
-            const url = `?do=core_config_update-translation&package=${package_name}&entity=${entity}&lang=${lang}&create_lang=true&payload=${JSON.stringify(dict[lang].export())}`;
-            return this.callApi(url, 'Translation updated').pipe(
+            const url = '?do=core_config_update-translation';
+            const payload = {
+                package: package_name,
+                entity,
+                lang,
+                create_lang: 'true',
+                payload: JSON.stringify(dict[lang].export())
+            };
+            return this.callApi(url, payload, { successMessage: 'Translation updated' }).pipe(
                 catchError((err) => {
                     console.error(`Error saving translation for ${lang}:`, err);
                     return of(null); // Continue even if there's an error
@@ -983,8 +1061,8 @@ export class WorkbenchService {
      */
     //#memo: This method should be updated to handle a list of translations instead of a single one, to be consistent with the other translation methods
     public getMenuTranslationsList(package_name: string, menu_id: string, lang: string): Observable<{ [id: string]: string[] }> {
-        const url = `?get=core_config_i18n-menu&package=${package_name}&menu_id=${menu_id}&lang=${lang}`;
-        return this.callApi(url, '').pipe(
+        const url = '?get=core_config_i18n-menu';
+        return this.callApi(url, { package: package_name, menu_id, lang }).pipe(
             map(({ response }) => response ? response : {})
         );
     }
@@ -1003,8 +1081,16 @@ export class WorkbenchService {
     public overwriteTranslations(package_name: string, entity: string, dict: any): Observable<void> {
         const requests = Object.keys(dict).map((lang) => {
             const payload = dict[lang].export ? dict[lang].export() : dict[lang];
-            const url = `?do=core_config_generate-i18n&package=${package_name}&entity=${entity}&overwrite=true&lang=${lang}&create_lang=true&payload=${JSON.stringify(payload)}`;
-            return this.callApi(url, 'Translation updated').pipe(
+            const url = '?do=core_config_generate-i18n';
+            const requestPayload = {
+                package: package_name,
+                entity,
+                overwrite: 'true',
+                lang,
+                create_lang: 'true',
+                payload: JSON.stringify(payload)
+            };
+            return this.callApi(url, requestPayload, { successMessage: 'Translation updated' }).pipe(
                 catchError((err) => {
                     console.error(`Error saving translation for ${lang}:`, err);
                     return of(null); // Continue even if there's an error
@@ -1038,9 +1124,17 @@ export class WorkbenchService {
         const requests: Observable<boolean>[] = Object.keys(dict).map((lang) => {
             // Handle both Translator instances and plain objects
             const payload = dict[lang].export ? dict[lang].export() : dict[lang];
-            const url = `?do=core_config_generate-menu-i18n&package=${package_name}&menu_name=${menu_name}&overwrite=true&lang=${lang}&create_lang=true&payload=${JSON.stringify(payload)}`;
+            const url = '?do=core_config_generate-menu-i18n';
+            const requestPayload = {
+                package: package_name,
+                menu_name,
+                overwrite: 'true',
+                lang,
+                create_lang: 'true',
+                payload: JSON.stringify(payload)
+            };
 
-            return this.callApi(url, 'Translation updated').pipe(
+            return this.callApi(url, requestPayload, { successMessage: 'Translation updated' }).pipe(
                 map((result) => !!result.success),
                 catchError((err) => {
                     console.error(`Error saving translation for ${lang}:`, err);
@@ -1114,8 +1208,9 @@ export class WorkbenchService {
      * @returns {Observable<boolean>} An observable that emits `true` if the UML was successfully saved, or `false` if failed.
      */
     public saveUML(package_name: string, type: string, path: string, payload: string): Observable<boolean> {
-        const url = `?do=core_config_update-uml&package=${package_name}&type=${type}&filename=${path}`;
-        return this.callApi(url, '', { payload: payload }).pipe(
+        const url = '?do=core_config_update-uml';
+        const requestPayload = { package: package_name, type, filename: path, payload };
+        return this.callApi(url, requestPayload).pipe(
             map(({ success }) => success)
         );
     }
@@ -1132,14 +1227,18 @@ export class WorkbenchService {
      *         If the request fails, an empty object is returned.
      */
     public getUMLList(type: string, package_name?: string): Observable<any> {
-        const url = `?get=core_config_umls&type=${type}&package=${package_name}`;
+        const url = '?get=core_config_umls';
+        const payload: any = { type };
+        if (package_name) {
+            payload.package = package_name;
+        }
         if(package_name){
-            return this.callApi(url, '').pipe(
+            return this.callApi(url, payload).pipe(
                 map(({ success, response }) => success ? response[package_name] || [] : [])
             );
         }
         else{
-            return this.callApi(url, '').pipe(
+            return this.callApi(url, payload).pipe(
                 map(({ success, response }) => success ? response : {})
             );
         }
@@ -1160,8 +1259,8 @@ export class WorkbenchService {
      * @returns {Observable<any[]>} An observable that emits the UML content as an array. If the request fails, an empty array is returned.
      */
     public getUMLContent(package_name: string, type: string, path: string): Observable<any[]> {
-        const url = `?get=core_config_uml&package=${package_name}&type=${type}&path=${path}`;
-        return this.callApi(url, '').pipe(
+        const url = '?get=core_config_uml';
+        return this.callApi(url, { package: package_name, type, path }).pipe(
             map(({ success, response }) => success ? response : [])
         );
     }
@@ -1197,8 +1296,8 @@ export class WorkbenchService {
         if (!type_controller || !name) {
             return of(null);
         }
-        const url = `?${type_controller}=${name}&announce=true`;
-        return this.callApi(url, '').pipe(
+        const url = `?${type_controller}=${name}`;
+        return this.callApi(url, { announce: 'true' }).pipe(
             map(({response}) => response),
             tap((response) => console.log('announceController response:', response)),
         );
@@ -1206,7 +1305,7 @@ export class WorkbenchService {
 
     public getRoutesLive(): Observable<any> {
         const url = '?get=config_live_routes';
-        return this.callApi(url, '').pipe(
+        return this.callApi(url).pipe(
             map(({response}) => response)
         );
     }
@@ -1218,9 +1317,9 @@ export class WorkbenchService {
         controller_type: '' | 'data' | 'actions',
         format: boolean
     ): Observable<string[]> {
-        const url = `?get=core_config_controllers&package=${package_name}`;
+        const url = '?get=core_config_controllers';
 
-        return this.callApi(url, `Fetched controllers for package ${package_name}`).pipe(
+        return this.callApi(url, { package: package_name }, { successMessage: `Fetched controllers for package ${package_name}` }).pipe(
             map(({ response }) => {
                 // Step 1: Retrieve controllers based on controller_type
                 let controllers: string[] = controller_type
