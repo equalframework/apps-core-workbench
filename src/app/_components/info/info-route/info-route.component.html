@@ -10,7 +10,7 @@
             [titleLabel]="'Route'"
             [title]="route.name"
             [description]="route.description || ''"
-            [metaData]="routeMeta"
+            [metaData]="route.routeMeta"
             [statusInfo]="headerStatus"
             [showEditTranslationButtons]="false">
         </app-info-header>
@@ -25,12 +25,12 @@
                         </mat-form-field>
                     </div>
                     <div class="method-count">
-                        <span class="count">{{methods.length}}</span>
-                        <span class="label">Method{{ methods.length !== 1 ? 's' : '' }}</span>
+                        <span class="count">{{route.methods.length}}</span>
+                        <span class="label">Method{{ route.methods.length !== 1 ? 's' : '' }}</span>
                     </div>
                 </div>
                 <div class="methods-list">
-                    <div *ngFor="let method of methods" class="method-card">
+                    <div *ngFor="let method of route.methods" class="method-card">
                         <div class="method-badge" [class]="'method-' + method">
                             {{method}}
                         </div>

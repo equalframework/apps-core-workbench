@@ -80,7 +80,7 @@
 
         <ng-container *ngIf="selectedComponent.type === 'route'">
             <info-route
-                    [route]="selectedComponent"
+                    [equalComponentDescriptor]="selectedComponent"
                     (redirect)="goTo({name:$event})">
             </info-route>
         </ng-container>
