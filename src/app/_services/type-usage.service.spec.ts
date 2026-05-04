@@ -60,6 +60,11 @@ describe('TypeUsageService', () => {
       const calls = mockApiService.fetch.calls.all();
       expect(calls.some(call => call.args[0] === '?get=core_config_usages')).toBe(true);
     });
+
+    it('should set scheme property with API response', async () => {
+      await new Promise(resolve => setTimeout(resolve, 50));
+      expect(service['scheme']).toEqual(mockScheme);
+    });
   });
 
   describe('usages getter', () => {
