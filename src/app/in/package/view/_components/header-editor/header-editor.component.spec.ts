@@ -36,4 +36,14 @@ describe('HeaderEditorComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should update action visibility on Changes', () => {
+    expect(component.headerActionVisible).toBeFalse();
+    expect(component.headerSelectionActionVisible).toBeFalse();
+    component.obj._has_actions = true;
+    component.obj.selection.predef_actions._has_selection_actions = {visible: true};
+    component.ngOnChanges();
+    expect(component.headerActionVisible).toBeTrue();
+    expect(component.headerSelectionActionVisible).toBeTrue();
+  });
 });
