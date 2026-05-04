@@ -17,6 +17,7 @@ import { EqualComponentsProviderService } from 'src/app/in/_services/equal-compo
 import { QueryParamActivatorRegistry, IQueryParamActivator, QueryParamTabActivator } from 'src/app/_services/query-param-activator.registry';
 import { QueryParamNavigatorService } from 'src/app/_services/query-param-navigator.service';
 import { JsonValidationService } from 'src/app/in/_services/json-validation.service';
+import { tap } from 'rxjs/operators';
 
 @Component({
     selector: 'app-package-model-fields',
@@ -36,8 +37,12 @@ export class PackageModelFieldsComponent implements OnInit {
     public modelName = '';
     public modelDescription = '';
     public modelLink = '';
+    private originalModelName = '';
+    private originalModelDescription = '';
+    private originalModelLink = '';
     public dummyScheme: any = {};
     public isSaving = false;
+    public modelPayload: any = {};
 
     public models: string[] = [];
     public get types(): string[] {
@@ -107,7 +112,6 @@ export class PackageModelFieldsComponent implements OnInit {
             void this.fetchBackgroundData();
 
         });
-
     }
 
     private initializeNavigation(): void {
@@ -157,6 +161,9 @@ export class PackageModelFieldsComponent implements OnInit {
         this.modelName = this.className || '';
         this.modelDescription = this.schema.description || '';
         this.modelLink = this.schema.link || '';
+        this.originalModelName = this.modelName;
+        this.originalModelDescription = this.modelDescription;
+        this.originalModelLink = this.modelLink;
 
         for (const item in this.schema.fields) {
             this.fieldList.push(new Field(cloneDeep(this.schema.fields[item]), item));
@@ -282,25 +289,58 @@ export class PackageModelFieldsComponent implements OnInit {
     }
 
     public async savedata(): Promise<void> {
-        const exportedModel = this.export2JSON();
-        let modelPayloadForValidation: any;
+        const json = this.export2JSON();
+        let modelPayload: any;
+        const shouldRecreateClass = this.hasModelMetadataChanged();
 
         try {
-            modelPayloadForValidation = await this.buildModelPayloadWithFields(exportedModel);
+            modelPayload = await this.buildModelPayload(json);
         } catch (error) {
             this.notificationService.showError('Error while fetching model schema for fields validation.');
             return;
         }
-
         this.jsonValidationService.validateAndSave(
             this.jsonValidationService.
-            validateBySchemaType(modelPayloadForValidation, 'urn:equal:json-schema:core:model', this.packageName),
-            () => this.workbenchService.updateFieldsFromClass(exportedModel, this.packageName, this.className),
+            validateBySchemaType(modelPayload, 'urn:equal:json-schema:core:model', this.packageName),
+            () => (shouldRecreateClass
+                ? this.workbenchService.replaceClass(
+                    this.packageName,
+                    this.originalModelName || this.className,
+                    this.modelName,
+                    this.schema.parent,
+                    this.modelPayload,
+                )
+                : this.workbenchService.updateFieldsFromClass(this.modelPayload, this.packageName, this.className)
+            ).pipe(tap((result) => {
+                if (result && result.success === false) {
+                    return;
+                }
+
+                this.className = this.modelName;
+                this.originalModelName = this.modelName;
+                this.originalModelDescription = this.modelDescription;
+                this.originalModelLink = this.modelLink;
+                this.updateURLIfNeeded();
+            })),
             (saving) => this.isSaving = saving
         );
     }
 
-    private async buildModelPayloadWithFields(exportedModel: any): Promise<any> {
+    private updateURLIfNeeded(): void {
+        const currentURL = this.router.previous?.[0]?.url || '';
+        const expectedURL = `/package/${this.packageName}/${this.className}/fields`;
+        if (currentURL !== expectedURL) {
+            this.location.go(expectedURL);
+        }
+    }
+
+    private hasModelMetadataChanged(): boolean {
+        return this.modelName !== this.originalModelName
+            || this.modelDescription !== this.originalModelDescription
+            || this.modelLink !== this.originalModelLink;
+    }
+
+    private async buildModelPayload(exportedModel: any): Promise<any> {
         const entity = `${this.packageName}\\${this.className}`;
         const latestModelSchema = await this.workbenchService.getSchema(entity).toPromise();
         const modelPayload = cloneDeep(latestModelSchema || {});
@@ -314,6 +354,11 @@ export class PackageModelFieldsComponent implements OnInit {
             ...schemaFields,
             ...exportedFields,
         };
+        this.modelPayload = modelPayload;
+        this.modelPayload.fields = {
+            ...exportedFields,
+        }
+
         return modelPayload;
     }
 

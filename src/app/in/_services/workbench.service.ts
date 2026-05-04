@@ -202,6 +202,40 @@ export class WorkbenchService {
     }
 
     /**
+     * Recreates a class when its file identity changes, then reapplies its schema.
+     *
+     * @param package_name The package containing the class.
+     * @param previous_class_name The current class name on disk.
+     * @param class_name The new class name to create.
+     * @param parent The parent class for the recreated model.
+     * @param payload The schema payload to persist after recreation.
+     */
+    public replaceClass(
+        package_name: string,
+        previous_class_name: string,
+        class_name: string,
+        parent: string,
+        payload: any,
+    ): Observable<any> {
+        return this.deleteClass(package_name, previous_class_name).pipe(
+            switchMap((deleteResult) => {
+                if (!deleteResult?.success) {
+                    return of(deleteResult);
+                }
+
+                return this.createClass(package_name, class_name, parent).pipe(
+                    switchMap((createResult) => {
+                        if (!createResult?.success) {
+                            return of(createResult);
+                        }
+
+                        return this.updateFieldsFromClass(payload, package_name, class_name);
+                    })
+                );
+            })
+        );
+    }
+    /**
      * Updates a given controller with the provided payload.
      *
      * @param controller_name The name of the controller to be updated.
@@ -585,7 +619,7 @@ export class WorkbenchService {
                     response: response || null
                 })),
                 catchError(response => { //changer en response
-                    console.error("Error details:", response);
+                    // console.error("Error details:", response);
                     let errorMessage = `Error: `;
                     if (response.error && response.error.errors) {
                         let errorDetails = response.error.errors;
@@ -914,6 +948,17 @@ export class WorkbenchService {
         );
     }
 
+    public getTranslation(package_name: string, entity: string, language: string): Observable<{ [id: string]: any } | null> {
+        const url = `?get=core_translation&entity=${package_name}\\${entity}&lang=${language}`;
+        return this.callApi(url, '').pipe(
+            map((response: any) => response.success ? response.response : null),
+            catchError((err) => {
+                // console.log(`Error fetching translation for ${package_name}\\${entity} in ${language}:`, err);
+                return of(null); // Return null if there's an error
+            })
+        );
+    }
+
     public getTranslationLanguages(package_name: string, entity: string, language: string): Observable<string[]> {
         const url = `?get=core_config_translation&entity=${package_name}\\${entity}&lang=${language}`;
         return this.callApi(url, '').pipe(
@@ -1200,7 +1245,6 @@ export class WorkbenchService {
         const url = `?${type_controller}=${name}&announce=true`;
         return this.callApi(url, '').pipe(
             map(({response}) => response),
-            tap((response) => console.log('announceController response:', response)),
         );
     }
 
