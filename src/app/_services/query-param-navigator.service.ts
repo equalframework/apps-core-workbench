@@ -96,7 +96,6 @@ export class QueryParamNavigatorService {
   registerFocusableField(fieldId: string, element: HTMLElement): void {
     this.focusableFields.set(fieldId, element);
     this.signalReady(fieldId);
-    console.log(`Registered focusable field: ${fieldId}`, element);
   }
 
   /**
@@ -272,7 +271,6 @@ export class QueryParamNavigatorService {
     hierarchy: string[],
     config: QueryParamNavigationConfig
   ): Promise<void> {
-    console.log('Activating hierarchy:', hierarchy);
     for (const levelId of hierarchy) {
       try {
         let element = await this.waitForElement(levelId);
@@ -305,7 +303,7 @@ export class QueryParamNavigatorService {
         
         await new Promise(resolve => setTimeout(resolve, config.delay));
       } catch (error) {
-        console.warn(`Failed to activate "${levelId}":`, error);
+        console.debug(`Failed to activate "${levelId}":`, error);
       }
     }
   }
@@ -335,13 +333,11 @@ export class QueryParamNavigatorService {
     queryParams: { [key: string]: any },
     config: QueryParamNavigationConfig
   ): Promise<void> {
-    console.log('Handling queryParams:', queryParams);
     // console.log('Handling queryParams:', queryParams);
     const plan = this.buildNavigationPlan(queryParams, config);
 
     for (const step of plan.steps) {
       try {
-        console.log(`Activating step: ${step.key}=${step.value} (phase: ${step.phase}, priority: ${step.priority})`);
         await step.activator.activate(step.key, step.value, config.context);
       } catch (error) {
         console.error(`Error activating "${step.key}=${step.value}":`, error);
@@ -471,7 +467,7 @@ export class QueryParamNavigatorService {
             element.click();
           }
         } catch (error) {
-          console.warn(`Field "${fieldValue}" not found:`, error);
+          console.debug(`Field "${fieldValue}" not found:`, error);
         }
       }
     } catch (error) {

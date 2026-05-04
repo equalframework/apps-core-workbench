@@ -97,7 +97,7 @@ function measureTextWidth(text: string, hostElement: HTMLElement): number {
     measurer.style.textTransform = computedStyle.textTransform;
     measurer.textContent = text;
 
-    return measurer.offsetWidth; // Subtract 1px to account for potential measurement inaccuracies
+    return measurer.offsetWidth;
 }
 
 function getMeasureSpan(): HTMLSpanElement | null {

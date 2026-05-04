@@ -1,3 +1,5 @@
+/** La documentation de cette directive a été générée par IA: Claude 4.5 Haiku (Antropic) */
+
 /**
  * Focusable Field Directive
  *
