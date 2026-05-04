@@ -5,7 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { RouterMemory } from 'src/app/_services/router-memory.service';
 import { QueryParamNavigatorService } from 'src/app/_services/query-param-navigator.service';
-import { QueryParamActivatorRegistry, QueryParamTabActivator } from 'src/app/_services/query-param-activator.registry';
+import { QueryParamActivatorRegistry, IQueryParamActivator } from 'src/app/_services/query-param-activator.registry';
 
 import { Translator } from '../../model/model-trad-editor/_object/Translation';
 import { Menu } from '../_models/Menu';
@@ -91,9 +91,11 @@ export class MenuTradEditorComponent implements OnInit {
 
 
     private initializeNavigation(): void {
-        const langActivator = {
+        const langActivator: IQueryParamActivator = {
             type: 'lang',
             queryParamKeys: ['lang'],
+            phase: 'pre',
+            priority: 10,
             canHandle: (key: string, value: any) => {
                 if (key !== 'lang') { return false; }
                 return this.allLanguages.includes(value) && this.localSchema[value] !== undefined;
@@ -108,9 +110,11 @@ export class MenuTradEditorComponent implements OnInit {
         this.activatorRegistry.register(langActivator);
 
         const allTabs = this.TAB_NAMES;
-        const tabActivator = {
+        const tabActivator: IQueryParamActivator = {
             type: 'tab',
             queryParamKeys: ['tab'],
+            phase: 'scope',
+            priority: 20,
             canHandle: (key: string, value: any) => {
                 return key === 'tab' && allTabs.includes(value);
             },
@@ -123,9 +127,11 @@ export class MenuTradEditorComponent implements OnInit {
         };
         this.activatorRegistry.register(tabActivator);
 
-        const fieldActivator = {
+        const fieldActivator: IQueryParamActivator = {
             type: 'field',
             queryParamKeys: ['field'],
+            phase: 'state',
+            priority: 30,
             canHandle: (key: string, value: any) => {
                 return key === 'field';
             },
