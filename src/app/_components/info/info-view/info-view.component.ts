@@ -5,6 +5,7 @@ import { takeUntil } from 'rxjs/operators';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { JsonValidationService, ValidationStatusInfo } from 'src/app/in/_services/json-validation.service';
+import { InstallationPathService } from 'src/app/in/_services/installation-path.service';
 
 @Component({
     selector: 'info-view',
@@ -33,8 +34,9 @@ export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
     constructor(
         private router: RouterMemory,
       private workbenchService: WorkbenchService,
-      private jsonValidationService: JsonValidationService) {
-    }
+      private jsonValidationService: JsonValidationService,
+      private installationPathService: InstallationPathService
+    ) {}
     ngOnDestroy(): void {
         this.destroy$.next(true);
         this.destroy$.complete();
@@ -67,7 +69,7 @@ export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
           const model_name = this.view.item.model;
           this.view_name = this.view.name.split(":")[1];
           this.metaData =[
-            { icon: 'description', tooltip: 'File path', value: this.view.file , copyable: true },
+            { icon: 'description', tooltip: 'File path', value: this.installationPathService.normalizeInstallationPath(this.getPath()).slice(0, -1) || '', copyable: true },
             { icon: 'key', tooltip: 'ID', value: this.view_name, copyable:true },
             {icon: 'category',tooltip: 'entity/model', value:`${this.view.package_name}\\${this.view.item.model}`, copyable:true, double_backslash:true}
             ]
@@ -117,6 +119,12 @@ export class InfoViewComponent implements OnInit, OnChanges, OnDestroy {
       ).pipe(takeUntil(this.destroy$)).subscribe((result) => {
         this.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', result);
       });
+    }
+    
+    private getPath(): string {
+        let file = this.view.name.replace(':', '.');
+        const currentPath = this.installationPathService.getCurrentInstallationPath() + 'packages/' + this.view.package_name + '/views/' + file + '.json';
+        return currentPath;
     }
 
 }
