@@ -11,12 +11,13 @@ import { catchError, finalize, shareReplay, takeUntil, tap } from 'rxjs/operator
 import { PackageSummary } from 'src/app/in/_models/package-info.model';
 import {RouterMemory} from 'src/app/_services/router-memory.service';
 import { JsonValidationService, ValidationStatusInfo } from 'src/app/in/_services/json-validation.service';
+import { InstallationPathService } from 'src/app/in/_services/installation-path.service';
 
 class ConsistencyResultItem {
     constructor(
         public type: number, // 1 = warning, 2 = error
         public mode: string, // DBM, ORM, I18, GUI
-        public text: string
+        public text: string,
     ) {}
 }
 
@@ -69,6 +70,15 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
     public headerExtraInfo: { label: string, value: string, icon?: string }[] = [];
     public validationStatus: ValidationStatusInfo[] = [];
 
+    public metaData: {
+        icon: string;
+        tooltip: string;
+        value: string;
+        copyable?: boolean;
+        double_backslash?:boolean
+      }[];
+
+
     public get headerStatus(): { icon?: string, tooltip?: string, label: string, value: string }[] {
         const consistencyLabel = this.consistency_loading ? 'Checking...' : (this.consistency_checked ? `${this.error_count} errors, ${this.warn_count} warnings` : 'Not checked');
         const initializedLabel = Array.isArray(this.package_init_list) && this.package_init_list.includes(this.package.name) ? 'Yes' : 'No';
@@ -84,7 +94,8 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
             private workbenchService: WorkbenchService,
             private matDialog: MatDialog,
             private router: RouterMemory,
-            private jsonValidationService: JsonValidationService
+            private jsonValidationService: JsonValidationService,
+            private installationPathService: InstallationPathService
         ) { }
 
     ngOnDestroy(): void {
@@ -142,6 +153,9 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
                 this.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', null, false, 'Unable to load package');
             }
         });
+        this.metaData =[
+            { icon: 'folder', tooltip: 'File Path', value: this.installationPathService.normalizeInstallationPath(this.getPath()).slice(0, -1) || '', copyable:true },
+            ];
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -388,5 +402,9 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
             }
         });
 
+    }
+
+    private getPath(): string {
+        return this.installationPathService.getCurrentInstallationPath() + 'packages/' + this.package.name;
     }
 }
