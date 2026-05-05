@@ -11,6 +11,7 @@ import { RouterMemory } from 'src/app/_services/router-memory.service';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { JsonValidationService, ValidationStatusInfo } from 'src/app/in/_services/json-validation.service';
 import { EqualComponentsProviderService } from 'src/app/in/_services/equal-components-provider.service';
+import { InstallationPathService } from 'src/app/in/_services/installation-path.service';
 
 @Component({
     selector: 'info-controller',
@@ -121,7 +122,8 @@ export class InfoControllerComponent implements OnInit, OnChanges {
             private clipboard: Clipboard,
             private typeUsage: TypeUsageService,
             private env: EnvService,
-            private provider: EqualComponentsProviderService
+            private provider: EqualComponentsProviderService,
+            private installationPathService: InstallationPathService
         ) { }
 
     private isObject(value: any): value is object {
@@ -165,8 +167,8 @@ export class InfoControllerComponent implements OnInit, OnChanges {
             ]);
             this.controllerProperties = properties ?? this.controller ?? null;
             this.metaData =[
-                { icon: 'key', tooltip: 'ID', value: this.controller_name, copyable:true },
-                ]
+                { icon: 'folder', tooltip: 'File Path', value: this.installationPathService.normalizeInstallationPath(this.getPath()).slice(0, -1) || '', copyable:true },
+                ];
             this.announcement = response?.announcement ?? null;
             
             this.schema = this.announcement ?? {};
@@ -184,6 +186,13 @@ export class InfoControllerComponent implements OnInit, OnChanges {
         }
         // #memo - all controllers are expected to be open source, so there is no point in rejecting announce for private controllers
         this.loading = false;
+    }
+
+    private getPath(): string {
+        let subDir = this.controller_name.split('_');
+        let controllerTypeDir = this.controller_type === 'do' ? 'actions' : this.controller_type === 'get' ? 'data' : '';
+        const currentPath = this.installationPathService.getCurrentInstallationPath() + 'packages/' + this.controller_package + '/' + controllerTypeDir + '/' + subDir.slice(0, subDir.length - 1).join('/') + '/' + subDir[subDir.length - 1] + '.php';
+        return currentPath;
     }
 
     private validateSchema(): void {
