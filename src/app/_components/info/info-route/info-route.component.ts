@@ -8,6 +8,7 @@ import { EqualComponentsProviderService } from 'src/app/in/_services/equal-compo
 import { JsonValidationService, ValidationStatusInfo } from 'src/app/in/_services/json-validation.service';
 import { Route } from 'src/app/in/package/routes/Route';
 import { ChangeDetectorRef } from '@angular/core';
+import { InstallationPathService } from 'src/app/in/_services/installation-path.service';
 
 @Component({
     selector: 'info-route',
@@ -45,7 +46,8 @@ export class InfoRouteComponent implements OnInit, OnChanges, OnDestroy {
             public workbenchService: WorkbenchService,
             public provider: EqualComponentsProviderService,
             private jsonValidationService: JsonValidationService,
-            private changeDetectorRef: ChangeDetectorRef
+            private changeDetectorRef: ChangeDetectorRef,
+            private installationPathService: InstallationPathService
         ) { }
 
     public async ngOnInit() {
@@ -87,7 +89,8 @@ export class InfoRouteComponent implements OnInit, OnChanges, OnDestroy {
                                                 if (data) {
                                                         this.route = new Route(data);
                                                         this.isRouteLive();
-                                                        this.route.routeMeta = [{ icon: 'folder', tooltip: 'Declared in', value: this.route.file || '', copyable: true }];
+
+                                                        this.route.routeMeta = [{ icon: 'folder', tooltip: 'Declared in', value: this.installationPathService.normalizeInstallationPath(this.getPath()).slice(0, -1) || '', copyable: true }];
                                                         this.route.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', null, true);
                                                         this.validateSchema();
 
@@ -160,5 +163,10 @@ export class InfoRouteComponent implements OnInit, OnChanges, OnDestroy {
     public ngOnDestroy() {
         this.destroy$.next();
         this.destroy$.complete();
+    }
+
+    public getPath(): string {
+        let routePath =  this.installationPathService.normalizeInstallationPath(this.installationPathService.getCurrentInstallationPath() + '/packages/' + this.route.file);
+        return routePath;
     }
 }
