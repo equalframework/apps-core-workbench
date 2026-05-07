@@ -3,6 +3,7 @@ import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-des
 import {Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { EqualComponentsProviderService } from './_services/equal-components-provider.service';
+import { InstallationPathService } from './_services/installation-path.service';
 
 @Component({
     selector: 'app-component',
@@ -11,6 +12,10 @@ import { EqualComponentsProviderService } from './_services/equal-components-pro
     encapsulation : ViewEncapsulation.Emulated,
 })
 export class AppComponent implements OnInit {
+    readonly customButtonList: { name: string; icon: string; disabled: false }[] = [
+        { name: 'Change installation path', icon: 'folder_open', disabled: false }
+    ];
+
     public childLoaded = false;
     public selectedComponent: EqualComponentDescriptor | undefined;
     public classesForSelectedPackage: string[] = [];
@@ -31,6 +36,7 @@ export class AppComponent implements OnInit {
     constructor(
             private router: Router,
             private provider: EqualComponentsProviderService,
+            private installationPathService: InstallationPathService,
         ) {
         }
 
@@ -50,6 +56,30 @@ export class AppComponent implements OnInit {
         setTimeout(() => {
             this.searchTerms = terms;
         }, 0);
+    }
+
+    onHeaderCustomButton(name: string): void {
+        if (name !== 'Change installation path') {
+            return;
+        }
+
+        if (typeof window === 'undefined') {
+            return;
+        }
+
+        const currentPath = this.installationPathService.getCurrentInstallationPath();
+        const userInput = window.prompt('Enter installation path (example: c:\\DEV\\wamp64\\www\\equal\\):', currentPath);
+
+        if (userInput === null) {
+            return;
+        }
+
+        const normalizedPath = this.installationPathService.setInstallationPath(userInput);
+        if (!normalizedPath || normalizedPath === currentPath) {
+            return;
+        }
+
+        this.installationPathService.changeInstallationPath(normalizedPath);
     }
 
     public async ngOnInit(): Promise<void> {
@@ -287,4 +317,5 @@ export class AppComponent implements OnInit {
         }
         return '';
     }
+
 }
