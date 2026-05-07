@@ -29,13 +29,40 @@ describe('WorkbenchService', () => {
   });
 
   beforeEach(() => {
-    apiSpy = jasmine.createSpyObj('ApiService', ['fetch', 'post', 'get', 'collect', 'errorFeedback']);
+    apiSpy = jasmine.createSpyObj('ApiService', ['call', 'fetch', 'post', 'get', 'collect', 'errorFeedback']);
     apiSpy.fetch.and.returnValue(Promise.resolve({}));
+    apiSpy.call.and.callFake((url: string, payload: any = {}) => apiSpy.fetch(url, payload));
     apiSpy.post.and.returnValue(Promise.resolve({}));
     apiSpy.get.and.returnValue(Promise.resolve({}));
     apiSpy.collect.and.returnValue(Promise.resolve([]));
 
     service = new WorkbenchService(apiSpy as any);
+  });
+
+  describe('callApi helper', () => {
+    it('forwards payload and uses successMessage from options', async () => {
+      apiSpy.call.and.returnValue(Promise.resolve({ saved: true }));
+
+      const result: any = await resolveOne(
+        (service as any).callApi('/endpoint', { payload: { id: 1 } }, { successMessage: 'Saved' })
+      );
+
+      expect(apiSpy.call).toHaveBeenCalledWith('/endpoint', { payload: { id: 1 } });
+      expect(result.success).toBeTrue();
+      expect(result.message).toBe('Saved');
+      expect(result.response).toEqual({ saved: true });
+    });
+
+    it('uses custom errorMessage from options when request fails', async () => {
+      apiSpy.call.and.returnValue(Promise.reject({ message: 'Backend error' }));
+
+      const result: any = await resolveOne(
+        (service as any).callApi('/endpoint', {}, { errorMessage: 'Save failed' })
+      );
+
+      expect(result.success).toBeFalse();
+      expect(result.message).toBe('Save failed');
+    });
   });
 
   // ==================== CREATE/DELETE NODE ROUTING ====================
@@ -44,7 +71,7 @@ describe('WorkbenchService', () => {
       const node = createTestNode({ type: 'package' });
       const result = await resolveOne(service.createNode(node));
       expect(result.success).toBeTrue();
-      expect(apiSpy.fetch).toHaveBeenCalled();
+      expect(apiSpy.call).toHaveBeenCalled();
     });
 
     it('routes to createClass for class type', async () => {
@@ -510,19 +537,20 @@ describe('WorkbenchService', () => {
       expect(result.response).toEqual(['pkg1', 'pkg2']);
     });
 
-    it('InitPackage builds URL with all parameter combinations', async () => {
+    it('InitPackage moves flags into the payload', async () => {
       apiSpy.fetch.and.returnValue(Promise.resolve({ success: true, response: {} }));
       
       await resolveOne(service.InitPackage('pkg', true, true, false));
-      let url = apiSpy.fetch.calls.mostRecent().args[0];
-      expect(url).toContain('&import=true');
-      expect(url).toContain('&cascade=true');
-      expect(url).toContain('&import_cascade=false');
+      let payload = apiSpy.fetch.calls.mostRecent().args[1];
+      expect(payload.import).toBe('true');
+      expect(payload.cascade).toBe('true');
+      expect(payload.import_cascade).toBe('false');
 
       await resolveOne(service.InitPackage('pkg', false, false, true));
-      url = apiSpy.fetch.calls.mostRecent().args[0];
-      expect(url).toContain('&cascade=false');
-      expect(url).toContain('&import_cascade=true');
+      payload = apiSpy.fetch.calls.mostRecent().args[1];
+      expect(payload.import).toBeUndefined();
+      expect(payload.cascade).toBe('false');
+      expect(payload.import_cascade).toBe('true');
     });
 
     it('checkPackageConsistency returns empty array for empty package name', async () => {
@@ -865,11 +893,12 @@ describe('WorkbenchService', () => {
       expect((result as any).success).toBeTrue();
     });
 
-    it('submitController serializes array parameters to JSON', async () => {
+    it('submitController passes parameters in the payload', async () => {
       apiSpy.fetch.and.returnValue(Promise.resolve({ success: true }));
       await resolveOne(service.submitController('do', 'pkg_action', ['a', 'b'] as any));
-      const url = apiSpy.fetch.calls.mostRecent().args[0];
-      expect(url).toBeDefined();
+      const payload = apiSpy.fetch.calls.mostRecent().args[1];
+      expect(payload[0]).toBe('a');
+      expect(payload[1]).toBe('b');
     });
 
     it('announceController returns null when type missing', async () => {
