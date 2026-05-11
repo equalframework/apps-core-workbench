@@ -54,6 +54,7 @@ mat-card.translation-card {
   display: flex;
   flex-direction: column;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  padding-top: 0;
 
   mat-card-content {
     flex: 1;

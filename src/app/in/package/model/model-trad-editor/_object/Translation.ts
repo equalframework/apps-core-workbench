@@ -232,9 +232,7 @@ export class Translator {
                 res.error[key] = {};
                 for (const id in this.error._base[key].val) {
                     if (!this.error._base[key].val[id].isActive) { continue; }
-                    res.error[key][id] = {
-                        _val: this.error._base[key].val[id]._val.value
-                    };
+                    res.error[key][id] = this.error._base[key].val[id]._val.value;
                 }
                 if (Object.keys(res.error[key]).length === 0) {
                     delete res.error[key];

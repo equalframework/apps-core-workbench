@@ -346,6 +346,24 @@ describe('WorkbenchService', () => {
       expect(result.success).toBeTrue();
     });
 
+    it('replaceClass deletes the old class, recreates it, then reapplies the schema', async () => {
+      apiSpy.fetch.and.returnValue(Promise.resolve({ success: true }));
+      const schema = { field1: { type: 'string' } };
+
+      const result = await resolveOne(
+        service.replaceClass('pkg', 'OldModel', 'NewModel', 'equal\\orm\\Model', schema)
+      );
+
+      expect(result.success).toBeTrue();
+      expect(apiSpy.fetch.calls.count()).toBe(3);
+      expect(apiSpy.fetch.calls.argsFor(0)[0]).toContain('core_config_delete-model');
+      expect(apiSpy.fetch.calls.argsFor(0)[0]).toContain('model=OldModel');
+      expect(apiSpy.fetch.calls.argsFor(1)[0]).toContain('core_config_create-model');
+      expect(apiSpy.fetch.calls.argsFor(1)[0]).toContain('model=NewModel');
+      expect(apiSpy.fetch.calls.argsFor(2)[0]).toContain('config_update-model');
+      expect(apiSpy.fetch.calls.argsFor(2)[0]).toContain('entity=pkg\\NewModel');
+    });
+
     it('updateController sends controller payload', async () => {
       apiSpy.fetch.and.returnValue(Promise.resolve({ success: true }));
       const result = await resolveOne(

@@ -99,6 +99,34 @@ describe('QueryParamNavigatorService', () => {
   describe('handleQueryParams', () => {
     it('should navigate to the correct route with query params', async () => {
       const queryParams = { tab: 'details', field: '123' };
+      const activator = jasmine.createSpyObj('Activator', ['canHandle', 'activate'], {
+        type: 'tab',
+        queryParamKeys: ['tab']
+      });
+      activator.canHandle.and.returnValue(true);
+      activator.activate.and.returnValue(Promise.resolve());
+
+      const fieldActivator = jasmine.createSpyObj('FieldActivator', ['canHandle', 'activate'], {
+        type: 'field',
+        queryParamKeys: ['field']
+      });
+      fieldActivator.canHandle.and.returnValue(true);
+      fieldActivator.activate.and.returnValue(Promise.resolve());
+
+      mockActivatorRegistry.findActivator.and.callFake((key: string) => {
+        if (key === 'tab') {
+          return activator;
+        }
+
+        if (key === 'field') {
+          return fieldActivator;
+        }
+
+        return undefined;
+      });
+
+      spyOn<any>(service, 'navigateToField').and.resolveTo();
+
       const config = {
         activators: mockActivatorRegistry,
         context: {},
@@ -106,7 +134,40 @@ describe('QueryParamNavigatorService', () => {
       };
 
       await service.handleQueryParams(queryParams, config);
-      expect(mockActivatorRegistry.findActivatorByKey).toHaveBeenCalled();
+      expect(mockActivatorRegistry.findActivator).toHaveBeenCalledWith('tab', 'details');
+      expect(mockActivatorRegistry.findActivator).toHaveBeenCalledWith('field', '123');
+      expect(activator.activate).toHaveBeenCalledBefore(fieldActivator.activate);
+      expect(service['navigateToField']).toHaveBeenCalledWith('details-123', config);
+    });
+
+    it('should skip final field navigation when the field activator consumes the param', async () => {
+      const queryParams = { field: 'menu-item' };
+      const fieldActivator = jasmine.createSpyObj('FieldActivator', ['canHandle', 'activate'], {
+        type: 'field',
+        queryParamKeys: ['field'],
+        consumesFieldParam: true
+      });
+      fieldActivator.canHandle.and.returnValue(true);
+      fieldActivator.activate.and.returnValue(Promise.resolve());
+
+      mockActivatorRegistry.findActivator.and.callFake((key: string) => {
+        if (key === 'field') {
+          return fieldActivator;
+        }
+
+        return undefined;
+      });
+
+      spyOn<any>(service, 'navigateToField').and.resolveTo();
+
+      await service.handleQueryParams(queryParams, {
+        activators: mockActivatorRegistry,
+        context: {},
+        delay: 0
+      });
+
+      expect(fieldActivator.activate).toHaveBeenCalledWith('field', 'menu-item', {});
+      expect(service['navigateToField']).not.toHaveBeenCalled();
     });
     
     it('should resolve when the element is registered after some delay', fakeAsync(() => {

@@ -1,3 +1,5 @@
+/** La documentation de cette directive a été générée par IA: Claude 4.5 Haiku (Antropic) */
+
 /**
  * Focusable Field Directive
  *
@@ -30,8 +32,9 @@ import { QueryParamNavigatorService } from '../_services/query-param-navigator.s
 })
 export class FocusableFieldDirective implements OnInit, OnDestroy {
   /**
-   * Unique ID for the focusable field or button, used in query parameters (e.g. ?field=item1-value)
-   * Should be lowercase with dashes (kebab-case) and unique within the page
+   * Unique ID(s) for the focusable field or button, used in query parameters (e.g. ?field=item1-value)
+   * Can be a single string or an array of strings to register multiple field IDs to the same element.
+   * Should be lowercase with dashes (kebab-case) and unique within the page.
    * Can be hierarchical to support nested fields: parent-child-grandchild-field
    *
    * @example
@@ -40,9 +43,10 @@ export class FocusableFieldDirective implements OnInit, OnDestroy {
    *   appFocusableField="item1-details-name"
    *   appFocusableField="description-textarea"
    *   appFocusableField="button-delete"
+   *   appFocusableField="['primary-id', 'alias-id']"
    */
   @Input('appFocusableField')
-  fieldId: string;
+  fieldId: string | string[];
 
   constructor(
     private elementRef: ElementRef,
@@ -50,19 +54,26 @@ export class FocusableFieldDirective implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    if (!this.fieldId) {
+    if (!this.fieldId || (Array.isArray(this.fieldId) && this.fieldId.length === 0)) {
       console.warn('appFocusableField: ID not provided', this.elementRef.nativeElement);
       return;
     }
 
-    // Register the element with the navigation service
-    this.queryParamNavigator.registerFocusableField(
-      this.fieldId,
-      this.elementRef.nativeElement
-    );
+    const fieldIds = Array.isArray(this.fieldId) ? this.fieldId : [this.fieldId];
+    
+    // Register the element with the navigation service for each field ID
+    fieldIds.forEach(id => {
+      this.queryParamNavigator.registerFocusableField(
+        id,
+        this.elementRef.nativeElement
+      );
+    });
   }
 
   ngOnDestroy(): void {
-    this.queryParamNavigator.unregisterFocusableField(this.fieldId);
+    const fieldIds = Array.isArray(this.fieldId) ? this.fieldId : [this.fieldId];
+    fieldIds.forEach(id => {
+      this.queryParamNavigator.unregisterFocusableField(id);
+    });
   }
 }

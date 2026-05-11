@@ -451,11 +451,11 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
         this.dialog.open(MixedCreatorDialogComponent, {
             data: {
                 node_type: this.search_scope,
-                lock_type: (this.node_type != ''),
+                //lock_type: (this.node_type != ''),
                 package: prefill.package,
-                lock_package: (this.package_name != ''),
+                //lock_package: (this.package_name != ''),
                 model: prefill.model,
-                lock_model: (this.model_name != '')
+                //lock_model: (this.model_name != '')
             },
             width: "40em",
             height: "26em"
@@ -716,9 +716,12 @@ export class SearchMixedListComponent implements OnInit, OnDestroy {
 
     private getDialogPrefillData() {
         const params = this.route.snapshot.queryParams;
+        console.log('Prefill data from URL params:', params, 'with package_name:', this.package_name, 'and model_name:', this.model_name);
+        console.log('this.node_type:', this.node_type);
         return {
-            package: params['filter_package_name'] || this.package_name,
-            model: params['filter_model_name'] || this.model_name,
+            package: params['filter_package_name'] || params['filter_package'] || this.package_name,
+            model: params['filter_model'] || this.model_name,
+
             // Add more fields as needed
         };
     }

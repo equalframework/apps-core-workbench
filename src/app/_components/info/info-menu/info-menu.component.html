@@ -7,7 +7,7 @@
             [title]="menu.name"
             [copyText]="menu.package_name + '\\' + menu.name"
             [description]="menu.description"
-            [metaData]="[]"
+            [metaData]="[metaData[0]]"
             [statusInfo]="validationStatus"
             (editClick)="onclickEdit()"
             (translationClick)="onclickTranslations()">

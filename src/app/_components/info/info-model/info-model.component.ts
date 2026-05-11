@@ -5,6 +5,7 @@ import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { InfoSubHeaderButton } from '../info-sub-header/info-sub-header.component';
 import { MatSort, Sort } from '@angular/material/sort';
 import { JsonValidationService, ValidationStatusInfo } from 'src/app/in/_services/json-validation.service';
+import { InstallationPathService } from 'src/app/in/_services/installation-path.service';
 
 @Component({
     selector: 'info-model',
@@ -61,6 +62,7 @@ export class InfoModelComponent implements OnInit, OnChanges {
             private workbenchService: WorkbenchService,
             private router: RouterMemory,
             private jsonValidationService: JsonValidationService,
+            private installationPathService: InstallationPathService,
         ) { }
 
     public ngOnInit() {
@@ -130,7 +132,7 @@ export class InfoModelComponent implements OnInit, OnChanges {
             this.validateSchema();
             this.loading = false;
             this.metaData =[
-                { icon: 'description', tooltip: 'File path', value: '../classes/' + this.model.name + '.php' , copyable: true },
+                { icon: 'description', tooltip: 'File path', value: this.installationPathService.normalizeInstallationPath(this.getPath()).slice(0, -1) || '', copyable: true },
                 { icon: 'fork_right', tooltip: 'Extends', value: this.schema['parent'] },
                 { icon: 'grid_on', tooltip: 'DB_table', value: this.schema['table'], copyable: true },
             ]
@@ -230,5 +232,9 @@ export class InfoModelComponent implements OnInit, OnChanges {
     public getref(name: string) {
         let x = name.split('\\');
         this.getRef.emit({package:x[0],name:x.slice(1).join('\\'),type:'class'});
+    }
+
+    public getPath(): string {
+        return this.installationPathService.getCurrentInstallationPath() + 'packages/' + this.model.package_name + '/classes/' + this.model.name + '.class.php';
     }
 }

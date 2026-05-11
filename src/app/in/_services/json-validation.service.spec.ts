@@ -14,7 +14,7 @@ describe('JsonValidationService', () => {
   let notificationServiceSpy: jasmine.SpyObj<NotificationService>;
 
   beforeEach(() => {
-        apiServiceSpy = jasmine.createSpyObj<ApiService>('ApiService', ['fetch', 'post']);
+        apiServiceSpy = jasmine.createSpyObj<ApiService>('ApiService', ['fetch', 'post', 'call']);
         notificationServiceSpy = jasmine.createSpyObj<NotificationService>('NotificationService', ['showError', 'showSuccess']);
         TestBed.configureTestingModule({
             imports: [HttpClientTestingModule, TranslateModule.forRoot()],
@@ -38,7 +38,7 @@ describe('JsonValidationService', () => {
             const json = { name: 'Test' };
             const schemaId = 'testSchema';
 
-            apiServiceSpy.fetch.and.returnValue(Promise.resolve({
+            apiServiceSpy.call.and.returnValue(Promise.resolve({
                 valid: true,
                 errors: []
             }));
@@ -55,7 +55,7 @@ describe('JsonValidationService', () => {
             const json = { name: 123 };
             const schemaId = 'testSchema';
             
-            apiServiceSpy.fetch.and.returnValue(Promise.resolve({
+            apiServiceSpy.call.and.returnValue(Promise.resolve({
                 valid: false,
                 errors: [{ message: 'should be string', instancePath: '/name' }]
             }));
@@ -71,7 +71,7 @@ describe('JsonValidationService', () => {
         it('should handle API errors gracefully', (done) => {
             const json = { name: 'Test' };
             const schemaId = 'testSchema';
-            apiServiceSpy.fetch.and.returnValue(Promise.reject(new Error('Network error')));
+            apiServiceSpy.call.and.returnValue(Promise.reject(new Error('Network error')));
 
             service.validate(json, schemaId).subscribe(result => {
                 expect(result.valid).toBeFalse();
@@ -86,16 +86,16 @@ describe('JsonValidationService', () => {
             const schemaId = 'view';
             const packageName = 'test-package';
 
-            apiServiceSpy.fetch.and.returnValue(Promise.resolve({ valid: true, errors: [] }));
+            apiServiceSpy.call.and.returnValue(Promise.resolve({ valid: true, errors: [] }));
 
             service.validate(json, schemaId, packageName, true).subscribe(() => {
-                expect(apiServiceSpy.fetch).toHaveBeenCalled();
+                expect(apiServiceSpy.call).toHaveBeenCalled();
                 done();
             });
         });
 
         it('should handle response with result field instead of valid field', (done) => {
-            apiServiceSpy.fetch.and.returnValue(Promise.resolve({
+            apiServiceSpy.call.and.returnValue(Promise.resolve({
                 result: true,
                 errors: []
             }));
@@ -107,7 +107,7 @@ describe('JsonValidationService', () => {
         });
 
         it('should treat missing valid/result field as false', (done) => {
-            apiServiceSpy.fetch.and.returnValue(Promise.resolve({
+            apiServiceSpy.call.and.returnValue(Promise.resolve({
                 errors: []
             }));
 
@@ -265,7 +265,7 @@ describe('JsonValidationService', () => {
             const viewData = { fields: ['name', 'email'] };
             const schemaId = 'testSchema';
 
-            apiServiceSpy.fetch.and.returnValue(Promise.resolve({
+            apiServiceSpy.call.and.returnValue(Promise.resolve({
                 valid: true,
                 errors: []
             }));
@@ -277,16 +277,16 @@ describe('JsonValidationService', () => {
         });
 
         it('should pass packageName to validate method', (done) => {
-            apiServiceSpy.fetch.and.returnValue(Promise.resolve({ valid: true, errors: [] }));
+            apiServiceSpy.call.and.returnValue(Promise.resolve({ valid: true, errors: [] }));
 
             service.validateView({ data: 'test' }, 'schema', 'test-pkg').subscribe(() => {
-                expect(apiServiceSpy.fetch).toHaveBeenCalled();
+                expect(apiServiceSpy.call).toHaveBeenCalled();
                 done();
             });
         });
 
         it('should handle validation errors in view data', (done) => {
-            apiServiceSpy.fetch.and.returnValue(Promise.resolve({
+            apiServiceSpy.call.and.returnValue(Promise.resolve({
                 valid: false,
                 errors: [{ message: 'Invalid view structure' }]
             }));
@@ -304,7 +304,7 @@ describe('JsonValidationService', () => {
             const data = { type: 'model' };
             const schemaType = 'model';
 
-            apiServiceSpy.fetch.and.returnValue(Promise.resolve({
+            apiServiceSpy.call.and.returnValue(Promise.resolve({
                 valid: true,
                 errors: []
             }));
@@ -316,7 +316,7 @@ describe('JsonValidationService', () => {
         });
 
         it('should handle different schema types', (done) => {
-            apiServiceSpy.fetch.and.returnValue(Promise.resolve({ valid: true, errors: [] }));
+            apiServiceSpy.call.and.returnValue(Promise.resolve({ valid: true, errors: [] }));
             
             const schemaTypes = ['view', 'field', 'action', 'policy'];
             let completed = 0;
@@ -329,14 +329,14 @@ describe('JsonValidationService', () => {
                     }
                 });
             });
-            expect(apiServiceSpy.fetch).toHaveBeenCalledTimes(schemaTypes.length);
+            expect(apiServiceSpy.call).toHaveBeenCalledTimes(schemaTypes.length);
         });
 
         it('should pass packageName parameter', (done) => {
-            apiServiceSpy.fetch.and.returnValue(Promise.resolve({ valid: true, errors: [] }));
+            apiServiceSpy.call.and.returnValue(Promise.resolve({ valid: true, errors: [] }));
 
             service.validateBySchemaType({ data: 'test' }, 'type', 'package-name').subscribe(() => {
-                expect(apiServiceSpy.fetch).toHaveBeenCalled();
+                expect(apiServiceSpy.call).toHaveBeenCalled();
                 done();
             });
         });
@@ -621,7 +621,7 @@ describe('JsonValidationService', () => {
                 largeErrorArray.push({ message: `Error ${i}`, field: `field${i}` });
             }
 
-            apiServiceSpy.fetch.and.returnValue(Promise.resolve({
+            apiServiceSpy.call.and.returnValue(Promise.resolve({
                 valid: false,
                 errors: largeErrorArray
             }));

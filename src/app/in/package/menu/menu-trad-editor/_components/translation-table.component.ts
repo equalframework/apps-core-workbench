@@ -17,10 +17,10 @@ export class TranslationTableComponent implements OnChanges {
   @Input() selectedField?: string;
   @Input() headers?: GridHeaderColumn[];
   @Input() totalCols = 16;
-  @Input() metadata?: (itemId: string) => any; // Optional callback to get item metadata
-  @Input() getDepthCallback?: (itemId: string) => number; // Optional callback to get item depth
-  @Input() hasChildrenCallback?: (itemId: string) => boolean; // Optional callback to check if item has children
-  @Input() getParentIdCallback?: (itemId: string) => string | null; // Optional callback to get parent ID
+  @Input() metadata?: (itemId: string) => any;
+  @Input() getDepthCallback?: (itemId: string) => number;
+  @Input() hasChildrenCallback?: (itemId: string) => boolean;
+  @Input() getParentIdCallback?: (itemId: string) => string | null;
   @Output() itemChange = new EventEmitter<{ key: string; changes: Record<string, any> }>();
 
   private allItems: Record<string, any> = {};
@@ -29,7 +29,6 @@ export class TranslationTableComponent implements OnChanges {
     if (changes.items) {
       // Items are expected to be already provided as a flat map by the caller.
       this.allItems = { ...(this.items || {}) };
-      // Ensure template reads the normalized map reference
       this.items = this.allItems;
     }
 
@@ -63,7 +62,6 @@ export class TranslationTableComponent implements OnChanges {
     if (this.getDepthCallback) {
       return this.getDepthCallback(key);
     }
-    // Fallback: infer from dot notation in key
     return (key.match(/\./g) || []).length;
   }
 
@@ -74,10 +72,7 @@ export class TranslationTableComponent implements OnChanges {
       return meta.label;
     }
 
-    // Try to get parent ID using callback
     if (this.getParentIdCallback) {
-      // If there's a parent, just show the item's own label from metadata
-      // Otherwise show the last segment
       const parentId = this.getParentIdCallback(key);
       if (parentId === null && meta && meta.label) {
         return meta.label;
@@ -86,7 +81,6 @@ export class TranslationTableComponent implements OnChanges {
         return meta.label;
       }
     }
-    // Fallback: extract from dot notation
     const parts = key.split('.');
     return parts[parts.length - 1];
   }
@@ -119,7 +113,6 @@ export class TranslationTableComponent implements OnChanges {
     if (this.getParentIdCallback) {
       return this.getParentIdCallback(key);
     }
-    // Fallback: infer from dot notation
     const parts = key.split('.');
     if (parts.length <= 1) { return null; }
     return parts.slice(0, -1).join('.');
@@ -130,7 +123,6 @@ export class TranslationTableComponent implements OnChanges {
     if (this.hasChildrenCallback) {
       return this.hasChildrenCallback(key);
     }
-    // Fallback: infer from dot notation in other keys
     return Object.keys(this.allItems || {}).some(k => k.startsWith(key + '.'));
   }
 

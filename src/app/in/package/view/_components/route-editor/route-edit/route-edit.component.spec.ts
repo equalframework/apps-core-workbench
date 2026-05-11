@@ -13,7 +13,8 @@ describe('RouteEditComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [SharedLibModule, BrowserAnimationsModule],
-      declarations: [ RouteEditComponent ]
+      declarations: [ RouteEditComponent ],
+      teardown: { destroyAfterEach: false }
     })
     .compileComponents();
   });

@@ -44,6 +44,7 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
     public isLoadingEntityData = false;
     public isRightPaneLoading = false;
     private backgroundPreloadStarted = false;
+    private pendingSubfieldFocus: string | null = null;
     public isSaving = false;
 
     private queryParamActivatorRegistry: QueryParamActivatorRegistry;
@@ -113,10 +114,10 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
             const dataEntities = dataControllers.map((item: string) => item.split(':')[0]);
             this.entities['model'] = modelEntities;
             this.entities['data'] = dataEntities;
-            console.log('Right pane data loaded');
 
             await this.handleQueryParamsOnce(0);
             this.isRightPaneLoading = false;
+            await this.focusPendingSubfieldIfReady();
         } catch (err) {
             this.isRightPaneLoading = false;
             console.error(`[MENU] Error in fetchMenuData`, err);
@@ -124,7 +125,6 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
     }
 
     private async handleQueryParamsOnce(delay: number): Promise<void> {
-        console.log('Handling query params with delay', delay);
         const queryParams = await this.route.queryParams.pipe(take(1), takeUntil(this.ngUnsubscribe)).toPromise();
         if (Object.keys(queryParams).length === 0 || !this.queryParamActivatorRegistry) {
             return;
@@ -141,24 +141,48 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
         this.queryParamActivatorRegistry = new QueryParamActivatorRegistry();
 
         // Register activators for menu navigation
-        const fieldActivator = {
+        const fieldActivator: IQueryParamActivator = {
             type: 'field',
             queryParamKeys: ['field'],
+            phase: 'pre',
+            priority: 10,
+            consumesFieldParam: true,
             canHandle: (key: string, value: any) => {
                 return key === 'field';
             },
             activate: async (key: string, value: any, context: any) => {
                 if (value && context.object && context.object.layout && context.object.layout.items) {
                     // Find the menu item with matching ID and select it
-                    const menuItem = this.findMenuItemById(value, context.object.layout.items);
+                    const fieldValue = String(value);
+                    const [itemId] = fieldValue.split('-');
+                    const menuItem = this.findMenuItemById(itemId, context.object.layout.items);
                     if (menuItem) {
                         context.selectedItem = menuItem;
-                        context.updateEntityDependentFields();
+                        await context.updateEntityDependentFields();
+                        console.log(`Activated field "${itemId}" by selecting menu item:`, menuItem);
+
+                        if (fieldValue.includes('-')) {
+                            context.pendingSubfieldFocus = fieldValue;
+                            await context.focusPendingSubfieldIfReady();
+                        }
                     }
                 }
             }
         };
         this.queryParamActivatorRegistry.register(fieldActivator);
+    }
+
+    private async focusPendingSubfieldIfReady(): Promise<void> {
+        if (!this.pendingSubfieldFocus || this.isRightPaneLoading) {
+            return;
+        }
+
+        const targetField = this.pendingSubfieldFocus;
+        this.pendingSubfieldFocus = null;
+
+        // Wait one tick so controls behind *ngIf are rendered and registered.
+        await new Promise(resolve => setTimeout(resolve, 0));
+        await this.queryParamNavigator.focusField(targetField, 0);
     }
 
     public ngOnDestroy(): void {
@@ -178,13 +202,38 @@ export class PackageMenuComponent implements OnInit, OnDestroy {
      * @returns The found MenuItem or undefined
      */
     private findMenuItemById(id: string, items: MenuItem[]): MenuItem | undefined {
-        return items.find(item => item.label === id);
+        let result = items.find(item => item.id === id);
+        if (result) {
+            return result;
+        } else {
+            // If not found at the current level, search recursively in children
+            for (const item of items) {
+                if (item.children && item.children.length > 0) {
+                    const foundInChildren = this.findMenuItemById(id, item.children);
+                    if (foundInChildren) {
+                        return foundInChildren;
+                    }
+                }
+            }
+        }
+        return items.find(item => item.id === id);
     }
 
     async updateEntityDependentFields(): Promise<void> {
         if (this.selectedItem && this.selectedItem.context && this.selectedItem.context.entity) {
-            this.viewList = ((await this.provider.getComponents(this.packageName, 'menu',this.selectedItem.context.entity).toPromise())
-            .map((value => value.split(':').slice(1).join(':'))));
+            const comps: any = await this.provider.getComponents(this.packageName, 'menu', this.selectedItem.context.entity).toPromise();
+            const arr = Array.isArray(comps) ? comps : [];
+            this.viewList = arr.map((value: any) => {
+                if (typeof value === 'string') {
+                    return value.split(':').slice(1).join(':');
+                }
+                if (value && typeof value === 'object') {
+                    // try common properties that might hold the component id
+                    const candidate = value.id ?? value.name ?? value.component ?? JSON.stringify(value);
+                    return String(candidate).split(':').slice(1).join(':');
+                }
+                return String(value);
+            });
             this.workbenchService.getSchema(this.selectedItem.context.entity.replaceAll('_', '\\'))
             .pipe(
                 map(schema => Object.keys(schema.fields))

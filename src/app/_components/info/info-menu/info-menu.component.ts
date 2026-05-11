@@ -5,6 +5,7 @@ import { RouterMemory } from 'src/app/_services/router-memory.service';
 import { EqualComponentDescriptor } from 'src/app/in/_models/equal-component-descriptor.class';
 import { WorkbenchService } from 'src/app/in/_services/workbench.service';
 import { JsonValidationService, ValidationStatusInfo } from 'src/app/in/_services/json-validation.service';
+import { InstallationPathService } from 'src/app/in/_services/installation-path.service';
 
 @Component({
   selector: 'info-menu',
@@ -20,11 +21,19 @@ export class InfoMenuComponent implements OnInit, OnChanges, OnDestroy {
     public menuSchema: any = null;
     public validationStatus: ValidationStatusInfo[] = [];
     private destroy$ = new Subject<void>();
+    public metaData: {
+        icon: string;
+        tooltip: string;
+        value: string;
+        copyable?: boolean;
+        double_backslash?:boolean
+      }[];
 
     constructor(
             private router: RouterMemory,
             private workbenchService: WorkbenchService,
-            private jsonValidationService: JsonValidationService
+            private jsonValidationService: JsonValidationService,
+            private installationPathService: InstallationPathService
         ) { }
 
     public ngOnInit(): void {
@@ -52,7 +61,9 @@ export class InfoMenuComponent implements OnInit, OnChanges, OnDestroy {
         this.selected_package = this.menu.package_name;
         this.loading = true;
         this.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', null, true);
-
+        this.metaData =[
+            { icon: 'folder', tooltip: 'File Path', value: this.installationPathService.normalizeInstallationPath(this.getPath()).slice(0, -1) || '', copyable:true },
+            ];
         this.workbenchService.readMenu(this.menu.package_name, this.menu.name)
             .pipe(takeUntil(this.destroy$))
             .subscribe({
@@ -91,5 +102,8 @@ export class InfoMenuComponent implements OnInit, OnChanges, OnDestroy {
         this.router.navigate(['/package/'+this.selected_package+'/menu/'+this.menu.name+'/edit']);
     }
 
+    private getPath(): string {
+        return this.installationPathService.getCurrentInstallationPath() + 'packages/' + this.selected_package + '/views/menu.' + this.menu.name + '.json';
+    }
 
 }

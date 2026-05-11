@@ -17,7 +17,7 @@
 
 import { Injectable } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { QueryParamActivatorRegistry } from './query-param-activator.registry';
+import { QueryParamActivatorRegistry, IQueryParamActivator, QueryParamNavigationPhase } from './query-param-activator.registry';
 
 export interface QueryParamNavigationConfig {
   /**
@@ -36,32 +36,48 @@ export interface QueryParamNavigationConfig {
   delay?: number;
 }
 
+interface QueryParamNavigationStep {
+  key: string;
+  value: any;
+  activator: IQueryParamActivator;
+  phase: QueryParamNavigationPhase;
+  priority: number;
+}
+
+interface QueryParamNavigationPlan {
+  steps: QueryParamNavigationStep[];
+  fieldTarget: string | null;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class QueryParamNavigatorService {
   private scrollTargets: Map<string, HTMLElement> = new Map();
   private focusableFields: Map<string, HTMLElement> = new Map();
+  private readyTargets: Set<string> = new Set();
+  private readyWaiters: Map<string, Array<() => void>> = new Map();
 
-  // Tuning parameters for waiting for elements to appear - can be adjusted based on app performance 
-  // -> This setup might have an impact on performance
-  private readonly RETRY_COUNT = 30;
-  private readonly RETRY_DELAY = 5;
+  private readonly ELEMENT_WAIT_TIMEOUT = 10;
+  private readonly VISIBILITY_CHECK_DELAY = 5;
+  private readonly PHASE_ORDER: Record<QueryParamNavigationPhase, number> = {
+    pre: 0,
+    scope: 1,
+    state: 2,
+    target: 3
+  };
 
   constructor(
     private router: Router,
     private route: ActivatedRoute
-  ) {
-    this.route.queryParams.subscribe(() => {
-      // Components will call handleQueryParams() when needed
-    });
-  }
+  ) {}
 
   /**
    * Registers a scroll target element by its ID, called by the appScrollTarget directive
    */
   registerScrollTarget(id: string, element: HTMLElement): void {
     this.scrollTargets.set(id, element);
+    this.signalReady(id);
   }
 
   /**
@@ -69,6 +85,7 @@ export class QueryParamNavigatorService {
    */
   unregisterScrollTarget(id: string): void {
     this.scrollTargets.delete(id);
+    this.readyTargets.delete(id);
   }
 
   /**
@@ -78,6 +95,7 @@ export class QueryParamNavigatorService {
    */
   registerFocusableField(fieldId: string, element: HTMLElement): void {
     this.focusableFields.set(fieldId, element);
+    this.signalReady(fieldId);
   }
 
   /**
@@ -85,6 +103,85 @@ export class QueryParamNavigatorService {
    */
   unregisterFocusableField(fieldId: string): void {
     this.focusableFields.delete(fieldId);
+    this.readyTargets.delete(fieldId);
+  }
+
+  private signalReady(id: string): void {
+    this.readyTargets.add(id);
+
+    const waiters = this.readyWaiters.get(id);
+    if (!waiters || waiters.length === 0) {
+      return;
+    }
+
+    for (const resolve of waiters) {
+      resolve();
+    }
+
+    this.readyWaiters.delete(id);
+  }
+
+  private async waitForRegistration(id: string, timeoutMs: number = this.ELEMENT_WAIT_TIMEOUT): Promise<void> {
+    if (this.readyTargets.has(id)) {
+      return;
+    }
+
+    await new Promise<void>(resolve => {
+      let settled = false;
+      let timeoutRef: ReturnType<typeof setTimeout> | null = null;
+      const waiters = this.readyWaiters.get(id) || [];
+      const wrappedResolve = () => {
+        if (settled) {
+          return;
+        }
+        settled = true;
+        if (timeoutRef) {
+          clearTimeout(timeoutRef);
+          timeoutRef = null;
+        }
+        resolve();
+      };
+
+      waiters.push(wrappedResolve);
+      this.readyWaiters.set(id, waiters);
+
+      timeoutRef = setTimeout(() => {
+        if (settled) {
+          return;
+        }
+
+        settled = true;
+        const currentWaiters = this.readyWaiters.get(id);
+        if (currentWaiters) {
+          const index = currentWaiters.indexOf(wrappedResolve);
+          if (index > -1) {
+            currentWaiters.splice(index, 1);
+          }
+
+          if (currentWaiters.length === 0) {
+            this.readyWaiters.delete(id);
+          }
+        }
+
+        timeoutRef = null;
+        resolve();
+      }, timeoutMs);
+    });
+  }
+
+  private async waitForVisibility(element: HTMLElement, timeoutMs: number = this.ELEMENT_WAIT_TIMEOUT): Promise<void> {
+    if (element.offsetParent !== null) {
+      return;
+    }
+
+    const start = Date.now();
+    while (element.offsetParent === null) {
+      if (Date.now() - start >= timeoutMs) {
+        throw new Error('Element is registered but not visible before timeout.');
+      }
+
+      await new Promise(resolve => setTimeout(resolve, this.VISIBILITY_CHECK_DELAY));
+    }
   }
 
   /**
@@ -112,26 +209,25 @@ export class QueryParamNavigatorService {
    * Waits for an element to be registered and visible
    * 
    * @param elementId The element ID to wait for
-   * @param retries Max retry attempts
-   * @param delay Delay between retries (ms)
+   * @param timeoutMs Max wait time (ms)
    * @returns Promise resolving to the element once visible
    */
   private async waitForElement(
     elementId: string,
-    retries: number = this.RETRY_COUNT,
-    delay: number = this.RETRY_DELAY
+    timeoutMs: number = this.ELEMENT_WAIT_TIMEOUT
   ): Promise<HTMLElement> {
-    for (let attempt = 0; attempt < retries; attempt++) {
-      const element = this.focusableFields.get(elementId) || this.scrollTargets.get(elementId);
-      if (element && element.offsetParent !== null) {
-        return element;
-      }
-      
-      if (attempt < retries - 1) {
-        await new Promise(resolve => setTimeout(resolve, delay));
-      }
+    let element = this.focusableFields.get(elementId) || this.scrollTargets.get(elementId);
+    if (!element) {
+      await this.waitForRegistration(elementId, timeoutMs);
+      element = this.focusableFields.get(elementId) || this.scrollTargets.get(elementId);
     }
-    throw new Error(`Element "${elementId}" not found after ${retries} attempts and with ${this.focusableFields}`);
+
+    if (!element) {
+      throw new Error(`Element "${elementId}" not registered before timeout.`);
+    }
+
+    await this.waitForVisibility(element, timeoutMs);
+    return element;
   }
 
   /**
@@ -207,9 +303,20 @@ export class QueryParamNavigatorService {
         
         await new Promise(resolve => setTimeout(resolve, config.delay));
       } catch (error) {
-        console.warn(`Failed to activate "${levelId}":`, error);
+        console.debug(`Failed to activate "${levelId}":`, error);
       }
     }
+  }
+
+  /**
+   * Public helper to focus a field by ID without running full query-param activation.
+   */
+  async focusField(fieldValue: string, delay: number = 0): Promise<void> {
+    await this.navigateToField(fieldValue, {
+      activators: new QueryParamActivatorRegistry(),
+      context: null,
+      delay
+    });
   }
 
   /**
@@ -226,26 +333,95 @@ export class QueryParamNavigatorService {
     queryParams: { [key: string]: any },
     config: QueryParamNavigationConfig
   ): Promise<void> {
-    let fullKey = '';
+    // console.log('Handling queryParams:', queryParams);
+    const plan = this.buildNavigationPlan(queryParams, config);
+
+    for (const step of plan.steps) {
+      try {
+        await step.activator.activate(step.key, step.value, config.context);
+      } catch (error) {
+        console.error(`Error activating "${step.key}=${step.value}":`, error);
+      }
+    }
+
+    if (plan.fieldTarget) {
+      await this.navigateToField(plan.fieldTarget, config);
+    }
+  }
+
+  private buildNavigationPlan(
+    queryParams: { [key: string]: any },
+    config: QueryParamNavigationConfig
+  ): QueryParamNavigationPlan {
+    const steps: QueryParamNavigationStep[] = [];
+    const hasFieldParam = Object.prototype.hasOwnProperty.call(queryParams, 'field');
+    const fieldTarget = hasFieldParam ? this.populateFieldParam(queryParams) : null;
+    let fieldConsumed = false;
+
     for (const [key, value] of Object.entries(queryParams)) {
       if (key === 'field') {
-        fullKey = this.populateFieldParam(queryParams);
+        const fieldActivator = config.activators.findActivator(key, value);
+        if (fieldActivator) {
+          steps.push(this.createNavigationStep(key, value, fieldActivator));
+          fieldConsumed = fieldConsumed || fieldActivator.consumesFieldParam === true;
+        }
         continue;
       }
 
-      const activator = config.activators.findActivatorByKey(key === 'field'? fullKey : key);
+      const activator = config.activators.findActivator(key, value);
       if (activator) {
-        try {
-          await activator.activate(fullKey, value, config.context);
-        } catch (error) {
-          console.error(`Error activating "${fullKey}=${value}":`, error);
-        }
+        steps.push(this.createNavigationStep(key, value, activator));
       }
     }
 
-    if (fullKey !== '' && queryParams['field']) {
-      await this.navigateToField(fullKey, config);
+    steps.sort((left, right) => {
+      const phaseDifference = this.PHASE_ORDER[left.phase] - this.PHASE_ORDER[right.phase];
+      if (phaseDifference !== 0) {
+        return phaseDifference;
+      }
+
+      const priorityDifference = left.priority - right.priority;
+      if (priorityDifference !== 0) {
+        return priorityDifference;
+      }
+
+      return 0;
+    });
+
+    return {
+      steps,
+      fieldTarget: fieldTarget && !fieldConsumed ? fieldTarget : null
+    };
+  }
+
+  private createNavigationStep(
+    key: string,
+    value: any,
+    activator: IQueryParamActivator
+  ): QueryParamNavigationStep {
+    return {
+      key,
+      value,
+      activator,
+      phase: this.resolveStepPhase(key, activator),
+      priority: activator.priority ?? 0
+    };
+  }
+
+  private resolveStepPhase(key: string, activator: IQueryParamActivator): QueryParamNavigationPhase {
+    if (activator.phase) {
+      return activator.phase;
     }
+
+    if (key === 'field') {
+      return activator.consumesFieldParam ? 'pre' : 'state';
+    }
+
+    if (key === 'tab' || key === 'view' || key === 'view_tab') {
+      return 'scope';
+    }
+
+    return 'scope';
   }
 
   private populateFieldParam(queryParams: { [key: string]: any }): string {
@@ -274,6 +450,7 @@ export class QueryParamNavigatorService {
     config: QueryParamNavigationConfig
   ): Promise<void> {
     try {
+      // console.log('Navigating to field:', fieldValue);
       const hierarchy = this.parseHierarchy(fieldValue);
       
       if (hierarchy.length > 1) {
@@ -290,7 +467,7 @@ export class QueryParamNavigatorService {
             element.click();
           }
         } catch (error) {
-          console.warn(`Field "${fieldValue}" not found:`, error);
+          console.debug(`Field "${fieldValue}" not found:`, error);
         }
       }
     } catch (error) {

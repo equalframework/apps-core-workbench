@@ -1,7 +1,9 @@
 
 <div class="app-inner-header">
     <app-inner-header
-            [customButton]="true">
+            [customButton]="true"
+            [customButtonList]="customButtonList"
+            (onCustomButton)="onHeaderCustomButton($event)">
         <div class="header-labels">
             <span *ngIf=" !hasAnyFilters() && !hasAnySearchTerms()">
                 All components
@@ -80,7 +82,7 @@
 
         <ng-container *ngIf="selectedComponent.type === 'route'">
             <info-route
-                    [route]="selectedComponent"
+                    [equalComponentDescriptor]="selectedComponent"
                     (redirect)="goTo({name:$event})">
             </info-route>
         </ng-container>

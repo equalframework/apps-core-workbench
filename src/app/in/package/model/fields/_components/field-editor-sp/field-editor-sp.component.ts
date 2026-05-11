@@ -31,8 +31,8 @@ export class FieldEditorSpComponent implements OnInit {
   oldFObj = '';
 
 
-  typeDirective: {[id: string]: any};
-  finalTypeDirective: {[id: string]: any};
+  typeDirective: {[id: string]: any} = {};
+  finalTypeDirective: {[id: string]: any} = {};
 
   constructor(
     private workbenchService: WorkbenchService

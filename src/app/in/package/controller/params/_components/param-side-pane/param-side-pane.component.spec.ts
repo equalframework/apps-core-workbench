@@ -321,4 +321,45 @@ describe('ParamSidePaneComponent', () => {
     expect(stopImmediatePropagation).not.toHaveBeenCalled();
   });
 
+  it('should change visibility type and emit CRUD', () => {
+    spyOn(component.CRUD, 'emit');
+    component.param = makeParam('visibility_param');
+    component.change_visibility_is_domain(true);
+    expect(component.param._visibility_is_domain).toBeTrue();
+    expect(component.CRUD.emit).toHaveBeenCalledWith('Changed visibility type of visibility_param');
+  });
+
+  it('should change visibility and emit CRUD', () => {
+    spyOn(component.CRUD, 'emit');
+    component.param = makeParam('visibility_param');
+    component.changeVisible_bool(true);
+    expect(component.param.visible_bool).toBeTrue();
+    expect(component.CRUD.emit).toHaveBeenCalledWith('Changed visibility of visibility_param to true');
+  });
+
+  it('should change default value and emit CRUD', () => {
+    spyOn(component.CRUD, 'emit');
+    component.param = makeParam('default_param');
+    component.changeDefault('default_value');
+    expect(component.param.default).toBe('default_value');
+    expect(component.CRUD.emit).toHaveBeenCalledWith('Changed default value of default_param');
+  });
+
+  it('should change has_domain and emit CRUD', () => {
+    spyOn(component.CRUD, 'emit');
+    component.param = makeParam('domain_param');
+    component.change_has_domain(true);
+    expect(component.param._has_domain).toBeTrue();
+    expect(component.CRUD.emit).toHaveBeenCalledWith('Toggled domain of domain_param');
+  });
+
+  it('should change has_selection and emit CRUD', () => {
+    spyOn(component.CRUD, 'emit');
+    component.param = makeParam('selection_param');
+    component.change_has_selection(true);
+    expect(component.param._has_selection).toBeTrue();
+    expect(component.CRUD.emit).toHaveBeenCalledWith('Toggled selection of selection_param');
+  });
+  
+
 });
