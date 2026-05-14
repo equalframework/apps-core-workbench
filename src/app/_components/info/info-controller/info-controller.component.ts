@@ -203,7 +203,7 @@ export class InfoControllerComponent implements OnInit, OnChanges {
         }
         this.jsonValidationService.validate(
             controllerDocument,
-            'urn:equal:json-schema:core:controller',
+            'urn:equal:json-schema:core:controller.action',
             this.controller_package
         ).subscribe((result) => {
             this.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', result);

@@ -140,11 +140,11 @@ export class JsonValidationService {
 
         const mapped: { [id: string]: string } = {
             model: 'urn:equal:json-schema:core:model',
-            controller: 'urn:equal:json-schema:core:controller',
+            controller: 'urn:equal:json-schema:core:controller.action',
             view: 'urn:equal:json-schema:core:view',
             menu: 'urn:equal:json-schema:core:menu',
-            'model-translations': 'urn:equal:json-schema:core:model-translations',
-            'menu-translations': 'urn:equal:json-schema:core:menu-translations',
+            'model-translations': 'urn:equal:json-schema:core:model.translations',
+            'menu-translations': 'urn:equal:json-schema:core:menu.translations',
         };
 
         return mapped[normalizedKey] || schemaId;

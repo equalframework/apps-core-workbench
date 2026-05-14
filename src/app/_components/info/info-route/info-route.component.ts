@@ -117,7 +117,7 @@ export class InfoRouteComponent implements OnInit, OnChanges, OnDestroy {
         private validateSchema(): void {
                 this.jsonValidationService.validate(
                         this.route.getSchema(),
-                        'urn:equal:json-schema:core:route',
+                        'urn:equal:json-schema:core:api.route',
                         this.route?.package_name
                 ).subscribe((result) => {
                         this.route.validationStatus = this.jsonValidationService.buildStatusInfo('JSON schema', result);

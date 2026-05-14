@@ -138,7 +138,7 @@ export class InfoPackageComponent implements OnInit, OnDestroy {
             next: (payload) => {
                 this.jsonValidationService.validate(
                     payload.response,
-                    'urn:equal:json-schema:core:package',
+                    'urn:equal:json-schema:core:package.manifest',
                     this.package.name
                 ).pipe(takeUntil(this.destroy$)).subscribe({
                     next: (result) => {

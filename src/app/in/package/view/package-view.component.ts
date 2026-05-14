@@ -217,7 +217,7 @@ export class PackageViewComponent implements OnInit {
         }
 
         const viewData = this.viewObj.export();
-        const schemaId = `urn:equal:json-schema:core:view.${this.viewId.split('.')[0]}.default`;
+        const schemaId = `urn:equal:json-schema:core:view.${this.viewId.split('.')[0]}`;
 
         this.jsonValidationService.validateAndSave(
             this.jsonValidationService.validateView(viewData, schemaId),
